@@ -1,4 +1,4 @@
-import { familyPattern, patternIds } from './evaluate.ts';
+import { familyPattern, isRulesId, patternIds } from './evaluate.ts';
 import {
   AGGREGATE_ROOT,
   aggregateArgs,
@@ -7,6 +7,7 @@ import {
   readsCharacter,
   reduceOf,
   staticFilterProblem,
+  unboundAggregate,
 } from './aggregates.ts';
 import type { Node } from './ast.ts';
 import { fail } from './errors.ts';
@@ -44,10 +45,14 @@ export interface CheckContext {
   character: boolean;
   /** Whether `hasChoice` is bound (display hints' `showWhen`). */
   choices?: boolean;
+  /** An activation condition: what activation decides (`countGrants`) isn't bound. */
+  activation?: boolean;
   /** Whether `picksOf` is bound: the formula has an owner whose choices it can read. */
   picks?: boolean;
-  /** Inside an aggregate's argument, where no aggregate is bound again. */
+  /** Inside an aggregate's argument, where only `countPicks` and `countGrants` are bound. */
   inAggregate?: boolean;
+  /** Inside a `countPicks` or `countGrants` within another aggregate: no aggregate is bound. */
+  nestedAggregate?: boolean;
   /** Whether an ID literal names content or a field the pack sees; unbound, any ID passes. */
   id?(text: string): boolean;
   /** A family's values, by the name the pack sees. Unbound: any family, `dyn`. */
@@ -70,6 +75,17 @@ export const COPY: ObjectType = {
     fields: 'dyn',
   },
   open: true,
+};
+
+/** A saved pick or an active grant, as `countPicks` and `countGrants` see it. */
+export const PICK_ROOT: ObjectType = {
+  object: {
+    item: 'string',
+    type: 'string',
+    tags: { list: 'string' },
+    state: 'dyn',
+    fields: 'dyn',
+  },
 };
 
 export const FIELD_ROOT: ObjectType = {
@@ -103,6 +119,7 @@ export function fieldFormulaType(declared: string): FType {
     case 'dice':
       return 'dice';
     case 'set':
+    case 'list':
       return { list: 'string' };
     default:
       return 'string';
@@ -392,13 +409,55 @@ function checkCall(fn: string, args: Node[], ctx: CheckContext): FType {
       wants(types()[0] as FType, (t) => t === 'string', 'a string');
       return 'bool';
     case 'picksOf': {
+      if (args.length === 2) {
+        const rules = args[0]?.type === 'string' && isRulesId(args[0].value);
+        if (!ctx.character || (ctx.activation && !rules))
+          return fail(
+            'unknown-function',
+            rules
+              ? "picksOf('rules', choice) is bound only where a character is"
+              : 'picksOf(content, choice) is not bound in activation conditions or without a character',
+            { function: fn },
+          );
+        if (args.some((a) => a.type !== 'string'))
+          return mismatch('picksOf() takes a content ID and a choice ID, string literals');
+        return { list: 'dyn' };
+      }
       if (!ctx.picks)
         return fail('unknown-function', 'picksOf() is bound only where the formula has an owner', {
           function: fn,
         });
-      arity(1);
+      arity(1, 2);
       if (args[0]?.type !== 'string')
         return mismatch('picksOf() takes a choice ID, a string literal');
+      return { list: 'dyn' };
+    }
+    case 'itemField':
+    case 'itemTags': {
+      if (!ctx.character)
+        return fail('unknown-function', `${fn}() is bound only where a character is`, {
+          function: fn,
+        });
+      const tags = fn === 'itemTags';
+      if (tags) arity(1);
+      else arity(2, 3);
+      const ts = types();
+      wants(ts[0] as FType, (t) => t === 'string', 'a content ID');
+      if (tags) return { list: 'string' };
+      if (args[1]?.type !== 'string')
+        return mismatch('itemField() takes an item field name, a string literal');
+      return ts[2] ?? 'dyn';
+    }
+    case 'grantedPicksOf': {
+      if (!ctx.picks)
+        return fail(
+          'unknown-function',
+          'grantedPicksOf() is bound only where the formula has an owner',
+          { function: fn },
+        );
+      arity(2);
+      if (args.some((a) => a.type !== 'string'))
+        return mismatch('grantedPicksOf() takes a content ID and a choice ID, string literals');
       return { list: 'dyn' };
     }
     case 'indexOf':
@@ -416,15 +475,16 @@ function checkCall(fn: string, args: Node[], ctx: CheckContext): FType {
       if (!keys) return 'dyn';
       return { list: keys.every((k) => /^\d+$/.test(k)) ? 'int' : 'string' };
     }
-    case 'fieldOf': {
+    case 'fieldOf':
+    case 'fieldId': {
       const [pattern, ...keyArgs] = args as [Node, ...Node[]];
       const family = pattern && familyPattern(pattern);
       if (!family)
-        return mismatch('fieldOf() takes a string literal pattern with {family} placeholders');
+        return mismatch(`${fn}() takes a string literal pattern with {family} placeholders`);
       arity(family.names.length + 1);
       for (const key of keyArgs)
         wants(checkTree(key, ctx), (t) => t === 'string' || t === 'int', 'a string or int key');
-      if (!ctx.family) return 'dyn';
+      if (!ctx.family) return fn === 'fieldId' ? 'string' : 'dyn';
       const ids = patternIds(family, (name) => ctx.family?.(name));
       if (!Array.isArray(ids))
         return fail('unknown-name', `no family named "${ids.unknown}"`, { name: ids.unknown });
@@ -432,11 +492,12 @@ function checkCall(fn: string, args: Node[], ctx: CheckContext): FType {
       for (const id of ids) {
         const t = ctx.field(id);
         if (t === undefined) return fail('unknown-name', `no field ${id}`, { name: id });
+        if (fn === 'fieldId') continue;
         if (type !== undefined && typeName(t) !== typeName(type))
           return mismatch(`fieldOf() fields have different types (${id})`);
         type = t;
       }
-      return type ?? 'dyn';
+      return fn === 'fieldId' ? 'string' : (type ?? 'dyn');
     }
     case 'countOf':
       arity(1);
@@ -460,13 +521,21 @@ function checkCall(fn: string, args: Node[], ctx: CheckContext): FType {
 }
 
 function checkAggregate(fn: string, over: Over, args: Node[], ctx: CheckContext): FType {
-  if (ctx.inAggregate || (readsCharacter(over) && !ctx.character)) {
-    const why = ctx.inAggregate ? 'inside another aggregate' : 'without a character';
-    return fail('unknown-function', `${fn}() is not bound ${why}`, { function: fn });
-  }
+  const why = unboundAggregate(over, ctx);
+  if (why || (readsCharacter(over) && !ctx.character))
+    return fail('unknown-function', `${fn}() is not bound ${why ?? 'without a character'}`, {
+      function: fn,
+    });
+  if (over === 'grants' && ctx.activation)
+    return fail('unknown-function', `${fn}() is not bound in activation conditions`, {
+      function: fn,
+    });
   const parts = aggregateArgs(fn, over, args);
-  const inner: CheckContext = { ...ctx, inAggregate: true };
-  let rootType: FType = over === 'copies' ? COPY : FIELD_ROOT;
+  const inner: CheckContext = ctx.inAggregate
+    ? { ...ctx, nestedAggregate: true }
+    : { ...ctx, inAggregate: true };
+  let rootType: FType =
+    over === 'copies' ? COPY : over === 'picks' || over === 'grants' ? PICK_ROOT : FIELD_ROOT;
   if (parts.list) {
     // Evaluated once, outside the per-element context, so it may be an aggregate.
     const list = checkTree(parts.list, ctx);

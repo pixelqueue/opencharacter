@@ -8,7 +8,7 @@ outcome:
     boost: false
 proposedChanges:
   - to: self
-    step: roll/rerollFrom
+    step: roll/rerolling[0]/rerollFrom
     change:
       type: adjustState
       entry: a-balance
@@ -46,20 +46,20 @@ log:
       - -1
       - 0
     total: 0
-    band: mediocre
-    bandSet: fate-core:ladder
-  - step: roll/reroll
+    band: fail
+    bandSet: fate-core:check
+  - step: roll/rerolling[0]/reroll
     action: fate-core:skill-roll
     kind: choice
     by: app
     option: free
-  - step: roll/rerollFrom
+  - step: roll/rerolling[0]/rerollFrom
     action: fate-core:skill-roll
     kind: choice
     by: app
     option: a-balance
     index: 0
-  - step: roll/again
+  - step: roll/rerolling[0]/again
     action: fate-core:skill-roll
     kind: dice
     by: engine
@@ -69,9 +69,9 @@ log:
       - 0
       - 0
     total: 4
-    band: great
-    bandSet: fate-core:ladder
-  - step: roll/reroll2
+    band: fail
+    bandSet: fate-core:check
+  - step: roll/rerolling[1]/reroll
     action: fate-core:skill-roll
     kind: choice
     by: app
@@ -98,6 +98,7 @@ log:
     by: app
     option: a-ground
     index: 1
+  - { step: roll/rung, action: fate-core:skill-roll, kind: dice, total: 4, band: great }
   - step: final
     action: fate-core:overcome
     kind: dice

@@ -326,6 +326,7 @@ actions:
 
       # Gear: $500 to spend, one item of up to $1,000 and a month of middle-class life.
       - id: freeItemKind
+        tags: [creation.item]
         kind: choice
         options: [{ id: weapon }, { id: armor }, { id: gear }, { id: cyberdeck }, { id: drone }]
         recommend: "'weapon'"
@@ -381,12 +382,14 @@ actions:
           - type: addItem
             entry: { item: picked.id }
       - id: gear
+        tags: [creation.gear]
         kind: changes
         changes:
           - { type: set, field: money, value: 500 }
           - { type: set, field: lifestyle, value: "'middle'" }
 
       - id: finish
+        tags: [creation.finish]
         kind: changes
         sheet: proposed
         changes:

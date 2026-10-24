@@ -63,6 +63,7 @@ actions:
     steps:
       - id: advance
         kind: choice
+        tags: [advance.crew]
         options:
           - id: ability
             changes:
@@ -82,7 +83,9 @@ actions:
       - id: typeAbility
         kind: choice
         when: "steps.advance.picked == 'ability' && size(picksOf('crew-type')) > 0"
-        options: { pending: {} }
+        options:
+          pending:
+            path: { choice: "['crew-type', picksOf('crew-type')[0], 'special-ability']" }
         recommend: options[0]
       - id: upgrades
         kind: allocate
@@ -90,8 +93,8 @@ actions:
         fields:
           type: field
           where: >-
-            'upgrade' in item.tags || (crewType.id == '' ? 'upgrade.special' in item.tags
-              : item.id in crewType.upgrades)
+            'upgrade' in item.tags || (size(picksOf('rules', 'crew-type')) == 0 ? 'upgrade.special' in item.tags
+              : item.id in itemField(picksOf('rules', 'crew-type')[0], 'upgrades'))
         budget: 2
       - id: clear
         kind: changes

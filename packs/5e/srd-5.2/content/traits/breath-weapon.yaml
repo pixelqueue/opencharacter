@@ -2,6 +2,7 @@ id: traits.breath-weapon
 type: trait
 state:
   breathWeaponUsed: { type: integer, default: 0, min: 0 }
+  damageType: { type: string, default: '' }
 effects:
   - target: { steps: [rest.long] }
     op: changes
@@ -9,13 +10,13 @@ effects:
     value:
       changes:
         - type: setState
-          grants: { where: 'item.id == @traits.breath-weapon' }
+          grant: owner
           key: breathWeaponUsed
           value: 0
 actions:
   - id: breath-weapon
     tags: [feature]
-    available: origins.draconicDamage != '' && self.breathWeaponUsed < proficiency.bonus
+    available: self.damageType != '' && self.breathWeaponUsed < proficiency.bonus
     params:
       shape: { type: enum, values: [cone, line], default: cone }
     participants:
@@ -28,7 +29,7 @@ actions:
         tags: [damage]
         parts:
           - dice: '(level.total >= 17 ? 4 : level.total >= 11 ? 3 : level.total >= 5 ? 2 : 1)d10'
-            tags: [{ formula: "'damage.' + origins.draconicDamage" }]
+            tags: [{ formula: "'damage.' + self.damageType" }]
       - id: spend
         kind: changes
         changes:

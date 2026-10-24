@@ -22,8 +22,11 @@ const text = createText({
   packs: { en: packsEn }, // by language, then pack ID
   spec: { en: specEn },
   contentTypes: ruleset.contentTypes, // optional: field defaults for content cards
-  content: ruleset.content, // optional: content types for headlines
+  content: ruleset.content, // optional: content types for headlines, type actions and state
   display: ruleset.rules.display, // optional: field formats for headlines
+  enumOrigins: ruleset.enumOrigins, // optional: names for values add-on packs add to enums
+  optionOrigins: ruleset.optionOrigins, // optional: names for options add-ons add to choices
+  familyOrigins: ruleset.familyOrigins, // optional: names for keys add-ons add to families
 });
 ```
 
@@ -31,6 +34,15 @@ const text = createText({
   `@opencharacter/packs/i18n/<lang>`. A single pack's text goes in as
   `{ en: { '5e-srd-5.1': srdEn } }`; a character's homebrew text under the pack ID `homebrew`
   (`character.homebrew.i18n.en`).
+- **The origins come from the ruleset** `loadRuleset` returned (`loaded.ruleset.enumOrigins`,
+  `.optionOrigins`, `.familyOrigins`), not from `computeSheet`, whose output has none. Without
+  them, a value, option or family key an add-on pack adds shows as its ID. A character's own
+  homebrew may add some too: for that character, take them from
+  `withHomebrew(ruleset, character).ruleset` (`@opencharacter/engine`), the ruleset every call
+  works on, and pass the homebrew's text under `homebrew`.
+- **Give it `content`** (`ruleset.content`) for an action a content type gives its items: its ID
+  is `<item>#<action>` (a Fate stunt's `fate-core:stunts.psychologist#use`), its text is the
+  type's (`types.stunt.use.name`), and the bundle finds the type there.
 - A key missing in every listed language falls back to any other language the bundle holds for
   that pack, so a pack's default language fills the gaps of a partial translation.
 - Messages are formatted with ICU MessageFormat (`intl-messageformat`), in the language they
@@ -80,8 +92,10 @@ text.value('5e-srd-5.1:spell', 'school', 'evocation'); // 'Evocation'
   pass the copy, `{ templates, tags, fields, state, computed }` (`templates`, `tags` and
   `fields` from computeSheet's `templated` entry for the copy, `computed` from `copies[entry]`),
   so the card names a Longsword +1 and shows its merged fields and the copy's state. A spell
-  known whose item content keeps templates on (a longer range) has a `templated` entry without
-  `entry`: pass its `{ templates, tags, fields }` the same way.
+  known that content keeps templates on (a longer range) has a `templated` entry with its
+  `activation` (its index in `activations`) instead of `entry`: pass its
+  `{ templates, tags, fields }` the same way. The same spell known twice (through two classes) is
+  two activations, each listed with its own templates.
 - **Give the bundle `contentTypes`** (`ruleset.contentTypes`), or pass the item's type as the
   third argument: a field the item leaves out then reads as its declared default (a Fate stunt's
   `action: any`), as the rules read it.
@@ -97,6 +111,21 @@ text.value('5e-srd-5.1:spell', 'school', 'evocation'); // 'Evocation'
   (`fields.<field>.values.<v>.name`: `creature.size`'s `medium` is "Medium"), and an action
   parameter's `text.paramValue(action, param, value)`
   (`<actionKey>.params.<param>.values.<v>.name`).
+
+A copy's **state** is named the same way: `text.state(item, key)` names the key and
+`text.stateValue(item, key, value)` an enum value, the item's own text first (a key the item
+declares, `<item>.state.<key>…`), else its type's (`types.<type>.state.<key>…`), else a value an
+add-on adds (`enumOrigins`). The type comes from the bundle's `content`; pass it as the last
+argument without one.
+
+```ts
+// The Ravens' cohort (fitd-crew-ravens.yaml): { item: 'fitd-crew:cohorts.gang',
+//   state: { gangType: 'skulks', … } }
+const gang = 'fitd-crew:cohorts.gang';
+`${text.state(gang, 'gangType')}: ${text.stateValue(gang, 'gangType', 'skulks')}`;
+// 'Type: Skulks'
+text.stateValue(gang, 'gangType', 'skulks', 'fitd-crew:cohort'); // the same, without `content`
+```
 
 ## Forms: item fields and parameters
 
@@ -171,14 +200,14 @@ six 1st-level spells for your spellbook", then "Choose two spells for your spell
 
 An option is labeled by `text.option(id, context)`, whatever its kind:
 
-| Option ID                                                 | Label from                                                                                                                                     |
-| --------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-| `#done`                                                   | the spec's `actions.options.done.name` ("Done"); over pending choices (`context.choice`) `actions.options.done.pending.name` ("Skip the rest") |
-| `<content id>#<option>` (added by content)                | `<content>.options.<option>.name` in the content's pack                                                                                        |
-| a content ID                                              | the item's name                                                                                                                                |
-| a copy's instance ID (`context.copies`)                   | the copy's name                                                                                                                                |
-| an inline option or value (`context.choice`)              | `<owner>.choices.<choice>.options.<id>.name`, else as a set member (`skill.arcana` is "Arcana")                                                |
-| a written option or value of an action (`context.action`) | `<actionKey>.options.<id>.name`, else as a set member                                                                                          |
+| Option ID                                                 | Label from                                                                                                                                             |
+| --------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `#done`                                                   | the spec's `actions.options.done.name` ("Done"); over pending choices (`context.choice`) `actions.options.done.pending.name` ("Skip the rest")         |
+| `<content id>#<option>` (added by content)                | `<content>.options.<option>.name` in the content's pack                                                                                                |
+| a content ID                                              | the item's name                                                                                                                                        |
+| a copy's instance ID (`context.copies`)                   | the copy's name                                                                                                                                        |
+| an inline option or value (`context.choice`)              | `<owner>.choices.<choice>.options.<id>.name`, else as a set member (`skill.arcana` is "Arcana")                                                        |
+| a written option or value of an action (`context.action`) | for a value, `<content>.options.<id>.name` first (`context.content`, a pause's `needs.content`); `<actionKey>.options.<id>.name`, else as a set member |
 
 ```ts
 const bonus = sheet.choices[0];
@@ -245,7 +274,8 @@ A Mothership stat check with advantage, paused for dice:
   `needs.summary`, a log entry's `summary`): each band the roll can still reach with its name and
   what it needs. The pack's `bands.<set>.<band>.condition` text wins; without it, the spec's
   comparisons are joined ("10 or higher and under 20"). A band that holds whatever the roll has
-  no condition unless its pack words one.
+  no condition unless its pack words one. The success threshold's target has `success: true`:
+  `targets.find((t) => t.success)` is "what you need", when the roll has one.
 - **Dice.** `text.dice(items)` words a roll's dice items (or `needs.dice`): "4d6, drop lowest",
   "2d20, keep highest - 1d4", "4dF", "5d6, exploding on 6": the dice to throw. Flat items are left
   out, and so is a keep or drop that can't change the roll: one die kept highest is "1d6". The
@@ -255,7 +285,9 @@ A Mothership stat check with advantage, paused for dice:
   "1d20 - 1". `describeNeed` gives both, `dice` and `roll`.
 - **Rolled twice.** Pass a dice pause's `needs.repeat` too, `text.dice(needs.items,
   needs.repeat)`, for a whole roll made more than once: "2d6, rolled twice, keep the lower
-  total" (`dice.repeat`). `describeNeed` does it for you.
+  total" (`dice.repeat`). When only some items are rolled again (`repeat.items`), they are worded
+  together in `dice.grouped`: "(2d6, rolled twice, keep the higher total) + 3d6". `describeNeed`
+  does it for you.
 
 ## Issues and errors
 
@@ -270,9 +302,23 @@ text.error(error); // the spec's text, data filled
   `types.<type>.copies` ("A character has only one race"), each with the issue's `data` as
   arguments.
 - Some codes have text by their data: an `out-of-range` with only a `min` reads `"Maximum HP"
-  must be at least 1.` (`errors.out-of-range.min`), and a `safety-limit-exceeded` has a sentence
-  per limit (`errors.safety-limit-exceeded.maxOverflowChain`).
-- Text whose data is missing an argument is never shown raw: it falls back to `errors.other`.
+  must be at least 1.` (`errors.out-of-range.min`), one with equal bounds `"Effort" must be
+  exactly 1.` (`errors.out-of-range.exact`), a `wrong-type` for an enum names its values, joined
+  as alternatives: `"For" must be The scene or The day.` (`errors.wrong-type.values`), and a
+  `safety-limit-exceeded` has a sentence per limit (`errors.safety-limit-exceeded.maxOverflowChain`).
+- A parameter's error names the parameter by its label, and its values by theirs, from the
+  action's text (the error's `action`).
+- Text whose data is missing an argument is never shown raw. A code with no text, or whose text
+  misses an argument, reads as the error's `data.message` when it has one, else `errors.other`
+  ("Something went wrong."). Neither shows the code: log the error itself for developers.
+
+```ts
+function showError(error: EngineError) {
+  console.warn(error.code, error.path ?? '', error.data ?? {}); // for developers
+  return text.error(error); // for the player
+}
+```
+
 - The spec's generic text gets `data` with IDs replaced by names:
   `{ code: 'not-input-field', data: { field: '5e-srd-5.1:combat.ac' } }` reads
   `"Armor Class" is calculated and cannot be set directly.`

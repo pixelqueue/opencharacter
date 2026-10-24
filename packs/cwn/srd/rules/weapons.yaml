@@ -8,7 +8,7 @@ contentTypes:
       enc: { type: integer, min: 0 }
       damage: { type: dice, required: true }
       # The combat skill: `shoot`, `stab` or `punch`. Thrown weapons may also use Exert or Stab.
-      skill: { type: enum, values: [shoot, stab, punch], required: true }
+      skill: { type: enum, values: [shoot, stab, punch], required: true, open: true }
       # The attribute that modifies hit and damage: the better of two where two are listed.
       attribute: { type: enum, values: [str, dex, str-dex, wis, none], required: true }
       rangeNormal: { type: integer, min: 0 }
@@ -54,7 +54,7 @@ fields:
 
 resultBands:
   hit:
-    - { id: hit, when: roll.total >= flags.ac }
+    - { id: hit, when: roll.total >= flags.ac, success: true }
     - { id: miss, when: true }
   trauma:
     - { id: traumatic, when: roll.total >= flags.traumaTarget }

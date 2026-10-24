@@ -224,97 +224,29 @@ actions:
         use: gain-skill
         params: { skill: "'any'", random: params.random }
 
-      # Each tradition's bonus skill: Magic for most Mages, the class's own skill for the rest.
-      - id: highmageSkill
-        kind: action
+      # Each tradition's bonus skill (`tradition.<key>.skill`): Magic for most Mages, the class's
+      # own skill for the rest, in tradition order.
+      - id: traditionSkills
+        kind: branch
         sheet: proposed
-        when: tradition.highmage.tier > 0
-        use: gain-skill
-        params: { skill: "'magic'", random: params.random }
-      - id: elementalistSkill
-        kind: action
-        sheet: proposed
-        when: tradition.elementalist.tier > 0
-        use: gain-skill
-        params: { skill: "'magic'", random: params.random }
-      - id: necromancerSkill
-        kind: action
-        sheet: proposed
-        when: tradition.necromancer.tier > 0
-        use: gain-skill
-        params: { skill: "'magic'", random: params.random }
-      - id: invokerSkill
-        kind: action
-        sheet: proposed
-        when: tradition.invoker.tier > 0
-        use: gain-skill
-        params: { skill: "'magic'", random: params.random }
-      - id: healerSkill
-        kind: action
-        sheet: proposed
-        when: tradition.healer.tier > 0
-        use: gain-skill
-        params: { skill: "'heal'", random: params.random }
-      - id: vowedSkill
-        kind: action
-        sheet: proposed
-        when: tradition.vowed.tier > 0 && vowed.skill != ''
-        use: gain-skill
-        params: { skill: vowed.skill, random: params.random }
-      - id: accursedSkill
-        kind: action
-        sheet: proposed
-        when: tradition.accursed.tier > 0
-        use: gain-skill
-        params: { skill: "'magic'", random: params.random }
-      - id: bardSkill
-        kind: action
-        sheet: proposed
-        when: tradition.bard.tier > 0
-        use: gain-skill
-        params: { skill: "'perform'", random: params.random }
-      - id: beastmasterSkill
-        kind: action
-        sheet: proposed
-        when: tradition.beastmaster.tier > 0
-        use: gain-skill
-        params: { skill: "'survive'", random: params.random }
-      - id: bloodpriestSkill
-        kind: action
-        sheet: proposed
-        when: tradition.bloodpriest.tier > 0
-        use: gain-skill
-        params: { skill: "'pray'", random: params.random }
-      - id: duelistSkill
-        kind: action
-        sheet: proposed
-        when: tradition.duelist.tier > 0
-        use: gain-skill
-        params: { skill: "'stab'", random: params.random }
-      - id: mageslayerSkill
-        kind: action
-        sheet: proposed
-        when: tradition.mageslayer.tier > 0
-        use: gain-skill
-        params: { skill: "'magic'", random: params.random }
-      - id: skinshifterSkill
-        kind: action
-        sheet: proposed
-        when: tradition.skinshifter.tier > 0
-        use: gain-skill
-        params: { skill: "'survive'", random: params.random }
-      - id: thoughtnobleSkill
-        kind: action
-        sheet: proposed
-        when: tradition.thoughtnoble.tier > 0
-        use: gain-skill
-        params: { skill: "'notice'", random: params.random }
-      - id: wiseSkill
-        kind: action
-        sheet: proposed
-        when: tradition.wise.tier > 0 && wise.skill != ''
-        use: gain-skill
-        params: { skill: wise.skill, random: params.random }
+        cases:
+          - when: true
+            flags:
+              traditionSkills: >-
+                mapList(filterList(keysOf('trad'), fieldOf('tradition.{trad}.tier', x) > 0
+                  && fieldOf('tradition.{trad}.skill', x) != ''), fieldOf('tradition.{trad}.skill', x))
+      - id: traditionSkill
+        kind: group
+        when: size(flags.traditionSkills) > 0
+        repeat: { while: size(steps.traditionSkill) < size(flags.traditionSkills), max: 15 }
+        steps:
+          - id: gain
+            kind: action
+            sheet: proposed
+            use: gain-skill
+            params:
+              skill: flags.traditionSkills[size(steps.traditionSkill)]
+              random: params.random
 
       # The arts each tradition lets a new mage pick, and the first-level spells they know.
       - id: arts
@@ -332,10 +264,9 @@ actions:
             type: spell
             where: >-
               item.level == 1 && countCopies(copy.item == item.id) == 0
-                && (item.list == 'high' || (item.list == 'elementalist'
-                  && (tradition.elementalist.tier > 0 || invoker.education == 'elementalist'))
-                  || (item.list == 'necromancer' && (tradition.necromancer.tier > 0
-                    || invoker.education == 'necromancer')))
+                && (item.list == 'high' || (item.list in keysOf('trad')
+                  && (fieldOf('tradition.{trad}.tier', item.list) > 0
+                    || invoker.education == item.list)))
         recommend: options[0]
         changes:
           - type: addItem
@@ -361,6 +292,7 @@ actions:
       # afford; spellcasters and the Vowed skip armor, which hinders their magic.
       - { id: silverRoll, kind: roll, tags: [creation], parts: [{ dice: 3d6 }] }
       - id: purse
+        tags: [creation.purse]
         kind: changes
         changes:
           - { type: adjust, field: coins.silver, by: steps.silverRoll.total * 10 }
@@ -440,6 +372,7 @@ actions:
           - *change
 
       - id: finish
+        tags: [creation.finish]
         kind: changes
         sheet: proposed
         changes:

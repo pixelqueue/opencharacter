@@ -1,0 +1,21 @@
+# Smugglers: the boat shows and the maps don't; a map upgrade isn't theirs, and the network's
+# grant is active.
+values:
+  test-pack:crewTypes: { value: 1 }
+  test-pack:upgrades.boat: { value: 0, shown: true }
+  test-pack:upgrades.maps: { value: 1, shown: false }
+issues:
+  - { code: constraint-failed, id: test-pack:special-upgrades }
+pending: []
+errors: []
+activations:
+  - item: test-pack:crew-types.smugglers
+    via: pick
+    path: { choice: [crew-type, test-pack:crew-types.smugglers] }
+  - item: test-pack:perks.network
+    via: pick
+    path: { choice: [perk, test-pack:perks.network] }
+  - item: test-pack:gifts.contacts
+    via: grant
+    parent: 1
+    path: { choice: [perk, test-pack:perks.network] }

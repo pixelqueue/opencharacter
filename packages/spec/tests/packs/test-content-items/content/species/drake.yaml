@@ -1,0 +1,15 @@
+# A drake picks a lineage. A chromatic lineage hardens its scales; one breathing fire grants
+# Fire Soul, decided in a grant's `when` from the picked item's field.
+id: species.drake
+type: species
+choices:
+  - id: lineage
+    from: { type: lineage }
+effects:
+  - target: scales
+    op: add
+    value: 1
+    when: "size(picksOf('lineage')) > 0 && 'chromatic' in itemTags(picksOf('lineage')[0])"
+grants:
+  - item: feats.fire-soul
+    when: "size(picksOf('lineage')) > 0 && itemField(picksOf('lineage')[0], 'damageType') == 'fire'"

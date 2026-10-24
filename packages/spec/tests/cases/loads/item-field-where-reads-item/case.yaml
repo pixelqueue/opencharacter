@@ -1,0 +1,21 @@
+description: "An item field's or state key's `where` reads only `item`: one reading the character's fields is a formula-error"
+specVersion: 0.2.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.2.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        fields:
+          level: { type: integer, input: true, default: 1 }
+        contentTypes:
+          stunt:
+            fields:
+              skill: { type: id, of: field, where: 'level > 1' }
+            state:
+              focus: { type: id, of: field, where: 'level > 1' }
+      content: []

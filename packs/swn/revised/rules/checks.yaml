@@ -27,7 +27,11 @@ situational:
 
 resultBands:
   check:
-    - { id: success, when: 'flags.difficulty >= 0 && roll.total >= flags.difficulty' }
+    - {
+        id: success,
+        when: 'flags.difficulty >= 0 && roll.total >= flags.difficulty',
+        success: true,
+      }
     - { id: failure, when: 'flags.difficulty >= 0' }
     - { id: rolled, when: true }
   # A natural 1 always fails and a natural 20 always succeeds.
@@ -35,10 +39,11 @@ resultBands:
     - {
         id: success,
         when: 'roll.faces[0] == 20 || (roll.faces[0] != 1 && roll.total >= flags.target)',
+        success: true,
       }
     - { id: failure, when: true }
   attack:
-    - { id: hit, when: 'flags.ac >= 0 && roll.total >= flags.ac' }
+    - { id: hit, when: 'flags.ac >= 0 && roll.total >= flags.ac', success: true }
     - { id: miss, when: 'flags.ac >= 0' }
     - { id: rolled, when: true }
 
@@ -49,6 +54,7 @@ actions:
     params:
       skill:
         type: enum
+        open: true
         required: true
         values:
           &skills [

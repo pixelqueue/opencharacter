@@ -15,6 +15,9 @@ edition and is used with the author's permission. Nothing from the paid edition 
 pnpm add @opencharacter/awn-core @opencharacter/engine
 ```
 
+This release needs spec 0.3: `@opencharacter/engine` 0.3.0 or later. An engine for an older
+spec refuses it (`spec-version-unsupported`).
+
 ```ts
 import { applyChanges, loadRuleset, startAction } from '@opencharacter/engine';
 import apocalypse from '@opencharacter/awn-core';
@@ -89,6 +92,48 @@ const run = startAction(ruleset, blank, {
   attack given its target's view (`participants.target`) rolls laser damage twice against Light
   Sensitivity, the higher kept.
 - **System strain and stress:** maximums with the edges, foci and mutations that change them.
+
+## Add-on packs
+
+A pack that depends on `awn-core` can add content of its types, and creation and advancement offer
+it with the core's, in the guided picks and the random draws:
+
+- **Edges and foci** join every pick. Their limits are tags, not IDs: `repeatable`, `first-edge`
+  (Forged By Fire), `needs-mutant`, `makes-mutant`, `not-mutant`, `not-underdog`. One with
+  `gainPart: true` runs its own `gain-part` action (`listed: false`) when taken, as Educated,
+  Mutant, Mutation Acceleration and Unstable Mutant do; an edge's mutation points are an effect on
+  `mutations.points.edges`.
+- **Prepared survivors' picks** are content of the type `prepared`: the item (`gear`, by ID;
+  another pack's qualified), its quantity, readied or not, and what comes with it (`extra`).
+- **Weapons:** a wasteland warrior's weapon is any primitive melee weapon, or a primitive one with
+  `kitAmmo` (the bow and its arrows), which comes with that ammunition.
+- **Mutations** join the chosen and the fallback picks; the d6 category and d10 tables, and the
+  d100 negative table, keep the book's odds.
+- **Mutation categories** are content of the type `mutationCategory`, which a mutation names in
+  `category`. An added category joins the "two in one category" pick; its mutations' `roll` is
+  their d10 roll within it.
+- **Tagged steps** take an add-on's rules-level `option` and `changes` effects: `creation.kit`
+  (the starting equipment option: an added option is another way to equip), `creation.mutation`
+  (how mutation points are spent), `creation.finish` (the last step of creation) and
+  `advancement.level` (each new level's level and skill points).
+
+- **Open enums:** the stigma fields (`stigma.part`, `stigma.part2`, `stigma.nature`,
+  `stigma.detail`), for more suggestions to set by hand; the rolled tables keep the book's.
+- **Naming what an add-on adds:** it names each added value, option or key in its own text,
+  under the key this pack would use, and `createText` finds it there when the app passes the
+  ruleset's `enumOrigins`, `optionOrigins` and `familyOrigins`. For example,
+  `tail` added to `awn-core:fields.stigma.part` is
+  `fields.stigma.part.values.tail.name: Tail` (through `enumOrigins`).
+
+- **Skills** are the `skill` family: an add-on adds one (`families: { 'awn-core:skill': [<key>] }`)
+  and declares its `skills.<key>.level` (tagged `skill` and `skill.<key>`), `.credit` and `.cap`
+  (tagged `skill-cap` and `skill.<key>`). The core's changes reach them through `fieldId`, so
+  creation, `improve-skill`, skill points and a forbidding mutation gain, raise and lower it as the
+  core's. A background's entries (`freeSkill`, `quickSkill1`, `quickSkill2`, `growth1`–`growth6`,
+  `learning1`–`learning8`) and the parameters `improve-skill.skill` and `gain-benefit.entry` are
+  open enums that take its key.
+
+The near-future and wasteland d20 tables are the book's own tables.
 
 ## Rule readings
 

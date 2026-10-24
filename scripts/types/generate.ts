@@ -74,6 +74,8 @@ const NAMES: Record<string, string> = {
   'display.schema.json#/$defs/group': 'DisplayGroup',
   'engine/apply-changes.schema.json#/$defs/followUp': 'ListedFollowUp',
   'character.schema.json#/$defs/followUp': 'StoredFollowUp',
+  'engine/describe-action.schema.json#/$defs/param': 'DescribedParam',
+  'engine/describe-action.schema.json#/$defs/role': 'DescribedRole',
 };
 
 /** Names a module may not declare without hiding a TypeScript global. */

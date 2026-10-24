@@ -53,19 +53,37 @@
       }
     },
     "contentTypes": {
-      "description": "The content types, by qualified ID. PROVISIONAL shape, except that a type with a copy limit carries it as written (`copies`), so an app reads it here.",
+      "description": "The content types, by qualified ID. PROVISIONAL shape, except that a type with a copy limit carries it as written (`copies`), so an app reads it here, as does a grant-only type (`grantOnly`), and each item field and state key with `where` carries `options`: the IDs it takes, content in content order (hidden items left out) or fields in ruleset order, for an app's picker. `templateFields` and items' own state keys with `where` carry it too.",
       "type": "object",
       "additionalProperties": {
         "type": "object",
         "properties": {
           "copies": {
             "$ref": "../content-type.schema.json#/$defs/copies"
+          },
+          "grantOnly": {
+            "type": "boolean"
+          },
+          "fields": {
+            "$ref": "#/$defs/declsWithOptions"
+          },
+          "state": {
+            "$ref": "#/$defs/declsWithOptions"
           }
         }
       }
     },
     "content": {
-      "type": "object"
+      "description": "The content items by qualified ID, in content order: packs in load order, then each pack's content in its release's order (packs.md, \"Dependencies and load order\"). PROVISIONAL shape, except that an item held only through grants and picks carries `grantOnly: true` (its own, else its content type's), so an app leaves it out of an add-item catalog.",
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "grantOnly": {
+            "type": "boolean"
+          }
+        }
+      }
     },
     "rules": {
       "type": "object"
@@ -95,6 +113,36 @@
         }
       }
     },
+    "enumOrigins": {
+      "description": "Values packs add to other packs' open enums (`extendEnums`): by the enum's address (`<pack>:types.<type>.fields.<field>`, `<pack>:types.<type>.state.<key>`, `<pack>:fields.<field>`, `<pack>:actions.<action>.params.<param>`, `<pack>:<item>.state.<key>`, `<pack>:<item>.actions.<action>.params.<param>`), each added value's pack, whose text names it under the key the enum's pack would use.",
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": {
+          "type": "string"
+        }
+      }
+    },
+    "familyOrigins": {
+      "description": "Values packs add to other packs' families (`families: { '<pack>:<family>': [...] }`): by qualified family, each added value's pack, whose fields `fieldOf` reads for it and whose text names it in a values step (`<actionKey>.options.<value>.name`) when the action's pack has no such key.",
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": {
+          "type": "string"
+        }
+      }
+    },
+    "optionOrigins": {
+      "description": "Values and inline options packs add to other packs' choices (`extendChoices`): by `<owner>/<choice>`, the choice's owner key root as a choice names it (`<pack>:<content id>`, `<pack>:rules`, plus `.choices.<choice>.options.<option>` for an inline option's) and its declared ID, each added option's pack, whose text names it.",
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": {
+          "type": "string"
+        }
+      }
+    },
     "conflicts": {
       "description": "Overrides of the same property by two packs; the later pack won.",
       "type": "array",
@@ -109,6 +157,22 @@
             "type": "string"
           },
           "packs": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "declsWithOptions": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "options": {
             "type": "array",
             "items": {
               "type": "string"

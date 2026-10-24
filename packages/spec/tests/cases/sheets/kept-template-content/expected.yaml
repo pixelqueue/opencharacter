@@ -3,7 +3,8 @@
 values:
   test-kept-templates:range.best: { value: 420 }
 templated:
-  - item: test-kept-templates:spells.bolt
+  - activation: 1
+    item: test-kept-templates:spells.bolt
     templates: [test-kept-templates:templates.far]
     tags: [far]
     fields: { level: 0, range: 420 }
@@ -20,6 +21,11 @@ activations:
     parent: 0
     path: { entry: casting, choice: [cantrips, test-kept-templates:spells.touch] }
   - { item: test-kept-templates:features.potent, entry: potent, via: copy }
-  - { item: test-kept-templates:weapons.fist, entry: test-kept-templates-weapons-fist, via: copy }
+  - {
+      item: test-kept-templates:weapons.fist,
+      entry: test-kept-templates-weapons-fist,
+      via: copy,
+      standard: true,
+    }
 issues: []
 errors: []

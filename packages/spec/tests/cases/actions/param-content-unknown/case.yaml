@@ -1,0 +1,40 @@
+description: 'A content parameter without `where` given an ID that is no item of its type is `invalid-option` when the action starts'
+specVersion: 0.1.0
+call: startAction
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        fields:
+          calm: { type: integer, input: true, default: 2 }
+        contentTypes:
+          condition:
+            fields:
+              grip: { type: integer }
+          discipline:
+            fields:
+              strength: { type: integer }
+      content:
+        - { id: conditions.charmed, type: condition, fields: { grip: 3 } }
+        - { id: conditions.stunned, type: condition, fields: { grip: 9 } }
+        - id: disciplines.stillness
+          type: discipline
+          fields: { strength: 1 }
+          actions:
+            - id: still
+              params:
+                condition:
+                  type: id
+                  of: condition
+              steps:
+                - id: done
+                  kind: outcome
+                  data: { ended: params.condition }
+input:
+  action: { id: 'test-pack:disciplines.stillness#still', entry: stillness }
+  params: { condition: disciplines.stillness }

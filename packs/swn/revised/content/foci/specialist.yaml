@@ -31,6 +31,6 @@ choices:
       }
     recommend: "'fix'"
     effects:
-      - target: { fields: { where: "item.id == 'swn-revised:skills.' + pick.value + '.dice'" } }
+      - target: { fields: { where: "item.id == fieldId('skills.{skill}.dice', pick.value)" } }
         op: atLeast
         value: self.level + 2

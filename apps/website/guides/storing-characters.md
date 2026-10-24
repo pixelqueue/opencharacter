@@ -133,6 +133,16 @@ inventory:
 - **Nothing else changes.** Pass the same ruleset to every call; the engine loads the
   character's homebrew on top of it (and may cache that). A homebrew skill joins the class's
   skill picks, and prerequisites can name it.
+- **Grant-only types** (a class feature, a subclass, a playbook: `grantOnly` on the type) take
+  homebrew too, two ways:
+  - **Picked:** define the item with `setHomebrew` and it joins the matching choice's options
+    (a subclass in the class's subclass pick, a feat in a feat pick); the player picks it there,
+    with `choose` or the choice's action, as they would an official one.
+  - **Added on its own:** give the homebrew item `grantOnly: false` (a feat the GM hands out
+    outside any pick), and `addItem` takes it like any other item.
+
+  A custom-item form for such a type asks which the player means, or offers only the first.
+
 - **It can add, not change.** Homebrew can't override or hide the packs' content or change
   settings. A table rule that changes the official rules belongs in a standalone pack that the
   whole table loads ([packs and rulesets](packs-and-rulesets.md)).
@@ -151,8 +161,9 @@ inventory:
   `homebrew`. What can't be migrated is in the report's `errors`, for the player to fix.
 - **A custom-item form** builds its inputs from the content type's `fields`
   (`ruleset.contentTypes[type].fields`): the declaration gives each input's kind (`dice`,
-  `integer`, `enum` with its `values`, `id` or `set` with `of`), `required`, `default`, `min`
-  and `max`, and the pack's text its label, hint and value names (`text.typeField`,
+  `integer`, `enum` with its `values`, `id` or `set` with `of`, and `list` with `of`, an
+  ordered input that keeps the player's order and, with `unique`, refuses a repeat),
+  `required`, `default`, `min` and `max`, and the pack's text its label, hint and value names (`text.typeField`,
   `text.typeFieldDescription`, `text.value`; [showing text](showing-text.md)). Ask for every
   field: they are all the item author's, and what changes in play is the copy's `state`, set on
   the sheet after `addItem`. A field's display hint `hidden` keeps it off the item's card, not

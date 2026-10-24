@@ -25,7 +25,8 @@ shape, an optional **dice function**.
      such a pick) is named by `source` alone, with no `entry`; it runs with that content's
      `item` and no `self`.
    - The action must appear in `computeSheet`'s `actions` for this character, with the same
-     `entry` and `source`; otherwise the result is `unknown-action`.
+     `entry` and `source`, or be one it leaves out only for `listed: false`; otherwise the
+     result is `unknown-action`.
    - **`followUp`**: the offer the run takes up, an `id` from computeSheet's
      `offers` for this character, as the offer's `action` gives it; otherwise the result is
      `unknown-follow-up`. For an ephemeral offer, the finished run's `proposedChanges` end with
@@ -35,7 +36,11 @@ shape, an optional **dice function**.
      its condition.
 2. **Parameters.** Each declared parameter takes the app's value. A `use` that fixes a parameter
    wins over the app's value. Missing required parameters are `missing-param`; wrong types are
-   `wrong-type`.
+   `wrong-type`. Every parameter error (`missing-param`, `wrong-type`, `out-of-range`,
+   `invalid-option`), here or at a handoff, also carries `action` (the qualified ID of the action
+   the parameter belongs to; `<item ID>#<action ID>` for an item's inline action) and, for an
+   action started on them, `entry` and `source`, so text names the parameter by its label
+   (`actions.<action>.params.<param>.name`, or the item's `actions.<action>.params.<param>.name`).
    - A number parameter (`integer`, `decimal`) outside its `min`/`max`, once a `use`'s fixed
      value or the default is in, is `out-of-range` (data: `target`, the parameter's name, and the
      evaluated `min` and `max`). The bounds are number formulas evaluated here, as the action
@@ -46,9 +51,9 @@ shape, an optional **dice function**.
      `params.<name>` as `{ id, type, tags, value }`: the field view its `where` sees (the qualified
      ID, the field's type and its tags on the sheet, written and computed, `[]` if none) and the
      field's computed value.
-   - A **content parameter with `where`** (`type: id, of: <content type>`)
-     takes an item ID, qualified or local to the action's pack. An ID that isn't an item of the
-     type, or whose item doesn't match `where` (`item` the candidate, the character's fields,
+   - A **content parameter** (`type: id, of: <content type>`) takes an item ID, qualified or
+     local to the action's pack. An ID that isn't an item of the type, or whose item doesn't
+     match its `where` if it has one (`item` the candidate, the character's fields,
      `action.item` and `action.self` the action's own), is `invalid-option` (data: `param`,
      `option`). Formulas see `params.<name>` as the qualified ID.
 3. **Situational choices.** `situational` maps qualified situational IDs to values. Missing
@@ -232,6 +237,13 @@ A roll step is built, then rolled, then classified.
    are whole rolls instead of dice: the roll is made once more per extra (below), and nothing is
    added to the main dice item. A roll with no dice items is made once.
 
+   **Parts rolled again.** The sources whose target has `parts` (always `of: roll`) are counted
+   apart, after the roll's own, `noAdvantage` and `noDisadvantage` removing them too, and
+   combined by the same setting. Unless the roll is made again whole, their extras roll a
+   **group** again: the dice items from the parts that a counted source of the kind that
+   applies matches. The roll is then made once more per extra, as for whole rolls, but only the
+   group's items are copied; the other items are the same in every roll and rolled once.
+
 6. **Multiply dice:** each `multiplyDice` multiplies the count of every dice item except those
    marked `multiplied: false`.
 7. **Reroll, minimum face, explode:** each adds its dice modifier (`reroll`/`rerollOnce` at
@@ -249,7 +261,9 @@ Dice items are rolled in order, each by the formula language's rules
   rolled that many times, each a copy of the built items rolled in full in turn, the first
   roll's dice first. Only the first roll has given faces; the later ones ask for every die. A
   pause's `dice` lists every roll's dice in that order, and `repeat: { times, keep }` says how
-  many rolls and which total is kept (`high` or `low`). Each roll's items are multiplied as
+  many rolls and which total is kept (`high` or `low`). With parts rolled again, `repeat.items`
+  lists the group's items by index in `items`, and `dice` lists every die of the first roll, then
+  the group's dice for each later roll; the shared items' faces are asked for once. Each roll's items are multiplied as
   below and summed; the roll whose sum is better (higher, or lower with `better: low`; worse
   for disadvantage) is kept, the first among equal sums. The kept roll's items are the roll's
   items from here on: its total, faces, bounds and band.
@@ -331,6 +345,7 @@ summary:
   value: <text> # a set with `value`: that formula, resolved
   bands: # the bands that can still hold, in the set's order
     - band: success
+      success: true # the set's success threshold, when the band marks it
       when: roll.total < 34 && roll.total < 90 # the condition, resolved
       tests: # when it's a conjunction of plain comparisons of the roll
         - { of: roll.total, compare: lt, value: 34 }
@@ -350,6 +365,8 @@ summary:
   (it can't hold) and stopping after the first whose resolved condition is `true` (no later band
   can be reached). A set whose first band holds regardless of the roll (a `rolled` band when
   there's no DC) is summarized as that one band.
+- **Success.** A band its set marks `success: true` has `success: true`: what the roll needs
+  ([result bands](rules-and-fields.md#result-bands)).
 - **Structured tests.** When a band's resolved condition is `true`, `tests` is `[]`. When it is
   a conjunction (`&&`) of comparisons each between a roll path (`roll.total`, `roll.value`,
   `roll.unbounded` or `roll.kept[<int>]`) and a number literal, `tests` lists them in order,
@@ -374,9 +391,9 @@ first dice pause and drops the paused result; startAction is pure, so nothing ch
 participants and situational choices count as they would. The preview summarizes the first roll
 the run reaches (an earlier roll in a nested action comes first, named by `needs.action`); a
 choice step with no usable recommendation, an allocation or a handoff before it pauses first;
-and a target set after the dice (Fate's opposition, read by a dice-less step) appears only in
-that step's log entry. A pack that wants the target in the preview sets it in a flag before the
-roll.
+and a target set after the dice (Fate's opposition from an opponent's roll, read by a dice-less
+step) appears only in that step's log entry. A pack that wants the target in the preview sets
+it in a flag before the roll.
 
 ## Other steps
 
@@ -406,14 +423,19 @@ roll.
     that activated the action's content, and one with `grant: self` the node (`entry`, or a
     pick's `path` and `option`) and `grant` of the holder grant that did
     ([dice-and-actions.md](dice-and-actions.md#actions)); `picks` and `grants` queries are passed
-    on as written;
+    on as written. `pick: owner` and `grant: owner` resolve the same way for the content the
+    change is written on: in an added option's or a `changes` effect's changes, the pick or
+    holder grant whose content carries the effect (content with saved state of its own: the
+    pick or grant its `self` reads), else `unknown-reference` (data: `kind`, `id: owner`);
+    elsewhere the action's content's, as `self`;
   - an `addItem` entry object is resolved: `item` is evaluated to a content ID and qualified against
     the action's pack; `quantity`, `equipped` and each `state` value are evaluated; `templates` are
     qualified; a pick's `option` given as `{ formula }` is evaluated to a string or number
     (`type-mismatch` otherwise), the rest of `choices` passed on as written. Without an `id`, the
     copy gets `<item local id with dots as hyphens>-<n>`, the smallest `n` ≥ 1 that the character
     and the action's earlier `addItem` changes don't use, so a replay gives the same IDs. An `item`
-    that names no content, or a template, is the error `unknown-reference` (data: `id`);
+    that names no content, or a template, is the error `unknown-reference` (data: `id`), and a
+    grant-only one `not-addable` (data: `item`; [content.md](content.md#grant-only-content));
   - an `applyEffect` has its `source` evaluated to a content ID and qualified
     against the action's pack, as an `addItem`'s `item` is (no content, or a template, is
     `unknown-reference`, data: `id`); `active` is evaluated to a boolean (`type-mismatch`
@@ -471,7 +493,14 @@ roll.
   A `split` adjust becomes one change per tag group; its field is always written out (a computed
   one is a load error, `formula-error` with cause `type-mismatch`). The result is appended to
   `proposedChanges` as `{ to, step, change }`, where `step` is the path of the `changes` step
-  (`deal`, `panic/stress`); the changes of one split adjust share it.
+  (`deal`, `panic/stress`); the changes of one split adjust share it. A roll step proposes too:
+  after it, each roll effect that changed the roll (with `when: applied`, that was in play on
+  it) proposes its `then` changes, `to: self` or its rule's `to`, with the roll step's path,
+  unless an earlier roll step of the run (a used action's included) already proposed that
+  effect's; with `once: roll`, unless this roll step's run did. Changes for `to: self` are
+  resolved as below; for another character, as a `changes` step's for that `to`, in the
+  effect's context. They aren't held by a `hold` action step: they record a roll that was made
+  ([effects.md](effects.md#targets), "Roll effects that end themselves").
 
   **Releasing held changes**. A step with `release` first proposes changes `hold`
   action steps hold, then its own `changes`, if any. For each step in `release.steps`, in order,
@@ -508,8 +537,8 @@ roll.
   evaluated when it runs, with the tags `action` steps running the action add after them, as for
   roll and choice steps) are matched by content's `changes` effects
   (`target: { steps: [<tag>], from? }`, [effects.md](effects.md#targets)). After the step's own
-  `release` and `changes`, each active `changes` instance whose source is a content item or a
-  template, whose target tags match one of the step's (a tag matches itself and the tags below
+  `release` and `changes`, each active `changes` instance whose source is a content item, a
+  template or the rules' effects (`item` and `self` unbound, `from: self` never matching), whose target tags match one of the step's (a tag matches itself and the tags below
   it), whose `from: self` (if any) names the action's own copy, and whose `when` holds, proposes
   its `changes`, in instance order, `to` its value's `to`, else the step's. Its formulas see what
   an added option's see: `item` and `self` the content carrying the effect (`entry: self` its
@@ -543,12 +572,16 @@ roll.
     action's pack as a content ID (kept as written when nothing matches). The action is `use`
     if it names a rules action, else `<source>#<use>` (an action the content or its type
     defines). The step reads `computeSheet`'s `actions` for the character on the step's sheet
-    and takes the listing with that action and that `source`, the one with the parent's
-    `entry` first; it runs as `startAction` would run that listing, with its `entry` and
-    `source`. No such listing is `unknown-action` (data: `action`, `source`), so the used
+    and takes the listing with that action and that `source`, or a listing with no `source`
+    whose `entry` is a copy of that content (the content is its own item), the one with the
+    parent's `entry` first, else the first in listing order; it runs as `startAction` would run
+    that listing, with its `entry` and `source`. So a step finds a class added earlier in the
+    run by its ID, as `entry` finds it by the new copy's ID. The listings here include actions with `listed: false`, which `computeSheet`
+    leaves out. No such listing is `unknown-action` (data: `action`, `source`), so the used
     action's `available` must hold. Without `source` (or `entry`), the used action runs with the
     parent's entry and source, as before, and its `available` isn't checked: a helper action only
-    other actions run declares `available: false`, so `computeSheet` never offers it.
+    other actions run declares `listed: false` (or `available: false`), so `computeSheet` never
+    offers it.
   - **`entry`**. Evaluated to a string, an instance ID (`type-mismatch`
     otherwise). The step takes the listing of `computeSheet`'s `actions`, for the character on
     the step's sheet, with the action `use` (as above) and that `entry`, and with that `source`
@@ -614,6 +647,32 @@ A `roll`, `choice`, `changes`, `action` or `branch` step with `each: <role>` run
   own (`unknown-role` at load). Cast-spell's outcome per target is one such flag.
 - `outcome` steps don't take `each`; `maxActionSteps` counts each run.
 
+## Group steps
+
+A `group` step runs its `steps` in **passes**:
+
+1. If its `when` holds, `repeat.max` is evaluated once, to an integer (`type-mismatch`
+   otherwise). With a `max` of 0 or less, no pass runs and `steps.<id>` is `[]`.
+2. **A pass.** Before pass `n` (from 0), the results of every step the group holds, at any
+   depth, are cleared, so each reads as absent until it runs in this pass. The steps then run as
+   any steps do, with paths `<id>[<n>]/<step id>`; a branch in the group nests under it
+   (`reroll[1]/hit/damage`). `steps.<id>` is the list of finished passes before it.
+3. **The pass's result.** Once its steps have run, the pass is the map of the results its steps
+   set (a step that didn't run is left out), appended to `steps.<id>`.
+4. **Again?** `repeat.while` is evaluated, with this pass's results as `steps.<step id>`.
+   Another pass runs while it holds and fewer than `max` passes have run. A pass past the
+   safety limit `maxGroupPasses` fails the action with `safety-limit-exceeded` (data: `limit`);
+   each pass after the first counts toward `maxActionSteps` too.
+5. **Afterwards**, each step the group holds reads as its latest result, from the last pass that
+   ran it, or is absent when none did; a roll step's `of` naming one (`of: again`) takes that
+   run, and inside a pass it takes this pass's.
+
+Checkpoints in a pass are matched by the policy's `step` rules at their pass path, and replay
+consumes answers in order, as for any step. `outcome` inside a group ends the whole action. A
+group holds no other group (`pnpm validate` reports one at any depth) and has no `each` or
+`sheet`; inside an `each` branch's case its passes run per participant, its result a list per
+participant as the case's steps' are.
+
 ## Handoffs
 
 An `action` step with `each: <role>` and `as: participant` is **handed off**: the
@@ -649,24 +708,25 @@ participant runs the used action on its own character, and the engine doesn't ru
 A choice step has one source of options (a fifth, pending choices, is
 [below](#choice-steps-over-pending-choices)):
 
-| `options`                                       | Offers                                                                                                          | Option ID                |
-| ----------------------------------------------- | --------------------------------------------------------------------------------------------------------------- | ------------------------ |
-| a list `[{ id, when?, changes?, to?, flags? }]` | the written options whose `when` holds, in written order                                                        | the written `id`         |
-| `{ content: { type, where? } }`                 | the ruleset's content of `type` (qualified against the action's pack), by qualified ID, hidden content left out | the qualified content ID |
-| `{ copies: { type, where? } }`                  | the character's copies of `type`, inventory then features, each in file order                                   | the instance ID          |
-| `{ values, where? }`                            | the written values, or the strings and numbers a `{ formula }` gives, in list order, each once                  | the value as a string    |
+| `options`                                       | Offers                                                                                                           | Option ID                |
+| ----------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- | ------------------------ |
+| a list `[{ id, when?, changes?, to?, flags? }]` | the written options whose `when` holds, in written order                                                         | the written `id`         |
+| `{ content: { type, where? } }`                 | the ruleset's content of `type` (qualified against the action's pack), in content order, hidden content left out | the qualified content ID |
+| `{ copies: { type, where? } }`                  | the character's copies of `type`, inventory then features, each in file order                                    | the instance ID          |
+| `{ values, where? }`                            | the written values, or the strings and numbers a `{ formula }` gives, in list order, each once                   | the value as a string    |
 
 - **Added options**. A step with `tags` also offers, after its source's
   options, the options content adds: each of the character's active `option` effects (in
   instance order, as for roll effects) whose target tags match one of the step's evaluated tags
   ([tag matching](effects.md#tag-matching)), whose `from: self`, if given, names the action's
   entry, and whose `when` holds. Its ID is `<content id>#<option id>`, the content being the item
-  whose copy, pick or grant carries the effect. Of the effects sharing a `stackKey` (`source`: the
+  whose copy, pick or grant carries the effect, or `<pack>:rules#<option id>` for the rules'
+  effects (`item` and `self` unbound; `from: self` never matches). Of the effects sharing a `stackKey` (`source`: the
   same source, as for stacking), only the first offered is; an ID offered already (two copies
   of one item) is offered once. Its `when` and `changes` see the action context with `item`,
   `self` and the content's other roots the effect's, `action` the action's own (`action.item`,
-  `action.self`, `action.step`) and, in `when`, `picks`. Rules-level effects and situational
-  choices add no options. Nothing else changes for a step without `tags`.
+  `action.self`, `action.step`) and, in `when`, `picks`. A situational choice's and a choice's
+  effects add no options. Nothing else changes for a step without `tags`.
 - **Candidate formulas.** A written option's `when` sees the action context and `picks`. A query
   source's `where` and `prefer` see the action context with `item` the candidate's item view,
   `self` the candidate copy (copies only; over content `self` isn't bound), `picks` and
@@ -709,8 +769,11 @@ A choice step has one source of options (a fifth, pending choices, is
   order, `#done` left out, updated after each pick. Over content or copies without `repeat`,
   `steps.<id>.item` is the picked content's item view (the view `item` gives an action of that
   content), and over copies `steps.<id>.self` is the picked copy's view; over values without
-  `repeat`, `steps.<id>.value` is the picked value. When an added option is picked, `.item`,
-  `.self` and `.value` are absent.
+  `repeat`, `steps.<id>.value` is the picked value. Over values with `repeat`,
+  `steps.<id>.values` is the list of picked values in pick order, each as the source gave it (a
+  number stays a number), updated after each pick like `picked` (`[]` before the first);
+  added options picked leave nothing in it. When an added option is picked, `.item`, `.self` and
+  `.value` are absent.
   `steps.<id>.added` lists the copies the step's changes add to `self`, every pick's in order,
   as a changes step's does (above); it is updated after each pick's changes, so with `repeat` a
   later pick's changes see the earlier picks' copies.
@@ -744,13 +807,17 @@ A choice step has one source of options (a fifth, pending choices, is
 
 A choice step with `options: { pending: { entry? } }` asks the choices that
 content brings, without naming them. `entry`, a formula giving an instance ID, limits it to the
-choices whose path starts at that copy; without it, every pending choice is asked, rules-level
-ones included. Each pick is a checkpoint:
+choices whose path starts at that copy. `path` instead (`{ pending: { path } }`) limits it to
+the choices at or under a choice path: it is resolved once, before the first pick, as a
+`choose`'s `path` is (`entry` an instance ID, `self` or `{ formula }`, left out for rules-level
+choices; `choice` a list of segments or a formula giving one), and a pending choice is asked
+when it has the same `entry` and its choice path starts with `choice`. With neither, every
+pending choice is asked, rules-level ones included. Each pick is a checkpoint:
 
 1. The step reads the [proposed sheet](#the-proposed-sheet), built again before each pick, as if
    it had `sheet: proposed`. (`sheet: given`, `repeat` and `prefer` aren't allowed on this
    source.)
-2. Of the sheet's pending choices, in `computeSheet`'s `pending` order and filtered by `entry`,
+2. Of the sheet's pending choices, in `computeSheet`'s `pending` order and filtered by `entry` or `path`,
    **the choice** of this pick is the first with at least one option that `listOptions` calls
    eligible and that isn't picked yet. A choice whose options are all ineligible is passed over
    for now: a pick that makes them eligible brings it back.
@@ -893,7 +960,10 @@ against ([The roll summary](#the-roll-summary)).
 **Pausing for a choice.** `needs.options` (with `#done` last once a repeated step has its `min`
 picks, and on every pick over pending choices) and `needs.recommended`, present only when the
 step recommends an option (above); over pending choices,
-`needs.choice` (above). The app answers with one option; an option not offered
+`needs.choice` (above); over values, `needs.content`, the qualified ID of the content the action
+runs for (its `item`: the copy's item, the picked or granted content, an applied entry's
+source), absent when it runs for none, also on the step's random draws. The app names each
+value by `<content>.options.<value>.name` first ([i18n.md](i18n.md)). The app answers with one option; an option not offered
 (`#done` before `min` picks included) is `answer-mismatch`.
 
 **Pausing for an allocation.** `needs.allocate` (above). The app answers with `{ amounts }`; amounts
@@ -988,7 +1058,8 @@ These follow from the rules above; they are spelled out because engines have to 
   among the roll's items.
 - **Paths:** a step inside a branch is `<branch>/<step>` (`hit/confirm`); a nested action's step
   is `<action step>/<its step>` (`check/check`); an `each` step's run for participant `i` is
-  `<step>[<i>]` (`saves[1]`).
+  `<step>[<i>]` (`saves[1]`); a step in a group's pass `n` is `<group>[<n>]/<step>`
+  (`reroll[1]/again`).
 - **Outcomes:** an outcome step without `data` gives `{ result }` only.
 - **Log `by`:** faces supplied by the dice function stay `by: engine` when the action is replayed
   after a pause.
@@ -1003,7 +1074,7 @@ These follow from the rules above; they are spelled out because engines have to 
   - `answer-mismatch` (from replayed `answers`, with `index` and `needs`);
   - `proposed-changes-failed` ([the proposed sheet](#the-proposed-sheet));
   - `conflicting-roll-modifiers`;
-  - `safety-limit-exceeded` (`maxActionSteps`, `maxActionDepth`, dice limits);
+  - `safety-limit-exceeded` (`maxActionSteps`, `maxActionDepth`, `maxGroupPasses`, dice limits);
   - a formula's error code.
 - **Other characters:** the engine computes one character per call. Another
   character taking part is a participant, passed as a view (`participants`), and anything that

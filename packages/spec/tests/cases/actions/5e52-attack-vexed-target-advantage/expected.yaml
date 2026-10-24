@@ -11,6 +11,13 @@ outcome:
 proposedChanges:
   - to: target
     character: goblin
+    step: test/roll
+    change:
+      type: removeEffect
+      applied:
+        where: item.id == '5e-srd-5.2:combat-effects.vexed' && self.attacker == 'test'
+  - to: target
+    character: goblin
     step: deal
     change:
       type: adjust
@@ -29,10 +36,3 @@ proposedChanges:
     change:
       type: applyEffect
       source: 5e-srd-5.2:combat-effects.sapped
-  - to: target
-    character: goblin
-    step: unvex
-    change:
-      type: removeEffect
-      applied:
-        where: item.id == '5e-srd-5.2:combat-effects.vexed' && self.attacker == 'test'

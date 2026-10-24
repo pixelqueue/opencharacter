@@ -11,6 +11,7 @@ contentTypes:
       sizeAlt: { type: enum, values: [tiny, small, medium, large, huge, gargantuan] }
       creatureType:
         type: enum
+        open: true
         required: true
         values:
           [
@@ -30,6 +31,7 @@ contentTypes:
             undead,
           ]
       typeTag:
+        open: true
         type: enum
         values:
           [
@@ -108,7 +110,7 @@ contentTypes:
       xpLair: { type: integer, min: 0 }
       legendaryActions: { type: integer, min: 1 }
       legendaryActionsLair: { type: integer, min: 1 }
-      entries: { type: set, of: monsterAction, default: [] }
+      entries: { type: list, of: monsterAction, unique: true, default: [] }
       spellsAtWill: { type: set, of: spell, default: [] }
       spellsPerDay1: { type: set, of: spell, default: [] }
       spellsPerDay2: { type: set, of: spell, default: [] }
@@ -208,6 +210,7 @@ contentTypes:
       longRange: { type: integer, min: 0 }
       damage: { type: dice }
       damageType: &damage-type
+        open: true
         type: enum
         values:
           [
@@ -765,13 +768,6 @@ actions:
             when: has(item.escapeDc) && @conditions.grappled in item.conditions
             source: "'conditions.grappled'"
             state: { by: creature.type, escapeDc: item.escapeDc }
-      - id: unsap
-        kind: changes
-        when: >-
-          countList(character.applied, x.active && x.source == @combat-effects.sapped) > 0
-        changes:
-          - type: removeEffect
-            applied: { where: 'item.id == @combat-effects.sapped' }
       - id: spend
         kind: changes
         changes:

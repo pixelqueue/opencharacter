@@ -140,6 +140,24 @@ bands.outcome.style.name: Succeed with style
 # How a band reads: `value` is the opposition.
 bands.outcome.succeed.condition: 'Beat {value}'
 bands.outcome.tie.condition: 'Tie {value}'
+# skill-roll's dice: the outcome when the opposition is known before the roll, else the ladder.
+bands.check.fail.name: Fail
+bands.check.tie.name: Tie
+bands.check.succeed.name: Succeed
+bands.check.style.name: Succeed with style
+bands.check.succeed.condition: 'Beat {value}'
+bands.check.tie.condition: 'Tie {value}'
+bands.check.legendary.name: Legendary (+8)
+bands.check.epic.name: Epic (+7)
+bands.check.fantastic.name: Fantastic (+6)
+bands.check.superb.name: Superb (+5)
+bands.check.great.name: Great (+4)
+bands.check.good.name: Good (+3)
+bands.check.fair.name: Fair (+2)
+bands.check.average.name: Average (+1)
+bands.check.mediocre.name: Mediocre (+0)
+bands.check.poor.name: Poor (−1)
+bands.check.terrible.name: Terrible (−2)
 
 situational.stunt.name: A bonus stunt's situation applies (+2)
 situational.fullDefense.name: Full defense (+2 to defend)
@@ -150,8 +168,12 @@ actions.skill-roll.params.skill.name: Skill
 actions.skill-roll.params.action.name: Action
 actions.skill-roll.params.helpers.name: Helpers (+1 each)
 actions.skill-roll.params.helpers.description: 'Allies helping: each adds +1.'
+actions.skill-roll.params.against.name: Opposition known
+actions.skill-roll.params.against.description: 'The opposition is set before the roll, so the roll reads against it.'
+actions.skill-roll.params.opposition.name: Opposition
 actions.skill-roll.steps.roll.name: Roll
 actions.skill-roll.steps.again.name: Reroll
+actions.skill-roll.steps.rung.name: Rung
 actions.skill-roll.steps.reroll.prompt: Invoke an aspect to reroll?
 actions.skill-roll.options.keep.name: Keep the roll
 actions.skill-roll.options.invoke.name: Reroll (spend a fate point)
@@ -159,12 +181,6 @@ actions.skill-roll.options.free.name: Reroll (use a free invocation)
 actions.skill-roll.steps.invokes.prompt: Invoke aspects for +2, paying a fate point each?
 actions.skill-roll.steps.freeInvokes.prompt: Use free invocations for +2 each?
 actions.skill-roll.steps.rerollFrom.prompt: Which aspect's free invocation pays for the reroll? (Done if it isn't on your sheet)
-actions.skill-roll.steps.reroll2.prompt: Invoke another aspect to reroll again?
-actions.skill-roll.steps.again2.name: Second reroll
-actions.skill-roll.steps.rerollFrom2.prompt: Which aspect's free invocation pays for the second reroll? (Done if it isn't on your sheet)
-actions.skill-roll.steps.reroll3.prompt: Invoke another aspect for a third reroll?
-actions.skill-roll.steps.again3.name: Third reroll
-actions.skill-roll.steps.rerollFrom3.prompt: Which aspect's free invocation pays for the third reroll? (Done if it isn't on your sheet)
 actions.skill-roll.steps.freeFrom.prompt: Which aspect's free invocation? Pick one per +2 (Done for any not on your sheet)
 actions.skill-roll.options.0.name: None
 actions.skill-roll.options.1.name: One (+2)
@@ -290,20 +306,6 @@ actions.end-scenario.results.ended.name: Ended
 stunts.custom.name: Stunt
 stunts.custom.description: A stunt of your own. Set its name, for a +2 bonus its skill and action, and any limit on its uses or fate point cost.
 stunts.custom.state.bonus.name: '+2 bonus'
-stunts.custom.state.skill.name: Skill
-stunts.custom.state.action.name: Action
-stunts.custom.state.limit.name: Limit
-stunts.custom.state.action.values.any.name: 'Any action'
-stunts.custom.state.action.values.overcome.name: 'Overcome'
-stunts.custom.state.action.values.advantage.name: 'Create an advantage'
-stunts.custom.state.action.values.attack.name: 'Attack'
-stunts.custom.state.action.values.defend.name: 'Defend'
-stunts.custom.state.limit.values.none.name: 'No limit'
-stunts.custom.state.limit.values.conflict.name: 'conflict'
-stunts.custom.state.limit.values.scene.name: 'scene'
-stunts.custom.state.limit.values.session.name: 'session'
-stunts.custom.state.uses.name: Uses
-stunts.custom.state.fatePoint.name: Costs a fate point
 stunts.hardcore-parkour.name: Hardcore Parkour
 stunts.hardcore-parkour.description: +2 to overcome with Athletics in a chase across rooftops or a similarly precarious place.
 stunts.rumormonger.name: Rumormonger
@@ -517,11 +519,15 @@ tags.attack.name: 'Attack'
 tags.conflict.name: 'Conflict'
 tags.contest.name: 'Contest'
 tags.creation.name: 'Creation'
+tags.creation.finish.name: 'Creation: finishing'
+tags.creation.stunts.name: 'Creation: stunts'
 tags.create-advantage.name: 'Create an advantage'
 tags.defend.name: 'Defend'
 tags.fate-point.name: 'Fate point'
 tags.hit.name: 'Hit'
 tags.milestone.name: 'Milestone'
+tags.milestone.benefit.name: 'Milestone benefit'
+tags.milestone.stunt.name: 'Milestone: new stunt'
 tags.oppose.name: 'Oppose'
 tags.outcome.name: 'Outcome'
 tags.overcome.name: 'Overcome'
@@ -533,6 +539,9 @@ tags.skill.defend.name: 'Defend'
 tags.skill.overcome.name: 'Overcome'
 tags.teamwork.name: 'Teamwork'
 tags.time.name: 'Time'
+tags.time.conflict.name: 'End of a conflict'
+tags.time.scene.name: 'End of a scene'
+tags.time.session.name: 'End of a session'
 
 # Content blocks: each type's header line, filled from the item's fields (and a copy's state and
 # computed values when the app gives one), and the names of the enum values they show. Apps show the

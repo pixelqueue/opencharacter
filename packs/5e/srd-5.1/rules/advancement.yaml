@@ -7,7 +7,30 @@ fields:
         : [0, 300, 900, 2700, 6500, 14000, 23000, 34000, 48000, 64000, 85000, 100000, 120000,
           140000, 165000, 195000, 225000, 265000, 305000, 355000][level.total]
   xp.levelUp: { type: boolean, formula: 'xp.nextLevel > 0 && xp.current >= xp.nextLevel' }
-  multiclass.qualified: { type: set, of: class }
+  # Multiclassing into a class needs 13 in each of its multiclassAll abilities and in one of its
+  # multiclassAny ones, when it lists any.
+  multiclass.qualified:
+    type: set
+    of: class
+    formula: >-
+      filterList(multiclass.classes,
+        !(x in multiclass.needs.str && abilities.str.score < 13)
+          && !(x in multiclass.needs.dex && abilities.dex.score < 13)
+          && !(x in multiclass.needs.con && abilities.con.score < 13)
+          && !(x in multiclass.needs.int && abilities.int.score < 13)
+          && !(x in multiclass.needs.wis && abilities.wis.score < 13)
+          && !(x in multiclass.needs.cha && abilities.cha.score < 13)
+          && (!(x in multiclass.oneOfListed)
+            || (x in multiclass.oneOf.str && abilities.str.score >= 13)
+            || (x in multiclass.oneOf.dex && abilities.dex.score >= 13)
+            || (x in multiclass.oneOf.con && abilities.con.score >= 13)
+            || (x in multiclass.oneOf.int && abilities.int.score >= 13)
+            || (x in multiclass.oneOf.wis && abilities.wis.score >= 13)
+            || (x in multiclass.oneOf.cha && abilities.cha.score >= 13)))
+  multiclass.classes: { type: set, of: class }
+  multiclass.oneOfListed: { type: set, of: class }
+  'multiclass.needs.{ability}': { type: set, of: class }
+  'multiclass.oneOf.{ability}': { type: set, of: class }
 
 display:
   fields:
@@ -28,56 +51,53 @@ display:
       }
     xp.levelUp: { hidden: true }
     multiclass.qualified: { hidden: true }
+    multiclass.classes: { hidden: true }
+    multiclass.oneOfListed: { hidden: true }
+    'multiclass.needs.{ability}': { hidden: true }
+    'multiclass.oneOf.{ability}': { hidden: true }
 
 effects:
-  - target: multiclass.qualified
+  # The families the qualification reads, from each class's multiclassAll and multiclassAny.
+  - { target: multiclass.classes, op: grant, value: { query: { type: class } } }
+  - target: multiclass.oneOfListed
     op: grant
-    value: { formula: '@classes.barbarian' }
-    when: abilities.str.score >= 13
-  - target: multiclass.qualified
+    value: { query: { type: class, where: size(item.multiclassAny) > 0 } }
+  - target: multiclass.needs.str
     op: grant
-    value: { formula: '@classes.bard' }
-    when: abilities.cha.score >= 13
-  - target: multiclass.qualified
+    value: { query: { type: class, where: "'str' in item.multiclassAll" } }
+  - target: multiclass.needs.dex
     op: grant
-    value: { formula: '@classes.cleric' }
-    when: abilities.wis.score >= 13
-  - target: multiclass.qualified
+    value: { query: { type: class, where: "'dex' in item.multiclassAll" } }
+  - target: multiclass.needs.con
     op: grant
-    value: { formula: '@classes.druid' }
-    when: abilities.wis.score >= 13
-  - target: multiclass.qualified
+    value: { query: { type: class, where: "'con' in item.multiclassAll" } }
+  - target: multiclass.needs.int
     op: grant
-    value: { formula: '@classes.fighter' }
-    when: abilities.str.score >= 13 || abilities.dex.score >= 13
-  - target: multiclass.qualified
+    value: { query: { type: class, where: "'int' in item.multiclassAll" } }
+  - target: multiclass.needs.wis
     op: grant
-    value: { formula: '@classes.monk' }
-    when: abilities.dex.score >= 13 && abilities.wis.score >= 13
-  - target: multiclass.qualified
+    value: { query: { type: class, where: "'wis' in item.multiclassAll" } }
+  - target: multiclass.needs.cha
     op: grant
-    value: { formula: '@classes.paladin' }
-    when: abilities.str.score >= 13 && abilities.cha.score >= 13
-  - target: multiclass.qualified
+    value: { query: { type: class, where: "'cha' in item.multiclassAll" } }
+  - target: multiclass.oneOf.str
     op: grant
-    value: { formula: '@classes.ranger' }
-    when: abilities.dex.score >= 13 && abilities.wis.score >= 13
-  - target: multiclass.qualified
+    value: { query: { type: class, where: "'str' in item.multiclassAny" } }
+  - target: multiclass.oneOf.dex
     op: grant
-    value: { formula: '@classes.rogue' }
-    when: abilities.dex.score >= 13
-  - target: multiclass.qualified
+    value: { query: { type: class, where: "'dex' in item.multiclassAny" } }
+  - target: multiclass.oneOf.con
     op: grant
-    value: { formula: '@classes.sorcerer' }
-    when: abilities.cha.score >= 13
-  - target: multiclass.qualified
+    value: { query: { type: class, where: "'con' in item.multiclassAny" } }
+  - target: multiclass.oneOf.int
     op: grant
-    value: { formula: '@classes.warlock' }
-    when: abilities.cha.score >= 13
-  - target: multiclass.qualified
+    value: { query: { type: class, where: "'int' in item.multiclassAny" } }
+  - target: multiclass.oneOf.wis
     op: grant
-    value: { formula: '@classes.wizard' }
-    when: abilities.int.score >= 13
+    value: { query: { type: class, where: "'wis' in item.multiclassAny" } }
+  - target: multiclass.oneOf.cha
+    op: grant
+    value: { query: { type: class, where: "'cha' in item.multiclassAny" } }
 
 followUps:
   - id: level-up
@@ -95,6 +115,7 @@ actions:
           - when: true
             flags: { maxBefore: hp.max }
       - id: class
+        tags: [level-up.class]
         kind: choice
         options:
           content:
@@ -104,6 +125,7 @@ actions:
                 && countCopies(copy.type == 'class' && !(copy.item in multiclass.qualified)) == 0)
         prefer: sumCopies(copy.state.level, copy.type == 'class' && copy.item == item.id)
       - id: gain
+        tags: [level-up.gain]
         kind: changes
         changes:
           - type: adjustState
@@ -116,6 +138,7 @@ actions:
             when: '!(steps.class.picked in classes.held)'
             entry: { item: steps.class.picked, state: { level: 1 } }
       - id: hitPoints
+        tags: [level-up.hit-points]
         kind: choice
         options: [{ id: roll }, { id: fixed }]
         recommend: "'fixed'"

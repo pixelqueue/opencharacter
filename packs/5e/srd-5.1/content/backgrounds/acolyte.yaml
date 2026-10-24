@@ -1,5 +1,7 @@
 id: backgrounds.acolyte
 type: background
+fields:
+  startingKit: true
 effects:
   - { target: proficiencies.skills, op: grant, value: { tag: skill.insight } }
   - { target: proficiencies.skills, op: grant, value: { tag: skill.religion } }
@@ -11,3 +13,23 @@ choices:
     unique: languages
     from: { type: language, where: "!('secret' in item.tags) && !('monster' in item.tags)" }
     eligible: '!(item.id in proficiencies.languages) || item.id in choice.picks'
+actions:
+  - id: kit
+    listed: false
+    params:
+      random: { type: boolean, default: false }
+    steps:
+      - id: acolyteSymbol
+        kind: choice
+        options: { content: { type: gear, where: "item.category == 'holy-symbol'" } }
+        random: params.random
+        changes:
+          - { type: addItem, entry: { item: picked.id } }
+      - id: acolyteKit
+        kind: changes
+        changes:
+          - { type: addItem, entry: { item: "'gear.book'" } }
+          - { type: addItem, entry: { item: "'gear.incense'", quantity: 5 } }
+          - { type: addItem, entry: { item: "'gear.vestments'" } }
+          - { type: addItem, entry: { item: "'gear.common-clothes'" } }
+          - { type: addItem, entry: { item: "'gear.pouch'" } }

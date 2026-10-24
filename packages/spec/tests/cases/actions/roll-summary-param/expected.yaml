@@ -14,6 +14,7 @@ needs:
         when: 'roll.kept[0] == 1'
         tests: [{ of: 'roll.kept[0]', compare: eq, value: 1 }]
       - band: hit
+        success: true
         when: 'roll.total >= 18'
         tests: [{ of: roll.total, compare: ge, value: 18 }]
       - { band: miss, when: 'true', tests: [] }

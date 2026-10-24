@@ -23,7 +23,7 @@ resultBands:
         when: >-
           roll.value == 3 || (roll.value == 2 && (roll.tallies.successToCrit > 0
             || (roll.tallies.successToCritOn19 > 0 && size(roll.kept) > 0 && roll.kept[0] == 19)))
-      - { id: success, when: roll.value == 2 }
+      - { id: success, when: roll.value == 2, success: true }
       - id: failure
         when: >-
           (roll.value == 1 && roll.tallies.failToCritFail == 0)

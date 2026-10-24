@@ -44,6 +44,7 @@ contentTypes:
     fields:
       category: { type: enum, values: [unarmed, simple, martial, advanced], required: true }
       group:
+        open: true
         type: enum
         values:
           [
@@ -78,6 +79,7 @@ contentTypes:
       formAttack: { type: boolean, default: false }
       formDamage: { type: integer, default: 0 }
       damageType:
+        open: true
         type: enum
         values:
           [acid, bludgeoning, cold, electricity, fire, mental, piercing, slashing, sonic, void]
@@ -94,7 +96,7 @@ contentTypes:
       reload: { type: integer, min: 0 }
       boost: { type: dice }
       magazine: { type: integer, default: 0, min: 0 }
-      ammoKind: { type: enum, values: [none, rounds, charges, chems], default: none }
+      ammoKind: { type: enum, values: [none, rounds, charges, chems], default: none, open: true }
       expend: { type: integer, default: 1, min: 0 }
       area: { type: enum, values: [none, burst, cone, line], default: none }
       areaSize: { type: integer, default: 0, min: 0 }

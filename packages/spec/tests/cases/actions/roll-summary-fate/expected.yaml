@@ -1,7 +1,8 @@
-# The 4dF roll is skill-roll's, summarized by the ladder: absolute rungs, no target, no flags.
-# The opposition is read after the dice, by the dice-less `final` step of overcome, whose entry
-# carries the outcome bands against +2 and overcome's flags. `style` reads `roll.total - 2`
-# (arithmetic on the roll), so it has text only.
+# The opposition (+2) is known before the dice, so skill-roll's 4dF roll is summarized against
+# it: the outcome bands with `succeed` marked, the ladder half of `check` unreachable, and
+# skill-roll's flags. The ladder rung is read after, by the dice-less `rung` step. Overcome's
+# dice-less `final` step reads the total after invocations against the same bands. `style`
+# reads `roll.total - 2` (arithmetic on the roll), so it has text only.
 status: finished
 outcome:
   result: succeed
@@ -11,46 +12,25 @@ log:
     action: fate-core:skill-roll
     kind: dice
     total: 3
-    band: good
-    bandSet: fate-core:ladder
+    band: succeed
+    bandSet: fate-core:check
     summary:
-      bandSet: fate-core:ladder
+      bandSet: fate-core:check
       bands:
-        - band: legendary
-          when: 'roll.total >= 8'
-          tests: [{ of: roll.total, compare: ge, value: 8 }]
-        - band: epic
-          when: 'roll.total == 7'
-          tests: [{ of: roll.total, compare: eq, value: 7 }]
-        - band: fantastic
-          when: 'roll.total == 6'
-          tests: [{ of: roll.total, compare: eq, value: 6 }]
-        - band: superb
-          when: 'roll.total == 5'
-          tests: [{ of: roll.total, compare: eq, value: 5 }]
-        - band: great
-          when: 'roll.total == 4'
-          tests: [{ of: roll.total, compare: eq, value: 4 }]
-        - band: good
-          when: 'roll.total == 3'
-          tests: [{ of: roll.total, compare: eq, value: 3 }]
-        - band: fair
+        - { band: style, when: 'roll.total - 2 >= 3' }
+        - band: succeed
+          success: true
+          when: 'roll.total > 2'
+          tests: [{ of: roll.total, compare: gt, value: 2 }]
+        - band: tie
           when: 'roll.total == 2'
           tests: [{ of: roll.total, compare: eq, value: 2 }]
-        - band: average
-          when: 'roll.total == 1'
-          tests: [{ of: roll.total, compare: eq, value: 1 }]
-        - band: mediocre
-          when: 'roll.total == 0'
-          tests: [{ of: roll.total, compare: eq, value: 0 }]
-        - band: poor
-          when: 'roll.total == -1'
-          tests: [{ of: roll.total, compare: eq, value: -1 }]
-        - { band: terrible, when: 'true', tests: [] }
-      flags: {}
-  - { step: roll/reroll, kind: choice, option: keep }
+        - { band: fail, when: 'true', tests: [] }
+      flags: { against: true, opposition: 2 }
+  - { step: 'roll/rerolling[0]/reroll', kind: choice, option: keep }
   - { step: roll/invokes, kind: choice, option: '0' }
   - { step: roll/freeInvokes, kind: choice, option: '0' }
+  - { step: roll/rung, action: fate-core:skill-roll, kind: dice, total: 3, band: good }
   - step: final
     action: fate-core:overcome
     kind: dice
@@ -63,6 +43,7 @@ log:
       bands:
         - { band: style, when: 'roll.total - 2 >= 3' }
         - band: succeed
+          success: true
           when: 'roll.total > 2'
           tests: [{ of: roll.total, compare: gt, value: 2 }]
         - band: tie

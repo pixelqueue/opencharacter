@@ -1,0 +1,13 @@
+# The pebble isn't lucky; `ward` itself is above the members, not under them.
+action:
+  action: test-describe:bless
+  definedBy: test-describe:bless
+  params:
+    - name: charm
+      type: id
+      of: test-describe:charm
+      required: true
+      options: [test-describe:charms.clover]
+    - { name: wards, type: set, of: tag, required: true, options: [ward.fire, ward.ice] }
+  participants:
+    - { role: recipient, min: 1, max: 1 }

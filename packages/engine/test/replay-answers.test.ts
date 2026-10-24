@@ -120,7 +120,7 @@ describe('replay from answers', () => {
     // Choices paused, dice automatic: the answers are the options; the faces come from the
     // dice function, in the same order as the loop asks for them.
     const auto = { action: input.action, policy: { choices: 'pause' } as const };
-    const faces = Array.from({ length: 40 }, (_, j) => (j % 4) + 1);
+    const faces = Array.from({ length: 40 }, (_, j) => (j % 2) + 1);
     const dice = diceFrom(faces);
     let loop = startAction(ruleset, blank, auto, dice);
     const options: ActionAnswer[] = [];

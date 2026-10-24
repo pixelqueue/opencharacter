@@ -1,0 +1,30 @@
+description: "An item field's `where` limits what an item's own value names: a field outside it, a member of a set outside it, or content outside it is invalid-item-field"
+specVersion: 0.2.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.2.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        tags: [skill]
+        fields:
+          skills.fight: { type: integer, input: true, default: 0, tags: [skill] }
+          skills.lore: { type: integer, input: true, default: 0, tags: [skill] }
+          stats.might: { type: integer, input: true, default: 0 }
+        contentTypes:
+          stunt:
+            fields:
+              skill: { type: id, of: field, where: "'skill' in item.tags" }
+              also: { type: set, of: field, where: "'skill' in item.tags" }
+              rival: { type: id, of: stunt, where: 'item.cost > 0' }
+              cost: { type: integer, default: 0 }
+      content:
+        - { id: stunts.strong, type: stunt, fields: { skill: skills.fight, cost: 1 } }
+        - { id: stunts.wise, type: stunt, fields: { skill: skills.lore, rival: stunts.strong } }
+        - { id: stunts.mighty, type: stunt, fields: { skill: stats.might } }
+        - { id: stunts.broad, type: stunt, fields: { also: [skills.fight, stats.might] } }
+        - { id: stunts.petty, type: stunt, fields: { rival: stunts.wise } }

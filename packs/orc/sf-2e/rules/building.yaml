@@ -20,6 +20,7 @@ contentTypes:
       - { target: ancestry.held, op: grant, value: { formula: item.id } }
 
   heritage:
+    grantOnly: true
     fields:
       ancestry: { type: id, of: ancestry }
       versatile: { type: boolean, default: false }
@@ -39,15 +40,20 @@ contentTypes:
       - { target: hp.class, op: add, value: item.hp }
 
   feature:
+    grantOnly: true
     fields:
       level: { type: integer, required: true, min: 1, max: 20 }
+      # The class option a subclass-like feature is, `<class>.<choice>`, which the class's choice
+      # offers: add-on instincts, muses and the like set it too.
+      classOption: { type: string, default: '' }
     effects:
       - { target: features.held, op: grant, value: { formula: item.id } }
 
   feat:
     fields:
       level: { type: integer, required: true, min: 1, max: 20 }
-      category: { type: enum, values: [ancestry, class, general, skill], required: true }
+      category:
+        { type: enum, values: [ancestry, class, general, skill], required: true, open: true }
       ancestry: { type: id, of: ancestry }
       heritage: { type: id, of: heritage }
       class: { type: id, of: class }

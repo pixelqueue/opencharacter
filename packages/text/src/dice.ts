@@ -47,15 +47,27 @@ function item(d: DiceLike, spec: Spec): string {
   return text;
 }
 
-/** A roll made more than once (`needs.repeat`): how many whole rolls, and which total is kept. */
+/**
+ * A roll made more than once (`needs.repeat`): how many rolls, and which total is kept; with
+ * `items`, only those items (indices in the roll's items) are rolled again.
+ */
 export interface Repeat {
   times: number;
   keep: 'high' | 'low';
+  items?: readonly number[];
+}
+
+function repeated(dice: string, repeat: Repeat, spec: Spec): string {
+  return (
+    spec('dice.repeat', { dice, times: repeat.times, keep: repeat.keep }) ??
+    `${dice}, ${repeat.times} times, keep ${repeat.keep === 'high' ? 'highest' : 'lowest'}`
+  );
 }
 
 /**
  * The dice items joined in order. With `number` (the whole roll), the flat items' sum follows,
- * written by `number`: "2d10 + 25".
+ * written by `number`: "2d10 + 25". Items a repeat rolls again are worded together where the
+ * first of them is, in `dice.grouped` when anything else is rolled or added.
  */
 export function diceText(
   items: readonly DiceLike[],
@@ -71,9 +83,28 @@ export function diceText(
         : text
       : (spec(negative ? 'dice.minus' : 'dice.plus', { first: out, second: text }) ??
         `${out} ${negative ? '-' : '+'} ${text}`);
+  const again = new Set(repeat?.items ?? []);
+  const isDice = (d: DiceLike) => d.kind !== 'flat' && d.count !== undefined;
+  let group: string | undefined;
+  if (repeat && again.size > 0) {
+    group = diceText(
+      items.filter((d, i) => again.has(i) && isDice(d)),
+      spec,
+      { times: repeat.times, keep: repeat.keep },
+    );
+    const others = items.some(
+      (d, i) => !again.has(i) && (isDice(d) || (number !== undefined && d.kind === 'flat')),
+    );
+    if (others) group = spec('dice.grouped', { dice: group }) ?? `(${group})`;
+  }
   let flat = 0;
-  for (const d of items) {
-    if (d.kind === 'flat' || d.count === undefined) {
+  for (const [i, d] of items.entries()) {
+    if (again.has(i)) {
+      if (group !== undefined) out = join(group, false);
+      group = undefined;
+      continue;
+    }
+    if (!isDice(d)) {
       flat += d.kind === 'flat' ? (d.value ?? 0) : 0;
       continue;
     }
@@ -83,9 +114,6 @@ export function diceText(
     out = out === undefined ? number(flat) : join(number(Math.abs(flat)), flat < 0);
   }
   if (out === undefined) return '';
-  if (!repeat) return out;
-  return (
-    spec('dice.repeat', { dice: out, times: repeat.times, keep: repeat.keep }) ??
-    `${out}, ${repeat.times} times, keep ${repeat.keep === 'high' ? 'highest' : 'lowest'}`
-  );
+  if (!repeat || again.size > 0) return out;
+  return repeated(out, repeat, spec);
 }

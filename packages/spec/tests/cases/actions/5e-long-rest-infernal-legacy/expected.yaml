@@ -1,5 +1,5 @@
-# The race copy's spent Infernal Legacy use is cleared, with the rest of the long rest. No hit
-# dice are spent, so nothing is asked.
+# The race copy's spent Infernal Legacy use is cleared, with the rest of the long rest; Darkness
+# wasn't used, so nothing resets it. No hit dice are spent, so nothing is asked.
 status: finished
 outcome:
   result: rested
@@ -98,15 +98,8 @@ proposedChanges:
     step: rest
     change:
       type: setState
-      grants:
-        where: "item.id == '5e-srd-5.1:traits.infernal-legacy' && self.hellishRebukeUsed"
       key: hellishRebukeUsed
-      value: false
-  - to: self
-    step: rest
-    change:
-      type: setState
-      grants: { where: "item.id == '5e-srd-5.1:traits.infernal-legacy' && self.darknessUsed" }
-      key: darknessUsed
+      entry: tiefling
+      grant: 5e-srd-5.1:traits.infernal-legacy
       value: false
 log: []

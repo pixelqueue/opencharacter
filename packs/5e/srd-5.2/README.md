@@ -13,6 +13,9 @@ is here. It is its own pack: it doesn't depend on or mix with `5e-srd-5.1` (the 
 pnpm add @opencharacter/engine @opencharacter/5e-srd-5.2
 ```
 
+This release needs spec 0.3: `@opencharacter/engine` 0.3.0 or later. An engine for an older
+spec refuses it (`spec-version-unsupported`).
+
 The package's default export is the built pack (a `PackRelease`), and `i18n/en` its English
 text:
 
@@ -119,8 +122,9 @@ Where the SRD is unclear or silent, the pack reads it this way:
 - **Prone targets:** "within 5 feet" is read as a melee attack, beyond it as a ranged one; a
   Paralyzed or Unconscious target's automatic Critical Hits likewise.
 - **Weapon mastery** is offered after the attack roll (recommended). Sap ends with the target's
-  next attack, Vex with the attacker's next attack against that target, and two Slows don't
-  stack; their other timing is the app's. Push and Cleave are reported in the outcome (`push`,
+  next attack roll (one where Advantage cancels its Disadvantage included), Vex with the
+  attacker's next attack roll against that target, and two Slows don't stack; their other timing is
+  the app's. Push and Cleave are reported in the outcome (`push`,
   `cleave`) for the app to resolve; Cleave's attack runs the weapon's attack with `cleave` set.
 - **Grapple and Shove:** the target saves with the better of Strength and Dexterity (its
   player's choice).
@@ -133,8 +137,8 @@ Where the SRD is unclear or silent, the pack reads it this way:
 - **Paladin and Ranger** each round up their own half levels for the Multiclass Spellcaster
   table; Pact Magic stays separate.
 - **Feats:** a feat that isn't repeatable is taken once, whether a background granted it or a
-  level picked it. Savage Attacker is Advantage on the weapon's damage dice (exact for one die;
-  for 2d6 it keeps the best two of three). A lineage's level 3 spell is a level 1 spell and its
+  level picked it. Savage Attacker rolls the weapon's damage dice twice and keeps the better
+  total. A lineage's level 3 spell is a level 1 spell and its
   level 5 spell a level 2 one for its free casts.
 - **Class features:**
   - Rage Damage, Reckless Attack and Brutal Strike count any attack using Strength, thrown
@@ -154,9 +158,7 @@ Where the SRD is unclear or silent, the pack reads it this way:
     weapon. Pact of the Blade binds a weapon kind, which may attack with Charisma and deal Necrotic,
     Psychic or Radiant damage (picked on the attack, as Empowered Strikes' Force is); damage a
     feature or item adds in the weapon's type (Rage, Sneak Attack, a magic weapon's bonus) takes the
-    picked type. Eldritch Spear's range, and Improved Elemental Fury's for a cantrip on the Druid
-    list, go on the spell wherever the character knows it (another class's copy of the cantrip
-    included).
+    picked type.
   - A created spell slot (Font of Magic, Wild Resurgence, Nature Magician, Rod of Absorption)
     only refills an expended slot; Sorcery Points never pass their maximum.
   - Empowered Spell rerolls the lowest dice; Overchannel maximizes the spell's first damage die
@@ -263,7 +265,7 @@ Where the SRD is unclear or silent, the pack reads it this way:
   A species trait keeps its own uses as its grant's saved state (Breath Weapon, Draconic Flight,
   Stonecunning, the lineage spells, Giant Ancestry, Large Form, Adrenaline Rush, Relentless
   Endurance); Stone's Endurance spends a Giant Ancestry use from its incoming-damage effect's
-  `then`, and `origins.giantAncestryLeft` offers it while one is left.
+  `then`, and is offered while one is left.
 - **Spellcasting:** each class's cantrips and prepared spells (the table's counts), always-
   prepared subclass spells, the Multiclass Spellcaster slots, Pact Magic, the wizard's spellbook
   and Ritual Adept, Magic Initiate and species spells with their own ability, `cast-spell` with
@@ -287,6 +289,57 @@ Where the SRD is unclear or silent, the pack reads it this way:
   shows carrying weight and attunement slots only once it carries or attunes to something.
 - **Sheet layout:** display groups for fields, actions and content, units, and a headline
   ("Level 3 Elf Wizard", "Goblin Warrior, CR 1/4").
+
+## Add-on packs
+
+A pack that depends on this one can add content of its types, and it flows into the same
+processes:
+
+- **Classes** take part in creation, random starts and multiclassing through item fields: a
+  `kit` action (`listed: false`, a `random` parameter) with `startingKit: true` gives the
+  starting equipment; `abilityPriority` lists a random start's abilities, best first (`abilities.str.score`, …);
+  `multiclassAll` and `multiclassAny` name the abilities multiclassing into it needs 13 in. Like a
+  core class, it carries the `multiclass` prerequisite
+  (`(self.startingClass && self.level == level.total) || item.id in multiclass.qualified`).
+- **Backgrounds** bring their starting equipment the same way (`startingKit` and a `kit` action).
+- **Magic items** and magic weapon or armor templates restricted to classes list them in
+  `attunementClasses`.
+- **Metamagic options** are `metamagic` content; containers add to `items.stowCapacity` or
+  `items.stowUnlimited`, and content resets its uses with a `changes` effect on `rest.long`.
+- **Open enums** (`extendEnums`): weapon `damageType`, `ammunition` and `mastery`, feat
+  `category`, gear `category` and `ammunition`, tool, vehicle and magic item `category`, spell
+  `school` and damage types (and a lineage's `damageType`, the same list), monster `typeTag` and
+  monster action damage types, and the `spell-effect`, `item-power` and `throw-item` actions'
+  `damageType` (`5e-srd-5.2:actions.<action>.params.damageType`). A new damage type or mastery
+  also needs its tag (`damage.sonic`,
+  `mastery.pierce`), declared and named in the add-on; a new feat category is offered wherever a
+  choice asks for it (`item.category == 'dragonmark'`), and a fighting-style feat joins every
+  Fighting Style pick.
+- **Creature types:** a new one goes in `5e-srd-5.2:fields.creature.type`, the monster's
+  `creatureType`, a condition's `by` (`types.condition.state.by`) and the Ammunition of Slaying's
+  `slays` (`magic-items.ammunition-of-slaying.state.slays`); an attack reads the target's type
+  through an open view field, so a target of the added type is attacked as any other.
+- **Choices** (`extendChoices`): listed choices take items and values, and inline ones options:
+  Hunter's Prey (`features.ranger.hunters-prey`, `option`), a class's skills and expertise.
+  Choices over a type (subclasses, spells, feats, weapon mastery) offer the add-on's content
+  already.
+- **Naming what an add-on adds:** it names each added value, option or key in its own text,
+  under the key this pack would use, and `createText` finds it there when the app passes the
+  ruleset's `enumOrigins`, `optionOrigins` and `familyOrigins`. For example,
+  `sonic` added to `5e-srd-5.2:types.weapon.fields.damageType` is
+  `types.weapon.fields.damageType.values.sonic.name: Sonic` (through `enumOrigins`), and a
+  Hunter's Prey option `giant-killer` is
+  `features.ranger.hunters-prey.choices.option.options.giant-killer.name: Giant Killer` (through
+  `optionOrigins`).
+- **Step tags** for rules-level `option` and `changes` effects: `creation.class`,
+  `creation.background`, `creation.species`, `creation.method`, `creation.trinket` and
+  `creation.finish`, `level-up.class`, `level-up.hit-points` and `level-up.gain`, `rest.long`,
+  and the weapon attack's `ammunition`, `weapon-mastery`, `weapon-damage-type`, `weapon-hit` and
+  `weapon-mastery.rider` (a new mastery's effect: a `changes` effect with
+  `when: flags.mastery == '<mastery>'`).
+
+Still closed: abilities, skills, weapon and armor categories and conditions are the game's fixed
+sets.
 
 ## Limitations
 

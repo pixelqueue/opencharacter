@@ -16,6 +16,9 @@ edition only, with the author's permission; nothing from the paid deluxe edition
 pnpm add @opencharacter/swn-revised @opencharacter/engine
 ```
 
+This release needs spec 0.3: `@opencharacter/engine` 0.3.0 or later. An engine for an older
+spec refuses it (`spec-version-unsupported`).
+
 The package's default export is the pack's release, ready for `loadRuleset`; its English text is
 `@opencharacter/swn-revised/i18n/en` (also as JSON, `release.json` and `i18n/en.json`).
 
@@ -82,11 +85,12 @@ sheet.values['swn-revised:saves.physical']?.value; // 15 less the better of Str 
     Learning table, or three rolls split between the Growth and Learning tables; a class (an
     Adventurer picks two partial classes); a Psychic's two disciplines or a Partial Psychic's
     one; one focus level, plus the Expert's non-combat and the Warrior's combat one; a hobby
-    skill; hit points; an equipment package or 2d6 × 100 credits.
-  - `quick` and `random`, the quick creation tables: class and style (d8), background (d20),
-    two disciplines for a psychic (d6), foci from the style's row (d6) and a bonus skill (d20).
-    `random` rolls every table, so an automatic run finishes the character; the equipment
-    package is drawn among the ten packages and the credits roll.
+    skill; hit points; an equipment package or 2d6 × 100 credits (the class's own package,
+    its `kit`, recommended).
+  - `quick` and `random`, the quick creation tables: class and style (the eight styles, d8),
+    background (d20), two disciplines for a psychic (d6), foci from the style's row (d6) and a
+    bonus skill (d20). `random` rolls every table, so an automatic run finishes the character;
+    the equipment package is drawn among the ten packages and the credits roll.
   - Every skill pick follows the book: a skill's first pick is level-0, the second level-1,
     and a third is any other non-psychic skill below level-1. A psychic skill raised to level-1
     brings a free level-1 technique.
@@ -130,3 +134,50 @@ sheet.values['swn-revised:saves.physical']?.value; // 15 less the better of Str 
   pharmaceutical, and cyberware item of the free edition, with the equipment packages.
 
 Starships, vehicles, drones and gear mods are not modeled.
+
+## Add-on packs
+
+A pack that depends on `swn-revised` can add content of its types, and creation offers it with the
+core's, in the guided picks and in the random draws (a die with a face per option, the book's die
+with the core content alone):
+
+- **Classes and backgrounds** join the full procedure. A class names its recommended package in
+  `kit`.
+- **Styles** (`style`) join the quick tables: the class, the six scores and, for the book's
+  styles only, `table`, the style's column of the quick foci table. A style without one picks
+  its foci as the full procedure does (one of any kind, plus the class's extra non-combat and
+  combat ones).
+- **Equipment packages** (`kit`) are content: a package's own `unpack` action (`listed: false`)
+  adds its gear and sets the credits. The starting-gear action adds the package as the entry
+  `kit`, runs its `unpack`, then removes it, so only the gear stays.
+- **Foci** join every focus pick; the tags `needs-psionics` and `no-psionics` limit one to
+  characters with psionic access or without it.
+- **Open enums:** weapon `ammo`, gear `category` and `kind` (what a weapon reloads with), and
+  armor `category`. An add-on lists new values in `extendEnums`
+  (`'swn-revised:types.weapon.fields.ammo': [spikes]`) and names them in its text.
+- **Naming what an add-on adds:** it names each added value, option or key in its own text,
+  under the key this pack would use, and `createText` finds it there when the app passes the
+  ruleset's `enumOrigins`, `optionOrigins` and `familyOrigins`. For example,
+  `spikes` added to `swn-revised:types.weapon.fields.ammo` is
+  `types.weapon.fields.ammo.values.spikes.name: Spike magazine` (through `enumOrigins`).
+- **Tagged steps** take an add-on's rules-level `option` and `changes` effects: `creation.kit`
+  (the starting package pick: an added option replaces the package), `creation.focus` and
+  `level-up.focus` (a focus pick at creation or on advancement: an added option is taken instead
+  of a focus), `creation.finish` (the last changes of both creation actions, before creation
+  ends), `level-up.level` (each new level's skill points), `rest.night` (a night's rest) and
+  `rest.scene` (the end of a scene).
+
+- **Skills and psychic disciplines** are families: an added skill joins `skill` and `general` or
+  `combat` (`families: { 'swn-revised:skill': [xenology], 'swn-revised:general': [xenology] }`), a
+  discipline `skill` and `psychic`, and the add-on declares its `skills.<key>.level` (tagged
+  `skill` and `skill.general`, `skill.combat` or `skill.psychic`), `.dice` and `.credit`, and its
+  check tag (`check.<key>`). The core's changes reach them through `fieldId`, so creation,
+  `raise-skill`, focus points and `skill-check` gain, raise and roll them. The enums that hold a
+  skill are open and take its key: a background's entries (`freeSkill`, `quick1`, `quick2`,
+  `growth1`–`growth6`, `learning1`–`learning8`), a focus's `skill`, a weapon's `skill`, and the
+  parameters `gain-skill.entry`, `focus-skill-points.entry`, `raise-skill.skill` and
+  `skill-check.skill`; a discipline's also `psionics.discipline`, a technique's `discipline` and
+  `pick-technique.discipline`, so a new skill level picks its techniques. The Partial Psychic's
+  and Psychic Training's discipline choices take it through `extendChoices`. The psychic classes
+  grant each trained discipline's core technique (`core: true`, its `discipline` the key), so an
+  added discipline's core technique comes with it.

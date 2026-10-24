@@ -20,6 +20,7 @@ actions:
         values: [4, 3, 3, 2, 2, 2, 1, 1, 1, 1]
       - id: stunts
         kind: choice
+        tags: [creation.stunts]
         options: { content: { type: stunt, where: picks == 0 } }
         repeat: { max: 3 }
         changes:
@@ -32,6 +33,7 @@ actions:
         recommend: options[0]
       - id: extra
         kind: choice
+        tags: [creation.stunts]
         when: has(steps.more) && steps.more.value > 0
         options:
           content: { type: stunt, where: '!(item.id in steps.stunts.picked) && picks == 0' }
@@ -56,6 +58,7 @@ actions:
           - { type: set, when: "params.phase3 != ''", field: aspects.phase3, value: params.phase3 }
       - id: finish
         kind: changes
+        tags: [creation.finish]
         changes:
           - type: set
             field: fatePoints.current
@@ -63,8 +66,9 @@ actions:
           - { type: finishCreation }
 
   # The SRD has players choose, so the random start's odds are the pack's: the ten ratings go to ten
-  # skills drawn without replacement (homebrew skills included), the three free stunts from the 17
-  # example stunts, and no stunt past the free three, so refresh and fate points stay 3.
+  # skills drawn without replacement (homebrew skills included), the three free stunts from the
+  # written stunts (the 17 examples, an add-on pack's too, never the custom one), and no stunt
+  # past the free three, so refresh and fate points stay 3.
   - id: random-character
     tags: [creation]
     available: character.creating
@@ -83,20 +87,11 @@ actions:
         random: true
       - id: stunts
         kind: choice
+        tags: [creation.stunts]
         options:
           content:
             type: stunt
-            where: >-
-              picks == 0 && item.id in [
-                @stunts.grappler, @stunts.hardcore-parkour,
-                @stunts.i-ve-read-about-that, @stunts.indomitable,
-                @stunts.killing-stroke, @stunts.lie-whisperer,
-                @stunts.mind-games, @stunts.ninja-vanish,
-                @stunts.pedal-to-the-metal, @stunts.psychologist,
-                @stunts.riposte, @stunts.rumormonger,
-                @stunts.specialist, @stunts.strength-from-determination,
-                @stunts.take-the-blow, @stunts.tough-as-nails,
-                @stunts.trust-fund-baby]
+            where: "picks == 0 && item.shape != 'custom'"
         repeat: { max: stunts.free, min: stunts.free }
         random: true
         changes:
@@ -119,6 +114,7 @@ actions:
           - { type: set, when: "params.phase3 != ''", field: aspects.phase3, value: params.phase3 }
       - id: finish
         kind: changes
+        tags: [creation.finish]
         changes:
           - { type: set, field: fatePoints.current, value: refresh.base }
           - { type: finishCreation }

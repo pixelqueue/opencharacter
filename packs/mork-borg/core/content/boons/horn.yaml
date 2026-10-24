@@ -1,0 +1,10 @@
+id: boons.horn
+type: boon
+effects:
+  - target: { rolls: [test], tally: horn }
+    op: add
+    value: 1
+    when: '!params.defense && !params.combat'
+    scope: applied
+    then:
+      - { type: removeEffect, entry: self }

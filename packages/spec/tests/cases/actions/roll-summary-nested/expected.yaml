@@ -10,6 +10,7 @@ needs:
     bandSet: mothership-1e:panic
     bands:
       - band: pass
+        success: true
         when: 'roll.total > 4'
         tests: [{ of: roll.total, compare: gt, value: 4 }]
       - { band: panic, when: 'true', tests: [] }
@@ -29,6 +30,7 @@ log:
         - band: critical-success
           when: 'roll.total < 41 && roll.total < 90 && roll.total % 11 == 0'
         - band: success
+          success: true
           when: 'roll.total < 41 && roll.total < 90'
           tests:
             - { of: roll.total, compare: lt, value: 41 }

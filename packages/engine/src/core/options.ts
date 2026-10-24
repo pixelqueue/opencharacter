@@ -93,8 +93,7 @@ export function optionsOn(
         (item) =>
           !item.hidden && item.type === from.type && (!contentOnly || matches.has(item.qid)),
       )
-      .map((item) => ({ option: item.qid, inQuery: matches.has(item.qid) }))
-      .toSorted((a, b) => (String(a.option) < String(b.option) ? -1 : 1));
+      .map((item) => ({ option: item.qid, inQuery: matches.has(item.qid) }));
   }
 
   let recommended: unknown;

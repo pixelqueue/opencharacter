@@ -179,6 +179,7 @@ actions:
     results: [rested]
     steps:
       - id: rest
+        tags: [rest.night]
         kind: changes
         changes:
           - { type: adjust, field: hp.current, by: level, when: hp.current > 0, tags: [healing] }
@@ -195,6 +196,7 @@ actions:
     results: [ended]
     steps:
       - id: reset
+        tags: [rest.scene]
         kind: changes
         changes:
           - { type: set, field: effort.scene, value: 0 }
@@ -265,11 +267,18 @@ actions:
       until: { type: enum, values: [scene, day], default: scene }
     results: [committed]
     steps:
+      # Torched Effort lasts only for the scene, whatever it is committed for.
+      - id: source
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              day: "params.until == 'day' && effort.max - effort.scene - effort.day - effort.active > 0"
       - id: commit
         kind: changes
         changes:
-          - { type: adjust, field: effort.scene, by: 1, when: "params.until == 'scene'" }
-          - { type: adjust, field: effort.day, by: 1, when: "params.until == 'day'" }
+          - { type: adjust, field: effort.scene, by: 1, when: '!flags.day' }
+          - { type: adjust, field: effort.day, by: 1, when: flags.day }
       - { id: result, kind: outcome, result: "'committed'" }
 
   # Torching: a free point of Effort for the scene, at a risk to Wisdom or Constitution.

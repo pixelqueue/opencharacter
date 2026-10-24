@@ -2,9 +2,19 @@ id: feats.ancestry.harmonic-sensitivity
 type: feat
 tags: [trait.pahtra]
 fields: { level: 1, category: ancestry, ancestry: ancestries.pahtra }
-effects:
-  - target: skills.trained
-    op: grant
-    value: { tag: skill.performance }
-    when: "!('skill.performance' in skills.chosen)"
-  - { target: skills.trainings, op: add, value: 1 }
+choices:
+  - id: harmonic
+    from: { values: [training, assurance] }
+    eligible: >-
+      value == 'assurance' ? 'skill.performance' in skills.trained
+        : !('skill.performance' in skills.trained)
+    recommend: "'skill.performance' in skills.trained ? 'assurance' : 'training'"
+    effects:
+      - target: skills.chosen
+        op: grant
+        value: { tag: skill.performance }
+        when: "pick.value == 'training'"
+grants:
+  - item: feats.skill.assurance
+    when: "'assurance' in picksOf('harmonic')"
+    choices: { skill: [{ option: skill.performance }] }

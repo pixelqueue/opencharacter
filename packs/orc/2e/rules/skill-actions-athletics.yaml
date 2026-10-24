@@ -273,8 +273,7 @@ actions:
             flags:
               map: '5 * min(2, has(params.attack) ? params.attack - 1 : turn.attacks)'
               crowbar: >-
-                countCopies(copy.item == @gear.crowbar
-                  || copy.item == @gear.crowbar-levered) > 0
+                countCopies('tool.crowbar' in copy.tags) > 0
       - id: check
         kind: action
         use: check

@@ -14,6 +14,9 @@ out.
 pnpm add @opencharacter/engine @opencharacter/5e-srd-5.1
 ```
 
+This release needs spec 0.3: `@opencharacter/engine` 0.3.0 or later. An engine for an older
+spec refuses it (`spec-version-unsupported`).
+
 The package's default export is the built pack (a `PackRelease`), and `i18n/en` its English
 text:
 
@@ -269,6 +272,52 @@ Where the SRD is unclear or silent, the pack reads it this way:
   situational advantages are modeled.
 - **Sheet layout:** display groups for actions and content, with units (feet, pounds, gold
   pieces, miles per hour) and a compact `summary` view.
+
+## Add-on packs
+
+A pack that depends on this one can add content of its types, and it flows into the same
+processes:
+
+- **Classes** take part in creation, random starts and multiclassing through item fields: a
+  `kit` action (`listed: false`, a `random` parameter) with `startingKit: true` gives the
+  starting equipment; `abilityPriority` lists a random start's abilities, best first (`abilities.str.score`, …);
+  `multiclassAll` and `multiclassAny` name the abilities multiclassing into it needs 13 in. Like a
+  core class, it carries the `multiclass` prerequisite
+  (`(self.startingClass && self.level == level.total) || item.id in multiclass.qualified`).
+- **Backgrounds** bring their starting equipment the same way (`startingKit` and a `kit` action).
+- **Magic items** and magic weapon or armor templates restricted to classes list them in
+  `attunementClasses`.
+- **Metamagic options** are `metamagic` content and the Hunter's options `hunterTactic` content
+  (`feature` names the choice that offers them). Containers add to `carrying.stowCapacity`,
+  `carrying.stowUnlimited` or `carrying.quivers`, and content resets its uses on a rest with a
+  `changes` effect on the `rest.long` or `rest.short` step. A weapon tagged `quiver.javelin` goes
+  in an Efficient Quiver's javelin compartment.
+- **Open enums** (`extendEnums`): weapon `damageType` and `ammunition`, gear `category` and
+  `ammunition`, tool, vehicle and magic item `category`, spell `school`, `damageType` and
+  `damage2Type`, monster `subtype`, and monster action `damageType`, `damage2Type` and
+  `saveDamageType`, and the `item-power` action's `damageType`
+  (`5e-srd-5.1:actions.item-power.params.damageType`). A new damage type also needs its tag
+  (`damage.sonic`), declared and named in the add-on.
+- **Creature types:** a new one goes in `5e-srd-5.1:fields.creature.type`, the monster's
+  `creatureType`, a condition's `by` (`types.condition.state.by`) and the Arrow of Slaying's
+  `slays` (`magic-items.arrow-of-slaying.state.slays`); an attack reads the target's type through
+  an open view field, so a target of the added type is attacked as any other.
+- **Choices** (`extendChoices`): a class's listed choices (skills, fighting styles, expertise)
+  take values and items; choices over a type (subclasses, spells, feats) offer the add-on's
+  content already.
+- **Naming what an add-on adds:** it names each added value, option or key in its own text,
+  under the key this pack would use, and `createText` finds it there when the app passes the
+  ruleset's `enumOrigins`, `optionOrigins` and `familyOrigins`. For example,
+  `sonic` added to `5e-srd-5.1:types.weapon.fields.damageType` is
+  `types.weapon.fields.damageType.values.sonic.name: Sonic` (through `enumOrigins`).
+- **Step tags** for rules-level `option` and `changes` effects: `creation.race`,
+  `creation.subrace`, `creation.class`, `creation.background`, `creation.method` and
+  `creation.finish` (guided and random creation), `level-up.class`, `level-up.hit-points` and
+  `level-up.gain`, `rest.long` and `rest.short`, and the attack's `weapon-hit` and
+  `ammunition`.
+
+Still closed: the abilities, skills, weapon and armor categories and conditions are the game's
+fixed sets.
 
 ## Limitations
 

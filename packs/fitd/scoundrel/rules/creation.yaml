@@ -21,6 +21,7 @@ actions:
     steps:
       - id: playbook
         kind: choice
+        tags: [creation.playbook]
         options: { content: { type: playbook } }
         random: params.random
         recommend: options[0]
@@ -28,6 +29,7 @@ actions:
           - { type: choose, path: { choice: [playbook] }, option: picked.id }
       - id: poolAbility
         kind: choice
+        tags: [creation.ability]
         when: '!has(steps.playbook)'
         options: { content: { type: specialAbility } }
         random: params.random
@@ -36,6 +38,7 @@ actions:
           - { type: choose, path: { choice: [special-abilities] }, option: picked.id }
       - id: vice
         kind: choice
+        tags: [creation.vice]
         options: { content: { type: vice } }
         random: params.random
         recommend: options[0]
@@ -72,6 +75,7 @@ actions:
         random: params.random
       - id: picks
         kind: choice
+        tags: [creation.picks]
         options: { pending: {} }
         random: params.random
       - id: heritage
@@ -111,5 +115,6 @@ actions:
           - { type: set, field: vice.purveyor, value: params.purveyor }
       - id: finish
         kind: changes
+        tags: [creation.finish]
         changes:
           - { type: finishCreation }

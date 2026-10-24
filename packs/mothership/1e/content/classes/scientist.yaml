@@ -27,18 +27,10 @@ choices:
     from: { type: skill, where: "item.tier == 'master'" }
     eligible: '!(item.id in skills.known) || item.id in choice.picks'
   - id: expert
-    from:
-      type: skill
-      where: >-
-        item.tier == 'expert' && item.id in [@skills.psychology, @skills.pathology,
-          @skills.field-medicine, @skills.ecology, @skills.asteroid-mining,
-          @skills.mechanical-repair, @skills.hacking, @skills.piloting, @skills.physics,
-          @skills.mysticism, @skills.firearms]
+    from: { type: skill, where: "item.tier == 'expert' && item.towardMaster" }
     eligible: '!(item.id in skills.known) || item.id in choice.picks'
   - id: trained
-    from:
-      type: skill
-      where: "item.tier == 'trained' && !(item.id in [@skills.chemistry, @skills.athletics])"
+    from: { type: skill, where: "item.tier == 'trained' && item.towardMaster" }
     eligible: '!(item.id in skills.known) || item.id in choice.picks'
   - id: bonus
     from: { type: skill, where: "item.tier == 'trained'" }

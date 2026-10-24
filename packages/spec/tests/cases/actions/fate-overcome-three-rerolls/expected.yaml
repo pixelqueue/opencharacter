@@ -10,19 +10,19 @@ outcome:
     boost: false
 proposedChanges:
   - to: self
-    step: roll/reroll
+    step: roll/rerolling[0]/reroll
     change:
       type: adjust
       field: fate-core:fatePoints.current
       by: -1
   - to: self
-    step: roll/reroll2
+    step: roll/rerolling[1]/reroll
     change:
       type: adjust
       field: fate-core:fatePoints.current
       by: -1
   - to: self
-    step: roll/rerollFrom3
+    step: roll/rerolling[2]/rerollFrom
     change:
       type: adjustState
       entry: a-balance
@@ -46,13 +46,13 @@ log:
       - -1
       - 0
     total: 0
-    band: mediocre
-  - step: roll/reroll
+    band: fail
+  - step: roll/rerolling[0]/reroll
     action: fate-core:skill-roll
     kind: choice
     by: app
     option: invoke
-  - step: roll/again
+  - step: roll/rerolling[0]/again
     action: fate-core:skill-roll
     kind: dice
     by: engine
@@ -62,13 +62,13 @@ log:
       - 0
       - 0
     total: 2
-    band: fair
-  - step: roll/reroll2
+    band: fail
+  - step: roll/rerolling[1]/reroll
     action: fate-core:skill-roll
     kind: choice
     by: app
     option: invoke
-  - step: roll/again2
+  - step: roll/rerolling[1]/again
     action: fate-core:skill-roll
     kind: dice
     by: engine
@@ -78,19 +78,19 @@ log:
       - 0
       - -1
     total: 2
-    band: fair
-  - step: roll/reroll3
+    band: fail
+  - step: roll/rerolling[2]/reroll
     action: fate-core:skill-roll
     kind: choice
     by: app
     option: free
-  - step: roll/rerollFrom3
+  - step: roll/rerolling[2]/rerollFrom
     action: fate-core:skill-roll
     kind: choice
     by: app
     option: a-balance
     index: 0
-  - step: roll/again3
+  - step: roll/rerolling[2]/again
     action: fate-core:skill-roll
     kind: dice
     by: engine
@@ -100,7 +100,7 @@ log:
       - 0
       - 0
     total: 5
-    band: superb
+    band: succeed
   - step: roll/invokes
     action: fate-core:skill-roll
     kind: choice
@@ -111,6 +111,7 @@ log:
     kind: choice
     by: app
     option: '0'
+  - { step: roll/rung, action: fate-core:skill-roll, kind: dice, total: 5, band: superb }
   - step: final
     action: fate-core:overcome
     kind: dice

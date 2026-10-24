@@ -2,6 +2,17 @@ id: classes.bard
 type: class
 fields:
   hitDie: 1d8
+  startingKit: true
+  abilityPriority:
+    [
+      abilities.cha.score,
+      abilities.dex.score,
+      abilities.int.score,
+      abilities.con.score,
+      abilities.wis.score,
+      abilities.str.score,
+    ]
+  multiclassAll: [cha]
 state:
   bardicInspirationSpent: { type: integer, default: 0, min: 0 }
 prerequisites:
@@ -81,3 +92,34 @@ choices:
   - id: subclass
     from: { type: subclass, where: 'item.class == @classes.bard' }
     when: self.level >= 3
+actions:
+  - id: kit
+    listed: false
+    params:
+      random: { type: boolean, default: false }
+    steps:
+      - id: bard
+        kind: choice
+        options:
+          - id: a
+            changes:
+              - { type: addItem, entry: { item: "'armor.leather'", equipped: true } }
+              - { type: addItem, entry: { item: "'weapons.dagger'", quantity: 2, equipped: true } }
+              - { type: addItem, entry: { item: "'gear.entertainers-pack'" } }
+              - { type: adjust, field: coins.gp, by: 19 }
+          - id: b
+            changes:
+              - { type: adjust, field: coins.gp, by: 90 }
+        recommend: "'a'"
+        random: params.random
+      - id: bardInstrument
+        kind: choice
+        when: "steps.bard.picked == 'a'"
+        sheet: proposed
+        options: { content: { type: tool, where: "item.category == 'musical-instrument'" } }
+        recommend: >-
+          countList(options, x in proficiencies.tools) > 0
+            ? filterList(options, x in proficiencies.tools)[0] : options[0]
+        random: params.random && countList(options, x in proficiencies.tools) == 0
+        changes:
+          - { type: addItem, entry: { item: picked.id } }

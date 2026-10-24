@@ -3,7 +3,6 @@ fields:
   ranger.tireless: { type: integer, formula: 0 }
   ranger.naturesVeil: { type: integer, formula: 0 }
   ranger.preciseHunter: { type: boolean, formula: false }
-  ranger.colossusSlayer: { type: boolean, formula: false }
   ranger.superiorHuntersDefense: { type: boolean, formula: false }
   huntersMark.die: { type: dice, formula: 1d6 }
 
@@ -21,7 +20,7 @@ situational:
   - id: colossusSlayer
     type: boolean
     default: false
-    available: ranger.colossusSlayer
+    available: "'colossus-slayer' in picksOf('features.ranger.hunters-prey', 'option')"
     rolls: [damage.weapon]
     effects:
       - target: { rolls: [damage.weapon] }
@@ -52,6 +51,5 @@ display:
     ranger.tireless: { groups: [class-features], priority: 2, showWhen: ranger.tireless > 0 }
     ranger.naturesVeil: { groups: [class-features], priority: 2, showWhen: ranger.naturesVeil > 0 }
     ranger.preciseHunter: { hidden: true }
-    ranger.colossusSlayer: { hidden: true }
     ranger.superiorHuntersDefense: { hidden: true }
     huntersMark.die: { groups: [class-features], priority: 2, showWhen: ranger.favoredEnemy > 0 }

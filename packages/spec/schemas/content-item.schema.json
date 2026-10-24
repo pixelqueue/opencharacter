@@ -33,7 +33,7 @@
       "uniqueItems": true
     },
     "fields": {
-      "description": "Values for the item fields declared by the content type. How a value is read depends on the declared type: `integer`, `decimal`, `boolean` and `dice` values are formulas (a plain literal is a formula with no inputs); `string`, `enum` and `id` values are literal strings; `set` values are lists of literals. A template may set the rules' `templateFields` and the fields of the content type its `appliesTo` names; its values are merged into the copy's `item` in template order, replacing the base item's, and its formulas see the base item as `base`. A template may give `null` for a field: the field is absent from the copy's `item` (no declared default applies), unless a later template sets it again. Only templates may give `null`.",
+      "description": "Values for the item fields declared by the content type. How a value is read depends on the declared type: `integer`, `decimal`, `boolean` and `dice` values are formulas (a plain literal is a formula with no inputs); `string`, `enum` and `id` values are literal strings; `set` values are lists of literals. A template may set the rules' `templateFields` and the fields of the content type its `appliesTo` names; its values are merged into the copy's `item` in template order, replacing the base item's, and its formulas see the base item as `base`. A template may give `null` for a field: the field is absent from the copy's `item` (no declared default applies), unless a later template sets it again. Only templates may give `null`. A template's `string`, `enum` or `id` value may be `{ formula }`: a string formula read as its numeric values are (with `base`, `prior` and `params`), so a kept template takes a damage type from its keeper's `params`; a result that isn't a string, or isn't one of an enum's values, leaves the field as it was. Only templates may give `{ formula }`.",
       "type": "object",
       "propertyNames": {
         "$ref": "common.schema.json#/$defs/name"
@@ -45,6 +45,16 @@
           },
           {
             "type": "null"
+          },
+          {
+            "type": "object",
+            "required": ["formula"],
+            "properties": {
+              "formula": {
+                "$ref": "formula.schema.json"
+              }
+            },
+            "additionalProperties": false
           }
         ]
       }
@@ -155,6 +165,10 @@
       "items": {
         "$ref": "#/$defs/prerequisite"
       }
+    },
+    "grantOnly": {
+      "description": "The item is held only through a grant or a pick (a class feature, a subclass), never as a copy of its own: `addItem` of it is `not-addable`, and apps leave it out of add-item catalogs. Replaces its content type's `grantOnly` (`false` lets one item of a grant-only type be added). The loaded ruleset gives every item the value that applies.",
+      "type": "boolean"
     },
     "repeatable": {
       "description": "The item may be picked more than once (a feat taken again): exclusivity groups (a choice's `unique`) don't apply to it, so a pick of it in one choice of a group leaves it eligible in the others, and isn't `already-picked`. Default false.",
@@ -270,7 +284,7 @@
       "required": ["item"],
       "properties": {
         "item": {
-          "description": "The content granted: an ID, or `{ formula }`, a string formula evaluated as an activation condition is (it reads `self`, `item` and input fields) to a content ID, qualified in the grant's pack as a literal one is; an empty string grants nothing, and an ID that names no content grants nothing with the sheet error `unknown-id`. So content grants what the player named in its state (a spell picked for the day).",
+          "description": "The content granted: an ID; `{ formula }`, a string formula evaluated as an activation condition is (it reads `self`, `item` and input fields) to a content ID, qualified in the grant's pack as a literal one is; an empty string grants nothing, and an ID that names no content grants nothing with the sheet error `unknown-id`. So content grants what the player named in its state (a spell picked for the day). Or `{ query }`: every content item of the query's type it matches, hidden items left out, in ruleset order, each granted as its own grant; `where` is an activation condition with the candidate as `item` (a query that reads only `item` is resolved at load), so a core grant reaches content an add-on adds.",
           "anyOf": [
             {
               "$ref": "common.schema.json#/$defs/ref"
@@ -284,8 +298,22 @@
                 }
               },
               "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "required": ["query"],
+              "properties": {
+                "query": {
+                  "$ref": "query.schema.json"
+                }
+              },
+              "additionalProperties": false
             }
           ]
+        },
+        "forEach": {
+          "description": "The grant is made once per element of this list, in list order, with `x` bound to the element in `when`, `item` (a query's `where` too), `state` and `choices`. The list is an activation formula as `when` is (it reads `self`, `item` and input fields; `x` is unbound in it); an empty list grants nothing, and one that fails or isn't a list grants nothing with its sheet error. So one core grant covers every key of a family, an add-on's too: `{ forEach: keysOf('ward'), when: \"fieldOf('wards.{ward}', x) > 0\", item: { query: { type: rite, where: item.ward == x } } }`.",
+          "$ref": "formula.schema.json"
         },
         "when": {
           "$ref": "formula.schema.json#/$defs/condition"
@@ -374,7 +402,14 @@
     "keptTemplate": {
       "type": "object",
       "required": ["template"],
-      "oneOf": [{ "required": ["copies"] }, { "required": ["content"] }],
+      "oneOf": [
+        {
+          "required": ["copies"]
+        },
+        {
+          "required": ["content"]
+        }
+      ],
       "properties": {
         "template": {
           "description": "The template kept on the copies or the content.",
@@ -389,7 +424,7 @@
           "$ref": "query.schema.json"
         },
         "params": {
-          "description": "Values for the template's `params`, each a formula of the param's type evaluated as an activation condition is, with the keeper's roots (`self`, `item`, `picksOf`, `character`, input fields). The template's item fields read them as `params.<name>`, so a kept template scales with the character. A name the template doesn't declare is `unknown-name` at load.",
+          "description": "Values for the template's `params`, each a formula of the param's type evaluated as an activation condition is, with the keeper's roots (`self`, `item`, `picksOf`, `character`, input fields). `character.applied` is among them, the saved applied entries with their state, so a param can name the element of an active spell. The template's item fields read them as `params.<name>`, so a kept template scales with the character. A name the template doesn't declare is `unknown-name` at load.",
           "type": "object",
           "propertyNames": {
             "$ref": "common.schema.json#/$defs/name"

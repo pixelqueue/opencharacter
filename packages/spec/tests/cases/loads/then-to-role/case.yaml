@@ -1,0 +1,31 @@
+description: 'A rules roll effect may carry a `then` that goes `to` a role, since it changes no entry of its own; one `to: self` is still then-without-copy'
+specVersion: 0.2.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.2.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        tags: [attack]
+        effects:
+          - id: against-marked
+            target: { rolls: [attack] }
+            op: rollModifier
+            value: { kind: advantage }
+            then:
+              to: target
+              when: applied
+              changes:
+                - { type: removeEffect, applied: { where: 'true' } }
+          - id: own
+            target: { rolls: [attack] }
+            op: add
+            value: 1
+            then:
+              once: roll
+              changes: [{ type: setState, entry: self, key: used, value: true }]
+      content: []

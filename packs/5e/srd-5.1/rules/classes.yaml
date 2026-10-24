@@ -39,7 +39,6 @@ fields:
   sacredWeapon.active: { type: boolean, input: true, default: false }
   hideInPlainSight.active: { type: boolean, input: true, default: false }
   foeSlayer.bonus: { type: integer, formula: 0 }
-  hunter.colossusSlayer: { type: boolean, formula: false }
   sneakAttack.dice: { type: integer, formula: 0 }
   sorcery.points: { type: integer, formula: 0 }
   sorcery.left:
@@ -49,8 +48,6 @@ fields:
         copy.type == 'class' && has(copy.state.sorceryPointsSpent))
   sorcery.shortRestRegain: { type: integer, formula: 0 }
   sorcery.metamagic: { type: boolean, formula: false }
-  draconic.damageType:
-    { type: enum, values: [none, acid, cold, fire, lightning, poison], formula: "'none'" }
   elementalAffinity.resistant: { type: boolean, input: true, default: false }
   dragonWings.active: { type: boolean, input: true, default: false }
   warlock.boons: { type: set, of: pactBoon }
@@ -62,10 +59,35 @@ fields:
   eldritchBlast.push: { type: integer, formula: 0 }
 
 contentTypes:
-  invocation:
+  # The Hunter's options, by the feature that offers them.
+  hunterTactic:
+    grantOnly: true
     copies: { max: 0 }
+    fields:
+      feature:
+        type: enum
+        values: [hunters-prey, defensive-tactics, multiattack, superior-hunters-defense]
+        required: true
+
+  metamagic:
+    grantOnly: true
+    copies: { max: 0 }
+    effects:
+      - { target: sorcery.metamagic, op: set, value: sorcery.left > 0 }
+
+  invocation:
+    grantOnly: true
+    copies: { max: 0 }
+    # An invocation usable once per rest keeps `used` on its pick.
+    effects:
+      - target: { steps: [rest.long] }
+        op: changes
+        when: has(self.used) && self.used
+        value:
+          changes: [{ type: setState, pick: owner, key: used, value: false }]
 
   pactBoon:
+    grantOnly: true
     copies: { max: 0 }
     effects:
       - target: warlock.boons

@@ -6,6 +6,7 @@ viewFields:
     creature.size: { type: enum, values: [tiny, small, medium, large, huge, gargantuan] }
     creature.type:
       type: enum
+      open: true
       values:
         [
           aberration,
@@ -177,6 +178,12 @@ effects:
     when: >-
       has(participants.target) && size(participants.target) > 0
         && character.id in participants.target[0].mastery.vexedBy
+    then:
+      to: target
+      when: applied
+      changes:
+        - type: removeEffect
+          applied: { where: 'item.id == @combat-effects.vexed && self.attacker == flags.me' }
   - id: target-elusive
     target: { rolls: [attack] }
     op: rollModifier
@@ -357,7 +364,7 @@ actions:
         parts:
           - dice: >-
               flags.monk && maxOf(martialArts.die) > maxOf(flags.dice) ? martialArts.die : flags.dice
-            tags: [{ formula: "'damage.' + flags.damageType" }]
+            tags: [part.weapon-dice, { formula: "'damage.' + flags.damageType" }]
           - field: "'abilities.' + flags.ability + '.mod'"
             when: >-
               !(params.offHand || params.cleave) || (params.offHand && combat.offHandModifier)
@@ -424,6 +431,7 @@ actions:
             state: { by: creature.type }
       - id: riders
         kind: changes
+        tags: [weapon-mastery.rider]
         when: flags.hit && flags.masteryUsed
         to: target
         changes:
@@ -437,21 +445,6 @@ actions:
             when: flags.mastery == 'vex' && has(steps.damage)
             source: "'combat-effects.vexed'"
             state: { attacker: flags.me }
-      - id: unvex
-        kind: changes
-        when: flags.vexed
-        to: target
-        changes:
-          - type: removeEffect
-            applied:
-              where: 'item.id == @combat-effects.vexed && self.attacker == flags.me'
-      - id: unsap
-        kind: changes
-        when: >-
-          countList(character.applied, x.active && x.source == @combat-effects.sapped) > 0
-        changes:
-          - type: removeEffect
-            applied: { where: 'item.id == @combat-effects.sapped' }
       - id: result
         kind: outcome
         result: "flags.hit ? 'hit' : 'miss'"
@@ -597,21 +590,6 @@ actions:
             by: -max(0, part.total)
             tags:
               [damage, attack, melee, unarmed, { formula: "flags.critical ? ['critical'] : []" }]
-      - id: unvex
-        kind: changes
-        when: flags.vexed
-        to: target
-        changes:
-          - type: removeEffect
-            applied:
-              where: 'item.id == @combat-effects.vexed && self.attacker == flags.me'
-      - id: unsap
-        kind: changes
-        when: >-
-          countList(character.applied, x.active && x.source == @combat-effects.sapped) > 0
-        changes:
-          - type: removeEffect
-            applied: { where: 'item.id == @combat-effects.sapped' }
       - id: result
         kind: outcome
         result: "flags.hit ? 'hit' : 'miss'"

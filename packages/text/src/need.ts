@@ -45,6 +45,7 @@ export function describeNeed(
       out.title = needs.choice ? text.choicePrompt(needs.choice) : text.stepPrompt(needs);
       const context = {
         action: needs.action,
+        ...(needs.content ? { content: needs.content } : {}),
         ...(needs.choice ? { choice: needs.choice } : {}),
         copies: copies(ruleset, options.character),
         isContent: (id: string) => id in ruleset.content || id.includes(':'),
@@ -64,6 +65,7 @@ export function describeNeed(
         const among = needs.draw.among;
         const context = {
           action: needs.action,
+          ...(needs.content ? { content: needs.content } : {}),
           ...(needs.choice ? { choice: needs.choice } : {}),
           copies: copies(ruleset, options.character),
           isContent: (id: string) => id in ruleset.content || id.includes(':'),

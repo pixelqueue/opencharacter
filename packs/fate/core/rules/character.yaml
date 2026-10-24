@@ -3,12 +3,23 @@ contentTypes:
     fields:
       shape: { type: enum, values: [bonus, swap, exception, custom], required: true }
       # The loader qualifies these (`fate-core:skills.lore`), as an action's `params.skill.id` is.
-      skill: { type: id, of: field }
-      replaces: { type: id, of: field }
-      action: { type: enum, values: [any, overcome, advantage, attack, defend], default: any }
-      limit: { type: enum, values: [none, conflict, scene, session], default: none }
-      uses: { type: integer, default: 1, min: 1 }
-      fatePoint: { type: boolean, default: false }
+      skill: { type: id, of: field, where: "'skill' in item.tags", perCopy: true }
+      replaces: { type: id, of: field, where: "'skill' in item.tags" }
+      action:
+        type: enum
+        values: [any, overcome, advantage, attack, defend]
+        default: any
+        perCopy: true
+      limit:
+        {
+          type: enum,
+          values: [none, conflict, scene, session],
+          default: none,
+          perCopy: true,
+          open: true,
+        }
+      uses: { type: integer, default: 1, min: 1, perCopy: true }
+      fatePoint: { type: boolean, default: false, perCopy: true }
       contestTie: { type: boolean, default: false }
       boost: { type: boolean, default: false }
     state:
@@ -24,39 +35,27 @@ contentTypes:
         value: 2
         when: >-
           situational.stunt && has(params.skill)
-            && (item.shape == 'bonus'
-              ? has(item.skill) && item.skill == params.skill.id
-                && (item.action == 'any' || item.action == params.action)
-              : item.shape == 'custom' && self.bonus && self.skill == params.skill.id
-                && (self.action == 'any' || self.action == params.action))
+            && (item.shape == 'bonus' || item.shape == 'custom' && self.bonus)
+            && has(item.skill) && item.skill == params.skill.id
+            && (item.action == 'any' || item.action == params.action)
     actions:
       - id: use
         available: >-
-          ((item.shape == 'custom' ? self.limit : item.limit) != 'none'
-              || (item.shape == 'custom' ? self.fatePoint : item.fatePoint))
-            && ((item.shape == 'custom' ? self.limit : item.limit) == 'none'
-              || self.used < (item.shape == 'custom' ? self.uses : item.uses))
-            && (!(item.shape == 'custom' ? self.fatePoint : item.fatePoint) || fatePoints.current > 0)
+          (item.limit != 'none' || item.fatePoint)
+            && (item.limit == 'none' || self.used < item.uses)
+            && (!item.fatePoint || fatePoints.current > 0)
         results: [used]
         steps:
-          - id: stunt
-            kind: branch
-            cases:
-              - when: true
-                flags:
-                  limited: "(item.shape == 'custom' ? self.limit : item.limit) != 'none'"
-                  uses: "item.shape == 'custom' ? self.uses : item.uses"
-                  fatePoint: "item.shape == 'custom' ? self.fatePoint : item.fatePoint"
           - id: spend
             kind: changes
             changes:
               - type: adjustState
-                when: flags.limited
+                when: item.limit != 'none'
                 entry: self
                 key: used
                 by: 1
               - type: adjust
-                when: flags.fatePoint
+                when: item.fatePoint
                 field: fatePoints.current
                 by: -1
               - type: addItem
@@ -66,7 +65,7 @@ contentTypes:
             kind: outcome
             result: "'used'"
             data:
-              left: 'flags.limited ? flags.uses - self.used - 1 : 0'
+              left: "item.limit != 'none' ? item.uses - self.used - 1 : 0"
 
 fields:
   identity.name: { type: string, input: true, default: '' }

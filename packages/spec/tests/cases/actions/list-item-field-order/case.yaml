@@ -1,0 +1,40 @@
+description: 'A `list` item field keeps the order written, and its duplicates: formulas read the members in that order, its content-type members qualified, where a `set` comes out sorted'
+specVersion: 0.2.0
+call: startAction
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.2.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        fields:
+          abilities.str: { type: integer, input: true, default: 10 }
+          abilities.dex: { type: integer, input: true, default: 10 }
+        contentTypes:
+          class:
+            fields:
+              priority: { type: list, of: field, unique: true }
+              beats: { type: list, of: string }
+              sorted: { type: set, of: string }
+            actions:
+              - id: show
+                steps:
+                  - id: done
+                    kind: outcome
+                    data:
+                      priority: item.priority
+                      first: item.priority[0]
+                      beats: item.beats
+                      sorted: item.sorted
+      content:
+        - id: classes.rogue
+          type: class
+          fields:
+            priority: [abilities.dex, abilities.str]
+            beats: [drum, bell, drum]
+            sorted: [drum, bell]
+input:
+  action: { id: 'test-pack:classes.rogue#show', entry: rogue }

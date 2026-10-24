@@ -131,6 +131,7 @@ actions:
     results: [rested]
     steps:
       - id: recover
+        tags: [rest.night]
         kind: changes
         changes:
           - {
@@ -150,11 +151,11 @@ actions:
           - { type: set, field: spells.pointsUsed, value: 0 }
           - type: set
             forEach: keysOf('effortTrad')
-            field: { formula: "'effort.' + x + '.day'" }
+            field: { formula: "fieldId('effort.{effortTrad}.day', x)" }
             value: 0
           - type: set
             forEach: keysOf('effortTrad')
-            field: { formula: "'effort.' + x + '.scene'" }
+            field: { formula: "fieldId('effort.{effortTrad}.scene', x)" }
             value: 0
       - id: result
         kind: outcome
@@ -165,11 +166,12 @@ actions:
     results: [ended]
     steps:
       - id: reclaim
+        tags: [rest.scene]
         kind: changes
         changes:
           - type: set
             forEach: keysOf('effortTrad')
-            field: { formula: "'effort.' + x + '.scene'" }
+            field: { formula: "fieldId('effort.{effortTrad}.scene', x)" }
             value: 0
       - id: result
         kind: outcome

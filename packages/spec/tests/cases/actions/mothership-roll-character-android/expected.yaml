@@ -1,4 +1,5 @@
-# The d4 rolls 1, the Android; after the rolls, the stat d4 rolls 2: speed.
+# The draw over the classes (a d4) rolls 1, the Android; after the rolls, the stat draw (a d4)
+# rolls 2: speed.
 # The class's skills: the first option each time, an Expert skill, then Hacking, which Computers
 # (granted) allows.
 status: finished
@@ -7,7 +8,7 @@ proposedChanges:
     step: class
     change: { type: addItem, entry: { id: classes-android-1, item: mothership-1e:classes.android } }
   - to: self
-    step: stat
+    step: skills
     change:
       { type: choose, path: { entry: classes-android-1, choice: [stat-penalty] }, option: speed }
   - to: self
@@ -37,7 +38,6 @@ proposedChanges:
   - { to: self, step: save, change: { type: set, field: mothership-1e:loadout.owed, value: true } }
   - { to: self, step: save, change: { type: finishCreation } }
 log:
-  - { step: classRoll, kind: dice, faces: [1], total: 1 }
   - { step: strength, kind: dice, faces: [3, 4], total: 32 }
   - { step: speed, kind: dice, faces: [5, 6], total: 36 }
   - { step: intellect, kind: dice, faces: [7, 8], total: 40 }
@@ -45,23 +45,38 @@ log:
   - { step: sanity, kind: dice, faces: [1, 2], total: 13 }
   - { step: fear, kind: dice, faces: [3, 4], total: 17 }
   - { step: body, kind: dice, faces: [5, 6], total: 21 }
+  - step: class
+    kind: dice
+    by: engine
+    faces: [1]
+    draw:
+      among:
+        - mothership-1e:classes.android
+        - mothership-1e:classes.marine
+        - mothership-1e:classes.scientist
+        - mothership-1e:classes.teamster
   - { step: class, kind: choice, by: engine, option: mothership-1e:classes.android }
   - { step: health, kind: dice, faces: [7], total: 17 }
-  - { step: statRoll, kind: dice, faces: [2], total: 2 }
-  - { step: stat, kind: choice, by: engine, option: speed }
+  - { step: skills, kind: dice, by: engine, faces: [2] }
+  - step: skills
+    kind: choice
+    by: engine
+    option: speed
+    index: 0
+    choice: { entry: classes-android-1, choice: [stat-penalty] }
   - { step: skills, kind: dice, by: engine, faces: [1] }
   - step: skills
     kind: choice
     by: engine
     option: expert
-    index: 0
+    index: 1
     choice: { entry: classes-android-1, choice: [bonus-skills] }
   - { step: skills, kind: dice, by: engine, faces: [1] }
   - step: skills
     kind: choice
     by: engine
     option: mothership-1e:skills.hacking
-    index: 1
+    index: 2
     choice: { entry: classes-android-1, choice: [bonus-skills, expert, expert] }
   - { step: credits, kind: dice, faces: [8, 9], total: 17 }
   - { step: kit, kind: choice, by: engine, option: loadout }

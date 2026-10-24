@@ -48,6 +48,7 @@ actions:
     steps:
       - id: clear
         kind: changes
+        tags: [time.conflict]
         changes:
           - { type: set, field: stress.physical.box1, value: false, when: stress.physical.box1 }
           - { type: set, field: stress.physical.box2, value: false, when: stress.physical.box2 }
@@ -60,11 +61,10 @@ actions:
           - type: setState
             when: >-
               countCopies(copy.type == 'stunt' && has(copy.state.used) && copy.state.used > 0
-                && (copy.fields.shape == 'custom' ? has(copy.state.limit) && copy.state.limit == 'conflict'
-                  : copy.fields.limit == 'conflict')) > 0
+                && copy.fields.limit == 'conflict') > 0
             copies:
               type: stunt
-              where: "(item.shape == 'custom' ? self.limit : item.limit) == 'conflict' && self.used > 0"
+              where: "item.limit == 'conflict' && self.used > 0"
             key: used
             value: 0
           - type: setState
@@ -86,6 +86,7 @@ actions:
         use: end-conflict
       - id: recover
         kind: changes
+        tags: [time.scene]
         changes:
           - type: removeItem
             when: >-
@@ -112,11 +113,10 @@ actions:
           - type: setState
             when: >-
               countCopies(copy.type == 'stunt' && has(copy.state.used) && copy.state.used > 0
-                && (copy.fields.shape == 'custom' ? has(copy.state.limit) && copy.state.limit == 'scene'
-                  : copy.fields.limit == 'scene')) > 0
+                && copy.fields.limit == 'scene') > 0
             copies:
               type: stunt
-              where: "(item.shape == 'custom' ? self.limit : item.limit) == 'scene' && self.used > 0"
+              where: "item.limit == 'scene' && self.used > 0"
             key: used
             value: 0
           - { type: set, field: contest.victories, value: 0, when: contest.victories > 0 }
@@ -143,6 +143,7 @@ actions:
         use: end-scene
       - id: refresh
         kind: changes
+        tags: [time.session]
         sheet: proposed
         changes:
           - type: adjust
@@ -168,11 +169,10 @@ actions:
           - type: setState
             when: >-
               countCopies(copy.type == 'stunt' && has(copy.state.used) && copy.state.used > 0
-                && (copy.fields.shape == 'custom' ? has(copy.state.limit) && copy.state.limit == 'session'
-                  : copy.fields.limit == 'session')) > 0
+                && copy.fields.limit == 'session') > 0
             copies:
               type: stunt
-              where: "(item.shape == 'custom' ? self.limit : item.limit) == 'session' && self.used > 0"
+              where: "item.limit == 'session' && self.used > 0"
             key: used
             value: 0
       - id: result

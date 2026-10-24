@@ -97,6 +97,50 @@ while ('status' in cast && cast.status === 'paused' && cast.needs.kind === 'hand
 A FitD **assist** works the same way: pass the helper as `participants: { helper: [...] }` to
 `action-roll`; the roll gains the die and proposes 1 stress for the helper.
 
+## An app with one sheet
+
+An app that holds only the player's character still runs actions with roles: a MÖRK BORG Speak
+Truth or Horn for a recipient, a Fate free invocation passed on, a FitD cohort roll with its
+commander. `describeAction`'s `participants` lists each role with its `min` and `max`
+([Rolling dice](rolling-dice.md#describing-an-action)).
+
+- **A role without a minimum** (`min: 0`: the Horn's recipient, a cohort roll's commander, the
+  incarceration roll's prisoner, a 5E attack's target): start the action without it. A step
+  over the role (`each`, a handoff) doesn't run, a formula sees the role as `[]`, and a change
+  for it is proposed once with `to: '<role>'` and no `character`.
+- **A role with a minimum** (`min: 1`: Speak Truth's and a passed invocation's recipient):
+  started without one, the action fails with `invalid-participants` (`data.role`). Pass a
+  **stand-in view**, `{ id, values: {} }`, with an ID of your own: the role's declared fields
+  read their defaults, and its changes come back with that ID as `character`.
+- **Apply only the character's own changes**: those with `to: 'self'` and no `character`. Show
+  the others as what the other character gains, for the table to apply: "The recipient gains
+  Clarity" (`text.content(change.source)`, `text.field(change.field)`).
+- **When the player's character is the one it's for**, where the rules allow it, pass its own
+  view in the role: the changes for the role then carry its `id`, and you apply them too.
+- **A handoff to the stand-in** pauses as usual. Without the other sheet, ask the player how it
+  went and answer with one of `needs.run.action`'s results: `{ outcome: { result: 'success' } }`.
+
+```ts
+const speak = startAction(ruleset, hermit, {
+  action: { id: 'mork-borg-core:speak-truth' },
+  participants: { recipient: [{ id: 'recipient', values: {} }] },
+});
+// speak.proposedChanges:
+// [
+//   { to: 'self', step: 'spend',
+//     change: { type: 'adjust', field: 'mork-borg-core:daily.truths', by: 1 } },
+//   { to: 'recipient', character: 'recipient', step: 'clarity',
+//     change: { type: 'applyEffect', source: 'mork-borg-core:boons.clarity' } },
+// ]
+const own = speak.proposedChanges.filter((c) => c.to === 'self' && c.character === undefined);
+applyChanges(
+  ruleset,
+  hermit,
+  own.map((c) => c.change),
+);
+// The recipient's change: "The recipient gains Clarity", for the table.
+```
+
 ## Effects cast on someone else
 
 When one character casts Bless on three allies, the spell's effects belong to the allies, not

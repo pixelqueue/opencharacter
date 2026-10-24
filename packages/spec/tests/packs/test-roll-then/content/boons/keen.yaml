@@ -1,0 +1,11 @@
+# +1 to attacks while a use is left; each attack roll it helps spends one, even two in one action.
+id: boons.keen
+type: boon
+effects:
+  - target: { rolls: [attack] }
+    op: add
+    value: 1
+    when: self.uses > 0
+    then:
+      once: roll
+      changes: [{ type: adjustState, pick: owner, key: uses, by: -1 }]

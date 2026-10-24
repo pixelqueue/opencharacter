@@ -1,0 +1,37 @@
+description: "`picksOf('rules', choice)` names a rules-level choice of the formula's pack, and `picksOf('<pack>:rules', choice)` one of a visible pack's: a field formula, a constraint, a display hint and a grant's `when` naming one pass; a choice the rules don't declare, or the rules of a pack not visible, is `unknown-reference`, as is `grantedPicksOf` of the rules, which are never granted"
+specVersion: 0.2.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.2.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        contentTypes:
+          crewType: {}
+          perk: {}
+        fields:
+          crews: { type: integer, formula: "size(picksOf('rules', 'crew-type'))" }
+          slotted: { type: integer, formula: "size(picksOf('test-pack:rules', 'gift-2'))" }
+        choices:
+          - { id: crew-type, pick: { min: 0, max: 1 }, required: false, from: { type: crewType } }
+          - { id: gift, slots: [1, 2], from: { values: [a, b] } }
+        constraints:
+          - { id: one-crew, check: "size(picksOf('rules', 'crew-type')) <= 1" }
+          - { id: typo, check: "size(picksOf('rules', 'crew-types')) <= 1" }
+        display:
+          fields:
+            crews: { showWhen: "size(picksOf('other-pack:rules', 'crew-type')) > 0" }
+      content:
+        - { id: perks.plain, type: perk }
+        - id: perks.fine
+          type: perk
+          grants:
+            - { item: perks.plain, when: "size(picksOf('rules', 'crew-type')) > 0" }
+        - id: perks.granted
+          type: perk
+          grants:
+            - { item: perks.plain, when: "size(grantedPicksOf('rules', 'crew-type')) > 0" }

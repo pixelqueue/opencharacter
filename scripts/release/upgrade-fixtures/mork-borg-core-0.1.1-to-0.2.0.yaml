@@ -1,0 +1,20 @@
+# A 0.1.1 character holding a Speaker of Truths' clarity and the Horn's blare as flags. 0.2.0 has
+# no such fields (they are applied boons), so the flags go; the rest stays.
+pack: mork-borg-core
+from: 0.1.1
+to: 0.2.0
+expect:
+  - { at: /values/mork-borg-core:tests.truth, absent: true }
+  - { at: /values/mork-borg-core:tests.horn, absent: true }
+  - at: /values/mork-borg-core:omens.current
+    value: 1
+values:
+  mork-borg-core:omens.current: 1
+character:
+  specVersion: 0.2.0
+  id: upgrade-mork-borg-boons
+  values:
+    mork-borg-core:tests.truth: true
+    mork-borg-core:tests.horn: true
+    mork-borg-core:omens.max: 1
+    mork-borg-core:omens.current: 1

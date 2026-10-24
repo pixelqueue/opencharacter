@@ -1,0 +1,55 @@
+description: "An open enum that is no longer open (a field's, an item field's, a state key's, an action parameter's, an item's own state key's) is an interface change: packs that add to it no longer load. Opening one is no change"
+specVersion: 0.2.0
+call: checkRelease
+previous:
+  inline:
+    manifest:
+      { id: test-pack, version: 0.1.0, specVersion: 0.2.0, license: CC0-1.0, defaultLanguage: en }
+    rules:
+      fields:
+        stance: { type: enum, values: [low, high], input: true, default: low, open: true }
+        mood: { type: enum, values: [calm, angry], input: true, default: calm }
+      contentTypes:
+        weapon:
+          fields:
+            damageType: { type: enum, values: [blunt, edged], open: true }
+          state:
+            edge: { type: enum, values: [keen, dull], default: keen, open: true }
+      actions:
+        - id: strike
+          params:
+            mode: { type: enum, values: [quick, heavy], required: true, open: true }
+          steps:
+            - { id: result, kind: outcome, data: { mode: params.mode } }
+    content:
+      - id: weapons.club
+        type: weapon
+        fields: { damageType: blunt }
+        state:
+          grip: { type: enum, values: [one, two], default: one, open: true }
+next:
+  inline:
+    manifest:
+      { id: test-pack, version: 0.2.0, specVersion: 0.2.0, license: CC0-1.0, defaultLanguage: en }
+    rules:
+      fields:
+        stance: { type: enum, values: [low, high], input: true, default: low }
+        mood: { type: enum, values: [calm, angry], input: true, default: calm, open: true }
+      contentTypes:
+        weapon:
+          fields:
+            damageType: { type: enum, values: [blunt, edged] }
+          state:
+            edge: { type: enum, values: [keen, dull], default: keen }
+      actions:
+        - id: strike
+          params:
+            mode: { type: enum, values: [quick, heavy], required: true }
+          steps:
+            - { id: result, kind: outcome, data: { mode: params.mode } }
+    content:
+      - id: weapons.club
+        type: weapon
+        fields: { damageType: blunt }
+        state:
+          grip: { type: enum, values: [one, two], default: one }

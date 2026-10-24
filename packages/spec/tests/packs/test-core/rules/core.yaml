@@ -1,0 +1,106 @@
+# Open: an add-on may add wards, with its own ward fields.
+families:
+  ward: [fire, ice]
+
+fields:
+  stamina: { type: integer, input: true, default: 3, min: 0 }
+  ritePower: { type: integer, formula: 0 }
+  'wards.{ward}': { type: integer, input: true, default: 0 }
+  # Open: an add-on may add stances.
+  stance: { type: enum, values: [low, high], input: true, default: low, open: true }
+
+tags: [train, train.done]
+
+contentTypes:
+  class: {}
+  oath: {}
+  # A rite serves one ward; a circle grants each ward's rites while the ward is up.
+  rite:
+    fields:
+      ward: { type: string, required: true }
+  circle:
+    grants:
+      - forEach: keysOf('ward')
+        when: "fieldOf('wards.{ward}', x) > 0"
+        item: { query: { type: rite, where: item.ward == x } }
+  weapon:
+    carried: true
+    fields:
+      damageType: { type: enum, values: [blunt, edged], required: true, open: true }
+      # Closed: no pack may add to it.
+      reach: { type: enum, values: [close, far], default: close }
+    state:
+      edge: { type: enum, values: [keen, dull], default: keen, open: true }
+
+choices:
+  - id: class
+    from: { type: class }
+  - id: boon
+    required: false
+    from: { values: [luck] }
+
+actions:
+  - id: pick-class
+    results: [picked]
+    params:
+      random: { type: boolean, optional: true }
+    steps:
+      - id: class
+        kind: choice
+        options: { content: { type: class } }
+        random: has(params.random) && params.random
+        recommend: options[0]
+      - id: done
+        kind: outcome
+        result: "'picked'"
+        data: { class: steps.class.picked }
+  # Its choice step and changes step are tagged, for other packs' option and changes effects.
+  - id: train
+    results: [trained]
+    steps:
+      - id: drill
+        kind: choice
+        tags: [train]
+        options: [{ id: rest }]
+        recommend: options[0]
+      - id: done
+        kind: changes
+        tags: [train.done]
+        changes: [{ type: adjust, field: stamina, by: -1 }]
+      - { id: result, kind: outcome, result: "'trained'", data: { drill: steps.drill.picked } }
+  # An open parameter: an add-on may add modes.
+  - id: strike
+    results: [struck]
+    params:
+      mode: { type: enum, values: [quick, heavy], required: true, open: true }
+    steps:
+      - { id: result, kind: outcome, result: "'struck'", data: { mode: params.mode } }
+  # A pick over the ward family, and a change to every ward's field, the add-on's too.
+  - id: pick-ward
+    results: [picked]
+    steps:
+      - id: ward
+        kind: choice
+        options: { values: { formula: "keysOf('ward')" } }
+        recommend: options[0]
+      - { id: result, kind: outcome, result: "'picked'", data: { ward: steps.ward.picked } }
+  - id: rest
+    steps:
+      - id: wards
+        kind: changes
+        changes:
+          - type: adjust
+            forEach: keysOf('ward')
+            field: { formula: "fieldId('wards.{ward}', x)" }
+            by: 1
+  # A view field following the open stance: a target's added stance reads.
+  - id: size-up
+    results: [sized]
+    participants:
+      target:
+        { min: 1, max: 1, fields: { stance: { type: enum, values: [low, high], open: true } } }
+    steps:
+      - id: result
+        kind: outcome
+        result: "'sized'"
+        data: { stance: 'participants.target[0].stance' }

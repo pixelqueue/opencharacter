@@ -97,6 +97,12 @@ export function writtenOptionKey(action: string, option: string): MessageRef {
   return { pack: root.pack, key: `${root.key}.options.${option}.name` };
 }
 
+/** A value of a step run for content: `<content>.options.<value>.name`, before the action's. */
+export function contentOptionKey(content: string, option: string): MessageRef {
+  const [pack, local] = split(content);
+  return { pack, key: `${local}.options.${option}.name` };
+}
+
 export function addedOptionKey(option: string): MessageRef {
   const hash = option.lastIndexOf('#');
   const [pack, local] = split(option.slice(0, hash));
@@ -135,17 +141,26 @@ export function bandKey(
  * A prerequisite's owner, from the issue's `<owner>/<prerequisite>` ID: content, or an inline option
  * (`<item>/<choice>/<option>`), whose key root is `<item>.choices.<choice>.options.<option>`.
  */
-export function prerequisiteOwner(
-  id: string,
-): { pack: string; root: string; inline: boolean } | undefined {
+export function prerequisiteOwner(id: string):
+  | {
+      pack: string;
+      root: string;
+      inline: boolean;
+      /** An inline option's choice as `optionOrigins` keys it, and the option's ID. */
+      choice?: { key: string; option: string };
+    }
+  | undefined {
   const [pack, local] = split(id);
   const parts = local.split('/');
   if (parts.length < 2) return undefined;
   const [item, ...path] = parts.slice(0, -1);
   let root = item as string;
-  for (let i = 0; i + 1 < path.length; i += 2)
+  let choice: { key: string; option: string } | undefined;
+  for (let i = 0; i + 1 < path.length; i += 2) {
+    choice = { key: `${pack}:${root}/${path[i] as string}`, option: path[i + 1] as string };
     root += `.choices.${path[i] as string}.options.${path[i + 1] as string}`;
-  return { pack, root, inline: path.length > 0 };
+  }
+  return { pack, root, inline: path.length > 0, ...(choice ? { choice } : {}) };
 }
 
 /** A rules issue's own key in its pack, or `undefined` when the spec's `issues.<code>` applies. */

@@ -17,6 +17,9 @@ affiliated with, approved or endorsed by Kevin Crawford or Sine Nomine Publishin
 pnpm add @opencharacter/cwn-srd @opencharacter/engine
 ```
 
+This release needs spec 0.3: `@opencharacter/engine` 0.3.0 or later. An engine for an older
+spec refuses it (`spec-version-unsupported`).
+
 The package's default export is the pack's release, ready for `loadRuleset`; its English text is
 `@opencharacter/cwn-srd/i18n/en` (also as JSON, `release.json` and `i18n/en.json`).
 
@@ -109,6 +112,40 @@ the player's choices and other characters.
   situational choice on an attack) roll the hit or damage twice, the better kept, and refresh
   with rest; Occult Pavis rolls saves against magic (`versusMagic`) twice.
 - **Contacts**, named by the player, as Acquaintances or Friends.
+
+## Add-on packs
+
+A pack that depends on `cwn-srd` can add content of its types, and creation and advancement offer
+it with the core's: backgrounds, Edges and Foci in the guided picks and the random draws, and
+weapons, armor, gear, cyberdecks and drones as the free starting item. What content brings is read
+from its fields and tags, not its ID: a Focus or Edge's `startingItems` and `startingCyber` (write
+another pack's items by qualified ID, `<pack>:gear.<id>`), `brings-cyber` for one that brings
+cyberware, `bars-cyber` for one that bars it (as All Natural does), `repeatable`, `not-underdog`.
+
+- **Open enums:** cyberware `category`, a program Subject's `subjectType` (a Verb's `targets`
+  name them), a drone's `moveKind` and a spell's `duration`. An add-on lists new values in
+  `extendEnums` and names them in its text.
+- **Naming what an add-on adds:** it names each added value, option or key in its own text,
+  under the key this pack would use, and `createText` finds it there when the app passes the
+  ruleset's `enumOrigins`, `optionOrigins` and `familyOrigins`. For example,
+  `psionic` added to `cwn-srd:types.cyberware.fields.category` is
+  `types.cyberware.fields.category.values.psionic.name: Psionic` (through `enumOrigins`).
+- **Tagged steps** take an add-on's rules-level `option` and `changes` effects: `creation.item`
+  (the free starting item's kind: an added option is another free item), `creation.gear` (the
+  starting money and lifestyle), `creation.finish` (the last step of creation),
+  `advancement.level` (each new level), `rest.night` (a night's rest) and `rest.scene` (the end of
+  a scene).
+
+- **Skills** are the `skill` family: an add-on adds one (`families: { 'cwn-srd:skill': [<key>] }`)
+  and declares its `skills.<key>.base` (tagged `skill-base` and `skill.<key>`), `.credit` and
+  `.level` (tagged `skill` and `skill.<key>`). The core's changes reach them through `fieldId`, so
+  creation, a Focus's or Edge's bonus skill and `improve-skill` gain and raise it as the core's. A
+  background's entries (`freeSkill`, `growth1`–`growth6`, `learning1`–`learning8`), a Focus's
+  `bonusSkill`, `bonusSkill2` and `levelTwoSkill`, an Edge's `bonusSkill`, a weapon's `skill` and
+  the parameters `gain-skill.code` and `improve-skill.skill` are open enums that take its key.
+
+Still closed: the enums that are the rules' own: a program's `kind` (Verb or Subject), armor `kind`,
+cyberware `concealment`, a spell's `effort`, vehicle `size`, and the attributes.
 
 ## Left to the table
 

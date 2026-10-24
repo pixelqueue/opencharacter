@@ -31,12 +31,12 @@
     {
       "id": "wrong-type",
       "kind": "runtime",
-      "description": "A value has the wrong type for its field, state key or parameter."
+      "description": "A value has the wrong type for its field, state key or parameter. Data: `target` (the field ID, state key or parameter name) and `expected`; for an enum, also `values`, its values in order (those dependent packs add included), so text names them. For an action parameter, also `action` (the qualified action ID; `<item ID>#<action ID>` for an item's inline action), and `entry` and `source` when the action was started on them, so text names the parameter by its label (`actions.<action>.params.<param>.name`)."
     },
     {
       "id": "out-of-range",
       "kind": "runtime",
-      "description": "A value is outside the `min` and `max` of its field, state key or action parameter (for a quantity, below 0). Data: `target` (the field ID, state key, parameter name or `quantity`), and `min`, `max` or both: only the bounds the target declares."
+      "description": "A value is outside the `min` and `max` of its field, state key or action parameter (for a quantity, below 0). Data: `target` (the field ID, state key, parameter name or `quantity`), and `min`, `max` or both: only the bounds the target declares. For an action parameter, also `action` (the qualified action ID; `<item ID>#<action ID>` for an item's inline action), and `entry` and `source` when the action was started on them, so text names the parameter by its label (`actions.<action>.params.<param>.name`)."
     },
     {
       "id": "not-owned",
@@ -52,6 +52,16 @@
       "id": "standard-copy",
       "kind": "runtime",
       "description": "removeItem: the entry is a standard copy, which every character has. Data: `entry`."
+    },
+    {
+      "id": "not-per-copy",
+      "kind": "runtime",
+      "description": "setField, an addItem's `entry.fields` or a copy's saved `fields` name an item field its content type doesn't declare or doesn't mark `perCopy`. computeSheet leaves a saved one out. Data: `field`, and `entry` from computeSheet."
+    },
+    {
+      "id": "not-addable",
+      "kind": "runtime",
+      "description": "addItem: the item is grant-only (its own `grantOnly`, else its content type's), held only through grants and picks, never as a copy of its own. Data: `item`."
     },
     {
       "id": "not-equippable",
@@ -76,7 +86,7 @@
     {
       "id": "invalid-option",
       "kind": "runtime",
-      "description": "The option is not one of the choice's options, or a field parameter's field is outside its `where` set, or a tag set on a field or passed as a parameter is outside its `members` (data: `field` or `param`, `option`)."
+      "description": "The option is not one of the choice's options, or a field parameter's field is outside its `where` set, or a tag set on a field or passed as a parameter is outside its `members`, or a copy's own item field value or a state value names something outside the declaration's `where` (data: `field`, `param` or `target` (the item field or state key), `option`; with `param`, also `action`, `entry` and `source` as for `out-of-range`)."
     },
     {
       "id": "not-picked",
@@ -204,6 +214,11 @@
       "description": "A pack's field families or shared view fields don't expand: a placeholder names no family, a view-field set is unknown, an expanded key isn't a field ID or comes out twice, or a family or set is declared twice. Data: `pack`, `message`."
     },
     {
+      "id": "invalid-extension",
+      "kind": "load",
+      "description": "A pack's `extendEnums` or `extendChoices` entry doesn't apply: the pack it names isn't one of the pack's dependencies, the enum isn't declared or isn't `open`, the content item or the choice isn't there, or the additions are of another kind than the choice's options. Data: `pack`, `target`, `message`."
+    },
+    {
       "id": "link-start-mismatch",
       "kind": "load",
       "description": "A follow-up's `create` names a creation start from a pack that a character using the slot's `pack` wouldn't load: neither that pack nor one of its dependencies. Checked when the slot's pack is loaded too; `pnpm validate` checks it always. Data: `link`, `start`, `pack`."
@@ -211,7 +226,7 @@
     {
       "id": "invalid-item-field",
       "kind": "load",
-      "description": "A content item's `fields` don't match its content type: a required field is missing (after `extends`), a name the type doesn't declare, or a value of the wrong shape (a list for a number, boolean or dice field; not a string for a `string` or `id` field; not one of an enum's values; not a list for a `set` field). Data: `item`, `field`, `reason` (`missing`, `undeclared` or `wrong-type`), `pack`; `path` points to the field."
+      "description": "A content item's `fields` don't match its content type: a required field is missing (after `extends`), a name the type doesn't declare, or a value of the wrong shape (a list for a number, boolean or dice field; not a string for a `string` or `id` field; not one of an enum's values; not a list for a `set` field). A member outside the field's `where` is `not-allowed`. Data: `item`, `field`, `reason` (`missing`, `undeclared`, `wrong-type` or `not-allowed`), `pack`; `path` points to the field."
     },
     {
       "id": "template-field-mismatch",
@@ -246,7 +261,7 @@
     {
       "id": "missing-param",
       "kind": "action",
-      "description": "A required action parameter is missing."
+      "description": "A required action parameter is missing. Data: `param`, and `action`, `entry` and `source` as for `out-of-range`."
     },
     {
       "id": "invalid-participants",

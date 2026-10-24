@@ -18,6 +18,9 @@ Publishing.
 pnpm add @opencharacter/wwn-srd @opencharacter/engine
 ```
 
+This release needs spec 0.3: `@opencharacter/engine` 0.3.0 or later. An engine for an older
+spec refuses it (`spec-version-unsupported`).
+
 The package's default export is the pack's release, ready for `loadRuleset`; its English text is
 `@opencharacter/wwn-srd/i18n/en`.
 
@@ -94,6 +97,41 @@ computeSheet(ruleset, made.character).values['wwn-srd:saves.physical']?.value; /
     among the options open (spellcasters and the Vowed buy no armor), so an automatic run
     finishes.
   - `guided`: the player picks, each pick recommended.
+
+## Add-on packs
+
+A pack that depends on `wwn-srd` can add content of its types, and creation and advancement offer
+it with the core's, in the guided picks and the random draws: classes, partial classes,
+backgrounds, foci, arts, spells, weapons, armor and gear.
+
+- **A Mage's tradition** is `tradition` content: its `key` is a key of the `trad` family, which
+  the add-on extends (`families: { 'wwn-srd:trad': [<key>] }`) and declares the fields for
+  (`tradition.<key>.tier`, counting the picks as the core's do, and `tradition.<key>.skill`, the
+  bonus skill at creation, set by an effect of the content that brings the tradition). A
+  tradition that casts from the spell lists joins `spellTrad` too; its spells are those of the
+  list named by its key, and the High Magic list.
+- **Spell lists and arts:** a spell's `list` and an art's `tradition` are open enums; an add-on adds
+  its tradition's key to them (`extendEnums`). A tradition with arts joins `artTrad` and declares
+  `arts.<key>.allowed`, `.taken` and `.owed`, which the art picks and `arts.owed` read. Joining
+  `armorTrad` (armor and shields stop its arts, as they stop spells) or `heavyArmorTrad` (medium
+  or heavy armor or a large shield do, as for the Duelist) sets when `commit-effort` is offered.
+- **Effort:** a tradition with Effort joins `effortTrad` and declares `effort.<key>.max`,
+  `.scene`, `.day`, `.ongoing` and `.free`; the core's `commit-effort` and `release-effort` change
+  them for its arts, and a night's rest and a scene's end clear them, as the core's.
+- **Skills:** a skill joins the `skill` family (`families: { 'wwn-srd:skill': [<key>] }`) and
+  declares `skills.<key>` (tagged `skill`) and `skillCredit.<key>`; creation and `improve` gain
+  and raise it as the core's. A background's table entries (`types.background.fields.freeSkill`,
+  `growth1`–`growth6`, `learning1`–`learning8`), a focus's `bonusSkill` and a weapon's `skill`
+  are open enums that take its key.
+- **Naming what an add-on adds:** it names each added value, option or key in its own text,
+  under the key this pack would use, and `createText` finds it there when the app passes the
+  ruleset's `enumOrigins`, `optionOrigins` and `familyOrigins`. For example,
+  a tradition `stormcaller` added to `wwn-srd:types.spell.fields.list` is
+  `types.spell.fields.list.values.stormcaller.name: Stormcaller` (through `enumOrigins`).
+- **Tagged steps** take an add-on's rules-level `option` and `changes` effects: `creation.purse`
+  (the starting silver), `creation.finish` (the last step of creation), `advancement.level` (each
+  new level's level and skill points), `rest.night` (a night's rest) and `rest.scene` (the end of
+  a scene).
 
 ## Left to the app or the table
 

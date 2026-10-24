@@ -14,11 +14,6 @@ actions:
       choose: { type: boolean, default: false }
     results: [rolled]
     steps:
-      - id: classRoll
-        kind: roll
-        tags: [creation]
-        when: '!params.choose'
-        parts: [{ dice: 1d4 }]
       - { id: strength, kind: roll, tags: [creation], parts: [{ dice: 2d10 }, { value: 25 }] }
       - { id: speed, kind: roll, tags: [creation], parts: [{ dice: 2d10 }, { value: 25 }] }
       - { id: intellect, kind: roll, tags: [creation], parts: [{ dice: 2d10 }, { value: 25 }] }
@@ -28,44 +23,29 @@ actions:
       - { id: body, kind: roll, tags: [creation], parts: [{ dice: 2d10 }, { value: 10 }] }
       - id: class
         kind: choice
+        tags: [creation.class]
         options: { content: { type: class } }
-        recommend: >-
-          has(steps.classRoll) ? options[(steps.classRoll.total - 1) % size(options)] : options[0]
+        random: '!params.choose'
+        recommend: options[0]
         changes:
           - type: addItem
             entry: { item: picked.id }
       - { id: health, kind: roll, tags: [creation], parts: [{ dice: 1d10 }, { value: 10 }] }
-      - id: statRoll
-        kind: roll
-        tags: [creation]
-        when: >-
-          !params.choose
-            && steps.class.picked in [@classes.android, @classes.scientist]
-        parts: [{ dice: 1d4 }]
-      - id: stat
-        kind: choice
-        when: 'steps.class.picked in [@classes.android, @classes.scientist]'
-        options: [{ id: strength }, { id: speed }, { id: intellect }, { id: combat }]
-        recommend: 'has(steps.statRoll) ? options[steps.statRoll.total - 1] : options[0]'
-        changes:
-          - type: choose
-            path:
-              entry: { formula: 'steps.class.added[0]' }
-              choice: >-
-                [steps.class.picked == @classes.android ? 'stat-penalty' : 'stat-bonus']
-            option: picked.id
       - id: skills
         kind: choice
+        tags: [creation.skills]
         options: { pending: { entry: 'steps.class.added[0]' } }
         random: '!params.choose'
         recommend: options[0]
       - { id: credits, kind: roll, tags: [creation], parts: [{ dice: 2d10 }] }
       - id: kit
         kind: choice
+        tags: [creation.kit]
         options: [{ id: loadout }, { id: credits }]
         recommend: "'loadout'"
       - id: save
         kind: changes
+        tags: [creation.save]
         changes:
           - { type: set, field: stats.strength, value: steps.strength.total }
           - { type: set, field: stats.speed, value: steps.speed.total }

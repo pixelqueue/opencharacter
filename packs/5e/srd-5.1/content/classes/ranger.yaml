@@ -2,6 +2,17 @@ id: classes.ranger
 type: class
 fields:
   hitDie: 1d10
+  startingKit: true
+  abilityPriority:
+    [
+      abilities.dex.score,
+      abilities.wis.score,
+      abilities.con.score,
+      abilities.str.score,
+      abilities.int.score,
+      abilities.cha.score,
+    ]
+  multiclassAll: [dex, wis]
 prerequisites:
   - id: multiclass
     when: (self.startingClass && self.level == level.total) || item.id in multiclass.qualified
@@ -88,3 +99,61 @@ choices:
   - id: ranger-archetype
     from: { type: subclass, where: 'item.class == @classes.ranger' }
     when: self.level >= 3
+actions:
+  - id: kit
+    listed: false
+    params:
+      random: { type: boolean, default: false }
+    steps:
+      - id: rangerArmor
+        kind: choice
+        options:
+          - id: scale-mail
+            changes:
+              - { type: addItem, entry: { item: "'armor.scale-mail'", equipped: true } }
+          - id: leather-armor
+            changes:
+              - { type: addItem, entry: { item: "'armor.leather'", equipped: true } }
+        recommend: options[0]
+        random: params.random
+      - id: rangerWeapons
+        kind: choice
+        options:
+          - id: two-shortswords
+            changes:
+              - type: addItem
+                entry: { item: "'weapons.shortsword'", quantity: 2, equipped: true }
+          - id: two-simple-melee
+        recommend: options[0]
+        random: params.random
+      - id: rangerSimpleMelee
+        kind: choice
+        when: "steps.rangerWeapons.picked == 'two-simple-melee'"
+        options:
+          content: { type: weapon, where: "item.category == 'simple' && item.range == 'melee'" }
+        random: params.random
+        changes:
+          - { type: addItem, entry: { item: picked.id, equipped: true } }
+      - id: rangerSimpleMelee2
+        kind: choice
+        when: "steps.rangerWeapons.picked == 'two-simple-melee'"
+        options:
+          content: { type: weapon, where: "item.category == 'simple' && item.range == 'melee'" }
+        random: params.random
+        changes:
+          - { type: addItem, entry: { item: picked.id, equipped: true } }
+      - id: rangerPack
+        kind: choice
+        options:
+          - id: dungeoneers-pack
+            changes: [{ type: addItem, entry: { item: "'gear.dungeoneers-pack'" } }]
+          - id: explorers-pack
+            changes: [{ type: addItem, entry: { item: "'gear.explorers-pack'" } }]
+        recommend: options[0]
+        random: params.random
+      - id: rangerKit
+        kind: changes
+        changes:
+          - { type: addItem, entry: { item: "'weapons.longbow'", equipped: true } }
+          - { type: addItem, entry: { item: "'gear.quiver'" } }
+          - { type: addItem, entry: { item: "'gear.arrows'", quantity: 20 } }

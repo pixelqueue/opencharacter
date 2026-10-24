@@ -3,8 +3,18 @@ fields:
   # Asked before the weapon itself, whose choice reads it.
   cleric.favoredCategory:
     { type: enum, values: [none, unarmed, simple, martial, advanced], formula: "'none'" }
-  cleric.doctrine: { type: enum, values: [none, cloistered, warpriest], formula: "'none'" }
+  cleric.doctrine:
+    { type: enum, values: [none, cloistered, warpriest], formula: "'none'", open: true }
   cleric.domainSpells: { type: set, of: spell }
+
+# A domain is picked by Domain Initiate (its initial domain spell) or Advanced Domain (its advanced
+# one); Domain Acumen picks the initial domains of the oracle's mystery.
+contentTypes:
+  domain:
+    grantOnly: true
+    copies: { max: 0 }
+    fields:
+      advanced: { type: boolean, default: false }
 
 tags:
   - trait.shadow

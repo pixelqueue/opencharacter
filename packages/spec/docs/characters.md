@@ -93,14 +93,17 @@ An entry ([`character.schema.json#/$defs/entry`](../schemas/character.schema.jso
 - `quantity`: an integer ≥ 0, default 1. `setQuantity` and `adjustQuantity` change it; a copy
   at 0 stays until removed.
 - `state`: values for keys declared by the content type, the item, or its templates.
+- `fields`: the copy's own values for item fields its content type marks `perCopy`
+  ([content.md](content.md#per-copy-fields)), by name; an `id`, `set` or `list` value of content or
+  `field` is qualified. `addItem`'s `entry.fields` and `setField` set them.
 - `choices`: picks for choices declared by the item and its templates.
 - `grants`: saved state of content the item and its templates grant
   ([below](#granted-contents-state)).
 
 **Standard copies**. Copies every character holds
 ([content.md](content.md#standard-copies)) aren't listed while they're at their defaults: not
-equipped, quantity 1, no templates, picks or granted content's state, and no state other than
-the defaults.
+equipped, quantity 1, no templates, own field values, picks or granted content's state, and no
+state other than the defaults.
 
 - An entry whose `id` is a standard copy's derived ID and whose `item` is that item **is** the
   standard copy, saved with its changes, and keeps its place in the file. With another `item` it

@@ -18,6 +18,7 @@ actions:
     steps:
       - id: benefit
         kind: choice
+        tags: [milestone.benefit]
         sheet: proposed
         options:
           - { id: none }
@@ -46,6 +47,7 @@ actions:
           - { type: removeItem, entry: picked }
       - id: stunt
         kind: choice
+        tags: [milestone.stunt]
         when: "steps.benefit.picked == 'swap-stunt' || steps.benefit.picked == 'new-stunt'"
         options:
           content: { type: stunt, where: "item.shape == 'custom' || !(item.id in stunts.held)" }

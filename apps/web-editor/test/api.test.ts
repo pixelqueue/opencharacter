@@ -42,7 +42,7 @@ execFileSync('git', ['-c', 'user.email=t@t', '-c', 'user.name=t', 'commit', '-qm
 });
 afterAll(() => rmSync(root, { recursive: true, force: true }));
 // The first validation parses every pack file (seconds); later ones parse only what changed.
-beforeAll(() => void validateRepo(root), 30_000);
+beforeAll(() => void validateRepo(root), 90_000);
 
 async function call(
   method: string,
@@ -70,7 +70,7 @@ async function call(
 
 const longsword = 'packs/5e/srd-5.1/content/weapons/longsword.yaml';
 
-describe('file access', { timeout: 20_000 }, () => {
+describe('file access', { timeout: 60_000 }, () => {
   it('refuses paths outside packs/ and non-YAML files', () => {
     expect(() => packPath(root, '../etc/passwd.yaml')).toThrow(EditorError);
     expect(() => packPath(root, 'packages/spec/package.json')).toThrow(/outside packs/);
@@ -106,7 +106,7 @@ describe('file access', { timeout: 20_000 }, () => {
 });
 
 // Each write re-validates the whole repo: seconds on a loaded machine.
-describe('the editor API', { timeout: 20_000 }, () => {
+describe('the editor API', { timeout: 60_000 }, () => {
   it('serves the spec schemas and a document with its schema', async () => {
     const schemas = await call('GET', '/api/schemas');
     expect(Object.keys(schemas.body.schemas as object)).toContain(

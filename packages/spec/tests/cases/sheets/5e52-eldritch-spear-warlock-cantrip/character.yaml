@@ -1,0 +1,84 @@
+specVersion: 0.1.0
+id: test
+packs:
+  - id: 5e-srd-5.2
+    version: 0.2.0
+features:
+  - id: class
+    item: 5e-srd-5.2:classes.warlock
+    state:
+      level: 5
+      startingClass: true
+    choices:
+      skills:
+        - option: skill.arcana
+        - option: skill.investigation
+      5e-srd-5.2:features.warlock.eldritch-invocations/invocation-1:
+        - option: 5e-srd-5.2:invocations.pact-of-the-tome
+          choices:
+            cantrips:
+              - option: 5e-srd-5.2:spells.fire-bolt
+              - option: 5e-srd-5.2:spells.ray-of-frost
+              - option: 5e-srd-5.2:spells.druidcraft
+            rituals:
+              - option: 5e-srd-5.2:spells.unseen-servant
+              - option: 5e-srd-5.2:spells.floating-disk
+      5e-srd-5.2:features.warlock.eldritch-invocations/invocation-2:
+        - option: 5e-srd-5.2:invocations.eldritch-spear
+          choices:
+            cantrip:
+              - option: 5e-srd-5.2:spells.fire-bolt
+      5e-srd-5.2:features.warlock.eldritch-invocations/invocation-3:
+        - option: 5e-srd-5.2:invocations.gift-of-the-depths
+      5e-srd-5.2:features.warlock.pact-magic/cantrips:
+        - option: 5e-srd-5.2:spells.chill-touch
+        - option: 5e-srd-5.2:spells.minor-illusion
+      5e-srd-5.2:features.warlock.pact-magic/prepared:
+        - option: 5e-srd-5.2:spells.detect-magic
+        - option: 5e-srd-5.2:spells.hideous-laughter
+  - id: background
+    item: 5e-srd-5.2:backgrounds.soldier
+    choices:
+      ability-increase:
+        - option: two-and-one
+          choices:
+            plus-two:
+              - option: dex
+            plus-one:
+              - option: con
+      gaming-set:
+        - option: 5e-srd-5.2:tools.dragonchess
+      languages:
+        - option: 5e-srd-5.2:languages.gnomish
+        - option: 5e-srd-5.2:languages.goblin
+  - id: species
+    item: 5e-srd-5.2:species.human
+    choices:
+      size:
+        - option: medium
+      5e-srd-5.2:traits.skillful/skill:
+        - option: skill.performance
+      5e-srd-5.2:traits.versatile/feat:
+        - option: 5e-srd-5.2:feats.magic-initiate
+          choices:
+            list:
+              - option: wizard
+                choices:
+                  ability:
+                    - option: int
+                  cantrips:
+                    - option: 5e-srd-5.2:spells.fire-bolt
+                    - option: 5e-srd-5.2:spells.light
+                  spell:
+                    - option: 5e-srd-5.2:spells.magic-missile
+values:
+  5e-srd-5.2:abilities.str.base: 7
+  5e-srd-5.2:abilities.dex.base: 13
+  5e-srd-5.2:abilities.con.base: 13
+  5e-srd-5.2:abilities.int.base: 12
+  5e-srd-5.2:abilities.wis.base: 10
+  5e-srd-5.2:abilities.cha.base: 17
+  5e-srd-5.2:coins.gp: 590
+  5e-srd-5.2:hp.base: 8
+  5e-srd-5.2:xp.current: 6500
+  5e-srd-5.2:hp.current: 10

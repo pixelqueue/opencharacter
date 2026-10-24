@@ -1,0 +1,9 @@
+# +2 to attacks while a use is left; each attack it helps spends one from its pick.
+id: boons.lucky
+type: boon
+effects:
+  - target: { rolls: [attack] }
+    op: add
+    value: 2
+    when: self.uses > 0
+    then: [{ type: adjustState, pick: owner, key: uses, by: -1 }]

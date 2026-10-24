@@ -1,0 +1,13 @@
+# Frost takes the element of the active elemental weapon.
+id: features.connection
+type: feature
+grants:
+  - { item: spells.frost }
+keepsTemplates:
+  - template: templates.attuned
+    content: { type: spell, where: 'item.id == @spells.frost' }
+    when: 'countList(character.applied, x.active && x.source == @boons.elemental-weapon) > 0'
+    params:
+      element: >-
+        filterList(character.applied,
+          x.active && x.source == @boons.elemental-weapon)[0].state.element

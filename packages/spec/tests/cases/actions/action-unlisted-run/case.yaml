@@ -1,0 +1,43 @@
+description: "An action with `listed: false` isn't listed, but an action step with `entry` runs it: the class's own part of a shared rules action"
+specVersion: 0.2.0
+call: startAction
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.2.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        contentTypes:
+          class:
+            fields:
+              betterPart: { type: boolean, default: false }
+        actions:
+          - id: get-better
+            steps:
+              - id: class
+                kind: choice
+                options: { copies: { type: class, where: item.betterPart } }
+                recommend: options[0]
+              - id: part
+                kind: action
+                when: has(steps.class)
+                entry: steps.class.picked
+                use: better-part
+              - id: done
+                kind: outcome
+                data: { part: "has(steps.part) ? steps.part.result : 'none'" }
+      content:
+        - id: classes.scum
+          type: class
+          fields: { betterPart: true }
+          actions:
+            - id: better-part
+              listed: false
+              results: [specialty]
+              steps:
+                - { id: done, kind: outcome, result: "'specialty'" }
+input:
+  action: { id: test-pack:get-better }

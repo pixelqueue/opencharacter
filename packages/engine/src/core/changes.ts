@@ -16,9 +16,10 @@ import type {
   Formula,
   Literal,
   Situational,
+  ThenChange,
   ValueDecl,
 } from './pack-types.ts';
-import { appliesQueries } from './pack-types.ts';
+import { appliesQueries, thenRule } from './pack-types.ts';
 import { admitsTag, type LoadedItem, localPart, type Ruleset } from './ruleset.ts';
 import { homebrewIdsInUse, withHomebrew, withoutHomebrew } from './homebrew.ts';
 import {
@@ -38,7 +39,11 @@ import { samePath, treeFor } from './tree.ts';
 import {
   pickState,
   appliedView,
+  copyFieldProblem,
+  copyFields,
   diceText,
+  expectedData,
+  outsideOptions,
   itemView,
   selfView,
   stateDecls,
@@ -299,6 +304,7 @@ function dropDefaultStandard(ruleset: Ruleset, sheet: Sheet, c: CharacterDoc): b
     if (entry.equipped === true || (entry.quantity ?? 1) !== 1) return false;
     if ((entry.templates ?? []).length > 0 || !noPicks(entry.choices)) return false;
     if (Object.keys(entry.grants ?? {}).length > 0) return false;
+    if (Object.keys(entry.fields ?? {}).length > 0) return false;
     const item = ruleset.content[entry.item];
     if (!item) return false;
     const decls = stateDecls(ruleset, item, []);
@@ -338,6 +344,7 @@ function num(v: f.Value | undefined): number | undefined {
 const PER_COPY = new Set([
   'setState',
   'adjustState',
+  'setField',
   'setQuantity',
   'adjustQuantity',
   'equip',
@@ -394,7 +401,8 @@ function applyToCopies(
     delete one.copies;
     delete one.limit;
     if (change.by !== undefined) one.by = f.toData(evaluate(change.by as Formula, roots));
-    if (change.value !== undefined) one.value = f.toData(evaluate(change.value as Formula, roots));
+    if (change.value !== undefined && change.value !== null)
+      one.value = f.toData(evaluate(change.value as Formula, roots));
     applyOne(ruleset, c, one, adjustments, links);
   }
   adjustments.push({ copies: matches.map((m) => m.id) });
@@ -653,7 +661,8 @@ function setGrantState(
   }
   const value = typedValue(decl, raw);
   if (typeof value === 'string')
-    throw new ChangeError('wrong-type', { target: key, expected: value });
+    throw new ChangeError('wrong-type', { target: key, ...expectedData(decl, value) });
+  checkOptions(decl, key, raw);
   checkStateRange(sheet, pack, view, key, decl, num(value));
   // Only what differs from the default is kept, so files stay minimal.
   const state = { ...saved, [key]: raw as Literal };
@@ -782,7 +791,7 @@ function applyOne(
       const def = inputField(ruleset, qid);
       const value = typedValue(def, change.value);
       if (typeof value === 'string')
-        throw new ChangeError('wrong-type', { target: qid, expected: value });
+        throw new ChangeError('wrong-type', { target: qid, ...expectedData(def, value) });
       checkRange(sheet, qid, value);
       checkMembers(ruleset, qid, def, change.value);
       c.values = { ...c.values, [qid]: change.value as Literal };
@@ -828,13 +837,24 @@ function applyOne(
       const item = ruleset.content[entry.item];
       if (!item || item.type === 'template')
         throw new ChangeError('unknown-id', { id: entry.item });
+      if (item.grantOnly) throw new ChangeError('not-addable', { item: entry.item });
       const type = ruleset.contentTypes[item.type];
       const templates = (entry.templates ?? []).map((t) => checkTemplate(ruleset, sheet, item, t));
       if (entry.equipped !== undefined && !type?.equippable)
         throw new ChangeError('not-equippable', { item: entry.item });
       checkState(ruleset, item, templates, entry.state ?? {});
-      // Formula defaults are evaluated, checked against the key's bounds and saved now.
-      const view = itemView(ruleset, item, templates, (n, p) => sheet.inputValue(`${p}:${n}`));
+      for (const [field, raw] of Object.entries(entry.fields ?? {})) {
+        const problem = copyFieldProblem(ruleset, item, field, raw);
+        if (problem) throw new ChangeError(problem.code, problem.data);
+      }
+      // Formula defaults are evaluated, with the copy's own fields, checked against the key's
+      // bounds and saved now.
+      const view = itemView(
+        ruleset,
+        item,
+        [...templates, ...copyFields(ruleset, entry, item)],
+        (n, p) => sheet.inputValue(`${p}:${n}`),
+      );
       const pack = ruleset.contentTypes[item.type]?.pack ?? item.pack;
       for (const [key, decl] of Object.entries(stateDecls(ruleset, item, templates))) {
         if (entry.state?.[key] !== undefined || typeof decl.default !== 'string') continue;
@@ -918,7 +938,8 @@ function applyOne(
       }
       const value = typedValue(decl, raw);
       if (typeof value === 'string')
-        throw new ChangeError('wrong-type', { target: key, expected: value });
+        throw new ChangeError('wrong-type', { target: key, ...expectedData(decl, value) });
+      checkOptions(decl, key, raw);
       checkStateRange(sheet, pack, view, key, decl, num(value));
       entry.state = { ...entry.state, [key]: raw as Literal };
       // A pick keeps only what differs from the declared default, so files stay minimal.
@@ -926,6 +947,22 @@ function applyOne(
         delete entry.state[key];
         if (Object.keys(entry.state).length === 0) delete entry.state;
       }
+      return;
+    }
+    case 'setField': {
+      const entry = entryOf(str('entry'));
+      const item = ruleset.content[entry.item] as LoadedItem;
+      const field = str('key');
+      if (change.value === null) {
+        const decl = ruleset.contentTypes[item.type]?.fields?.[field];
+        if (!decl?.perCopy) throw new ChangeError('not-per-copy', { field });
+        if (entry.fields) delete entry.fields[field];
+        if (entry.fields && Object.keys(entry.fields).length === 0) delete entry.fields;
+        return;
+      }
+      const problem = copyFieldProblem(ruleset, item, field, change.value);
+      if (problem) throw new ChangeError(problem.code, problem.data);
+      entry.fields = { ...entry.fields, [field]: change.value as Literal };
       return;
     }
     case 'setQuantity':
@@ -1189,6 +1226,12 @@ function checkStateRange(
     throw new ChangeError('out-of-range', { target: key, min, max });
 }
 
+/** A state value naming something its key's `where` doesn't take is invalid-option. */
+function checkOptions(decl: ValueDecl, target: string, raw: unknown): void {
+  const option = outsideOptions(decl, raw);
+  if (option !== undefined) throw new ChangeError('invalid-option', { target, option });
+}
+
 function checkState(
   ruleset: Ruleset,
   item: LoadedItem,
@@ -1201,7 +1244,8 @@ function checkState(
     if (!decl) throw new ChangeError('unknown-state-key', { key });
     const value = typedValue(decl, raw);
     if (typeof value === 'string')
-      throw new ChangeError('wrong-type', { target: key, expected: value });
+      throw new ChangeError('wrong-type', { target: key, ...expectedData(decl, value) });
+    checkOptions(decl, key, raw);
   }
 }
 
@@ -1260,7 +1304,7 @@ function reapplied(
     }
     const value = typedValue(decl, raw);
     if (typeof value === 'string')
-      throw new ChangeError('wrong-type', { target: key, expected: value });
+      throw new ChangeError('wrong-type', { target: key, ...expectedData(decl, value) });
     checkStateRange(sheet, pack, view, key, decl, num(value));
     next[key] = raw;
   }
@@ -1540,7 +1584,10 @@ function situationalOn(
     if (!typed)
       throw new ChangeError('wrong-type', {
         target: id,
-        expected: def.type === 'enum' ? `one of ${(def.values ?? []).join(', ')}` : def.type,
+        ...expectedData(
+          def,
+          def.type === 'enum' ? `one of ${(def.values ?? []).join(', ')}` : def.type,
+        ),
       });
     const selected = def.type === 'boolean' ? value === true : value !== situationalDefault(def);
     if (!selected) continue;
@@ -1635,12 +1682,19 @@ function ownTarget(
   ruleset: Ruleset,
   i: EffectInstance,
   key: string,
+  named?: 'pick' | 'grant',
 ):
   | { pick: { path: ChoicePath; option: string | number } }
   | { grant: Record<string, unknown> }
   | undefined {
   const a = i.own;
-  if (!a?.item || stateDecls(ruleset, a.item, [])[key] === undefined) return undefined;
+  if (named !== undefined) {
+    // `pick: owner` and `grant: owner` name the activation whatever keys it declares.
+    const kind = named === 'pick' ? 'pick' : 'grant';
+    if (a?.kind !== kind || (kind === 'grant' && a.scope !== 'holder'))
+      throw new ChangeError('unknown-reference', { kind, id: 'owner' });
+  } else if (!a?.item || stateDecls(ruleset, a.item, [])[key] === undefined) return undefined;
+  if (!a?.item) return undefined;
   if (a.kind === 'pick') {
     const option = a.path.choice.at(-1);
     if (option === undefined) return undefined;
@@ -1682,7 +1736,7 @@ function applyThen(
         });
       }
     };
-    for (const then of i.effect.then) {
+    for (const then of (thenRule(i.effect)?.changes ?? []) as ThenChange[]) {
       if (entry !== undefined && removed.has(entry)) break;
       if (then.type === 'removeEffect') {
         if (i.applied === undefined || entry === undefined) continue;
@@ -1691,7 +1745,12 @@ function applyThen(
         adjustments.push({ entry, removed: true, source });
         continue;
       }
-      const own = ownTarget(ruleset, i, then.key);
+      const own = ownTarget(
+        ruleset,
+        i,
+        then.key,
+        then.pick === 'owner' ? 'pick' : then.grant === 'owner' ? 'grant' : undefined,
+      );
       if (own === undefined && entry === undefined) continue;
       const one: AnyChange = { type: then.type, key: then.key };
       if (then.value !== undefined) one.value = evaluate(then.value);

@@ -180,7 +180,7 @@ Source files may be written in any layout; releases carry the canonical text.
 | `bool`    | `true`, `false`                                                                                   |
 | `string`  | Unicode text                                                                                      |
 | `null`    | `null` (only from data: optional values that are absent are not null, they are missing)           |
-| `list<T>` | Ordered lists; `set` fields are lists without duplicates                                          |
+| `list<T>` | Ordered lists; `set` fields are sorted lists without duplicates, `list` item fields as written    |
 | `dice`    | An unrolled dice expression: dice terms plus a flat integer (`2d6 + 3`)                           |
 | `dyn`     | Not known until evaluation (context data the checker can't type yet)                              |
 
@@ -220,7 +220,7 @@ make 1, fifty coins of 0.02 lb make 1, and `0.1 + 0.2 == 0.3`.
 | `boolean`              | `bool`         |
 | `string`, `enum`, `id` | `string`       |
 | `dice`                 | `dice`         |
-| `set`                  | `list<string>` |
+| `set`, `list`          | `list<string>` |
 
 `int` is assignable wherever `decimal` is expected, and `int` is assignable wherever `dice` is
 expected. Nothing else converts implicitly.
@@ -292,6 +292,7 @@ treats the rest as `dyn`:
 | `value`                 | A value choice's or a choice step's candidate value: `string`, `int` or `decimal` as its written values are, the element type of a `values` formula, else `dyn`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
 | `choice`                | In a choice's own `where`, `eligible`, `recommend` and `values`: closed, `path`, `owner`, `id` (strings but `path`), `slot` (a slot's), and `picks` (a list of its picks, `dyn`)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
 | `slot`                  | int: the slot's number in a slotted choice                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| `owner`                 | Closed: `id` (a string) and `item` (`dyn`)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 | `action`                | Closed: `item` and `self` (typed as the action's own), `step` (closed: `id`, a string, and `tags`, a list of strings)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
 | `picks`                 | int                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
 | `picked`                | Closed: `id` (a string), plus `item` over content and copies and `self` over copies, typed by the content type, and `value` over values, typed as written values are (a formula's: `dyn`)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
@@ -344,10 +345,11 @@ see the content's own roots (`item`, `self`) with the action context (`steps`, `
 | `base`                     | templates, and a template's item field values                                                                                                                                      | The item the template is applied to, alone                                                                                                                                        |
 | `prior`                    | a template's item field values                                                                                                                                                     | The item as merged before the template: the base item and the copy's earlier templates                                                                                            |
 | `self`                     | content effects, grants, prerequisites, choices, follow-ups, computed values; actions; content display groups and state hints; kept templates' queries and `params` (the keeper's) | The character's copy of the item. For content activated by a pick or a grant: the owning copy, with the pick's or grant's own state keys over it; for an applied entry, the entry |
-| `pick`                     | choice effects                                                                                                                                                                     | The picked option (`pick.id` or `pick.value`)                                                                                                                                     |
+| `pick`                     | choice effects; the arguments of `countPicks`                                                                                                                                      | The picked option (`pick.id` or `pick.value`); in `countPicks`, the saved pick being evaluated                                                                                    |
 | `value`                    | a value choice's `where`; a choice step's `where` and `prefer` over values                                                                                                         | The candidate value                                                                                                                                                               |
 | `choice`                   | a choice's `where`, `eligible`, `recommend` and value `values`; a choice step's `recommend` over pending choices                                                                   | The choice itself with its own `picks`; the pending choice a step asks                                                                                                            |
 | `slot`                     | every formula of a slotted choice and of its inline options                                                                                                                        | The slot's number                                                                                                                                                                 |
+| `owner`                    | a kept template's `content` query that reads the keeper                                                                                                                            | The candidate's owner: `id` (its key root, as `choice.owner`) and `item` ([content.md](content.md#on-content-without-a-copy))                                                     |
 | `steps`, `flags`, `params` | actions; roll and option effects; situational effects; result bands                                                                                                                | Earlier step results, branch flags, app parameters                                                                                                                                |
 | `params`                   | a template's item field values                                                                                                                                                     | The template's params, as the content keeping it gave them ([content.md](content.md#from-the-keeper))                                                                             |
 | `situational`              | actions; roll and option effects; situational effects; incoming-change effects                                                                                                     | Selected situational choices: the action's, or the receiving player's on the change being routed                                                                                  |
@@ -365,9 +367,10 @@ see the content's own roots (`item`, `self`) with the action context (`steps`, `
 | `amount`                   | an `allocate` step's `cost`                                                                                                                                                        | The amount allocated to the field                                                                                                                                                 |
 | `options`                  | a choice step's `recommend`                                                                                                                                                        | The IDs its source offers, without `#done` or added options                                                                                                                       |
 | `copy`                     | the arguments of `countCopies`, `sumCopies`, `maxCopies` and `minCopies`                                                                                                           | The copy the argument is being evaluated for                                                                                                                                      |
+| `grant`                    | the arguments of `countGrants`                                                                                                                                                     | The active holder grant the argument is being evaluated for                                                                                                                       |
 | `entry`                    | an immunity query's `where`                                                                                                                                                        | The candidate applied entry: `id` and its state keys, as its `self`                                                                                                               |
 | `f`                        | the arguments of `countFields`, `sumFields`, `maxFields` and `minFields`                                                                                                           | The field the argument is being evaluated for                                                                                                                                     |
-| `x`                        | the arguments of the list functions (`countList` … `sortList`), after the list; a proposed change with `forEach`                                                                   | The list element the argument, or the change, is being evaluated for                                                                                                              |
+| `x`                        | the arguments of the list functions (`countList` … `sortList`), after the list; a proposed change or a grant with `forEach`                                                        | The list element the argument, the change or the grant is being evaluated for                                                                                                     |
 
 **Formulas a change passes on.** In a proposed change aimed at copies, `copies.where` and a `by` or
 `value` that reads `self` or `item` are evaluated per copy by applyChanges. There `item` and `self`
@@ -400,11 +403,13 @@ define functions.
 | `maxOf`, `minOf`                      | (dice) → int                                | The highest and lowest totals a dice value can roll. See [below](#reading-dice-values)                                                                                                                                                                                                                                                                                                |
 | `dieOf`                               | (dice, int count?) → dice                   | `count` dice (default 1) of the value's first die: `dieOf(2d6 + 1)` is `1d6`, `dieOf(2d6, 3)` is `3d6`                                                                                                                                                                                                                                                                                |
 | `fieldOf`                             | (string pattern, key, …) → the fields' type | The field a family pattern names for its keys: `fieldOf('spellcasting.{caster}.dc', 'wizard')`. The pattern is a string literal with one or more `{family}` placeholders, each family once, and takes a key per placeholder in order: `fieldOf('slots.{caster}.rank{rank}', 'wizard', 3)`. Every field it names must exist and share a type. A key not in its family is `no-such-key` |
+| `fieldId`                             | (string pattern, key, …) → string           | The qualified ID of the field `fieldOf` would read, without reading it: `fieldId('effort.{tradition}.day', x)`, for a computed field ID (a change's or effect's `{ formula }` target) that must reach a field another pack declared for a key it added to the family. Same pattern and key rules as `fieldOf`; every field of the pattern must exist                                  |
 | `keysOf`                              | (string family) → list                      | A family's values, in order: ints when every value is a whole number, else strings. The name is a string literal                                                                                                                                                                                                                                                                      |
 | `countOf`                             | (dice) → int                                | The count of the value's first die: `countOf(8d6)` is 8; 0 with no dice                                                                                                                                                                                                                                                                                                               |
 | `has`                                 | (name or member) → bool                     | Macro: whether an optional value is present. The argument isn't evaluated, so a missing value is `false`, not an error                                                                                                                                                                                                                                                                |
 | `countCopies`                         | (bool cond) → int                           | Macro: the character's copies for which `cond` holds. See [Aggregates](#aggregates)                                                                                                                                                                                                                                                                                                   |
 | `sumCopies`, `maxCopies`, `minCopies` | (number value, bool cond?) → number         | Macro: the sum, highest or lowest of `value` over the copies for which `cond` holds (every copy, without it); 0 for none                                                                                                                                                                                                                                                              |
+| `countPicks`, `countGrants`           | (bool cond) → int                           | Macro: the character's saved picks of content, or its active holder grants, for which `cond` holds. They nest in another aggregate. See [Aggregates](#over-picks-and-grants)                                                                                                                                                                                                          |
 | `countFields`                         | (bool cond) → int                           | Macro: the fields in the ruleset for which `cond` holds                                                                                                                                                                                                                                                                                                                               |
 | `sumFields`, `maxFields`, `minFields` | (number value, bool cond?) → number         | Macro: the sum, highest or lowest of `value` over the fields `cond` keeps (every field, without it); 0 for none                                                                                                                                                                                                                                                                       |
 | `countList`                           | (list, bool cond) → int                     | Macro: the list's elements for which `cond` holds                                                                                                                                                                                                                                                                                                                                     |
@@ -414,13 +419,18 @@ define functions.
 | `sortList`                            | (list<T>, key?) → list<T>                   | Macro: the elements in ascending order of `key` (number or string; the element itself without one), equal keys in list order (0114)                                                                                                                                                                                                                                                   |
 | `hasChoice`                           | (string type) → bool                        | Whether the character has a choice of the content type, made or pending. Bound only in display hints' `showWhen`; [below](#choices-in-display-hints)                                                                                                                                                                                                                                  |
 | `picksOf`                             | (string choice) → list                      | The saved picks of a choice of the formula's owner: content IDs or values, in saved order. The ID is a string literal. Bound where a formula has an owner; [below](#picks-of-the-owners-choices)                                                                                                                                                                                      |
+| `picksOf`                             | (string content, string choice) → list      | The picks of a content's choice on every activation of it, in activation order, or of a rules-level choice (`'rules'`). String literals. Bound where a character is, but activation conditions for content; [below](#picks-of-other-content)                                                                                                                                          |
+| `grantedPicksOf`                      | (string content, string choice) → list      | The saved picks of a choice of content the formula's owner grants. String literals. Bound where `picksOf(choice)` is; [below](#picks-of-other-content)                                                                                                                                                                                                                                |
+| `itemField`                           | (string id, string name, default?) → any    | An item field of content by ID, as merged at load; `default` when it has none. Bound where a character is; [below](#fields-and-tags-of-content-by-id)                                                                                                                                                                                                                                 |
+| `itemTags`                            | (string id) → list<string>                  | The tags of content by ID, as merged at load. Bound where `itemField` is; [below](#fields-and-tags-of-content-by-id)                                                                                                                                                                                                                                                                  |
 | `countEquipped`                       | (string type) → int                         | **Deprecated:** `countCopies(copy.type == type && copy.equipped)`. The character's equipped copies of a content type                                                                                                                                                                                                                                                                  |
 | `countState`                          | (string key) → int                          | **Deprecated:** `countCopies(has(copy.state.<key>) && copy.state.<key>)`. The copies whose per-copy state `key` is `true`                                                                                                                                                                                                                                                             |
 | `sumState`                            | (string type, string key) → int             | **Deprecated:** `sumCopies(copy.state.<key>, copy.type == type && has(copy.state.<key>))`. Sum of an integer state key over the copies of a type                                                                                                                                                                                                                                      |
 
-The copy and field functions and the deprecated three read the character, so they are only
-bound where a character is: everywhere except queries resolved at load time, item fields, and
-state defaults and bounds. Elsewhere they are `unknown-function`. `picksOf` reads the character
+The copy, pick, grant and field functions and the deprecated three read the character, so they
+are only bound where a character is: everywhere except queries resolved at load time, item
+fields, and state defaults and bounds. Elsewhere they are `unknown-function`. `countGrants` is
+also unbound in activation conditions, which decide the grants. `picksOf` reads the character
 too, and is bound in fewer places ([below](#picks-of-the-owners-choices)). The list functions and
 `indexOf` read only their arguments, so they are bound everywhere.
 
@@ -477,8 +487,10 @@ computed:
   content or an inline option (the choices nested under the pick), or the rules. A choice's formulas see the choices of the choice's owner, its siblings and
   itself (`picksOf` of its own ID is `choice.picks`). A content type's formulas run for each item,
   and a rules action a copy uses (`use`) for that copy, so they see that item's choices; a rules
-  action run with no copy, and the rules' effects, follow-ups and choices, see the rules-level
-  choices. Content a choice picks doesn't see the choices of the content that picked it.
+  action run or listed with no copy (its `available` included, as computeSheet lists it and as a
+  follow-up's action is checked), and the rules' effects, follow-ups and choices, see the
+  rules-level choices, as `picksOf('rules', choice)` reads them. Content a choice picks doesn't
+  see the choices of the content that picked it.
 - **The ID** is a string literal (`type-mismatch` otherwise): a choice ID, or a slot's key
   (`class-feat-2`). Choice IDs have hyphens, which a dotted name can't, so the picks are a
   function rather than a root. Where the owner is known at load (an item's, a template's or an
@@ -497,6 +509,99 @@ computed:
   Field formulas, constraints, display hints, situational choices, result bands, queries
   resolved at load, item fields, and state defaults and bounds have no owner: there it is
   `unknown-function`.
+
+### Picks of other content
+
+Two forms read the picks of content other than the formula's owner, by its ID:
+
+```yaml
+# The topics of every Lore feat the character has, granted ones included (Starfinder 2e).
+formula: "size(picksOf('feats.skill.additional-lore', 'lore'))"
+# Fixation grants Additional Lore and Assurance in that Lore: the second grant presets its pick
+# from the first grant's, on Fixation's own node, whatever other Lore the character has.
+grants:
+  - item: feats.skill.additional-lore
+  - item: feats.skill.assurance
+    when: size(grantedPicksOf('feats.skill.additional-lore', 'lore')) > 0
+    choices:
+      skill:
+        [
+          {
+            option:
+              {
+                formula: "'skill.lore.' + grantedPicksOf('feats.skill.additional-lore', 'lore')[0]",
+              },
+          },
+        ]
+```
+
+- **`picksOf(content, choice)`** is the picks of the content's choice on every activation of
+  it, in activation order, concatenated: copies, templates, picks and grants, holder and applied,
+  `[]` with none. On each, the picks are a grant's preset picks where a grant presets the choice,
+  else the saved ones, whether or not the choice applies. Two activations of the same content
+  merge, so to tell them apart read the picks from the owner instead. It reads what activation
+  decides, so it is bound wherever a character is but activation conditions (`unknown-function`
+  there, at load and when evaluated), field formulas, constraints, display hints and situational
+  choices included.
+- **`picksOf('rules', choice)`** is the saved picks of a rules-level choice, as
+  `picksOf(choice)` reads them in the rules' own formulas: the ID a rules-level choice's owner
+  has, `rules` for the formula's pack and `<pack>:rules` for another's, as in
+  [`extendChoices`](content.md#adding-options-to-a-dependencys-choices). Saved picks are input,
+  so it is bound wherever a character is, activation conditions included, and adds no
+  dependency. So a constraint, a display hint or a field formula reads the rules' choices, and
+  with `itemField` the picked content's fields:
+
+  ```yaml
+  # A crew's special upgrades are its crew type's (FitD).
+  check: >-
+    size(picksOf('rules', 'crew-type')) == 0
+      || sumFields(f.id in itemField(picksOf('rules', 'crew-type')[0], 'upgrades') ? 0 : f.value,
+        'upgrade.special' in f.tags) == 0
+  ```
+
+  Content with the ID `rules` can't be read this way.
+
+- **`grantedPicksOf(content, choice)`** is the saved picks of a choice of content the formula's
+  owner grants: the picks its node keeps under the granted content's prefixed key
+  ([characters.md](characters.md#choices-tree)), `[]` with none. They are input, so it is
+  bound where `picksOf(choice)` is, activation conditions included, and adds no dependency.
+  A grant's preset picks aren't saved, so it doesn't read them; the granter knows them already.
+- **The IDs** are string literals (`type-mismatch` otherwise). The content resolves in the
+  formula's pack, as an ID literal does. At load, content the pack doesn't see, or a choice key
+  (a choice ID, or a slot's `<id>-<slot>`) it doesn't declare, is `unknown-reference`; so are the
+  rules of a pack it doesn't see, a choice key those rules don't declare, and `grantedPicksOf`
+  of the rules, which are never granted.
+
+### Fields and tags of content by ID
+
+A pick, a field's value or a literal names content by ID; two functions read that content:
+
+```yaml
+# Dragonborn breath: the picked lineage's damage type, with no field mirroring it.
+tags: [{ formula: "'damage.' + itemField(picksOf('lineage')[0], 'damageType')" }]
+# A grant's when: Fire Soul for a fire lineage.
+when: "size(picksOf('lineage')) > 0 && itemField(picksOf('lineage')[0], 'damageType') == 'fire'"
+# A crew's upgrades, listed on its crew type.
+showWhen: "@upgrades.hardened in itemField(picksOf('rules', 'crew-type')[0], 'upgrades')"
+```
+
+- **`itemField(id, name)`** is the item field `name` of the content with that ID, as the item
+  is merged at load (`extends` and overrides, its content type's defaults), read as
+  `item.<name>` reads it (a formula field over input fields). A copy's templates and own values
+  aren't in it: the content, not a copy. **`itemField(id, name, default)`** gives `default` when
+  the content doesn't have the field, or the ID names no content; without one, either is
+  `no-such-key`. The type is `dyn`, or the default's.
+- **`itemTags(id)`** is the content's tags, as merged at load; an ID naming no content is
+  `no-such-key`.
+- **The ID** is any string, resolved in the formula's pack as an ID literal is (a pick is
+  qualified already). `name` is a string literal (`type-mismatch` otherwise). At load, a name no
+  content type the pack sees declares (nor a template field), a literal ID naming no content
+  the pack sees, or a literal ID whose content type doesn't declare the name, is
+  `unknown-reference`.
+- **Bound** wherever a character is, activation conditions included: content is fixed at load
+  and its formula fields read input fields only, so it adds no dependency on what activation
+  decides. Not in item field values, state defaults or queries resolved at load
+  (`unknown-function`); a query `where` calling it reads the character.
 
 The deprecated functions keep working in this spec version. Each is the `countCopies` or
 `sumCopies` call shown, which official packs use instead. A later major version may remove them.
@@ -546,13 +651,16 @@ multiplied: false
 ### Aggregates
 
 The aggregates count, add up, or take the highest or lowest of something over a set: the
-character's copies, the ruleset's fields, or a list. They are one family:
+character's copies, its saved picks and active grants, the ruleset's fields, or a list. They are
+one family:
 
-| Over   | Count             | Sum                 | Highest, lowest                          | Root   |
-| ------ | ----------------- | ------------------- | ---------------------------------------- | ------ |
-| Copies | `countCopies(c)`  | `sumCopies(v, c?)`  | `maxCopies(v, c?)`, `minCopies(v, c?)`   | `copy` |
-| Fields | `countFields(c)`  | `sumFields(v, c?)`  | `maxFields(v, c?)`, `minFields(v, c?)`   | `f`    |
-| A list | `countList(l, c)` | `sumList(l, v, c?)` | `maxList(l, v, c?)`, `minList(l, v, c?)` | `x`    |
+| Over   | Count             | Sum                 | Highest, lowest                          | Root    |
+| ------ | ----------------- | ------------------- | ---------------------------------------- | ------- |
+| Copies | `countCopies(c)`  | `sumCopies(v, c?)`  | `maxCopies(v, c?)`, `minCopies(v, c?)`   | `copy`  |
+| Picks  | `countPicks(c)`   |                     |                                          | `pick`  |
+| Grants | `countGrants(c)`  |                     |                                          | `grant` |
+| Fields | `countFields(c)`  | `sumFields(v, c?)`  | `maxFields(v, c?)`, `minFields(v, c?)`   | `f`     |
+| A list | `countList(l, c)` | `sumList(l, v, c?)` | `maxList(l, v, c?)`, `minList(l, v, c?)` | `x`     |
 
 The list family also has `filterList`, `mapList` and `sortList`, which give lists ([below](#over-a-list)).
 
@@ -577,11 +685,12 @@ result: >-
 What they share:
 
 - **They are macros**, like `has`: the arguments are not evaluated before the call. They are
-  evaluated once per element, with the aggregate's root (`copy`, `f` or `x`) bound to it. A
+  evaluated once per element, with the aggregate's root (`copy`, `pick`, `grant`, `f` or `x`)
+  bound to it. A
   list function's list is evaluated once, first, as usual.
 - **The root** is bound only inside the arguments (for the list functions, those after the
-  list); elsewhere it is `unknown-name`. Field IDs can't start with `copy`, `f` or `x`, as with
-  any root.
+  list); elsewhere it is `unknown-name`. Inside `countPicks`, `pick` is the saved pick, not a
+  choice effect's. Field IDs can't start with `copy`, `grant`, `f` or `x`, as with any root.
 - **Other roots stay bound.** `item`, `self`, `steps` and the rest keep their meaning inside the
   arguments, so a weapon's condition can compare its own `item.ammo` with each `copy`. The
   field functions' `cond` is the exception (below).
@@ -596,12 +705,14 @@ What they share:
   it is `dyn`. When evaluated, the result is a decimal if any value it went over is a decimal,
   else an int; an empty result is the int 0, which is assignable wherever a decimal is expected.
   A decimal sum is rounded to six places at each step, as `+` is.
-- **No nesting.** Inside any aggregate's arguments, no aggregate is bound (`unknown-function`),
-  but for a list function's list argument, which is evaluated once, outside the per-element
-  context.
+- **Nesting.** Inside an aggregate's arguments, only `countPicks` and `countGrants` are bound,
+  evaluated once per outer element with its root bound, so a field's or a copy's condition can
+  count the picks that name it (`sumFields(countPicks(f.id in pick.fields.upgrades) > 0 ? 0 :
+  f.value)`); inside those, no aggregate is. Any other is `unknown-function`, but for a list
+  function's list argument, which is evaluated once, outside the per-element context.
   The work is at most the number of copies, fields or list elements times the formula's size,
-  and each is bounded, so no safety limit is added for it. The deprecated functions stay bound
-  there.
+  times the saved picks or active grants for a nested one, and each is bounded, so no safety
+  limit is added for it. The deprecated functions stay bound there.
 - **Where.** The copy and field functions read the character, so they are bound where a
   character is (see [Functions](#functions)). The list functions read only their arguments and
   are bound everywhere; the list argument decides what they reach (`steps` only in actions, and
@@ -632,6 +743,35 @@ skipped, as in `character.inventory`; `applied` entries aren't copies.
   the calls add no ordering edges of their own; field names inside the arguments are
   dependencies like anywhere else. In activation conditions only input fields may be read, as
   always.
+
+#### Over picks and grants
+
+`countPicks(cond)` goes over every saved pick of content, in file order: each copy's choice tree
+(features, then inventory), then the rules-level tree, depth first, as a change's
+`picks: { where }` names them ([engine-core.md](engine-core.md#applychanges)). A pick of a value,
+or of content not in the ruleset, is skipped. `countGrants(cond)` goes over every active holder
+grant, in activation order, an item once per node, as `grants: { where }` names them.
+
+- **`pick`** and **`grant`** are closed: `item` (the picked or granted content's qualified ID),
+  `type` (its content type name), `tags` (its tags), `fields` (its item fields, as in `item`)
+  and `state` (each state key its type and item declare: for a pick, its saved value; for a
+  grant, its saved value, else the grant's `state` value; else the declared default). A key
+  that is absent is `no-such-key`; guard it with `has()`. `state` and `fields` are `dyn`.
+- **Where.** Saved picks are input, so `countPicks` is bound wherever a character is, activation
+  conditions included. Which grants are active is what activation decides, so `countGrants` is
+  `unknown-function` in activation conditions (a grant's or choice's `when`, a grant's `item`,
+  `state` and preset formulas, an immunity's `when` and query), at load and when evaluated.
+- **Dependencies.** Pick and grant state is input, so the calls add no ordering edges of their
+  own.
+
+```yaml
+# A long rest resets used invocations, and proposes nothing when none was used (5E).
+- type: setState
+  picks: { where: "item.type == 'invocation' && self.used" }
+  key: used
+  value: false
+  when: countPicks(pick.type == 'invocation' && pick.state.used) > 0
+```
 
 #### Over fields
 
@@ -755,7 +895,7 @@ Everything else still calculates.
 | Action step `params`                                                                                 | any (`null` leaves it out)                |
 | Action step `source`; each of `participants`                                                         | string; list of strings                   |
 | Computed tag (`{ formula }` in a tags list)                                                          | string or list of strings (declared tags) |
-| Item field values                                                                                    | the declared type                         |
+| Item field values (a template's `{ formula }` on a string, enum or id field: string)                 | the declared type                         |
 | State key `default`                                                                                  | the key's type                            |
 | State key `min`, `max`                                                                               | number                                    |
 

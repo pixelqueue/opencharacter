@@ -22,12 +22,13 @@ actions:
   # old maximum plus one. Saves and attack bonus follow the level.
   - id: level-up
     tags: [advancement]
-    available: '!character.creating && level < 10'
+    available: '!character.creating && level < 10 && xp.current >= xp.next'
     params:
       random: { type: boolean, default: false }
     results: [advanced]
     steps:
       - id: up
+        tags: [advancement.level]
         kind: changes
         changes:
           - { type: set, field: level, value: level + 1 }
@@ -85,6 +86,7 @@ actions:
   # A new edge, with what it brings: its bonus skill (a pick at creation, three skill points
   # later), Educated's points for earlier levels, a later Mutant's mutations.
   - id: gain-edge
+    available: edges.count < edges.allowed
     tags: [advancement]
     params:
       random: { type: boolean, default: false }
@@ -97,12 +99,12 @@ actions:
           content:
             type: edge
             where: >-
-              (!(item.id in edges.held) || item.id == @edges.focused)
-                && (item.id != @edges.forged-by-fire || (character.creating && edges.count == 0))
-                && (item.id != @edges.mutation-acceleration || mutations.mutant)
-                && (item.id != @edges.mutant || !(@edges.hardened-genetics in edges.held))
-                && (item.id != @edges.hardened-genetics || !mutations.mutant)
-                && (item.id != @edges.prodigy || !edges.underdog)
+              (!(item.id in edges.held) || 'repeatable' in item.tags)
+                && (!('first-edge' in item.tags) || (character.creating && edges.count == 0))
+                && !('needs-mutant' in item.tags && !mutations.mutant)
+                && !('makes-mutant' in item.tags && mutations.barred)
+                && !('not-mutant' in item.tags && mutations.mutant)
+                && !('not-underdog' in item.tags && edges.underdog)
         random: params.random
         recommend: options[0]
         changes:
@@ -113,31 +115,13 @@ actions:
         when: size(steps.edge.item.bonusSkill) > 0
         use: bonus-skill
         params: { skills: steps.edge.item.bonusSkill, random: params.random }
-      - id: educated
-        kind: changes
-        when: '!character.creating && steps.edge.picked == @edges.educated'
-        changes:
-          - { type: adjust, field: skills.points, by: level - 1 }
-      - id: mutate
-        kind: action
-        when: '!character.creating && steps.edge.picked == @edges.mutant'
-        use: mutate
-        params: { random: params.random }
-      - id: accelerate1
+      # What the edge itself brings when taken (its own `gain-part`).
+      - id: part
         kind: action
         sheet: proposed
-        when: >-
-          !character.creating && steps.edge.picked == @edges.mutation-acceleration
-            && mutations.points.left >= 1
-        use: buy-mutation
-        params: { random: params.random }
-      - id: accelerate2
-        kind: action
-        sheet: proposed
-        when: >-
-          !character.creating && steps.edge.picked == @edges.mutation-acceleration
-            && mutations.points.left >= 1
-        use: buy-mutation
+        when: steps.edge.item.gainPart
+        entry: 'steps.edge.added[0]'
+        use: gain-part
         params: { random: params.random }
       - id: result
         kind: outcome
@@ -146,6 +130,7 @@ actions:
   # A focus level: a new focus at level 1 with its bonus skills (a pick each at creation, three
   # skill points each later), or the second level of one the character has.
   - id: gain-focus
+    available: foci.count < foci.allowed
     tags: [advancement]
     params:
       random: { type: boolean, default: false }
@@ -161,7 +146,7 @@ actions:
               (countCopies(copy.item == item.id) == 0 || item.multiple
                 || countCopies(copy.item == item.id && copy.state.level < item.maxLevel) > 0)
                 && !(item.id in foci.held && countCopies(copy.item == item.id) == 0)
-                && (item.id != @foci.unstable-mutant || mutations.mutant)
+                && !('needs-mutant' in item.tags && !mutations.mutant)
         random: params.random
         recommend: options[0]
       # Specialist again: a second level of a held one, or another skill.
@@ -230,17 +215,21 @@ actions:
         when: flags.new && size(steps.focus.item.bonusSkill2) > 0
         use: bonus-skill
         params: { skills: steps.focus.item.bonusSkill2, random: params.random }
-      - id: unstable
+      # What a new focus itself brings (its own `gain-part`).
+      - id: part
         kind: action
-        when: flags.new && steps.focus.picked == @foci.unstable-mutant
-        use: roll-mutation
-        params: { origin: "'unstable'", random: params.random }
+        sheet: proposed
+        when: flags.new && steps.focus.item.gainPart
+        entry: 'steps.add.added[0]'
+        use: gain-part
+        params: { random: params.random }
       - id: result
         kind: outcome
         result: "'gained'"
 
   # A bonus skill: a skill pick at creation, three skill points toward it afterwards.
   - id: bonus-skill
+    listed: false
     params:
       skills: { type: set, of: string, default: [] }
       random: { type: boolean, default: false }
@@ -263,11 +252,12 @@ actions:
   # Skill points spent toward one skill, raising it as far as they go with its credit; what's
   # left stays as credit. A skill at level-4 can't take them, so another is chosen.
   - id: skill-points-toward
+    listed: false
     params:
       skills: { type: set, of: string, default: [] }
       points: { type: integer, default: 3, min: 0 }
       random: { type: boolean, default: false }
-    results: [spent]
+    results: [spent, none]
     steps:
       - id: offer
         kind: branch
@@ -288,6 +278,11 @@ actions:
                 size(flags.open) > 0 ? flags.open
                   : filterList(keysOf('skill'),
                     fieldOf('skills.{skill}.level', x) < fieldOf('skills.{skill}.cap', x))
+      # Every skill at level-4: nothing to spend on.
+      - id: none
+        kind: outcome
+        when: size(flags.offered) == 0
+        result: "'none'"
       - id: skill
         kind: choice
         options: { values: { formula: flags.offered } }
@@ -326,10 +321,10 @@ actions:
         kind: changes
         changes:
           - type: set
-            field: { formula: "'skills.' + steps.skill.picked + '.level'" }
+            field: { formula: "fieldId('skills.{skill}.level', steps.skill.picked)" }
             value: flags.level3
           - type: set
-            field: { formula: "'skills.' + steps.skill.picked + '.credit'" }
+            field: { formula: "fieldId('skills.{skill}.credit', steps.skill.picked)" }
             value: flags.credit3
       - id: result
         kind: outcome
@@ -340,10 +335,12 @@ actions:
   # level-1 2, level-2 3 (from 3rd level), level-3 4 (from 6th), level-4 5 (from 9th).
   - id: improve-skill
     tags: [advancement]
-    available: '!character.creating'
+    available: >-
+      !character.creating && (skills.points > 0 || maxList(keysOf('skill'), fieldOf('skills.{skill}.credit', x)) > 0)
     params:
       skill:
         type: enum
+        open: true
         values:
           [
             administer,
@@ -395,10 +392,10 @@ actions:
         kind: changes
         changes:
           - type: set
-            field: { formula: "'skills.' + params.skill + '.level'" }
+            field: { formula: "fieldId('skills.{skill}.level', params.skill)" }
             value: flags.level + 1
           - type: set
-            field: { formula: "'skills.' + params.skill + '.credit'" }
+            field: { formula: "fieldId('skills.{skill}.credit', params.skill)" }
             value: flags.credit - flags.fromCredit
           - { type: adjust, field: skills.points, by: 'flags.fromCredit - flags.cost' }
       - id: result
@@ -409,7 +406,9 @@ actions:
   # the first two from 2nd level, the others from 3rd, 6th and 9th. Not for underdogs.
   - id: improve-attribute
     tags: [advancement]
-    available: '!character.creating && !edges.underdog && attributes.boosts < 5'
+    available: >-
+      !character.creating && !edges.underdog && attributes.boosts < 5
+        && skills.points > attributes.boosts && level >= [2, 2, 3, 6, 9][attributes.boosts]
     params:
       attribute: { type: enum, values: [str, dex, con, int, wis, cha] }
     results: [improved, maxed, level-too-low, not-enough-points]

@@ -1,0 +1,71 @@
+description: "`pick: owner` in a roll effect's `then` resolves as in an added option's changes: the invocation's option and its attack bonus each spend a use from the same pick"
+specVersion: 0.2.0
+call: startAction
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.2.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        tags: [spell-cost, attack]
+        contentTypes:
+          invocation:
+            state:
+              uses: { type: integer, default: 2, min: 0 }
+          trait:
+            state:
+              uses: { type: integer, default: 2, min: 0 }
+          class: {}
+        choices:
+          - { id: invocations, from: { type: invocation }, required: false }
+        actions:
+          # Pays for a spell, then makes its attack roll.
+          - id: cast
+            steps:
+              - id: cost
+                kind: choice
+                tags: [spell-cost]
+                options: [{ id: slot }]
+              - { id: roll, kind: roll, tags: [attack], parts: [{ dice: 1d20 }] }
+              - { id: result, kind: outcome, data: { total: steps.roll.total } }
+      content:
+        # Picked: a way to pay and +1 to the attack, each spending a use from its pick.
+        - id: invocations.mire
+          type: invocation
+          effects:
+            - target: { choices: [spell-cost] }
+              op: option
+              when: self.uses > 0
+              value:
+                id: pact
+                changes: [{ type: adjustState, pick: owner, key: uses, by: -1 }]
+            - target: { rolls: [attack] }
+              op: add
+              value: 1
+              when: self.uses > 0
+              then: [{ type: adjustState, pick: owner, key: uses, by: -1 }]
+        # Granted by a class copy: the same, from its holder grant.
+        - id: classes.adept
+          type: class
+          grants: [{ item: traits.knack }]
+        - id: traits.knack
+          type: trait
+          effects:
+            - target: { choices: [spell-cost] }
+              op: option
+              when: self.uses > 0
+              value:
+                id: knack
+                changes: [{ type: adjustState, grant: owner, key: uses, by: -1 }]
+            - target: { rolls: [attack] }
+              op: add
+              value: 1
+              when: self.uses > 0
+              then: [{ type: adjustState, grant: owner, key: uses, by: -1 }]
+input:
+  action: { id: test-pack:cast }
+answers:
+  - { option: 'test-pack:invocations.mire#pact' }

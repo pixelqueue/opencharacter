@@ -19,11 +19,13 @@ contentTypes:
               trade-good,
             ],
           required: true,
+          open: true,
         }
       cost: { type: decimal } # gold pieces, per unit
       weight: { type: decimal } # pounds, per unit
       bundle: { type: integer, min: 1 }
-      ammunition: { type: enum, values: [arrow, blowgun-needle, crossbow-bolt, sling-bullet] }
+      ammunition:
+        { type: enum, values: [arrow, blowgun-needle, crossbow-bolt, sling-bullet], open: true }
     state:
       stowed: { type: boolean, default: false }
       quivered: { type: boolean, default: false } # in an Efficient Quiver (below)
@@ -38,6 +40,7 @@ contentTypes:
           type: enum,
           values: [artisans-tools, gaming-set, musical-instrument, kit, other],
           required: true,
+          open: true,
         }
       cost: { type: decimal }
       weight: { type: decimal }
@@ -54,7 +57,7 @@ contentTypes:
   vehicle:
     carried: true
     fields:
-      category: { type: enum, values: [drawn, waterborne], required: true }
+      category: { type: enum, values: [drawn, waterborne], required: true, open: true }
       cost: { type: decimal }
       pulledWeight: { type: decimal }
       speedMph: { type: decimal }
@@ -65,14 +68,10 @@ fields:
     formula: >-
       sumCopies(copy.fields.weight * copy.quantity, has(copy.fields.weight)
         && has(copy.state.stowed) && copy.state.stowed)
-  carrying.stowCapacity:
-    type: decimal
-    formula: >-
-      500 * sumCopies(copy.quantity, copy.item == @magic-items.bag-of-holding)
-        + 120 * sumCopies(copy.quantity, copy.item == @magic-items.handy-haversack)
-  carrying.quivers:
-    type: integer
-    formula: 'sumCopies(copy.quantity, copy.item == @magic-items.efficient-quiver)'
+  # What extradimensional containers and quivers hold: each adds its own (content effects).
+  carrying.stowCapacity: { type: decimal, formula: 0, min: 0 }
+  carrying.stowUnlimited: { type: boolean, formula: false }
+  carrying.quivers: { type: integer, formula: 0, min: 0 }
   carrying.quiveredAmmunition:
     type: integer
     formula: >-
@@ -81,25 +80,23 @@ fields:
   carrying.quiveredJavelins:
     type: integer
     formula: >-
-      sumCopies(copy.quantity, copy.item == @weapons.javelin
+      sumCopies(copy.quantity, 'quiver.javelin' in copy.tags
         && has(copy.state.quivered) && copy.state.quivered)
   carrying.quiveredLong:
     type: integer
     formula: >-
       sumCopies(copy.quantity, copy.type == 'weapon'
-        && copy.item != @weapons.javelin
+        && !('quiver.javelin' in copy.tags)
         && has(copy.state.quivered) && copy.state.quivered)
 
 constraints:
   - id: stowed-without-container
     check: >-
       countCopies(has(copy.state.stowed) && copy.state.stowed) == 0
-        || countCopies(copy.item in [@magic-items.bag-of-holding,
-          @magic-items.handy-haversack, @magic-items.portable-hole]) > 0
+        || carrying.stowUnlimited || carrying.stowCapacity > 0
   - id: stowed-over-capacity
     check: >-
-      carrying.stowed <= carrying.stowCapacity
-        || countCopies(copy.item == @magic-items.portable-hole) > 0
+      carrying.stowUnlimited || carrying.stowed <= carrying.stowCapacity
     data:
       stowed: carrying.stowed
       capacity: carrying.stowCapacity

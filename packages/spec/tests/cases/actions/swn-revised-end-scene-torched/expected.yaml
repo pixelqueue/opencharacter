@@ -1,0 +1,26 @@
+status: finished
+outcome:
+  result: ended
+proposedChanges:
+  - { to: self, step: reset, change: { type: set, field: swn-revised:effort.scene, value: 0 } }
+  - { to: self, step: reset, change: { type: set, field: swn-revised:effort.torched, value: 0 } }
+  - to: self
+    step: reset
+    change: { type: set, field: swn-revised:scene.expertReroll, value: false }
+  - to: self
+    step: reset
+    change: { type: set, field: swn-revised:scene.warriorLuck, value: false }
+  - to: self
+    step: reset
+    change:
+      type: adjustState
+      key: committed
+      copies: { type: swn-revised:technique, where: self.torched > 0 }
+      by: -self.torched
+  - to: self
+    step: reset
+    change:
+      type: setState
+      key: torched
+      copies: { type: swn-revised:technique, where: self.torched > 0 }
+      value: 0

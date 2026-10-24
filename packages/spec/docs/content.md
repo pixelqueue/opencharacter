@@ -13,18 +13,65 @@ A content type's interface has four parts:
 | Actions | `actions` on the type (every item gets them) and on items | What rolls can it make?                                |
 | State   | `state: { <name>: valueDecl }`                            | What's tracked on _your_ copy? (charges, shots, level) |
 
-A `valueDecl` has `type` (a value type), plus `values` for enums, `of` for `id`/`set`, `members` for an `id` or `set` of `tag` ([rules-and-fields.md](rules-and-fields.md#which-tags-a-field-takes)), `required`, `default`, and `min`/`max`.
+A `valueDecl` has `type` (a value type), plus `values` for enums (and `open: true` for a content type's or an item's own enum, or an action parameter's, that dependent packs may add values to, [rules-and-fields.md](rules-and-fields.md#open-enums)), `of` for `id`/`set`/`list`, `members` for an `id`, `set` or `list` of `tag` ([rules-and-fields.md](rules-and-fields.md#which-tags-a-field-takes)), `unique` for a `list`, `required`, `default`, and `min`/`max`.
 
 Item fields are what an item's author writes, never what changes in play (that is `state`), so
 an app can build a custom-item form from them; each has a name and an optional hint in the
-pack's text (`types.<type>.fields.<field>.name`; [i18n.md](i18n.md#item-fields)).
+pack's text (`types.<type>.fields.<field>.name`; [i18n.md](i18n.md#item-fields)). A field marked
+`perCopy` may also be written by the player for one copy ([below](#per-copy-fields)).
 
 An item field's `default` applies when an item doesn't set the field (or, on a copy, when none
 of its templates does): `item.<field>` and `copy.fields.<field>` read it as if the item had written it (a string on an `integer`,
-`decimal`, `boolean` or `dice` field is a formula, as an item's own value is). An `id` or `set`
-item field of a content type or of `field` holds qualified IDs: a value resolves in the item's
+`decimal`, `boolean` or `dice` field is a formula, as an item's own value is). An `id`, `set`
+or `list` item field of a content type or of `field` holds qualified IDs: a value resolves in the item's
 pack, a default in the content type's pack, so a stunt's `skill: skills.lore` equals a field
 parameter's `params.skill.id`.
+
+**Ordered item fields.** A `set` comes out sorted and without duplicates. Where the order is
+data, an item field is a `list` instead: its members (`of`, as for a `set`) in the order
+written, and duplicates allowed unless the declaration says `unique: true`. Formulas see a
+`list<string>` in that order:
+
+```yaml
+contentTypes:
+  spell:
+    fields:
+      castOptions: { type: list, of: string, unique: true } # the book's order
+  class:
+    fields:
+      abilityPriority: { type: list, of: field, unique: true } # a random start's best first
+# An item:
+fields: { abilityPriority: [abilities.str, abilities.con, abilities.dex] }
+# A formula: item.abilityPriority[0], indexOf(item.abilityPriority, x)
+```
+
+- **Item fields only:** a content type's `fields` and the rules' `templateFields`. A `list`
+  state key, action parameter or template parameter is a validation error.
+- **Checked** as a `set` is: a value that isn't a list, or a `unique` list with a member twice,
+  is `invalid-item-field` (`wrong-type`) at load, and the validator checks each member against
+  `of`. A per-copy value is checked the same way (`wrong-type`, `unknown-id`).
+- `unique` is for a `list` only (a schema error elsewhere).
+
+**What an `id` field takes.** An `id`, `set` or `list` item field (a content type's or a
+`templateFields` one) or state key of a content type or of `field` may say `where`: a condition
+over each candidate as `item`, as a query's (for a field, its `id`, `type` and written `tags`).
+It reads only `item`, so loadRuleset resolves it once (a formula reading anything else is a
+`formula-error`):
+
+```yaml
+contentTypes:
+  stunt:
+    fields:
+      skill: { type: id, of: field, where: "'skill' in item.tags", perCopy: true }
+```
+
+- **Checked:** an item's own value naming something outside it is `invalid-item-field`
+  (`not-allowed`) at load; a copy's own value (`addItem`, `setField`) or a state value
+  (`addItem`, `setState`, `applyEffect`) outside it is `invalid-option` (data: `target`, the
+  item field or state key, and `option`).
+- **Listed:** the declaration has `options` in the ruleset, every ID it takes: content in content
+  order (hidden items left out), fields in ruleset order. An app builds a custom-item form or a
+  copy's picker from it ([engine-interface.md](engine-interface.md#item-field-options)).
 
 Two flags control where copies live:
 
@@ -76,6 +123,35 @@ looked up as `<contentId>.texts.<name>`, none required ([i18n.md](i18n.md#key-co
 with `copies` may word its limit as `types.<type>.copies` (optional; `max` and `count` as
 arguments).
 
+### Grant-only content
+
+Some content only makes sense held through what grants or picks it: a class feature at level N,
+a subclass picked under its class, an ancestry trait. A content type or an item says so with
+`grantOnly: true`:
+
+```yaml
+# packs/5e/srd-5.1/rules/content-types.yaml
+contentTypes:
+  feature:
+    grantOnly: true
+```
+
+- **Refused as a copy:** `addItem` of a grant-only item is the runtime error `not-addable`
+  (data: `item`), in an action's proposed changes as in an app's batch, so no flow can add one
+  either; such content comes from a grant or a pick, never from an `addItem`.
+- **Still granted and picked:** grants, choices (`from: { type: feature }`) and rules-level choices
+  take it as before, and a pick's own picks too.
+- **An item's own** `grantOnly` replaces its type's: `false` lets one item of a grant-only type be
+  added, `true` makes one item of another type grant-only.
+- **Homebrew** items follow their type, as any item does.
+- **Listed:** each item in the loaded ruleset carries `grantOnly: true` when it applies (its own,
+  else its type's), so an app leaves it out of an add-item catalog
+  ([engine-interface.md](engine-interface.md#what-apps-own)); the type carries its own as written.
+- A copy saved before its item became grant-only stays on the sheet as it was; only adding one is
+  refused.
+- `copies: { max: 0 }` is a limit, not a refusal: a copy past it is the rules issue
+  `too-many-copies`. A type held only by picks may say both.
+
 ### Content-type effects and grants
 
 A content type may declare `effects`, `followUps` and `grants` that every item of the type
@@ -91,29 +167,30 @@ has, before the item's own:
 
 A content item ([`content-item.schema.json`](../schemas/content-item.schema.json)) is mechanics only. Its text lives in i18n under `<id>.name` and `<id>.description`.
 
-| Property         | Meaning                                                                                                                                                                          |
-| ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `id`, `type`     | Local ID (matching the file path) and content type                                                                                                                               |
-| `override`       | Instead of `id`/`type`: patch another pack's item ([packs.md](packs.md#overrides-hiding-and-extends))                                                                            |
-| `extends`        | Permanent variant of another item                                                                                                                                                |
-| `tags`           | Free-form tags for queries (`martial`, `sword`, `finesse`)                                                                                                                       |
-| `fields`         | Values for the type's item fields: literals or formulas. They MUST match the declared types; undeclared names and missing required fields are errors (`invalid-item-field`).     |
-| `state`          | Extra per-copy state keys beyond the type's                                                                                                                                      |
-| `effects`        | [effects.md](effects.md)                                                                                                                                                         |
-| `followUps`      | What the rules call for after a change while the character has the item ([rules-and-fields.md](rules-and-fields.md#follow-ups))                                                  |
-| `actions`        | Inline actions, or `{ use: <rules action>, params }`; `scope: applied` offers one on the character the item is applied to                                                        |
-| `choices`        | See below                                                                                                                                                                        |
-| `grants`         | `{ item, when, scope? }`: other content made active while this item is active (class features at level N); `scope: applied` while it is applied (below); `item` may be a formula |
-| `prerequisites`  | `{ id, when }`: conditions for having the item                                                                                                                                   |
-| `immuneTo`       | `{ id, items \| query, when?, scope? }`: applied content the character can't be affected by while the item is active (below)                                                     |
-| `reapply`        | `{ match?, state }`: what applying the item again does, replacing its type's (below)                                                                                             |
-| `appliesTo`      | Templates only                                                                                                                                                                   |
-| `removeTags`     | Templates only: tags the copy's item doesn't have ([below](#templates))                                                                                                          |
-| `params`         | Templates only: values its item fields read as `params.<name>`, given by the content keeping it ([below](#from-the-keeper))                                                      |
-| `keepsTemplates` | Templates kept on the character's copies while the item is active ([below](#kept-templates))                                                                                     |
-| `keepsFields`    | Item fields the templates it keeps leave alone ([below](#kept-templates))                                                                                                        |
-| `repeatable`     | `true`: exempt from exclusivity groups, so several choices of one can pick it ([below](#exclusive-choices))                                                                      |
-| `deprecated`     | `{ since, replacedBy? }`                                                                                                                                                         |
+| Property         | Meaning                                                                                                                                                                                                                              |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `id`, `type`     | Local ID (matching the file path) and content type                                                                                                                                                                                   |
+| `override`       | Instead of `id`/`type`: patch another pack's item ([packs.md](packs.md#overrides-hiding-and-extends))                                                                                                                                |
+| `extends`        | Permanent variant of another item                                                                                                                                                                                                    |
+| `tags`           | Free-form tags for queries (`martial`, `sword`, `finesse`)                                                                                                                                                                           |
+| `fields`         | Values for the type's item fields: literals or formulas. They MUST match the declared types; undeclared names and missing required fields are errors (`invalid-item-field`).                                                         |
+| `state`          | Extra per-copy state keys beyond the type's                                                                                                                                                                                          |
+| `effects`        | [effects.md](effects.md)                                                                                                                                                                                                             |
+| `followUps`      | What the rules call for after a change while the character has the item ([rules-and-fields.md](rules-and-fields.md#follow-ups))                                                                                                      |
+| `actions`        | Inline actions, or `{ use: <rules action>, params }`; `scope: applied` offers one on the character the item is applied to                                                                                                            |
+| `choices`        | See below                                                                                                                                                                                                                            |
+| `grants`         | `{ item, when, scope? }`: other content made active while this item is active (class features at level N); `scope: applied` while it is applied (below); `item` may be a formula or a query, and `forEach` makes it once per element |
+| `prerequisites`  | `{ id, when }`: conditions for having the item                                                                                                                                                                                       |
+| `immuneTo`       | `{ id, items \| query, when?, scope? }`: applied content the character can't be affected by while the item is active (below)                                                                                                         |
+| `reapply`        | `{ match?, state }`: what applying the item again does, replacing its type's (below)                                                                                                                                                 |
+| `appliesTo`      | Templates only                                                                                                                                                                                                                       |
+| `removeTags`     | Templates only: tags the copy's item doesn't have ([below](#templates))                                                                                                                                                              |
+| `params`         | Templates only: values its item fields read as `params.<name>`, given by the content keeping it ([below](#from-the-keeper))                                                                                                          |
+| `keepsTemplates` | Templates kept on the character's copies while the item is active ([below](#kept-templates))                                                                                                                                         |
+| `keepsFields`    | Item fields the templates it keeps leave alone ([below](#kept-templates))                                                                                                                                                            |
+| `repeatable`     | `true`: exempt from exclusivity groups, so several choices of one can pick it ([below](#exclusive-choices))                                                                                                                          |
+| `grantOnly`      | `true`: held only through grants and picks; `addItem` of it is `not-addable`. Replaces its type's ([above](#grant-only-content))                                                                                                     |
+| `deprecated`     | `{ since, replacedBy? }`                                                                                                                                                                                                             |
 
 ### When content is active
 
@@ -260,6 +337,33 @@ grants:
   - { item: { formula: sorcerer.evolutionSpell }, when: "sorcerer.evolutionSpell != ''" }
 ```
 
+**A grant per key, and content by query**. A grant may say `forEach`: a list
+formula, evaluated as its `when` is, and the grant is made once per element, in list order, with
+`x` bound to the element in its `when`, `item`, `state` and `choices` (not in the list itself).
+Its `item` may be `{ query: { type, where } }`: every visible item of the type the query
+matches, in ruleset order, each granted as its own grant; `where` is an activation condition
+with the candidate as `item` (and `x`), and a query that reads only `item` is resolved at load.
+Together they grant content for each key of an [open family](rules-and-fields.md#families),
+the keys and content an add-on adds included, with no grant naming them:
+
+```yaml
+# Each discipline the psychic has trained grants that discipline's core technique.
+grants:
+  - forEach: keysOf('psychic')
+    when: "fieldOf('skills.{psychic}.level', x) >= 0"
+    item: { query: { type: technique, where: item.core && item.discipline == x } }
+```
+
+- **Failing:** a `forEach` that fails, or isn't a list, grants nothing, with its sheet error
+  (`type-mismatch` for a non-list; `where` ends in `forEach`); an empty list grants nothing. A
+  query `where` that fails leaves its candidate out, with its error.
+- **Saved state and keys:** each element's and each match's granted content is a grant like any
+  other: the same item granted twice on one node shares its saved state and picks.
+- **Checks:** a query type no pack the grant's sees declares is `unknown-reference` at load; the
+  `forEach` list, `when`, `item`, `state` and `choices` are type-checked with `x` as the list's
+  element type. With a query `item`, a preset choice the granted content doesn't declare presets
+  nothing, as with a formula.
+
 The same content reached twice (two conditions granting off-guard, or off-guard applied as well)
 is two activations, as everywhere; stack keys keep its effects from counting twice where the
 game says they don't. `character.applied` stays the file's entries. A `holder` grant of applied
@@ -371,6 +475,44 @@ Draconic Resistance asks for a damage type only for a physical exemplar), make i
 (`required: false`) and let its options' effects test the computed value; when a grant is
 harmless twice (a feat the heritage may already give), grant it unconditionally.
 
+When content does one thing or another by a computed value ("you become trained in
+Performance, or gain Assurance in it if you're already trained"), make the two a choice whose
+eligibility reads the value, and follow the pick:
+
+- **The choice:** a value choice of the outcomes. Its `eligible` and `recommend` are evaluated on
+  the computed sheet, so they read derived fields: the recommendation is the outcome the rules
+  pick, and a pick the value rules out is the rules issue `option-not-eligible`
+  ([below](#eligibility-and-own-picks)). listOptions marks it the same way.
+- **Its own pick:** the outcome must not change what `eligible` reads, or picking it would rule
+  itself out. Give it through another field than the one the condition tests: here the training
+  goes to the picked skills (`skills.chosen`), and the condition reads the trainings content
+  gives (`skills.trained`).
+- **What follows:** a choice's `effects` run per pick (`when: "pick.value == 'training'"`), and a
+  grant's `when` may read the pick, saved input: `when: "'assurance' in picksOf('harmonic')"`.
+
+```yaml
+choices:
+  - id: harmonic
+    from: { values: [training, assurance] }
+    eligible: >-
+      value == 'assurance' ? 'skill.performance' in skills.trained
+        : !('skill.performance' in skills.trained)
+    recommend: "'skill.performance' in skills.trained ? 'assurance' : 'training'"
+    effects:
+      - target: skills.chosen
+        op: grant
+        value: { tag: skill.performance }
+        when: "pick.value == 'training'"
+grants:
+  - item: feats.skill.assurance
+    when: "'assurance' in picksOf('harmonic')"
+    choices: { skill: [{ option: skill.performance }] }
+```
+
+The player picks what the rules decide, and the sheet says when the pick is wrong: training
+from a background taken later makes the training pick `option-not-eligible` until the player
+picks Assurance.
+
 ### Per-copy state
 
 The character's copy of an item (an **entry**) has:
@@ -380,6 +522,44 @@ The character's copy of an item (an **entry**) has:
 - `choices`.
 
 Formulas see the copy as `self`: `self.equipped`, `self.level`, `self.ignited`. State keys MUST NOT reuse core property names.
+
+### Per-copy fields
+
+An item field its content type marks `perCopy: true` may have a value of the copy's own: an
+item the player shapes once they have it, as Fate's custom stunt is (its skill, action and
+limit differ per copy):
+
+```yaml
+contentTypes:
+  stunt:
+    fields:
+      skill: { type: id, of: field, where: "'skill' in item.tags", perCopy: true }
+      limit: { type: enum, values: [none, conflict, scene, session], default: none, perCopy: true }
+# The character file
+features:
+  - id: stunt-1
+    item: fate-core:stunts.custom
+    fields: { skill: fate-core:skills.lore, limit: scene }
+```
+
+- **Saved:** in the entry's `fields`, by name ([characters.md](characters.md#entries)), set by
+  `addItem`'s `entry.fields` and by `setField`; `setField` with `null` removes one
+  ([engine-core.md](engine-core.md#applychanges)). Each is checked as a state value is: a field
+  that isn't declared `perCopy` is `not-per-copy`, a value of another type `wrong-type`, an `id`,
+  `set` or `list` member that names nothing `unknown-id`, one outside the field's `where`
+  `invalid-option`. A value is a literal, never a formula; an
+  `id`, `set` or `list` value of content or `field` is qualified.
+- **Read:** merged into the copy's `item` (and `copy.fields`) after its templates, saved and
+  kept, replacing the item's value and theirs; templates' `prior` doesn't see it. So every
+  reader reads `item.limit`, a custom stunt's and an SRD stunt's alike. State defaults and
+  bounds see it too.
+- **Shown:** a copy with own values is in computeSheet's `templated`, merged, even without a
+  template ([engine-core.md](engine-core.md#merged-items)).
+- **Wrong on the sheet:** a saved value that doesn't apply (the type no longer marks the field
+  `perCopy`, the value has another type, or it is outside the field's `where`) is left out, with
+  that error in `errors`.
+- Only a content type's item fields take `perCopy`; on a state key or a template field it is a
+  validation error.
 
 **A copy named by its state**: a content type or an item may say
 `nameFrom: <state key>`, a string state key the copy has (declared by the type or the item). While
@@ -493,7 +673,11 @@ effects:
   template), and any field of the content type its `appliesTo` names; anything else is a build
   error, as on items. Its values are read as an item's own are (`integer`, `decimal`, `boolean`
   and `dice` values are formulas over input fields), with `base` bound to the base item, in the
-  template's pack.
+  template's pack. A `string`, `enum` or `id` value, a literal on an item, may be `{ formula }`
+  on a template: a string formula read the same way, an `id` qualified in the template's pack. A
+  result that isn't a string, or isn't one of an enum's `values`, leaves the field as it was.
+  Only templates may give it, so a template can take a value from its `params`
+  ([below](#from-the-keeper)).
   - The copy's `item` (and `copy.fields`) is the base item's fields, then each template's in the
     copy's order, a later value replacing an earlier one with the same name: a Sun Blade's
     `damageType: radiant` replaces the longsword's slashing.
@@ -594,10 +778,25 @@ fields: { range: 'prior.range + 300' }
 
 - **Which content.** Every holder activation reached by a pick or a grant (at any depth, under
   a copy or the rules) whose item the query matches and the template's `appliesTo` admits keeps
-  it, while the keeping item is active and its `when` holds. The templates are kept by item: two
-  activations of one spell have the same templates, in instance order of the content keeping
-  them, each once. Copies, applied entries and the content applied entries grant are not
-  reached.
+  it, while the keeping item is active and its `when` holds. The templates are kept per
+  activation, in instance order of the content keeping them, each once: a spell known through
+  two classes is two activations, and each has the templates kept on it. Copies, applied
+  entries and the content applied entries grant are not reached.
+- **Whose content.** A `content` query that reads the keeper also sees `owner`, the candidate
+  activation's owner: the activation that owns the choice it was picked in, or granted it.
+  `owner.id` is its qualified key root, as a choice's `owner` is ([engine-core.md](engine-core.md#the-choice-list)):
+  the content ID, `<pack>:rules` for a rules-level pick; `owner.item` is its item (absent for
+  the rules). So a feature reaches a cantrip only where one class knows it:
+
+  ```yaml
+  # Eldritch Spear: one Warlock cantrip, not the same cantrip known through a feat.
+  keepsTemplates:
+    - template: templates.eldritch-spear
+      content:
+        type: spell
+        where: "item.id in picksOf('cantrip') && owner.id == @classes.warlock"
+  ```
+
 - **What it changes.** The item only: its fields (with `base`, `prior` and `null` as on a copy)
   and its tags (`tags` and `removeTags`), merged into the content's `item` wherever that
   activation reads it: its effects, grants, choices, prerequisites, actions (their `available`
@@ -609,9 +808,9 @@ fields: { range: 'prior.range + 300' }
   (with `appliesTo`); giving state, computed values, effects, actions, follow-ups, choices,
   grants, immunities, prerequisites or the other copy properties is the load error
   `template-without-copy`.
-- **Shown.** computeSheet's `templated` lists each such item as merged, after the copies with
-  templates ([engine-core.md](engine-core.md#merged-items)), so an app's card shows the far
-  range.
+- **Shown.** computeSheet's `templated` lists each such activation's item as merged, by its
+  index in `activations`, after the copies with templates
+  ([engine-core.md](engine-core.md#merged-items)), so an app's card shows the far range.
 
 #### From the keeper
 
@@ -649,17 +848,43 @@ fields: { range: 'prior.range + params.feet' }
   item field values read them as `params.<name>`. A `keepsTemplates` entry gives them, `params:
   { <name>: <formula> }`, each formula of the param's type evaluated as an activation condition
   with the keeper's roots: its `self` (a picked invocation's is the Warlock copy, so
-  `self.level` is the Warlock level), its `item`, `picksOf`, input fields and the character
-  functions. A name the template doesn't declare is `formula-error`, cause `unknown-name`, at
-  load. A param not given, and every param of a saved template, is its declared `default` (a
-  literal), else absent.
-- **Free of loops.** A param reads what an activation condition reads, never a derived field,
-  so the merged item stays what item field values are: fixed before any effect. A template's
-  field that needs a derived value has the keeper's effects target a character field instead.
+  `self.level` is the Warlock level), its `item`, `picksOf`, `character`, input fields and the
+  character functions. A name the template doesn't declare is `formula-error`, cause
+  `unknown-name`, at load. A param not given, and every param of a saved template, is its
+  declared `default` (a literal), else absent.
+- **From what is applied.** `character.applied` is the file's applied entries, each with its
+  `source` and state ([above](#when-content-is-active)), so a param can follow content applied
+  in play: the element of an active elemental weapon, read off its entry. With a string field
+  given as `{ formula }`, the template sets the spell's damage type from it:
+
+  ```yaml
+  # Your absolute zero takes the damage type of your active elemental weapon.
+  keepsTemplates:
+    - template: templates.elemental-connection
+      content: { type: spell, where: 'item.id == @spells.absolute-zero' }
+      when: "countList(character.applied, x.active && x.source == '<pack>:spells.elemental-weapon') > 0"
+      params:
+        element: >-
+          filterList(character.applied,
+            x.active && x.source == '<pack>:spells.elemental-weapon')[0].state.element
+  ---
+  id: templates.elemental-connection
+  type: template
+  appliesTo: { type: spell }
+  params:
+    element: { type: string, default: '' }
+  fields:
+    damageType: { formula: "params.element != '' ? params.element : prior.damageType" }
+  ```
+
+- **Free of loops.** A param reads what an activation condition reads, never a derived field:
+  applied entries are saved input, like picks. So the merged item stays what item field values
+  are: fixed before any effect. A template's field that needs a derived value has the keeper's
+  effects target a character field instead.
 - **Each keeper its own.** Each activation of the keeper evaluates its own query and params,
   so two Eldritch Spears on two cantrips keep the template on each with its own range. A copy
-  or item keeps a template once: when two keepers keep the same template on it, the first in
-  activation order gives the params, and its fields apply once. Two features that stack give
+  or an activation keeps a template once: when two keepers keep the same template on it, the
+  first in activation order gives the params, and its fields apply once. Two features that stack give
   two templates, each building on `prior`.
 - **Shown.** The template's fields are merged with the params, so `templated`
   ([engine-core.md](engine-core.md#merged-items)) shows the cantrip's range for this character.
@@ -963,6 +1188,55 @@ choice's picks, and a copy's computed values, effects, actions and follow-ups ca
 The siblings are the choices of the same owner: the item's, or an inline option's (here
 `two-and-one`'s). Picks are saved input, so two choices may read each other without a loop; each
 sees the other's picks, not its recommendation.
+
+### Adding options to a dependency's choices
+
+A pack that depends on another may add options to that pack's choices without overriding the
+owner, so two add-ons that each add a subclass to the same class both count. It lists them in a
+rules document's `extendChoices`, by the choice's owner, a qualified content ID or
+`<pack>:rules` for a rules-level choice, then by the choice's ID:
+
+```yaml
+# packages/spec/tests/packs/test-addon/rules/core.yaml: an add-on depending on test-core
+extendChoices:
+  'test-core:classes.warden':
+    oath: { items: [oaths.storm] } # its own content, resolved in this pack
+    knack:
+      options:
+        - id: hexing
+          effects: [{ target: hexes, op: add, value: hexPower }] # its own fields
+    skills: { values: [fly] }
+  'test-core:rules':
+    boon: { values: [grace] }
+# its i18n/en.yaml
+classes.warden.choices.knack.options.hexing.name: Hexing
+```
+
+- **Kind.** An addition is the choice's own kind: `items` for a choice over listed items,
+  `values` for written values, `options` for inline options. A choice over a query, or over a
+  `values` formula, takes no additions (the query offers the add-on's content already, by its
+  type), and neither does an addition of another kind: `invalid-extension`.
+- **Which choice.** The ID is the declared one (a slotted choice gains the options in every
+  slot); `<choice>/<option>/<choice>` names a choice of one of its inline options. A choice the
+  owner doesn't have, after overrides, is `invalid-extension`; an owner that isn't loaded content,
+  `unknown-reference`. The owner's pack must be a dependency of the adding pack.
+- **Order.** The additions come after the choice's own options, in load order, and are applied
+  after every override, so an override of the owner keeps them. A listed item or a value already
+  offered is offered once; an inline option whose ID the choice has already is `duplicate-id`.
+  They change the named item only, not items that `extends` it.
+- **Added inline options** belong to the adding pack: their effects, grants, prerequisites and
+  choices read its fields and resolve its references, with the owner's `item` and `self`. They
+  are named in its text under the key the owner's pack would use
+  (`<owner>.choices.<choice>.options.<id>.name`, required); added values optionally so. Their
+  own `option` and `changes` effects would be named by the owner, so they are a build error: the
+  adding pack writes them in its rules' effects instead (below). The
+  ruleset's `optionOrigins` maps each added value and inline option to its pack, by
+  `<owner key root>/<choice>`, so an app (and the wording helper) looks the name up there.
+- **Releases.** Dropping an addition is an interface change (`extension-removed`), see
+  [upgrades.md](upgrades.md#a-packs-interface).
+
+Choice steps of actions take options from the rules too: an add-on's rules-level `option` and
+`changes` effects reach a dependency's tagged steps ([effects.md](effects.md#targets)).
 
 ### Where picks are kept
 

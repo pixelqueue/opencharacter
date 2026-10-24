@@ -1,27 +1,32 @@
 contentTypes:
   # `startingUpgrades` are field IDs, qualified at load.
   crewType:
+    grantOnly: true
     copies: { max: 0 }
     fields:
       upgrades: { type: set, of: field, required: true }
       startingUpgrades: { type: set, of: field, required: true }
       startingCohort:
-        { type: enum, values: [none, adepts, rooks, rovers, skulks, thugs], default: none }
+        {
+          type: enum,
+          values: [none, adepts, rooks, rovers, skulks, thugs],
+          default: none,
+          open: true,
+        }
       claims: { type: set, of: claim, default: [] }
     effects:
-      - { id: id, target: crewType.id, op: set, value: item.id }
-      - { id: upgrades, target: crewType.upgrades, op: set, value: item.upgrades }
-      - { id: claims, target: crewType.claims, op: set, value: item.claims }
       - id: starting
         target: upgrades.starting
         op: set
         value: "size(item.startingUpgrades) + (item.startingCohort != 'none' ? 2 : 0)"
   crewAbility:
+    grantOnly: true
     effects:
       - target: abilities.crew
         op: grant
         value: { formula: item.id }
-  operation: {}
+  operation:
+    grantOnly: true
   contact:
     nameFrom: label
     state:
@@ -29,9 +34,6 @@ contentTypes:
       favorite: { type: boolean, default: false }
 
 fields:
-  crewType.id: { type: string, formula: "''" }
-  crewType.upgrades: { type: set, of: field, formula: '[]' }
-  crewType.claims: { type: set, of: claim, formula: '[]' }
   abilities.crew: { type: set, of: crewAbility }
 
 choices:
@@ -55,7 +57,4 @@ display:
     - id: crew-type
       priority: 0
   fields:
-    crewType.id: { hidden: true }
-    crewType.upgrades: { hidden: true }
-    crewType.claims: { hidden: true }
     abilities.crew: { hidden: true }

@@ -27,12 +27,27 @@ export interface ValueDecl {
   members?: TagMembers;
   /** Loaded: the declared tags `members` admits, sorted. */
   tagOptions?: string[];
+  /**
+   * id, set or list of fields or content: which it takes, a condition over `item`. On an item
+   * field or state key it reads only `item`.
+   */
+  where?: Formula;
+  /** Loaded, on an item field or state key with `where`: the IDs it takes, in ruleset order. */
+  options?: string[];
   required?: boolean;
   optional?: boolean;
+  /** Item fields: each copy may save its own value. */
+  perCopy?: boolean;
+  /** list: no member twice. */
+  unique?: boolean;
+  /**
+   * Enums of a rules field, a content type, an item's own state or an action's parameter:
+   * dependent packs may add values (`extendEnums`).
+   */
+  open?: boolean;
   default?: Literal;
   min?: Formula;
   max?: Formula;
-  where?: Formula;
   label?: string;
 }
 
@@ -115,8 +130,24 @@ export interface OptionValue {
 }
 
 export type ThenChange =
-  | { type: 'setState' | 'adjustState'; entry: 'self'; key: string; value?: Formula; by?: Formula }
-  | { type: 'removeEffect'; entry: 'self'; key?: undefined; value?: undefined; by?: undefined };
+  | {
+      type: 'setState' | 'adjustState';
+      entry?: 'self';
+      pick?: 'owner';
+      grant?: 'owner';
+      key: string;
+      value?: Formula;
+      by?: Formula;
+    }
+  | {
+      type: 'removeEffect';
+      entry: 'self';
+      pick?: undefined;
+      grant?: undefined;
+      key?: undefined;
+      value?: undefined;
+      by?: undefined;
+    };
 
 /** The actor, another character the app picks, an action role, or a link slot's character. */
 export type Destination = string | { link: string };
@@ -133,8 +164,39 @@ export interface Effect {
   multiplied?: boolean;
   scope?: 'holder' | 'applied';
   duration?: { amount?: Formula; unit: string };
-  then?: ThenChange[];
+  then?: ThenChange[] | ThenRule;
 }
+
+/** A roll effect's `then` with its firing rule. */
+export interface ThenRule {
+  changes: (ThenChange | ProposedChange)[];
+  when?: 'changed' | 'applied';
+  once?: 'action' | 'roll';
+  to?: Destination;
+}
+
+/** An effect's `then` as a rule, the list form's defaults filled in; undefined without one. */
+export function thenRule(effect: Effect):
+  | {
+      changes: (ThenChange | ProposedChange)[];
+      when: 'changed' | 'applied';
+      once: 'action' | 'roll';
+      to: Destination;
+    }
+  | undefined {
+  const then = effect.then;
+  if (!then) return undefined;
+  if (Array.isArray(then)) return { changes: then, when: 'changed', once: 'action', to: 'self' };
+  return {
+    changes: then.changes,
+    when: then.when ?? 'changed',
+    once: then.once ?? 'action',
+    to: then.to ?? 'self',
+  };
+}
+
+/** Whether a `then` goes to the effect's own entry, so it needs one. */
+export const thenToSelf = (effect: Effect): boolean => (thenRule(effect)?.to ?? 'self') === 'self';
 
 export interface InlineOption {
   id: string;
@@ -143,7 +205,15 @@ export interface InlineOption {
   effects?: Effect[];
   grants?: Grant[];
   choices?: Choice[];
+  /** Loaded: the pack an option another pack's choice gained comes from (`extendChoices`). */
+  pack?: string;
 }
+
+/** Options one pack adds to a dependency's choice, of the choice's own kind. */
+export type ChoiceAddition =
+  | { items: string[] }
+  | { values: (string | number)[] }
+  | { options: InlineOption[] };
 
 export interface Choice {
   id: string;
@@ -193,7 +263,9 @@ export interface FollowUp {
 }
 
 export interface Grant {
-  item: string | { formula: Formula };
+  item: string | { formula: Formula } | { query: Query };
+  /** Made once per element, with `x` bound; an activation formula. */
+  forEach?: Formula;
   when?: Formula;
   scope?: 'holder' | 'applied';
   waivePrerequisites?: boolean;
@@ -266,9 +338,12 @@ export interface Step {
   /** Choice and allocate steps: draw the recommendation at random while it holds. */
   random?: Formula;
   prefer?: Formula;
-  repeat?: { max: Formula; min?: Formula };
+  /** Choice steps: `max` and `min` picks. Group steps: passes while `while` holds, up to `max`. */
+  repeat?: { max: Formula; min?: Formula; while?: Formula };
   cases?: (BranchArm & { when: Formula })[];
   else?: BranchArm;
+  /** Group steps: the steps each pass runs. */
+  steps?: Step[];
   changes?: ProposedChange[];
   to?: Destination;
   /** Roll, choice, changes, action and branch steps: once per participant of a role. */
@@ -308,7 +383,18 @@ export type StepOptions =
   | { content: { type: string; where?: Formula } }
   | { copies: { type: string; where?: Formula } }
   | ValueSource
-  | { pending: { entry?: Formula } };
+  | { pending: PendingSource };
+
+export interface PendingSource {
+  entry?: Formula;
+  path?: ProposedPath;
+}
+
+/** A choice path in an action: `entry` an instance ID, `self`, `picked` or `{ formula }`. */
+export interface ProposedPath {
+  entry?: string | { formula: Formula };
+  choice: string[] | Formula;
+}
 
 export interface ValueSource {
   values: (string | number)[] | { formula: Formula };
@@ -339,9 +425,25 @@ export function valueSource(step: Step): ValueSource | undefined {
   return options && !Array.isArray(options) && 'values' in options ? options : undefined;
 }
 
-export function pendingSource(step: Step): { entry?: Formula } | undefined {
+export function pendingSource(step: Step): PendingSource | undefined {
   const options = step.options;
   return options && !Array.isArray(options) && 'pending' in options ? options.pending : undefined;
+}
+
+/** A branch step's cases and `else`, or a group step's steps as one arm: the steps it holds. */
+export function stepArms(step: Step): BranchArm[] {
+  return [
+    ...(step.cases ?? []),
+    ...(step.else ? [step.else] : []),
+    ...(step.steps ? [{ steps: step.steps }] : []),
+  ];
+}
+
+/** Every step a step holds, at any depth, in order. */
+export function innerSteps(step: Step): Step[] {
+  return stepArms(step).flatMap((arm) =>
+    (arm.steps ?? []).flatMap((inner) => [inner, ...innerSteps(inner)]),
+  );
 }
 
 export interface BranchArm {
@@ -375,8 +477,8 @@ export interface ProposedChange {
   limit?: number;
   applied?: { where: Formula; limit?: number };
   picks?: { where: Formula; limit?: number };
-  pick?: 'self';
-  grant?: 'self';
+  pick?: 'self' | 'owner';
+  grant?: 'self' | 'owner';
   grants?: { where: Formula; limit?: number };
   id?: string;
   source?: Formula;
@@ -384,7 +486,7 @@ export interface ProposedChange {
   state?: Record<string, Formula>;
   equipped?: Formula;
   template?: Formula;
-  path?: { entry?: string | { formula: Formula }; choice: string[] | Formula };
+  path?: ProposedPath;
   option?: Formula;
   followUp?: string;
   params?: Record<string, Formula>;
@@ -394,6 +496,7 @@ export interface ActionDef {
   id: string;
   tags?: string[];
   available?: Formula;
+  listed?: boolean;
   params?: Record<string, ValueDecl>;
   participants?: Record<string, Role>;
   steps: Step[];
@@ -404,6 +507,7 @@ export interface ActionDef {
 
 export interface ActionUse {
   use: string;
+  listed?: boolean;
   params?: Record<string, Formula>;
   scope?: 'holder' | 'applied';
 }
@@ -426,6 +530,8 @@ export interface ContentTypeDef {
   equippable?: boolean;
   /** Integer literals, read without evaluating anything. */
   copies?: CopyLimit;
+  /** Held only through grants and picks: `addItem` of its items is `not-addable`. */
+  grantOnly?: boolean;
   actions?: ActionOrUse[];
   label?: string;
   /** Named texts: `<contentId>.texts.<name>` keys; the engine doesn't read them. */
@@ -441,7 +547,8 @@ export interface ContentItem {
   extends?: string;
   tags?: string[];
   removeTags?: string[];
-  fields?: Record<string, Literal>;
+  /** A template's string, enum or id value may be `{ formula }`. */
+  fields?: Record<string, Literal | { formula: Formula }>;
   /** Templates only: values its item fields read as `params.<name>`, given by a keeper. */
   params?: Record<string, ValueDecl>;
   state?: Record<string, ValueDecl>;
@@ -464,6 +571,8 @@ export interface ContentItem {
   suppress?: string[];
   /** Exempt from exclusivity groups: picked again in another choice of a group. */
   repeatable?: boolean;
+  /** Replaces its type's `grantOnly`; the loaded item carries the value that applies. */
+  grantOnly?: boolean;
 }
 
 export interface Situational {
@@ -535,6 +644,8 @@ export interface Settings {
 export interface DeclaredField {
   type: string;
   values?: string[];
+  /** An enum that follows the open enum field of the same ID: its merged values, when loaded. */
+  open?: boolean;
   of?: string;
   default?: Literal;
 }
@@ -564,6 +675,8 @@ export interface Band {
   id: string;
   when: Formula;
   tags?: string[];
+  /** The set's success threshold: what the roll needs. */
+  success?: true;
 }
 
 export type BandSetDoc = Band[] | { value: Formula; bands: Band[] };
@@ -581,6 +694,10 @@ export function bandSet(doc: BandSetDoc): BandSet {
 export interface RulesDoc {
   /** Named lists of keys for field families; expanded before loading. */
   families?: Record<string, (string | number)[]>;
+  /** Values added to a dependency's open enums, by `<pack>:<enum>` address. */
+  extendEnums?: Record<string, string[]>;
+  /** Options added to a dependency's choices: by `<pack>:<content id>` or `<pack>:rules`, then choice. */
+  extendChoices?: Record<string, Record<string, ChoiceAddition>>;
   /** Named sets of declared view fields; expanded before loading. */
   viewFields?: Record<string, Record<string, DeclaredField>>;
   tags?: string[];
@@ -627,13 +744,35 @@ export interface Constraint {
 }
 
 /** Whether an item's value has the shape its item field declares (references resolve apart). */
+/** What an `extendEnums` address names, the enum's text key root without its pack. */
+export type EnumAddress =
+  | { kind: 'field'; field: string }
+  | { kind: 'type'; type: string; of: 'fields' | 'state'; key: string }
+  | { kind: 'action'; action: string; param: string }
+  | { kind: 'item-state'; item: string; key: string }
+  | { kind: 'item-action'; item: string; action: string; param: string };
+
+export function enumAddress(address: string): EnumAddress | undefined {
+  let m = /^fields\.(.+)$/.exec(address);
+  if (m) return { kind: 'field', field: m[1]! };
+  m = /^types\.([^.]+)\.(fields|state)\.([^.]+)$/.exec(address);
+  if (m) return { kind: 'type', type: m[1]!, of: m[2] as 'fields' | 'state', key: m[3]! };
+  m = /^actions\.([^.]+)\.params\.([^.]+)$/.exec(address);
+  if (m) return { kind: 'action', action: m[1]!, param: m[2]! };
+  m = /^(.+)\.actions\.([^.]+)\.params\.([^.]+)$/.exec(address);
+  if (m) return { kind: 'item-action', item: m[1]!, action: m[2]!, param: m[3]! };
+  m = /^(.+)\.state\.([^.]+)$/.exec(address);
+  if (m) return { kind: 'item-state', item: m[1]!, key: m[2]! };
+  return undefined;
+}
+
 export function fitsItemField(value: unknown, decl: ValueDecl): boolean {
   switch (decl.type) {
     case 'integer':
     case 'decimal':
     case 'boolean':
     case 'dice':
-      return !Array.isArray(value);
+      return !Array.isArray(value) && (typeof value !== 'object' || value === null);
     case 'string':
     case 'id':
       return typeof value === 'string';
@@ -641,6 +780,10 @@ export function fitsItemField(value: unknown, decl: ValueDecl): boolean {
       return typeof value === 'string' && (decl.values ?? []).includes(value);
     case 'set':
       return Array.isArray(value);
+    case 'list':
+      return (
+        Array.isArray(value) && (!decl.unique || new Set(value.map(String)).size === value.length)
+      );
     default:
       return true;
   }

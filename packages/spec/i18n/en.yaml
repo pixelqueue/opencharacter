@@ -1,8 +1,9 @@
 # Standard English text for the spec's own error and rules-issue codes, and for the options the
 # spec itself reserves. Keys: errors.<code>, issues.<code>, actions.options.<option>.name,
 # compare.<code> and dice.*. ICU MessageFormat; placeholders come from the
-# error's `data`. A few codes have variants for their data: errors.out-of-range.min and .max,
-# errors.safety-limit-exceeded.<limit>, and issues.prerequisite-not-met.owner.
+# error's `data`. A few codes have variants for their data: errors.out-of-range.min, .max and
+# .exact, errors.wrong-type.values, errors.safety-limit-exceeded.<limit>,
+# issues.prerequisite-not-met.owner and issues.too-many-copies.item.
 
 # A repeated choice step's `#done` option: stop picking.
 actions.options.done.name: 'Done'
@@ -10,9 +11,9 @@ actions.options.done.name: 'Done'
 # every choice still pending.
 actions.options.done.pending.name: 'Skip the rest'
 
-# A code with no text of its own (an engine newer than this text, or an error passed as an issue):
-# never the bare code.
-errors.other: 'Something went wrong ({code}).'
+# A code with no text of its own (an engine newer than this text, or an error passed as an issue),
+# and no message in its data. `{code}` is passed; the player-facing text leaves it out.
+errors.other: 'Something went wrong.'
 
 errors.invalid-shape: 'The input is not shaped correctly at {path}.'
 errors.unknown-change-type: 'Unknown change type "{type}".'
@@ -20,14 +21,20 @@ errors.unknown-id: '"{id}" is not part of this game: the character may use somet
 errors.unknown-field: 'There is no field "{field}" in this ruleset.'
 errors.not-input-field: '"{field}" is calculated and cannot be set directly.'
 errors.wrong-type: '"{target}" needs a value of type {expected}.'
+# `wrong-type` for an enum: `{values}` its values, named and joined ("Scene or Day").
+errors.wrong-type.values: '"{target}" must be {values}.'
 errors.out-of-range: '"{target}" must be between {min} and {max}.'
 # `out-of-range` with only one bound in its data.
 errors.out-of-range.min: '"{target}" must be at least {min}.'
 errors.out-of-range.max: '"{target}" must be at most {max}.'
+# `out-of-range` whose two bounds are equal.
+errors.out-of-range.exact: '"{target}" must be exactly {min}.'
 errors.not-owned: 'The character does not have "{entry}".'
 errors.duplicate-id: '"{id}" is already used on this character.'
 errors.standard-copy: '"{entry}" is standard: every character has it.'
+errors.not-addable: '{item} comes only from what grants it and cannot be added on its own.'
 errors.not-equippable: 'This item cannot be equipped.'
+errors.not-per-copy: 'This item has no field "{field}" a copy sets for itself.'
 errors.unknown-state-key: 'This item has no state "{key}".'
 errors.template-not-applicable: 'This template cannot be applied to that item.'
 errors.unknown-choice: 'There is no such choice.'
@@ -55,9 +62,10 @@ errors.formula-error: 'A formula could not be read.'
 errors.unknown-tally: '"{tally}" is not a declared roll tally.'
 errors.link-field-mismatch: 'The link "{link}" reads "{field}", which {pack} does not have with that type.'
 errors.invalid-create-offer: 'The follow-up "{followUp}" makes a linked character, so it must be a derived offer (while) with no action, changes or destination.'
+errors.invalid-extension: 'The pack {pack} cannot add to {target}: {message}.'
 errors.invalid-family: 'The pack {pack} has a field family that does not expand: {message}.'
 errors.link-start-mismatch: 'The link "{link}" is offered the creation start "{start}", which a character using {pack} does not have.'
-errors.invalid-item-field: 'The field "{field}" of "{item}" is missing, undeclared or of the wrong type for its content type.'
+errors.invalid-item-field: 'The field "{field}" of "{item}" is missing, undeclared, of the wrong type or not allowed for its content type.'
 errors.template-field-mismatch: 'Two packs declare the template field "{field}" with different types.'
 errors.unknown-role: 'An action step names a role the action does not declare, or hands off outside a step over a role.'
 errors.circular-extends: 'These items extend each other in a loop.'
@@ -71,6 +79,7 @@ errors.safety-limit-exceeded.maxFormulaLength: 'A formula is too long.'
 errors.safety-limit-exceeded.maxChoiceDepth: 'Choices are nested too deeply.'
 errors.safety-limit-exceeded.maxActionSteps: 'An action ran too many steps.'
 errors.safety-limit-exceeded.maxActionDepth: 'Actions run other actions too deeply.'
+errors.safety-limit-exceeded.maxGroupPasses: 'A group of steps repeated too many times.'
 errors.safety-limit-exceeded.maxExtendsDepth: 'Content extends other content too deeply.'
 errors.safety-limit-exceeded.maxOverflowChain: 'Too many overflows from one change.'
 errors.safety-limit-exceeded.maxFollowUps: 'One change offers too many follow-ups.'
@@ -110,7 +119,8 @@ errors.then-without-copy: 'An effect changes its own entry, but nothing gives it
 errors.template-without-copy: 'A template is kept on content without a copy, but gives more than fields and tags.'
 issues.already-picked: 'This option is already picked elsewhere.'
 issues.out-of-limits: 'This value is past its limit ({bound}).'
-issues.too-many-copies: 'Too many of these are held (at most {limit}).'
+issues.too-many-copies: '{type}: too many are held (at most {limit}).'
+issues.too-many-copies.item: '{item}: too many copies are held (at most {limit}).'
 errors.conflicting-roll-modifiers: 'This roll has both advantage and disadvantage, which this game does not allow.'
 errors.no-upgrade-path: 'This character cannot be moved to an older version of {pack}.'
 errors.character-spec-unsupported: 'This character was saved with OCF spec {specVersion}, newer than this app supports ({implements}).'
@@ -133,13 +143,15 @@ compare.eq: 'exactly {value}'
 # `compare.<code>` text or the face itself), added with `dice.modified`; items are joined with
 # `dice.plus` and `dice.minus`, and a subtracted first item is `dice.negative`. A roll made more
 # than once (a dice pause's `repeat`) is `dice.repeat`: `dice` (the roll's words), `times` and
-# `keep` (`high` or `low`).
+# `keep` (`high` or `low`). When only some items are rolled again (`repeat.items`), they are
+# worded together with `dice.repeat`, in `dice.grouped` (`dice`) when anything else is rolled.
 dice.dice: '{count}d{sides}'
 dice.fate: '{count}dF'
 dice.modified: '{dice}, {modifier}'
 dice.plus: '{first} + {second}'
 dice.minus: '{first} - {second}'
 dice.negative: '-{dice}'
+dice.grouped: '({dice})'
 dice.repeat: '{dice}, rolled {times, plural, =2 {twice} other {# times}}, keep the {keep, select, high {{times, plural, =2 {higher} other {highest}}} other {{times, plural, =2 {lower} other {lowest}}}} total'
 dice.keepHighest: '{count, plural, =1 {keep highest} other {keep highest #}}'
 dice.keepLowest: '{count, plural, =1 {keep lowest} other {keep lowest #}}'

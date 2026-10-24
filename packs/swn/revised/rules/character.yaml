@@ -8,6 +8,7 @@ fields:
   # A restricted psychic's one discipline, picked with the Partial Psychic option.
   psionics.discipline:
     type: enum
+    open: true
     values: [none, biopsionics, metapsionics, precognition, telekinesis, telepathy, teleportation]
     formula: "'none'"
   # Extra focus levels a new character picks: non-combat (Expert) and combat (Warrior).
@@ -22,14 +23,34 @@ fields:
 contentTypes:
   class:
     copies: { max: 1 }
+    fields:
+      # The starting package recommended for the class.
+      kit: { type: id, of: kit }
   # Picked, two of them, by the Adventurer.
   partialClass:
+    grantOnly: true
     copies: { max: 0 }
+  # A quick character's class and style: the class, the attribute scores and, for the book's
+  # styles, the style's column of the quick foci table (0-7).
+  style:
+    grantOnly: true
+    carried: false
+    copies: { max: 0 }
+    fields:
+      class: { type: id, of: class, required: true }
+      str: { type: integer, required: true }
+      dex: { type: integer, required: true }
+      con: { type: integer, required: true }
+      int: { type: integer, required: true }
+      wis: { type: integer, required: true }
+      cha: { type: integer, required: true }
+      table: { type: integer, min: 0, max: 7 }
   background:
     copies: { max: 1 }
     fields:
       freeSkill:
         type: enum
+        open: true
         required: true
         values:
           &entries [
@@ -61,16 +82,17 @@ contentTypes:
             mental,
           ]
       # The quick skills besides the free one.
-      quick1: { type: enum, required: true, values: *entries }
-      quick2: { type: enum, required: true, values: *entries }
-      'growth{growthRow}': { type: enum, required: true, values: *entries }
-      'learning{learningRow}': { type: enum, required: true, values: *entries }
+      quick1: { type: enum, required: true, values: *entries, open: true }
+      quick2: { type: enum, required: true, values: *entries, open: true }
+      'growth{growthRow}': { type: enum, required: true, values: *entries, open: true }
+      'learning{learningRow}': { type: enum, required: true, values: *entries, open: true }
   focus:
     fields:
       kind: { type: enum, values: [combat, noncombat, psychic, special], required: true }
       # The bonus skill its first level gives; `chosen` is the skill the focus's own choice names.
       skill:
         type: enum
+        open: true
         default: none
         values:
           [

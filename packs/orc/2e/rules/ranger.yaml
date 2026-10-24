@@ -2,7 +2,8 @@ fields:
   # A Strike's roll effects compare it with the target's ID; checks, which have no target, use
   # `huntedPrey`.
   prey.target: { type: string, input: true, default: '' }
-  ranger.edge: { type: enum, values: [none, flurry, outwit, precision], formula: "'none'" }
+  ranger.edge:
+    { type: enum, values: [none, flurry, outwit, precision], formula: "'none'", open: true }
   twinParry.active: { type: boolean, input: true, default: false }
   prey.hits: { type: integer, input: true, default: 0, min: 0 }
 

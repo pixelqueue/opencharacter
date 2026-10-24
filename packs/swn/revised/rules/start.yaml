@@ -226,6 +226,7 @@ actions:
         kind: action
         use: starting-gear
       - id: hitPoints
+        tags: [creation.finish]
         kind: changes
         sheet: proposed
         changes:
@@ -238,9 +239,10 @@ actions:
           - { type: finishCreation }
       - { id: result, kind: outcome, result: "'created'" }
 
-  # The quick tables: class and style (d8), background (d20), two psychic disciplines (d6) for
-  # a psychic, foci (d6 on the style's row) and a bonus skill (d20). With `random`, every table
-  # is rolled; otherwise each is a pick.
+  # The quick tables: class and style (a d8 over the book's eight styles; add-on packs may add
+  # styles), background (d20), two psychic disciplines (d6) for a psychic, foci (d6 on the
+  # style's row) and a bonus skill (d20). With `random`, every table is rolled; otherwise each is
+  # a pick.
   - id: quick-character
     tags: [creation]
     available: character.creating && countCopies(copy.type == 'class') == 0
@@ -251,35 +253,19 @@ actions:
       - id: style
         kind: choice
         random: params.random
-        recommend: options[0]
-        options:
-          - id: expert-smart
-            flags: { style: 0, class: "'classes.expert'", scores: '[10, 12, 11, 14, 7, 9]' }
-          - id: expert-smooth
-            flags: { style: 1, class: "'classes.expert'", scores: '[7, 9, 10, 12, 11, 14]' }
-          - id: expert-nimble
-            flags: { style: 2, class: "'classes.expert'", scores: '[10, 14, 12, 11, 9, 7]' }
-          - id: warrior-melee
-            flags: { style: 3, class: "'classes.warrior'", scores: '[14, 9, 12, 7, 10, 11]' }
-          - id: warrior-ranged
-            flags: { style: 4, class: "'classes.warrior'", scores: '[9, 14, 12, 10, 7, 11]' }
-          - id: warrior-leader
-            flags: { style: 5, class: "'classes.warrior'", scores: '[7, 10, 9, 11, 12, 14]' }
-          - id: psychic-seer
-            flags: { style: 6, class: "'classes.psychic'", scores: '[9, 11, 12, 10, 14, 7]' }
-          - id: psychic-adept
-            flags: { style: 7, class: "'classes.psychic'", scores: '[12, 10, 14, 9, 11, 7]' }
+        recommend: 'filterList([@styles.expert-smart, options[0]], x in options)[0]'
+        options: { content: { type: style } }
       - id: setup
         kind: changes
         changes:
           - type: addItem
-            entry: { id: class, item: flags.class }
-          - { type: set, field: attributes.str.score, value: 'flags.scores[0]' }
-          - { type: set, field: attributes.dex.score, value: 'flags.scores[1]' }
-          - { type: set, field: attributes.con.score, value: 'flags.scores[2]' }
-          - { type: set, field: attributes.int.score, value: 'flags.scores[3]' }
-          - { type: set, field: attributes.wis.score, value: 'flags.scores[4]' }
-          - { type: set, field: attributes.cha.score, value: 'flags.scores[5]' }
+            entry: { id: class, item: steps.style.item.class }
+          - { type: set, field: attributes.str.score, value: steps.style.item.str }
+          - { type: set, field: attributes.dex.score, value: steps.style.item.dex }
+          - { type: set, field: attributes.con.score, value: steps.style.item.con }
+          - { type: set, field: attributes.int.score, value: steps.style.item.int }
+          - { type: set, field: attributes.wis.score, value: steps.style.item.wis }
+          - { type: set, field: attributes.cha.score, value: steps.style.item.cha }
       - id: background
         kind: choice
         random: params.random
@@ -302,16 +288,21 @@ actions:
         params: { entry: steps.background.item.quick2, random: params.random }
       - id: psychic1
         kind: action
-        when: flags.style >= 6
+        sheet: proposed
+        when: "psionics.access == 'unrestricted'"
         use: gain-skill
         params: { entry: "'any-psychic'", random: params.random }
       - id: psychic2
         kind: action
-        when: flags.style >= 6
+        sheet: proposed
+        when: "psionics.access == 'unrestricted'"
         use: gain-skill
         params: { entry: "'any-psychic'", random: params.random }
+      # A style with a row of the book's foci table rolls on it; another (an add-on pack's) picks
+      # foci as the full procedure does.
       - id: focusRoll
         kind: choice
+        when: has(steps.style.item.table)
         random: params.random
         recommend: options[0]
         options:
@@ -325,23 +316,28 @@ actions:
       - id: foci
         kind: branch
         cases:
+          - when: '!has(steps.style.item.table)'
+            flags: { foci: '[]' }
           - when: true
             flags:
               foci: >-
-                [[[['specialist', 'fix', 'fix'], ['die-hard', 'none', '']], [['hacker', 'program', ''], ['tinker', 'fix', '']], [['specialist', 'know', 'know'], ['healer', 'heal', '']], [['specialist', 'fix', 'fix'], ['tinker', 'fix', '']], [['healer', 'heal', ''], ['ironhide', 'none', '']], [['specialist', 'fix', 'fix'], ['hacker', 'program', '']]], [[['diplomat', 'talk', ''], ['connected', 'connect', '']], [['specialist', 'talk', 'talk'], ['die-hard', 'none', '']], [['diplomat', 'talk', ''], ['alert', 'notice', '']], [['specialist', 'lead', 'lead'], ['authority', 'lead', '']], [['healer', 'heal', ''], ['specialist', 'talk', 'talk']], [['specialist', 'notice', 'notice'], ['specialist', 'talk', 'talk']]], [[['specialist', 'pilot', 'pilot'], ['starfarer', 'pilot', '']], [['healer', 'heal', ''], ['die-hard', 'none', '']], [['tinker', 'fix', ''], ['gunslinger', 'shoot', '']], [['specialist', 'sneak', 'sneak'], ['assassin', 'sneak', '']], [['specialist', 'sneak', 'sneak'], ['specialist', 'exert', 'exert']], [['specialist', 'perform', 'perform'], ['specialist', 'sneak', 'sneak']]], [[['savage-fray', 'stab', ''], ['shocking-assault', 'punch-or-stab', '']], [['assassin', 'sneak', ''], ['specialist', 'sneak', 'sneak']], [['armsman', 'stab', ''], ['close-combatant', 'any-combat', '']], [['close-combatant', 'any-combat', ''], ['savage-fray', 'stab', '']], [['ironhide', 'none', ''], ['die-hard', 'none', '']], [['unarmed-combatant', 'punch', ''], ['close-combatant', 'any-combat', '']]], [[['gunslinger', 'shoot', ''], ['close-combatant', 'any-combat', '']], [['sniper', 'shoot', ''], ['specialist', 'sneak', 'sneak']], [['assassin', 'sneak', ''], ['specialist', 'sneak', 'sneak']], [['ironhide', 'none', ''], ['die-hard', 'none', '']], [['gunslinger', 'shoot', ''], ['tinker', 'fix', '']], [['close-combatant', 'any-combat', ''], ['alert', 'notice', '']]], [[['gunslinger', 'shoot', ''], ['authority', 'lead', '']], [['ironhide', 'none', ''], ['connected', 'connect', '']], [['armsman', 'stab', ''], ['specialist', 'lead', 'lead']], [['gunslinger', 'shoot', ''], ['specialist', 'talk', 'talk']], [['assassin', 'sneak', ''], ['die-hard', 'none', '']], [['close-combatant', 'any-combat', ''], ['henchkeeper', 'lead', '']]], [[['alert', 'notice', '']], [['healer', 'heal', '']], [['specialist', 'notice', 'notice']], [['psychic-training', 'any-psychic', '']], [['savage-fray', 'stab', '']], [['hacker', 'program', '']]], [[['armsman', 'stab', '']], [['ironhide', 'none', '']], [['die-hard', 'none', '']], [['psychic-training', 'any-psychic', '']], [['healer', 'heal', '']], [['unarmed-combatant', 'punch', '']]]][flags.style][flags.row]
+                [[[['specialist', 'fix', 'fix'], ['die-hard', 'none', '']], [['hacker', 'program', ''], ['tinker', 'fix', '']], [['specialist', 'know', 'know'], ['healer', 'heal', '']], [['specialist', 'fix', 'fix'], ['tinker', 'fix', '']], [['healer', 'heal', ''], ['ironhide', 'none', '']], [['specialist', 'fix', 'fix'], ['hacker', 'program', '']]], [[['diplomat', 'talk', ''], ['connected', 'connect', '']], [['specialist', 'talk', 'talk'], ['die-hard', 'none', '']], [['diplomat', 'talk', ''], ['alert', 'notice', '']], [['specialist', 'lead', 'lead'], ['authority', 'lead', '']], [['healer', 'heal', ''], ['specialist', 'talk', 'talk']], [['specialist', 'notice', 'notice'], ['specialist', 'talk', 'talk']]], [[['specialist', 'pilot', 'pilot'], ['starfarer', 'pilot', '']], [['healer', 'heal', ''], ['die-hard', 'none', '']], [['tinker', 'fix', ''], ['gunslinger', 'shoot', '']], [['specialist', 'sneak', 'sneak'], ['assassin', 'sneak', '']], [['specialist', 'sneak', 'sneak'], ['specialist', 'exert', 'exert']], [['specialist', 'perform', 'perform'], ['specialist', 'sneak', 'sneak']]], [[['savage-fray', 'stab', ''], ['shocking-assault', 'punch-or-stab', '']], [['assassin', 'sneak', ''], ['specialist', 'sneak', 'sneak']], [['armsman', 'stab', ''], ['close-combatant', 'any-combat', '']], [['close-combatant', 'any-combat', ''], ['savage-fray', 'stab', '']], [['ironhide', 'none', ''], ['die-hard', 'none', '']], [['unarmed-combatant', 'punch', ''], ['close-combatant', 'any-combat', '']]], [[['gunslinger', 'shoot', ''], ['close-combatant', 'any-combat', '']], [['sniper', 'shoot', ''], ['specialist', 'sneak', 'sneak']], [['assassin', 'sneak', ''], ['specialist', 'sneak', 'sneak']], [['ironhide', 'none', ''], ['die-hard', 'none', '']], [['gunslinger', 'shoot', ''], ['tinker', 'fix', '']], [['close-combatant', 'any-combat', ''], ['alert', 'notice', '']]], [[['gunslinger', 'shoot', ''], ['authority', 'lead', '']], [['ironhide', 'none', ''], ['connected', 'connect', '']], [['armsman', 'stab', ''], ['specialist', 'lead', 'lead']], [['gunslinger', 'shoot', ''], ['specialist', 'talk', 'talk']], [['assassin', 'sneak', ''], ['die-hard', 'none', '']], [['close-combatant', 'any-combat', ''], ['henchkeeper', 'lead', '']]], [[['alert', 'notice', '']], [['healer', 'heal', '']], [['specialist', 'notice', 'notice']], [['psychic-training', 'any-psychic', '']], [['savage-fray', 'stab', '']], [['hacker', 'program', '']]], [[['armsman', 'stab', '']], [['ironhide', 'none', '']], [['die-hard', 'none', '']], [['psychic-training', 'any-psychic', '']], [['healer', 'heal', '']], [['unarmed-combatant', 'punch', '']]]][steps.style.item.table][flags.row]
       - id: focus1
         kind: changes
+        when: size(flags.foci) > 0
         changes:
           - type: addItem
             entry: { item: "'foci.' + flags.foci[0][0]" }
       - id: focusSkill1
         kind: action
+        when: size(flags.foci) > 0
         use: gain-skill
         params:
           entry: "flags.foci[0][0] == 'specialist' ? flags.foci[0][2] : flags.foci[0][1]"
           random: params.random
       - id: focusPicks1
         kind: choice
+        when: size(flags.foci) > 0
         options: { pending: { entry: 'steps.focus1.added[0]' } }
         recommend: >-
           choice.id == 'skill' ? flags.foci[0][2]
@@ -370,6 +366,23 @@ actions:
             : choice.id == 'discipline' && has(steps.focusSkill2.data)
               && steps.focusSkill2.data.skill in options ? steps.focusSkill2.data.skill
             : options[0]
+      - id: anyFocus
+        kind: action
+        when: '!has(steps.style.item.table)'
+        use: gain-focus
+        params: { random: params.random }
+      - id: noncombatFocus
+        kind: action
+        sheet: proposed
+        when: '!has(steps.style.item.table) && class.focus.noncombat > 0'
+        use: gain-focus
+        params: { kind: "'noncombat'", random: params.random }
+      - id: combatFocus
+        kind: action
+        sheet: proposed
+        when: '!has(steps.style.item.table) && class.focus.combat > 0'
+        use: gain-focus
+        params: { kind: "'combat'", random: params.random }
       # The d20 table: every non-psychic skill in order, then a level-0 skill raised to level-1.
       - id: bonus
         kind: choice
@@ -390,6 +403,7 @@ actions:
         use: starting-gear
         params: { random: params.random }
       - id: hitPoints
+        tags: [creation.finish]
         kind: changes
         sheet: proposed
         changes:

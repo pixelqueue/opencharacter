@@ -1,0 +1,11 @@
+description: "Picking an add-on's rules-level option proposes its changes, then the tagged changes step's own, then the add-on's rules-level changes effect's"
+specVersion: 0.2.0
+call: startAction
+packs:
+  - path: ../../../packs/test-core
+  - path: ../../../packs/test-addon
+input:
+  action: { id: test-core:train }
+  policy: { choices: pause }
+answers:
+  - { option: 'test-addon:rules#meditate' }

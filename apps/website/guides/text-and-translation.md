@@ -94,6 +94,7 @@ The key conventions ([Translation](../../../packages/spec/docs/i18n.md#key-conve
 | A display group             | group `combat` (with its `pack`)                          | `groups.combat.label`                                                |
 | A rules action              | `5e-srd-5.1:weapon-attack`                                | `actions.weapon-attack.name`                                         |
 | An action on an item        | `5e-srd-5.1:features.fighter.second-wind#second-wind`     | `features.fighter.second-wind.actions.second-wind.name`              |
+| An action on a content type | `fate-core:stunts.psychologist#use`                       | `stunts.psychologist.actions.use.name`, else `types.stunt.use.name`  |
 | An action's choice option   | option `hit` of `weapon-attack`                           | `actions.weapon-attack.options.hit.name`                             |
 | An action's choice question | `needs` `{ action, step: 'hit/confirm' }`                 | `actions.weapon-attack.steps.confirm.prompt`                         |
 | An action's roll (optional) | `needs` or log `{ action, step: 'damage' }`               | `actions.weapon-attack.steps.damage.name`                            |
@@ -203,9 +204,13 @@ Fill the placeholders from the error's or issue's `data`. For example:
 formatting.
 
 A few codes have text by their data: `out-of-range` with only a `min` or a `max` uses
-`errors.out-of-range.min` or `.max`, and `safety-limit-exceeded` uses
-`errors.safety-limit-exceeded.<limit>` when there is one. If a message still misses an argument,
-show `errors.other` rather than the template.
+`errors.out-of-range.min` or `.max`, and one with equal bounds `.exact`; `wrong-type` for an enum
+uses `errors.wrong-type.values`, its `values` named and joined as alternatives ("Scene or Day");
+and `safety-limit-exceeded` uses
+`errors.safety-limit-exceeded.<limit>` when there is one. If a code has no text, or its message
+still misses an argument, show the error's `data.message` when it has one, else `errors.other`,
+rather than the template. `errors.other` gets `{ code }`, but the spec's English leaves it out:
+a code means nothing to a player, so log `code`, `path` and `data` for developers instead.
 
 **Prefer the pack's text for an issue when there is one.** `prerequisite-not-met` and
 `constraint-failed` carry an `id`, and the pack has a specific message for it (the keys in the

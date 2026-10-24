@@ -1,0 +1,17 @@
+# Trained in performance, or Assurance in it if already trained.
+id: feats.harmonic
+type: feat
+choices:
+  - id: harmonic
+    from: { values: [training, assurance] }
+    eligible: "value == 'assurance' ? 'performance' in skills.trained : !('performance' in skills.trained)"
+    recommend: "'performance' in skills.trained ? 'assurance' : 'training'"
+    effects:
+      - target: skills.chosen
+        op: grant
+        value: { formula: "'performance'" }
+        when: "pick.value == 'training'"
+grants:
+  - item: feats.assurance
+    when: "'assurance' in picksOf('harmonic')"
+    choices: { skill: [{ option: performance }] }

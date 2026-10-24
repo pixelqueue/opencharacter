@@ -41,6 +41,7 @@ import {
   typeKey,
   valueKey,
   writtenOptionKey,
+  contentOptionKey,
   type ChoiceRef,
   split,
   type MessageRef,
@@ -61,10 +62,16 @@ export interface TextOptions {
   spec: Readonly<Record<string, Messages>>;
   /** `ruleset.contentTypes`, for blocks' field defaults; else pass the type to `contentBlock`. */
   contentTypes?: Readonly<Record<string, BlockType>>;
-  /** `ruleset.content`, for a headline's content of a type. */
+  /** `ruleset.content`: a headline's content of a type; the text of a content type's actions. */
   content?: Readonly<Record<string, HeadlineItem>>;
   /** Field display hints (`ruleset.rules.display`), for a headline's `field_<field>_text`. */
   display?: { fields?: Readonly<Record<string, FieldHint>> } | undefined;
+  /** `ruleset.enumOrigins`: the pack whose text names a value another pack's open enum gained. */
+  enumOrigins?: Readonly<Record<string, Readonly<Record<string, string>>>>;
+  /** `ruleset.optionOrigins`: the pack whose text names an option another pack's choice gained. */
+  optionOrigins?: Readonly<Record<string, Readonly<Record<string, string>>>>;
+  /** `ruleset.familyOrigins`: the pack whose text names a value another pack's family gained. */
+  familyOrigins?: Readonly<Record<string, Readonly<Record<string, string>>>>;
 }
 
 export interface HeadlineItem {
@@ -147,6 +154,8 @@ export interface BlockType {
 export interface OptionContext {
   /** `needs.action`: its written options' key root. */
   action?: string;
+  /** `needs.content`: the content whose own text names a value first. */
+  content?: string;
   /** `needs.choice`: its inline options' and values' key root. */
   choice?: ChoiceRef;
   /** The character's copies by instance ID, for a step over copies. */
@@ -158,6 +167,8 @@ export interface OptionContext {
 export interface RollTarget {
   band: string;
   name: string;
+  /** The band is the roll's success threshold: what the roll needs. */
+  success?: true;
   /**
    * The pack's band condition, else the spec's `compare.<code>` text per test. Absent when the
    * condition isn't plain comparisons, or the band holds regardless of the roll.
@@ -218,7 +229,12 @@ export interface Text {
   /** The whole roll: the dice, then the flat items' sum, "2d10 + 25"; `repeat` as for `dice`. */
   roll(items: readonly DiceLike[], repeat?: Repeat): string;
   value(type: string, name: string, value: string, of?: 'fields' | 'state'): string;
-  /** The item's own state value names first, else its `type`'s. */
+  /**
+   * A state key's name: the item's own (`<item>.state.<key>.name`), else its type's. `type`
+   * defaults to the item's in `content`.
+   */
+  state(item: string, key: string, type?: string): string;
+  /** The item's own state value names first, else its type's; `type` as for `state`. */
   stateValue(item: string, key: string, value: string, type?: string): string;
   /** A choice with its own `label` key: use `lookup`. */
   situational(id: string): string;
@@ -240,15 +256,17 @@ export interface Text {
     options?: HeadlineOptions,
   ): string | undefined;
   /**
-   * The pack's own text, else the spec's; an engine error words as the error, else `errors.other`.
+   * The pack's own text, else the spec's; an engine error words as the error, else as its
+   * `data.message`, else `errors.other`.
    * A prerequisite's own text, a phrase, is wrapped with its owner's name
    * (`issues.prerequisite-not-met.owner`): "Terrain Scout requires: Scout Dedication".
    */
   issue(issue: RulesIssue | EngineError): string;
   /**
    * The spec's text, by the variant its data picks (`errors.out-of-range.min`,
-   * `errors.safety-limit-exceeded.<limit>`); a code without text, or whose text misses an
-   * argument, as `errors.other`.
+   * `errors.out-of-range.exact`, `errors.wrong-type.values`, `errors.safety-limit-exceeded.<limit>`); a code without text, or whose text misses an
+   * argument, as its `data.message` when it has one, else `errors.other`. Neither names the code:
+   * log `code` and `data` for developers.
    */
   error(error: EngineError | RulesIssue): string;
 }
@@ -309,11 +327,47 @@ export function createText(options: TextOptions): Text {
 
   const message = (pack: string, key: string, args?: Args) => format(findPack(pack, key), args);
   const specMessage = (key: string, args?: Args) => format(findSpec(key), args);
-  const unworded = (code: string) => specMessage('errors.other', { code }) ?? code;
-  const lookup = (ref: MessageRef, args?: Args) =>
-    ref.pack === null ? specMessage(ref.key, args) : message(ref.pack, ref.key, args);
+  // The error's own message where it has one, else `errors.other`.
+  const unworded = ({ code, data }: EngineError | RulesIssue) =>
+    typeof data?.message === 'string' && data.message.trim()
+      ? data.message
+      : (specMessage('errors.other', { code }) ?? code);
+  // An action a content type gives its items is keyed under the type: `<item>.actions.<action>…`
+  // falls back to `types.<type>.<action>…`, the type found through `options.content`.
+  const typeActionRef = (ref: MessageRef): MessageRef | undefined => {
+    const at = ref.pack === null ? -1 : ref.key.indexOf('.actions.');
+    if (at <= 0) return undefined;
+    const typeId = options.content?.[`${ref.pack}:${ref.key.slice(0, at)}`]?.type;
+    if (typeId === undefined) return undefined;
+    const [pack, local] = split(typeId);
+    return { pack, key: `types.${local}.${ref.key.slice(at + '.actions.'.length)}` };
+  };
+  const lookup = (ref: MessageRef, args?: Args): string | undefined => {
+    if (ref.pack === null) return specMessage(ref.key, args);
+    const own = message(ref.pack, ref.key, args);
+    if (own !== undefined) return own;
+    const typed = typeActionRef(ref);
+    return typed ? message(typed.pack as string, typed.key, args) : undefined;
+  };
 
   const content = (id: string, args?: Args) => lookup(contentKey(id), args) ?? id;
+  // A value added to an open enum is named by the adding pack, under the enum's own key.
+  const enumValue = (ref: MessageRef, value: string): string | undefined => {
+    const own = lookup(ref);
+    if (own !== undefined || ref.pack === null) return own;
+    const at = /^(.*)\.values\.[^.]+\.name$/.exec(ref.key)?.[1];
+    const origin = at ? options.enumOrigins?.[`${ref.pack}:${at}`]?.[value] : undefined;
+    return origin === undefined ? undefined : message(origin, ref.key);
+  };
+  // A value another pack added to a family is named by that pack, under the action's own key.
+  const familyValue = (key: string, value: string): string | undefined => {
+    for (const origins of Object.values(options.familyOrigins ?? {})) {
+      const origin = origins[value];
+      const found = origin === undefined ? undefined : message(origin, key);
+      if (found !== undefined) return found;
+    }
+    return undefined;
+  };
   // `<item>#<option>` a content type adds: named by the type, found through `options.content`.
   const lookupTypeOption = (option: string) => {
     const hash = option.lastIndexOf('#');
@@ -338,7 +392,7 @@ export function createText(options: TextOptions): Text {
   };
   const action = (id: string) => lookup(actionKey(id)) ?? id;
   const value = (typeId: string, name: string, v: string, of: 'fields' | 'state' = 'fields') =>
-    lookup(valueKey(typeId, name, v, of)) ?? v;
+    enumValue(valueKey(typeId, name, v, of), v) ?? v;
 
   const blockArgs = (
     template: string,
@@ -369,8 +423,9 @@ export function createText(options: TextOptions): Text {
       const own =
         v === undefined || v === null
           ? undefined
-          : ((of === 'state' ? lookup(stateValueKey(qid, name, String(v))) : undefined) ??
-            lookup(valueKey(typeId, name, String(v), of)));
+          : ((of === 'state'
+              ? enumValue(stateValueKey(qid, name, String(v)), String(v))
+              : undefined) ?? enumValue(valueKey(typeId, name, String(v), of), String(v)));
       if (own !== undefined || typeof v !== 'string') return own ?? v;
       return setMember(v, pack);
     };
@@ -600,15 +655,45 @@ export function createText(options: TextOptions): Text {
       }),
     );
 
+  // A parameter error names the parameter by its label in the action's text.
+  const paramLabel = (data: Args): Args => {
+    const owner = data.action;
+    if (typeof owner !== 'string') return {};
+    const out: Record<string, unknown> = {};
+    for (const k of ['param', 'target'] as const) {
+      const name = data[k];
+      if (typeof name === 'string' && !name.includes(':'))
+        out[k] = lookup(paramKey(owner, name)) ?? name;
+    }
+    return out;
+  };
+
+  // An enum's values, each by its name (a parameter's, a field's or a situational choice's),
+  // joined as alternatives.
+  const enumNames = (data: Args): Args => {
+    const values = data.values;
+    const target = data.target;
+    if (!Array.isArray(values) || typeof target !== 'string') return {};
+    const owner = data.action;
+    const name = (v: string): string =>
+      (typeof owner === 'string' && !target.includes(':')
+        ? enumValue(paramValueKey(owner, target, v), v)
+        : target.includes(':')
+          ? (enumValue(fieldValueKey(target, v), v) ?? lookup(situationalValueKey(target, v)))
+          : undefined) ?? v;
+    const list = new Intl.ListFormat(locale, { type: 'disjunction' });
+    return { values: list.format(values.map((v) => name(String(v)))) };
+  };
+
   // The spec's text for a code, by the variant its data picks; text that misses an argument is
-  // `errors.other`, never the raw template.
+  // unworded, never the raw template.
   const standard = (
     error: EngineError | RulesIssue,
     first: 'errors' | 'issues',
     second: 'errors' | 'issues',
   ): string => {
     const data: Args = error.data ?? {};
-    const args = named(data);
+    const args = { ...named(data), ...paramLabel(data), ...enumNames(data) };
     const keys = [
       ...variants(error.code, data).map((v) => `errors.${error.code}.${v}`),
       `${first}.${error.code}`,
@@ -620,7 +705,7 @@ export function createText(options: TextOptions): Text {
       const out = format(found, args, true);
       if (out !== undefined) return out;
     }
-    return unworded(error.code);
+    return unworded(error);
   };
 
   const text: Text = {
@@ -637,13 +722,19 @@ export function createText(options: TextOptions): Text {
       return name;
     },
     field,
-    fieldValue: (id, v) => lookup(fieldValueKey(id, v)) ?? v,
+    fieldValue: (id, v) => enumValue(fieldValueKey(id, v), v) ?? v,
     param: (actionId, param) => lookup(paramKey(actionId, param)) ?? param,
     paramDescription: (actionId, param) => lookup(paramKey(actionId, param, 'description')),
-    paramValue: (actionId, param, v) => lookup(paramValueKey(actionId, param, v)) ?? v,
-    stateValue: (item, key, v, typeId) =>
-      lookup(stateValueKey(item, key, v)) ??
-      (typeId ? lookup(valueKey(typeId, key, v, 'state')) : undefined) ??
+    paramValue: (actionId, param, v) => enumValue(paramValueKey(actionId, param, v), v) ?? v,
+    state(item, key, typeId = options.content?.[item]?.type) {
+      const own = lookup(contentKey(item, `state.${key}.name`));
+      if (own !== undefined || typeId === undefined) return own ?? key;
+      const [pack, local] = split(typeId);
+      return lookup({ pack, key: `types.${local}.state.${key}.name` }) ?? key;
+    },
+    stateValue: (item, key, v, typeId = options.content?.[item]?.type) =>
+      enumValue(stateValueKey(item, key, v), v) ??
+      (typeId ? enumValue(valueKey(typeId, key, v, 'state'), v) : undefined) ??
       v,
     situational: (id) => lookup(situationalKey(id)) ?? id,
     situationalValue: (id, v) => lookup(situationalValueKey(id, v)) ?? v,
@@ -671,34 +762,50 @@ export function createText(options: TextOptions): Text {
       if (copy) return text.copy(copy);
       const isContent = context.isContent ?? ((x: string) => x.includes(':'));
       if (isContent(option)) return content(option);
-      if (context.choice)
+      if (context.choice) {
+        const { owner, slot, id: choiceId } = context.choice;
+        const ref = inlineOptionKey(context.choice, id);
+        // An option a dependent pack added is named by that pack, under the choice's own key.
+        const origin = options.optionOrigins?.[`${owner}/${slot?.choice ?? choiceId}`]?.[option];
         return (
-          lookup(inlineOptionKey(context.choice, id)) ??
-          setMember(option, split(context.choice.owner)[0])
+          lookup(ref) ??
+          (origin === undefined ? undefined : message(origin, ref.key)) ??
+          setMember(option, origin ?? split(owner)[0])
         );
-      if (context.action)
+      }
+      if (context.action) {
+        const written = writtenOptionKey(context.action, option);
         return (
-          lookup(writtenOptionKey(context.action, option)) ??
+          (context.content ? lookup(contentOptionKey(context.content, option)) : undefined) ??
+          lookup(written) ??
+          familyValue(written.key, option) ??
           setMember(option, split(context.action)[0])
         );
+      }
       return option;
     },
     band: (bandSet, band) => lookup(bandKey(bandSet, band)) ?? band,
     rollTargets(summary) {
       const set = summary.bandSet;
       if (!set) return [];
-      return (summary.bands ?? []).map(({ band, tests }) => {
+      return (summary.bands ?? []).map(({ band, tests, success }) => {
         const args: Record<string, number> = {};
         (tests ?? []).forEach((t, i) => {
           if (i === 0) args.value = t.value;
           args[`value${i + 1}`] = t.value;
         });
         // A band that compares nothing (`tests: []`: it holds regardless of the roll) has no
-        // condition text; one whose condition isn't plain comparisons (no `tests`) keeps the pack's.
+        // condition text; one whose condition isn't plain comparisons (no `tests`) keeps the pack's,
+        // unless that text needs a test's value.
+        const ref = bandKey(set, band, 'condition');
         const own =
           tests !== undefined && tests.length === 0
             ? undefined
-            : lookup(bandKey(set, band, 'condition'), args);
+            : format(
+                ref.pack === null ? findSpec(ref.key) : findPack(ref.pack, ref.key),
+                args,
+                true,
+              );
         const parts = (tests ?? []).map(
           (t) => specMessage(`compare.${t.compare}`, { value: t.value }) ?? '',
         );
@@ -710,6 +817,7 @@ export function createText(options: TextOptions): Text {
         return {
           band,
           name: lookup(bandKey(set, band)) ?? band,
+          ...(success ? { success } : {}),
           ...(condition === undefined ? {} : { condition }),
         };
       });
@@ -731,15 +839,25 @@ export function createText(options: TextOptions): Text {
       if (own) {
         // A copy limit's text takes `max` and `count`; an item's limit is `perItem`.
         const args = issue.code === 'too-many-copies' ? { ...data, max: data.limit } : data;
-        const found =
-          own.pack === null ? undefined : format(findPack(own.pack, own.key), args, true);
         const owner =
           issue.code === 'prerequisite-not-met' && 'id' in issue && issue.id
             ? prerequisiteOwner(issue.id)
             : undefined;
+        // An inline option a dependent pack added keeps its text in that pack.
+        const origin = owner?.choice
+          ? options.optionOrigins?.[owner.choice.key]?.[owner.choice.option]
+          : undefined;
+        const found =
+          own.pack === null
+            ? undefined
+            : (format(findPack(own.pack, own.key), args, true) ??
+              (origin === undefined ? undefined : format(findPack(origin, own.key), args, true)));
         if (found !== undefined && owner) {
+          const nameKey = `${owner.root}.name`;
           const name = owner.inline
-            ? (message(owner.pack, `${owner.root}.name`) ?? owner.root)
+            ? (message(owner.pack, nameKey) ??
+              (origin === undefined ? undefined : message(origin, nameKey)) ??
+              owner.root)
             : content(`${owner.pack}:${owner.root}`);
           return (
             format(
@@ -749,6 +867,10 @@ export function createText(options: TextOptions): Text {
             ) ?? found
           );
         }
+        if (found !== undefined) return found;
+      }
+      if (issue.code === 'too-many-copies' && data.item !== undefined) {
+        const found = format(findSpec('issues.too-many-copies.item'), named(data), true);
         if (found !== undefined) return found;
       }
       return standard(issue, 'issues', 'errors');
@@ -763,8 +885,10 @@ function variants(code: string, data: Args): string[] {
   if (code === 'out-of-range') {
     const min = data.min !== undefined;
     const max = data.max !== undefined;
+    if (min && max) return data.min === data.max ? ['exact'] : [];
     return min === max ? [] : [min ? 'min' : 'max'];
   }
+  if (code === 'wrong-type' && Array.isArray(data.values)) return ['values'];
   if (code === 'safety-limit-exceeded' && typeof data.limit === 'string') return [data.limit];
   return [];
 }

@@ -4,6 +4,34 @@
 # highest rank less the training, 0 while untrained; an untrained skill's increases input carries
 # the computed tag `untrained`, so level-up leaves it out.
 fields:
+  # What a choice of any skill offers (class trainings, Skill Training) and of any Lore (Gnome
+  # Obsession): an add-on's Lore grants its tag into both.
+  skills.offered:
+    type: set
+    of: tag
+    members: { under: [skill], except: [skill.lore] }
+    formula: >-
+      ['skill.acrobatics', 'skill.arcana', 'skill.athletics', 'skill.crafting',
+        'skill.deception', 'skill.diplomacy', 'skill.intimidation', 'skill.medicine',
+        'skill.nature', 'skill.occultism', 'skill.performance', 'skill.religion',
+        'skill.society', 'skill.stealth', 'skill.survival', 'skill.thievery',
+        'skill.lore.academia', 'skill.lore.circus', 'skill.lore.farming', 'skill.lore.legal',
+        'skill.lore.scribing', 'skill.lore.underworld', 'skill.lore.warfare']
+  skills.lores:
+    type: set
+    of: tag
+    members: { under: [skill.lore] }
+    formula: >-
+      ['skill.lore.academia', 'skill.lore.circus', 'skill.lore.farming', 'skill.lore.legal',
+        'skill.lore.scribing', 'skill.lore.underworld', 'skill.lore.warfare',
+        'skill.lore.alcohol', 'skill.lore.art', 'skill.lore.cooking', 'skill.lore.engineering',
+        'skill.lore.fortune-telling', 'skill.lore.games', 'skill.lore.genealogy',
+        'skill.lore.gladiatorial', 'skill.lore.guild', 'skill.lore.heraldry',
+        'skill.lore.herbalism', 'skill.lore.labor', 'skill.lore.mercantile', 'skill.lore.mining',
+        'skill.lore.sailing', 'skill.lore.tanning', 'skill.lore.theater', 'skill.lore.cave',
+        'skill.lore.desert', 'skill.lore.forest', 'skill.lore.mountain', 'skill.lore.plains',
+        'skill.lore.swamp', 'skill.lore.dwarf', 'skill.lore.elf', 'skill.lore.goblin',
+        'skill.lore.halfling', 'skill.lore.leshy', 'skill.lore.orc']
   # A skill trained twice counts once in the set, so the difference is trainings to spend elsewhere.
   skills.trained: { type: set, of: tag, members: { under: [skill], except: [skill.lore] } }
   skills.trainings: { type: integer, formula: 0 }
@@ -949,32 +977,7 @@ choices:
     unique: skill-training
     pick: max(0, skills.trainings - countList(skills.trained, !(x in skills.chosen)))
     from:
-      values:
-        [
-          skill.acrobatics,
-          skill.arcana,
-          skill.athletics,
-          skill.crafting,
-          skill.deception,
-          skill.diplomacy,
-          skill.intimidation,
-          skill.medicine,
-          skill.nature,
-          skill.occultism,
-          skill.performance,
-          skill.religion,
-          skill.society,
-          skill.stealth,
-          skill.survival,
-          skill.thievery,
-          skill.lore.academia,
-          skill.lore.circus,
-          skill.lore.farming,
-          skill.lore.legal,
-          skill.lore.scribing,
-          skill.lore.underworld,
-          skill.lore.warfare,
-        ]
+      values: { formula: skills.offered }
       where: '!(value in skills.trained) && !(value in skills.chosen) || value in choice.picks'
     effects:
       - { target: skills.chosen, op: grant, value: { formula: pick.value } }
@@ -1259,6 +1262,8 @@ display:
         with: [{ field: skills.lore.academia.rank, as: detail }],
         showWhen: skills.lore.academia.rank > 0,
       }
+    skills.lore.academia.increases: { showWhen: skills.lore.academia.rank > 0 }
+    skills.lore.academia.trainedByIncrease: { showWhen: skills.lore.academia.rank > 0 }
     skills.lore.circus.rank: { format: { bands: rank }, showWhen: skills.lore.circus.rank > 0 }
     skills.lore.circus.granted: { hidden: true }
     skills.lore.circus.mod:
@@ -1268,6 +1273,8 @@ display:
         with: [{ field: skills.lore.circus.rank, as: detail }],
         showWhen: skills.lore.circus.rank > 0,
       }
+    skills.lore.circus.increases: { showWhen: skills.lore.circus.rank > 0 }
+    skills.lore.circus.trainedByIncrease: { showWhen: skills.lore.circus.rank > 0 }
     skills.lore.farming.rank: { format: { bands: rank }, showWhen: skills.lore.farming.rank > 0 }
     skills.lore.farming.granted: { hidden: true }
     skills.lore.farming.mod:
@@ -1277,6 +1284,8 @@ display:
         with: [{ field: skills.lore.farming.rank, as: detail }],
         showWhen: skills.lore.farming.rank > 0,
       }
+    skills.lore.farming.increases: { showWhen: skills.lore.farming.rank > 0 }
+    skills.lore.farming.trainedByIncrease: { showWhen: skills.lore.farming.rank > 0 }
     skills.lore.legal.rank: { format: { bands: rank }, showWhen: skills.lore.legal.rank > 0 }
     skills.lore.legal.granted: { hidden: true }
     skills.lore.legal.mod:
@@ -1286,6 +1295,8 @@ display:
         with: [{ field: skills.lore.legal.rank, as: detail }],
         showWhen: skills.lore.legal.rank > 0,
       }
+    skills.lore.legal.increases: { showWhen: skills.lore.legal.rank > 0 }
+    skills.lore.legal.trainedByIncrease: { showWhen: skills.lore.legal.rank > 0 }
     skills.lore.scribing.rank: { format: { bands: rank }, showWhen: skills.lore.scribing.rank > 0 }
     skills.lore.scribing.granted: { hidden: true }
     skills.lore.scribing.mod:
@@ -1295,6 +1306,8 @@ display:
         with: [{ field: skills.lore.scribing.rank, as: detail }],
         showWhen: skills.lore.scribing.rank > 0,
       }
+    skills.lore.scribing.increases: { showWhen: skills.lore.scribing.rank > 0 }
+    skills.lore.scribing.trainedByIncrease: { showWhen: skills.lore.scribing.rank > 0 }
     skills.lore.underworld.rank:
       { format: { bands: rank }, showWhen: skills.lore.underworld.rank > 0 }
     skills.lore.underworld.granted: { hidden: true }
@@ -1305,6 +1318,8 @@ display:
         with: [{ field: skills.lore.underworld.rank, as: detail }],
         showWhen: skills.lore.underworld.rank > 0,
       }
+    skills.lore.underworld.increases: { showWhen: skills.lore.underworld.rank > 0 }
+    skills.lore.underworld.trainedByIncrease: { showWhen: skills.lore.underworld.rank > 0 }
     skills.lore.warfare.rank: { format: { bands: rank }, showWhen: skills.lore.warfare.rank > 0 }
     skills.lore.warfare.granted: { hidden: true }
     skills.lore.warfare.mod:
@@ -1314,3 +1329,5 @@ display:
         with: [{ field: skills.lore.warfare.rank, as: detail }],
         showWhen: skills.lore.warfare.rank > 0,
       }
+    skills.lore.warfare.increases: { showWhen: skills.lore.warfare.rank > 0 }
+    skills.lore.warfare.trainedByIncrease: { showWhen: skills.lore.warfare.rank > 0 }

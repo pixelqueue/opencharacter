@@ -5,3 +5,7 @@ effects:
     op: rollModifier
     value: { kind: disadvantage }
     scope: applied
+    then:
+      when: applied
+      changes:
+        - { type: removeEffect, entry: self }

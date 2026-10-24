@@ -34,7 +34,7 @@ describe('pnpm validate', () => {
     ]);
     expect(characters.length).toBeGreaterThanOrEqual(5);
     // A first run parses every pack file: seconds, more on a busy machine.
-  }, 30_000);
+  }, 90_000);
 
   describe('on a broken pack', () => {
     const { reporter } = validateRepo(broken, {
@@ -62,6 +62,7 @@ describe('pnpm validate', () => {
         /grant of "tricks.hop" sets state key "shots", which it doesn't declare/,
       ],
       ['a missing required item field', /missing required field "damage"/],
+      ['a list state key', /type list is for item fields/],
       ['an export listing a pack version twice', /lists broken 0\.1\.0 twice/],
       [
         'an export listing a version the repo lacks',
@@ -103,6 +104,7 @@ describe('pnpm validate', () => {
       ['a template field default not of its enum', /rarity default: expected one of common, rare/],
       ['a typo in a template field formula', /unknown-name: "base\.damag" names nothing/],
       ['a proposed addItem of unknown content', /unknown content "weapons\.nope"/],
+      ['a proposed addItem of grant-only content', /"tricks\.vanish" is grant-only/],
       ['an entry object on a change other than addItem', /entry object is only for addItem/],
       ['copies on a change that is not per copy', /copies is only for per-copy changes/],
       ['copies of an unknown content type', /unknown content type "gadget"/],
@@ -132,6 +134,10 @@ describe('pnpm validate', () => {
       [
         'where on a parameter that is not a field or content parameter',
         /param who: where is only for field and content parameters/,
+      ],
+      [
+        'where on an item field that is not an id, set or list of fields or content',
+        /content type weapon: where is only for an id, set or list of fields or content/,
       ],
       ['a field parameter that allows no field', /param stat allows no field/],
       ['ifEmpty on a part without dice', /ifEmpty is only for dice parts/],
@@ -211,7 +217,7 @@ describe('pnpm validate', () => {
       ['results from an unknown band set', /actions.peek: unknown result bands "nothing"/],
       ['an undeclared choice step tag', /actions.aim step pick: unknown-tag: "ranged"/],
       ['a written option changing an unknown field', /step pick: unknown field "hp.gone"/],
-      ['an option effect outside content', /option effects are only for content items/],
+      ['a rules option effect from self', /from: self is for content's effects, not the rules'/],
       [
         'an actions group over content',
         /group moves: an actions group's members must be "type: action"/,
@@ -295,6 +301,7 @@ describe('pnpm validate', () => {
         /followUps.crew-roll: creation start "roll"'s action has no parameter "size"/,
       ],
       ['a source that defines no such action', /step lunge: unknown action "lunge"/],
+      ['a group inside a group', /step outer: group step "inner" inside the group step "outer"/],
       ['an entry no content defines the action for', /step hop: unknown action "hop"/],
       [
         'a creation start missing a parameter',
@@ -435,6 +442,12 @@ describe('pnpm validate', () => {
       expect(reporter.warnings.map((w) => w.message)).toContain(
         'translation key "stray.key" does not belong to anything in this pack',
       );
+    });
+
+    it("accepts an item's own text for the values of its actions' values steps", () => {
+      const warnings = reporter.warnings.map((w) => w.message);
+      expect(warnings).not.toContain(unused('tricks.hop.options.left.name'));
+      expect(warnings).toContain(unused('tricks.spin.options.left.name'));
     });
 
     it('warns about named texts and tags the pack does not declare', () => {

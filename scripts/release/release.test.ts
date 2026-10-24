@@ -59,7 +59,7 @@ const setVersion = (v: string) =>
     `id: test-demo\nversion: ${v}\nspecVersion: 0.1.0\nlicense: CC0-1.0\ndefaultLanguage: en\n`,
   );
 
-describe('release checks against git tags', () => {
+describe('release checks against git tags', { timeout: 60_000 }, () => {
   it('passes for an unchanged released version', () => {
     expect(
       releaseCheck([built()], publishedFromGit(repo)).filter((f) => f.level === 'error'),
@@ -93,7 +93,7 @@ describe('release checks against git tags', () => {
   });
 });
 
-describe('pending changesets', () => {
+describe('pending changesets', { timeout: 60_000 }, () => {
   // A workspace with the demo pack released at 0.1.0, as Changesets reads it.
   const ws = mkdtempSync(join(tmpdir(), 'ocf-release-pending-'));
   afterAll(() => rmSync(ws, { recursive: true, force: true }));

@@ -16,6 +16,9 @@ for this pack.
 pnpm add @opencharacter/mothership-1e @opencharacter/engine
 ```
 
+This release needs spec 0.3: `@opencharacter/engine` 0.3.0 or later. An engine for an older
+spec refuses it (`spec-version-unsupported`).
+
 The package's default export is the pack's release, ready for `loadRuleset`; its English text is
 `@opencharacter/mothership-1e/i18n/en` (also as JSON, `release.json` and `i18n/en.json`).
 
@@ -82,9 +85,9 @@ for the player's choices and other characters.
 - **Character creation:** two starts, both running `roll-character` on a character being
   created that has no class yet, in the Player's Survival Guide's order: stats and saves, the
   class, health, the class's stat change, skills, then the loadout or credits.
-  - `roll` (random): a d4 recommends the class (in the ruleset's content order) and, for the
-    Android and the Scientist, the stat the class lowers or raises; every pick is recommended,
-    so an automatic run finishes the character.
+  - `roll` (random): a die with a face per class offered (a d4 with the four core classes)
+    recommends the class and, for the Android and the Scientist, the stat the class lowers or
+    raises; every pick is recommended, so an automatic run finishes the character.
   - `guided`: no die is rolled for those; the player picks, the first option recommended.
   - Each stat is 2d10+25, each save 2d10+10, maximum health 1d10+10, credits 2d10×10 with a
     class loadout (recommended) or 2d10×100 without one (the `kit` choice). Taking the loadout
@@ -148,7 +151,7 @@ for the player's choices and other characters.
   - `natural-healing` (once a day after 6+ hours of rest, the app's clock): a Body save;
     success resets health to its maximum, and wounds stay.
   - `death-save` and `wound-roll` (by damage type) roll the d10 (0–9) and return it for the
-    tables.
+    tables; `wound-roll`'s outcome carries the type in its data.
   - Follow-ups: a wound stores `wound-roll` (the app supplies the damage type), one per
     adjustment, and reaching maximum wounds stores `death-save`. They and the excess stress
     are all required follow-ups stored on the character until acted on or
@@ -174,6 +177,36 @@ for the player's choices and other characters.
   skills by Trained, Expert and Master, weapons, armor), and for credits and high score. A
   weapon shows its damage as dice and its shots as a track (only with a magazine); armor shows
   `destroyed` only when destroyed.
+
+## Add-on packs
+
+A pack that depends on `mothership-1e` can add content of its types, and it joins the core's:
+
+- **Classes:** creation offers every class of the ruleset: the guided start lists it, the random
+  start draws over all of them (the book's d4 with the core four), and the class's own choices
+  (its stat change, its skills) are asked as the core classes' are.
+- **Skills:** each class's skill picks are queries by tier, so an added skill is offered by tier.
+  The Scientist's Expert and first Trained picks offer the skills whose `towardMaster` is set (on
+  the way to some Master skill); an added Expert or Trained skill sets it when a Master skill
+  follows it.
+- **Open enums** (values in the add-on's rules' `extendEnums`, named in its text under the
+  core's key):
+  - `mothership-1e:types.weapon.fields.woundType`: a weapon's wound type;
+  - `mothership-1e:actions.wound-roll.params.woundType`: the wound roll's type, so an added
+    wound type (added to both) is rolled as the core's are;
+  - `mothership-1e:types.class.fields.trauma`: a class's trauma response, for an added class
+    whose own effects and rules read `trauma.response`.
+- **Naming what an add-on adds:** it names each added value, option or key in its own text,
+  under the key this pack would use, and `createText` finds it there when the app passes the
+  ruleset's `enumOrigins`, `optionOrigins` and `familyOrigins`. For example,
+  `acid` added to `mothership-1e:types.weapon.fields.woundType` is
+  `types.weapon.fields.woundType.values.acid.name: Acid` (through `enumOrigins`).
+- **Tagged creation steps:** an add-on's rules-level `option` effects reach the choice steps
+  tagged `creation.class`, `creation.skills` and `creation.kit` of `roll-character` (an added
+  kit beside the loadout and credits), and its `changes` effects the `creation.save` step (a
+  gear pack adding the class's loadout and clearing `loadout.owed`).
+
+Still closed: a weapon's `range` and a skill's `tier` (the game's fixed sets).
 
 ## Text only, or the app's
 
@@ -201,8 +234,9 @@ public copies) and its skill tree.
 
 Where the guide is unclear or silent, the pack reads it this way:
 
-- **Random start:** a d4 recommends the class, and for the Android and the Scientist the stat
-  they change: every option equally likely.
+- **Random start:** a draw over the classes offered (a d4 with the core four) recommends the
+  class, and a d4 for the Android and the Scientist the stat they change: every option equally
+  likely.
 - **Class skill picks** never offer a skill the character already has. The Scientist's Expert
   and first Trained picks are limited to those on the way to some Master skill, so a guided run
   can't reach a dead end.

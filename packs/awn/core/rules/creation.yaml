@@ -290,13 +290,13 @@ actions:
         kind: action
         use: starting-equipment
         params: { random: params.random }
-      # A start may bring more than the survivor can haul. Readied items past the push limit are
-      # stowed, then Stowed ones past it left behind (gear, then weapons, then armor, the heaviest
-      # first), so play starts within the limits.
+      # A start may bring more than the survivor can haul. Readied items past the limit are
+      # stowed; Stowed gear past it is readied where it fits, then left behind (gear, then weapons,
+      # then armor, the heaviest first), so play starts unencumbered.
       - id: stowGear
         kind: choice
         sheet: proposed
-        when: encumbrance.overload > 2
+        when: encumbrance.overload > 0
         repeat: { max: 20, min: 20 }
         options:
           copies:
@@ -304,82 +304,98 @@ actions:
             where: >-
               self.equipped && has(item.enc) && item.enc > 0
                 && !(has(item.wornFree) && item.wornFree)
-                && encumbrance.readied > encumbrance.readied.max + 4
+                && encumbrance.readied > encumbrance.readied.max
         prefer: item.enc
         changes:
           - { type: equip, entry: picked, equipped: false }
       - id: stowWeapon
         kind: choice
         sheet: proposed
-        when: encumbrance.overload > 2
+        when: encumbrance.overload > 0
         repeat: { max: 20, min: 20 }
         options:
           copies:
             type: weapon
             where: >-
               self.equipped && item.enc > 0
-                && encumbrance.readied > encumbrance.readied.max + 4
+                && encumbrance.readied > encumbrance.readied.max
         prefer: item.enc
         changes:
           - { type: equip, entry: picked, equipped: false }
       - id: stowArmor
         kind: choice
         sheet: proposed
-        when: encumbrance.overload > 2
+        when: encumbrance.overload > 0
         repeat: { max: 20, min: 20 }
         options:
           copies:
             type: armor
             where: >-
               self.equipped && item.enc > 0
-                && encumbrance.readied > encumbrance.readied.max + 4
+                && encumbrance.readied > encumbrance.readied.max
         prefer: item.enc
         changes:
           - { type: equip, entry: picked, equipped: false }
-      - id: dropGear
+      - id: readyGear
         kind: choice
         sheet: proposed
-        when: encumbrance.overload > 2
+        when: encumbrance.overload > 0
         repeat: { max: 20, min: 20 }
         options:
           copies:
             type: gear
             where: >-
               !self.equipped && has(item.enc) && item.enc > 0
-                && encumbrance.stowed > encumbrance.stowed.max + 8
+                && encumbrance.stowed > encumbrance.stowed.max
+                && encumbrance.readied + item.enc * self.quantity <= encumbrance.readied.max
         prefer: item.enc
+        changes:
+          - { type: equip, entry: picked, equipped: true }
+      - id: dropGear
+        kind: choice
+        sheet: proposed
+        when: encumbrance.overload > 0
+        repeat: { max: 20, min: 20 }
+        options:
+          copies:
+            type: gear
+            where: >-
+              !self.equipped && has(item.enc) && item.enc > 0
+                && encumbrance.stowed > encumbrance.stowed.max
+        prefer: "item.enc * ('bundleable' in item.tags ? floor((self.quantity + 2) / 3) : self.quantity)"
         changes:
           - { type: removeItem, entry: picked }
       - id: dropWeapon
         kind: choice
         sheet: proposed
-        when: encumbrance.overload > 2
+        when: encumbrance.overload > 0
         repeat: { max: 20, min: 20 }
         options:
           copies:
             type: weapon
             where: >-
               !self.equipped && item.enc > 0
-                && encumbrance.stowed > encumbrance.stowed.max + 8
+                && encumbrance.stowed > encumbrance.stowed.max
         prefer: item.enc
         changes:
           - { type: removeItem, entry: picked }
       - id: dropArmor
         kind: choice
         sheet: proposed
-        when: encumbrance.overload > 2
+        when: encumbrance.overload > 0
         repeat: { max: 20, min: 20 }
         options:
           copies:
             type: armor
             where: >-
               !self.equipped && item.enc > 0
-                && encumbrance.stowed > encumbrance.stowed.max + 8
+                && encumbrance.stowed > encumbrance.stowed.max
         prefer: item.enc
         changes:
           - { type: removeItem, entry: picked }
 
       - id: finish
+        tags: [creation.finish]
         kind: changes
         sheet: proposed
         changes:
@@ -391,9 +407,11 @@ actions:
   # One entry of a background's tables: a skill (`any-combat`, `any-skill` or a skill key), or
   # an attribute bonus, which the highest attribute that can take it all is recommended.
   - id: gain-benefit
+    available: character.creating
     params:
       entry:
         type: enum
+        open: true
         values:
           [
             administer,
@@ -423,7 +441,7 @@ actions:
           ]
       prefer: { type: set, of: string, default: [] }
       random: { type: boolean, default: false }
-    results: [gained]
+    results: [gained, none]
     steps:
       - id: skill
         kind: action
@@ -474,4 +492,4 @@ actions:
             by: 1
       - id: result
         kind: outcome
-        result: "'gained'"
+        result: "has(steps.skill) && steps.skill.result == 'none' ? 'none' : 'gained'"

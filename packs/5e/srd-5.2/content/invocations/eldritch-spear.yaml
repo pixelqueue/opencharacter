@@ -17,5 +17,9 @@ choices:
     requiresOption: true
 keepsTemplates:
   - template: invocations.eldritch-spear-range
-    content: { type: spell, where: "item.id in picksOf('cantrip')" }
+    content:
+      type: spell
+      where: >-
+        item.id in picksOf('cantrip')
+          && owner.id in [@features.warlock.pact-magic, @invocations.pact-of-the-tome]
     params: { feet: 30 * self.level }

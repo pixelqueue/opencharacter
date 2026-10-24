@@ -1,0 +1,11 @@
+id: metamagic.extended-spell
+type: metamagic
+effects:
+  - target: { choices: [metamagic] }
+    op: option
+    when: 'sorcery.left >= 1'
+    value:
+      id: extended
+      flags: { metamagic: "'extended'" }
+      changes:
+        - { type: adjustState, entry: self, key: sorceryPointsSpent, by: 1 }

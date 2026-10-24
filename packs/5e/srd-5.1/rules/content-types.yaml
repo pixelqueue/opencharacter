@@ -26,11 +26,13 @@ contentTypes:
               thunder,
             ],
           required: true,
+          open: true,
         }
       versatileDamage: { type: dice }
       normalRange: { type: integer }
       longRange: { type: integer }
-      ammunition: { type: enum, values: [arrow, blowgun-needle, crossbow-bolt, sling-bullet] }
+      ammunition:
+        { type: enum, values: [arrow, blowgun-needle, crossbow-bolt, sling-bullet], open: true }
       weight: { type: decimal } # pounds
       cost: { type: decimal } # gold pieces
     state:
@@ -38,9 +40,17 @@ contentTypes:
       attuned: { type: boolean, default: false }
       stowed: { type: boolean, default: false } # in an extradimensional container (equipment.yaml)
       quivered: { type: boolean, default: false } # in an Efficient Quiver (equipment.yaml)
+      usedToday: { type: set, of: string, default: [] }
     actions:
       - use: weapon-attack
     effects:
+      # An attuned item for other classes than the character's (attunementClasses).
+      - target: attunement.classUnmet
+        op: add
+        value: 1
+        when: >-
+          self.attuned && has(item.attunementClasses) && size(item.attunementClasses) > 0
+            && countList(item.attunementClasses, x in classes.held) == 0
       - id: magic-attack
         target: { rolls: [attack.melee, attack.ranged], from: self }
         op: add
@@ -77,8 +87,16 @@ contentTypes:
     state:
       attuned: { type: boolean, default: false }
       stowed: { type: boolean, default: false } # in an extradimensional container (equipment.yaml)
+      usedToday: { type: set, of: string, default: [] }
     # Every armor item has these effects; the shield switches off the first three (`suppress`).
     effects:
+      # An attuned item for other classes than the character's (attunementClasses).
+      - target: attunement.classUnmet
+        op: add
+        value: 1
+        when: >-
+          self.attuned && has(item.attunementClasses) && size(item.attunementClasses) > 0
+            && countList(item.attunementClasses, x in classes.held) == 0
       - id: base-ac
         target: combat.ac
         op: set
@@ -121,6 +139,25 @@ contentTypes:
     copies: { perItem: 1 }
     fields:
       hitDie: { type: dice, required: true }
+      # Its own starting-equipment action gives its starting kit.
+      startingKit: { type: boolean, default: false }
+      # The abilities multiclassing into it needs 13 in: all of these, and one of those.
+      multiclassAll: { type: set, of: string, default: [] }
+      multiclassAny: { type: set, of: string, default: [] }
+      # The abilities a random start raises first, in order.
+      abilityPriority:
+        type: list
+        of: field
+        unique: true
+        default:
+          [
+            abilities.str.score,
+            abilities.con.score,
+            abilities.dex.score,
+            abilities.wis.score,
+            abilities.cha.score,
+            abilities.int.score,
+          ]
     state:
       level: { type: integer, default: 1, min: 1, max: 20 }
       startingClass: { type: boolean, default: false }
@@ -131,16 +168,20 @@ contentTypes:
       - use: spend-hit-die
 
   subclass:
+    grantOnly: true
     copies: { max: 0 }
     fields:
       class: { type: id, of: class, required: true }
 
   fightingStyle:
+    grantOnly: true
     copies: { max: 0 }
 
-  feature: {}
+  feature:
+    grantOnly: true
 
   improvement:
+    grantOnly: true
     copies: { max: 0 }
 
   spell:
@@ -165,6 +206,7 @@ contentTypes:
               transmutation,
             ],
           required: true,
+          open: true,
         }
       classes: { type: set, of: class }
       ritual: { type: boolean }
@@ -221,6 +263,7 @@ contentTypes:
               slashing,
               thunder,
             ],
+          open: true,
         }
       damage: { type: dice }
       damageBonus: { type: integer }
@@ -248,6 +291,7 @@ contentTypes:
               slashing,
               thunder,
             ],
+          open: true,
         }
       damage2: { type: dice }
       upcast2Dice: { type: integer }
@@ -257,7 +301,8 @@ contentTypes:
       upcastHealDice: { type: integer }
       upcastHealBonus: { type: integer }
 
-  trait: {}
+  trait:
+    grantOnly: true
 
   race:
     copies: { max: 1 }
@@ -270,6 +315,7 @@ contentTypes:
       - { id: race, target: creature.race, op: set, value: item.id }
 
   subrace:
+    grantOnly: true
     copies: { max: 0 }
     fields:
       race: { type: id, of: race, required: true }
@@ -284,6 +330,7 @@ contentTypes:
 
   # Each ancestry item carries its resistance, since incoming-change tags can't be computed.
   draconicAncestry:
+    grantOnly: true
     copies: { max: 0 }
     fields:
       damageType: { type: enum, values: [acid, cold, fire, lightning, poison], required: true }
@@ -294,11 +341,21 @@ contentTypes:
       used: { type: boolean, default: false }
     actions:
       - use: breath-weapon
+    effects:
+      - target: { steps: [rest.short, rest.long] }
+        op: changes
+        when: self.used
+        value:
+          changes: [{ type: setState, pick: owner, key: used, value: false }]
 
   background:
     copies: { max: 1 }
+    fields:
+      startingKit: { type: boolean, default: false }
 
   backgroundFeature:
+    grantOnly: true
     copies: { max: 0 }
 
-  feat: {}
+  feat:
+    grantOnly: true

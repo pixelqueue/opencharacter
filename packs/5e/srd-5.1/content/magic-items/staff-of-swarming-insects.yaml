@@ -1,18 +1,23 @@
 id: magic-items.staff-of-swarming-insects
 type: template
-tags:
-  [
-    magic,
-    staff,
-    attunement.bard,
-    attunement.cleric,
-    attunement.druid,
-    attunement.sorcerer,
-    attunement.warlock,
-    attunement.wizard,
-  ]
+tags: [magic, staff]
 appliesTo: { type: weapon, where: 'item.id == @weapons.quarterstaff' }
-fields: { rarity: rare, requiresAttunement: true, maxCharges: 10, recharge: 1d6 + 4 }
+fields:
+  {
+    attunementClasses:
+      [
+        classes.bard,
+        classes.cleric,
+        classes.druid,
+        classes.sorcerer,
+        classes.warlock,
+        classes.wizard,
+      ],
+    rarity: rare,
+    requiresAttunement: true,
+    maxCharges: 10,
+    recharge: 1d6 + 4,
+  }
 state:
   charges: { type: integer, min: 0, max: item.maxCharges, default: item.maxCharges }
 grants:

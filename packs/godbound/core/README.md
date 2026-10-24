@@ -16,6 +16,9 @@ Edition, used with the author's permission; nothing comes from the deluxe editio
 pnpm add @opencharacter/godbound-core @opencharacter/engine
 ```
 
+This release needs spec 0.3: `@opencharacter/engine` 0.3.0 or later. An engine for an older
+spec refuses it (`spec-version-unsupported`).
+
 The package's default export is the pack's release, ready for `loadRuleset`; its English text is
 `@opencharacter/godbound-core/i18n/en` (also as JSON, `release.json` and `i18n/en.json`).
 
@@ -79,8 +82,8 @@ computeSheet(ruleset, made.character).values['godbound-core:effort.max']?.value;
     step recommends a pick, so an automatic run finishes.
   - `random`: the attributes are rolled and recommended in the order rolled; the three Words are
     drawn uniformly; gifts are drawn uniformly among the bound Words' gifts and the universal
-    gifts the remaining points afford, until the points are spent; armor (none, light, medium,
-    heavy), a shield (or not) and a weapon category are drawn uniformly; Sorcery's invocations are
+    gifts the remaining points afford, until the points are spent; armor (none or any armor of
+    the ruleset, lightest first), a shield (none or any shield) and a weapon category are drawn uniformly; Sorcery's invocations are
     drawn.
   - The choices the Words, gifts and armor bring (a Word's raised attribute, Excellence of the
     Word, the saves medium or heavy armor hinders, invocations) are asked at the end, each with a
@@ -140,6 +143,26 @@ computeSheet(ruleset, made.character).values['godbound-core:effort.max']?.value;
   the artifact's Effort (its copy is the gift's `self`) instead of the hero's. A gift held while
   it lasts keeps that Effort on its own grant (`committed` in the artifact copy's `grants`) until
   `release-gift` or dawn; the others add to the artifact's `spent`, back at dawn.
+
+## Add-on packs
+
+A pack that depends on `godbound-core` can add content of its types: creation offers every Word,
+gift, armor, shield and weapon of the ruleset, in the guided picks and in the random draws (a
+gift names its Word in `word`).
+
+- **Open enum:** armor `weight`. An add-on lists new values in `extendEnums` and names them in
+  its text.
+- **Naming what an add-on adds:** it names each added value, option or key in its own text,
+  under the key this pack would use, and `createText` finds it there when the app passes the
+  ruleset's `enumOrigins`, `optionOrigins` and `familyOrigins`. For example,
+  `mythic` added to `godbound-core:types.armor.fields.weight` is
+  `types.armor.fields.weight.values.mythic.name: Mythic` (through `enumOrigins`).
+- **Tagged steps** take an add-on's rules-level `changes` effects: `creation.finish` (the last
+  step of creation), `level.gain` (each new level), `rest.scene` (the end of a scene) and
+  `rest.day` (a new day).
+
+Still closed, as the rules' own: a weapon's or gift's `attribute`, the saves, a gift's
+`activation`, `commit` and `degree`, an invocation's `tier` and a tradition's `casting`.
 
 ## Rule readings
 

@@ -82,7 +82,9 @@ display:
         label: { priority: 0, input: { widget: text } }
         allied: { priority: 1, showWhen: self.allied }
         faction: { priority: 1 }
+        trainedGang: { priority: 1, showWhen: item.trainsGang }
       fields:
+        trainsGang: { hidden: true }
         payoffCoin: { hidden: true }
         payoffTargets: { hidden: true }
         payoffOperations: { hidden: true }
@@ -95,6 +97,8 @@ display:
         label: { priority: 0, input: { widget: text } }
         harm: { priority: 0, input: { widget: track } }
         traits: { priority: 2 }
+        gangType: { priority: 1, showWhen: "item.kind == 'gang'" }
+        extraGangType: { priority: 1, showWhen: "item.kind == 'gang'" }
       fields:
         cost: { hidden: true }
       quantity: { hidden: true }

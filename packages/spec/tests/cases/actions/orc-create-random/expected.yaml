@@ -109,7 +109,7 @@ proposedChanges:
         entry: class
         choice:
           - skills
-      option: skill.medicine
+      option: skill.lore.academia
   - to: self
     step: classPicks
     change:
@@ -127,7 +127,7 @@ proposedChanges:
         entry: class
         choice:
           - skills
-      option: skill.religion
+      option: skill.lore.scribing
   - to: self
     step: classPicks
     change:
@@ -136,16 +136,7 @@ proposedChanges:
         entry: class
         choice:
           - skills
-      option: skill.performance
-  - to: self
-    step: classPicks
-    change:
-      type: choose
-      path:
-        entry: class
-        choice:
-          - skills
-      option: skill.lore.circus
+      option: skill.lore.legal
   - to: self
     step: classPicks
     change:
@@ -155,6 +146,15 @@ proposedChanges:
         choice:
           - skills
       option: skill.nature
+  - to: self
+    step: classPicks
+    change:
+      type: choose
+      path:
+        entry: class
+        choice:
+          - skills
+      option: skill.lore.circus
   - to: self
     step: classPicks
     change:
@@ -233,7 +233,7 @@ proposedChanges:
           - ancestry-feat-1
           - orc-2e:feats.ancestry.ancestral-longevity
           - skill
-      option: skill.occultism
+      option: skill.medicine
   - to: self
     step: picks
     change:
@@ -254,48 +254,48 @@ proposedChanges:
       type: finishCreation
 log:
   - { step: ancestry, kind: dice, faces: [8] }
-  - { step: ancestry, kind: choice, option: 'orc-2e:ancestries.human' }
+  - { step: ancestry, kind: choice, option: orc-2e:ancestries.human }
   - { step: heritage, kind: dice, faces: [1] }
-  - { step: heritage, kind: choice, option: 'orc-2e:heritages.aiuvarin' }
+  - { step: heritage, kind: choice, option: orc-2e:heritages.aiuvarin }
   - { step: background, kind: dice, faces: [10] }
-  - { step: background, kind: choice, option: 'orc-2e:backgrounds.barkeep' }
+  - { step: background, kind: choice, option: orc-2e:backgrounds.barkeep }
   - { step: class, kind: dice, faces: [12] }
-  - { step: class, kind: choice, option: 'orc-2e:classes.rogue' }
+  - { step: class, kind: choice, option: orc-2e:classes.rogue }
   - { step: keyDie, kind: dice, faces: [1] }
-  - { step: ancestryPicks, kind: choice, option: 'orc-2e:boosts.str' }
-  - { step: ancestryPicks, kind: choice, option: 'orc-2e:boosts.con' }
-  - { step: backgroundPicks, kind: choice, option: 'orc-2e:boosts.con' }
-  - { step: backgroundPicks, kind: choice, option: 'orc-2e:boosts.str' }
+  - { step: ancestryPicks, kind: choice, option: orc-2e:boosts.str }
+  - { step: ancestryPicks, kind: choice, option: orc-2e:boosts.con }
+  - { step: backgroundPicks, kind: choice, option: orc-2e:boosts.con }
+  - { step: backgroundPicks, kind: choice, option: orc-2e:boosts.str }
   - { step: classPicks, kind: dice, faces: [4] }
-  - { step: classPicks, kind: choice, option: 'orc-2e:classes.rogue.rackets.thief' }
-  - { step: classPicks, kind: choice, option: 'dex' }
+  - { step: classPicks, kind: choice, option: orc-2e:classes.rogue.rackets.thief }
+  - { step: classPicks, kind: choice, option: dex }
   - { step: classPicks, kind: dice, faces: [2] }
-  - { step: classPicks, kind: choice, option: 'skill.arcana' }
+  - { step: classPicks, kind: choice, option: skill.arcana }
   - { step: classPicks, kind: dice, faces: [6] }
-  - { step: classPicks, kind: choice, option: 'skill.medicine' }
+  - { step: classPicks, kind: choice, option: skill.lore.academia }
   - { step: classPicks, kind: dice, faces: [3] }
-  - { step: classPicks, kind: choice, option: 'skill.crafting' }
+  - { step: classPicks, kind: choice, option: skill.crafting }
   - { step: classPicks, kind: dice, faces: [8] }
-  - { step: classPicks, kind: choice, option: 'skill.religion' }
+  - { step: classPicks, kind: choice, option: skill.lore.scribing }
   - { step: classPicks, kind: dice, faces: [7] }
-  - { step: classPicks, kind: choice, option: 'skill.performance' }
+  - { step: classPicks, kind: choice, option: skill.lore.legal }
   - { step: classPicks, kind: dice, faces: [10] }
-  - { step: classPicks, kind: choice, option: 'skill.lore.circus' }
+  - { step: classPicks, kind: choice, option: skill.nature }
   - { step: classPicks, kind: dice, faces: [5] }
-  - { step: classPicks, kind: choice, option: 'skill.nature' }
+  - { step: classPicks, kind: choice, option: skill.lore.circus }
   - { step: classPicks, kind: dice, faces: [4] }
-  - { step: classPicks, kind: choice, option: 'orc-2e:feats.rogue.twin-feint' }
+  - { step: classPicks, kind: choice, option: orc-2e:feats.rogue.twin-feint }
   - { step: classPicks, kind: dice, faces: [4] }
-  - { step: classPicks, kind: choice, option: 'orc-2e:feats.skill.assurance' }
+  - { step: classPicks, kind: choice, option: orc-2e:feats.skill.assurance }
   - { step: classPicks, kind: dice, faces: [12] }
-  - { step: classPicks, kind: choice, option: 'skill.religion' }
-  - { step: picks, kind: choice, option: 'orc-2e:boosts.dex' }
-  - { step: picks, kind: choice, option: 'orc-2e:boosts.str' }
-  - { step: picks, kind: choice, option: 'orc-2e:boosts.con' }
-  - { step: picks, kind: choice, option: 'orc-2e:boosts.wis' }
+  - { step: classPicks, kind: choice, option: skill.religion }
+  - { step: picks, kind: choice, option: orc-2e:boosts.dex }
+  - { step: picks, kind: choice, option: orc-2e:boosts.str }
+  - { step: picks, kind: choice, option: orc-2e:boosts.con }
+  - { step: picks, kind: choice, option: orc-2e:boosts.wis }
   - { step: picks, kind: dice, faces: [1] }
-  - { step: picks, kind: choice, option: 'orc-2e:feats.ancestry.ancestral-longevity' }
+  - { step: picks, kind: choice, option: orc-2e:feats.ancestry.ancestral-longevity }
   - { step: picks, kind: dice, faces: [5] }
-  - { step: picks, kind: choice, option: 'skill.occultism' }
+  - { step: picks, kind: choice, option: skill.medicine }
   - { step: picks, kind: dice, faces: [5] }
-  - { step: picks, kind: choice, option: 'orc-2e:languages.elven' }
+  - { step: picks, kind: choice, option: orc-2e:languages.elven }

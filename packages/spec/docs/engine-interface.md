@@ -28,8 +28,9 @@ The spec leaves these to the app. Packs give the app what it needs for each: an 
   ephemeral one.
 - **Sheet layout and catalogs:** laying out the sheet from the display hints (computeSheet
   gives each group's members, sorted, and says which groups, fields and state keys are shown;
-  priority and visibility are the app's), and listing content that isn't a choice. Engines may
-  offer helpers outside the spec.
+  priority and visibility are the app's), and listing content that isn't a choice, leaving out
+  hidden and grant-only items (`hidden`, `grantOnly` in the ruleset's `content`;
+  [content.md](content.md#grant-only-content)). Engines may offer helpers outside the spec.
 
 ## The calls
 
@@ -38,6 +39,7 @@ The spec leaves these to the app. Packs give the app what it needs for each: an 
 | `loadRuleset`    | pack releases in load order                                                                                                    | `{ ok: true, ruleset }` or `{ ok: false, errors }`                                                                                                                         | [load-ruleset](../schemas/engine/load-ruleset.schema.json)       |
 | `computeSheet`   | ruleset, character, optional competing-option picks (a list of option IDs), optional `links`                                   | values with breakdowns, active effects, available actions, offered situational choices, pending choices, offers, competing options, rules issues, computed values per copy | [compute-sheet](../schemas/engine/compute-sheet.schema.json)     |
 | `listOptions`    | ruleset, character, a choice path, optional `links`                                                                            | options, each with `eligible`, `picked`, `recommended` and `reasons`                                                                                                       | [list-options](../schemas/engine/list-options.schema.json)       |
+| `describeAction` | ruleset, character, action (`id`, `entry?`, `source?`), optional `links`                                                       | the action's defining ID, tags, results, parameters (each with `required`, bounds, enum values and the IDs a reference parameter takes) and roles                          | [describe-action](../schemas/engine/describe-action.schema.json) |
 | `applyChanges`   | ruleset, character, changes, `strict?`, optional `links`, optional dice function                                               | `{ ok: true, character, changes, issues }` or `{ ok: false, errors }`                                                                                                      | [apply-changes](../schemas/engine/apply-changes.schema.json)     |
 | `startAction`    | ruleset, character, action (`id`, `entry?`), params, situational, policy, `links?`, `participants?`, `answers?`, dice function | finished, paused, or failure                                                                                                                                               | [start-action](../schemas/engine/start-action.schema.json)       |
 | `continueAction` | ruleset, paused result, answer (`faces`, `option` or a handoff's `outcome`), policy                                            | finished, paused again, or failure                                                                                                                                         | [continue-action](../schemas/engine/continue-action.schema.json) |
@@ -54,7 +56,9 @@ Besides these calls, `checkRelease` ([upgrades.md](upgrades.md#the-build-check),
   show it ([display-hints.md](display-hints.md#shown)). A field that cannot be computed (a loop) has `error`
   instead of `value`, and **everything else still calculates**.
 - `effects` lists active effects; effects excluded by stacking have `suppressed: true`.
-- `actions` lists the actions available now, with the entry each belongs to.
+- `actions` lists the actions available now, with the entry each belongs to: an action inline on
+  an item or its content type as `<item id>#<action id>`, one a `use` offers under the used rules
+  action. [describeAction](#describeaction) gives any of them with its parameters.
 - `groups` lists the display groups, each with whether it is shown and its members: a fields
   group's fields, an actions group's `actions` indices, a content group's `items` (activations
   or applied entries, in section and sort order). Each entry of `activations` names its state
@@ -76,14 +80,16 @@ Besides these calls, `checkRelease` ([upgrades.md](upgrades.md#the-build-check),
 - `copies` maps each copy's instance ID to its computed values (`{ <name>: value }`), for copies that have any.
 - `copyNames` maps each copy's instance ID to its name from its state (`nameFrom`), for copies that have one; apps show it in place of the item's name.
 - `templated` lists every item the character has with templates, as merged: each copy with a
-  saved or kept template (`entry`), then each picked or granted item that content keeps
-  templates on, as `{ entry?, item, templates, tags, fields }`, so an app shows the item as the
-  rules read it ([engine-core.md](engine-core.md#merged-items)).
+  saved or kept template (`entry`), then each activation of picked or granted content that
+  content keeps templates on (`activation`, its index in `activations`), as
+  `{ entry?, activation?, item, templates, tags, fields }`, so an app shows the item as the rules
+  read it ([engine-core.md](engine-core.md#merged-items)).
 - `standardCopies` lists the character's standard copies, as
   `{ entry, item, saved }`: the rules' first, then those of active items, so an app can show the
   unsaved ones without running the queries. Each is also a copy in `inventory` or `features`.
 - `activations` lists every content activation in instance order, each with
-  its owner `entry`, how it was reached (`via`), `scope`, `parent` and, for a pick, its choice
+  its owner `entry`, how it was reached (`via`), whether a copy is a standard one
+  (`standard`), `scope`, `parent` and, for a pick, its choice
   `path` ([engine-core.md](engine-core.md#the-activation-list)). A content group's `from: own`
   members are its holder activations of the group's type.
 - `copyLimits` lists each content type with `copies`, in ruleset order, as `{ type, max, perItem,
@@ -101,11 +107,13 @@ Besides these calls, `checkRelease` ([upgrades.md](upgrades.md#the-build-check),
   starting the action with `dice: 'pause'` and reading `needs.summary`
   ([engine-actions.md](engine-actions.md#the-roll-summary)).
 - A roll made more than once (advantage or disadvantage `of: roll`) pauses with `needs.repeat`
-  (`{ times, keep }`) and `dice` for every roll in turn; its log entry lists every roll as
+  (`{ times, keep }`, with `items` when only those items are rolled again) and `dice` for every
+  roll in turn; its log entry lists every roll as
   `rolls`, the kept one marked, whose items are the entry's `items`
   ([engine-actions.md](engine-actions.md#rolling)).
 - Each of a finished result's `proposedChanges` is `{ to, character?, step, change }`: `step` is
-  the path of the `changes` step that proposed it. `to` is `self`, `target`, a role of the action
+  the path of the `changes` step that proposed it (or of a roll step, for a roll effect's
+  `then`). `to` is `self`, `target`, a role of the action
   or `{ link }` (a qualified slot ID). A change for a link carries the linked character's ID as
   `character`, and one for a role its participant's view `id`. The app applies each change to
   that character.
@@ -144,6 +152,37 @@ takes none: it changes saved state only. See [engine-core.md](engine-core.md#lin
 ### listOptions
 
 `listOptions` shows ineligible options **with their reasons** rather than leaving them out; the app decides whether to hide them, grey them out or allow them. **PROVISIONAL**, to be revisited once seen in practice. Each reason is exactly the rules issue `applyChanges` would report if the option were picked anyway.
+
+### describeAction
+
+`describeAction` says what starting an action takes, so an app builds its form without reading
+the definition, wherever it lives: a rules action, one inline on an item or on its content type
+(`<item>#<action>`), or one an item's `use` offers. The action is named as computeSheet lists it,
+`listed: false` ones included; any other is `unknown-action`, as for startAction.
+
+- `definedBy` is the defining action as a pause's `needs.action` names it: the used rules action,
+  or `<item>#<action>`. Its text keys are built from it ([i18n.md](i18n.md#key-conventions)).
+- `params` lists the parameters in declaration order, each `{ name, type, of?, required,
+  default?, fixed?, value?, min?, max?, values?, options?, unique?, label? }`. `required` is
+  true when the parameter is neither `optional`, defaulted nor fixed. A parameter a `use` fixes
+  has `fixed: true` and its `value` as startAction evaluates it; the app's is ignored. `min` and
+  `max` are evaluated as startAction evaluates them, with every situational choice at its
+  default; one that fails is left out.
+- `values` is an enum's values, those dependent packs add included. `options` lists every ID an
+  `id`, `set` or `list` parameter of a content type, `field` or `tag` takes, its `where`
+  applied: content in ruleset order (hidden items left out), fields in ruleset order, tags
+  sorted. `of: string` has none.
+- `participants` lists the roles as `{ role, min, max?, pack? }`; `min` defaults to 0.
+
+### Item field options
+
+An `id`, `set` or `list` item field or state key with `where` reads only `item`, so its valid
+values don't depend on the character: loadRuleset lists them on the declaration in the ruleset
+as `options` (`ruleset.contentTypes[<type>].fields.<field>.options`, `.state.<key>.options`;
+`rules.templateFields` and items' own `state` the same), content in content order without hidden
+items, fields in ruleset order ([content.md](content.md#content-types)). An app builds a
+custom-item form or a copy's picker from it, and `setField`, `addItem` and `setState` refuse a
+value outside it (`invalid-option`).
 
 ## Three kinds of problem
 

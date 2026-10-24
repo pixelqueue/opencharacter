@@ -21,8 +21,7 @@ fields:
   effort.active: { type: integer, formula: 0 }
   effort.available:
     type: integer
-    formula: effort.max + effort.torched - effort.scene - effort.day - effort.active
-    limits: { min: 0 }
+    formula: max(0, effort.max + effort.torched - effort.scene - effort.day - effort.active)
 
 effects:
   - target: { rolls: [attack, damage] }
@@ -32,12 +31,49 @@ effects:
       has(participants.target) && size(participants.target) > 0
         && participants.target[0].psionics.cursedLuck
 
+  # When the scene ends, torched Effort goes, and with it the techniques it sustained.
+  - target: { steps: [rest.scene, rest.night] }
+    op: changes
+    value:
+      changes:
+        - type: adjustState
+          when: "countCopies(copy.type == 'technique' && copy.state.torched > 0) > 0"
+          copies: { type: technique, where: self.torched > 0 }
+          key: committed
+          by: -self.torched
+        - type: setState
+          when: "countCopies(copy.type == 'technique' && copy.state.torched > 0) > 0"
+          copies: { type: technique, where: self.torched > 0 }
+          key: torched
+          value: 0
+        - type: adjustState
+          when: "countPicks(pick.type == 'technique' && pick.state.torched > 0) > 0"
+          picks: { where: self.torched > 0 }
+          key: committed
+          by: -self.torched
+        - type: setState
+          when: "countPicks(pick.type == 'technique' && pick.state.torched > 0) > 0"
+          picks: { where: self.torched > 0 }
+          key: torched
+          value: 0
+        - type: adjustState
+          when: "countGrants(grant.type == 'technique' && grant.state.torched > 0) > 0"
+          grants: { where: self.torched > 0 }
+          key: committed
+          by: -self.torched
+        - type: setState
+          when: "countGrants(grant.type == 'technique' && grant.state.torched > 0) > 0"
+          grants: { where: self.torched > 0 }
+          key: torched
+          value: 0
+
 contentTypes:
   technique:
     copies: { perItem: 1 }
     fields:
       discipline:
         type: enum
+        open: true
         required: true
         values: [biopsionics, metapsionics, precognition, telekinesis, telepathy, teleportation]
       level: { type: integer, required: true, min: 0, max: 4 }
@@ -46,6 +82,8 @@ contentTypes:
     state:
       # Effort Committed to keep the technique going, until it is released.
       committed: { type: integer, default: 0, min: 0 }
+      # The part of it torched Effort pays for, which ends with the scene.
+      torched: { type: integer, default: 0, min: 0 }
     effects:
       - { target: effort.active, op: add, value: self.committed }
     actions:
@@ -57,9 +95,12 @@ constraints:
   - id: psychic-skills
     check: >-
       psionics.access == 'unrestricted'
-        || sumFields(f.value >= 0 && (psionics.access == 'none'
-          || f.id != 'swn-revised:skills.' + psionics.discipline + '.level') ? 1 : 0,
+        || sumFields(f.value >= 0 && (psionics.access == 'none' || psionics.discipline == 'none'
+          || f.id != fieldId('skills.{psychic}.level', psionics.discipline)) ? 1 : 0,
           'skill.psychic' in f.tags) == 0
+  # Torching can lower the maximum under what is Committed; the commitments stay until released.
+  - id: effort-overcommitted
+    check: effort.max + effort.torched - effort.scene - effort.day - effort.active >= 0
 
 actions:
   # Commit a point of Effort for as long as the technique lasts: it stays Committed on the
@@ -81,12 +122,28 @@ actions:
                 countCopies(copy.id == self.id && copy.type == 'technique') > 0 ? 'copy'
                   : countCopies(copy.id == self.id && copy.type == 'focus') > 0 ? 'pick'
                   : 'grant'
+              torched: effort.max - effort.scene - effort.day - effort.active <= 0
       - id: commit
         kind: changes
         changes:
           - { type: adjustState, when: "flags.held == 'copy'", entry: self, key: committed, by: 1 }
           - { type: adjustState, when: "flags.held == 'pick'", pick: self, key: committed, by: 1 }
           - { type: adjustState, when: "flags.held == 'grant'", grant: self, key: committed, by: 1 }
+          - type: adjustState
+            when: "flags.torched && flags.held == 'copy'"
+            entry: self
+            key: torched
+            by: 1
+          - type: adjustState
+            when: "flags.torched && flags.held == 'pick'"
+            pick: self
+            key: torched
+            by: 1
+          - type: adjustState
+            when: "flags.torched && flags.held == 'grant'"
+            grant: self
+            key: torched
+            by: 1
       - { id: result, kind: outcome, result: "'committed'" }
 
   # Reclaim the Effort a technique holds, ending it.
@@ -102,4 +159,7 @@ actions:
           - { type: setState, when: "flags.held == 'copy'", entry: self, key: committed, value: 0 }
           - { type: setState, when: "flags.held == 'pick'", pick: self, key: committed, value: 0 }
           - { type: setState, when: "flags.held == 'grant'", grant: self, key: committed, value: 0 }
+          - { type: setState, when: "flags.held == 'copy'", entry: self, key: torched, value: 0 }
+          - { type: setState, when: "flags.held == 'pick'", pick: self, key: torched, value: 0 }
+          - { type: setState, when: "flags.held == 'grant'", grant: self, key: torched, value: 0 }
       - { id: result, kind: outcome, result: "'released'" }

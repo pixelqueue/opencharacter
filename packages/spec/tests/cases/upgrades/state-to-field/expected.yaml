@@ -1,0 +1,14 @@
+# b's limit is the field's default, so nothing is saved, and its state left empty goes
+ok: true
+character:
+  features:
+    - { id: a, item: test-pack:stunts.custom, state: { uses: 1 }, fields: { limit: scene } }
+    - { id: b, item: test-pack:stunts.custom }
+pending: []
+report:
+  values: []
+  steps:
+    - pack: test-pack
+      from: 1.0.0
+      to: 2.0.0
+      op: stateToField

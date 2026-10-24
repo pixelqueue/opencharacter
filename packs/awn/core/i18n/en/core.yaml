@@ -12,13 +12,7 @@ actions.bonus-skill.results.gained.name: Gained
 actions.buy-mutation.name: Spend mutation points
 actions.buy-mutation.options.category.name: Roll two in one category (3 points)
 actions.buy-mutation.options.chosen.name: Pick one mutation (3 points)
-actions.buy-mutation.options.cognition.name: Cognition
-actions.buy-mutation.options.exotic.name: Exotic
-actions.buy-mutation.options.hybrid.name: Hybrid
-actions.buy-mutation.options.pseudo-psychic.name: Pseudo-psychic
 actions.buy-mutation.options.random.name: Roll one mutation (1 point)
-actions.buy-mutation.options.sense.name: Sense
-actions.buy-mutation.options.structure.name: Structure
 actions.buy-mutation.params.random.name: Random
 actions.buy-mutation.results.bought.name: Bought
 actions.buy-mutation.steps.category.prompt: Category
@@ -61,6 +55,7 @@ actions.create-character.steps.roll3.name: Table roll
 actions.create-character.steps.skillMethod.prompt: Background skills
 actions.create-character.steps.split.prompt: Divide three rolls
 actions.create-character.steps.stowArmor.prompt: Stow armor (over the Readied limit)
+actions.create-character.steps.readyGear.prompt: Ready gear (over the Stowed limit)
 actions.create-character.steps.stowGear.prompt: Stow gear (over the Readied limit)
 actions.create-character.steps.stowWeapon.prompt: Stow a weapon (over the Readied limit)
 actions.create-character.steps.str.name: Strength
@@ -101,6 +96,7 @@ actions.gain-benefit.params.entry.values.mental2.name: +2 mental attributes
 actions.gain-benefit.params.prefer.name: Preferred skills
 actions.gain-benefit.params.random.name: Random
 actions.gain-benefit.results.gained.name: Gained
+actions.gain-benefit.results.none.name: Every skill at its cap
 actions.gain-benefit.steps.stat.prompt: Attribute bonus
 actions.gain-edge.name: Gain an edge
 actions.gain-edge.params.random.name: Random
@@ -138,6 +134,7 @@ actions.gain-skill.params.prefer.name: Preferred skills
 actions.gain-skill.params.random.name: Random
 actions.gain-skill.params.skills.name: Skills
 actions.gain-skill.results.gained.name: Gained
+actions.gain-skill.results.none.name: Every skill at its cap
 actions.gain-skill.steps.skill.prompt: Skill
 actions.improve-attribute.name: Improve an attribute
 actions.improve-attribute.params.attribute.name: Attribute
@@ -249,6 +246,7 @@ actions.skill-points-toward.params.points.name: Points
 actions.skill-points-toward.params.random.name: Random
 actions.skill-points-toward.params.skills.name: Skills
 actions.skill-points-toward.results.spent.name: Spent
+actions.skill-points-toward.results.none.name: Every skill at level-4
 actions.skill-points-toward.steps.skill.prompt: Skill
 actions.starting-equipment.name: Starting equipment
 actions.starting-equipment.options.1.name: Entry 1
@@ -271,39 +269,12 @@ actions.starting-equipment.options.6.name: Entry 6
 actions.starting-equipment.options.7.name: Entry 7
 actions.starting-equipment.options.8.name: Entry 8
 actions.starting-equipment.options.9.name: Entry 9
-actions.starting-equipment.options.backpack.name: Backpack
-actions.starting-equipment.options.binoculars.name: Binoculars
-actions.starting-equipment.options.camping-kit.name: Camping kit
-actions.starting-equipment.options.cash.name: '$1,000 in small bills'
-actions.starting-equipment.options.cold-weather-clothes.name: Cold weather clothing
-actions.starting-equipment.options.criminal-firearm.name: A criminal's non-military firearm
-actions.starting-equipment.options.first-aid-kit.name: First aid kit
-actions.starting-equipment.options.flashlight.name: Flashlight
-actions.starting-equipment.options.heavy-pistol.name: Heavy pistol
 actions.starting-equipment.options.innocents.name: Hapless innocents
-actions.starting-equipment.options.knife.name: Knife
-actions.starting-equipment.options.laptop.name: Laptop
-actions.starting-equipment.options.light-pistol.name: Light pistol
-actions.starting-equipment.options.lighters.name: 20 disposable lighters
-actions.starting-equipment.options.lockpick-kit.name: Lockpick kit
 actions.starting-equipment.options.near-future.name: 'Wasteland warrior: near-future survivor'
 actions.starting-equipment.options.pick.name: Pick one item
 actions.starting-equipment.options.prepared.name: You saw it coming
-actions.starting-equipment.options.preserved-food.name: 7 days' preserved food
-actions.starting-equipment.options.profession-item.name: An item from your background
-actions.starting-equipment.options.purification-tablets.name: 100 water purification tablets
-actions.starting-equipment.options.radio.name: Portable ham radio
-actions.starting-equipment.options.rifle.name: Rifle
 actions.starting-equipment.options.roll.name: Roll three times
-actions.starting-equipment.options.shotgun.name: Shotgun
-actions.starting-equipment.options.sleeping-bag.name: Sleeping bag
-actions.starting-equipment.options.smartphone.name: Smartphone
-actions.starting-equipment.options.solar-charger.name: Solar charger
-actions.starting-equipment.options.tent.name: Tent
-actions.starting-equipment.options.toolkit.name: Toolkit
-actions.starting-equipment.options.walkie-talkies.name: A pair of walkie-talkies
 actions.starting-equipment.options.wasteland.name: 'Wasteland warrior: wasteland wanderer'
-actions.starting-equipment.options.water-purifier.name: Water purifier
 actions.starting-equipment.params.random.name: Random
 actions.starting-equipment.results.equipped.name: Equipped
 actions.starting-equipment.steps.entry.prompt: Table entry
@@ -514,6 +485,7 @@ situational.versus.values.other.name: Anything else
 situational.versus.values.poison.name: Poison
 situational.versus.values.radiation.name: Radiation
 tags.advancement.name: Advancement
+tags.advancement.level.name: New level
 tags.animal.name: Animal
 tags.attack.melee.name: Melee attack
 tags.attack.name: Attack
@@ -540,6 +512,9 @@ tags.bundleable.name: Bundles three to one
 tags.burst.name: Burst fire
 tags.check.name: Skill check
 tags.creation.name: Creation
+tags.creation.finish.name: Creation finish
+tags.creation.kit.name: Starting equipment pick
+tags.creation.mutation.name: Mutation point spending
 tags.damage.name: Damage
 tags.drug.name: Drug
 tags.energy.name: Energy weapon
@@ -588,6 +563,12 @@ tags.suppress.name: Suppressive fire
 tags.thrown.name: Thrown
 tags.two-handed.name: Two-handed
 tags.vision.name: Improves sight
+tags.repeatable.name: Taken more than once
+tags.first-edge.name: Only as the first edge
+tags.needs-mutant.name: Mutants only
+tags.makes-mutant.name: Makes a mutant
+tags.not-mutant.name: Not for mutants
+tags.not-underdog.name: Not under the underdog rule
 types.armor.fields.ac.name: AC
 types.armor.fields.cost.name: Cost
 types.armor.fields.enc.name: Encumbrance
@@ -620,6 +601,7 @@ types.focus.fields.bonusSkill2.name: Second bonus skill options
 types.focus.fields.maxLevel.name: Levels
 types.focus.fields.specialty.name: Bonus skill is the specialised skill
 types.focus.fields.multiple.name: May be taken more than once
+types.focus.state.level.name: Level
 types.focus.name: Focus
 types.gear.fields.cost.name: Cost
 types.gear.fields.enc.name: Encumbrance
@@ -627,10 +609,12 @@ types.gear.fields.healSkill.name: Heal skill to apply
 types.gear.fields.techLevel.name: Tech level
 types.gear.fields.wornFree.name: No encumbrance while worn
 types.gear.name: Gear
+types.mutationCategory.name: Mutation category
 types.mutation.fields.bonusSkill.name: Bonus skill options
 types.mutation.fields.category.name: Category
 types.mutation.fields.roll.name: d10 roll
 types.mutation.name: Positive mutation
+types.mutation.state.origin.name: How it was gained
 types.mutation.state.origin.values.category.name: Rolled in a category
 types.mutation.state.origin.values.chosen.name: Chosen
 types.mutation.state.origin.values.free.name: Free
@@ -638,6 +622,7 @@ types.mutation.state.origin.values.random.name: Rolled
 types.mutation.state.origin.values.unstable.name: Unstable Mutant
 types.negative.fields.roll.name: d100 roll
 types.negative.name: Negative mutation
+types.negative.state.light.name: Lightly touched
 types.weapon.fields.attributes.name: Attributes
 types.weapon.fields.cost.name: Cost
 types.weapon.fields.damage.name: Damage
@@ -653,3 +638,12 @@ types.weapon.fields.techLevel.name: Tech level
 types.weapon.fields.traumaDie.name: Trauma die
 types.weapon.fields.traumaRating.name: Trauma rating
 types.weapon.name: Weapon
+types.weapon.state.shots.name: Shots loaded
+types.weapon.computed.skillLevel.name: Skill level
+types.weapon.computed.attributeMod.name: Attribute modifier
+types.weapon.computed.armed.name: Armed melee
+types.weapon.computed.close.name: Close combat
+types.weapon.computed.hit.name: Hit bonus
+types.weapon.computed.damage.name: Damage bonus
+types.weapon.computed.shockDamage.name: Shock damage
+types.weapon.computed.shockAnyAc.name: Shock against any AC
