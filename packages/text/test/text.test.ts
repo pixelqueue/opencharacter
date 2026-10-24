@@ -644,6 +644,18 @@ describe('codes never reach players bare', () => {
 describe('Mörk Borg tests', () => {
   const { ruleset, text } = load('mork-borg/core');
 
+  it('shows an applied boon in its own group', () => {
+    const agnes = parse(
+      readFileSync(join(root, 'examples', 'characters', 'mork-borg-agnes.yaml'), 'utf8'),
+    ) as CharacterDoc;
+    const sheet = computeSheet(ruleset, {
+      ...agnes,
+      applied: [{ id: 'clarity', source: 'mork-borg-core:boons.clarity' }],
+    });
+    expect(sheet.groups.find((g) => g.id === 'boons')?.items).toMatchObject([{ entry: 'clarity' }]);
+    expect(text.message('mork-borg-core', 'groups.boons.label')).toBe('Boons');
+  });
+
   it('marks the band a test needs, not the crit listed first', () => {
     const agnes = parse(
       readFileSync(join(root, 'examples', 'characters', 'mork-borg-agnes.yaml'), 'utf8'),
