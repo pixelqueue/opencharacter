@@ -40,6 +40,7 @@ contentTypes:
       attuned: { type: boolean, default: false }
       stowed: { type: boolean, default: false } # in an extradimensional container (equipment.yaml)
       quivered: { type: boolean, default: false } # in an Efficient Quiver (equipment.yaml)
+      usedToday: { type: set, of: string, default: [] }
     actions:
       - use: weapon-attack
     effects:
@@ -86,6 +87,7 @@ contentTypes:
     state:
       attuned: { type: boolean, default: false }
       stowed: { type: boolean, default: false } # in an extradimensional container (equipment.yaml)
+      usedToday: { type: set, of: string, default: [] }
     # Every armor item has these effects; the shield switches off the first three (`suppress`).
     effects:
       # An attuned item for other classes than the character's (attunementClasses).
