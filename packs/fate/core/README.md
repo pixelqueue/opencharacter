@@ -119,9 +119,16 @@ the player's choices and other characters.
   rerolls, each after seeing the last (a fate point or a free invocation each; one `rerolling`
   group step, its passes at `rerolling[<n>]/reroll`), then up to four +2s paid with fate points
   and four with free invocations. A free invocation held on the sheet is picked by its copy, and
-  a copy with none left goes. Keeping the roll is recommended, so an automatic
-  run spends nothing. A fourth reroll isn't offered: the SRD sets no limit, but each invocation
-  needs a different aspect.
+  a copy with none left goes. Keeping the roll is recommended, so an automatic run spends
+  nothing. A fourth reroll isn't offered: the SRD sets no limit, but each invocation needs a
+  different aspect.
+  - **What you need:** when the opposition is known before the dice (passive opposition, a
+    defense against an attack's total, an `oppose` roll), the action passes it as `against` and
+    `opposition`, and the dice (and each reroll) read on the band set `check` against it: Succeed
+    with style, Succeed (the marked threshold, "Beat 2"), Tie, Fail. Against an `opponent` or a
+    `target` who rolls after, the dice read on the ladder. Either way the result's `rung` is the
+    dice total's ladder rung (the dice-less `rung` step), and the action's `final` step reads
+    the total after invocations against the opposition.
 - **Free invocations:** an `advantages.advantage` copy per aspect the character holds free
   invocations on (`label`, `invokes`, `kind`: situation aspect, boost or consequence inflicted).
   Created advantages, boosts from ties and style, and consequences an attack inflicts add them.

@@ -391,9 +391,9 @@ first dice pause and drops the paused result; startAction is pure, so nothing ch
 participants and situational choices count as they would. The preview summarizes the first roll
 the run reaches (an earlier roll in a nested action comes first, named by `needs.action`); a
 choice step with no usable recommendation, an allocation or a handoff before it pauses first;
-and a target set after the dice (Fate's opposition, read by a dice-less step) appears only in
-that step's log entry. A pack that wants the target in the preview sets it in a flag before the
-roll.
+and a target set after the dice (Fate's opposition from an opponent's roll, read by a dice-less
+step) appears only in that step's log entry. A pack that wants the target in the preview sets
+it in a flag before the roll.
 
 ## Other steps
 

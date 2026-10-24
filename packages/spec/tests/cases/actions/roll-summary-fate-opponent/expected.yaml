@@ -1,0 +1,54 @@
+# The opponent's app rolls `oppose` against this total, so skill-roll's `against` is false: the
+# guarded outcome bands resolve to false and drop out, leaving the absolute rungs.
+status: paused
+needs:
+  step: 'opposed[0]'
+  kind: handoff
+  participant: { role: opponent, id: teran }
+  run: { action: fate-core:oppose, params: { opposition: 3 } }
+log:
+  - step: roll/roll
+    action: fate-core:skill-roll
+    kind: dice
+    total: 3
+    band: good
+    bandSet: fate-core:check
+    summary:
+      bandSet: fate-core:check
+      bands:
+        - band: legendary
+          when: 'roll.total >= 8'
+          tests: [{ of: roll.total, compare: ge, value: 8 }]
+        - band: epic
+          when: 'roll.total == 7'
+          tests: [{ of: roll.total, compare: eq, value: 7 }]
+        - band: fantastic
+          when: 'roll.total == 6'
+          tests: [{ of: roll.total, compare: eq, value: 6 }]
+        - band: superb
+          when: 'roll.total == 5'
+          tests: [{ of: roll.total, compare: eq, value: 5 }]
+        - band: great
+          when: 'roll.total == 4'
+          tests: [{ of: roll.total, compare: eq, value: 4 }]
+        - band: good
+          when: 'roll.total == 3'
+          tests: [{ of: roll.total, compare: eq, value: 3 }]
+        - band: fair
+          when: 'roll.total == 2'
+          tests: [{ of: roll.total, compare: eq, value: 2 }]
+        - band: average
+          when: 'roll.total == 1'
+          tests: [{ of: roll.total, compare: eq, value: 1 }]
+        - band: mediocre
+          when: 'roll.total == 0'
+          tests: [{ of: roll.total, compare: eq, value: 0 }]
+        - band: poor
+          when: 'roll.total == -1'
+          tests: [{ of: roll.total, compare: eq, value: -1 }]
+        - { band: terrible, when: 'true', tests: [] }
+      flags: { against: false, opposition: 0 }
+  - { step: 'roll/rerolling[0]/reroll', kind: choice, option: keep }
+  - { step: roll/invokes, kind: choice, option: '0' }
+  - { step: roll/freeInvokes, kind: choice, option: '0' }
+  - { step: roll/rung, kind: dice, total: 3, band: good, bandSet: fate-core:ladder }
