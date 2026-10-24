@@ -580,7 +580,7 @@ tags: [{ formula: "'damage.' + itemField(picksOf('lineage')[0], 'damageType')" }
 # A grant's when: Fire Soul for a fire lineage.
 when: "size(picksOf('lineage')) > 0 && itemField(picksOf('lineage')[0], 'damageType') == 'fire'"
 # A crew's upgrades, listed on its crew type.
-showWhen: "@upgrades.hardened in itemField(crewType.id, 'upgrades', [])"
+showWhen: "@upgrades.hardened in itemField(picksOf('rules', 'crew-type')[0], 'upgrades')"
 ```
 
 - **`itemField(id, name)`** is the item field `name` of the content with that ID, as the item

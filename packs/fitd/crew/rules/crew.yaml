@@ -93,8 +93,8 @@ actions:
         fields:
           type: field
           where: >-
-            'upgrade' in item.tags || (countPicks(pick.type == 'crewType') == 0 ? 'upgrade.special' in item.tags
-              : item.id in crewType.upgrades)
+            'upgrade' in item.tags || (size(picksOf('rules', 'crew-type')) == 0 ? 'upgrade.special' in item.tags
+              : item.id in itemField(picksOf('rules', 'crew-type')[0], 'upgrades'))
         budget: 2
       - id: clear
         kind: changes

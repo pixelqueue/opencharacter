@@ -79,7 +79,8 @@ constraints:
   - id: allied-claims
     check: >-
       countCopies(copy.type == 'claim' && copy.state.allied
-        && (copy.fields.turf || copy.item in crewType.claims)) == 0
+        && (copy.fields.turf
+          || size(picksOf('rules', 'crew-type')) > 0 && copy.item in itemField(picksOf('rules', 'crew-type')[0], 'claims'))) == 0
 
 actions:
   - id: claim-income
@@ -236,7 +237,9 @@ actions:
         options:
           content:
             type: claim
-            where: item.prison || !item.turf && !(item.id in crewType.claims)
+            where: >-
+              item.prison || !item.turf
+                && !(size(picksOf('rules', 'crew-type')) > 0 && item.id in itemField(picksOf('rules', 'crew-type')[0], 'claims'))
         prefer: 'item.prison ? 1 : 0'
         changes:
           - type: addItem
@@ -270,7 +273,7 @@ actions:
       - id: claim
         kind: choice
         options: { content: { type: claim, where: '!item.prison' } }
-        prefer: 'item.id in crewType.claims ? 1 : 0'
+        prefer: "size(picksOf('rules', 'crew-type')) > 0 && item.id in itemField(picksOf('rules', 'crew-type')[0], 'claims') ? 1 : 0"
       - id: from
         kind: choice
         when: countCopies(copy.type == 'faction') > 0
