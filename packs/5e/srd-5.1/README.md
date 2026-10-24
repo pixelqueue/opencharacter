@@ -14,6 +14,9 @@ out.
 pnpm add @opencharacter/engine @opencharacter/5e-srd-5.1
 ```
 
+This release needs spec 0.3: `@opencharacter/engine` 0.3.0 or later. An engine for an older
+spec refuses it (`spec-version-unsupported`).
+
 The package's default export is the built pack (a `PackRelease`), and `i18n/en` its English
 text:
 
@@ -297,6 +300,11 @@ processes:
 - **Choices** (`extendChoices`): a class's listed choices (skills, fighting styles, expertise)
   take values and items; choices over a type (subclasses, spells, feats) offer the add-on's
   content already.
+- **Naming what an add-on adds:** it names each added value, option or key in its own text,
+  under the key this pack would use, and `createText` finds it there when the app passes the
+  ruleset's `enumOrigins`, `optionOrigins` and `familyOrigins`. For example,
+  `sonic` added to `5e-srd-5.1:types.weapon.fields.damageType` is
+  `types.weapon.fields.damageType.values.sonic.name: Sonic` (through `enumOrigins`).
 - **Step tags** for rules-level `option` and `changes` effects: `creation.race`,
   `creation.subrace`, `creation.class`, `creation.background`, `creation.method` and
   `creation.finish` (guided and random creation), `level-up.class`, `level-up.hit-points` and

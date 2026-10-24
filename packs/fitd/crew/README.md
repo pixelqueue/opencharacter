@@ -17,6 +17,9 @@ short descriptions written for the pack.
 pnpm add @opencharacter/engine @opencharacter/fitd-crew @opencharacter/fitd-scoundrel
 ```
 
+This release needs spec 0.3: `@opencharacter/engine` 0.3.0 or later. An engine for an older
+spec refuses it (`spec-version-unsupported`).
+
 A crew is its own character file, loaded with this pack instead of the scoundrel pack
 ([an example crew](https://github.com/pixelqueue/opencharacter/blob/main/examples/characters/fitd-crew-ravens.yaml)).
 Each scoundrel links to it through the scoundrel pack's `crew` slot, and the app passes the
@@ -205,6 +208,13 @@ no crew types, so a crew-type pack's are the ones offered).
   named in its text under the core's keys. The creation's gang pick offers the family's types,
   and elite and claim scale read them by key. A claim like Training Rooms sets `trainsGang` to
   show its `trainedGang` pick.
+- **Naming what an add-on adds:** it names each added value, option or key in its own text,
+  under the key this pack would use, and `createText` finds it there when the app passes the
+  ruleset's `enumOrigins`, `optionOrigins` and `familyOrigins`. For example,
+  the gang type `sappers` is `actions.create-crew.options.sappers.name: Sappers`
+  in the creation's gang pick (through `familyOrigins`) and
+  `types.cohort.state.gangType.values.sappers.name: Sappers` as a cohort's gang type (through
+  `enumOrigins`).
 - **Tagged steps**, for an add-on's rules-level `option` effects: `creation.crew-type`,
   `creation.ability`, `creation.operation`, `creation.more` (two upgrades or a cohort) and
   `creation.gang` of `create-crew`, and `advance.crew` (`crew-advance`'s pick); for its

@@ -16,6 +16,9 @@ Edition, used with the author's permission; nothing comes from the deluxe editio
 pnpm add @opencharacter/godbound-core @opencharacter/engine
 ```
 
+This release needs spec 0.3: `@opencharacter/engine` 0.3.0 or later. An engine for an older
+spec refuses it (`spec-version-unsupported`).
+
 The package's default export is the pack's release, ready for `loadRuleset`; its English text is
 `@opencharacter/godbound-core/i18n/en` (also as JSON, `release.json` and `i18n/en.json`).
 
@@ -149,6 +152,11 @@ gift names its Word in `word`).
 
 - **Open enum:** armor `weight`. An add-on lists new values in `extendEnums` and names them in
   its text.
+- **Naming what an add-on adds:** it names each added value, option or key in its own text,
+  under the key this pack would use, and `createText` finds it there when the app passes the
+  ruleset's `enumOrigins`, `optionOrigins` and `familyOrigins`. For example,
+  `mythic` added to `godbound-core:types.armor.fields.weight` is
+  `types.armor.fields.weight.values.mythic.name: Mythic` (through `enumOrigins`).
 - **Tagged steps** take an add-on's rules-level `changes` effects: `creation.finish` (the last
   step of creation), `level.gain` (each new level), `rest.scene` (the end of a scene) and
   `rest.day` (a new day).

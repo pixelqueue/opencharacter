@@ -14,6 +14,9 @@ cast spells, use skill actions, and buy, sell, implant and upgrade equipment. Th
 pnpm add @opencharacter/engine @opencharacter/orc-sf-2e
 ```
 
+This release needs spec 0.3: `@opencharacter/engine` 0.3.0 or later. An engine for an older
+spec refuses it (`spec-version-unsupported`).
+
 The package's default export is the built pack (a `PackRelease`), and `i18n/en` its English
 text:
 
@@ -103,6 +106,14 @@ A pack that depends on `orc-sf-2e` can add to what it offers:
   epiphany counts for New Epiphany, Syncretic Epiphany and Realized Epiphany through rules
   effects on `mystic.otherExpertConnections`, `mystic.otherMasterEpiphanies` and
   `mystic.connectionRank`.
+- **Naming what an add-on adds:** it names each added value, option or key in its own text,
+  under the key this pack would use, and `createText` finds it there when the app passes the
+  ruleset's `enumOrigins`, `optionOrigins` and `familyOrigins`. For example,
+  `void` added to `orc-sf-2e:mystic.connection` is
+  `fields.mystic.connection.values.void.name: Void` (through `enumOrigins`), and a Specialized
+  Operative option `saboteur` is
+  `feats.archetype.operative.specialized-operative.choices.specialization.options.saboteur.name: Saboteur`
+  (through `optionOrigins`).
 - **Skills and Lores:** a choice of any skill reads `skills.offered` and one of any Lore
   `skills.lores`; an add-on's Lore declares its fields (`skills.lore.<name>.rank`, `.mod`, …,
   as `rules/skills.yaml` does) and grants its tag into both with a rules effect.

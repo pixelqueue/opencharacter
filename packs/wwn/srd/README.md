@@ -18,6 +18,9 @@ Publishing.
 pnpm add @opencharacter/wwn-srd @opencharacter/engine
 ```
 
+This release needs spec 0.3: `@opencharacter/engine` 0.3.0 or later. An engine for an older
+spec refuses it (`spec-version-unsupported`).
+
 The package's default export is the pack's release, ready for `loadRuleset`; its English text is
 `@opencharacter/wwn-srd/i18n/en`.
 
@@ -112,6 +115,11 @@ backgrounds, foci, arts, spells, weapons, armor and gear.
   `arts.<key>.allowed`, `.taken` and `.owed`, which the art picks and `arts.owed` read. Joining
   `armorTrad` (armor and shields stop its arts, as they stop spells) or `heavyArmorTrad` (medium
   or heavy armor or a large shield do, as for the Duelist) sets when `commit-effort` is offered.
+- **Naming what an add-on adds:** it names each added value, option or key in its own text,
+  under the key this pack would use, and `createText` finds it there when the app passes the
+  ruleset's `enumOrigins`, `optionOrigins` and `familyOrigins`. For example,
+  a tradition `stormcaller` added to `wwn-srd:types.spell.fields.list` is
+  `types.spell.fields.list.values.stormcaller.name: Stormcaller` (through `enumOrigins`).
 - **Effort:** the core's `commit-effort`, `release-effort` and rests change a tradition's
   `effort.<key>.*` fields by key, which resolve in this pack only, so an added tradition doesn't
   join `effortTrad` yet. It keeps its own Effort fields, its arts' own actions commit it, and a

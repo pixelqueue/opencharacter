@@ -13,6 +13,9 @@ is here. It is its own pack: it doesn't depend on or mix with `5e-srd-5.1` (the 
 pnpm add @opencharacter/engine @opencharacter/5e-srd-5.2
 ```
 
+This release needs spec 0.3: `@opencharacter/engine` 0.3.0 or later. An engine for an older
+spec refuses it (`spec-version-unsupported`).
+
 The package's default export is the built pack (a `PackRelease`), and `i18n/en` its English
 text:
 
@@ -314,6 +317,14 @@ processes:
   Hunter's Prey (`features.ranger.hunters-prey`, `option`), a class's skills and expertise.
   Choices over a type (subclasses, spells, feats, weapon mastery) offer the add-on's content
   already.
+- **Naming what an add-on adds:** it names each added value, option or key in its own text,
+  under the key this pack would use, and `createText` finds it there when the app passes the
+  ruleset's `enumOrigins`, `optionOrigins` and `familyOrigins`. For example,
+  `sonic` added to `5e-srd-5.2:types.weapon.fields.damageType` is
+  `types.weapon.fields.damageType.values.sonic.name: Sonic` (through `enumOrigins`), and a
+  Hunter's Prey option `giant-killer` is
+  `features.ranger.hunters-prey.choices.option.options.giant-killer.name: Giant Killer` (through
+  `optionOrigins`).
 - **Step tags** for rules-level `option` and `changes` effects: `creation.class`,
   `creation.background`, `creation.species`, `creation.method`, `creation.trinket` and
   `creation.finish`, `level-up.class`, `level-up.hit-points` and `level-up.gain`, `rest.long`,
