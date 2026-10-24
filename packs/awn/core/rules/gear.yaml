@@ -168,7 +168,11 @@ situational:
 
 resultBands:
   attack:
-    - { id: hit, when: 'roll.kept[0] == 20 || (roll.kept[0] != 1 && roll.total >= flags.ac)' }
+    - {
+        id: hit,
+        when: 'roll.kept[0] == 20 || (roll.kept[0] != 1 && roll.total >= flags.ac)',
+        success: true,
+      }
     - { id: miss, when: true }
 
 actions:

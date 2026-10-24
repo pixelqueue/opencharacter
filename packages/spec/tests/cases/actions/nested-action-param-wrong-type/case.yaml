@@ -1,0 +1,30 @@
+description: 'A nested action step passing a wrongly typed parameter is wrong-type, naming the nested action'
+specVersion: 0.1.0
+call: startAction
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        actions:
+          - id: heal
+            params:
+              amount: { type: integer }
+            steps:
+              - id: result
+                kind: outcome
+                result: "'done'"
+          - id: rest
+            steps:
+              - id: heal
+                kind: action
+                use: heal
+                params:
+                  amount: "'lots'"
+      content: []
+input:
+  action: { id: test-pack:rest }

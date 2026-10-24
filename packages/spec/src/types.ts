@@ -1576,6 +1576,8 @@ export type RollSummary = {
   bands?: {
     /** The band's ID. */
     band: string;
+    /** The band is its set's success threshold (`success: true`): what the roll needs. */
+    success?: true;
     /** The band's condition with every maximal subexpression that doesn't read `roll` evaluated and printed back as a literal, literal guards folded, as canonical formula text. A subexpression that fails to evaluate, or gives a map, is left as written. */
     when: string;
     /** When the resolved condition is `true`, `[]`; when it is a conjunction (`&&`) of comparisons each between a roll path (`roll.total`, `roll.value`, `roll.unbounded`, `roll.kept[<int>]`) and a number literal, those comparisons in order, the roll path on the left. Absent otherwise: the band has its text only. */
@@ -2829,11 +2831,13 @@ export type RulesDocument = {
   tags?: Tag[];
 };
 
-/** Result bands, checked in order. */
+/** Result bands, checked in order. At most one band is the set's `success` threshold. */
 export type BandList = {
   id: Slug;
   when: Condition;
   tags?: Tags;
+  /** This band is the roll's success threshold: what an app shows as what the roll needs ("what you need"). A set without one has no threshold to show (a ladder, a table). */
+  success?: true;
 }[];
 
 export type Settings = {

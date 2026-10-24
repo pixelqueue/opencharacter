@@ -48,6 +48,7 @@ resultBands:
     - id: critical-success
       when: 'roll.total < flags.target && roll.total < 90 && roll.total % 11 == 0'
     - id: success
+      success: true
       when: 'roll.total < flags.target && roll.total < 90'
     - id: critical-failure
       when: 'roll.total % 11 == 0'
@@ -55,6 +56,7 @@ resultBands:
       when: true
   panic:
     - id: pass
+      success: true
       when: 'roll.total > stress.current'
     - id: panic
       when: true

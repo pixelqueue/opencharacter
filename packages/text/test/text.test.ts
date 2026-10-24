@@ -59,9 +59,10 @@ describe('Mothership', () => {
     const worded = describeNeed(ruleset, text, need);
     expect(worded.title).toBe('Stat check');
     expect(worded.dice).toBe('2d100, keep lowest');
-    expect(worded.targets?.find((t) => t.band === 'success')).toEqual({
+    expect(worded.targets?.find((t) => t.success)).toEqual({
       band: 'success',
       name: 'Success',
+      success: true,
       condition: 'Roll under 34 (90+ always fails)',
     });
   });
@@ -386,6 +387,29 @@ describe('Forged in the Dark', () => {
 describe('Fate', () => {
   const { ruleset, text } = load('fate/core');
 
+  it("names a parameter error's parameter by its label", () => {
+    const mara = parse(
+      readFileSync(join(root, 'examples', 'characters', 'fate-mara.yaml'), 'utf8'),
+    ) as CharacterDoc;
+    const result = startAction(ruleset, mara, {
+      action: { id: 'fate-core:skill-roll' },
+      params: { action: 'overcome', helpers: -1 },
+    });
+    if (!('errors' in result) || 'status' in result) throw new Error(JSON.stringify(result));
+    const [error] = result.errors;
+    expect(error).toMatchObject({
+      code: 'out-of-range',
+      data: { target: 'helpers', action: 'fate-core:skill-roll' },
+    });
+    expect(text.error(error!)).toBe('"Helpers (+1 each)" must be at least 0.');
+    expect(
+      text.error({
+        code: 'missing-param',
+        data: { param: 'action', action: 'fate-core:skill-roll' },
+      }),
+    ).toBe('The action needs "Action".');
+  });
+
   it('words Fate dice and the ladder', () => {
     const mara = parse(
       readFileSync(join(root, 'examples', 'characters', 'fate-mara.yaml'), 'utf8'),
@@ -617,6 +641,40 @@ describe('codes never reach players bare', () => {
   });
 });
 
+describe('Mörk Borg tests', () => {
+  const { ruleset, text } = load('mork-borg/core');
+
+  it('shows an applied boon in its own group', () => {
+    const agnes = parse(
+      readFileSync(join(root, 'examples', 'characters', 'mork-borg-agnes.yaml'), 'utf8'),
+    ) as CharacterDoc;
+    const sheet = computeSheet(ruleset, {
+      ...agnes,
+      applied: [{ id: 'clarity', source: 'mork-borg-core:boons.clarity' }],
+    });
+    expect(sheet.groups.find((g) => g.id === 'boons')?.items).toMatchObject([{ entry: 'clarity' }]);
+    expect(text.message('mork-borg-core', 'groups.boons.label')).toBe('Boons');
+  });
+
+  it('marks the band a test needs, not the crit listed first', () => {
+    const agnes = parse(
+      readFileSync(join(root, 'examples', 'characters', 'mork-borg-agnes.yaml'), 'utf8'),
+    ) as CharacterDoc;
+    const need = paused(
+      startAction(ruleset, agnes, {
+        action: { id: 'mork-borg-core:test' },
+        params: { ability: 'mork-borg-core:abilities.strength', dr: 12 },
+        policy: { dice: 'pause' },
+      }),
+    ).needs;
+    const targets = describeNeed(ruleset, text, need).targets ?? [];
+    expect(targets[0]?.band).toBe('crit');
+    expect(targets.filter((t) => t.success)).toEqual([
+      { band: 'success', name: 'Success', success: true, condition: 'DR 12 or higher' },
+    ]);
+  });
+});
+
 describe('error text by its data', () => {
   const { text } = load('mork-borg/core');
   const target = 'mork-borg-core:hp.max';
@@ -630,6 +688,16 @@ describe('error text by its data', () => {
     );
     expect(text.error({ code: 'out-of-range', data: { target, min: 1, max: 5 } })).toBe(
       '"Maximum HP" must be between 1 and 5.',
+    );
+  });
+
+  it("names an item's action parameter by its label", () => {
+    const action = 'mork-borg-core:classes.fanged-deserter#bite';
+    expect(
+      text.error({ code: 'wrong-type', data: { target: 'dr', expected: 'integer', action } }),
+    ).toBe('"Difficulty rating (DR)" needs a value of type integer.');
+    expect(text.error({ code: 'missing-param', data: { param: 'gone', action } })).toBe(
+      'The action needs "gone".',
     );
   });
 

@@ -395,11 +395,13 @@ resultBands:
   action:
     - { id: critical, when: 'flags.pool > 0 && count(roll.faces, 6) >= 2' }
     - { id: success, when: 'roll.total == 6' }
-    - { id: partial, when: 'roll.total >= 4' }
+    - { id: partial, when: 'roll.total >= 4', success: true }
     - { id: failure, when: true }
 ```
 
 Bands are checked in order and the first true `when` wins. Formulas see the roll as `roll` (`roll.total`; `roll.faces`, every face rolled as an integer, dropped dice included; `roll.kept`, the kept faces; `roll.tallies`, the roll's [tallies](#roll-tallies); `roll.rolls`, every whole roll of a roll made more than once) and, PROVISIONALLY, the context of the action making the roll (`flags`, `params`, `steps`), so a roll-under band can compare against the tested stat. A roll step selects a band set with `bands: <set>`, and the band becomes `steps.<id>.band`. Text: `bands.<set>.<band>.name`.
+
+**The success threshold**. `success: true` marks the band that is what the roll needs: the one an app shows before the roll as "what you need" (a DC check's `success`, an attack's `hit` against the AC, FitD's `partial`, since a 4 or 5 already does what the player set out to do). A set marks at most one band (a schema error otherwise). It says nothing about the other bands: a critical listed before it is better, a fumble listed before it isn't. A set that ranks a roll without a pass or fail (Fate's ladder, an injury table, a fortune roll) marks none, and an app then shows the bands as they are. The roll summary carries the mark on its band ([engine-actions.md](engine-actions.md#the-roll-summary)); a band the roll can no longer reach (no DC given) isn't in it.
 
 **A set's value**. A band set may be written `{ value, bands }` instead of a list. `value` is a formula in the band context, evaluated once each time the set classifies a roll, before the bands; its bands read it as `roll.value`, typed as the formula's result (`roll.value` is bound only there: `unknown-name` elsewhere). A `value` that fails to evaluate fails the classification, as a failing `when` does. The roll step's result keeps it as `steps.<id>.bandValue`, and the action log's roll entry as `bandValue`. A result worked out once (a degree of success: the DC comparison, a natural 20 or 1, a cap) is then named by bands that compare one number, and a result a tally moves is moved in one place:
 
@@ -415,7 +417,7 @@ resultBands:
     bands:
       - { id: critical, when: roll.value == 3 }
       - { id: success, when: roll.value == 2 }
-      - { id: partial, when: roll.value == 1 }
+      - { id: partial, when: roll.value == 1, success: true }
       - { id: failure, when: true }
 ```
 

@@ -329,6 +329,26 @@ describe('field tag and held-change shapes', () => {
     expect(step({ id: 'a', kind: 'changes', release, each: 'target' })).toBe(false);
   });
 
+  it('lets a band set mark at most one success threshold', () => {
+    const set = (bands: object[]) => valid('rules.schema.json', { resultBands: { check: bands } });
+    const hit = { id: 'hit', when: 'roll.total >= 10' };
+    const miss = { id: 'miss', when: true };
+    expect(set([hit, miss])).toBe(true);
+    expect(set([{ ...hit, success: true }, miss])).toBe(true);
+    expect(
+      set([
+        { ...hit, success: true },
+        { ...miss, success: true },
+      ]),
+    ).toBe(false);
+    expect(set([{ ...hit, success: false }, miss])).toBe(false);
+    expect(
+      valid('rules.schema.json', {
+        resultBands: { check: { value: 'roll.total', bands: [{ ...hit, success: true }, miss] } },
+      }),
+    ).toBe(true);
+  });
+
   it('lets an action step hold, but not a handoff', () => {
     expect(step({ id: 'a', kind: 'action', use: 'strike', hold: true })).toBe(true);
     expect(

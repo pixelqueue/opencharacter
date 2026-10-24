@@ -48,7 +48,11 @@ resultBands:
     - id: fumble
       when: roll.kept[0] == 1 && roll.tallies.horn == 0
     - id: success
-      when: roll.total >= flags.dr || roll.tallies.horn > 0
+      success: true
+      when: roll.total >= flags.dr
+    # The horn's tally succeeds whatever the DR; apart, so the DR band's summary is a plain test.
+    - id: success
+      when: roll.tallies.horn > 0
     - id: failure
       when: true
 

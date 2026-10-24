@@ -294,7 +294,7 @@ resultBands:
     - { id: critical, when: 'roll.kept[0] >= flags.crit' }
     - { id: natural-miss, when: 'roll.kept[0] == 1' }
     - { id: rolled, when: flags.ac < 0 }
-    - { id: hit, when: roll.total >= flags.ac }
+    - { id: hit, when: roll.total >= flags.ac, success: true }
     - { id: miss, when: true }
 
 actions:

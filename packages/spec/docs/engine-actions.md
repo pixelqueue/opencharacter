@@ -36,7 +36,11 @@ shape, an optional **dice function**.
      its condition.
 2. **Parameters.** Each declared parameter takes the app's value. A `use` that fixes a parameter
    wins over the app's value. Missing required parameters are `missing-param`; wrong types are
-   `wrong-type`.
+   `wrong-type`. Every parameter error (`missing-param`, `wrong-type`, `out-of-range`,
+   `invalid-option`), here or at a handoff, also carries `action` (the qualified ID of the action
+   the parameter belongs to; `<item ID>#<action ID>` for an item's inline action) and, for an
+   action started on them, `entry` and `source`, so text names the parameter by its label
+   (`actions.<action>.params.<param>.name`, or the item's `actions.<action>.params.<param>.name`).
    - A number parameter (`integer`, `decimal`) outside its `min`/`max`, once a `use`'s fixed
      value or the default is in, is `out-of-range` (data: `target`, the parameter's name, and the
      evaluated `min` and `max`). The bounds are number formulas evaluated here, as the action
@@ -341,6 +345,7 @@ summary:
   value: <text> # a set with `value`: that formula, resolved
   bands: # the bands that can still hold, in the set's order
     - band: success
+      success: true # the set's success threshold, when the band marks it
       when: roll.total < 34 && roll.total < 90 # the condition, resolved
       tests: # when it's a conjunction of plain comparisons of the roll
         - { of: roll.total, compare: lt, value: 34 }
@@ -360,6 +365,8 @@ summary:
   (it can't hold) and stopping after the first whose resolved condition is `true` (no later band
   can be reached). A set whose first band holds regardless of the roll (a `rolled` band when
   there's no DC) is summarized as that one band.
+- **Success.** A band its set marks `success: true` has `success: true`: what the roll needs
+  ([result bands](rules-and-fields.md#result-bands)).
 - **Structured tests.** When a band's resolved condition is `true`, `tests` is `[]`. When it is
   a conjunction (`&&`) of comparisons each between a roll path (`roll.total`, `roll.value`,
   `roll.unbounded` or `roll.kept[<int>]`) and a number literal, `tests` lists them in order,

@@ -264,6 +264,7 @@ summary:
   bands:
     - { band: critical-success, when: 'roll.total < 34 && roll.total < 90 && roll.total % 11 == 0' }
     - band: success
+      success: true
       when: 'roll.total < 34 && roll.total < 90'
       tests:
         - { of: roll.total, compare: lt, value: 34 }
@@ -277,6 +278,10 @@ summary:
   worked out (the save's 34). A band that can't hold is left out, and the list stops at one
   that always holds: a 5E attack with no AC ends at `rolled`, so show the dice without a
   target.
+- `success: true` marks the band the roll needs: show it as "what you need" (Mothership's
+  success, Fate's succeed against the opposition, FitD's 4 or 5, Mörk Borg's DR). Bands above
+  it may be better (a critical) or worse (a fumble checked first). A set without the mark, Fate's
+  ladder or a FitD fortune roll, has no threshold: list its bands instead.
 - `tests` are the plain comparisons, as codes (`lt`, `le`, `gt`, `ge`, `eq`). Word them with
   the pack's `bands.<set>.<band>.condition` text when it has one (Mothership's "Roll under
   {value} (90+ always fails)"), else the spec's `compare.<code>` text ("under {value}"). A

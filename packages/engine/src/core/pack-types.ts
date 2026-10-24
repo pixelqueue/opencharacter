@@ -665,6 +665,8 @@ export interface Band {
   id: string;
   when: Formula;
   tags?: string[];
+  /** The set's success threshold: what the roll needs. */
+  success?: true;
 }
 
 export type BandSetDoc = Band[] | { value: Formula; bands: Band[] };

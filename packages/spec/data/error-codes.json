@@ -31,12 +31,12 @@
     {
       "id": "wrong-type",
       "kind": "runtime",
-      "description": "A value has the wrong type for its field, state key or parameter."
+      "description": "A value has the wrong type for its field, state key or parameter. Data: `target` (the field ID, state key or parameter name) and `expected`. For an action parameter, also `action` (the qualified action ID; `<item ID>#<action ID>` for an item's inline action), and `entry` and `source` when the action was started on them, so text names the parameter by its label (`actions.<action>.params.<param>.name`)."
     },
     {
       "id": "out-of-range",
       "kind": "runtime",
-      "description": "A value is outside the `min` and `max` of its field, state key or action parameter (for a quantity, below 0). Data: `target` (the field ID, state key, parameter name or `quantity`), and `min`, `max` or both: only the bounds the target declares."
+      "description": "A value is outside the `min` and `max` of its field, state key or action parameter (for a quantity, below 0). Data: `target` (the field ID, state key, parameter name or `quantity`), and `min`, `max` or both: only the bounds the target declares. For an action parameter, also `action` (the qualified action ID; `<item ID>#<action ID>` for an item's inline action), and `entry` and `source` when the action was started on them, so text names the parameter by its label (`actions.<action>.params.<param>.name`)."
     },
     {
       "id": "not-owned",
@@ -81,7 +81,7 @@
     {
       "id": "invalid-option",
       "kind": "runtime",
-      "description": "The option is not one of the choice's options, or a field parameter's field is outside its `where` set, or a tag set on a field or passed as a parameter is outside its `members` (data: `field` or `param`, `option`)."
+      "description": "The option is not one of the choice's options, or a field parameter's field is outside its `where` set, or a tag set on a field or passed as a parameter is outside its `members` (data: `field` or `param`, `option`; with `param`, also `action`, `entry` and `source` as for `out-of-range`)."
     },
     {
       "id": "not-picked",
@@ -256,7 +256,7 @@
     {
       "id": "missing-param",
       "kind": "action",
-      "description": "A required action parameter is missing."
+      "description": "A required action parameter is missing. Data: `param`, and `action`, `entry` and `source` as for `out-of-range`."
     },
     {
       "id": "invalid-participants",
