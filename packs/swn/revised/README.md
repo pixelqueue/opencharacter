@@ -170,8 +170,6 @@ with the core content alone):
   parameters `gain-skill.entry`, `focus-skill-points.entry`, `raise-skill.skill` and
   `skill-check.skill`; a discipline's also `psionics.discipline`, a technique's `discipline` and
   `pick-technique.discipline`, so a new skill level picks its techniques. The Partial Psychic's
-  and Psychic Training's discipline choices take it through `extendChoices`.
-
-Still closed: the core psychic classes grant each core discipline's level-0 technique by ID, so an
-added discipline's own core technique isn't granted by them; an add-on gives it from its own
-content.
+  and Psychic Training's discipline choices take it through `extendChoices`. The psychic classes
+  grant each trained discipline's core technique (`core: true`, its `discipline` the key), so an
+  added discipline's core technique comes with it.
