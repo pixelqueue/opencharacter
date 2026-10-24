@@ -22,7 +22,7 @@ actions:
   # old maximum plus one. Saves and attack bonus follow the level.
   - id: level-up
     tags: [advancement]
-    available: '!character.creating && level < 10'
+    available: '!character.creating && level < 10 && xp.current >= xp.next'
     params:
       random: { type: boolean, default: false }
     results: [advanced]
@@ -335,7 +335,8 @@ actions:
   # level-1 2, level-2 3 (from 3rd level), level-3 4 (from 6th), level-4 5 (from 9th).
   - id: improve-skill
     tags: [advancement]
-    available: '!character.creating'
+    available: >-
+      !character.creating && (skills.points > 0 || maxList(keysOf('skill'), fieldOf('skills.{skill}.credit', x)) > 0)
     params:
       skill:
         type: enum
@@ -405,7 +406,9 @@ actions:
   # the first two from 2nd level, the others from 3rd, 6th and 9th. Not for underdogs.
   - id: improve-attribute
     tags: [advancement]
-    available: '!character.creating && !edges.underdog && attributes.boosts < 5'
+    available: >-
+      !character.creating && !edges.underdog && attributes.boosts < 5
+        && skills.points > attributes.boosts && level >= [2, 2, 3, 6, 9][attributes.boosts]
     params:
       attribute: { type: enum, values: [str, dex, con, int, wis, cha] }
     results: [improved, maxed, level-too-low, not-enough-points]

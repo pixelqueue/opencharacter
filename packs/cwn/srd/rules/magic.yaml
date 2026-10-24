@@ -27,8 +27,8 @@ contentTypes:
   spirit:
     nameFrom: label
     fields:
-      # The item has a `powers` choice of spirit powers (a homebrew spirit may not).
-      hasPowers: { type: boolean, default: false }
+      # The powers of a spirit without the core spirit's `powers` choice (a homebrew spirit's).
+      powerCount: { type: integer, default: 0, min: 0 }
     state:
       label: { type: string, default: '' }
       form:
@@ -42,8 +42,8 @@ contentTypes:
       cost:
         type: integer
         formula: >-
-          max(1, (item.hasPowers ? size(picksOf('powers')) : 0) - (self.ritual ? 1 : 0)
-            - max(0, skills.summon.level))
+          max(1, (item.id == @spirits.spirit ? size(picksOf('powers')) : item.powerCount)
+            - (self.ritual ? 1 : 0) - max(0, skills.summon.level))
     actions:
       - use: summon-spirit
 

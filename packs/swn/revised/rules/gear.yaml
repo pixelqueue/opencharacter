@@ -119,6 +119,12 @@ contentTypes:
       techLevel: { type: integer, min: 0, max: 6 }
     state:
       stored: { type: boolean, default: false }
+      # Rounds in the magazine of a weapon that has one.
+      loaded:
+        type: integer
+        min: 0
+        max: 'has(item.magazine) ? item.magazine : 0'
+        default: 'has(item.magazine) ? item.magazine : 0'
     actions:
       - use: attack
       - use: reload

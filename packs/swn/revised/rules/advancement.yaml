@@ -21,7 +21,7 @@ actions:
   # throws and the attack bonus follow the level.
   - id: level-up
     tags: [level-up]
-    available: '!character.creating && level < 20'
+    available: '!character.creating && level < 20 && xp.current >= xp.next'
     results: [advanced]
     steps:
       - id: start
@@ -254,7 +254,10 @@ actions:
   # higher levels need a character level: level-2 at 3rd, level-3 at 6th, level-4 at 9th.
   - id: raise-skill
     tags: [level-up]
-    available: '!character.creating'
+    available: >-
+      !character.creating
+        && (skillPoints.general + skillPoints.expert + skillPoints.psychic + skillPoints.training > 0
+          || maxList(keysOf('skill'), fieldOf('skills.{skill}.credit', x)) > 0)
     params:
       skill:
         type: enum
@@ -382,7 +385,9 @@ actions:
   # Spend skill points on a technique: as many as its level.
   - id: learn-technique
     tags: [level-up]
-    available: "!character.creating && psionics.access != 'none'"
+    available: >-
+      !character.creating && psionics.access != 'none'
+        && skillPoints.general + skillPoints.psychic + skillPoints.training > 0
     params:
       technique: { type: id, of: technique, required: true, where: '!item.core' }
     results: [learned, refused]
@@ -447,7 +452,9 @@ actions:
   # the third needs 3rd level, the fourth 6th and the fifth 9th.
   - id: boost-attribute
     tags: [level-up]
-    available: '!character.creating && attributes.boosts < 5'
+    available: >-
+      !character.creating && attributes.boosts < 5 && skillPoints.general > attributes.boosts
+        && level >= [1, 1, 3, 6, 9][attributes.boosts]
     params:
       attribute: { type: enum, required: true, values: [str, dex, con, int, wis, cha] }
     results: [boosted, refused]

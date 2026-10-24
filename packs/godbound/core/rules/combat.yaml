@@ -71,20 +71,18 @@ situational:
 # A d20 roll against a target number: a natural 20 always succeeds and a natural 1 always fails.
 resultBands:
   d20:
-    value: 'roll.kept[0] == 20 || (roll.kept[0] != 1 && roll.total >= flags.target) ? 1 : 0'
-    bands:
-      - { id: success, when: roll.value == 1, success: true }
-      - { id: failure, when: true }
+    - { id: success, when: 'roll.kept[0] == 20' }
+    - { id: failure, when: 'roll.kept[0] == 1' }
+    - { id: success, when: roll.total >= flags.target, success: true }
+    - { id: failure, when: true }
   # To hit: d20 + attack bonus + modifier + the target's AC reaches 20. Without a target's AC the
   # roll is only reported.
   attack:
-    value: >-
-      roll.kept[0] == 20 ? 2 : roll.kept[0] == 1 ? 0 : !flags.known ? 1
-        : roll.total + flags.ac >= 20 ? 2 : 0
-    bands:
-      - { id: hit, when: roll.value == 2, success: true }
-      - { id: rolled, when: roll.value == 1 }
-      - { id: miss, when: true }
+    - { id: hit, when: 'roll.kept[0] == 20' }
+    - { id: miss, when: 'roll.kept[0] == 1' }
+    - { id: rolled, when: '!flags.known' }
+    - { id: hit, when: roll.total >= 20 - flags.ac, success: true }
+    - { id: miss, when: true }
 
 followUps:
   - id: divine-fury

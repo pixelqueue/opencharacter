@@ -1,0 +1,21 @@
+# A summoner's homebrew spirit with three powers and no powers choice, summoned immediately.
+specVersion: 0.2.0
+id: summoner
+packs:
+  - { id: cwn-srd, version: 0.1.0 }
+values:
+  cwn-srd:campaign.magic: true
+choices:
+  edge-1:
+    - option: cwn-srd:edges.summoner
+homebrew:
+  defaultLanguage: en
+  content:
+    - { id: spirits.wisp, type: spirit, fields: { powerCount: 3 } }
+  i18n:
+    en:
+      spirits.wisp.name: Wisp
+features:
+  - id: wisp
+    item: homebrew:spirits.wisp
+    state: { ritual: false }
