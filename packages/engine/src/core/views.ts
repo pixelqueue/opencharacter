@@ -11,6 +11,8 @@ import type {
 } from './pack-types.ts';
 import { appliesQueries, keptQuery } from './pack-types.ts';
 import {
+  familyFieldPack,
+  familyIn,
   type LoadedItem,
   localPart,
   queryKey,
@@ -304,6 +306,10 @@ function itemFormula(
     field: (name) => inputField(name, pack),
     roots,
     id: (text) => resolveId(ruleset, text, pack),
+    family: (name) => familyIn(ruleset, name, pack),
+    familyField: (name, key, id) => inputField(id, familyFieldPack(ruleset, name, key, pack)),
+    familyFieldId: (name, key, id) =>
+      resolveField(ruleset, id, familyFieldPack(ruleset, name, key, pack)),
   });
   return result.ok ? result.value : undefined;
 }

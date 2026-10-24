@@ -469,15 +469,16 @@ function checkCall(fn: string, args: Node[], ctx: CheckContext): FType {
       if (!keys) return 'dyn';
       return { list: keys.every((k) => /^\d+$/.test(k)) ? 'int' : 'string' };
     }
-    case 'fieldOf': {
+    case 'fieldOf':
+    case 'fieldId': {
       const [pattern, ...keyArgs] = args as [Node, ...Node[]];
       const family = pattern && familyPattern(pattern);
       if (!family)
-        return mismatch('fieldOf() takes a string literal pattern with {family} placeholders');
+        return mismatch(`${fn}() takes a string literal pattern with {family} placeholders`);
       arity(family.names.length + 1);
       for (const key of keyArgs)
         wants(checkTree(key, ctx), (t) => t === 'string' || t === 'int', 'a string or int key');
-      if (!ctx.family) return 'dyn';
+      if (!ctx.family) return fn === 'fieldId' ? 'string' : 'dyn';
       const ids = patternIds(family, (name) => ctx.family?.(name));
       if (!Array.isArray(ids))
         return fail('unknown-name', `no family named "${ids.unknown}"`, { name: ids.unknown });
@@ -485,11 +486,12 @@ function checkCall(fn: string, args: Node[], ctx: CheckContext): FType {
       for (const id of ids) {
         const t = ctx.field(id);
         if (t === undefined) return fail('unknown-name', `no field ${id}`, { name: id });
+        if (fn === 'fieldId') continue;
         if (type !== undefined && typeName(t) !== typeName(type))
           return mismatch(`fieldOf() fields have different types (${id})`);
         type = t;
       }
-      return type ?? 'dyn';
+      return fn === 'fieldId' ? 'string' : (type ?? 'dyn');
     }
     case 'countOf':
       arity(1);

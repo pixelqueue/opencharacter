@@ -191,6 +191,12 @@ fields:
   pack that added it, so a content pack's class casts through the core pack's `cast-spell`
   without editing it. Family keys expand over the declared values only. A pack sees its own
   families and its dependencies' by name, its own first.
+- **Computed field IDs.** A field ID a formula builds from a key (`'effort.' + x + '.day'`)
+  resolves in the formula's pack and its dependencies only, so it misses the field an add-on
+  declared for a key it added. `fieldId('<pattern>', key)` gives the qualified ID of the field
+  `fieldOf` would read, for a change's, an effect's or an `id` field's `{ formula }` target:
+  `field: { formula: "fieldId('effort.{tradition}.day', x)" }` over `forEach: keysOf('tradition')`
+  reaches every tradition's field, the add-on's too.
 - **Reading by key.** `fieldOf('<pattern>', key)` reads the field a family pattern names for a key
   (`fieldOf('spellcasting.{caster}.dc', flags.cls)`); a pattern with two placeholders takes two
   keys, in order (`fieldOf('slots.{caster}.rank{rank}', flags.cls, 3)`). `keysOf('<family>')` lists

@@ -1,9 +1,10 @@
-# Open: an add-on may add wards.
+# Open: an add-on may add wards, with its own ward fields.
 families:
   ward: [fire, ice]
 
 fields:
   stamina: { type: integer, input: true, default: 3, min: 0 }
+  'wards.{ward}': { type: integer, input: true, default: 0 }
   # Open: an add-on may add stances.
   stance: { type: enum, values: [low, high], input: true, default: low, open: true }
 
@@ -64,7 +65,7 @@ actions:
       mode: { type: enum, values: [quick, heavy], required: true, open: true }
     steps:
       - { id: result, kind: outcome, result: "'struck'", data: { mode: params.mode } }
-  # A pick over the ward family, the add-on's wards too.
+  # A pick over the ward family, and a change to every ward's field, the add-on's too.
   - id: pick-ward
     results: [picked]
     steps:
@@ -73,6 +74,15 @@ actions:
         options: { values: { formula: "keysOf('ward')" } }
         recommend: options[0]
       - { id: result, kind: outcome, result: "'picked'", data: { ward: steps.ward.picked } }
+  - id: rest
+    steps:
+      - id: wards
+        kind: changes
+        changes:
+          - type: adjust
+            forEach: keysOf('ward')
+            field: { formula: "fieldId('wards.{ward}', x)" }
+            by: 1
   # A view field following the open stance: a target's added stance reads.
   - id: size-up
     results: [sized]

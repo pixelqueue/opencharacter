@@ -691,6 +691,23 @@ export class Sheet {
     return tree.value;
   }
 
+  /** Families as `pack` sees them; an added key's field is read and named in the adding pack. */
+  private familyContext(
+    pack: string,
+    read: (qid: string) => f.Value | undefined,
+  ): Required<Omit<f.EvalContext, 'field' | 'roots' | 'character' | 'inAggregate' | 'id'>> {
+    const fieldId = (name: string, key: string, id: string) =>
+      resolveField(this.ruleset, id, familyFieldPack(this.ruleset, name, key, pack));
+    return {
+      family: (name) => familyIn(this.ruleset, name, pack),
+      familyField: (name, key, id) => {
+        const qid = fieldId(name, key, id);
+        return qid ? read(qid) : undefined;
+      },
+      familyFieldId: fieldId,
+    };
+  }
+
   /** Throws Failure. */
   evaluate(
     formula: Formula,
@@ -705,11 +722,7 @@ export class Sheet {
       },
       roots: { ...this.baseRoots(pack), ...roots },
       id: (text) => resolveId(this.ruleset, text, pack),
-      family: (name) => familyIn(this.ruleset, name, pack),
-      familyField: (name, key, id) => {
-        const qid = resolveField(this.ruleset, id, familyFieldPack(this.ruleset, name, key, pack));
-        return qid ? this.fieldValue(qid) : undefined;
-      },
+      ...this.familyContext(pack, (qid) => this.fieldValue(qid)),
       character: queries,
     });
     if (!result.ok) throw new Failure(result.error);
@@ -740,7 +753,7 @@ export class Sheet {
       },
       roots: { ...this.baseRoots(pack), ...roots },
       id: (text) => resolveId(this.ruleset, text, pack),
-      family: (name) => familyIn(this.ruleset, name, pack),
+      ...this.familyContext(pack, (qid) => this.inputValue(qid)),
     });
     if (!result.ok) throw new Failure(result.error);
     return result.value;
@@ -759,7 +772,7 @@ export class Sheet {
       },
       roots: { ...this.baseRoots(pack), ...roots },
       id: (text) => resolveId(this.ruleset, text, pack),
-      family: (name) => familyIn(this.ruleset, name, pack),
+      ...this.familyContext(pack, (qid) => this.inputValue(qid)),
       character: this.inputQueries,
     });
     if (!result.ok) throw new Failure(result.error);
@@ -781,7 +794,7 @@ export class Sheet {
         },
         roots: { ...this.baseRoots(pack), ...roots },
         id: (text) => resolveId(this.ruleset, text, pack),
-        family: (name) => familyIn(this.ruleset, name, pack),
+        ...this.familyContext(pack, (qid) => this.inputValue(qid)),
         character: this.inputQueries,
       });
       if (!result.ok) throw new Failure(result.error);
@@ -877,7 +890,7 @@ export class Sheet {
             },
             roots: { item: view },
             id: (text) => resolveId(this.ruleset, text, pack),
-            family: (name) => familyIn(this.ruleset, name, pack),
+            ...this.familyContext(pack, (qid) => this.inputValue(qid)),
           });
           if (result.ok) state[key] = f.toData(result.value) as Literal;
         }

@@ -19,7 +19,7 @@ Input: pack releases in load order (later packs win). Output: a ruleset, or erro
      values, by name, its own first): family keys, and `fields` that name a `viewFields` set.
      Each family's values for formulas are its pack's, then each loaded pack's additions (a
      qualified family name) in load order; `fieldOf` reads an added value's fields in the pack
-     that added it. The ruleset's `familyOrigins` maps each
+     that added it, and `fieldId` names them there. The ruleset's `familyOrigins` maps each
      added value to its pack. Problems are `invalid-family`.
 2. **Merge the rules.**
    - Fields, content types, situational choices, result bands, actions, rules-level choices and
