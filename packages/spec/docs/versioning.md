@@ -21,6 +21,7 @@ Each engine library (the TypeScript reference engine and community ports) has it
 
 - Every pack update gets a unique version. **Published versions never change**, because characters pin them.
 - Each pack declares the **minimum** spec version it needs (`specVersion` in `pack.yaml`). `loadRuleset` compares it with the engine's `SPEC_VERSION` and refuses a pack that needs a newer spec (`spec-version-unsupported`). The reference engine's `IMPLEMENTS_SPEC` (the major.minor versions it implements) derives from `SPEC_VERSION` too.
+- A pack's `specVersion` must be a spec its release is valid under, so an older engine never loads a pack it can't run. `pnpm release:check` checks it against every published spec (git tags `@opencharacter/spec@<version>`): the release must pass the pack-release schema of the spec the pack declares, and its formulas may call only that spec's functions (`data/formula-context.json`). A pack that uses a key or function only a later spec has fails with `spec-version-too-low`, naming the lowest spec it is valid under. One that needs the spec version a pending changeset releases can't declare it yet (no engine implements it before the version step), so it needs a pending bump instead, and `pnpm version-packages` sets its `specVersion`. The check covers what the schemas and the function list show; a change in what an existing key means needs the spec version raised by hand.
 - Pack versions are [semver](https://semver.org/) and follow its convention for 0.x. A **breaking bump** is a minor bump while the version is 0.x (0.1.4 → 0.2.0) and a major bump from 1.0.0 on (1.4.2 → 2.0.0); any smaller bump is non-breaking. A dependency range such as `^0.1.0` accepts only non-breaking bumps (`>=0.1.0 <0.2.0`).
 - Pack versions follow the upgrade rule in [upgrades.md](upgrades.md): a version that changes the saved state's shape, or the pack's interface, gets a breaking bump; a shape change also ships an upgrade script.
 - There is one package per pack. The reason is versioning, not size: each version must mean only "this pack changed". Translations for languages other than the default live in a separate `-i18n` package, so translation fixes never bump the mechanics pack.
@@ -44,7 +45,9 @@ Each engine library (the TypeScript reference engine and community ports) has it
    and links (schemas, docs, apps and tests), and the docs' statements of the current version
    (prose and the README badge). The `specVersion` of the example characters and of the docs'
    samples (Markdown) moves too, since they are samples of the current spec; other minimums and
-   records stay (a pack's `specVersion`, a test case's, a character file's). Code samples can
+   records stay (a test case's, a character file's). A pack's `specVersion` moves only where its
+   release isn't valid under the old spec (it uses the new spec's keys or functions, see above);
+   that needs the spec release tags. Code samples can
    import `SPEC_VERSION` instead of a literal. The engine's `IMPLEMENTS_SPEC` follows
    `SPEC_VERSION`: the reference engine implements the spec it ships with. A test fails if
    `SPEC_VERSION` and the package version ever differ, or if a stated version, badge or sample
