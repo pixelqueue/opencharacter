@@ -1,0 +1,28 @@
+# A 0.1.0 Necromancer (a full Mage) picked her tradition as the inline option `necromancer`.
+# 0.2.0 picks it as tradition content.
+pack: wwn-srd
+from: 0.1.0
+to: 0.2.0
+expect:
+  - at: /features/1/choices/tradition
+    value: [{ option: wwn-srd:traditions.necromancer }]
+character:
+  specVersion: 0.1.0
+  id: upgrade-wwn-srd-mage
+  values:
+    wwn-srd:attributes.str.score: 9
+    wwn-srd:attributes.dex.score: 11
+    wwn-srd:attributes.con.score: 10
+    wwn-srd:attributes.int.score: 14
+    wwn-srd:attributes.wis.score: 12
+    wwn-srd:attributes.cha.score: 7
+    wwn-srd:hp.rolled: 4
+    wwn-srd:hp.current: 4
+  features:
+    - id: background
+      item: wwn-srd:backgrounds.artisan
+    - id: class
+      item: wwn-srd:classes.mage
+      choices:
+        tradition:
+          - option: necromancer

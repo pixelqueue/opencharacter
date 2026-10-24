@@ -4,6 +4,8 @@ contentTypes:
   edge:
     fields:
       bonusSkill: { type: set, of: string, default: [] }
+      # It has a `gain-part` action, run when the edge is taken.
+      gainPart: { type: boolean, default: false }
     effects:
       - { target: edges.held, op: grant, value: { formula: item.id } }
 
@@ -18,6 +20,8 @@ contentTypes:
       specialty: { type: boolean, default: false }
       bonusSkill: { type: set, of: string, default: [] }
       bonusSkill2: { type: set, of: string, default: [] }
+      # It has a `gain-part` action, run when the focus is taken.
+      gainPart: { type: boolean, default: false }
     state:
       level: { type: integer, default: 1, min: 1, max: item.maxLevel }
     effects:
@@ -35,7 +39,9 @@ fields:
 
   # Two edges at 1st level and one at 5th; Forged By Fire takes the place of the first two and
   # gives one at each of 2nd, 3rd and 4th instead.
-  edges.forgedByFire: { type: boolean, formula: '@edges.forged-by-fire in edges.held' }
+  edges.forgedByFire:
+    type: boolean
+    formula: "countCopies(copy.type == 'edge' && 'first-edge' in copy.tags) > 0"
   edges.allowed:
     type: integer
     formula: >-
@@ -61,9 +67,8 @@ constraints:
     check: '!character.creating || !edges.underdog || attributes.baseTotal <= -1'
   # Each edge once, but Focused; each focus once, but Specialist.
   - id: edge-once
-    check: >-
-      countCopies(copy.type == 'edge' && copy.item != @edges.focused) == size(edges.held)
-        - (@edges.focused in edges.held ? 1 : 0)
+    copies: { type: edge, where: "!('repeatable' in item.tags)" }
+    check: countCopies(copy.item == item.id) == 1
   - id: focus-once
     copies: { type: focus, where: '!item.multiple' }
     check: countCopies(copy.item == item.id) == 1

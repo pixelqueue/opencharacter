@@ -1,4 +1,18 @@
 id: foci.unstable-mutant
 type: focus
+tags: [needs-mutant]
 prerequisites:
   - { id: mutant, when: mutations.mutant }
+fields:
+  gainPart: true
+actions:
+  # A new level-1 focus: one free positive mutation, rolled.
+  - id: gain-part
+    listed: false
+    params:
+      random: { type: boolean, default: false }
+    steps:
+      - id: mutation
+        kind: action
+        use: roll-mutation
+        params: { origin: "'unstable'", random: params.random }
