@@ -597,13 +597,23 @@ describe('codes never reach players bare', () => {
     const worded = text.error(error!);
     expect(worded).toContain('no longer has');
     expect(text.issue(error as never)).toBe(worded);
-    expect(text.issue({ code: 'not-a-code', data: {} } as never)).toBe(
-      'Something went wrong (not-a-code).',
-    );
+    expect(text.issue({ code: 'not-a-code', data: {} } as never)).toBe('Something went wrong.');
   });
 
   it('falls back to errors.other when the data misses an argument', () => {
-    expect(text.error({ code: 'not-owned', data: {} })).toBe('Something went wrong (not-owned).');
+    expect(text.error({ code: 'not-owned', data: {} })).toBe('Something went wrong.');
+  });
+
+  it("falls back to the error's own message before errors.other", () => {
+    const message = '"x" is not a value of the family skill';
+    expect(text.error({ code: 'no-such-key', data: { message } })).toBe(message);
+    expect(text.error({ code: 'not-a-code', data: { message } })).toBe(message);
+    expect(text.issue({ code: 'not-a-code', data: { message: ' ' } } as never)).toBe(
+      'Something went wrong.',
+    );
+    expect(text.error({ code: 'no-such-key', data: { key: 'x', family: 'skill', message } })).toBe(
+      'A formula refers to "x", which is not there.',
+    );
   });
 });
 

@@ -249,7 +249,8 @@ export interface Text {
     options?: HeadlineOptions,
   ): string | undefined;
   /**
-   * The pack's own text, else the spec's; an engine error words as the error, else `errors.other`.
+   * The pack's own text, else the spec's; an engine error words as the error, else as its
+   * `data.message`, else `errors.other`.
    * A prerequisite's own text, a phrase, is wrapped with its owner's name
    * (`issues.prerequisite-not-met.owner`): "Terrain Scout requires: Scout Dedication".
    */
@@ -257,7 +258,8 @@ export interface Text {
   /**
    * The spec's text, by the variant its data picks (`errors.out-of-range.min`,
    * `errors.safety-limit-exceeded.<limit>`); a code without text, or whose text misses an
-   * argument, as `errors.other`.
+   * argument, as its `data.message` when it has one, else `errors.other`. Neither names the code:
+   * log `code` and `data` for developers.
    */
   error(error: EngineError | RulesIssue): string;
 }
@@ -318,7 +320,11 @@ export function createText(options: TextOptions): Text {
 
   const message = (pack: string, key: string, args?: Args) => format(findPack(pack, key), args);
   const specMessage = (key: string, args?: Args) => format(findSpec(key), args);
-  const unworded = (code: string) => specMessage('errors.other', { code }) ?? code;
+  // The error's own message where it has one, else `errors.other`.
+  const unworded = ({ code, data }: EngineError | RulesIssue) =>
+    typeof data?.message === 'string' && data.message.trim()
+      ? data.message
+      : (specMessage('errors.other', { code }) ?? code);
   const lookup = (ref: MessageRef, args?: Args) =>
     ref.pack === null ? specMessage(ref.key, args) : message(ref.pack, ref.key, args);
 
@@ -628,7 +634,7 @@ export function createText(options: TextOptions): Text {
     );
 
   // The spec's text for a code, by the variant its data picks; text that misses an argument is
-  // `errors.other`, never the raw template.
+  // unworded, never the raw template.
   const standard = (
     error: EngineError | RulesIssue,
     first: 'errors' | 'issues',
@@ -647,7 +653,7 @@ export function createText(options: TextOptions): Text {
       const out = format(found, args, true);
       if (out !== undefined) return out;
     }
-    return unworded(error.code);
+    return unworded(error);
   };
 
   const text: Text = {
