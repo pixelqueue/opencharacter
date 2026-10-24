@@ -65,14 +65,10 @@ fields:
     formula: >-
       sumCopies(copy.fields.weight * copy.quantity, has(copy.fields.weight)
         && has(copy.state.stowed) && copy.state.stowed)
-  carrying.stowCapacity:
-    type: decimal
-    formula: >-
-      500 * sumCopies(copy.quantity, copy.item == @magic-items.bag-of-holding)
-        + 120 * sumCopies(copy.quantity, copy.item == @magic-items.handy-haversack)
-  carrying.quivers:
-    type: integer
-    formula: 'sumCopies(copy.quantity, copy.item == @magic-items.efficient-quiver)'
+  # What extradimensional containers and quivers hold: each adds its own (content effects).
+  carrying.stowCapacity: { type: decimal, formula: 0, min: 0 }
+  carrying.stowUnlimited: { type: boolean, formula: false }
+  carrying.quivers: { type: integer, formula: 0, min: 0 }
   carrying.quiveredAmmunition:
     type: integer
     formula: >-
@@ -94,12 +90,10 @@ constraints:
   - id: stowed-without-container
     check: >-
       countCopies(has(copy.state.stowed) && copy.state.stowed) == 0
-        || countCopies(copy.item in [@magic-items.bag-of-holding,
-          @magic-items.handy-haversack, @magic-items.portable-hole]) > 0
+        || carrying.stowUnlimited || carrying.stowCapacity > 0
   - id: stowed-over-capacity
     check: >-
-      carrying.stowed <= carrying.stowCapacity
-        || countCopies(copy.item == @magic-items.portable-hole) > 0
+      carrying.stowUnlimited || carrying.stowed <= carrying.stowCapacity
     data:
       stowed: carrying.stowed
       capacity: carrying.stowCapacity
