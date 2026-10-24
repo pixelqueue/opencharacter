@@ -1438,11 +1438,11 @@ export type EffectTarget =
 export type ChoiceTarget = {
   /** Choice step tags; the effect adds its option to a step carrying any of them (a tag matches itself and every tag below it). */
   choices: Tags;
-  /** `self`: only choice steps of actions made by the item carrying this effect. `any` (default): every matching choice step the character's actions reach. */
+  /** `self`: only choice steps of actions made by the item carrying this effect (not on the rules' effects, which have no item). `any` (default): every matching choice step the character's actions reach. */
   from?: 'self' | 'any';
 };
 
-/** An option an `option` effect adds to a choice step. Its ID is `<content id>#<id>`, named by `<content id>.options.<id>.name`; the effect's `when` is its condition. When it is picked, its `flags` are set, then its `changes`, if any, are resolved like a `changes` step's at the choice step's path, before the step's own `changes`; without them the pick is only recorded, for later steps to read (`steps.<id>.picked`). In its `when` and `changes`, `item` and `self` are the content carrying the effect (`entry: self` is that copy), and the action's own are `action.item`, `action.self` and `action.step`. */
+/** An option an `option` effect adds to a choice step. Its ID is `<content id>#<id>`, named by `<content id>.options.<id>.name` (for the rules' effects, `<pack>:rules#<id>`, named by `rules.options.<id>.name` in the pack); the effect's `when` is its condition. When it is picked, its `flags` are set, then its `changes`, if any, are resolved like a `changes` step's at the choice step's path, before the step's own `changes`; without them the pick is only recorded, for later steps to read (`steps.<id>.picked`). In its `when` and `changes`, `item` and `self` are the content carrying the effect (`entry: self` is that copy), and the action's own are `action.item`, `action.self` and `action.step`. */
 export type Option = {
   id: Slug;
   changes?: ProposedChange[];
@@ -2261,6 +2261,8 @@ export type Ruleset = {
   }[];
   /** Values packs add to other packs' open enums (`extendEnums`): by the enum's address (`<pack>:types.<type>.fields.<field>`, `<pack>:types.<type>.state.<key>`, `<pack>:fields.<field>`), each added value's pack, whose text names it under the key the enum's pack would use. */
   enumOrigins?: Record<string, Record<string, string>>;
+  /** Values and inline options packs add to other packs' choices (`extendChoices`): by `<owner>/<choice>`, the choice's owner key root as a choice names it (`<pack>:<content id>`, `<pack>:rules`, plus `.choices.<choice>.options.<option>` for an inline option's) and its declared ID, each added option's pack, whose text names it. */
+  optionOrigins?: Record<string, Record<string, string>>;
   /** Overrides of the same property by two packs; the later pack won. */
   conflicts?: {
     target: string;
@@ -2723,6 +2725,22 @@ export type RulesDocument = {
   families?: Record<string, (string | number)[]>;
   /** Values this pack adds to a dependency's open enums (`open: true`), by the enum's address: `<pack>:fields.<field>` (a rules field), `<pack>:types.<type>.fields.<field>` (an item field) or `<pack>:types.<type>.state.<key>` (a state key). Each value is named in this pack's text under the key the enum's own pack would use (`types.weapon.fields.damageType.values.sonic.name`). Added after the enum's own values, in load order, each once (rules-and-fields.md, "Open enums"). */
   extendEnums?: Record<string, Slug[]>;
+  /** Options this pack adds to a dependency's choices, without overriding the item: by owner, `<pack>:<content id>` or `<pack>:rules` (a rules-level choice), then by choice ID (`<choice>/<option>/<choice>` for a choice of an inline option; a slotted choice's declared ID, for every slot). An addition is the choice's own kind: `items` for an items choice, `values` for written values, `options` (inline options) for inline options. The added options come after the choice's own, then each loaded pack's in load order; a repeated item or value is offered once, an inline option ID that's there already is `duplicate-id`. Added inline options read this pack's fields, and are named in this pack's text under the key the owner's pack would use (`<owner>.choices.<choice>.options.<id>.name`). Applied after every override (content.md, "Adding options to a dependency's choices"). */
+  extendChoices?: Record<
+    string,
+    Record<
+      string,
+      | {
+          items: Ref[];
+        }
+      | {
+          values: (string | number)[];
+        }
+      | {
+          options: InlineOption[];
+        }
+    >
+  >;
   /** Named sets of declared fields read from other characters: a link slot's or a participant role's `fields` may name one instead of declaring them again. Expanded before the pack loads. */
   viewFields?: Record<string, DeclaredFields>;
   fields?: Record<string, Field>;

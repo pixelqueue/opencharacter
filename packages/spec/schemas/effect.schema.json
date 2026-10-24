@@ -516,14 +516,14 @@
           "type": "array"
         },
         "from": {
-          "description": "`self`: only choice steps of actions made by the item carrying this effect. `any` (default): every matching choice step the character's actions reach.",
+          "description": "`self`: only choice steps of actions made by the item carrying this effect (not on the rules' effects, which have no item). `any` (default): every matching choice step the character's actions reach.",
           "enum": ["self", "any"]
         }
       },
       "additionalProperties": false
     },
     "option": {
-      "description": "An option an `option` effect adds to a choice step. Its ID is `<content id>#<id>`, named by `<content id>.options.<id>.name`; the effect's `when` is its condition. When it is picked, its `flags` are set, then its `changes`, if any, are resolved like a `changes` step's at the choice step's path, before the step's own `changes`; without them the pick is only recorded, for later steps to read (`steps.<id>.picked`). In its `when` and `changes`, `item` and `self` are the content carrying the effect (`entry: self` is that copy), and the action's own are `action.item`, `action.self` and `action.step`.",
+      "description": "An option an `option` effect adds to a choice step. Its ID is `<content id>#<id>`, named by `<content id>.options.<id>.name` (for the rules' effects, `<pack>:rules#<id>`, named by `rules.options.<id>.name` in the pack); the effect's `when` is its condition. When it is picked, its `flags` are set, then its `changes`, if any, are resolved like a `changes` step's at the choice step's path, before the step's own `changes`; without them the pick is only recorded, for later steps to read (`steps.<id>.picked`). In its `when` and `changes`, `item` and `self` are the content carrying the effect (`entry: self` is that copy), and the action's own are `action.item`, `action.self` and `action.step`.",
       "type": "object",
       "required": ["id"],
       "properties": {

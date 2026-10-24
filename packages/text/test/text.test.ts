@@ -787,3 +787,32 @@ describe('values an add-on adds to open enums', () => {
     expect(text.fieldValue('core:stance', 'lofty')).toBe('lofty');
   });
 });
+
+describe('options an add-on adds to a choice', () => {
+  const text = createText({
+    languages: ['en'],
+    packs: {
+      en: {
+        core: { 'classes.warden.choices.knack.options.tracking.name': 'Tracking' },
+        addon: {
+          'classes.warden.choices.knack.options.hexing.name': 'Hexing',
+          'rules.choices.boon.options.grace.name': 'Grace',
+          'rules.options.meditate.name': 'Meditate',
+        },
+      },
+    },
+    spec: {},
+    optionOrigins: {
+      'core:classes.warden/knack': { hexing: 'addon' },
+      'core:rules/boon': { grace: 'addon' },
+    },
+  });
+
+  it("are named by the adding pack's text, under the choice's own key", () => {
+    const knack = { owner: 'core:classes.warden', id: 'knack' };
+    expect(text.option('tracking', { choice: knack })).toBe('Tracking');
+    expect(text.option('hexing', { choice: knack })).toBe('Hexing');
+    expect(text.option('grace', { choice: { owner: 'core:rules', id: 'boon' } })).toBe('Grace');
+    expect(text.option('addon:rules#meditate')).toBe('Meditate');
+  });
+});

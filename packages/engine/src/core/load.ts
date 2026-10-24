@@ -258,6 +258,7 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
     families: Object.fromEntries(families),
     familyOrigins,
     enumOrigins: {},
+    optionOrigins: {},
     conflicts: [],
     sources: packs,
   };
@@ -974,6 +975,72 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
       const target = resolved.get(hidden);
       if (target) resolved.set(hidden, { ...target, hidden: true });
       else unknown('content', hidden, pid);
+    }
+  }
+  // Options packs add to their dependencies' choices, after every override, in load order.
+  for (const pack of byId.values()) {
+    const pid = pack.manifest.id;
+    for (const [target, choices] of Object.entries(pack.rules.extendChoices ?? {})) {
+      const bad = (message: string) => err('invalid-extension', { pack: pid, target, message });
+      const owner = target.slice(0, target.indexOf(':'));
+      if (owner === pid || !scopeOf(pid).includes(owner)) {
+        bad(`${owner} is not a dependency of ${pid}`);
+        continue;
+      }
+      const rulesLevel = target === `${owner}:rules`;
+      const item = rulesLevel ? undefined : resolved.get(target);
+      if (!rulesLevel && !item) {
+        unknown('content', target, pid);
+        continue;
+      }
+      const roots: Choice[] = rulesLevel
+        ? Object.values(ruleset.rules.choices)
+            .filter((c) => c.pack === owner)
+            .map((c) => structuredClone(c))
+        : structuredClone(item?.choices ?? []);
+      for (const [path, addition] of Object.entries(choices)) {
+        const parts = path.split('/');
+        let choice = roots.find((c) => c.id === parts[0]);
+        let keyRoot = target;
+        for (let at = 1; choice && at < parts.length; at += 2) {
+          const from = choice.from;
+          const option =
+            'options' in from ? from.options.find((o) => o.id === parts[at]) : undefined;
+          keyRoot = `${keyRoot}.choices.${choice.id}.options.${parts[at]}`;
+          choice = option?.choices?.find((c) => c.id === parts[at + 1]);
+        }
+        if (!choice) {
+          bad(`no choice "${path}"`);
+          continue;
+        }
+        const origins = (ruleset.optionOrigins[`${keyRoot}/${choice.id}`] ??= {});
+        const from = choice.from;
+        if ('items' in addition && 'items' in from) {
+          for (const ref of addition.items) {
+            const qid = q.content(ref, pid);
+            if (!from.items.includes(qid)) from.items.push(qid);
+          }
+        } else if ('values' in addition && 'values' in from && Array.isArray(from.values)) {
+          for (const value of addition.values) {
+            if (from.values.includes(value)) continue;
+            from.values.push(value);
+            origins[String(value)] = pid;
+          }
+        } else if ('options' in addition && 'options' in from) {
+          for (const option of addition.options) {
+            if (from.options.some((o) => o.id === option.id)) {
+              err('duplicate-id', { id: option.id, owner: `${target}/${path}`, pack: pid });
+              continue;
+            }
+            from.options.push({ ...q.option(option, pid), pack: pid });
+            origins[option.id] = pid;
+          }
+        } else {
+          bad(`"${path}" doesn't take ${Object.keys(addition)[0]}`);
+        }
+      }
+      if (item) resolved.set(target, { ...item, choices: roots });
+      else for (const c of roots) ruleset.rules.choices[`${owner}:${c.id}`] = c as never;
     }
   }
   // Item fields against their content type: the item's own values, then the required ones on the

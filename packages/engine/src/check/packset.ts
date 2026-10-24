@@ -1,6 +1,7 @@
 import type {
   BandSet,
   ActionDef,
+  ChoiceAddition,
   Choice,
   ContentItem,
   ContentTypeDef,
@@ -57,6 +58,8 @@ export interface MergedRules<L> {
   families: Map<string, string[]>;
   /** Values added to a dependency's open enums, by `<pack>:<enum>` address. */
   extendEnums: Map<string, Located<string[], L>>;
+  /** Options added to a dependency's choices, by `<pack>:<content id>` or `<pack>:rules`. */
+  extendChoices: Map<string, Located<Record<string, ChoiceAddition>, L>>;
 }
 
 export interface ContentEntry<L> {
@@ -285,6 +288,7 @@ function merge<L>(
     typeHints: new Map(),
     families: new Map(),
     extendEnums: new Map(),
+    extendChoices: new Map(),
   };
   const put = <T>(map: Map<string, Located<T, L>>, key: string, def: T, at: L, what: string) => {
     const existing = map.get(key);
@@ -297,6 +301,14 @@ function merge<L>(
   for (const { at, doc } of pack.rules) {
     for (const [name, values] of Object.entries(doc.families ?? {}))
       merged.families.set(name, values.map(String));
+    for (const [target, choices] of Object.entries(doc.extendChoices ?? {})) {
+      const earlier = merged.extendChoices.get(target);
+      merged.extendChoices.set(target, {
+        def: { ...earlier?.def, ...choices },
+        at: earlier?.at ?? at,
+        pack: pid,
+      });
+    }
     for (const [target, values] of Object.entries(doc.extendEnums ?? {}))
       merged.extendEnums.set(target, {
         def: [...(merged.extendEnums.get(target)?.def ?? []), ...values],

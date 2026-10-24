@@ -180,9 +180,9 @@ actions:
       - id: done
         kind: outcome
         result: "'seen'"
-# An option effect is for content items only.
+# A rules option effect can't limit itself to its own copy's actions.
 effects:
-  - target: { choices: [melee] }
+  - target: { choices: [melee], from: self }
     op: option
     value: { id: rest, changes: [{ type: adjust, field: abilities.str.score, by: 1 }] }
   # `then` changes the effect's copy, and a rules effect has none.

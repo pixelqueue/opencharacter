@@ -68,6 +68,8 @@ export interface TextOptions {
   display?: { fields?: Readonly<Record<string, FieldHint>> } | undefined;
   /** `ruleset.enumOrigins`: the pack whose text names a value another pack's open enum gained. */
   enumOrigins?: Readonly<Record<string, Readonly<Record<string, string>>>>;
+  /** `ruleset.optionOrigins`: the pack whose text names an option another pack's choice gained. */
+  optionOrigins?: Readonly<Record<string, Readonly<Record<string, string>>>>;
 }
 
 export interface HeadlineItem {
@@ -684,11 +686,17 @@ export function createText(options: TextOptions): Text {
       if (copy) return text.copy(copy);
       const isContent = context.isContent ?? ((x: string) => x.includes(':'));
       if (isContent(option)) return content(option);
-      if (context.choice)
+      if (context.choice) {
+        const { owner, slot, id: choiceId } = context.choice;
+        const ref = inlineOptionKey(context.choice, id);
+        // An option a dependent pack added is named by that pack, under the choice's own key.
+        const origin = options.optionOrigins?.[`${owner}/${slot?.choice ?? choiceId}`]?.[option];
         return (
-          lookup(inlineOptionKey(context.choice, id)) ??
-          setMember(option, split(context.choice.owner)[0])
+          lookup(ref) ??
+          (origin === undefined ? undefined : message(origin, ref.key)) ??
+          setMember(option, origin ?? split(owner)[0])
         );
+      }
       if (context.action)
         return (
           (context.content ? lookup(contentOptionKey(context.content, option)) : undefined) ??

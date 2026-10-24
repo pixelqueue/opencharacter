@@ -1,0 +1,9 @@
+description: "An add-on's rules-level option effect adds an option to the core's tagged choice step, after the step's own: `<pack>:rules#<id>`; the step still recommends its own"
+specVersion: 0.2.0
+call: startAction
+packs:
+  - path: ../../../packs/test-core
+  - path: ../../../packs/test-addon
+input:
+  action: { id: test-core:train }
+  policy: { choices: pause }

@@ -1,4 +1,4 @@
-description: "An add-on that stops adding a value to its dependency's open enum makes an interface change, named by the enum it added to; a patch bump is too small"
+description: "An add-on that stops adding a value to its dependency's open enum, or an option to its choice, makes an interface change, named by the enum or choice it added to; a patch bump is too small"
 specVersion: 0.2.0
 call: checkRelease
 previous:
@@ -16,7 +16,12 @@ previous:
       extendEnums:
         'test-core:types.weapon.fields.damageType': [sonic, acid]
         'test-core:fields.stance': [floating]
-    content: []
+      extendChoices:
+        'test-core:classes.warden':
+          oath: { items: [oaths.storm] }
+          knack: { options: [{ id: hexing }, { id: cursing }] }
+    content:
+      - { id: oaths.storm, type: oath }
 next:
   inline:
     manifest:
@@ -31,7 +36,11 @@ next:
     rules:
       extendEnums:
         'test-core:types.weapon.fields.damageType': [sonic]
-    content: []
+      extendChoices:
+        'test-core:classes.warden':
+          knack: { options: [{ id: hexing }] }
+    content:
+      - { id: oaths.storm, type: oath }
 dependencies:
   previous:
     - path: ../../../packs/test-core

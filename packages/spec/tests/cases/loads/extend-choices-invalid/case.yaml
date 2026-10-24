@@ -1,0 +1,51 @@
+description: "extendChoices must name a dependency's content (or rules) and a choice it has, with additions of the choice's own kind: each other entry is invalid-extension, an unknown item unknown-reference, an inline option ID already there duplicate-id"
+specVersion: 0.2.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        { id: base-pack, version: 1.0.0, specVersion: 0.2.0, license: CC0-1.0, defaultLanguage: en }
+      rules:
+        contentTypes: { class: {}, kit: {} }
+      content:
+        - { id: kits.rope, type: kit }
+        - id: classes.scout
+          type: class
+          choices:
+            - { id: kit, from: { items: [kits.rope] } }
+            - { id: any-kit, from: { type: kit } }
+            - { id: knack, from: { options: [{ id: tracking }] } }
+  - inline:
+      manifest:
+        {
+          id: other-pack,
+          version: 1.0.0,
+          specVersion: 0.2.0,
+          license: CC0-1.0,
+          defaultLanguage: en,
+        }
+      rules:
+        choices: [{ id: boon, from: { values: [luck] } }]
+      content: []
+  - inline:
+      manifest:
+        {
+          id: addon-pack,
+          version: 1.0.0,
+          specVersion: 0.2.0,
+          license: CC0-1.0,
+          defaultLanguage: en,
+          dependencies: { base-pack: ^1.0.0 },
+        }
+      rules:
+        extendChoices:
+          'base-pack:classes.scout':
+            kit: { values: [lamp] }
+            any-kit: { items: [base-pack:kits.rope] }
+            gear: { items: [base-pack:kits.rope] }
+            knack: { options: [{ id: tracking }] }
+          'base-pack:classes.ranger':
+            kit: { items: [base-pack:kits.rope] }
+          'other-pack:rules':
+            boon: { values: [grace] }
+      content: []

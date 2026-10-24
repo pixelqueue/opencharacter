@@ -1,9 +1,13 @@
 fields:
+  stamina: { type: integer, input: true, default: 3, min: 0 }
   # Open: an add-on may add stances.
   stance: { type: enum, values: [low, high], input: true, default: low, open: true }
 
+tags: [train, train.done]
+
 contentTypes:
   class: {}
+  oath: {}
   weapon:
     carried: true
     fields:
@@ -16,6 +20,9 @@ contentTypes:
 choices:
   - id: class
     from: { type: class }
+  - id: boon
+    required: false
+    from: { values: [luck] }
 
 actions:
   - id: pick-class
@@ -32,3 +39,17 @@ actions:
         kind: outcome
         result: "'picked'"
         data: { class: steps.class.picked }
+  # Its choice step and changes step are tagged, for other packs' option and changes effects.
+  - id: train
+    results: [trained]
+    steps:
+      - id: drill
+        kind: choice
+        tags: [train]
+        options: [{ id: rest }]
+        recommend: options[0]
+      - id: done
+        kind: changes
+        tags: [train.done]
+        changes: [{ type: adjust, field: stamina, by: -1 }]
+      - { id: result, kind: outcome, result: "'trained'", data: { drill: steps.drill.picked } }

@@ -526,8 +526,8 @@ roll.
   evaluated when it runs, with the tags `action` steps running the action add after them, as for
   roll and choice steps) are matched by content's `changes` effects
   (`target: { steps: [<tag>], from? }`, [effects.md](effects.md#targets)). After the step's own
-  `release` and `changes`, each active `changes` instance whose source is a content item or a
-  template, whose target tags match one of the step's (a tag matches itself and the tags below
+  `release` and `changes`, each active `changes` instance whose source is a content item, a
+  template or the rules' effects (`item` and `self` unbound, `from: self` never matching), whose target tags match one of the step's (a tag matches itself and the tags below
   it), whose `from: self` (if any) names the action's own copy, and whose `when` holds, proposes
   its `changes`, in instance order, `to` its value's `to`, else the step's. Its formulas see what
   an added option's see: `item` and `self` the content carrying the effect (`entry: self` its
@@ -707,12 +707,13 @@ A choice step has one source of options (a fifth, pending choices, is
   instance order, as for roll effects) whose target tags match one of the step's evaluated tags
   ([tag matching](effects.md#tag-matching)), whose `from: self`, if given, names the action's
   entry, and whose `when` holds. Its ID is `<content id>#<option id>`, the content being the item
-  whose copy, pick or grant carries the effect. Of the effects sharing a `stackKey` (`source`: the
+  whose copy, pick or grant carries the effect, or `<pack>:rules#<option id>` for the rules'
+  effects (`item` and `self` unbound; `from: self` never matches). Of the effects sharing a `stackKey` (`source`: the
   same source, as for stacking), only the first offered is; an ID offered already (two copies
   of one item) is offered once. Its `when` and `changes` see the action context with `item`,
   `self` and the content's other roots the effect's, `action` the action's own (`action.item`,
-  `action.self`, `action.step`) and, in `when`, `picks`. Rules-level effects and situational
-  choices add no options. Nothing else changes for a step without `tags`.
+  `action.self`, `action.step`) and, in `when`, `picks`. A situational choice's and a choice's
+  effects add no options. Nothing else changes for a step without `tags`.
 - **Candidate formulas.** A written option's `when` sees the action context and `picks`. A query
   source's `where` and `prefer` see the action context with `item` the candidate's item view,
   `self` the candidate copy (copies only; over content `self` isn't bound), `picks` and

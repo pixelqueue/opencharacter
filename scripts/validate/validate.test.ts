@@ -211,7 +211,7 @@ describe('pnpm validate', () => {
       ['results from an unknown band set', /actions.peek: unknown result bands "nothing"/],
       ['an undeclared choice step tag', /actions.aim step pick: unknown-tag: "ranged"/],
       ['a written option changing an unknown field', /step pick: unknown field "hp.gone"/],
-      ['an option effect outside content', /option effects are only for content items/],
+      ['a rules option effect from self', /from: self is for content's effects, not the rules'/],
       [
         'an actions group over content',
         /group moves: an actions group's members must be "type: action"/,

@@ -98,6 +98,12 @@ Bare field names in formulas resolve the same way as local content references: t
 ## Overrides, hiding and `extends`
 
 - **Override:** a content file with `override: <qualified id>` instead of `id`/`type` changes only the properties it mentions ("Longsword damage is 1d10"). Arrays (effects, tags, choices) are replaced as a whole. **PROVISIONAL**: finer-grained array patching is undecided.
+- **Extensions:** a pack adds to its dependencies without overriding them, so add-ons don't
+  collide: values to an open enum (`extendEnums`, [rules-and-fields.md](rules-and-fields.md#open-enums)),
+  options to a choice (`extendChoices`, [content.md](content.md#adding-options-to-a-dependencys-choices)),
+  and, from its rules' `option` and `changes` effects, options and changes to tagged action steps
+  ([effects.md](effects.md#targets)). Additions merge in load order and are applied after
+  overrides.
 - **Hide:** `hides` in the manifest removes dependency content from the ruleset. Queries no longer match it. A character that owns hidden content gets a rules issue (`content-hidden`), not an error.
 - **Extends:** `extends: <ref>` makes a permanent variant. The item inherits everything from its parent and then applies its own properties, with the same replacement rules as overrides. `extends` chains MUST NOT loop (`circular-extends`) and are limited by the `maxExtendsDepth` safety limit. Overrides, `extends` and `hides` work on content items only. A new edition of a game is its own pack and doesn't depend on the earlier one; a content pack depends on the one edition it was built for.
 - **Templates** are different: they are applied to a character's copy during play ([content.md](content.md#templates)).
@@ -139,6 +145,9 @@ Besides schema validation, a conforming pack:
 - has a matching `id` for every content file path, and no duplicate IDs across the merged rules;
 - resolves every reference: content types, `extends`, grants, choice item lists, query types, action `use`, result-band sets, display-hint fields and groups, effect target fields;
 - gives every content item's fields values of their declared types, with no undeclared fields and no missing required ones;
+- adds only to its dependencies' open enums and existing choices, each addition of the choice's
+  kind, and checks its content against the enums as its dependencies and its own additions
+  leave them;
 - has a default-language i18n file containing every required key ([i18n.md](i18n.md));
 - has a `credit` line when the license is CC-BY;
 - has a `credit` line and the notices `orc`, `reserved-material` and `expressly-designated` when the

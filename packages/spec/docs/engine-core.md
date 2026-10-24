@@ -65,6 +65,14 @@ Input: pack releases in load order (later packs win). Output: a ruleset, or erro
      two packs override the same property of the same item, the later one wins and the pair is
      reported in `conflicts`.
    - **`hides`:** hidden items stay in the ruleset, marked `hidden: true`. Queries skip them.
+   - **Choice extensions:** after every override, each pack's `extendChoices`, in load order,
+     appends its items, values or inline options (qualified in the adding pack, inline options
+     kept as that pack's) to the choice it names, each item or value once; the ruleset's
+     `optionOrigins` maps each added value and inline option to its pack. An owner pack that
+     isn't a dependency of the adding one, a choice the owner doesn't have, or an addition of
+     another kind is `invalid-extension`; an owner that isn't loaded content `unknown-reference`;
+     an inline option ID the choice has `duplicate-id`
+     ([content.md](content.md#adding-options-to-a-dependencys-choices)).
    - **Item fields:** each item's own `fields` (an override's too) must be declared by its
      content type and have the declared shape: no list for an `integer`, `decimal`, `boolean` or
      `dice` field (a string there is a formula, checked in step 5), a string for a `string` or

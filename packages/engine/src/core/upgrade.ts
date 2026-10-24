@@ -12,6 +12,7 @@ import type { EngineError } from './load.ts';
 import type {
   CharacterDoc,
   Choice,
+  ChoiceAddition,
   ChoiceTree,
   ContentItem,
   Entry,
@@ -807,6 +808,16 @@ function breakingBump(prev: string, next: string): boolean {
   return semver.major(prev) === 0 && semver.minor(next) > semver.minor(prev);
 }
 
+/** The option IDs a choice extension adds. */
+const added = (a: ChoiceAddition | undefined): string[] =>
+  !a
+    ? []
+    : 'items' in a
+      ? a.items
+      : 'values' in a
+        ? a.values.map(String)
+        : a.options.map((o) => o.id);
+
 /** checkRelease: compares a pack's new release with its previous one (the build check). */
 export function checkRelease(
   previous: PackRelease,
@@ -938,6 +949,13 @@ export function checkRelease(
       if (!kept.has(value))
         interfaceChanges.push({ kind: 'extension-removed', id: `${target}/${value}` });
   }
+  for (const [target, choices] of Object.entries(previous.rules.extendChoices ?? {}))
+    for (const [choice, addition] of Object.entries(choices)) {
+      const kept = new Set(added(next.rules.extendChoices?.[target]?.[choice]));
+      for (const id of added(addition))
+        if (!kept.has(id))
+          interfaceChanges.push({ kind: 'extension-removed', id: `${target}/${choice}/${id}` });
+    }
   const nextActions = new Set((next.rules.actions ?? []).map((a) => a.id));
   for (const action of previous.rules.actions ?? [])
     if (!nextActions.has(action.id))

@@ -2612,6 +2612,17 @@ function optionFrame(frame: Frame, instance: EffectInstance): Frame {
   };
 }
 
+/**
+ * Content items, templates and the rules add options and changes to steps; `from: self`, only a
+ * copy's to its own actions.
+ */
+function addsToSteps(instance: EffectInstance, frame: Frame, from: string | undefined): boolean {
+  const { type, id, entry } = instance.source;
+  if (type === 'rules') return from !== 'self' && id !== undefined;
+  if (type !== 'item' && type !== 'template') return false;
+  return id !== undefined && (from !== 'self' || entry === frame.entry);
+}
+
 /** Of instances sharing a `stackKey` or an ID, only the first is offered. */
 function addedOptions(
   ctx: Ctx,
@@ -2628,9 +2639,7 @@ function addedOptions(
     const target = effect.target;
     if (effect.op !== 'option' || typeof target !== 'object' || !('choices' in target)) continue;
     if (!target.choices.some((tag) => matchesTag(tag, tags))) continue;
-    if (target.from === 'self' && instance.source.entry !== frame.entry) continue;
-    if (instance.source.type !== 'item' && instance.source.type !== 'template') continue;
-    if (instance.source.id === undefined) continue;
+    if (!addsToSteps(instance, frame, target.from)) continue;
     const value = effect.value as OptionValue;
     const id = `${instance.source.id}#${value.id}`;
     if (out.some((c) => c.id === id)) continue;
@@ -3334,8 +3343,7 @@ function addedChanges(ctx: Ctx, frame: Frame, step: Step, path: string): void {
     const target = effect.target;
     if (effect.op !== 'changes' || typeof target !== 'object' || !('steps' in target)) continue;
     if (!target.steps.some((tag) => matchesTag(tag, tags))) continue;
-    if (target.from === 'self' && instance.source.entry !== frame.entry) continue;
-    if (instance.source.type !== 'item' && instance.source.type !== 'template') continue;
+    if (!addsToSteps(instance, frame, target.from)) continue;
     const added = optionFrame(frame, instance);
     if (effect.when !== undefined) {
       const v = ctx.sheet.evaluate(effect.when, instance.pack, context(added, { action }));

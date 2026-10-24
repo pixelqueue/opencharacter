@@ -128,6 +128,11 @@ export interface Ruleset {
   familyOrigins: Record<string, Record<string, string>>;
   /** By `<pack>:<enum>` address: the pack each added value comes from, whose text names it. */
   enumOrigins: Record<string, Record<string, string>>;
+  /**
+   * By `<owner key root>/<choice>`: the pack each value or inline option another pack added to
+   * the choice comes from, whose text names it.
+   */
+  optionOrigins: Record<string, Record<string, string>>;
   conflicts: Conflict[];
   /** The releases loaded, so a character's homebrew can be layered wherever the ruleset is sent. */
   sources: PackRelease[];

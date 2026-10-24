@@ -117,6 +117,27 @@ monster starts) offer it beside the core's own:
   The ruleset's `enumOrigins` says which pack added each value; pass it to `createText`
   ([Showing text](showing-text.md)) so added values get their names.
 
+- **Choice options.** A core choice over listed items, written values or inline options (a
+  class's subclass pick) takes options from the add-on's rules' `extendChoices`, after the core's
+  own and other add-ons', without overriding the class, so two add-ons both count:
+
+  ```yaml
+  extendChoices:
+    'orc-2e:classes.barbarian':
+      instinct: { items: [instincts.sonic] }
+  ```
+
+  Added inline options and values are named in the add-on's text under the core's key; pass
+  `ruleset.optionOrigins` to `createText` too.
+
+- **Action steps.** The add-on's rules' `option` and `changes` effects reach the core's tagged
+  choice and changes steps (an extra option in a creation step), its options named
+  `rules.options.<id>.name`.
+
+An add-on can't change what the core wrote out by ID: a fixed kit list, a random table over core
+IDs, a choice over a query whose `where` lists IDs. Those are for the core pack to open up, with
+tags, item fields or the extensions above.
+
 ## Which packs a character uses
 
 A character file pins the **exact versions** of the packs it uses, in load order:

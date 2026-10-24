@@ -106,6 +106,16 @@
         }
       }
     },
+    "optionOrigins": {
+      "description": "Values and inline options packs add to other packs' choices (`extendChoices`): by `<owner>/<choice>`, the choice's owner key root as a choice names it (`<pack>:<content id>`, `<pack>:rules`, plus `.choices.<choice>.options.<option>` for an inline option's) and its declared ID, each added option's pack, whose text names it.",
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": {
+          "type": "string"
+        }
+      }
+    },
     "conflicts": {
       "description": "Overrides of the same property by two packs; the later pack won.",
       "type": "array",

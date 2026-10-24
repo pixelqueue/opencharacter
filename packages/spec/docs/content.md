@@ -1084,6 +1084,55 @@ The siblings are the choices of the same owner: the item's, or an inline option'
 `two-and-one`'s). Picks are saved input, so two choices may read each other without a loop; each
 sees the other's picks, not its recommendation.
 
+### Adding options to a dependency's choices
+
+A pack that depends on another may add options to that pack's choices without overriding the
+owner, so two add-ons that each add a subclass to the same class both count. It lists them in a
+rules document's `extendChoices`, by the choice's owner, a qualified content ID or
+`<pack>:rules` for a rules-level choice, then by the choice's ID:
+
+```yaml
+# packages/spec/tests/packs/test-addon/rules/core.yaml: an add-on depending on test-core
+extendChoices:
+  'test-core:classes.warden':
+    oath: { items: [oaths.storm] } # its own content, resolved in this pack
+    knack:
+      options:
+        - id: hexing
+          effects: [{ target: hexes, op: add, value: hexPower }] # its own fields
+    skills: { values: [fly] }
+  'test-core:rules':
+    boon: { values: [grace] }
+# its i18n/en.yaml
+classes.warden.choices.knack.options.hexing.name: Hexing
+```
+
+- **Kind.** An addition is the choice's own kind: `items` for a choice over listed items,
+  `values` for written values, `options` for inline options. A choice over a query, or over a
+  `values` formula, takes no additions (the query offers the add-on's content already, by its
+  type), and neither does an addition of another kind: `invalid-extension`.
+- **Which choice.** The ID is the declared one (a slotted choice gains the options in every
+  slot); `<choice>/<option>/<choice>` names a choice of one of its inline options. A choice the
+  owner doesn't have, after overrides, is `invalid-extension`; an owner that isn't loaded content,
+  `unknown-reference`. The owner's pack must be a dependency of the adding pack.
+- **Order.** The additions come after the choice's own options, in load order, and are applied
+  after every override, so an override of the owner keeps them. A listed item or a value already
+  offered is offered once; an inline option whose ID the choice has already is `duplicate-id`.
+  They change the named item only, not items that `extends` it.
+- **Added inline options** belong to the adding pack: their effects, grants, prerequisites and
+  choices read its fields and resolve its references, with the owner's `item` and `self`. They
+  are named in its text under the key the owner's pack would use
+  (`<owner>.choices.<choice>.options.<id>.name`, required); added values optionally so. Their
+  own `option` and `changes` effects would be named by the owner, so they are a build error: the
+  adding pack writes them in its rules' effects instead (below). The
+  ruleset's `optionOrigins` maps each added value and inline option to its pack, by
+  `<owner key root>/<choice>`, so an app (and the wording helper) looks the name up there.
+- **Releases.** Dropping an addition is an interface change (`extension-removed`), see
+  [upgrades.md](upgrades.md#a-packs-interface).
+
+Choice steps of actions take options from the rules too: an add-on's rules-level `option` and
+`changes` effects reach a dependency's tagged steps ([effects.md](effects.md#targets)).
+
 ### Where picks are kept
 
 Picks for a copy's choices live in its entry's `choices` tree:

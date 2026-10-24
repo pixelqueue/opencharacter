@@ -25,6 +25,7 @@ const text = createText({
   content: ruleset.content, // optional: content types for headlines
   display: ruleset.rules.display, // optional: field formats for headlines
   enumOrigins: ruleset.enumOrigins, // optional: names for values add-on packs add to enums
+  optionOrigins: ruleset.optionOrigins, // optional: names for options add-ons add to choices
 });
 ```
 

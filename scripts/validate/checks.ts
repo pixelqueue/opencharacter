@@ -46,6 +46,7 @@ import type {
   ActionOrUse,
   CharacterDoc,
   Choice,
+  ChoiceAddition,
   CreationStart,
   ChoiceTree,
   ContentItem,
@@ -236,6 +237,8 @@ export class PackChecker {
 
     for (const [target, { def: values, at: file }] of rules.extendEnums)
       this.enumExtension(target, values, file);
+    for (const [target, { def: choices, at: file }] of rules.extendChoices)
+      this.choiceExtension(target, choices, file);
 
     this.calculationOrder();
 
@@ -365,7 +368,10 @@ export class PackChecker {
     for (const [, { def, at: file }] of rules.actions) this.action(def, file, `actions.${def.id}`);
     this.offerable = undefined;
     this.creation(rules.creation);
+    // The rules' option and changes effects add to tagged steps, their options named `rules.options.<id>`.
+    this.contentOwner = 'rules';
     for (const { def, at: file } of rules.effects) this.effect(def, file, 'rules effect', false);
+    this.contentOwner = undefined;
     this.followUps(
       rules.followUps.map(({ def, at }) => ({ def, file: at })),
       'followUps',
@@ -1095,6 +1101,76 @@ export class PackChecker {
     }
   }
 
+  /**
+   * Options for a dependency's choice, of the choice's kind: named in this pack's text by the key
+   * the choice's own pack would use.
+   */
+  private choiceExtension(
+    target: string,
+    choices: Record<string, ChoiceAddition>,
+    file: string,
+  ): void {
+    const where = `extendChoices ${target}`;
+    const colon = target.indexOf(':');
+    const owner = target.slice(0, colon);
+    const local = target.slice(colon + 1);
+    if (owner === this.packId || !this.scope.includes(owner)) {
+      this.report.error(file, `${where}: invalid-extension: ${owner} is not a dependency`);
+      return;
+    }
+    let roots: Choice[] | undefined;
+    if (local === 'rules')
+      roots = [...(this.ruleset.rules.get(owner)?.choices.values() ?? [])].map((c) => c.def);
+    else {
+      // An item without choices of its own takes its parent's.
+      let entry = this.ruleset.item(target, this.ruleset.scope(owner));
+      const seen = new Set<string>();
+      while (entry && !entry.item.choices && entry.item.extends && !seen.has(entry.qid)) {
+        seen.add(entry.qid);
+        entry = this.ruleset.item(entry.item.extends, this.ruleset.scope(entry.pack));
+      }
+      if (!entry) {
+        this.report.error(file, `${where}: unknown content "${target}"`);
+        return;
+      }
+      roots = entry.item.choices ?? [];
+    }
+    for (const [path, addition] of Object.entries(choices)) {
+      const parts = path.split('/');
+      let choice = roots.find((c) => c.id === parts[0]);
+      let key = `${local}.choices.${parts[0]}`;
+      for (let at = 1; choice && at < parts.length; at += 2) {
+        const from = choice.from;
+        const option = 'options' in from ? from.options.find((o) => o.id === parts[at]) : undefined;
+        choice = option?.choices?.find((c) => c.id === parts[at + 1]);
+        key = `${key}.options.${parts[at]}.choices.${parts[at + 1]}`;
+      }
+      const label = `${where} ${path}`;
+      if (!choice) {
+        this.report.error(file, `${label}: invalid-extension: no such choice`);
+        continue;
+      }
+      const from = choice.from;
+      if ('items' in addition && 'items' in from) {
+        for (const ref of addition.items)
+          if (!this.ruleset.item(ref, this.scope))
+            this.report.error(file, `${label}: unknown option "${ref}"`);
+      } else if ('values' in addition && 'values' in from && Array.isArray(from.values)) {
+        this.optionalPrefixes.add(`${key}.options.`);
+      } else if ('options' in addition && 'options' in from) {
+        for (const option of addition.options)
+          if (from.options.some((o) => o.id === option.id))
+            this.report.error(file, `${label}: duplicate option id "${option.id}"`);
+        this.inlineOptions(addition.options, file, key);
+      } else {
+        this.report.error(
+          file,
+          `${label}: invalid-extension: the choice doesn't take ${Object.keys(addition)[0]}`,
+        );
+      }
+    }
+  }
+
   private itemFieldValue(value: Literal, decl: ValueDecl, file: string, where: string): void {
     if (!fitsItemField(value, decl)) {
       const expected: Record<string, string> = {
@@ -1513,6 +1589,13 @@ export class PackChecker {
     } else if ('steps' in effect.target) {
       this.tagList(effect.target.steps, file, label);
     }
+    if (
+      this.contentOwner === 'rules' &&
+      typeof effect.target === 'object' &&
+      ('choices' in effect.target || 'steps' in effect.target) &&
+      effect.target.from === 'self'
+    )
+      this.report.error(file, `${label}: from: self is for content's effects, not the rules'`);
     // A changes effect adds to a step the way an option effect does, so it too belongs on a content
     // item.
     if (effect.op === 'changes') {
@@ -1520,7 +1603,7 @@ export class PackChecker {
       if (this.contentOwner === undefined)
         this.report.error(
           file,
-          `${label}: changes effects are only for content items and types (their effects, choices and inline options)`,
+          `${label}: changes effects are only for the rules' effects and content items and types (their effects, choices and inline options)`,
         );
       for (const change of value.changes ?? [])
         this.proposedChange(change, file, label, false, new Set(), value.to);
@@ -1532,7 +1615,7 @@ export class PackChecker {
       if (this.contentOwner === undefined)
         this.report.error(
           file,
-          `${label}: option effects are only for content items and types (their effects, choices and inline options)`,
+          `${label}: option effects are only for the rules' effects and content items and types (their effects, choices and inline options)`,
         );
       else this.requiredKeys.add(`${this.contentOwner}.options.${value.id}.name`);
       for (const change of value.changes ?? [])

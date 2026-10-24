@@ -45,6 +45,7 @@ One-line definitions of OCF terms, consistent with the [specification](../../pac
 - **Exclusivity group:** choices sharing a `unique` key; an option picked in one is ineligible (`already-picked`) in the others.
 - **Export:** a file of one or more characters with every pack version they pin, each by reference (ID, version, optional URL and integrity hash) or embedded as a release; one that embeds every pack is a bundle, which opens anywhere with nothing else.
 - **Extends:** a pack author's permanent variant of an item, inheriting everything and overriding parts.
+- **Extension (pack):** what a pack adds to a dependency without overriding it: values to an open enum (`extendEnums`), options to a choice (`extendChoices`), options and changes to tagged action steps (its rules' `option` and `changes` effects); additions merge in load order.
 - **Extension (character):** app-specific data in a character file under the app's own namespace, carried along untouched.
 - **Field:** one value on a character, keyed by a permanent field ID.
 - **Field parameter:** an action parameter of type `id` with `of: field`, read as `params.<name>.value` and `.id`.
