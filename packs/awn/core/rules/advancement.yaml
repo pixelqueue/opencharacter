@@ -86,6 +86,7 @@ actions:
   # A new edge, with what it brings: its bonus skill (a pick at creation, three skill points
   # later), Educated's points for earlier levels, a later Mutant's mutations.
   - id: gain-edge
+    available: edges.count < edges.allowed
     tags: [advancement]
     params:
       random: { type: boolean, default: false }
@@ -129,6 +130,7 @@ actions:
   # A focus level: a new focus at level 1 with its bonus skills (a pick each at creation, three
   # skill points each later), or the second level of one the character has.
   - id: gain-focus
+    available: foci.count < foci.allowed
     tags: [advancement]
     params:
       random: { type: boolean, default: false }
@@ -227,6 +229,7 @@ actions:
 
   # A bonus skill: a skill pick at creation, three skill points toward it afterwards.
   - id: bonus-skill
+    listed: false
     params:
       skills: { type: set, of: string, default: [] }
       random: { type: boolean, default: false }
@@ -249,6 +252,7 @@ actions:
   # Skill points spent toward one skill, raising it as far as they go with its credit; what's
   # left stays as credit. A skill at level-4 can't take them, so another is chosen.
   - id: skill-points-toward
+    listed: false
     params:
       skills: { type: set, of: string, default: [] }
       points: { type: integer, default: 3, min: 0 }
