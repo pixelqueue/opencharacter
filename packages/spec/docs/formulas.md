@@ -487,8 +487,10 @@ computed:
   content or an inline option (the choices nested under the pick), or the rules. A choice's formulas see the choices of the choice's owner, its siblings and
   itself (`picksOf` of its own ID is `choice.picks`). A content type's formulas run for each item,
   and a rules action a copy uses (`use`) for that copy, so they see that item's choices; a rules
-  action run with no copy, and the rules' effects, follow-ups and choices, see the rules-level
-  choices. Content a choice picks doesn't see the choices of the content that picked it.
+  action run or listed with no copy (its `available` included, as computeSheet lists it and as a
+  follow-up's action is checked), and the rules' effects, follow-ups and choices, see the
+  rules-level choices, as `picksOf('rules', choice)` reads them. Content a choice picks doesn't
+  see the choices of the content that picked it.
 - **The ID** is a string literal (`type-mismatch` otherwise): a choice ID, or a slot's key
   (`class-feat-2`). Choice IDs have hyphens, which a dotted name can't, so the picks are a
   function rather than a root. Where the owner is known at load (an item's, a template's or an

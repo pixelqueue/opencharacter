@@ -3236,7 +3236,7 @@ export class Sheet {
       if (used.has(qid) || (!unlisted && def.listed === false)) continue;
       let available = false;
       try {
-        available = this.test(def.available, def.pack, {});
+        available = this.test(def.available, def.pack, this.rulesRoots());
       } catch (error) {
         if (!(error instanceof Failure)) throw error;
       }

@@ -1,0 +1,42 @@
+description: "Rules-level formulas with no owner don't bind the one-argument `picksOf`, so it is `unknown-function` at load in a constraint, a constraint's copy query, a display hint's `showWhen` and a situational choice's `available`; a rules action's `available` and steps, which read the rules-level choices, pass"
+specVersion: 0.2.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.2.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        tags: [damage]
+        fields:
+          hp: { type: integer, input: true, default: 10 }
+        contentTypes:
+          gear: {}
+        choices:
+          - id: oath
+            required: false
+            from: { values: [valor, mercy] }
+        constraints:
+          - id: sworn
+            check: size(picksOf('oath')) > 0
+          - id: sworn-gear
+            copies: { type: gear, where: size(picksOf('oath')) > 0 }
+            check: 'true'
+        display:
+          fields:
+            hp: { showWhen: size(picksOf('oath')) > 0 }
+        situational:
+          - id: guarded
+            type: boolean
+            default: false
+            incoming: { fields: [hp], tags: [damage] }
+            available: size(picksOf('oath')) > 0
+        actions:
+          - id: swear
+            available: size(picksOf('oath')) == 0
+            steps:
+              - { id: done, kind: outcome, data: { oath: picksOf('oath') } }
+      content: []
