@@ -94,6 +94,7 @@ The key conventions ([Translation](../../../packages/spec/docs/i18n.md#key-conve
 | A display group             | group `combat` (with its `pack`)                          | `groups.combat.label`                                                |
 | A rules action              | `5e-srd-5.1:weapon-attack`                                | `actions.weapon-attack.name`                                         |
 | An action on an item        | `5e-srd-5.1:features.fighter.second-wind#second-wind`     | `features.fighter.second-wind.actions.second-wind.name`              |
+| An action on a content type | `fate-core:stunts.psychologist#use`                       | `stunts.psychologist.actions.use.name`, else `types.stunt.use.name`  |
 | An action's choice option   | option `hit` of `weapon-attack`                           | `actions.weapon-attack.options.hit.name`                             |
 | An action's choice question | `needs` `{ action, step: 'hit/confirm' }`                 | `actions.weapon-attack.steps.confirm.prompt`                         |
 | An action's roll (optional) | `needs` or log `{ action, step: 'damage' }`               | `actions.weapon-attack.steps.damage.name`                            |

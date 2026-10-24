@@ -22,7 +22,7 @@ const text = createText({
   packs: { en: packsEn }, // by language, then pack ID
   spec: { en: specEn },
   contentTypes: ruleset.contentTypes, // optional: field defaults for content cards
-  content: ruleset.content, // optional: content types for headlines
+  content: ruleset.content, // optional: content types for headlines and type actions
   display: ruleset.rules.display, // optional: field formats for headlines
   enumOrigins: ruleset.enumOrigins, // optional: names for values add-on packs add to enums
   optionOrigins: ruleset.optionOrigins, // optional: names for options add-ons add to choices
@@ -34,6 +34,9 @@ const text = createText({
   `@opencharacter/packs/i18n/<lang>`. A single pack's text goes in as
   `{ en: { '5e-srd-5.1': srdEn } }`; a character's homebrew text under the pack ID `homebrew`
   (`character.homebrew.i18n.en`).
+- **Give it `content`** (`ruleset.content`) for an action a content type gives its items: its ID
+  is `<item>#<action>` (a Fate stunt's `fate-core:stunts.psychologist#use`), its text is the
+  type's (`types.stunt.use.name`), and the bundle finds the type there.
 - A key missing in every listed language falls back to any other language the bundle holds for
   that pack, so a pack's default language fills the gaps of a partial translation.
 - Messages are formatted with ICU MessageFormat (`intl-messageformat`), in the language they

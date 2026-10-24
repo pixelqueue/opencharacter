@@ -407,6 +407,17 @@ describe('Fate', () => {
     // A band that holds whatever the roll: no tests, no text.
     expect(worded.targets?.at(-1)).toEqual({ band: 'terrible', name: 'Terrible (−2)' });
   });
+
+  it("names an action a content type gives its items by the type's text", () => {
+    expect(text.action('fate-core:stunts.psychologist#use')).toBe('Use stunt');
+    expect(text.action('fate-core:advantages.advantage#invoke')).toBe('Invoke for free');
+    expect(text.param('fate-core:consequences.consequence#recover', 'skill')).toBe(
+      'Skill (treating yourself)',
+    );
+    expect(text.stepPrompt({ action: 'fate-core:stunts.psychologist#use', step: 'spend' })).toBe(
+      'Use stunt',
+    );
+  });
 });
 
 describe('orc-2e', () => {

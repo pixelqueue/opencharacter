@@ -62,7 +62,7 @@ export interface TextOptions {
   spec: Readonly<Record<string, Messages>>;
   /** `ruleset.contentTypes`, for blocks' field defaults; else pass the type to `contentBlock`. */
   contentTypes?: Readonly<Record<string, BlockType>>;
-  /** `ruleset.content`, for a headline's content of a type. */
+  /** `ruleset.content`: a headline's content of a type; the text of a content type's actions. */
   content?: Readonly<Record<string, HeadlineItem>>;
   /** Field display hints (`ruleset.rules.display`), for a headline's `field_<field>_text`. */
   display?: { fields?: Readonly<Record<string, FieldHint>> } | undefined;
@@ -325,8 +325,23 @@ export function createText(options: TextOptions): Text {
     typeof data?.message === 'string' && data.message.trim()
       ? data.message
       : (specMessage('errors.other', { code }) ?? code);
-  const lookup = (ref: MessageRef, args?: Args) =>
-    ref.pack === null ? specMessage(ref.key, args) : message(ref.pack, ref.key, args);
+  // An action a content type gives its items is keyed under the type: `<item>.actions.<action>…`
+  // falls back to `types.<type>.<action>…`, the type found through `options.content`.
+  const typeActionRef = (ref: MessageRef): MessageRef | undefined => {
+    const at = ref.pack === null ? -1 : ref.key.indexOf('.actions.');
+    if (at <= 0) return undefined;
+    const typeId = options.content?.[`${ref.pack}:${ref.key.slice(0, at)}`]?.type;
+    if (typeId === undefined) return undefined;
+    const [pack, local] = split(typeId);
+    return { pack, key: `types.${local}.${ref.key.slice(at + '.actions.'.length)}` };
+  };
+  const lookup = (ref: MessageRef, args?: Args): string | undefined => {
+    if (ref.pack === null) return specMessage(ref.key, args);
+    const own = message(ref.pack, ref.key, args);
+    if (own !== undefined) return own;
+    const typed = typeActionRef(ref);
+    return typed ? message(typed.pack as string, typed.key, args) : undefined;
+  };
 
   const content = (id: string, args?: Args) => lookup(contentKey(id), args) ?? id;
   // A value added to an open enum is named by the adding pack, under the enum's own key.
