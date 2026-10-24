@@ -15,15 +15,15 @@ tests/cases/<area>/<case-name>/
   expected.yaml    # the expected output
 ```
 
-| Area        | Call(s)                         | Typical inputs                                                    |
-| ----------- | ------------------------------- | ----------------------------------------------------------------- |
-| `formulas/` | parse, print, evaluate          | formula text or tree, a context (field values, `item`, `self`, …) |
-| `sheets/`   | `computeSheet`                  | packs, character, competing-option picks                          |
-| `options/`  | `listOptions`                   | packs, character, choice path                                     |
-| `changes/`  | `applyChanges`                  | packs, character, changes, `strict`                               |
-| `actions/`  | `startAction`, `continueAction` | packs, character, action, params, situational, policy, die faces  |
-| `upgrades/` | `upgrade`, `checkRelease`       | old and new packs, character                                      |
-| `loads/`    | `loadRuleset`                   | packs                                                             |
+| Area        | Call(s)                                           | Typical inputs                                                    |
+| ----------- | ------------------------------------------------- | ----------------------------------------------------------------- |
+| `formulas/` | parse, print, evaluate                            | formula text or tree, a context (field values, `item`, `self`, …) |
+| `sheets/`   | `computeSheet`                                    | packs, character, competing-option picks                          |
+| `options/`  | `listOptions`                                     | packs, character, choice path                                     |
+| `changes/`  | `applyChanges`                                    | packs, character, changes, `strict`                               |
+| `actions/`  | `startAction`, `continueAction`, `describeAction` | packs, character, action, params, situational, policy, die faces  |
+| `upgrades/` | `upgrade`, `checkRelease`                         | old and new packs, character                                      |
+| `loads/`    | `loadRuleset`                                     | packs                                                             |
 
 ## Formula cases
 
@@ -138,7 +138,7 @@ input: # any other call inputs (action, params, situational, policy, strict, lin
   `test-target-formula`, effects whose target is a formula (`target: { formula }`),
   `test-part-rolls`, advantage and disadvantage on a roll's parts (`of: roll`), and
   `test-roll-then`, roll effects that end themselves or spend a use once a roll used them
-  (`then`).
+  (`then`), and `test-describe`, actions as `describeAction` reads them.
 - **How outputs compare.** Only what `expected.yaml` lists is compared. A key the call doesn't
   define, in `case.yaml` or `expected.yaml`, is a mistake in the case: runners fail it rather
   than ignore it, so a case never seems to test something it doesn't.
@@ -206,6 +206,10 @@ input: # any other call inputs (action, params, situational, policy, strict, lin
   - `needs` for a final paused result, on the keys it lists (`step`, `action`, `kind`, …);
   - `errors` codes, and `errorData`: per error, its `data` on the keys listed (a replay's
     `index` and `needs`).
+
+- **`describeAction`** cases put `action` (and `links`) in `case.yaml` `input`. `expected.yaml`
+  compares `errors` as codes, or `action`: each key it lists, exactly (`params` and
+  `participants` as whole lists).
 
 - **`upgrade`** cases list the old and new packs as `from` and `to`. Packs are usually written
   inline as pack releases: `{ inline: { manifest, rules, content, upgrades } }`.

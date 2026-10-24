@@ -38,6 +38,7 @@ The spec leaves these to the app. Packs give the app what it needs for each: an 
 | `loadRuleset`    | pack releases in load order                                                                                                    | `{ ok: true, ruleset }` or `{ ok: false, errors }`                                                                                                                         | [load-ruleset](../schemas/engine/load-ruleset.schema.json)       |
 | `computeSheet`   | ruleset, character, optional competing-option picks (a list of option IDs), optional `links`                                   | values with breakdowns, active effects, available actions, offered situational choices, pending choices, offers, competing options, rules issues, computed values per copy | [compute-sheet](../schemas/engine/compute-sheet.schema.json)     |
 | `listOptions`    | ruleset, character, a choice path, optional `links`                                                                            | options, each with `eligible`, `picked`, `recommended` and `reasons`                                                                                                       | [list-options](../schemas/engine/list-options.schema.json)       |
+| `describeAction` | ruleset, character, action (`id`, `entry?`, `source?`), optional `links`                                                       | the action's defining ID, tags, results, parameters (each with `required`, bounds, enum values and the IDs a reference parameter takes) and roles                          | [describe-action](../schemas/engine/describe-action.schema.json) |
 | `applyChanges`   | ruleset, character, changes, `strict?`, optional `links`, optional dice function                                               | `{ ok: true, character, changes, issues }` or `{ ok: false, errors }`                                                                                                      | [apply-changes](../schemas/engine/apply-changes.schema.json)     |
 | `startAction`    | ruleset, character, action (`id`, `entry?`), params, situational, policy, `links?`, `participants?`, `answers?`, dice function | finished, paused, or failure                                                                                                                                               | [start-action](../schemas/engine/start-action.schema.json)       |
 | `continueAction` | ruleset, paused result, answer (`faces`, `option` or a handoff's `outcome`), policy                                            | finished, paused again, or failure                                                                                                                                         | [continue-action](../schemas/engine/continue-action.schema.json) |
@@ -54,7 +55,9 @@ Besides these calls, `checkRelease` ([upgrades.md](upgrades.md#the-build-check),
   show it ([display-hints.md](display-hints.md#shown)). A field that cannot be computed (a loop) has `error`
   instead of `value`, and **everything else still calculates**.
 - `effects` lists active effects; effects excluded by stacking have `suppressed: true`.
-- `actions` lists the actions available now, with the entry each belongs to.
+- `actions` lists the actions available now, with the entry each belongs to: an action inline on
+  an item or its content type as `<item id>#<action id>`, one a `use` offers under the used rules
+  action. [describeAction](#describeaction) gives any of them with its parameters.
 - `groups` lists the display groups, each with whether it is shown and its members: a fields
   group's fields, an actions group's `actions` indices, a content group's `items` (activations
   or applied entries, in section and sort order). Each entry of `activations` names its state
@@ -147,6 +150,27 @@ takes none: it changes saved state only. See [engine-core.md](engine-core.md#lin
 ### listOptions
 
 `listOptions` shows ineligible options **with their reasons** rather than leaving them out; the app decides whether to hide them, grey them out or allow them. **PROVISIONAL**, to be revisited once seen in practice. Each reason is exactly the rules issue `applyChanges` would report if the option were picked anyway.
+
+### describeAction
+
+`describeAction` says what starting an action takes, so an app builds its form without reading
+the definition, wherever it lives: a rules action, one inline on an item or on its content type
+(`<item>#<action>`), or one an item's `use` offers. The action is named as computeSheet lists it,
+`listed: false` ones included; any other is `unknown-action`, as for startAction.
+
+- `definedBy` is the defining action as a pause's `needs.action` names it: the used rules action,
+  or `<item>#<action>`. Its text keys are built from it ([i18n.md](i18n.md#key-conventions)).
+- `params` lists the parameters in declaration order, each `{ name, type, of?, required,
+  default?, fixed?, value?, min?, max?, values?, options?, unique?, label? }`. `required` is
+  true when the parameter is neither `optional`, defaulted nor fixed. A parameter a `use` fixes
+  has `fixed: true` and its `value` as startAction evaluates it; the app's is ignored. `min` and
+  `max` are evaluated as startAction evaluates them, with every situational choice at its
+  default; one that fails is left out.
+- `values` is an enum's values, those dependent packs add included. `options` lists every ID an
+  `id`, `set` or `list` parameter of a content type, `field` or `tag` takes, its `where`
+  applied: content in ruleset order (hidden items left out), fields in ruleset order, tags
+  sorted. `of: string` has none.
+- `participants` lists the roles as `{ role, min, max?, pack? }`; `min` defaults to 0.
 
 ## Three kinds of problem
 

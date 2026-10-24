@@ -14,6 +14,7 @@ import {
   applyChanges,
   computeSheet,
   continueAction,
+  describeAction,
   diceFrom,
   listOptions,
   checkRelease,
@@ -59,6 +60,7 @@ const issueKeys = (issues: { code: string; id?: string }[]) =>
 const caseKeys: Record<string, string[]> = {
   computeSheet: ['packs', 'input'],
   listOptions: ['packs', 'input'],
+  describeAction: ['packs', 'input'],
   applyChanges: ['packs', 'input'],
   startAction: ['packs', 'input', 'answers'],
   upgrade: ['from', 'to'],
@@ -88,6 +90,7 @@ const expectedKeys: Record<string, string[]> = {
     'offers',
   ],
   listOptions: ['options', 'min', 'max', 'errors'],
+  describeAction: ['action', 'errors'],
   applyChanges: ['ok', 'errors', 'issues', 'adjustments', 'followUps', 'character', 'changes'],
   startAction: ['status', 'outcome', 'proposedChanges', 'needs', 'log', 'errors', 'errorData'],
   upgrade: ['ok', 'errors', 'character', 'pending', 'report'],
@@ -313,6 +316,21 @@ function run(dir: string): void {
     }
     if (expected.min !== undefined) expect(result.min).toBe(expected.min);
     if (expected.max !== undefined) expect(result.max).toBe(expected.max);
+    return;
+  }
+
+  if (spec.call === 'describeAction') {
+    const result = describeAction(r, character, input.action, input.links ?? {});
+    if ('errors' in result) {
+      expect(result.errors.map((e) => e.code)).toEqual(expected.errors);
+      return;
+    }
+    expect(expected.errors).toBeUndefined();
+    // Each listed key of the description, exactly.
+    for (const [key, want] of Object.entries((expected.action ?? {}) as Record<string, unknown>))
+      expect((result.action as Record<string, unknown>)[key] ?? null, `action.${key}`).toEqual(
+        want,
+      );
     return;
   }
 

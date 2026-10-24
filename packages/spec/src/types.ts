@@ -2196,6 +2196,76 @@ export type ContinueActionInput = {
 
 export type ContinueActionOutput = ActionResult;
 
+export type DescribeActionInput = {
+  ruleset: Ruleset;
+  character: CharacterFile;
+  /** The action as computeSheet lists it (`listed: false` ones too, as startAction takes them). */
+  action: {
+    id: string;
+    entry?: InstanceId;
+    source?: QualifiedId;
+  };
+  links?: Links;
+};
+
+export type DescribedParam = {
+  name: Name;
+  type: DeclValueType;
+  /** id/set/list: `field`, `tag`, `string` or the qualified content type. */
+  of?: string;
+  /** Neither `optional`, defaulted nor fixed: startAction needs a value (`missing-param`). */
+  required: boolean;
+  default?: Literal;
+  /** The item's `use` fixes it: startAction takes `value`, never the app's. */
+  fixed?: true;
+  /** A fixed parameter's value, evaluated as startAction does; dice as canonical text. */
+  value?: unknown;
+  /** The `min` bound, evaluated as startAction does with every situational choice at its default. */
+  min?: number;
+  /** The `max` bound, evaluated likewise. */
+  max?: number;
+  /** An enum's values, with those dependent packs add (`extendEnums`). */
+  values?: string[];
+  /** id/set/list of a content type, `field` or `tag`: every ID startAction takes, its `where` applied. Content in ruleset order (hidden items left out), fields in ruleset order, tags sorted. */
+  options?: string[];
+  unique?: true;
+  /** The parameter's own label key; without it, `<actionKey>.params.<name>.name`. */
+  label?: I18nKey;
+};
+
+export type DescribedRole = {
+  role: Name;
+  min: number;
+  max?: number;
+  /** The pack participants are expected to use. */
+  pack?: string;
+};
+
+export type DescribeActionOutput =
+  | {
+      action: {
+        action: string;
+        entry?: InstanceId;
+        source?: QualifiedId;
+        /** The action that defines it, as a pause's `needs.action` names it: the rules action a `use` names, or `<item id>#<action id>` for an inline one (on the item or its content type). Its text keys are built from it. */
+        definedBy: string;
+        tags: string[];
+        /** The results its outcome can have, as declared. */
+        results?:
+          | string[]
+          | {
+              bands: string;
+            };
+        /** Its parameters, in declaration order. */
+        params: DescribedParam[];
+        /** Its roles, in declaration order. */
+        participants: DescribedRole[];
+      };
+    }
+  | {
+      errors: EngineError[];
+    };
+
 /** A shape, runtime or load error, returned as data with a stable code from `data/error-codes.json`. Apps render it from the code and data; the spec ships standard translations (`i18n/en.yaml`). */
 export type EngineError = {
   code: string;

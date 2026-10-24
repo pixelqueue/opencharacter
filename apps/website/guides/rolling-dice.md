@@ -29,8 +29,50 @@ how they look, and when to ask the player something.
 - An action whose `available` condition is false (an unequipped sword) isn't listed, and
   neither is one the pack marks `listed: false`: a step that only other actions run.
 
-Name them with `actions.<id>.name`, or `<item>.actions.<action>.name` for an ID with a `#`
-([Text and translation](text-and-translation.md#from-an-id-to-a-key)).
+- An ID with a `#` is an action **inline on an item or its content type**: a Fate stunt's
+  `fate-core:stunts.psychologist#use`, a free invocation's
+  `fate-core:advantages.advantage#invoke`. It isn't in `ruleset.rules.actions`: give it a button
+  like any other, and read its parameters with `describeAction` (below).
+
+Name them with `actions.<id>.name`, or for an ID with a `#`, `<item>.actions.<action>.name`,
+else its type's `types.<type>.<action>.name`
+([Text and translation](text-and-translation.md#from-an-id-to-a-key)); `text.action(id)` does
+both ([Showing text](showing-text.md)).
+
+### Describing an action
+
+`describeAction` takes an action as `computeSheet` listed it and gives what starting it takes,
+wherever it's defined:
+
+```ts
+const described = describeAction(ruleset, character, {
+  id: 'fate-core:consequences.consequence#recover',
+  entry: 'c-ribs',
+});
+// described.action:
+// {
+//   action: 'fate-core:consequences.consequence#recover', entry: 'c-ribs',
+//   definedBy: 'fate-core:consequences.consequence#recover',
+//   tags: [], results: ['recovering', 'failed'],
+//   params: [
+//     { name: 'skill', type: 'id', of: 'field', required: false,
+//       options: ['fate-core:skills.athletics', …] },   // the skills its `where` takes
+//     …
+//   ],
+//   participants: [{ role: 'healer', min: 0, max: 1 }],
+// }
+```
+
+- **`params`** in declaration order: `required` (neither optional, defaulted nor fixed),
+  `default`, `min` and `max` worked out on the sheet, an enum's `values` (an add-on's
+  included), and for a field, content or tag parameter the `options` startAction takes, its
+  `where` applied. Offer those as the picker.
+- **A parameter the item's `use` fixes** has `fixed: true` and its `value`: don't ask for it.
+- **Label each** with `text.param(definedBy, name)`, or `text.lookup` with its own `label` key.
+- **`participants`** lists the action's roles with `min` and `max`
+  ([Other characters](other-characters.md#an-app-with-one-sheet)).
+- An action computeSheet doesn't list for the character is `unknown-action`, as for
+  `startAction`.
 
 ## Running an action
 
@@ -59,14 +101,14 @@ The result is one of three things:
 ### Parameters
 
 Some actions take parameters: a target's AC, which skill to check, which rating to roll. They're
-declared on the action (`ruleset.rules.actions[id].params` for rules actions), each with a type
-and whether it's `optional`. A missing required one is the error `missing-param`; a number
+declared on the action, each with a type and whether it's `optional`;
+[`describeAction`](#describing-an-action) gives them for any listed action, with their options. A missing required one is the error `missing-param`; a number
 outside its `min`/`max` is `out-of-range` (the bounds may read the character: at most the Effort
 it has free).
 
 A **field parameter** (`type: id, of: field`) takes a field ID: a FitD action roll takes the
 rating to roll (`{ rating: 'ratings.skirmish' }`), and its `where` says which fields are allowed
-(`'rating' in item.tags`). Offer the matching fields as a picker.
+(`'rating' in item.tags`). Offer the matching fields as a picker: `describeAction`'s `options`.
 
 A **dice parameter** (`type: dice`) takes dice notation as a string (`'2d6 + 1'`) or a whole
 number: a orc-2e bomb's damage, passed whole to the Strike that throws it.
