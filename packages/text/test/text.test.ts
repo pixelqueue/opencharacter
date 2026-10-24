@@ -699,6 +699,11 @@ describe('FitD crew factions', () => {
     expect(text.stateValue(gang, 'gangType', 'rooks', cohort)).toBe('Rooks');
     expect(text.stateValue(gang, 'extraGangType', 'none', cohort)).toBe('None');
     expect(text.stateValue(gang, 'gangType', 'unknown', cohort)).toBe('unknown');
+    // The type from the bundle's `content`.
+    expect(`${text.state(gang, 'gangType')}: ${text.stateValue(gang, 'gangType', 'thugs')}`).toBe(
+      'Type: Thugs',
+    );
+    expect(text.state(gang, 'nothing')).toBe('nothing');
     expect(keys.stateValueKey(gang, 'gangType', 'rooks')).toEqual({
       pack: 'fitd-crew',
       key: 'cohorts.gang.state.gangType.values.rooks.name',
@@ -870,6 +875,7 @@ describe("values an add-on adds to parameters, items' state and families", () =>
       en: {
         core: {
           'actions.strike.params.mode.values.quick.name': 'Quick',
+          'weapons.club.state.grip.name': 'Grip',
           'weapons.club.state.grip.values.one.name': 'One-handed',
           'actions.pick-ward.options.fire.name': 'Fire',
         },
@@ -893,6 +899,7 @@ describe("values an add-on adds to parameters, items' state and families", () =>
     expect(text.paramValue('core:strike', 'mode', 'quick')).toBe('Quick');
     expect(text.stateValue('core:weapons.club', 'grip', 'none')).toBe('Bare');
     expect(text.stateValue('core:weapons.club', 'grip', 'one')).toBe('One-handed');
+    expect(text.state('core:weapons.club', 'grip')).toBe('Grip');
     expect(text.option('storm', { action: 'core:pick-ward' })).toBe('Storm');
     expect(text.option('fire', { action: 'core:pick-ward' })).toBe('Fire');
     expect(text.option('gale', { action: 'core:pick-ward' })).toBe('gale');

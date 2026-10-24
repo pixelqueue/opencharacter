@@ -22,7 +22,7 @@ const text = createText({
   packs: { en: packsEn }, // by language, then pack ID
   spec: { en: specEn },
   contentTypes: ruleset.contentTypes, // optional: field defaults for content cards
-  content: ruleset.content, // optional: content types for headlines and type actions
+  content: ruleset.content, // optional: content types for headlines, type actions and state
   display: ruleset.rules.display, // optional: field formats for headlines
   enumOrigins: ruleset.enumOrigins, // optional: names for values add-on packs add to enums
   optionOrigins: ruleset.optionOrigins, // optional: names for options add-ons add to choices
@@ -34,6 +34,12 @@ const text = createText({
   `@opencharacter/packs/i18n/<lang>`. A single pack's text goes in as
   `{ en: { '5e-srd-5.1': srdEn } }`; a character's homebrew text under the pack ID `homebrew`
   (`character.homebrew.i18n.en`).
+- **The origins come from the ruleset** `loadRuleset` returned (`loaded.ruleset.enumOrigins`,
+  `.optionOrigins`, `.familyOrigins`), not from `computeSheet`, whose output has none. Without
+  them, a value, option or family key an add-on pack adds shows as its ID. A character's own
+  homebrew may add some too: for that character, take them from
+  `withHomebrew(ruleset, character).ruleset` (`@opencharacter/engine`), the ruleset every call
+  works on, and pass the homebrew's text under `homebrew`.
 - **Give it `content`** (`ruleset.content`) for an action a content type gives its items: its ID
   is `<item>#<action>` (a Fate stunt's `fate-core:stunts.psychologist#use`), its text is the
   type's (`types.stunt.use.name`), and the bundle finds the type there.
@@ -105,6 +111,21 @@ text.value('5e-srd-5.1:spell', 'school', 'evocation'); // 'Evocation'
   (`fields.<field>.values.<v>.name`: `creature.size`'s `medium` is "Medium"), and an action
   parameter's `text.paramValue(action, param, value)`
   (`<actionKey>.params.<param>.values.<v>.name`).
+
+A copy's **state** is named the same way: `text.state(item, key)` names the key and
+`text.stateValue(item, key, value)` an enum value, the item's own text first (a key the item
+declares, `<item>.state.<key>…`), else its type's (`types.<type>.state.<key>…`), else a value an
+add-on adds (`enumOrigins`). The type comes from the bundle's `content`; pass it as the last
+argument without one.
+
+```ts
+// The Ravens' cohort (fitd-crew-ravens.yaml): { item: 'fitd-crew:cohorts.gang',
+//   state: { gangType: 'skulks', … } }
+const gang = 'fitd-crew:cohorts.gang';
+`${text.state(gang, 'gangType')}: ${text.stateValue(gang, 'gangType', 'skulks')}`;
+// 'Type: Skulks'
+text.stateValue(gang, 'gangType', 'skulks', 'fitd-crew:cohort'); // the same, without `content`
+```
 
 ## Forms: item fields and parameters
 

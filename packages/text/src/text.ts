@@ -227,7 +227,12 @@ export interface Text {
   /** The whole roll: the dice, then the flat items' sum, "2d10 + 25"; `repeat` as for `dice`. */
   roll(items: readonly DiceLike[], repeat?: Repeat): string;
   value(type: string, name: string, value: string, of?: 'fields' | 'state'): string;
-  /** The item's own state value names first, else its `type`'s. */
+  /**
+   * A state key's name: the item's own (`<item>.state.<key>.name`), else its type's. `type`
+   * defaults to the item's in `content`.
+   */
+  state(item: string, key: string, type?: string): string;
+  /** The item's own state value names first, else its type's; `type` as for `state`. */
   stateValue(item: string, key: string, value: string, type?: string): string;
   /** A choice with its own `label` key: use `lookup`. */
   situational(id: string): string;
@@ -689,7 +694,13 @@ export function createText(options: TextOptions): Text {
     param: (actionId, param) => lookup(paramKey(actionId, param)) ?? param,
     paramDescription: (actionId, param) => lookup(paramKey(actionId, param, 'description')),
     paramValue: (actionId, param, v) => enumValue(paramValueKey(actionId, param, v), v) ?? v,
-    stateValue: (item, key, v, typeId) =>
+    state(item, key, typeId = options.content?.[item]?.type) {
+      const own = lookup(contentKey(item, `state.${key}.name`));
+      if (own !== undefined || typeId === undefined) return own ?? key;
+      const [pack, local] = split(typeId);
+      return lookup({ pack, key: `types.${local}.state.${key}.name` }) ?? key;
+    },
+    stateValue: (item, key, v, typeId = options.content?.[item]?.type) =>
       enumValue(stateValueKey(item, key, v), v) ??
       (typeId ? enumValue(valueKey(typeId, key, v, 'state'), v) : undefined) ??
       v,
