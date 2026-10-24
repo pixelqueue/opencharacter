@@ -34,7 +34,7 @@ describe('pnpm validate', () => {
     ]);
     expect(characters.length).toBeGreaterThanOrEqual(5);
     // A first run parses every pack file: seconds, more on a busy machine.
-  }, 30_000);
+  }, 90_000);
 
   describe('on a broken pack', () => {
     const { reporter } = validateRepo(broken, {

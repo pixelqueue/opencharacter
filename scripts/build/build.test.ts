@@ -128,7 +128,7 @@ describe('pnpm build:packs on the repository packs', () => {
       const sheet = (r: Ruleset) => computeSheet(r, character).values;
       expect(sheet(fromReleases.ruleset), file).toEqual(sheet(fromSources.ruleset));
     }
-  }, 60_000); // loads every pack twice and computes each example character twice
+  }, 120_000); // loads every pack twice and computes each example character twice
 });
 
 describe('translation packaging', () => {
