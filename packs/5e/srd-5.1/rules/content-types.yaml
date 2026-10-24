@@ -123,6 +123,13 @@ contentTypes:
       hitDie: { type: dice, required: true }
       # Its own starting-equipment action gives its starting kit.
       startingKit: { type: boolean, default: false }
+      # The abilities a random start raises first, in order.
+      abilityPriority1: { type: enum, values: [str, dex, con, int, wis, cha], default: str }
+      abilityPriority2: { type: enum, values: [str, dex, con, int, wis, cha], default: con }
+      abilityPriority3: { type: enum, values: [str, dex, con, int, wis, cha], default: dex }
+      abilityPriority4: { type: enum, values: [str, dex, con, int, wis, cha], default: wis }
+      abilityPriority5: { type: enum, values: [str, dex, con, int, wis, cha], default: cha }
+      abilityPriority6: { type: enum, values: [str, dex, con, int, wis, cha], default: int }
     state:
       level: { type: integer, default: 1, min: 1, max: 20 }
       startingClass: { type: boolean, default: false }

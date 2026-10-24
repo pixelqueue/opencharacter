@@ -147,8 +147,8 @@ actions:
         changes:
           - type: addItem
             entry: { id: background, item: picked.id }
-      # The class's ability priority: the highest roll goes to its first ability, the next to its
-      # second, and so on. A class this pack doesn't know takes the barbarian's (the first).
+      # The class's ability priority (its abilityPriority fields): the highest roll goes to its
+      # first ability, the next to its second, and so on.
       - id: priority
         kind: branch
         cases:
@@ -158,33 +158,9 @@ actions:
                 sortList([steps.roll1.total, steps.roll2.total, steps.roll3.total,
                   steps.roll4.total, steps.roll5.total, steps.roll6.total], -x)
               priority: >-
-                [
-                  ['str', 'con', 'dex', 'wis', 'cha', 'int'],
-                  ['cha', 'dex', 'con', 'wis', 'int', 'str'],
-                  ['wis', 'con', 'str', 'dex', 'cha', 'int'],
-                  ['wis', 'con', 'dex', 'int', 'cha', 'str'],
-                  ['str', 'con', 'dex', 'wis', 'cha', 'int'],
-                  ['dex', 'wis', 'con', 'str', 'int', 'cha'],
-                  ['str', 'cha', 'con', 'wis', 'dex', 'int'],
-                  ['dex', 'wis', 'con', 'str', 'int', 'cha'],
-                  ['dex', 'con', 'wis', 'int', 'cha', 'str'],
-                  ['cha', 'con', 'dex', 'wis', 'int', 'str'],
-                  ['cha', 'con', 'dex', 'wis', 'int', 'str'],
-                  ['int', 'con', 'dex', 'wis', 'cha', 'str']
-                ][max(0, indexOf([
-                  @classes.barbarian,
-                  @classes.bard,
-                  @classes.cleric,
-                  @classes.druid,
-                  @classes.fighter,
-                  @classes.monk,
-                  @classes.paladin,
-                  @classes.ranger,
-                  @classes.rogue,
-                  @classes.sorcerer,
-                  @classes.warlock,
-                  @classes.wizard
-                ], steps.class.picked))]
+                [steps.class.item.abilityPriority1, steps.class.item.abilityPriority2,
+                  steps.class.item.abilityPriority3, steps.class.item.abilityPriority4,
+                  steps.class.item.abilityPriority5, steps.class.item.abilityPriority6]
       - id: scores
         kind: allocate
         fields: { type: field, where: "'ability-base' in item.tags" }

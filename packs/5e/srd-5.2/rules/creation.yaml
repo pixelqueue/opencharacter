@@ -38,33 +38,9 @@ actions:
           - when: true
             flags:
               priority: >-
-                [
-                  ['str', 'con', 'dex', 'wis', 'int', 'cha'],
-                  ['cha', 'dex', 'int', 'con', 'wis', 'str'],
-                  ['wis', 'str', 'con', 'cha', 'int', 'dex'],
-                  ['wis', 'con', 'int', 'dex', 'cha', 'str'],
-                  ['str', 'dex', 'con', 'cha', 'wis', 'int'],
-                  ['dex', 'wis', 'con', 'str', 'int', 'cha'],
-                  ['str', 'cha', 'con', 'wis', 'dex', 'int'],
-                  ['dex', 'wis', 'con', 'str', 'cha', 'int'],
-                  ['dex', 'int', 'con', 'str', 'wis', 'cha'],
-                  ['cha', 'con', 'dex', 'wis', 'str', 'int'],
-                  ['cha', 'dex', 'con', 'int', 'wis', 'str'],
-                  ['int', 'wis', 'con', 'dex', 'cha', 'str']
-                ][max(0, indexOf([
-                  @classes.barbarian,
-                  @classes.bard,
-                  @classes.cleric,
-                  @classes.druid,
-                  @classes.fighter,
-                  @classes.monk,
-                  @classes.paladin,
-                  @classes.ranger,
-                  @classes.rogue,
-                  @classes.sorcerer,
-                  @classes.warlock,
-                  @classes.wizard
-                ], steps.class.picked))]
+                [steps.class.item.abilityPriority1, steps.class.item.abilityPriority2,
+                  steps.class.item.abilityPriority3, steps.class.item.abilityPriority4,
+                  steps.class.item.abilityPriority5, steps.class.item.abilityPriority6]
       - id: background
         kind: choice
         options: { content: { type: background } }
