@@ -21,8 +21,7 @@ fields:
   effort.active: { type: integer, formula: 0 }
   effort.available:
     type: integer
-    formula: effort.max + effort.torched - effort.scene - effort.day - effort.active
-    limits: { min: 0 }
+    formula: max(0, effort.max + effort.torched - effort.scene - effort.day - effort.active)
 
 effects:
   - target: { rolls: [attack, damage] }
@@ -99,6 +98,9 @@ constraints:
         || sumFields(f.value >= 0 && (psionics.access == 'none' || psionics.discipline == 'none'
           || f.id != fieldId('skills.{psychic}.level', psionics.discipline)) ? 1 : 0,
           'skill.psychic' in f.tags) == 0
+  # Torching can lower the maximum under what is Committed; the commitments stay until released.
+  - id: effort-overcommitted
+    check: effort.max + effort.torched - effort.scene - effort.day - effort.active >= 0
 
 actions:
   # Commit a point of Effort for as long as the technique lasts: it stays Committed on the
