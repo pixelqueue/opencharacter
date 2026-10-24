@@ -1,5 +1,10 @@
 id: edges.mutant
 type: edge
+tags: [makes-mutant]
+fields:
+  gainPart: true
+effects:
+  - { target: mutations.points.edges, op: add, value: 2 }
 choices:
   # After the mutations: one attribute with a modifier of -1 or better takes -1.
   - id: penalty
@@ -20,3 +25,15 @@ choices:
           }
         op: add
         value: -1
+actions:
+  # Taken after creation: the mutations come at once.
+  - id: gain-part
+    listed: false
+    params:
+      random: { type: boolean, default: false }
+    steps:
+      - id: mutate
+        kind: action
+        when: '!character.creating'
+        use: mutate
+        params: { random: params.random }

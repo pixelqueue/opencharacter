@@ -1,6 +1,7 @@
 id: edges.educated
 type: edge
 fields:
+  gainPart: true
   bonusSkill:
     [
       administer,
@@ -27,3 +28,13 @@ effects:
   - target: skills.perLevel
     op: add
     value: 1
+actions:
+  # Taken after 1st level: the bonus skill points of the levels before.
+  - id: gain-part
+    listed: false
+    steps:
+      - id: points
+        kind: changes
+        when: '!character.creating'
+        changes:
+          - { type: adjust, field: skills.points, by: level - 1 }

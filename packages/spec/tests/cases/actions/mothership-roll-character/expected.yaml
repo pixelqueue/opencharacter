@@ -1,4 +1,5 @@
-# The classes in ID order: android, marine, scientist, teamster; the d4 rolls 2, the Marine.
+# The classes in ID order: android, marine, scientist, teamster; the draw over them (a d4)
+# rolls 2, the Marine.
 # Stats 2d10+25, saves 2d10+10, health 1d10+10 (max and current), credits 2d10 x 10 = 170.
 # The class's skills: the first option each time, an Expert skill, then Explosives, which Military
 # Training (granted) allows.
@@ -37,20 +38,29 @@ proposedChanges:
   - { to: self, step: save, change: { type: finishCreation } }
 log:
   - {
-      step: classRoll,
+      step: strength,
       action: mothership-1e:roll-character,
       kind: dice,
       by: engine,
-      faces: [2],
-      total: 2,
+      faces: [3, 4],
+      total: 32,
     }
-  - { step: strength, kind: dice, by: engine, faces: [3, 4], total: 32 }
   - { step: speed, kind: dice, faces: [5, 6], total: 36 }
   - { step: intellect, kind: dice, faces: [7, 8], total: 40 }
   - { step: combat, kind: dice, faces: [9, 10], total: 44 }
   - { step: sanity, kind: dice, faces: [1, 2], total: 13 }
   - { step: fear, kind: dice, faces: [3, 4], total: 17 }
   - { step: body, kind: dice, faces: [5, 6], total: 21 }
+  - step: class
+    kind: dice
+    by: engine
+    faces: [2]
+    draw:
+      among:
+        - mothership-1e:classes.android
+        - mothership-1e:classes.marine
+        - mothership-1e:classes.scientist
+        - mothership-1e:classes.teamster
   - { step: class, kind: choice, by: engine, option: mothership-1e:classes.marine }
   - { step: health, kind: dice, faces: [7], total: 17 }
   - { step: skills, kind: dice, by: engine, faces: [1] }

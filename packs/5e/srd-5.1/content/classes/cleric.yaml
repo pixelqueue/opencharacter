@@ -2,6 +2,14 @@ id: classes.cleric
 type: class
 fields:
   hitDie: 1d8
+  startingKit: true
+  abilityPriority1: wis
+  abilityPriority2: con
+  abilityPriority3: str
+  abilityPriority4: dex
+  abilityPriority5: cha
+  abilityPriority6: int
+  multiclassAll: [wis]
 state:
   channelDivinitySpent: { type: integer, default: 0, min: 0 }
   divineIntervention: { type: enum, values: [ready, failed, answered], default: ready }
@@ -40,3 +48,75 @@ choices:
   - id: divine-domain
     from: { type: subclass, where: 'item.class == @classes.cleric' }
     when: self.level >= 1
+actions:
+  - id: kit
+    listed: false
+    params:
+      random: { type: boolean, default: false }
+    steps:
+      - id: clericWeapon
+        kind: choice
+        sheet: proposed
+        options:
+          - id: mace
+            changes:
+              - { type: addItem, entry: { item: "'weapons.mace'", equipped: true } }
+          - id: warhammer
+            when: '@weapons.warhammer in proficiencies.weapons'
+            changes:
+              - { type: addItem, entry: { item: "'weapons.warhammer'", equipped: true } }
+        recommend: options[0]
+        random: params.random
+      - id: clericArmor
+        kind: choice
+        sheet: proposed
+        options:
+          - id: scale-mail
+            changes:
+              - { type: addItem, entry: { item: "'armor.scale-mail'", equipped: true } }
+          - id: leather-armor
+            changes:
+              - { type: addItem, entry: { item: "'armor.leather'", equipped: true } }
+          - id: chain-mail
+            when: "'heavy' in proficiencies.armor"
+            changes:
+              - { type: addItem, entry: { item: "'armor.chain-mail'", equipped: true } }
+        recommend: options[0]
+        random: params.random
+      - id: clericRanged
+        kind: choice
+        options:
+          - id: light-crossbow
+            changes:
+              - type: addItem
+                entry: { item: "'weapons.light-crossbow'", equipped: true }
+              - { type: addItem, entry: { item: "'gear.crossbow-bolts'", quantity: 20 } }
+          - id: simple
+        recommend: options[0]
+        random: params.random
+      - id: clericSimple
+        kind: choice
+        when: "steps.clericRanged.picked == 'simple'"
+        options: { content: { type: weapon, where: "item.category == 'simple'" } }
+        random: params.random
+        changes:
+          - { type: addItem, entry: { item: picked.id, equipped: true } }
+      - id: clericPack
+        kind: choice
+        options:
+          - id: priests-pack
+            changes: [{ type: addItem, entry: { item: "'gear.priests-pack'" } }]
+          - id: explorers-pack
+            changes: [{ type: addItem, entry: { item: "'gear.explorers-pack'" } }]
+        recommend: options[0]
+        random: params.random
+      - id: clericSymbol
+        kind: choice
+        options: { content: { type: gear, where: "item.category == 'holy-symbol'" } }
+        random: params.random
+        changes:
+          - { type: addItem, entry: { item: picked.id } }
+      - id: clericKit
+        kind: changes
+        changes:
+          - { type: addItem, entry: { item: "'armor.shield'", equipped: true } }

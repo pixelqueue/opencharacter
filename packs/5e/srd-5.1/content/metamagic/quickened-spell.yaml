@@ -1,0 +1,11 @@
+id: metamagic.quickened-spell
+type: metamagic
+effects:
+  - target: { choices: [metamagic] }
+    op: option
+    when: 'sorcery.left >= 2'
+    value:
+      id: quickened
+      flags: { metamagic: "'quickened'" }
+      changes:
+        - { type: adjustState, entry: self, key: sorceryPointsSpent, by: 2 }

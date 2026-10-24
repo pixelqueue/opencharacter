@@ -2,6 +2,14 @@ id: classes.rogue
 type: class
 fields:
   hitDie: 1d8
+  startingKit: true
+  abilityPriority1: dex
+  abilityPriority2: int
+  abilityPriority3: con
+  abilityPriority4: str
+  abilityPriority5: wis
+  abilityPriority6: cha
+  multiclassAll: [dex]
 state:
   strokeOfLuckUsed: { type: boolean, default: false }
 prerequisites:
@@ -71,3 +79,28 @@ choices:
     from: { type: subclass, where: 'item.class == @classes.rogue' }
     when: self.level >= 3
     recommend: '@subclasses.thief'
+actions:
+  - id: kit
+    listed: false
+    params:
+      random: { type: boolean, default: false }
+    steps:
+      - id: rogue
+        kind: choice
+        options:
+          - id: a
+            changes:
+              - { type: addItem, entry: { item: "'armor.leather'", equipped: true } }
+              - { type: addItem, entry: { item: "'weapons.dagger'", quantity: 2, equipped: true } }
+              - { type: addItem, entry: { item: "'weapons.shortsword'", equipped: true } }
+              - { type: addItem, entry: { item: "'weapons.shortbow'", equipped: true } }
+              - { type: addItem, entry: { item: "'gear.arrows'", quantity: 20 } }
+              - { type: addItem, entry: { item: "'gear.quiver'" } }
+              - { type: addItem, entry: { item: "'tools.thieves-tools'" } }
+              - { type: addItem, entry: { item: "'gear.burglars-pack'" } }
+              - { type: adjust, field: coins.gp, by: 8 }
+          - id: b
+            changes:
+              - { type: adjust, field: coins.gp, by: 100 }
+        recommend: "'a'"
+        random: params.random

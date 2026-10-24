@@ -2,6 +2,14 @@ id: classes.monk
 type: class
 fields:
   hitDie: 1d8
+  startingKit: true
+  abilityPriority1: dex
+  abilityPriority2: wis
+  abilityPriority3: con
+  abilityPriority4: str
+  abilityPriority5: int
+  abilityPriority6: cha
+  multiclassAll: [dex, wis]
 state:
   focusSpent: { type: integer, default: 0, min: 0 }
   uncannyMetabolismUsed: { type: boolean, default: false }
@@ -71,3 +79,38 @@ choices:
   - id: subclass
     from: { type: subclass, where: 'item.class == @classes.monk' }
     when: self.level >= 3
+actions:
+  - id: kit
+    listed: false
+    params:
+      random: { type: boolean, default: false }
+    steps:
+      - id: monk
+        kind: choice
+        options:
+          - id: a
+            changes:
+              - { type: addItem, entry: { item: "'weapons.spear'", equipped: true } }
+              - { type: addItem, entry: { item: "'weapons.dagger'", quantity: 5, equipped: true } }
+              - { type: addItem, entry: { item: "'gear.explorers-pack'" } }
+              - { type: adjust, field: coins.gp, by: 11 }
+          - id: b
+            changes:
+              - { type: adjust, field: coins.gp, by: 50 }
+        recommend: "'a'"
+        random: params.random
+      - id: monkTool
+        kind: choice
+        when: "steps.monk.picked == 'a'"
+        sheet: proposed
+        options:
+          content:
+            type: tool
+            where: >-
+              item.category in ['artisans-tools', 'musical-instrument']
+                && (item.id in proficiencies.tools
+                  || countList(proficiencies.tools, x in [@tools.alchemists-supplies, @tools.brewers-supplies, @tools.calligraphers-supplies, @tools.carpenters-tools, @tools.cartographers-tools, @tools.cobblers-tools, @tools.cooks-utensils, @tools.glassblowers-tools, @tools.jewelers-tools, @tools.leatherworkers-tools, @tools.masons-tools, @tools.painters-supplies, @tools.potters-tools, @tools.smiths-tools, @tools.tinkers-tools, @tools.weavers-tools, @tools.woodcarvers-tools, @tools.bagpipes, @tools.drum, @tools.dulcimer, @tools.flute, @tools.horn, @tools.lute, @tools.lyre, @tools.pan-flute, @tools.shawm, @tools.viol]) == 0)
+        recommend: options[0]
+        random: params.random
+        changes:
+          - { type: addItem, entry: { item: picked.id } }

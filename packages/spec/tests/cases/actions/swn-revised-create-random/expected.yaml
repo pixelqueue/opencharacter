@@ -102,7 +102,14 @@ proposedChanges:
       field: swn-revised:skills.administer.level
       by: 1
   - to: self
-    step: gear/gear
+    step: gear/kit
+    change:
+      type: addItem
+      entry:
+        id: kit
+        item: swn-revised:kits.thief
+  - to: self
+    step: gear/unpack/gear
     change:
       type: addItem
       entry:
@@ -110,7 +117,7 @@ proposedChanges:
         item: swn-revised:weapons.laser-pistol
         equipped: true
   - to: self
-    step: gear/gear
+    step: gear/unpack/gear
     change:
       type: addItem
       entry:
@@ -118,7 +125,7 @@ proposedChanges:
         item: swn-revised:armor.armored-undersuit
         equipped: true
   - to: self
-    step: gear/gear
+    step: gear/unpack/gear
     change:
       type: addItem
       entry:
@@ -126,21 +133,21 @@ proposedChanges:
         item: swn-revised:weapons.monoblade-knife
         equipped: true
   - to: self
-    step: gear/gear
+    step: gear/unpack/gear
     change:
       type: addItem
       entry:
         id: gear-climbing-harness-1
         item: swn-revised:gear.climbing-harness
   - to: self
-    step: gear/gear
+    step: gear/unpack/gear
     change:
       type: addItem
       entry:
         id: gear-low-light-goggles-1
         item: swn-revised:gear.low-light-goggles
   - to: self
-    step: gear/gear
+    step: gear/unpack/gear
     change:
       type: addItem
       entry:
@@ -148,7 +155,7 @@ proposedChanges:
         item: swn-revised:gear.power-cell-a
         quantity: 2
   - to: self
-    step: gear/gear
+    step: gear/unpack/gear
     change:
       type: addItem
       entry:
@@ -156,25 +163,30 @@ proposedChanges:
         item: swn-revised:gear.backpack-tl0
         equipped: true
   - to: self
-    step: gear/gear
+    step: gear/unpack/gear
     change:
       type: addItem
       entry:
         id: gear-compad-1
         item: swn-revised:gear.compad
   - to: self
-    step: gear/gear
+    step: gear/unpack/gear
     change:
       type: addItem
       entry:
         id: gear-metatool-1
         item: swn-revised:gear.metatool
   - to: self
-    step: gear/gear
+    step: gear/unpack/gear
     change:
       type: set
       field: swn-revised:credits.current
       value: 25
+  - to: self
+    step: gear/unpacked
+    change:
+      type: removeItem
+      entry: kit
   - to: self
     step: hitPoints
     change:

@@ -10,6 +10,7 @@ fields:
   silver: 1d6
   weaponDie: 1d6
   armorDie: 1d2
+  getsBetter: true
 effects:
   - { target: tests.presenceDr, op: add, value: -2 }
   - { target: tests.agilityDr, op: add, value: -2 }
@@ -30,3 +31,37 @@ choices:
           effects: [{ target: features.excretalStealth, op: set, value: true }]
         - id: dodging-death
           effects: [{ target: features.dodgingDeath, op: set, value: true }]
+actions:
+  # The second specialty is a d5 counting on from the first in table order, as the Royalty's
+  # second item does at creation.
+  - id: get-better-part
+    listed: false
+    results: [rolled]
+    steps:
+      - id: specialty
+        kind: roll
+        tags: [advancement]
+        when: >-
+          (features.cowardsJab ? 1 : 0) + (features.filthyFingersmith ? 1 : 0)
+            + (features.gobLobber ? 1 : 0) + (features.escapingFate ? 1 : 0)
+            + (features.excretalStealth ? 1 : 0) + (features.dodgingDeath ? 1 : 0) == 1
+        parts: [{ dice: 1d5 }]
+      - id: second
+        kind: choice
+        when: has(steps.specialty)
+        options:
+          - { id: cowards-jab, when: '!features.cowardsJab' }
+          - { id: filthy-fingersmith, when: '!features.filthyFingersmith' }
+          - { id: abominable-gob-lobber, when: '!features.gobLobber' }
+          - { id: escaping-fate, when: '!features.escapingFate' }
+          - { id: excretal-stealth, when: '!features.excretalStealth' }
+          - { id: dodging-death, when: '!features.dodgingDeath' }
+        recommend: >-
+          options[((features.cowardsJab ? 0 : features.filthyFingersmith ? 1
+            : features.gobLobber ? 2 : features.escapingFate ? 3 : features.excretalStealth ? 4 : 5)
+            + steps.specialty.total - 1) % 5]
+        changes:
+          - type: choose
+            path: { entry: self, choice: [feature] }
+            option: picked.id
+      - { id: result, kind: outcome, result: "'rolled'" }

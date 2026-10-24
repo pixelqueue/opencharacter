@@ -84,6 +84,14 @@ offer fantasy content. The format can hide a dependency's content only item by i
 would still be in the ruleset. Where the two books print the same rule or item, this pack's
 copy has the same shape as `orc-2e`'s, and the same text where the wording matches.
 
+## Add-on packs
+
+A pack that depends on `orc-sf-2e` can add a feature whose `classOption` names a class's choice
+(`envoy.leadership-style`, `mystic.connection`, `soldier.fighting-style`, `witchwarper.paradox`,
+`witchwarper.anchor`), which then joins it, and gear tagged `tool.compass` counts for Sense
+Direction. The identity enums (`mystic.connection`, …), weapon groups and damage types wait for
+open enums; the skill lists and the operative's specializations (inline options) are written out.
+
 ## License
 
 - **License:** the ORC License. Its four notices (Article III) are in the manifest, which apps
@@ -213,7 +221,11 @@ reads it as below. These are the pack's provisional calls; a table may rule othe
 - **Mystic:** Transfer Vitality moves as many Hit Points as the target is missing, up to the
   limit and what the network holds, unless the player gives an amount; the mystic archetype's
   network regains Hit Points each turn and on Refocus as the class's does; the rhythm
-  connection's 9th-rank spell (_unfathomable song_) is the fantasy core's.
+  connection's 9th-rank spell (_unfathomable song_) is the fantasy core's. Elemental weapon and
+  elemental barrier are applied to the caster with their element (Cast a Spell's `element`), the
+  record of the active spell; what they give the target is text. While one is active, the
+  elemental connection's wall of fire and absolute zero take its element's trait and first damage
+  type (electricity, bludgeoning, fire, acid, cold, poison), a kept template per element.
 - **Witchwarper:** the spellcasting attribute is the key attribute chosen; Core Memories'
   Assurance skill and In Another Life's ancestry feat are set by an action and kept until the
   player sets them again (the book's "during daily preparations").
@@ -232,7 +244,9 @@ reads it as below. These are the pack's provisional calls; a table may rule othe
 - **Left to the app:** turns (it runs `start-turn` and `end-turn`), movement, reach, distances,
   areas and auras (who is in a burst, a quantum field, a harmony's emanation or a bond's range is
   the participants the app passes), cover and flanking (situational choices), when a condition
-  is gained, daily preparations and rests, a spell's duration and sustaining.
+  is gained, daily preparations and rests, a spell's duration and sustaining (a spell or
+  treatment for the next roll, such as guidance, sure strike or Treat Poison, ends on the roll it
+  changes).
 - **Text only:** critical specialization; the feats and features about movement, positions,
   other creatures' sheets, starships and drones; most harmony and quantum field effects; skill
   feats that change time or what the GM tells you; more than half the spells (utility,

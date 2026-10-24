@@ -10,12 +10,16 @@ effects:
     stackKey: circumstance-bonus
     when: situational.againstPoison && self.bonus > 0
     scope: applied
+    then:
+      - { type: removeEffect, entry: self }
   - target: { rolls: [save] }
     op: add
     value: self.bonus
     stackKey: circumstance-penalty
     when: situational.againstPoison && self.bonus < 0
     scope: applied
+    then:
+      - { type: removeEffect, entry: self }
   - target: { rolls: [save], tally: successToCrit }
     op: add
     value: 1

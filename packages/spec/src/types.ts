@@ -1193,6 +1193,8 @@ export type ValueDecl = {
   type: DeclValueType;
   /** enum: allowed values. */
   values?: Slug[];
+  /** An enum item field or state key of a content type: packs that depend on this one may add values, in their rules' `extendEnums` (`<pack>:types.<type>.fields.<field>`, `<pack>:types.<type>.state.<key>`). Items, copies and formulas see the merged list. Elsewhere it is an error. */
+  open?: boolean;
   /** id/set/list: the content type (or `field`, `tag`, `string`) of the members. */
   of?: Name;
   /** id/set/list of `tag`: which tags it takes. Without it, any declared tag. */
@@ -1402,7 +1404,7 @@ export type Effect = {
   tags?: TagList;
   /** Rolls with op `add` only: `false` leaves the roll items the effect adds, dice or flat, alone when `multiplyDice` multiplies the roll's dice or `multiply` its items (5E's Savage Attacks: an extra die rolled once on a critical hit, not doubled; orc-2e's deadly die, added after doubling). Default `true`. */
   multiplied?: boolean;
-  /** Incoming-change and roll effects only: changes to the effect's own entry once it counted. On an incoming-change effect, applyChanges applies them right after the adjust is routed, when the effect counted (its `when` held and stacking kept it); on a roll effect, the action proposes them `to: self` after the roll step, once, when the effect changed the roll (effects.md, "Roll effects that end themselves"). The entry is `self`: the copy for a `holder` effect, the applied entry for an `applied` one (for content an applied grant reaches, the granting entry). Each is a `setState` or `adjustState` with `entry: self`, which changes the state `self` reads the key from (for picked or held granted content that declares the key, its pick's state or its grant's saved state; otherwise the entry's, for picked or granted content the owning copy's), or with `pick: owner` or `grant: owner`, the pick or holder grant that activated the effect's content; their `value` and `by` are formulas seeing `item`, `self` and `incoming` (on a roll effect, the roll effect's context). On an `applied` effect, a `removeEffect` with `entry: self` ends the entry (a ward that triggers once, a condition that lasts one roll). Only for effects with an entry: on the rules' effects, a situational choice's and choice effects it is a load error (`then-without-copy`). */
+  /** Incoming-change and roll effects only: changes to the effect's own entry once it counted. On an incoming-change effect, applyChanges applies them right after the adjust is routed, when the effect counted (its `when` held and stacking kept it); on a roll effect, the action proposes them `to: self` after the first roll step of the run that the effect changed, at most once per action run (effects.md, "Roll effects that end themselves"). The entry is `self`: the copy for a `holder` effect, the applied entry for an `applied` one (for content an applied grant reaches, the granting entry). Each is a `setState` or `adjustState` with `entry: self`, which changes the state `self` reads the key from (for picked or held granted content that declares the key, its pick's state or its grant's saved state; otherwise the entry's, for picked or granted content the owning copy's), or with `pick: owner` or `grant: owner`, the pick or holder grant that activated the effect's content; their `value` and `by` are formulas seeing `item`, `self` and `incoming` (on a roll effect, the roll effect's context). On an `applied` effect, a `removeEffect` with `entry: self` ends the entry (a ward that triggers once, a condition that lasts one roll). Only for effects with an entry: on the rules' effects, a situational choice's and choice effects it is a load error (`then-without-copy`). */
   then?: ThenChange[];
   /** Who the effect applies to. `holder` (default): a character who has the content active (features, inventory, picks, grants). `applied`: a character the content is applied to (its `applied` list: cast on them, a condition). Content in `applied` runs only its `applied` effects; held content runs only its `holder` effects. */
   scope?: 'holder' | 'applied';
@@ -1450,11 +1452,11 @@ export type EffectTarget =
 export type ChoiceTarget = {
   /** Choice step tags; the effect adds its option to a step carrying any of them (a tag matches itself and every tag below it). */
   choices: Tags;
-  /** `self`: only choice steps of actions made by the item carrying this effect. `any` (default): every matching choice step the character's actions reach. */
+  /** `self`: only choice steps of actions made by the item carrying this effect (not on the rules' effects, which have no item). `any` (default): every matching choice step the character's actions reach. */
   from?: 'self' | 'any';
 };
 
-/** An option an `option` effect adds to a choice step. Its ID is `<content id>#<id>`, named by `<content id>.options.<id>.name`; the effect's `when` is its condition. When it is picked, its `flags` are set, then its `changes`, if any, are resolved like a `changes` step's at the choice step's path, before the step's own `changes`; without them the pick is only recorded, for later steps to read (`steps.<id>.picked`). In its `when` and `changes`, `item` and `self` are the content carrying the effect (`entry: self` is that copy), and the action's own are `action.item`, `action.self` and `action.step`. */
+/** An option an `option` effect adds to a choice step. Its ID is `<content id>#<id>`, named by `<content id>.options.<id>.name` (for the rules' effects, `<pack>:rules#<id>`, named by `rules.options.<id>.name` in the pack); the effect's `when` is its condition. When it is picked, its `flags` are set, then its `changes`, if any, are resolved like a `changes` step's at the choice step's path, before the step's own `changes`; without them the pick is only recorded, for later steps to read (`steps.<id>.picked`). In its `when` and `changes`, `item` and `self` are the content carrying the effect (`entry: self` is that copy), and the action's own are `action.item`, `action.self` and `action.step`. */
 export type Option = {
   id: Slug;
   changes?: ProposedChange[];
@@ -1948,7 +1950,9 @@ export type CheckReleaseOutput = {
       | 'item-field-removed'
       | 'item-field-values-removed'
       | 'tag-removed'
-      | 'action-removed';
+      | 'action-removed'
+      | 'enum-closed'
+      | 'extension-removed';
     id: string;
     data?: Record<string, unknown>;
   }[];
@@ -2258,6 +2262,7 @@ export type Ruleset = {
       copies?: Copies;
     }
   >;
+  /** The content items by qualified ID, in content order: packs in load order, then each pack's content in its release's order (packs.md, "Dependencies and load order"). */
   content: Record<string, unknown>;
   rules?: Record<string, unknown>;
   /** The creation starts: every pack's `creation` list in load order, a later start replacing an earlier one with the same `id` in its place. `action` is qualified; `pack` is the pack that declared the start, whose text names it (`creation.<id>.name`). */
@@ -2268,6 +2273,10 @@ export type Ruleset = {
     random: boolean;
     pack: PackId;
   }[];
+  /** Values packs add to other packs' open enums (`extendEnums`): by the enum's address (`<pack>:types.<type>.fields.<field>`, `<pack>:types.<type>.state.<key>`, `<pack>:fields.<field>`), each added value's pack, whose text names it under the key the enum's pack would use. */
+  enumOrigins?: Record<string, Record<string, string>>;
+  /** Values and inline options packs add to other packs' choices (`extendChoices`): by `<owner>/<choice>`, the choice's owner key root as a choice names it (`<pack>:<content id>`, `<pack>:rules`, plus `.choices.<choice>.options.<option>` for an inline option's) and its declared ID, each added option's pack, whose text names it. */
+  optionOrigins?: Record<string, Record<string, string>>;
   /** Overrides of the same property by two packs; the later pack won. */
   conflicts?: {
     target: string;
@@ -2387,6 +2396,8 @@ export type Field = {
   type: ValueType;
   /** enum: the allowed values. */
   values?: Slug[];
+  /** enum: packs that depend on this one may add values, in their rules' `extendEnums` (`<pack>:fields.<id>`). Validation and formulas see the merged list. */
+  open?: boolean;
   /** id/set: what the members are: a content type name, `field`, `tag` or `string`. */
   of?: Name;
   /** id/set of `tag`: which tags it takes. Without it, any declared tag. */
@@ -2726,6 +2737,24 @@ export type RolledFace = {
 export type RulesDocument = {
   /** Named lists of keys: any mapping key of the pack's rules documents that holds `{<name>}` stands for one entry per value, with `{<name>}` replaced in the key and in every string of the entry. Declared once per pack, in any rules document; seen by the pack and the packs that depend on it. A qualified name (`<pack>:<name>`) adds values to that pack's family. Expanded by the engine with the packs loaded together; a built release keeps it as written. */
   families?: Record<string, (string | number)[]>;
+  /** Values this pack adds to a dependency's open enums (`open: true`), by the enum's address: `<pack>:fields.<field>` (a rules field), `<pack>:types.<type>.fields.<field>` (an item field) or `<pack>:types.<type>.state.<key>` (a state key). Each value is named in this pack's text under the key the enum's own pack would use (`types.weapon.fields.damageType.values.sonic.name`). Added after the enum's own values, in load order, each once (rules-and-fields.md, "Open enums"). */
+  extendEnums?: Record<string, Slug[]>;
+  /** Options this pack adds to a dependency's choices, without overriding the item: by owner, `<pack>:<content id>` or `<pack>:rules` (a rules-level choice), then by choice ID (`<choice>/<option>/<choice>` for a choice of an inline option; a slotted choice's declared ID, for every slot). An addition is the choice's own kind: `items` for an items choice, `values` for written values, `options` (inline options) for inline options. The added options come after the choice's own, then each loaded pack's in load order; a repeated item or value is offered once, an inline option ID that's there already is `duplicate-id`. Added inline options read this pack's fields, and are named in this pack's text under the key the owner's pack would use (`<owner>.choices.<choice>.options.<id>.name`). Applied after every override (content.md, "Adding options to a dependency's choices"). */
+  extendChoices?: Record<
+    string,
+    Record<
+      string,
+      | {
+          items: Ref[];
+        }
+      | {
+          values: (string | number)[];
+        }
+      | {
+          options: InlineOption[];
+        }
+    >
+  >;
   /** Named sets of declared fields read from other characters: a link slot's or a participant role's `fields` may name one instead of declaring them again. Expanded before the pack loads. */
   viewFields?: Record<string, DeclaredFields>;
   fields?: Record<string, Field>;
@@ -2973,6 +3002,7 @@ export type ErrorCode =
   | 'link-field-mismatch'
   | 'invalid-create-offer'
   | 'invalid-family'
+  | 'invalid-extension'
   | 'link-start-mismatch'
   | 'invalid-item-field'
   | 'template-field-mismatch'

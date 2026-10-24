@@ -41,6 +41,13 @@ contentTypes:
     actions:
       - use: weapon-attack
     effects:
+      # An attuned item for other classes than the character's (attunementClasses).
+      - target: attunement.classUnmet
+        op: add
+        value: 1
+        when: >-
+          self.attuned && has(item.attunementClasses) && size(item.attunementClasses) > 0
+            && countList(item.attunementClasses, x in classes.held) == 0
       - id: magic-attack
         target: { rolls: [attack.melee, attack.ranged], from: self }
         op: add
@@ -79,6 +86,13 @@ contentTypes:
       stowed: { type: boolean, default: false } # in an extradimensional container (equipment.yaml)
     # Every armor item has these effects; the shield switches off the first three (`suppress`).
     effects:
+      # An attuned item for other classes than the character's (attunementClasses).
+      - target: attunement.classUnmet
+        op: add
+        value: 1
+        when: >-
+          self.attuned && has(item.attunementClasses) && size(item.attunementClasses) > 0
+            && countList(item.attunementClasses, x in classes.held) == 0
       - id: base-ac
         target: combat.ac
         op: set
@@ -121,6 +135,18 @@ contentTypes:
     copies: { perItem: 1 }
     fields:
       hitDie: { type: dice, required: true }
+      # Its own starting-equipment action gives its starting kit.
+      startingKit: { type: boolean, default: false }
+      # The abilities multiclassing into it needs 13 in: all of these, and one of those.
+      multiclassAll: { type: set, of: string, default: [] }
+      multiclassAny: { type: set, of: string, default: [] }
+      # The abilities a random start raises first, in order.
+      abilityPriority1: { type: enum, values: [str, dex, con, int, wis, cha], default: str }
+      abilityPriority2: { type: enum, values: [str, dex, con, int, wis, cha], default: con }
+      abilityPriority3: { type: enum, values: [str, dex, con, int, wis, cha], default: dex }
+      abilityPriority4: { type: enum, values: [str, dex, con, int, wis, cha], default: wis }
+      abilityPriority5: { type: enum, values: [str, dex, con, int, wis, cha], default: cha }
+      abilityPriority6: { type: enum, values: [str, dex, con, int, wis, cha], default: int }
     state:
       level: { type: integer, default: 1, min: 1, max: 20 }
       startingClass: { type: boolean, default: false }
@@ -294,9 +320,17 @@ contentTypes:
       used: { type: boolean, default: false }
     actions:
       - use: breath-weapon
+    effects:
+      - target: { steps: [rest.short, rest.long] }
+        op: changes
+        when: self.used
+        value:
+          changes: [{ type: setState, pick: owner, key: used, value: false }]
 
   background:
     copies: { max: 1 }
+    fields:
+      startingKit: { type: boolean, default: false }
 
   backgroundFeature:
     copies: { max: 0 }

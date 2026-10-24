@@ -20,14 +20,6 @@ fields:
 actions:
   - use: cast-spell
 effects:
-  - target: { choices: [spell-option] }
-    op: option
-    when: action.item.id == item.id
-    value: { id: enlarge }
-  - target: { choices: [spell-option] }
-    op: option
-    when: action.item.id == item.id
-    value: { id: reduce }
   - target: { rolls: [check.str, save.str] }
     op: rollModifier
     value: { kind: advantage }

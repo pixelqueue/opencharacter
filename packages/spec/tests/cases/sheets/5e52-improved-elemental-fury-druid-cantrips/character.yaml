@@ -1,0 +1,73 @@
+specVersion: 0.1.0
+id: test
+packs:
+  - id: 5e-srd-5.2
+    version: 0.2.0
+features:
+  - id: class
+    item: 5e-srd-5.2:classes.druid
+    state:
+      level: 15
+      startingClass: true
+    choices:
+      skills:
+        - option: skill.perception
+        - option: skill.medicine
+      5e-srd-5.2:features.druid.spellcasting/cantrips:
+        - option: 5e-srd-5.2:spells.produce-flame
+        - option: 5e-srd-5.2:spells.spare-the-dying
+      5e-srd-5.2:features.druid.spellcasting/spells:
+        - option: 5e-srd-5.2:spells.thunderwave
+        - option: 5e-srd-5.2:spells.healing-word
+        - option: 5e-srd-5.2:spells.animal-friendship
+        - option: 5e-srd-5.2:spells.detect-magic
+      5e-srd-5.2:features.druid.primal-order/order:
+        - option: magician
+          choices:
+            cantrip:
+              - option: 5e-srd-5.2:spells.starry-wisp
+      5e-srd-5.2:features.druid.elemental-fury/option:
+        - option: potent-spellcasting
+  - id: background
+    item: 5e-srd-5.2:backgrounds.sage
+    choices:
+      ability-increase:
+        - option: two-and-one
+          choices:
+            plus-two:
+              - option: wis
+            plus-one:
+              - option: con
+      languages:
+        - option: 5e-srd-5.2:languages.draconic
+        - option: 5e-srd-5.2:languages.dwarvish
+      5e-srd-5.2:feats.magic-initiate/list:
+        - option: wizard
+          choices:
+            ability:
+              - option: wis
+            cantrips:
+              - option: 5e-srd-5.2:spells.prestidigitation
+              - option: 5e-srd-5.2:spells.fire-bolt
+            spell:
+              - option: 5e-srd-5.2:spells.fog-cloud
+  - id: species
+    item: 5e-srd-5.2:species.elf
+    choices:
+      lineage:
+        - option: 5e-srd-5.2:lineages.wood-elf
+          choices:
+            ability:
+              - option: wis
+      5e-srd-5.2:traits.keen-senses/skill:
+        - option: skill.insight
+values:
+  5e-srd-5.2:abilities.str.base: 9
+  5e-srd-5.2:abilities.dex.base: 13
+  5e-srd-5.2:abilities.con.base: 16
+  5e-srd-5.2:abilities.int.base: 15
+  5e-srd-5.2:abilities.wis.base: 17
+  5e-srd-5.2:abilities.cha.base: 12
+  5e-srd-5.2:coins.gp: 59
+  5e-srd-5.2:hp.base: 8
+  5e-srd-5.2:hp.current: 11

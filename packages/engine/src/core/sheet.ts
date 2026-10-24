@@ -1916,7 +1916,8 @@ export class Sheet {
               waived: choice.waivePrerequisites === true,
               item: undefined as unknown as LoadedItem,
               inline,
-              pack,
+              // An option another pack added reads that pack's fields.
+              pack: inline.pack ?? pack,
               roots,
               source: owner.source,
               sourceId,

@@ -28,4 +28,7 @@ keepsTemplates:
     when: "self.level >= 15 && 'potent-spellcasting' in picksOf('option')"
     content:
       type: spell
-      where: 'item.level == 0 && has(item.range) && item.range >= 10 && @classes.druid in item.classes'
+      where: >-
+        item.level == 0 && has(item.range) && item.range >= 10 && @classes.druid in item.classes
+          && has(owner.item)
+          && owner.item.id in [@features.druid.spellcasting, @features.druid.primal-order]

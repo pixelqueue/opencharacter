@@ -23,14 +23,20 @@ contentTypes:
       light: { type: boolean, default: false }
 
 fields:
-  mutations.mutant: { type: boolean, formula: '@edges.mutant in edges.held' }
+  mutations.mutant:
+    type: boolean
+    formula: "countCopies(copy.type == 'edge' && 'makes-mutant' in copy.tags) > 0"
+  # An edge that bars mutation is held (Hardened Genetics).
+  mutations.barred:
+    type: boolean
+    formula: "countCopies(copy.type == 'edge' && 'not-mutant' in copy.tags) > 0"
+  # Mutation points edges give: 2 for Mutant, 2 for Mutation Acceleration.
+  mutations.points.edges: { type: integer, formula: 0 }
   mutations.negatives: { type: integer, formula: "countCopies(copy.type == 'negative')" }
-  # Mutation points: 2 for Mutant, 2 for Mutation Acceleration, 2 per negative mutation.
+  # Mutation points: the edges', and 2 per negative mutation.
   mutations.points.total:
     type: integer
-    formula: >-
-      (mutations.mutant ? 2 : 0) + (@edges.mutation-acceleration in edges.held ? 2 : 0)
-        + 2 * mutations.negatives
+    formula: mutations.points.edges + 2 * mutations.negatives
   # A stigma that normal clothing hides costs a point.
   mutations.stigmaConcealed: { type: boolean, input: true, default: false }
   mutations.points.spent:

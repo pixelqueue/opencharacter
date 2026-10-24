@@ -601,6 +601,7 @@ actions:
     steps:
       - id: rest
         kind: changes
+        tags: [rest.short]
         changes:
           - { type: set, field: pactSlots.used, value: 0 }
           - type: removeEffect
@@ -684,11 +685,6 @@ actions:
             copies:
               { type: class, where: has(self.signatureSpell2Used) && self.signatureSpell2Used }
             key: signatureSpell2Used
-            value: false
-          - type: setState
-            when: countCopies(copy.item == @races.dragonborn) > 0
-            picks: { where: "item.type == 'draconicAncestry' && self.used" }
-            key: used
             value: false
           - type: setState
             when: countCopies(copy.type == 'monsterAction') > 0

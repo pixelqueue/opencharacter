@@ -10,59 +10,32 @@ effects:
 actions:
   - id: arcane-recovery
     tags: [feature]
-    results: [too-many, recovered]
-    available: '!self.arcaneRecoveryUsed'
-    params:
-      level1: { type: integer, default: 0, min: 0 }
-      level2: { type: integer, default: 0, min: 0 }
-      level3: { type: integer, default: 0, min: 0 }
-      level4: { type: integer, default: 0, min: 0 }
-      level5: { type: integer, default: 0, min: 0 }
+    results: [recovered]
+    available: >-
+      !self.arcaneRecoveryUsed
+        && spellSlots.level1.used + spellSlots.level2.used + spellSlots.level3.used
+          + spellSlots.level4.used + spellSlots.level5.used > 0
     steps:
-      - id: total
-        kind: branch
-        cases:
-          - when: true
-            flags:
-              levels: >-
-                params.level1 + 2 * params.level2 + 3 * params.level3 + 4 * params.level4
-                  + 5 * params.level5
-      - id: tooMany
-        kind: outcome
-        when: >-
-          flags.levels == 0 || flags.levels > ceil(self.level / 2)
-            || params.level1 > spellSlots.level1.used || params.level2 > spellSlots.level2.used
-            || params.level3 > spellSlots.level3.used || params.level4 > spellSlots.level4.used
-            || params.level5 > spellSlots.level5.used
-        result: "'too-many'"
-        data:
-          maxLevels: ceil(self.level / 2)
+      - id: slots
+        kind: choice
+        options:
+          values: [1, 2, 3, 4, 5]
+          where: >-
+            countList(steps.slots.values, x == value)
+                < fieldOf('spellSlots.level{slot}.used', value)
+              && sumList(steps.slots.values, x) + value <= ceil(self.level / 2)
+        repeat: { max: ceil(self.level / 2), min: 1 }
+        prefer: value
+        changes:
+          - type: adjust
+            field: { formula: "'spellSlots.level' + string(picked.value) + '.used'" }
+            by: -1
       - id: recover
         kind: changes
         changes:
           - { type: setState, entry: self, key: arcaneRecoveryUsed, value: true }
-          - type: adjust
-            field: spellSlots.level1.used
-            by: -params.level1
-            when: params.level1 > 0
-          - type: adjust
-            field: spellSlots.level2.used
-            by: -params.level2
-            when: params.level2 > 0
-          - type: adjust
-            field: spellSlots.level3.used
-            by: -params.level3
-            when: params.level3 > 0
-          - type: adjust
-            field: spellSlots.level4.used
-            by: -params.level4
-            when: params.level4 > 0
-          - type: adjust
-            field: spellSlots.level5.used
-            by: -params.level5
-            when: params.level5 > 0
       - id: result
         kind: outcome
         result: "'recovered'"
         data:
-          levels: flags.levels
+          levels: sumList(steps.slots.values, x)

@@ -65,6 +65,7 @@
       }
     },
     "content": {
+      "description": "The content items by qualified ID, in content order: packs in load order, then each pack's content in its release's order (packs.md, \"Dependencies and load order\").",
       "type": "object"
     },
     "rules": {
@@ -92,6 +93,26 @@
           "pack": {
             "$ref": "../common.schema.json#/$defs/packId"
           }
+        }
+      }
+    },
+    "enumOrigins": {
+      "description": "Values packs add to other packs' open enums (`extendEnums`): by the enum's address (`<pack>:types.<type>.fields.<field>`, `<pack>:types.<type>.state.<key>`, `<pack>:fields.<field>`), each added value's pack, whose text names it under the key the enum's pack would use.",
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": {
+          "type": "string"
+        }
+      }
+    },
+    "optionOrigins": {
+      "description": "Values and inline options packs add to other packs' choices (`extendChoices`): by `<owner>/<choice>`, the choice's owner key root as a choice names it (`<pack>:<content id>`, `<pack>:rules`, plus `.choices.<choice>.options.<option>` for an inline option's) and its declared ID, each added option's pack, whose text names it.",
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": {
+          "type": "string"
         }
       }
     },

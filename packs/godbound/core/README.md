@@ -79,8 +79,8 @@ computeSheet(ruleset, made.character).values['godbound-core:effort.max']?.value;
     step recommends a pick, so an automatic run finishes.
   - `random`: the attributes are rolled and recommended in the order rolled; the three Words are
     drawn uniformly; gifts are drawn uniformly among the bound Words' gifts and the universal
-    gifts the remaining points afford, until the points are spent; armor (none, light, medium,
-    heavy), a shield (or not) and a weapon category are drawn uniformly; Sorcery's invocations are
+    gifts the remaining points afford, until the points are spent; armor (none or any armor of
+    the ruleset), a shield (none or any shield) and a weapon category are drawn uniformly; Sorcery's invocations are
     drawn.
   - The choices the Words, gifts and armor bring (a Word's raised attribute, Excellence of the
     Word, the saves medium or heavy armor hinders, invocations) are asked at the end, each with a
@@ -140,6 +140,12 @@ computeSheet(ruleset, made.character).values['godbound-core:effort.max']?.value;
   the artifact's Effort (its copy is the gift's `self`) instead of the hero's. A gift held while
   it lasts keeps that Effort on its own grant (`committed` in the artifact copy's `grants`) until
   `release-gift` or dawn; the others add to the artifact's `spent`, back at dawn.
+
+## Add-on packs
+
+A pack that depends on `godbound-core` can add content of its types: creation offers every Word,
+gift, armor, shield and weapon of the ruleset, in the guided picks and in the random draws (a
+gift names its Word in `word`).
 
 ## Rule readings
 

@@ -1,0 +1,45 @@
+description: "extendEnums must name an open enum of a dependency: a closed enum, a field that isn't an enum, an unknown type and a pack that isn't a dependency are each invalid-extension"
+specVersion: 0.2.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        id: base-pack
+        version: 1.0.0
+        specVersion: 0.2.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        fields:
+          might: { type: integer, input: true, default: 0 }
+        contentTypes:
+          weapon:
+            fields:
+              reach: { type: enum, values: [close, far] }
+      content: []
+  - inline:
+      manifest:
+        id: other-pack
+        version: 1.0.0
+        specVersion: 0.2.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        fields:
+          mood: { type: enum, values: [calm, angry], input: true, default: calm, open: true }
+      content: []
+  - inline:
+      manifest:
+        id: addon-pack
+        version: 1.0.0
+        specVersion: 0.2.0
+        license: CC0-1.0
+        defaultLanguage: en
+        dependencies: { base-pack: ^1.0.0 }
+      rules:
+        extendEnums:
+          'base-pack:types.weapon.fields.reach': [touch]
+          'base-pack:fields.might': [lots]
+          'base-pack:types.shield.fields.reach': [touch]
+          'other-pack:fields.mood': [giddy]
+      content: []

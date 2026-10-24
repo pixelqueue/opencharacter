@@ -217,8 +217,8 @@ actions:
             where: >-
               ('repeatable' in item.tags || countCopies(copy.item == item.id) == 0)
                 && !('brings-cyber' in item.tags
-                  && (magic.graced || countCopies(copy.item == @foci.all-natural) > 0))
-                && !(item.id == @foci.all-natural && (underdog || magic.mage || magic.summoner
+                  && (magic.graced || countCopies('bars-cyber' in copy.tags) > 0))
+                && !('bars-cyber' in item.tags && (underdog || magic.mage || magic.summoner
                   || magic.graced || countCopies(copy.type == 'cyberware' && copy.fields.strain > 0) > 0))
         recommend: options[0]
         random: params.random
@@ -353,7 +353,7 @@ actions:
                   && params.choice != 'edge-5'))
                 && !('not-underdog' in item.tags && (underdog || params.choice == 'underdog-edge'))
                 && !('brings-cyber' in item.tags
-                  && (magic.graced || countCopies(copy.item == @foci.all-natural) > 0))
+                  && (magic.graced || countCopies('bars-cyber' in copy.tags) > 0))
         recommend: options[0]
         random: params.random
         changes:

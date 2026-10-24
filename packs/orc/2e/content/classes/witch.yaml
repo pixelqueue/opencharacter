@@ -41,17 +41,7 @@ grants:
 choices:
   # Asked first, so the familiar's spells follow the tradition.
   - id: patron
-    from:
-      items:
-        [
-          classes.witch.patrons.faiths-flamekeeper,
-          classes.witch.patrons.inscribed-one,
-          classes.witch.patrons.resentment,
-          classes.witch.patrons.silence-in-snow,
-          classes.witch.patrons.spinner-of-threads,
-          classes.witch.patrons.starless-shadow,
-          classes.witch.patrons.wilding-steward,
-        ]
+    from: { type: feature, where: "item.classOption == 'witch.patron'" }
   - id: hex
     from:
       options:

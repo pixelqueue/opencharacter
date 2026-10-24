@@ -63,8 +63,9 @@ actions:
           - { type: finishCreation }
 
   # The SRD has players choose, so the random start's odds are the pack's: the ten ratings go to ten
-  # skills drawn without replacement (homebrew skills included), the three free stunts from the 17
-  # example stunts, and no stunt past the free three, so refresh and fate points stay 3.
+  # skills drawn without replacement (homebrew skills included), the three free stunts from the
+  # written stunts (the 17 examples, an add-on pack's too, never the custom one), and no stunt
+  # past the free three, so refresh and fate points stay 3.
   - id: random-character
     tags: [creation]
     available: character.creating
@@ -86,17 +87,7 @@ actions:
         options:
           content:
             type: stunt
-            where: >-
-              picks == 0 && item.id in [
-                @stunts.grappler, @stunts.hardcore-parkour,
-                @stunts.i-ve-read-about-that, @stunts.indomitable,
-                @stunts.killing-stroke, @stunts.lie-whisperer,
-                @stunts.mind-games, @stunts.ninja-vanish,
-                @stunts.pedal-to-the-metal, @stunts.psychologist,
-                @stunts.riposte, @stunts.rumormonger,
-                @stunts.specialist, @stunts.strength-from-determination,
-                @stunts.take-the-blow, @stunts.tough-as-nails,
-                @stunts.trust-fund-baby]
+            where: "picks == 0 && item.shape != 'custom'"
         repeat: { max: stunts.free, min: stunts.free }
         random: true
         changes:

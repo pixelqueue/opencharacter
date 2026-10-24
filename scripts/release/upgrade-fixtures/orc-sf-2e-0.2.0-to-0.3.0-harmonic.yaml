@@ -1,0 +1,65 @@
+# A 0.2.0 pahtra with Harmonic Sensitivity, trained in Performance by the feat. 0.3.0 asks whether
+# the feat trains Performance or gives Assurance in it: the choice is pending. (She also holds
+# Fixation, whose topic moves, since a pick without saved choices doesn't list requireChoice.)
+pack: orc-sf-2e
+from: 0.2.0
+to: 0.3.0
+expect:
+  - at: /choices/ancestry-feat-1/0
+    value: { option: orc-sf-2e:feats.ancestry.harmonic-sensitivity }
+  - at: /choices/ancestry-feat-5/0/choices
+    value: { orc-sf-2e:feats.skill.additional-lore/lore: [{ option: art }] }
+pending:
+  - { choice: [ancestry-feat-1, orc-sf-2e:feats.ancestry.harmonic-sensitivity, harmonic] }
+character:
+  specVersion: 0.2.0
+  id: upgrade-orc-sf-2e-harmonic
+  values:
+    orc-sf-2e:hp.current: 10
+  features:
+    - id: ancestry
+      item: orc-sf-2e:ancestries.pahtra
+      choices:
+        heritage:
+          - option: orc-sf-2e:heritages.chosen-pahtra
+        boosts:
+          - option: standard
+            choices:
+              free:
+                - option: orc-sf-2e:boosts.str
+    - id: background
+      item: orc-sf-2e:backgrounds.trooper
+      choices:
+        boost:
+          - option: orc-sf-2e:boosts.con
+        free-boost:
+          - option: orc-sf-2e:boosts.str
+    - id: class
+      item: orc-sf-2e:classes.soldier
+      choices:
+        fighting-style:
+          - option: orc-sf-2e:features.soldier.style.bombard
+        skills:
+          - option: skill.survival
+          - option: skill.piloting
+          - option: skill.medicine
+        class-feat-1:
+          - option: orc-sf-2e:feats.soldier.pin-down
+  inventory:
+    - { id: scattergun, item: orc-sf-2e:weapons.scattergun, equipped: true }
+    - { id: armor, item: orc-sf-2e:armor.defiance-series, equipped: true }
+    - { id: rounds, item: orc-sf-2e:ammunition.projectile-ammo, quantity: 20 }
+  choices:
+    free-boosts:
+      - option: orc-sf-2e:boosts.str
+      - option: orc-sf-2e:boosts.dex
+      - option: orc-sf-2e:boosts.con
+      - option: orc-sf-2e:boosts.wis
+    ancestry-feat-1:
+      - option: orc-sf-2e:feats.ancestry.harmonic-sensitivity
+    ancestry-feat-5:
+      - option: orc-sf-2e:feats.ancestry.fixation
+        choices:
+          topic: [{ option: art }]
+    languages:
+      - option: orc-sf-2e:languages.kasatha

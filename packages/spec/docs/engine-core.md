@@ -25,6 +25,11 @@ Input: pack releases in load order (later packs win). Output: a ruleset, or erro
      constraints are keyed by qualified ID (`pack:id`), so packs never collide. Content type names
      are qualified too, and a type name resolves like any reference.
    - Tags are the union of all packs' tags.
+   - **Open enums:** each pack's `extendEnums` values are appended to the enum it names, in
+     load order, each once, before anything reads the declarations; the ruleset's `enumOrigins`
+     maps each added value to its pack. A pack that isn't a dependency of the adding one, an
+     address naming no enum, or one not `open`, is `invalid-extension` (data: `pack`, `target`,
+     `message`) ([rules-and-fields.md](rules-and-fields.md#open-enums)).
    - Settings merge key by key; a later pack overrides an earlier one, and the override is
      reported in `conflicts`.
    - Display groups and field hints from later packs override earlier ones with the same ID.
@@ -60,11 +65,19 @@ Input: pack releases in load order (later packs win). Output: a ruleset, or erro
      two packs override the same property of the same item, the later one wins and the pair is
      reported in `conflicts`.
    - **`hides`:** hidden items stay in the ruleset, marked `hidden: true`. Queries skip them.
+   - **Choice extensions:** after every override, each pack's `extendChoices`, in load order,
+     appends its items, values or inline options (qualified in the adding pack, inline options
+     kept as that pack's) to the choice it names, each item or value once; the ruleset's
+     `optionOrigins` maps each added value and inline option to its pack. An owner pack that
+     isn't a dependency of the adding one, a choice the owner doesn't have, or an addition of
+     another kind is `invalid-extension`; an owner that isn't loaded content `unknown-reference`;
+     an inline option ID the choice has `duplicate-id`
+     ([content.md](content.md#adding-options-to-a-dependencys-choices)).
    - **Item fields:** each item's own `fields` (an override's too) must be declared by its
      content type and have the declared shape: no list for an `integer`, `decimal`, `boolean` or
      `dice` field (a string there is a formula, checked in step 5), a string for a `string` or
-     `id` field, one of the values for an `enum`, a list for a `set` or `list` (no member twice
-     for a `unique` list). After `extends`, every
+     `id` field, one of the values for an `enum` (an open enum's merged list), a list for a `set`
+     or `list` (no member twice for a `unique` list). After `extends`, every
      `required` field must have a value. Otherwise `invalid-item-field` (data: `item`, `field`,
      `reason`: `missing`, `undeclared` or `wrong-type`, `pack`; `path`:
      `/packs/<i>/content/<j>/fields/<field>`). Templates' fields are checked by the build only.
@@ -80,7 +93,8 @@ Input: pack releases in load order (later packs win). Output: a ruleset, or erro
      gets `tagOptions`: the ruleset's declared tags, with the tags above each, that `members`
      takes, sorted ([rules-and-fields.md](rules-and-fields.md#which-tags-a-field-takes)).
 4. **Resolve content-only queries.** A query whose `where` reads only `item` is evaluated once
-   against every non-hidden item of its type. Its result (sorted qualified IDs) is stored in the
+   against every non-hidden item of its type. Its result (qualified IDs in content order,
+   [packs.md](packs.md#dependencies-and-load-order)) is stored in the
    ruleset. Queries that read the character run later. The rules' and items' `standardCopies`
    queries are always content-only (a `where` that reads anything else is a `formula-error`,
    cause `unknown-name`). Two items they match whose derived instance IDs are the same are
@@ -238,7 +252,7 @@ reads them and never computes the other character.
 The rules and content items may declare `standardCopies` ([content.md](content.md#standard-copies)). The engines see the character with them:
 
 - **Which.** The rules' standard items are the matches of the rules' queries, in load order,
-  then declaration order, each query's matches sorted, each item once. An item's are the matches
+  then declaration order, each query's matches in content order, each item once. An item's are the matches
   of its own queries, held while it has an activation. They are found in rounds: activate with
   the rules' copies; add the copies of every item now active, in activation order, that aren't
   there yet; activate again, until a round adds none (at most `maxChoiceDepth` rounds). A copy
@@ -827,7 +841,8 @@ Input: a choice path. Output: every option of the choice, in a stable order:
 - listed `items` and `values` in written order, a `values` formula's list in its order (each
   value once);
 - inline options in written order;
-- query matches sorted by qualified ID.
+- query matches in content order ([packs.md](packs.md#dependencies-and-load-order)): the load
+  order, then each pack's content order.
 
 For each option:
 

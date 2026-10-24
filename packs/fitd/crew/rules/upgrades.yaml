@@ -110,7 +110,7 @@ constraints:
     data: { marked: upgrades.marked, earned: upgrades.earned }
   - id: special-upgrades
     check: >-
-      crewType.id == ''
+      countPicks(pick.type == 'crewType') == 0
         || sumFields(f.id in crewType.upgrades ? 0 : f.value, 'upgrade.special' in f.tags) == 0
 
 display:
@@ -154,21 +154,21 @@ display:
         groups: [special-upgrades],
         priority: 0,
         input: { widget: track },
-        showWhen: "crewType.id == '' || @upgrades.hardened in crewType.upgrades",
+        showWhen: "countPicks(pick.type == 'crewType') == 0 || @upgrades.hardened in crewType.upgrades",
       }
     upgrades.composed:
       {
         groups: [special-upgrades],
         priority: 0,
         input: { widget: track },
-        showWhen: "crewType.id == '' || @upgrades.composed in crewType.upgrades",
+        showWhen: "countPicks(pick.type == 'crewType') == 0 || @upgrades.composed in crewType.upgrades",
       }
     upgrades.rigging:
       {
         groups: [special-upgrades],
         priority: 0,
         input: { widget: track },
-        showWhen: "crewType.id == '' || @upgrades.rigging in crewType.upgrades",
+        showWhen: "countPicks(pick.type == 'crewType') == 0 || @upgrades.rigging in crewType.upgrades",
       }
     rigging.kinds: { groups: [special-upgrades], priority: 2, showWhen: upgrades.rigging > 0 }
     upgrades.prisonContacts:
@@ -176,56 +176,56 @@ display:
         groups: [special-upgrades],
         priority: 0,
         input: { widget: track },
-        showWhen: "crewType.id == '' || @upgrades.prisonContacts in crewType.upgrades",
+        showWhen: "countPicks(pick.type == 'crewType') == 0 || @upgrades.prisonContacts in crewType.upgrades",
       }
     upgrades.undergroundMaps:
       {
         groups: [special-upgrades],
         priority: 0,
         input: { widget: track },
-        showWhen: "crewType.id == '' || @upgrades.undergroundMaps in crewType.upgrades",
+        showWhen: "countPicks(pick.type == 'crewType') == 0 || @upgrades.undergroundMaps in crewType.upgrades",
       }
     upgrades.camouflage:
       {
         groups: [special-upgrades],
         priority: 0,
         input: { widget: track },
-        showWhen: "crewType.id == '' || @upgrades.camouflage in crewType.upgrades",
+        showWhen: "countPicks(pick.type == 'crewType') == 0 || @upgrades.camouflage in crewType.upgrades",
       }
     upgrades.elite.adepts:
       {
         groups: [special-upgrades],
         priority: 0,
         input: { widget: track },
-        showWhen: "crewType.id == '' || @upgrades.elite.adepts in crewType.upgrades",
+        showWhen: "countPicks(pick.type == 'crewType') == 0 || @upgrades.elite.adepts in crewType.upgrades",
       }
     upgrades.elite.rooks:
       {
         groups: [special-upgrades],
         priority: 0,
         input: { widget: track },
-        showWhen: "crewType.id == '' || @upgrades.elite.rooks in crewType.upgrades",
+        showWhen: "countPicks(pick.type == 'crewType') == 0 || @upgrades.elite.rooks in crewType.upgrades",
       }
     upgrades.elite.rovers:
       {
         groups: [special-upgrades],
         priority: 0,
         input: { widget: track },
-        showWhen: "crewType.id == '' || @upgrades.elite.rovers in crewType.upgrades",
+        showWhen: "countPicks(pick.type == 'crewType') == 0 || @upgrades.elite.rovers in crewType.upgrades",
       }
     upgrades.elite.skulks:
       {
         groups: [special-upgrades],
         priority: 0,
         input: { widget: track },
-        showWhen: "crewType.id == '' || @upgrades.elite.skulks in crewType.upgrades",
+        showWhen: "countPicks(pick.type == 'crewType') == 0 || @upgrades.elite.skulks in crewType.upgrades",
       }
     upgrades.elite.thugs:
       {
         groups: [special-upgrades],
         priority: 0,
         input: { widget: track },
-        showWhen: "crewType.id == '' || @upgrades.elite.thugs in crewType.upgrades",
+        showWhen: "countPicks(pick.type == 'crewType') == 0 || @upgrades.elite.thugs in crewType.upgrades",
       }
     upgrades.workshop: { hidden: true }
     upgrades.mastery: { hidden: true }

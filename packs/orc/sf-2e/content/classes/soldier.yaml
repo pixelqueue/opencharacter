@@ -43,13 +43,7 @@ grants:
   - { item: features.soldier.legendary-soldier, when: 'level >= 19' }
 choices:
   - id: fighting-style
-    from:
-      items:
-        - features.soldier.style.action-hero
-        - features.soldier.style.armor-storm
-        - features.soldier.style.bombard
-        - features.soldier.style.close-quarters
-        - features.soldier.style.erudite-warrior
+    from: { type: feature, where: "item.classOption == 'soldier.fighting-style'" }
   - id: skills
     unique: skill-training
     pick: '3 + max(0, attributes.int.mod)'

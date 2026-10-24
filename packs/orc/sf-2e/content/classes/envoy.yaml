@@ -53,14 +53,7 @@ choices:
         when: '!(pick.value in skills.chosen)'
       - { target: skills.trainings, op: add, value: 1 }
   - id: leadership-style
-    from:
-      items:
-        - features.envoy.style.from-the-front
-        - features.envoy.style.from-the-shadows
-        - features.envoy.style.guns-blazing
-        - features.envoy.style.in-the-spotlight
-        - features.envoy.style.infosphere-director
-        - features.envoy.style.through-desperate-times
+    from: { type: feature, where: "item.classOption == 'envoy.leadership-style'" }
   - id: skills
     unique: skill-training
     pick: '6 + max(0, attributes.int.mod)'

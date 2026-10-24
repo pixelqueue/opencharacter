@@ -62,9 +62,7 @@ choices:
             - { target: attributes.dex.boosts, op: add, value: 1 }
             - { target: class.keyAttribute, op: set, value: "'dex'" }
   - id: hunters-edge
-    from:
-      items:
-        [classes.ranger.edges.flurry, classes.ranger.edges.outwit, classes.ranger.edges.precision]
+    from: { type: feature, where: "item.classOption == 'ranger.hunters-edge'" }
   - id: skills
     unique: skill-training
     pick: 4 + max(0, attributes.int.mod)

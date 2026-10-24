@@ -1,0 +1,55 @@
+fields:
+  stamina: { type: integer, input: true, default: 3, min: 0 }
+  # Open: an add-on may add stances.
+  stance: { type: enum, values: [low, high], input: true, default: low, open: true }
+
+tags: [train, train.done]
+
+contentTypes:
+  class: {}
+  oath: {}
+  weapon:
+    carried: true
+    fields:
+      damageType: { type: enum, values: [blunt, edged], required: true, open: true }
+      # Closed: no pack may add to it.
+      reach: { type: enum, values: [close, far], default: close }
+    state:
+      edge: { type: enum, values: [keen, dull], default: keen, open: true }
+
+choices:
+  - id: class
+    from: { type: class }
+  - id: boon
+    required: false
+    from: { values: [luck] }
+
+actions:
+  - id: pick-class
+    results: [picked]
+    params:
+      random: { type: boolean, optional: true }
+    steps:
+      - id: class
+        kind: choice
+        options: { content: { type: class } }
+        random: has(params.random) && params.random
+        recommend: options[0]
+      - id: done
+        kind: outcome
+        result: "'picked'"
+        data: { class: steps.class.picked }
+  # Its choice step and changes step are tagged, for other packs' option and changes effects.
+  - id: train
+    results: [trained]
+    steps:
+      - id: drill
+        kind: choice
+        tags: [train]
+        options: [{ id: rest }]
+        recommend: options[0]
+      - id: done
+        kind: changes
+        tags: [train.done]
+        changes: [{ type: adjust, field: stamina, by: -1 }]
+      - { id: result, kind: outcome, result: "'trained'", data: { drill: steps.drill.picked } }

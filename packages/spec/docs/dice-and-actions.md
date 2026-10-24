@@ -537,7 +537,7 @@ observer:
 
 **Changes content adds**. A `changes` step may carry `tags` (computed entries
 allowed, and those an `action` step adds count), and may have only tags: a place in a shared
-action that content adds to. A content item's or template's `changes` effect aimed at a matching
+action that content adds to. A content item's, template's or the rules' `changes` effect aimed at a matching
 tag proposes its changes after the step's own whenever the step runs (per participant in an
 `each` step), while its `when` holds: a rune's persistent damage on a Strike's critical hit, a
 feat's condition on a spell's targets, a toggle the start of a turn ends.
@@ -816,7 +816,9 @@ A choice step's `options` come from one source:
 - **A written list** `[{ id, when?, changes?, to?, flags? }]`: each option is named
   `<actionKey>.options.<id>.name`. An option's `changes` are proposed when it is picked,
   `to` its `to` (default `self`); its `flags` are set first.
-- **Content**, `{ content: { type, where? } }`: the ruleset's content of a type, by qualified ID.
+- **Content**, `{ content: { type, where? } }`: the ruleset's content of a type, in content
+  order ([packs.md](packs.md#dependencies-and-load-order)): a dependency's before the packs
+  built on it.
   Each option is a qualified content ID, named by the item's name.
 - **The character's copies**, `{ copies: { type, where? } }`: inventory then features.
   Each option is an instance ID, named by the copy's item name.
@@ -926,7 +928,9 @@ picked in its rules-level `crew-type` choice, not every other choice still pendi
 **Options added by content**. On a step with `tags`, the character's content
 adds options with `option` effects aimed at `{ choices: [<tag>] }` ([effects.md](effects.md#targets)),
 offered after the source's options as `<content id>#<option id>` and named
-`<content id>.options.<option id>.name`. They are never recommended, so an automatic run keeps
+`<content id>.options.<option id>.name`; the rules' effects add them too, as
+`<pack>:rules#<option id>` named `rules.options.<option id>.name`, so an add-on pack offers its
+own option in a dependency's tagged step. They are never recommended, so an automatic run keeps
 the rules' choice. A picked option's own `changes` are proposed before the step's. Pushing
 yourself in FitD costs 2 stress, or Battleborn's special armor:
 

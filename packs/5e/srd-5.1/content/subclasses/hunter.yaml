@@ -4,39 +4,14 @@ fields:
   class: classes.ranger
 choices:
   - id: hunters-prey
-    from:
-      options:
-        - id: colossus-slayer
-          effects:
-            - { target: hunter.colossusSlayer, op: set, value: true }
-        - { id: giant-killer }
-        - { id: horde-breaker }
+    from: { type: hunterTactic, where: "item.feature == 'hunters-prey'" }
     when: self.level >= 3
   - id: defensive-tactics
-    from:
-      options:
-        - { id: escape-the-horde }
-        - { id: multiattack-defense }
-        - { id: steel-will }
+    from: { type: hunterTactic, where: "item.feature == 'defensive-tactics'" }
     when: self.level >= 7
   - id: multiattack
-    from:
-      options:
-        - id: volley
-          grants:
-            - { item: features.ranger.volley }
-        - id: whirlwind-attack
-          grants:
-            - { item: features.ranger.whirlwind-attack }
+    from: { type: hunterTactic, where: "item.feature == 'multiattack'" }
     when: self.level >= 11
   - id: superior-hunters-defense
-    from:
-      options:
-        - id: evasion
-          grants:
-            - { item: features.evasion }
-        - { id: stand-against-the-tide }
-        - id: uncanny-dodge
-          grants:
-            - { item: features.rogue.uncanny-dodge }
+    from: { type: hunterTactic, where: "item.feature == 'superior-hunters-defense'" }
     when: self.level >= 15

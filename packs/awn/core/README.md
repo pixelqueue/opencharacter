@@ -90,6 +90,26 @@ const run = startAction(ruleset, blank, {
   Sensitivity, the higher kept.
 - **System strain and stress:** maximums with the edges, foci and mutations that change them.
 
+## Add-on packs
+
+A pack that depends on `awn-core` can add content of its types, and creation and advancement offer
+it with the core's, in the guided picks and the random draws:
+
+- **Edges and foci** join every pick. Their limits are tags, not IDs: `repeatable`, `first-edge`
+  (Forged By Fire), `needs-mutant`, `makes-mutant`, `not-mutant`, `not-underdog`. One with
+  `gainPart: true` runs its own `gain-part` action (`listed: false`) when taken, as Educated,
+  Mutant, Mutation Acceleration and Unstable Mutant do; an edge's mutation points are an effect on
+  `mutations.points.edges`.
+- **Prepared survivors' picks** are content of the type `prepared`: the item (`gear`, by ID;
+  another pack's qualified), its quantity, readied or not, and what comes with it (`extra`).
+- **Weapons:** a wasteland warrior's weapon is any primitive melee weapon, or a primitive one with
+  `kitAmmo` (the bow and its arrows), which comes with that ammunition.
+- **Mutations** join the chosen and the fallback picks; the d6 category and d10 tables, and the
+  d100 negative table, keep the book's odds. The category is a written list (an enum), so an
+  add-on can't add one yet.
+
+The near-future and wasteland d20 tables are the book's own tables.
+
 ## Rule readings
 
 - **Learning picks** may take any skill: every Learning table ends with Any Skill.

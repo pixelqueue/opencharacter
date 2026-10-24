@@ -51,10 +51,20 @@ families:
       wise,
     ]
   effortSpan: [scene, day, ongoing]
+  # The traditions that cast spells from the spell lists (the Invoker aside).
+  spellTrad: [highmage, elementalist, necromancer]
 
 fields:
-  # 2 for a full Mage of the tradition, 1 for a partial one, 0 otherwise.
-  'tradition.{trad}.tier': { type: integer, formula: 0, tags: [tradition-tier] }
+  # 2 for a full Mage of the tradition, 1 for a partial one, 0 otherwise: a Mage's or partial
+  # Mage's picked tradition (`tradition` content) counts here, the other partial classes add
+  # theirs. The skill the tradition brings at creation, '' for none.
+  'tradition.{trad}.tier':
+    type: integer
+    tags: [tradition-tier]
+    formula: >-
+      countPicks(pick.type == 'tradition' && pick.fields.key == '{trad}')
+        * (countCopies(copy.type == 'class' && 'full-mage' in copy.tags) > 0 ? 2 : 1)
+  'tradition.{trad}.skill': { type: string, formula: "''" }
 
   # How the character casts: a full caster, one partial caster, two partial casters, an
   # Invoker (full or partial), or none.
@@ -64,12 +74,9 @@ fields:
     formula: >-
       tradition.invoker.tier == 2 ? 'invoker'
         : tradition.invoker.tier == 1 ? 'partial-invoker'
-        : tradition.highmage.tier == 2 || tradition.elementalist.tier == 2
-            || tradition.necromancer.tier == 2 ? 'full'
-        : (tradition.highmage.tier == 1 ? 1 : 0) + (tradition.elementalist.tier == 1 ? 1 : 0)
-            + (tradition.necromancer.tier == 1 ? 1 : 0) >= 2 ? 'dual'
-        : tradition.highmage.tier == 1 || tradition.elementalist.tier == 1
-            || tradition.necromancer.tier == 1 ? 'partial'
+        : countList(keysOf('spellTrad'), fieldOf('tradition.{trad}.tier', x) == 2) > 0 ? 'full'
+        : countList(keysOf('spellTrad'), fieldOf('tradition.{trad}.tier', x) == 1) >= 2 ? 'dual'
+        : countList(keysOf('spellTrad'), fieldOf('tradition.{trad}.tier', x) == 1) > 0 ? 'partial'
         : 'none'
   spells.maxLevel:
     type: integer
@@ -307,6 +314,13 @@ fields:
     formula: armor.wornHeavy || (armor.shield && armor.shieldAc >= 14)
 
 contentTypes:
+  # A Mage's magical tradition, picked by the Mage and the partial Mage: its `trad` key.
+  tradition:
+    carried: false
+    copies: { max: 0 }
+    fields:
+      key: { type: string, required: true }
+
   spell:
     fields:
       level: { type: integer, required: true, min: 1, max: 5 }
@@ -360,9 +374,8 @@ constraints:
     check: >-
       item.level <= spells.maxLevel
         && (item.list == 'high' ? spells.mode != 'none'
-          : item.list == 'elementalist'
-            ? tradition.elementalist.tier > 0 || invoker.education == 'elementalist'
-          : tradition.necromancer.tier > 0 || invoker.education == 'necromancer')
+          : item.list in keysOf('trad')
+            && (fieldOf('tradition.{trad}.tier', item.list) > 0 || invoker.education == item.list))
   - id: art-tradition
     copies: { type: art }
     check: >-

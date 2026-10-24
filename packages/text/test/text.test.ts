@@ -407,18 +407,6 @@ describe('Fate', () => {
     // A band that holds whatever the roll: no tests, no text.
     expect(worded.targets?.at(-1)).toEqual({ band: 'terrible', name: 'Terrible (−2)' });
   });
-
-  it("names an item's own state values", () => {
-    expect(text.stateValue('fate-core:stunts.custom', 'limit', 'scene')).toBe('scene');
-    expect(text.stateValue('fate-core:stunts.custom', 'action', 'advantage')).toBe(
-      'Create an advantage',
-    );
-    expect(text.stateValue('fate-core:stunts.custom', 'action', 'unknown')).toBe('unknown');
-    expect(keys.stateValueKey('fate-core:stunts.custom', 'limit', 'scene')).toEqual({
-      pack: 'fate-core',
-      key: 'stunts.custom.state.limit.values.scene.name',
-    });
-  });
 });
 
 describe('orc-2e', () => {
@@ -683,6 +671,16 @@ describe('prerequisite text', () => {
 
 describe('FitD crew factions', () => {
   const { ruleset, text } = load('fitd/crew');
+
+  it("names an item's own state values", () => {
+    expect(text.stateValue('fitd-crew:cohorts.gang', 'gangType', 'rooks')).toBe('Rooks');
+    expect(text.stateValue('fitd-crew:cohorts.gang', 'extraGangType', 'none')).toBe('None');
+    expect(text.stateValue('fitd-crew:cohorts.gang', 'gangType', 'unknown')).toBe('unknown');
+    expect(keys.stateValueKey('fitd-crew:cohorts.gang', 'gangType', 'rooks')).toEqual({
+      pack: 'fitd-crew',
+      key: 'cohorts.gang.state.gangType.values.rooks.name',
+    });
+  });
   const faction = 'fitd-crew:factions.faction';
 
   it("names a faction copy by the GM's label", () => {
@@ -755,5 +753,64 @@ describe('values named by the content an action runs for', () => {
       content: 'p:spells.curse',
     });
     expect(worded.options).toEqual([{ id: 'str', label: 'Disadvantage with Strength' }]);
+  });
+});
+
+describe('values an add-on adds to open enums', () => {
+  const text = createText({
+    languages: ['en'],
+    packs: {
+      en: {
+        core: { 'types.weapon.fields.damageType.values.blunt.name': 'Blunt' },
+        addon: {
+          'types.weapon.fields.damageType.values.sonic.name': 'Sonic',
+          'types.weapon.state.edge.values.humming.name': 'Humming',
+          'fields.stance.values.floating.name': 'Floating',
+        },
+      },
+    },
+    spec: {},
+    enumOrigins: {
+      'core:types.weapon.fields.damageType': { sonic: 'addon' },
+      'core:types.weapon.state.edge': { humming: 'addon' },
+      'core:fields.stance': { floating: 'addon' },
+    },
+  });
+
+  it("are named by the adding pack's text, under the enum's own key", () => {
+    expect(text.value('core:weapon', 'damageType', 'sonic')).toBe('Sonic');
+    expect(text.value('core:weapon', 'damageType', 'blunt')).toBe('Blunt');
+    expect(text.fieldValue('core:stance', 'floating')).toBe('Floating');
+    expect(text.stateValue('core:weapons.club', 'edge', 'humming', 'core:weapon')).toBe('Humming');
+    expect(text.fieldValue('core:stance', 'lofty')).toBe('lofty');
+  });
+});
+
+describe('options an add-on adds to a choice', () => {
+  const text = createText({
+    languages: ['en'],
+    packs: {
+      en: {
+        core: { 'classes.warden.choices.knack.options.tracking.name': 'Tracking' },
+        addon: {
+          'classes.warden.choices.knack.options.hexing.name': 'Hexing',
+          'rules.choices.boon.options.grace.name': 'Grace',
+          'rules.options.meditate.name': 'Meditate',
+        },
+      },
+    },
+    spec: {},
+    optionOrigins: {
+      'core:classes.warden/knack': { hexing: 'addon' },
+      'core:rules/boon': { grace: 'addon' },
+    },
+  });
+
+  it("are named by the adding pack's text, under the choice's own key", () => {
+    const knack = { owner: 'core:classes.warden', id: 'knack' };
+    expect(text.option('tracking', { choice: knack })).toBe('Tracking');
+    expect(text.option('hexing', { choice: knack })).toBe('Hexing');
+    expect(text.option('grace', { choice: { owner: 'core:rules', id: 'boon' } })).toBe('Grace');
+    expect(text.option('addon:rules#meditate')).toBe('Meditate');
   });
 });

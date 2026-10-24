@@ -16,9 +16,9 @@ situational:
     rolls: [damage.weapon]
     available: '@feats.savage-attacker in feats.held'
     effects:
-      - target: { rolls: [damage.weapon] }
+      - target: { rolls: [damage.weapon], parts: [part.weapon-dice] }
         op: rollModifier
-        value: { kind: advantage }
+        value: { kind: advantage, of: roll }
         when: situational.savageAttacker
   - id: grappledByYou
     type: boolean

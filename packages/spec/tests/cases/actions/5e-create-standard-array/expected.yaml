@@ -88,7 +88,7 @@ proposedChanges:
       option: 5e-srd-5.1:languages.giant
   - {
       to: self,
-      step: equipment/byClass/fighterArmor,
+      step: equipment/class/fighterArmor,
       change:
         {
           type: addItem,
@@ -97,7 +97,7 @@ proposedChanges:
     }
   - {
       to: self,
-      step: equipment/byClass/fighterWeapons,
+      step: equipment/class/fighterWeapons,
       change:
         {
           type: addItem,
@@ -106,7 +106,7 @@ proposedChanges:
     }
   - {
       to: self,
-      step: equipment/byClass/fighterMartial,
+      step: equipment/class/fighterMartial,
       change:
         {
           type: addItem,
@@ -115,7 +115,7 @@ proposedChanges:
     }
   - {
       to: self,
-      step: equipment/byClass/fighterRanged,
+      step: equipment/class/fighterRanged,
       change:
         {
           type: addItem,
@@ -129,7 +129,7 @@ proposedChanges:
     }
   - {
       to: self,
-      step: equipment/byClass/fighterRanged,
+      step: equipment/class/fighterRanged,
       change:
         {
           type: addItem,
@@ -138,7 +138,7 @@ proposedChanges:
     }
   - {
       to: self,
-      step: equipment/byClass/fighterPack,
+      step: equipment/class/fighterPack,
       change:
         {
           type: addItem,
@@ -147,17 +147,17 @@ proposedChanges:
     }
   - {
       to: self,
-      step: equipment/acolyteSymbol,
+      step: equipment/background/acolyteSymbol,
       change: { type: addItem, entry: { id: gear-reliquary-1, item: 5e-srd-5.1:gear.reliquary } },
     }
   - {
       to: self,
-      step: equipment/acolyteKit,
+      step: equipment/background/acolyteKit,
       change: { type: addItem, entry: { id: gear-book-1, item: 5e-srd-5.1:gear.book } },
     }
   - {
       to: self,
-      step: equipment/acolyteKit,
+      step: equipment/background/acolyteKit,
       change:
         {
           type: addItem,
@@ -166,12 +166,12 @@ proposedChanges:
     }
   - {
       to: self,
-      step: equipment/acolyteKit,
+      step: equipment/background/acolyteKit,
       change: { type: addItem, entry: { id: gear-vestments-1, item: 5e-srd-5.1:gear.vestments } },
     }
   - {
       to: self,
-      step: equipment/acolyteKit,
+      step: equipment/background/acolyteKit,
       change:
         {
           type: addItem,
@@ -180,7 +180,7 @@ proposedChanges:
     }
   - {
       to: self,
-      step: equipment/acolyteKit,
+      step: equipment/background/acolyteKit,
       change: { type: addItem, entry: { id: gear-pouch-1, item: 5e-srd-5.1:gear.pouch } },
     }
   - { to: self, step: hitDie, change: { type: set, field: 5e-srd-5.1:hp.base, value: 10 } }
@@ -241,14 +241,19 @@ log:
     option: 5e-srd-5.1:languages.giant
     index: 5
     choice: { entry: background, choice: [languages] }
-  - { step: equipment/byClass/fighterArmor, kind: choice, by: app, option: chain-mail }
-  - { step: equipment/byClass/fighterWeapons, kind: choice, by: app, option: martial-and-shield }
+  - { step: equipment/class/fighterArmor, kind: choice, by: app, option: chain-mail }
+  - { step: equipment/class/fighterWeapons, kind: choice, by: app, option: martial-and-shield }
   - {
-      step: equipment/byClass/fighterMartial,
+      step: equipment/class/fighterMartial,
       kind: choice,
       by: app,
       option: 5e-srd-5.1:weapons.warhammer,
     }
-  - { step: equipment/byClass/fighterRanged, kind: choice, by: app, option: light-crossbow }
-  - { step: equipment/byClass/fighterPack, kind: choice, by: app, option: explorers-pack }
-  - { step: equipment/acolyteSymbol, kind: choice, by: app, option: 5e-srd-5.1:gear.reliquary }
+  - { step: equipment/class/fighterRanged, kind: choice, by: app, option: light-crossbow }
+  - { step: equipment/class/fighterPack, kind: choice, by: app, option: explorers-pack }
+  - {
+      step: equipment/background/acolyteSymbol,
+      kind: choice,
+      by: app,
+      option: 5e-srd-5.1:gear.reliquary,
+    }

@@ -337,6 +337,24 @@ class FormulaChecker<L> {
       this.standardQuery(def, at, 'rules standardCopies');
     for (const { def, at } of rules.choices.values())
       this.owned(ANY_CHOICE, () => this.choices([def], at, 'rules'));
+    // Options added to a dependency's choices read what that choice's own options do: the owning
+    // item and its copy, or the rules'.
+    for (const [target, { def, at }] of rules.extendChoices) {
+      const local = target.slice(target.indexOf(':') + 1);
+      const owner = local === 'rules' ? undefined : this.set.item(target, this.scope);
+      const typeDef = owner ? this.contentTypeDef(this.set.typeOf(owner)) : undefined;
+      const options = () =>
+        this.owned(ANY_CHOICE, () => {
+          for (const [path, addition] of Object.entries(def))
+            if ('options' in addition)
+              this.inlineOptions(addition.options, at, `${local}.choices.${path}`);
+        });
+      if (local === 'rules') options();
+      else
+        this.typed({ item: this.itemOf(typeDef), self: selfType(typeDef) }, () =>
+          this.at('content', options),
+        );
+    }
 
     for (const [id, { def, at }] of rules.constraints) {
       const constraintFormulas = () => {

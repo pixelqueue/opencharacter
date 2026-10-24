@@ -97,12 +97,12 @@ actions:
           content:
             type: edge
             where: >-
-              (!(item.id in edges.held) || item.id == @edges.focused)
-                && (item.id != @edges.forged-by-fire || (character.creating && edges.count == 0))
-                && (item.id != @edges.mutation-acceleration || mutations.mutant)
-                && (item.id != @edges.mutant || !(@edges.hardened-genetics in edges.held))
-                && (item.id != @edges.hardened-genetics || !mutations.mutant)
-                && (item.id != @edges.prodigy || !edges.underdog)
+              (!(item.id in edges.held) || 'repeatable' in item.tags)
+                && (!('first-edge' in item.tags) || (character.creating && edges.count == 0))
+                && !('needs-mutant' in item.tags && !mutations.mutant)
+                && !('makes-mutant' in item.tags && mutations.barred)
+                && !('not-mutant' in item.tags && mutations.mutant)
+                && !('not-underdog' in item.tags && edges.underdog)
         random: params.random
         recommend: options[0]
         changes:
@@ -113,31 +113,13 @@ actions:
         when: size(steps.edge.item.bonusSkill) > 0
         use: bonus-skill
         params: { skills: steps.edge.item.bonusSkill, random: params.random }
-      - id: educated
-        kind: changes
-        when: '!character.creating && steps.edge.picked == @edges.educated'
-        changes:
-          - { type: adjust, field: skills.points, by: level - 1 }
-      - id: mutate
-        kind: action
-        when: '!character.creating && steps.edge.picked == @edges.mutant'
-        use: mutate
-        params: { random: params.random }
-      - id: accelerate1
+      # What the edge itself brings when taken (its own `gain-part`).
+      - id: part
         kind: action
         sheet: proposed
-        when: >-
-          !character.creating && steps.edge.picked == @edges.mutation-acceleration
-            && mutations.points.left >= 1
-        use: buy-mutation
-        params: { random: params.random }
-      - id: accelerate2
-        kind: action
-        sheet: proposed
-        when: >-
-          !character.creating && steps.edge.picked == @edges.mutation-acceleration
-            && mutations.points.left >= 1
-        use: buy-mutation
+        when: steps.edge.item.gainPart
+        entry: 'steps.edge.added[0]'
+        use: gain-part
         params: { random: params.random }
       - id: result
         kind: outcome
@@ -161,7 +143,7 @@ actions:
               (countCopies(copy.item == item.id) == 0 || item.multiple
                 || countCopies(copy.item == item.id && copy.state.level < item.maxLevel) > 0)
                 && !(item.id in foci.held && countCopies(copy.item == item.id) == 0)
-                && (item.id != @foci.unstable-mutant || mutations.mutant)
+                && !('needs-mutant' in item.tags && !mutations.mutant)
         random: params.random
         recommend: options[0]
       # Specialist again: a second level of a held one, or another skill.
@@ -230,11 +212,14 @@ actions:
         when: flags.new && size(steps.focus.item.bonusSkill2) > 0
         use: bonus-skill
         params: { skills: steps.focus.item.bonusSkill2, random: params.random }
-      - id: unstable
+      # What a new focus itself brings (its own `gain-part`).
+      - id: part
         kind: action
-        when: flags.new && steps.focus.picked == @foci.unstable-mutant
-        use: roll-mutation
-        params: { origin: "'unstable'", random: params.random }
+        sheet: proposed
+        when: flags.new && steps.focus.item.gainPart
+        entry: 'steps.add.added[0]'
+        use: gain-part
+        params: { random: params.random }
       - id: result
         kind: outcome
         result: "'gained'"

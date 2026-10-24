@@ -47,14 +47,7 @@ choices:
   # The racket first: it names the other key attributes the rogue may take, and its own choice (a
   # mastermind's skill) is asked right after it, before the free skills.
   - id: racket
-    from:
-      items:
-        [
-          classes.rogue.rackets.mastermind,
-          classes.rogue.rackets.ruffian,
-          classes.rogue.rackets.scoundrel,
-          classes.rogue.rackets.thief,
-        ]
+    from: { type: feature, where: "item.classOption == 'rogue.racket'" }
   - id: key-attribute
     from:
       options:

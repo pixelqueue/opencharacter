@@ -1,8 +1,6 @@
 id: classes.barbarian.instincts.spirit
 type: feature
-fields: { level: 1 }
+fields: { level: 1, classOption: barbarian.instinct }
 effects:
-  - { target: barbarian.instinct, op: set, value: "'spirit'" }
   - { target: rage.altDamage, op: set, value: 'level >= 15 ? 13 : level >= 7 ? 7 : 3' }
-  - { target: rage.altType, op: set, value: "'spirit'" }
   - { target: rage.resists, op: grant, value: { tag: damage.void }, when: level >= 9 }

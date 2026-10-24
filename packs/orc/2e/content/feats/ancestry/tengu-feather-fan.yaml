@@ -16,7 +16,7 @@ effects:
       id: wave-fan-gust-of-wind
       flags: { itemPaid: true, rank: 1, dc: ancestry.dc }
       changes:
-        - { type: adjustState, picks: { where: has(self.fanUses) }, key: fanUses, by: 1 }
+        - { type: adjustState, pick: owner, key: fanUses, by: 1 }
   - target: { choices: [spell-cost] }
     op: option
     when: >-
@@ -25,7 +25,7 @@ effects:
       id: wave-fan-wall-of-wind
       flags: { itemPaid: true, rank: 3, dc: ancestry.dc }
       changes:
-        - { type: adjustState, picks: { where: has(self.fanUses) }, key: fanUses, by: 1 }
+        - { type: adjustState, pick: owner, key: fanUses, by: 1 }
   - target: { choices: [spell-cost] }
     op: option
     when: >-
@@ -34,4 +34,4 @@ effects:
       id: wave-fan-lightning-bolt
       flags: { itemPaid: true, rank: 5, dc: ancestry.dc }
       changes:
-        - { type: adjustState, picks: { where: has(self.fanUses) }, key: fanUses, by: 1 }
+        - { type: adjustState, pick: owner, key: fanUses, by: 1 }

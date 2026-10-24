@@ -30,3 +30,20 @@ actions:
     steps:
       - { id: roll, kind: roll, tags: [check], parts: [{ dice: 1d20 }] }
       - { id: result, kind: outcome, data: { total: steps.roll.total } }
+  # Two attacks, one per pass of a group.
+  - id: volley
+    steps:
+      - id: shots
+        kind: group
+        repeat: { while: 'true', max: 2 }
+        steps:
+          - { id: roll, kind: roll, tags: [attack], parts: [{ dice: 1d20 }] }
+      - id: result
+        kind: outcome
+        data: { first: 'steps.shots[0].roll.total', last: steps.roll.total }
+  # An attack rolled again in the same run: the second roll replaces the first.
+  - id: reroll-attack
+    steps:
+      - { id: roll, kind: roll, tags: [attack], parts: [{ dice: 1d20 }] }
+      - { id: again, kind: roll, tags: [attack], parts: [{ dice: 1d20 }] }
+      - { id: result, kind: outcome, data: { total: steps.again.total } }

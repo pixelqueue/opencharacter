@@ -50,18 +50,9 @@ choices:
             - { target: attributes.int.boosts, op: add, value: 1 }
             - { target: class.keyAttribute, op: set, value: "'int'" }
   - id: paradox
-    from:
-      items:
-        - classes.witchwarper.paradoxes.analyst
-        - classes.witchwarper.paradoxes.anomaly
-        - classes.witchwarper.paradoxes.lost-history
-        - classes.witchwarper.paradoxes.precog
+    from: { type: feature, where: "item.classOption == 'witchwarper.paradox'" }
   - id: anchor
-    from:
-      items:
-        - classes.witchwarper.anchors.core-memories
-        - classes.witchwarper.anchors.focal-point
-        - classes.witchwarper.anchors.tangible-object
+    from: { type: feature, where: "item.classOption == 'witchwarper.anchor'" }
   - id: skills
     unique: skill-training
     pick: '3 + max(0, attributes.int.mod)'

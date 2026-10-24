@@ -23,30 +23,6 @@ effects:
     when: >-
       has(flags.hit) && flags.hit && has(participants.target) && size(participants.target) > 0
         && character.id in participants.target[0].hex.cursedBy
-  - target: { choices: [spell-option] }
-    op: option
-    when: action.item.id == item.id
-    value: { id: str }
-  - target: { choices: [spell-option] }
-    op: option
-    when: action.item.id == item.id
-    value: { id: dex }
-  - target: { choices: [spell-option] }
-    op: option
-    when: action.item.id == item.id
-    value: { id: con }
-  - target: { choices: [spell-option] }
-    op: option
-    when: action.item.id == item.id
-    value: { id: int }
-  - target: { choices: [spell-option] }
-    op: option
-    when: action.item.id == item.id
-    value: { id: wis }
-  - target: { choices: [spell-option] }
-    op: option
-    when: action.item.id == item.id
-    value: { id: cha }
   - target: { rolls: [check.str] }
     op: rollModifier
     value: { kind: disadvantage }

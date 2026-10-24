@@ -110,6 +110,15 @@ the player's choices and other characters.
   with rest; Occult Pavis rolls saves against magic (`versusMagic`) twice.
 - **Contacts**, named by the player, as Acquaintances or Friends.
 
+## Add-on packs
+
+A pack that depends on `cwn-srd` can add content of its types, and creation and advancement offer
+it with the core's: backgrounds, Edges and Foci in the guided picks and the random draws, and
+weapons, armor, gear, cyberdecks and drones as the free starting item. What content brings is read
+from its fields and tags, not its ID: a Focus or Edge's `startingItems` and `startingCyber` (write
+another pack's items by qualified ID, `<pack>:gear.<id>`), `brings-cyber` for one that brings
+cyberware, `bars-cyber` for one that bars it (as All Natural does), `repeatable`, `not-underdog`.
+
 ## Left to the table
 
 - Situational modifiers (cover, range, prone targets, snap attacks, charges, dual wielding) are

@@ -765,13 +765,6 @@ actions:
             when: has(item.escapeDc) && @conditions.grappled in item.conditions
             source: "'conditions.grappled'"
             state: { by: creature.type, escapeDc: item.escapeDc }
-      - id: unsap
-        kind: changes
-        when: >-
-          countList(character.applied, x.active && x.source == @combat-effects.sapped) > 0
-        changes:
-          - type: removeEffect
-            applied: { where: 'item.id == @combat-effects.sapped' }
       - id: spend
         kind: changes
         changes:

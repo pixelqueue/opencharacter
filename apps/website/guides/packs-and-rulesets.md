@@ -92,6 +92,52 @@ wins and the ruleset lists it in `ruleset.conflicts`
 Show conflicts to whoever chose the packs (a GM's campaign settings screen), not to players
 mid-session.
 
+### Add-on packs
+
+An add-on pack depends on a core pack and adds to it: monsters, weapons, spells, classes of the
+core's content types. Its manifest names the core in `dependencies`, and its content uses the
+core's types by name (`type: weapon`), so the core's processes (creation, starting gear, attacks,
+monster starts) offer it beside the core's own:
+
+- **Content order.** The engine lists content in load order, then each pack's file order, so the
+  core's content comes first in every option list and an automatic run's first pick stays the
+  core's, whatever the add-on is called.
+- **Open enums.** A core enum marked `open: true` (a weapon's damage type) takes values from
+  the packs that depend on it. The add-on lists them in its rules' `extendEnums`, keyed by the
+  enum's address, and names them in its own text under the enum's key:
+
+  ```yaml
+  # rules/weapons.yaml
+  extendEnums:
+    'orc-2e:types.weapon.fields.damageType': [sonic]
+  # i18n/en.yaml
+  types.weapon.fields.damageType.values.sonic.name: Sonic
+  ```
+
+  The ruleset's `enumOrigins` says which pack added each value; pass it to `createText`
+  ([Showing text](showing-text.md)) so added values get their names.
+
+- **Choice options.** A core choice over listed items, written values or inline options (a
+  class's subclass pick) takes options from the add-on's rules' `extendChoices`, after the core's
+  own and other add-ons', without overriding the class, so two add-ons both count:
+
+  ```yaml
+  extendChoices:
+    'orc-2e:classes.barbarian':
+      instinct: { items: [instincts.sonic] }
+  ```
+
+  Added inline options and values are named in the add-on's text under the core's key; pass
+  `ruleset.optionOrigins` to `createText` too.
+
+- **Action steps.** The add-on's rules' `option` and `changes` effects reach the core's tagged
+  choice and changes steps (an extra option in a creation step), its options named
+  `rules.options.<id>.name`.
+
+An add-on can't change what the core wrote out by ID: a fixed kit list, a random table over core
+IDs, a choice over a query whose `where` lists IDs. Those are for the core pack to open up, with
+tags, item fields or the extensions above.
+
 ## Which packs a character uses
 
 A character file pins the **exact versions** of the packs it uses, in load order:
@@ -155,7 +201,8 @@ const classes = Object.values(ruleset.content).filter(
 ```
 
 - `ruleset.contentTypes` lists every content type by qualified name, with its declared fields.
-- `ruleset.content` lists every item by qualified ID, after `extends` and overrides, with
+- `ruleset.content` lists every item by qualified ID, in content order (packs in load order,
+  then each pack's content in file order), after `extends` and overrides, with
   `type` (the qualified type name), `hidden` (hidden by a later pack: leave it out) and
   `deprecated` (still valid, but don't offer it for new characters).
 - An item's `fields` are its raw values. Numbers and dice in them are formulas as written in the
