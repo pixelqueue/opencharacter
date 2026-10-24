@@ -61,6 +61,7 @@ fields:
 contentTypes:
   # The Hunter's options, by the feature that offers them.
   hunterTactic:
+    grantOnly: true
     copies: { max: 0 }
     fields:
       feature:
@@ -69,11 +70,13 @@ contentTypes:
         required: true
 
   metamagic:
+    grantOnly: true
     copies: { max: 0 }
     effects:
       - { target: sorcery.metamagic, op: set, value: sorcery.left > 0 }
 
   invocation:
+    grantOnly: true
     copies: { max: 0 }
     # An invocation usable once per rest keeps `used` on its pick.
     effects:
@@ -84,6 +87,7 @@ contentTypes:
           changes: [{ type: setState, pick: owner, key: used, value: false }]
 
   pactBoon:
+    grantOnly: true
     copies: { max: 0 }
     effects:
       - target: warlock.boons

@@ -166,16 +166,20 @@ contentTypes:
       - use: spend-hit-die
 
   subclass:
+    grantOnly: true
     copies: { max: 0 }
     fields:
       class: { type: id, of: class, required: true }
 
   fightingStyle:
+    grantOnly: true
     copies: { max: 0 }
 
-  feature: {}
+  feature:
+    grantOnly: true
 
   improvement:
+    grantOnly: true
     copies: { max: 0 }
 
   spell:
@@ -295,7 +299,8 @@ contentTypes:
       upcastHealDice: { type: integer }
       upcastHealBonus: { type: integer }
 
-  trait: {}
+  trait:
+    grantOnly: true
 
   race:
     copies: { max: 1 }
@@ -308,6 +313,7 @@ contentTypes:
       - { id: race, target: creature.race, op: set, value: item.id }
 
   subrace:
+    grantOnly: true
     copies: { max: 0 }
     fields:
       race: { type: id, of: race, required: true }
@@ -322,6 +328,7 @@ contentTypes:
 
   # Each ancestry item carries its resistance, since incoming-change tags can't be computed.
   draconicAncestry:
+    grantOnly: true
     copies: { max: 0 }
     fields:
       damageType: { type: enum, values: [acid, cold, fire, lightning, poison], required: true }
@@ -345,6 +352,8 @@ contentTypes:
       startingKit: { type: boolean, default: false }
 
   backgroundFeature:
+    grantOnly: true
     copies: { max: 0 }
 
-  feat: {}
+  feat:
+    grantOnly: true
