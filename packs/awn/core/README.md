@@ -15,6 +15,9 @@ edition and is used with the author's permission. Nothing from the paid edition 
 pnpm add @opencharacter/awn-core @opencharacter/engine
 ```
 
+This release needs spec 0.3: `@opencharacter/engine` 0.3.0 or later. An engine for an older
+spec refuses it (`spec-version-unsupported`).
+
 ```ts
 import { applyChanges, loadRuleset, startAction } from '@opencharacter/engine';
 import apocalypse from '@opencharacter/awn-core';
@@ -116,6 +119,11 @@ it with the core's, in the guided picks and the random draws:
 
 - **Open enums:** the stigma fields (`stigma.part`, `stigma.part2`, `stigma.nature`,
   `stigma.detail`), for more suggestions to set by hand; the rolled tables keep the book's.
+- **Naming what an add-on adds:** it names each added value, option or key in its own text,
+  under the key this pack would use, and `createText` finds it there when the app passes the
+  ruleset's `enumOrigins`, `optionOrigins` and `familyOrigins`. For example,
+  `tail` added to `awn-core:fields.stigma.part` is
+  `fields.stigma.part.values.tail.name: Tail` (through `enumOrigins`).
 
 - **Skills** are the `skill` family: an add-on adds one (`families: { 'awn-core:skill': [<key>] }`)
   and declares its `skills.<key>.level` (tagged `skill` and `skill.<key>`), `.credit` and `.cap`

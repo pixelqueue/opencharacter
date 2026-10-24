@@ -17,6 +17,9 @@ affiliated with, approved or endorsed by Kevin Crawford or Sine Nomine Publishin
 pnpm add @opencharacter/cwn-srd @opencharacter/engine
 ```
 
+This release needs spec 0.3: `@opencharacter/engine` 0.3.0 or later. An engine for an older
+spec refuses it (`spec-version-unsupported`).
+
 The package's default export is the pack's release, ready for `loadRuleset`; its English text is
 `@opencharacter/cwn-srd/i18n/en` (also as JSON, `release.json` and `i18n/en.json`).
 
@@ -122,6 +125,11 @@ cyberware, `bars-cyber` for one that bars it (as All Natural does), `repeatable`
 - **Open enums:** cyberware `category`, a program Subject's `subjectType` (a Verb's `targets`
   name them), a drone's `moveKind` and a spell's `duration`. An add-on lists new values in
   `extendEnums` and names them in its text.
+- **Naming what an add-on adds:** it names each added value, option or key in its own text,
+  under the key this pack would use, and `createText` finds it there when the app passes the
+  ruleset's `enumOrigins`, `optionOrigins` and `familyOrigins`. For example,
+  `psionic` added to `cwn-srd:types.cyberware.fields.category` is
+  `types.cyberware.fields.category.values.psionic.name: Psionic` (through `enumOrigins`).
 - **Tagged steps** take an add-on's rules-level `option` and `changes` effects: `creation.item`
   (the free starting item's kind: an added option is another free item), `creation.gear` (the
   starting money and lifestyle), `creation.finish` (the last step of creation),

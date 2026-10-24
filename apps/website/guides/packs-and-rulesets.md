@@ -149,6 +149,55 @@ An add-on can't change what the core wrote out by ID: a fixed kit list, a random
 IDs, a choice over a query whose `where` lists IDs. Those are for the core pack to open up, with
 tags, item fields or the extensions above.
 
+#### Naming what an add-on adds
+
+An add-on names what it adds to the core in **its own text, under the key the core would use**.
+The ruleset records which pack added each value, option and family key (`enumOrigins`,
+`optionOrigins`, `familyOrigins`), and `createText` reads the name from that pack when the core
+has none. A worked example, an add-on to orc-2e that adds a damage type and an Order Explorer
+order:
+
+```yaml
+# stone-druids/rules/stone.yaml (its pack.yaml depends on orc-2e)
+tags: [damage.sonic]
+extendEnums:
+  'orc-2e:types.weapon.fields.damageType': [sonic]
+extendChoices:
+  'orc-2e:feats.druid.order-explorer':
+    order:
+      options:
+        - id: stone
+# stone-druids/i18n/en.yaml
+tags.damage.sonic.name: sonic
+types.weapon.fields.damageType.values.sonic.name: Sonic # orc-2e's key, in the add-on's text
+feats.druid.order-explorer.choices.order.options.stone.name: Stone
+```
+
+```ts
+const loaded = loadRuleset([orc2e, stoneDruids]);
+if (!loaded.ok) throw new Error(JSON.stringify(loaded.errors));
+const { ruleset } = loaded;
+// ruleset.enumOrigins['orc-2e:types.weapon.fields.damageType'] is { sonic: 'stone-druids' }
+// ruleset.optionOrigins['orc-2e:feats.druid.order-explorer/order'] is { stone: 'stone-druids' }
+
+const text = createText({
+  languages: ['en'],
+  packs: { en: { 'orc-2e': orcEn, 'stone-druids': stoneDruidsEn } },
+  spec: { en: specEn },
+  enumOrigins: ruleset.enumOrigins,
+  optionOrigins: ruleset.optionOrigins,
+  familyOrigins: ruleset.familyOrigins,
+});
+text.value('orc-2e:weapon', 'damageType', 'sonic'); // 'Sonic'
+text.option('stone', { choice: { owner: 'orc-2e:feats.druid.order-explorer', id: 'order' } }); // 'Stone'
+```
+
+A key added to a family is named the same way, under the core action's key that offers it: an
+add-on adding `sappers` to `fitd-crew:gang` writes `actions.create-crew.options.sappers.name`, and
+`text.option('sappers', { action: 'fitd-crew:create-crew' })` finds it through `familyOrigins`.
+Without the origins, `createText` looks only in the core's text and shows the bare value. Each
+official pack's README lists the keys its add-ons write.
+
 ## Which packs a character uses
 
 A character file pins the **exact versions** of the packs it uses, in load order:

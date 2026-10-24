@@ -18,6 +18,9 @@ Publishing.
 pnpm add @opencharacter/wwn-srd @opencharacter/engine
 ```
 
+This release needs spec 0.3: `@opencharacter/engine` 0.3.0 or later. An engine for an older
+spec refuses it (`spec-version-unsupported`).
+
 The package's default export is the pack's release, ready for `loadRuleset`; its English text is
 `@opencharacter/wwn-srd/i18n/en`.
 
@@ -120,6 +123,11 @@ backgrounds, foci, arts, spells, weapons, armor and gear.
   and raise it as the core's. A background's table entries (`types.background.fields.freeSkill`,
   `growth1`–`growth6`, `learning1`–`learning8`), a focus's `bonusSkill` and a weapon's `skill`
   are open enums that take its key.
+- **Naming what an add-on adds:** it names each added value, option or key in its own text,
+  under the key this pack would use, and `createText` finds it there when the app passes the
+  ruleset's `enumOrigins`, `optionOrigins` and `familyOrigins`. For example,
+  a tradition `stormcaller` added to `wwn-srd:types.spell.fields.list` is
+  `types.spell.fields.list.values.stormcaller.name: Stormcaller` (through `enumOrigins`).
 - **Tagged steps** take an add-on's rules-level `option` and `changes` effects: `creation.purse`
   (the starting silver), `creation.finish` (the last step of creation), `advancement.level` (each
   new level's level and skill points), `rest.night` (a night's rest) and `rest.scene` (the end of

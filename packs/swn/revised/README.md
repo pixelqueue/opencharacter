@@ -16,6 +16,9 @@ edition only, with the author's permission; nothing from the paid deluxe edition
 pnpm add @opencharacter/swn-revised @opencharacter/engine
 ```
 
+This release needs spec 0.3: `@opencharacter/engine` 0.3.0 or later. An engine for an older
+spec refuses it (`spec-version-unsupported`).
+
 The package's default export is the pack's release, ready for `loadRuleset`; its English text is
 `@opencharacter/swn-revised/i18n/en` (also as JSON, `release.json` and `i18n/en.json`).
 
@@ -152,6 +155,11 @@ with the core content alone):
 - **Open enums:** weapon `ammo`, gear `category` and `kind` (what a weapon reloads with), and
   armor `category`. An add-on lists new values in `extendEnums`
   (`'swn-revised:types.weapon.fields.ammo': [spikes]`) and names them in its text.
+- **Naming what an add-on adds:** it names each added value, option or key in its own text,
+  under the key this pack would use, and `createText` finds it there when the app passes the
+  ruleset's `enumOrigins`, `optionOrigins` and `familyOrigins`. For example,
+  `spikes` added to `swn-revised:types.weapon.fields.ammo` is
+  `types.weapon.fields.ammo.values.spikes.name: Spike magazine` (through `enumOrigins`).
 - **Tagged steps** take an add-on's rules-level `option` and `changes` effects: `creation.kit`
   (the starting package pick: an added option replaces the package), `creation.focus` and
   `level-up.focus` (a focus pick at creation or on advancement: an added option is taken instead

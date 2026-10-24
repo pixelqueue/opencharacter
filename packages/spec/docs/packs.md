@@ -32,18 +32,18 @@ The build step turns these files into one **pack release** ([`pack-release.schem
 
 `pack.yaml` ([`pack.schema.json`](../schemas/pack.schema.json)):
 
-| Property          | Required       | Meaning                                                                                                                                      |
-| ----------------- | -------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| `id`              | yes            | Pack ID: lowercase words joined by hyphens, dots allowed between them (`5e-srd-5.1`). Permanent. In this repository, `<game>-<pack folder>`. |
-| `version`         | yes            | Semver, starting at 0.1.0. Each update gets a unique version; published versions never change.                                               |
-| `specVersion`     | yes            | The **minimum** spec version the pack needs. `loadRuleset` refuses a pack that needs a newer spec (`spec-version-unsupported`).              |
-| `license`         | yes            | SPDX identifier (`CC-BY-4.0`, `CC0-1.0`), `ORC`, `OGL-1.0a`, or `mechanics-only`.                                                            |
-| `credit`          | for CC-BY, ORC | The credit line (attribution) the license requires. Apps MUST pass it on to their users.                                                     |
-| `notices`         | for ORC, OGL   | Other notices the license requires, by name (a slug → its text), in order. Apps MUST pass each on after `credit`.                            |
-| `defaultLanguage` | yes            | BCP 47 tag. The i18n file for it MUST exist.                                                                                                 |
-| `dependencies`    | no             | Pack ID → semver range.                                                                                                                      |
-| `hides`           | no             | Qualified IDs of dependency content to hide from the ruleset.                                                                                |
-| `homepage`        | no             | URL.                                                                                                                                         |
+| Property          | Required       | Meaning                                                                                                                                                                                                                                           |
+| ----------------- | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `id`              | yes            | Pack ID: lowercase words joined by hyphens, dots allowed between them (`5e-srd-5.1`). Permanent. In this repository, `<game>-<pack folder>`.                                                                                                      |
+| `version`         | yes            | Semver, starting at 0.1.0. Each update gets a unique version; published versions never change.                                                                                                                                                    |
+| `specVersion`     | yes            | The **minimum** spec version the pack needs. `loadRuleset` refuses a pack that needs a newer spec (`spec-version-unsupported`). `pnpm release:check` refuses one lower than the features the pack uses ([versioning](versioning.md#3-each-pack)). |
+| `license`         | yes            | SPDX identifier (`CC-BY-4.0`, `CC0-1.0`), `ORC`, `OGL-1.0a`, or `mechanics-only`.                                                                                                                                                                 |
+| `credit`          | for CC-BY, ORC | The credit line (attribution) the license requires. Apps MUST pass it on to their users.                                                                                                                                                          |
+| `notices`         | for ORC, OGL   | Other notices the license requires, by name (a slug → its text), in order. Apps MUST pass each on after `credit`.                                                                                                                                 |
+| `defaultLanguage` | yes            | BCP 47 tag. The i18n file for it MUST exist.                                                                                                                                                                                                      |
+| `dependencies`    | no             | Pack ID → semver range.                                                                                                                                                                                                                           |
+| `hides`           | no             | Qualified IDs of dependency content to hide from the ruleset.                                                                                                                                                                                     |
+| `homepage`        | no             | URL.                                                                                                                                                                                                                                              |
 
 The pack's display name is the translation key `pack.name`.
 

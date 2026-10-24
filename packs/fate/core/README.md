@@ -12,6 +12,9 @@ stunts, stress and consequences, recovery, milestones, contests, extras, and NPC
 pnpm add @opencharacter/fate-core @opencharacter/engine
 ```
 
+This release needs spec 0.3: `@opencharacter/engine` 0.3.0 or later. An engine for an older
+spec refuses it (`spec-version-unsupported`).
+
 The package's default export is the pack's release, ready for `loadRuleset`; its English text is
 `@opencharacter/fate-core/i18n/en` (also as JSON, `release.json` and `i18n/en.json`).
 
@@ -239,6 +242,11 @@ A pack that depends on `fate-core` (a setting pack) adds to it without changing 
 - **Still closed:** a stunt's `shape` and `action`, a consequence's slot, harm's physical and
   mental, and the NPC kinds are the SRD's fixed sets that the core's rules read; a setting with
   another stress track or action is a variant, not an add-on.
+- **Naming what an add-on adds:** added skills, stunts and extras are the add-on's own fields
+  and content, named in its own text (`fields.skills.hacking.name: Hacking`). An added limit
+  `day` is named under this pack's key in the add-on's text,
+  `types.stunt.fields.limit.values.day.name: Once per day`, which `createText` finds when the
+  app passes the ruleset's `enumOrigins`.
 
 ## Text only, and left to the app
 

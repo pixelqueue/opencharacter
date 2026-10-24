@@ -279,7 +279,17 @@ text.error(error); // the spec's text, data filled
 - Some codes have text by their data: an `out-of-range` with only a `min` reads `"Maximum HP"
   must be at least 1.` (`errors.out-of-range.min`), and a `safety-limit-exceeded` has a sentence
   per limit (`errors.safety-limit-exceeded.maxOverflowChain`).
-- Text whose data is missing an argument is never shown raw: it falls back to `errors.other`.
+- Text whose data is missing an argument is never shown raw. A code with no text, or whose text
+  misses an argument, reads as the error's `data.message` when it has one, else `errors.other`
+  ("Something went wrong."). Neither shows the code: log the error itself for developers.
+
+```ts
+function showError(error: EngineError) {
+  console.warn(error.code, error.path ?? '', error.data ?? {}); // for developers
+  return text.error(error); // for the player
+}
+```
+
 - The spec's generic text gets `data` with IDs replaced by names:
   `{ code: 'not-input-field', data: { field: '5e-srd-5.1:combat.ac' } }` reads
   `"Armor Class" is calculated and cannot be set directly.`

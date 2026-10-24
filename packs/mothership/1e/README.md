@@ -16,6 +16,9 @@ for this pack.
 pnpm add @opencharacter/mothership-1e @opencharacter/engine
 ```
 
+This release needs spec 0.3: `@opencharacter/engine` 0.3.0 or later. An engine for an older
+spec refuses it (`spec-version-unsupported`).
+
 The package's default export is the pack's release, ready for `loadRuleset`; its English text is
 `@opencharacter/mothership-1e/i18n/en` (also as JSON, `release.json` and `i18n/en.json`).
 
@@ -193,6 +196,11 @@ A pack that depends on `mothership-1e` can add content of its types, and it join
     wound type (added to both) is rolled as the core's are;
   - `mothership-1e:types.class.fields.trauma`: a class's trauma response, for an added class
     whose own effects and rules read `trauma.response`.
+- **Naming what an add-on adds:** it names each added value, option or key in its own text,
+  under the key this pack would use, and `createText` finds it there when the app passes the
+  ruleset's `enumOrigins`, `optionOrigins` and `familyOrigins`. For example,
+  `acid` added to `mothership-1e:types.weapon.fields.woundType` is
+  `types.weapon.fields.woundType.values.acid.name: Acid` (through `enumOrigins`).
 - **Tagged creation steps:** an add-on's rules-level `option` effects reach the choice steps
   tagged `creation.class`, `creation.skills` and `creation.kit` of `roll-character` (an added
   kit beside the loadout and credits), and its `changes` effects the `creation.save` step (a

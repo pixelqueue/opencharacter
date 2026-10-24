@@ -14,6 +14,9 @@ planes and characters) is left out.
 pnpm add @opencharacter/engine @opencharacter/orc-2e
 ```
 
+This release needs spec 0.3: `@opencharacter/engine` 0.3.0 or later. An engine for an older
+spec refuses it (`spec-version-unsupported`).
+
 The package's default export is the built pack (a `PackRelease`), and `i18n/en` its English
 text:
 
@@ -104,6 +107,14 @@ A pack that depends on `orc-2e` can add to what it offers:
 - **Choices** (`extendChoices`): written value and inline option choices take additions: the
   dedications' identity picks (Barbarian Dedication's `instinct`), the follow-up feats' inline
   options (Order Explorer's `order`, Additional Lore's `lore`), and the 15- and 16-skill lists.
+- **Naming what an add-on adds:** it names each added value, option or key in its own text,
+  under the key this pack would use, and `createText` finds it there when the app passes the
+  ruleset's `enumOrigins`, `optionOrigins` and `familyOrigins`. For example,
+  `sonic` added to `orc-2e:types.weapon.fields.damageType` is
+  `types.weapon.fields.damageType.values.sonic.name: Sonic` (through `enumOrigins`), and an
+  Order Explorer option `stone` is
+  `feats.druid.order-explorer.choices.order.options.stone.name: Stone` (through
+  `optionOrigins`).
 - **Skills and Lores:** a choice of any skill reads `skills.offered` and one of any Lore
   `skills.lores`; an add-on's Lore declares its fields (`skills.lore.<name>.rank`, `.mod`, …,
   as `rules/lores.yaml` does) and grants its tag into both with a rules effect.

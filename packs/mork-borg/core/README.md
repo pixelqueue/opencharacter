@@ -34,6 +34,9 @@ with Ockult Örtmästare Games or Stockholm Kartell. It is published under the
 pnpm add @opencharacter/engine @opencharacter/mork-borg-core
 ```
 
+This release needs spec 0.3: `@opencharacter/engine` 0.3.0 or later. An engine for an older
+spec refuses it (`spec-version-unsupported`).
+
 ```ts
 import { computeSheet, loadRuleset, type CharacterFile } from '@opencharacter/engine';
 import morkBorg from '@opencharacter/mork-borg-core';
@@ -313,6 +316,14 @@ A pack that depends on `mork-borg-core` can add content of its types, and it joi
 - **Extendable choices:** each core class's `feature` takes inline options from the add-on's
   `extendChoices` (`'mork-borg-core:classes.fanged-deserter': { feature: { options: [...] } }`),
   drawn with the class's own (a d7 with one added).
+- **Naming what an add-on adds:** it names each added value, option or key in its own text,
+  under the key this pack would use, and `createText` finds it there when the app passes the
+  ruleset's `enumOrigins`, `optionOrigins` and `familyOrigins`. For example,
+  `profane` added to `mork-borg-core:types.scroll.fields.kind` is
+  `types.scroll.fields.kind.values.profane.name: Profane` (through `enumOrigins`), and a Fanged
+  Deserter `feature` option `rusted-hook` is
+  `classes.fanged-deserter.choices.feature.options.rusted-hook.name: Rusted Hook` (through
+  `optionOrigins`).
 - **Tagged creation steps** of `create-character`, for an add-on's rules-level `option` effects:
   `creation.class`, `creation.abilities` (the classless best abilities), `creation.weapon`,
   `creation.armor`, `creation.scroll`, `creation.equipment`, `creation.shield`, `creation.ammo`

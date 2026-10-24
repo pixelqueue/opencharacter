@@ -204,8 +204,10 @@ formatting.
 
 A few codes have text by their data: `out-of-range` with only a `min` or a `max` uses
 `errors.out-of-range.min` or `.max`, and `safety-limit-exceeded` uses
-`errors.safety-limit-exceeded.<limit>` when there is one. If a message still misses an argument,
-show `errors.other` rather than the template.
+`errors.safety-limit-exceeded.<limit>` when there is one. If a code has no text, or its message
+still misses an argument, show the error's `data.message` when it has one, else `errors.other`,
+rather than the template. `errors.other` gets `{ code }`, but the spec's English leaves it out:
+a code means nothing to a player, so log `code`, `path` and `data` for developers instead.
 
 **Prefer the pack's text for an issue when there is one.** `prerequisite-not-met` and
 `constraint-failed` carry an `id`, and the pack has a specific message for it (the keys in the
