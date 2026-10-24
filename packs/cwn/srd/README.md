@@ -128,8 +128,15 @@ cyberware, `bars-cyber` for one that bars it (as All Natural does), `repeatable`
   `advancement.level` (each new level), `rest.night` (a night's rest) and `rest.scene` (the end of
   a scene).
 
-Still closed: skills (the core's changes name a skill's fields by key, which resolve in this pack
-only), and the enums that are the rules' own: a program's `kind` (Verb or Subject), armor `kind`,
+- **Skills** are the `skill` family: an add-on adds one (`families: { 'cwn-srd:skill': [<key>] }`)
+  and declares its `skills.<key>.base` (tagged `skill-base` and `skill.<key>`), `.credit` and
+  `.level` (tagged `skill` and `skill.<key>`). The core's changes reach them through `fieldId`, so
+  creation, a Focus's or Edge's bonus skill and `improve-skill` gain and raise it as the core's. A
+  background's entries (`freeSkill`, `growth1`–`growth6`, `learning1`–`learning8`), a Focus's
+  `bonusSkill`, `bonusSkill2` and `levelTwoSkill`, an Edge's `bonusSkill`, a weapon's `skill` and
+  the parameters `gain-skill.code` and `improve-skill.skill` are open enums that take its key.
+
+Still closed: the enums that are the rules' own: a program's `kind` (Verb or Subject), armor `kind`,
 cyberware `concealment`, a spell's `effort`, vehicle `size`, and the attributes.
 
 ## Left to the table

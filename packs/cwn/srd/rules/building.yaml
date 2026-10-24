@@ -11,6 +11,7 @@ actions:
     params:
       code:
         type: enum
+        open: true
         values:
           [
             administer,
@@ -87,7 +88,7 @@ actions:
         when: '!flags.points'
         changes:
           - type: adjust
-            field: { formula: "'skills.' + flags.skill + '.base'" }
+            field: { formula: "fieldId('skills.{skill}.base', flags.skill)" }
             by: 1
       # Three points (and any credit) buy levels in order: level-0 costs 1, level-1 2, and so on.
       - id: pool
@@ -122,10 +123,10 @@ actions:
         when: flags.points
         changes:
           - type: set
-            field: { formula: "'skills.' + flags.skill + '.base'" }
+            field: { formula: "fieldId('skills.{skill}.base', flags.skill)" }
             value: flags.level
           - type: set
-            field: { formula: "'skills.' + flags.skill + '.credit'" }
+            field: { formula: "fieldId('skills.{skill}.credit', flags.skill)" }
             value: 'flags.level >= 4 ? 0 : flags.pool'
           - type: adjust
             when: flags.level >= 4 && flags.pool > 0
