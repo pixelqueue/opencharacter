@@ -303,10 +303,28 @@ processes:
   `attunementClasses`.
 - **Metamagic options** are `metamagic` content; containers add to `items.stowCapacity` or
   `items.stowUnlimited`, and content resets its uses with a `changes` effect on `rest.long`.
+- **Open enums** (`extendEnums`): weapon `damageType`, `ammunition` and `mastery`, feat
+  `category`, gear `category` and `ammunition`, tool, vehicle and magic item `category`, spell
+  `school` and damage types (and a lineage's `damageType`, the same list), monster `typeTag` and
+  monster action damage types. A new damage type or mastery also needs its tag (`damage.sonic`,
+  `mastery.pierce`), declared and named in the add-on; a new feat category is offered wherever a
+  choice asks for it (`item.category == 'dragonmark'`), and a fighting-style feat joins every
+  Fighting Style pick.
+- **Choices** (`extendChoices`): listed choices take items and values, and inline ones options:
+  Hunter's Prey (`features.ranger.hunters-prey`, `option`), a class's skills and expertise.
+  Choices over a type (subclasses, spells, feats, weapon mastery) offer the add-on's content
+  already.
+- **Step tags** for rules-level `option` and `changes` effects: `creation.class`,
+  `creation.background`, `creation.species`, `creation.method`, `creation.trinket` and
+  `creation.finish`, `level-up.class`, `level-up.hit-points` and `level-up.gain`, `rest.long`,
+  and the weapon attack's `ammunition`, `weapon-mastery`, `weapon-damage-type`, `weapon-hit` and
+  `weapon-mastery.rider` (a new mastery's effect: a `changes` effect with
+  `when: flags.mastery == '<mastery>'`).
 
-Still closed: the enums of weapon `ammunition` and `mastery`, feat `category`, gear and tool
-`category`, until content types can open them; Hunter's Prey's two options are written in the
-feature.
+Still closed: abilities, skills, creature types, weapon and armor categories and conditions are
+the game's fixed sets (an attack reads its target's creature type as a closed view field); the
+`spell-effect`, `item-power` and `throw-item` actions' damage types are parameters, which can't be
+open (an add-on item with a new damage type writes its own action).
 
 ## Limitations
 

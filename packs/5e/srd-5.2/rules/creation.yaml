@@ -25,6 +25,7 @@ actions:
       trinket: { type: boolean, default: true }
     steps:
       - id: class
+        tags: [creation.class]
         kind: choice
         options: { content: { type: class } }
         random: params.random
@@ -42,6 +43,7 @@ actions:
                   steps.class.item.abilityPriority3, steps.class.item.abilityPriority4,
                   steps.class.item.abilityPriority5, steps.class.item.abilityPriority6]
       - id: background
+        tags: [creation.background]
         kind: choice
         options: { content: { type: background } }
         random: params.random
@@ -50,6 +52,7 @@ actions:
           - type: addItem
             entry: { id: background, item: picked.id }
       - id: species
+        tags: [creation.species]
         kind: choice
         options: { content: { type: species } }
         random: params.random
@@ -58,6 +61,7 @@ actions:
           - type: addItem
             entry: { id: species, item: picked.id }
       - id: method
+        tags: [creation.method]
         kind: choice
         when: '!params.random'
         options: [{ id: standard-array }, { id: point-buy }, { id: roll }]
@@ -131,6 +135,7 @@ actions:
         use: starting-equipment
         params: { random: params.random }
       - id: trinket
+        tags: [creation.trinket]
         kind: choice
         when: params.trinket
         options: { content: { type: trinket } }
@@ -163,6 +168,7 @@ actions:
                 : params.level >= 11 ? 5000 + steps.gold.total * 250
                 : 500 + steps.gold.total * 25
       - id: finish
+        tags: [creation.finish]
         kind: changes
         sheet: proposed
         changes:
