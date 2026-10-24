@@ -425,7 +425,7 @@ actions:
           ]
       prefer: { type: set, of: string, default: [] }
       random: { type: boolean, default: false }
-    results: [gained]
+    results: [gained, none]
     steps:
       - id: skill
         kind: action
@@ -476,4 +476,4 @@ actions:
             by: 1
       - id: result
         kind: outcome
-        result: "'gained'"
+        result: "has(steps.skill) && steps.skill.result == 'none' ? 'none' : 'gained'"

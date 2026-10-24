@@ -63,7 +63,7 @@ actions:
       skills: { type: set, of: string, default: [] }
       prefer: { type: set, of: string, default: [] }
       random: { type: boolean, default: false }
-    results: [gained]
+    results: [gained, none]
     steps:
       - id: open
         kind: branch
@@ -91,9 +91,12 @@ actions:
             flags:
               suggest: >-
                 size(filterList(params.prefer, x in flags.offered)) > 0
-                  ? filterList(params.prefer, x in flags.offered)[0] : flags.offered[0]
+                  ? filterList(params.prefer, x in flags.offered)[0]
+                  : size(flags.offered) > 0 ? flags.offered[0] : ''
+      # Every skill at its cap: nothing to gain.
       - id: skill
         kind: choice
+        when: size(flags.offered) > 0
         options: { values: { formula: flags.offered } }
         random: params.random
         recommend: flags.suggest
@@ -103,4 +106,4 @@ actions:
             by: 1
       - id: result
         kind: outcome
-        result: "'gained'"
+        result: "has(steps.skill) ? 'gained' : 'none'"

@@ -253,7 +253,7 @@ actions:
       skills: { type: set, of: string, default: [] }
       points: { type: integer, default: 3, min: 0 }
       random: { type: boolean, default: false }
-    results: [spent]
+    results: [spent, none]
     steps:
       - id: offer
         kind: branch
@@ -274,6 +274,11 @@ actions:
                 size(flags.open) > 0 ? flags.open
                   : filterList(keysOf('skill'),
                     fieldOf('skills.{skill}.level', x) < fieldOf('skills.{skill}.cap', x))
+      # Every skill at level-4: nothing to spend on.
+      - id: none
+        kind: outcome
+        when: size(flags.offered) == 0
+        result: "'none'"
       - id: skill
         kind: choice
         options: { values: { formula: flags.offered } }
