@@ -219,6 +219,23 @@ the player's choices and other characters.
   conflicts and contests, milestones, time, creation) and the content (stunts, consequences,
   aspects with free invocations by kind, extras).
 
+## Add-on packs
+
+A pack that depends on `fate-core` (a setting pack) adds to it without changing it:
+
+- **Skills** are fields tagged `skill` (with `skill.overcome`, `skill.advantage`, `skill.attack`,
+  `skill.defend` for the actions they take): the pyramid, the skill cap, milestones and every
+  roll take an added skill as the core's.
+- **Stunts and extras** are content of the `stunt` and `extra` types: creation, milestones and
+  the random start (every written stunt but the custom one) offer an added stunt.
+- **Tagged steps**, for an add-on's rules-level `option` effects: `creation.stunts` (the
+  standard start's stunt picks and the random start's draws), `milestone.benefit` (a minor
+  milestone's benefit, which every milestone runs) and `milestone.stunt` (its new stunt); for
+  its `changes` effects: `creation.finish` (the last step of both starts).
+- **No open enums.** A stunt's `shape`, `action` and `limit`, a consequence's slot, harm's
+  physical and mental, and the NPC kinds are the SRD's fixed sets that the core's rules read;
+  a setting with another stress track or action is a variant, not an add-on.
+
 ## Text only, and left to the app
 
 - **Text only:** aspects, situation aspects and what a boost says are the player's words; which
