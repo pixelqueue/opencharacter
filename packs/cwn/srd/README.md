@@ -124,8 +124,9 @@ cyberware, `bars-cyber` for one that bars it (as All Natural does), `repeatable`
   `extendEnums` and names them in its text.
 - **Tagged steps** take an add-on's rules-level `option` and `changes` effects: `creation.item`
   (the free starting item's kind: an added option is another free item), `creation.gear` (the
-  starting money and lifestyle), `creation.finish` (the last step of creation) and
-  `advancement.level` (each new level).
+  starting money and lifestyle), `creation.finish` (the last step of creation),
+  `advancement.level` (each new level), `rest.night` (a night's rest) and `rest.scene` (the end of
+  a scene).
 
 Still closed: skills (the core's changes name a skill's fields by key, which resolve in this pack
 only), and the enums that are the rules' own: a program's `kind` (Verb or Subject), armor `kind`,

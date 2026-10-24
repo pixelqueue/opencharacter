@@ -156,7 +156,8 @@ with the core content alone):
   (the starting package pick: an added option replaces the package), `creation.focus` and
   `level-up.focus` (a focus pick at creation or on advancement: an added option is taken instead
   of a focus), `creation.finish` (the last changes of both creation actions, before creation
-  ends) and `level-up.level` (each new level's skill points).
+  ends), `level-up.level` (each new level's skill points), `rest.night` (a night's rest) and
+  `rest.scene` (the end of a scene).
 
 Still closed: skills and psychic disciplines. They are families an add-on could extend, but the
 core's changes name a skill's fields by key (`'skills.' + skill + '.level'`), which resolve in

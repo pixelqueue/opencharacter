@@ -104,6 +104,7 @@ actions:
     results: [ended]
     steps:
       - id: refresh
+        tags: [rest.scene]
         kind: changes
         changes:
           - type: setState
@@ -125,6 +126,7 @@ actions:
     results: [rested]
     steps:
       - id: recover
+        tags: [rest.night]
         kind: changes
         changes:
           - { type: adjust, when: '!hp.frail', field: hp.current, by: level }
