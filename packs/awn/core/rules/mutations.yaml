@@ -1,15 +1,15 @@
 contentTypes:
+  # The positive mutations' categories: the book's six, in its order on the d6 table.
+  mutationCategory:
+    carried: false
+    copies: { max: 0 }
+
   # Positive mutations: their category and their d10 roll within it (the d6 picks the category).
   # `origin` is how it was bought: one point rolled, three for a pair rolled in one category,
   # three chosen, or free (a negative mutation's compensation, the Unstable Mutant focus).
   mutation:
     fields:
-      category:
-        {
-          type: enum,
-          values: [structure, sense, hybrid, cognition, pseudo-psychic, exotic],
-          required: true,
-        }
+      category: { type: id, of: mutationCategory, required: true }
       roll: { type: integer, required: true, min: 1, max: 10 }
       bonusSkill: { type: set, of: string, default: [] }
     state:
@@ -56,17 +56,31 @@ fields:
   # The stigma, from the suggestion tables: a body part (a second one when the first roll says
   # so), the nature of the change, and a detail.
   stigma.part:
-    { type: enum, input: true, default: none, values: [none, head, arms, legs, torso, senses] }
+    {
+      type: enum,
+      input: true,
+      open: true,
+      default: none,
+      values: [none, head, arms, legs, torso, senses],
+    }
   stigma.part2:
-    { type: enum, input: true, default: none, values: [none, head, arms, legs, torso, senses] }
+    {
+      type: enum,
+      input: true,
+      open: true,
+      default: none,
+      values: [none, head, arms, legs, torso, senses],
+    }
   stigma.nature:
     type: enum
     input: true
+    open: true
     default: none
     values: [none, appearance, animal, size, plant, amorphous, mineral]
   stigma.detail:
     type: enum
     input: true
+    open: true
     default: none
     values:
       [
@@ -496,7 +510,7 @@ actions:
           content:
             type: mutation
             where: >-
-              item.category == 'sense' && !('vision' in item.tags)
+              item.category == @mutation-categories.sense && !('vision' in item.tags)
                 && countCopies(copy.item == item.id) == 0
         random: params.random
         recommend: options[0]
@@ -516,6 +530,7 @@ actions:
     results: [bought]
     steps:
       - id: how
+        tags: [creation.mutation]
         kind: choice
         sheet: proposed
         options:
@@ -531,15 +546,9 @@ actions:
       - id: category
         kind: choice
         when: "steps.how.picked == 'category'"
-        options:
-          - { id: structure }
-          - { id: sense }
-          - { id: hybrid }
-          - { id: cognition }
-          - { id: pseudo-psychic }
-          - { id: exotic }
+        options: { content: { type: mutationCategory } }
         random: params.random
-        recommend: options[0]
+        recommend: 'filterList([@mutation-categories.structure, options[0]], x in options)[0]'
       - id: pair1
         kind: action
         when: "steps.how.picked == 'category'"
@@ -583,7 +592,7 @@ actions:
     tags: [creation]
     params:
       origin: { type: enum, values: [random, category, chosen, free, unstable], default: random }
-      category: { type: string, optional: true }
+      category: { type: id, of: mutationCategory, optional: true }
       random: { type: boolean, default: false }
     results: [rolled]
     steps:
@@ -601,8 +610,10 @@ actions:
             flags:
               category: >-
                 has(params.category) ? params.category
-                  : ['structure', 'sense', 'hybrid', 'cognition', 'pseudo-psychic',
-                    'exotic'][steps.categoryRoll.total - 1]
+                  : [@mutation-categories.structure, @mutation-categories.sense,
+                    @mutation-categories.hybrid, @mutation-categories.cognition,
+                    @mutation-categories.pseudo-psychic,
+                    @mutation-categories.exotic][steps.categoryRoll.total - 1]
       - { id: roll, kind: roll, tags: [creation], parts: [{ dice: 1d10 }] }
       - id: exact
         kind: choice
