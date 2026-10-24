@@ -1,0 +1,21 @@
+# The bands test the d20 and the total: a natural 20 or 1 first, then 20 less the AC.
+status: paused
+needs:
+  step: hit
+  action: godbound-core:attack
+  kind: dice
+  summary:
+    bandSet: godbound-core:attack
+    bands:
+      - band: hit
+        when: 'roll.kept[0] == 20'
+        tests: [{ of: 'roll.kept[0]', compare: eq, value: 20 }]
+      - band: miss
+        when: 'roll.kept[0] == 1'
+        tests: [{ of: 'roll.kept[0]', compare: eq, value: 1 }]
+      - band: hit
+        success: true
+        when: 'roll.total >= 15'
+        tests: [{ of: roll.total, compare: ge, value: 15 }]
+      - { band: miss, when: 'true', tests: [] }
+log: []
