@@ -161,6 +161,7 @@ actions:
         options: { pending: {} }
         random: "params.random && choice.id == 'invocations'"
       - id: finish
+        tags: [creation.finish]
         kind: changes
         sheet: proposed
         changes:
@@ -178,6 +179,7 @@ actions:
     results: [advanced]
     steps:
       - id: advance
+        tags: [level.gain]
         kind: changes
         changes:
           - { type: adjust, field: level, by: 1 }

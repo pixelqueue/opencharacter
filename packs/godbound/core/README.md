@@ -147,6 +147,15 @@ A pack that depends on `godbound-core` can add content of its types: creation of
 gift, armor, shield and weapon of the ruleset, in the guided picks and in the random draws (a
 gift names its Word in `word`).
 
+- **Open enum:** armor `weight`. An add-on lists new values in `extendEnums` and names them in
+  its text.
+- **Tagged steps** take an add-on's rules-level `changes` effects: `creation.finish` (the last
+  step of creation), `level.gain` (each new level), `rest.scene` (the end of a scene) and
+  `rest.day` (a new day).
+
+Still closed, as the rules' own: a weapon's or gift's `attribute`, the saves, a gift's
+`activation`, `commit` and `degree`, an invocation's `tier` and a tradition's `casting`.
+
 ## Rule readings
 
 - **Random start:** the book has no random method beyond rolling attributes, so Words, gifts and
