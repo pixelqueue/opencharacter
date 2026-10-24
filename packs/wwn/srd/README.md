@@ -107,8 +107,19 @@ backgrounds, foci, arts, spells, weapons, armor and gear.
   bonus skill at creation, set by an effect of the content that brings the tradition). A
   tradition that casts from the spell lists joins `spellTrad` too; its spells are those of the
   list named by its key, and the High Magic list.
-- A spell's `list` and an art's `tradition` are written lists (enums), so an add-on can't add a
-  spell list or arts for a new tradition yet.
+- **Spell lists and arts:** a spell's `list` and an art's `tradition` are open enums; an add-on adds
+  its tradition's key to them (`extendEnums`). A tradition with arts joins `artTrad` and declares
+  `arts.<key>.allowed`, `.taken` and `.owed`, which the art picks and `arts.owed` read. Joining
+  `armorTrad` (armor and shields stop its arts, as they stop spells) or `heavyArmorTrad` (medium
+  or heavy armor or a large shield do, as for the Duelist) sets when `commit-effort` is offered.
+- **Effort:** the core's `commit-effort`, `release-effort` and rests change a tradition's
+  `effort.<key>.*` fields by key, which resolve in this pack only, so an added tradition doesn't
+  join `effortTrad` yet. It keeps its own Effort fields, its arts' own actions commit it, and a
+  `changes` effect on the tagged rest steps clears it.
+- **Tagged steps** take an add-on's rules-level `option` and `changes` effects: `creation.purse`
+  (the starting silver), `creation.finish` (the last step of creation), `advancement.level` (each
+  new level's level and skill points), `rest.night` (a night's rest) and `rest.scene` (the end of
+  a scene).
 
 ## Left to the app or the table
 

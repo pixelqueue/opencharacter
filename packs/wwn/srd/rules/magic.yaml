@@ -51,6 +51,10 @@ families:
       wise,
     ]
   effortSpan: [scene, day, ongoing]
+  # The traditions whose arts worn armor or a shield stops as it stops spells, and the ones
+  # medium or heavy armor or a large shield stops (the Duelist's).
+  armorTrad: [highmage, elementalist, necromancer, vowed]
+  heavyArmorTrad: [duelist]
   # The traditions that cast spells from the spell lists (the Invoker aside).
   spellTrad: [highmage, elementalist, necromancer]
 
@@ -284,21 +288,7 @@ fields:
     { type: integer, formula: 'max(0, arts.{artTrad}.allowed - arts.{artTrad}.taken)' }
   arts.owed:
     type: integer
-    formula: >-
-      arts.highmage.owed
-        + arts.elementalist.owed
-        + arts.necromancer.owed
-        + arts.healer.owed
-        + arts.vowed.owed
-        + arts.accursed.owed
-        + arts.bard.owed
-        + arts.beastmaster.owed
-        + arts.bloodpriest.owed
-        + arts.duelist.owed
-        + arts.mageslayer.owed
-        + arts.skinshifter.owed
-        + arts.thoughtnoble.owed
-        + arts.wise.owed
+    formula: "sumList(keysOf('artTrad'), fieldOf('arts.{artTrad}.owed', x))"
 
   # Armored Magic's level, and whether worn armor or a shield stops spells and arts.
   magic.armoredLevel: { type: integer, formula: 0 }
@@ -324,7 +314,7 @@ contentTypes:
   spell:
     fields:
       level: { type: integer, required: true, min: 1, max: 5 }
-      list: { type: enum, values: [high, elementalist, necromancer], required: true }
+      list: { type: enum, values: [high, elementalist, necromancer], required: true, open: true }
     state:
       prepared: { type: boolean, default: false }
     actions:
@@ -334,6 +324,7 @@ contentTypes:
     fields:
       tradition:
         type: enum
+        open: true
         values:
           [
             highmage,
@@ -382,35 +373,13 @@ constraints:
       fieldOf('tradition.{trad}.tier', item.tradition) > 0 || invoker.education == item.tradition
   - id: arts-allowed
     check: >-
-      arts.highmage.taken <= arts.highmage.allowed
-        && arts.elementalist.taken <= arts.elementalist.allowed
-        && arts.necromancer.taken <= arts.necromancer.allowed
-        && arts.healer.taken <= arts.healer.allowed
-        && arts.vowed.taken <= arts.vowed.allowed
-        && arts.accursed.taken <= arts.accursed.allowed
-        && arts.bard.taken <= arts.bard.allowed
-        && arts.beastmaster.taken <= arts.beastmaster.allowed
-        && arts.bloodpriest.taken <= arts.bloodpriest.allowed
-        && arts.duelist.taken <= arts.duelist.allowed
-        && arts.mageslayer.taken <= arts.mageslayer.allowed
-        && arts.skinshifter.taken <= arts.skinshifter.allowed
-        && arts.thoughtnoble.taken <= arts.thoughtnoble.allowed
-        && arts.wise.taken <= arts.wise.allowed
+      countList(keysOf('artTrad'),
+        fieldOf('arts.{artTrad}.taken', x) > fieldOf('arts.{artTrad}.allowed', x)) == 0
   - id: effort-committed
     check: >-
-      effort.highmage.scene + effort.highmage.day + effort.highmage.ongoing <= effort.highmage.max
-        && effort.elementalist.scene + effort.elementalist.day + effort.elementalist.ongoing <= effort.elementalist.max
-        && effort.necromancer.scene + effort.necromancer.day + effort.necromancer.ongoing <= effort.necromancer.max
-        && effort.healer.scene + effort.healer.day + effort.healer.ongoing <= effort.healer.max
-        && effort.vowed.scene + effort.vowed.day + effort.vowed.ongoing <= effort.vowed.max
-        && effort.accursed.scene + effort.accursed.day + effort.accursed.ongoing <= effort.accursed.max
-        && effort.bard.scene + effort.bard.day + effort.bard.ongoing <= effort.bard.max
-        && effort.beastmaster.scene + effort.beastmaster.day + effort.beastmaster.ongoing <= effort.beastmaster.max
-        && effort.bloodpriest.scene + effort.bloodpriest.day + effort.bloodpriest.ongoing <= effort.bloodpriest.max
-        && effort.duelist.scene + effort.duelist.day + effort.duelist.ongoing <= effort.duelist.max
-        && effort.mageslayer.scene + effort.mageslayer.day + effort.mageslayer.ongoing <= effort.mageslayer.max
-        && effort.skinshifter.scene + effort.skinshifter.day + effort.skinshifter.ongoing <= effort.skinshifter.max
-        && effort.thoughtnoble.scene + effort.thoughtnoble.day + effort.thoughtnoble.ongoing <= effort.thoughtnoble.max
+      countList(keysOf('effortTrad'), fieldOf('effort.{effortTrad}.scene', x)
+        + fieldOf('effort.{effortTrad}.day', x) + fieldOf('effort.{effortTrad}.ongoing', x)
+        > fieldOf('effort.{effortTrad}.max', x)) == 0
 
 actions:
   # Casting a prepared spell spends a casting, or an Invoker's spell points.
@@ -443,9 +412,10 @@ actions:
     tags: [art]
     available: >-
       item.effort != 'none' && level >= item.minLevel && !(item.effort == 'ongoing' && self.active)
-        && item.tradition != 'wise' && fieldOf('effort.{effortTrad}.free', item.tradition) > 0
-        && (item.tradition in ['highmage', 'elementalist', 'necromancer', 'vowed'] ? !magic.hindered
-          : item.tradition == 'duelist' ? !duelist.hindered : true)
+        && item.tradition in keysOf('effortTrad')
+        && fieldOf('effort.{effortTrad}.free', item.tradition) > 0
+        && !(item.tradition in keysOf('armorTrad') && magic.hindered)
+        && !(item.tradition in keysOf('heavyArmorTrad') && duelist.hindered)
     results: [committed]
     steps:
       - id: commit
