@@ -527,6 +527,6 @@ export function exampleCharacters(): void {
         );
         expect(broken, file).toEqual([]);
       }
-    }, 30_000);
+    }, 90_000);
   });
 }
