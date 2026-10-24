@@ -376,8 +376,9 @@ actions:
   - id: wound-roll
     tags: [wound]
     params:
-      woundType: { type: enum, values: [blunt, bleeding, gunshot, fire, gore], required: true }
-    results: [blunt, bleeding, gunshot, fire, gore]
+      woundType:
+        { type: enum, values: [blunt, bleeding, gunshot, fire, gore], required: true, open: true }
+    results: [rolled]
     steps:
       - id: wound
         kind: roll
@@ -387,6 +388,7 @@ actions:
           - dice: 1d10z
       - id: result
         kind: outcome
-        result: params.woundType
+        result: "'rolled'"
         data:
+          woundType: params.woundType
           roll: steps.wound.total
