@@ -1207,7 +1207,7 @@ A **content parameter** (`type: id, of: <content type>`) may have `where` too: a
 condition with `item` the candidate item (its own fields, no templates), the character's
 fields, and the action's own item and copy as `action.item` and `action.self`. The app passes
 the item's ID, qualified or local to the action's pack; an ID that isn't an item of the type, or
-whose item doesn't match, is `invalid-option` when the action starts. Formulas read
+whose item doesn't match the `where`, is `invalid-option` when the action starts. Formulas read
 `params.<name>` as the qualified ID. 5E's Stillness of Mind names the condition to end:
 
 ```yaml

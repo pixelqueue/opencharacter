@@ -894,7 +894,7 @@ function params(
     const typed = typedValue(decl, value);
     if (typeof typed === 'string')
       throw new ActionError('wrong-type', { target: name, ...expectedData(decl, typed), ...at });
-    if (decl.type === 'id' && decl.of !== undefined && decl.where !== undefined) {
+    if (decl.type === 'id' && decl.of !== undefined && decl.of !== 'tag' && decl.of !== 'string') {
       const qid = resolveContent(ctx.ruleset, value as string, frame.pack);
       const item = qid ? ctx.ruleset.content[qid] : undefined;
       const type = resolveType(ctx.ruleset, decl.of, frame.pack);
