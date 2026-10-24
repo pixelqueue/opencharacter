@@ -42,6 +42,8 @@ import {
   copyFieldProblem,
   copyFields,
   diceText,
+  expectedData,
+  outsideOptions,
   itemView,
   selfView,
   stateDecls,
@@ -659,7 +661,8 @@ function setGrantState(
   }
   const value = typedValue(decl, raw);
   if (typeof value === 'string')
-    throw new ChangeError('wrong-type', { target: key, expected: value });
+    throw new ChangeError('wrong-type', { target: key, ...expectedData(decl, value) });
+  checkOptions(decl, key, raw);
   checkStateRange(sheet, pack, view, key, decl, num(value));
   // Only what differs from the default is kept, so files stay minimal.
   const state = { ...saved, [key]: raw as Literal };
@@ -788,7 +791,7 @@ function applyOne(
       const def = inputField(ruleset, qid);
       const value = typedValue(def, change.value);
       if (typeof value === 'string')
-        throw new ChangeError('wrong-type', { target: qid, expected: value });
+        throw new ChangeError('wrong-type', { target: qid, ...expectedData(def, value) });
       checkRange(sheet, qid, value);
       checkMembers(ruleset, qid, def, change.value);
       c.values = { ...c.values, [qid]: change.value as Literal };
@@ -934,7 +937,8 @@ function applyOne(
       }
       const value = typedValue(decl, raw);
       if (typeof value === 'string')
-        throw new ChangeError('wrong-type', { target: key, expected: value });
+        throw new ChangeError('wrong-type', { target: key, ...expectedData(decl, value) });
+      checkOptions(decl, key, raw);
       checkStateRange(sheet, pack, view, key, decl, num(value));
       entry.state = { ...entry.state, [key]: raw as Literal };
       // A pick keeps only what differs from the declared default, so files stay minimal.
@@ -1221,6 +1225,12 @@ function checkStateRange(
     throw new ChangeError('out-of-range', { target: key, min, max });
 }
 
+/** A state value naming something its key's `where` doesn't take is invalid-option. */
+function checkOptions(decl: ValueDecl, target: string, raw: unknown): void {
+  const option = outsideOptions(decl, raw);
+  if (option !== undefined) throw new ChangeError('invalid-option', { target, option });
+}
+
 function checkState(
   ruleset: Ruleset,
   item: LoadedItem,
@@ -1233,7 +1243,8 @@ function checkState(
     if (!decl) throw new ChangeError('unknown-state-key', { key });
     const value = typedValue(decl, raw);
     if (typeof value === 'string')
-      throw new ChangeError('wrong-type', { target: key, expected: value });
+      throw new ChangeError('wrong-type', { target: key, ...expectedData(decl, value) });
+    checkOptions(decl, key, raw);
   }
 }
 
@@ -1292,7 +1303,7 @@ function reapplied(
     }
     const value = typedValue(decl, raw);
     if (typeof value === 'string')
-      throw new ChangeError('wrong-type', { target: key, expected: value });
+      throw new ChangeError('wrong-type', { target: key, ...expectedData(decl, value) });
     checkStateRange(sheet, pack, view, key, decl, num(value));
     next[key] = raw;
   }
@@ -1572,7 +1583,10 @@ function situationalOn(
     if (!typed)
       throw new ChangeError('wrong-type', {
         target: id,
-        expected: def.type === 'enum' ? `one of ${(def.values ?? []).join(', ')}` : def.type,
+        ...expectedData(
+          def,
+          def.type === 'enum' ? `one of ${(def.values ?? []).join(', ')}` : def.type,
+        ),
       });
     const selected = def.type === 'boolean' ? value === true : value !== situationalDefault(def);
     if (!selected) continue;

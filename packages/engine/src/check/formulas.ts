@@ -245,6 +245,8 @@ class FormulaChecker<L> {
     }
 
     for (const [name, { def, at }] of rules.templateFields)
+      this.declWhere(def, at, `template field ${name}`);
+    for (const [name, { def, at }] of rules.templateFields)
       if (
         typeof def.default === 'string' &&
         ['integer', 'decimal', 'boolean', 'dice'].includes(def.type)
@@ -260,8 +262,12 @@ class FormulaChecker<L> {
       for (const key of ['max', 'perItem'] as const)
         if (typeof def.copies?.[key] === 'string')
           this.formula(def.copies[key] as string, at, `${where} copies ${key}`, ['int']);
-      for (const [key, decl] of Object.entries(def.state ?? {}))
+      for (const [key, decl] of Object.entries(def.state ?? {})) {
         this.stateDefault(decl, def, at, `${where} state ${key}`);
+        this.declWhere(decl, at, `${where} state ${key}`);
+      }
+      for (const [field, decl] of Object.entries(def.fields ?? {}))
+        this.declWhere(decl, at, `${where} field ${field}`);
       this.typed({ item: this.itemOf(def), self: selfType(def) }, () =>
         this.at('content', () => {
           for (const [field, decl] of Object.entries(def.fields ?? {}))
@@ -444,8 +450,10 @@ class FormulaChecker<L> {
         ? appliesQueries(item)[0]?.type
         : (item.type ?? this.typeOfParent(item)),
     );
-    for (const [key, decl] of Object.entries(item.state ?? {}))
+    for (const [key, decl] of Object.entries(item.state ?? {})) {
       this.stateDefault(decl, ownType, at, `${owner} state ${key}`);
+      this.declWhere(decl, at, `${owner} state ${key}`);
+    }
     this.computed(item.computed, at, owner, ownType?.computed);
     for (const effect of item.effects ?? []) this.effect(effect, at, owner);
     for (const fu of item.followUps ?? []) this.followUp(fu, at, `${owner} follow-up ${fu.id}`);
@@ -591,6 +599,22 @@ class FormulaChecker<L> {
       code: 'unknown-name',
       message:
         "a set of fields is chosen by the field's view alone: it reads only `item` (and a choice effect's `pick` and `slot`)",
+    });
+  }
+
+  /** An item field's or state key's `where` is resolved by loadRuleset: it reads only `item`. */
+  private declWhere(decl: ValueDecl, at: L, where: string): void {
+    const { of, where: condition } = decl;
+    if (condition === undefined || !of || of === 'tag' || of === 'string') return;
+    const before = this.problems.length;
+    this.at('query', () => this.query({ type: of, where: condition }, at, `${where} where`));
+    if (this.problems.length > before || isContentOnly(condition)) return;
+    this.problems.push({
+      at,
+      where: `${where} where`,
+      formula: condition,
+      code: 'unknown-name',
+      message: "an item field's or state key's `where` reads only `item`",
     });
   }
 

@@ -204,7 +204,9 @@ Fill the placeholders from the error's or issue's `data`. For example:
 formatting.
 
 A few codes have text by their data: `out-of-range` with only a `min` or a `max` uses
-`errors.out-of-range.min` or `.max`, and `safety-limit-exceeded` uses
+`errors.out-of-range.min` or `.max`, and one with equal bounds `.exact`; `wrong-type` for an enum
+uses `errors.wrong-type.values`, its `values` named and joined as alternatives ("Scene or Day");
+and `safety-limit-exceeded` uses
 `errors.safety-limit-exceeded.<limit>` when there is one. If a code has no text, or its message
 still misses an argument, show the error's `data.message` when it has one, else `errors.other`,
 rather than the template. `errors.other` gets `{ code }`, but the spec's English leaves it out:

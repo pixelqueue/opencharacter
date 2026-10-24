@@ -27,6 +27,13 @@ export interface ValueDecl {
   members?: TagMembers;
   /** Loaded: the declared tags `members` admits, sorted. */
   tagOptions?: string[];
+  /**
+   * id, set or list of fields or content: which it takes, a condition over `item`. On an item
+   * field or state key it reads only `item`.
+   */
+  where?: Formula;
+  /** Loaded, on an item field or state key with `where`: the IDs it takes, in ruleset order. */
+  options?: string[];
   required?: boolean;
   optional?: boolean;
   /** Item fields: each copy may save its own value. */
@@ -41,7 +48,6 @@ export interface ValueDecl {
   default?: Literal;
   min?: Formula;
   max?: Formula;
-  where?: Formula;
   label?: string;
 }
 

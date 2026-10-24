@@ -1221,7 +1221,7 @@ export type ValueDecl = {
   min?: Formula;
   /** The highest allowed value. On a state key or a parameter, read like `min`. */
   max?: Formula;
-  /** Parameters of type `id` with `of: field`: which fields the app may pass (a condition over each field as `item`: `id`, `type`, `tags`). The action reads the field as `params.<name>.value`, its ID as `params.<name>.id`, its type as `params.<name>.type` and its declared tags as `params.<name>.tags`. Parameters of type `id` with `of` a content type: which items the app may pass, a condition with `item` the candidate item, the character's fields, and the action's own item and copy as `action.item` and `action.self`; the action reads the item's qualified ID. A value outside it is `invalid-option` when the action starts. */
+  /** Parameters of type `id` with `of: field`: which fields the app may pass (a condition over each field as `item`: `id`, `type`, `tags`). The action reads the field as `params.<name>.value`, its ID as `params.<name>.id`, its type as `params.<name>.type` and its declared tags as `params.<name>.tags`. Parameters of type `id` with `of` a content type: which items the app may pass, a condition with `item` the candidate item, the character's fields, and the action's own item and copy as `action.item` and `action.self`; the action reads the item's qualified ID. A value outside it is `invalid-option` when the action starts. Item fields (a content type's, or `templateFields`) and state keys of type `id`, `set` or `list` with `of` a content type or `field`: which members they take, a condition over each candidate as `item` (a field's `id`, `type` and written `tags`; an item as a query's candidate) that reads only `item`, so loadRuleset resolves it and gives the declaration `options`, the IDs it takes. An item's own value outside it is `invalid-item-field` (`not-allowed`); a copy's own value (`addItem`, `setField`) or a state value (`addItem`, `setState`, `applyEffect`) outside `options` is `invalid-option`. */
   where?: Condition;
 };
 
@@ -2346,11 +2346,13 @@ export type Ruleset = {
       tagOptions?: Tag[];
     }
   >;
-  /** The content types, by qualified ID. PROVISIONAL shape, except that a type with a copy limit carries it as written (`copies`), so an app reads it here. */
+  /** The content types, by qualified ID. PROVISIONAL shape, except that a type with a copy limit carries it as written (`copies`), so an app reads it here, and each item field and state key with `where` carries `options`: the IDs it takes, content in content order (hidden items left out) or fields in ruleset order, for an app's picker. `templateFields` and items' own state keys with `where` carry it too. */
   contentTypes: Record<
     string,
     {
       copies?: Copies;
+      fields?: DeclsWithOptions;
+      state?: DeclsWithOptions;
     }
   >;
   /** The content items by qualified ID, in content order: packs in load order, then each pack's content in its release's order (packs.md, "Dependencies and load order"). */
@@ -2377,6 +2379,13 @@ export type Ruleset = {
     packs: string[];
   }[];
 };
+
+export type DeclsWithOptions = Record<
+  string,
+  {
+    options?: string[];
+  }
+>;
 
 export type StartActionInput = {
   ruleset: Ruleset;

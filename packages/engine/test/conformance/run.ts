@@ -95,7 +95,15 @@ const expectedKeys: Record<string, string[]> = {
   startAction: ['status', 'outcome', 'proposedChanges', 'needs', 'log', 'errors', 'errorData'],
   upgrade: ['ok', 'errors', 'character', 'pending', 'report'],
   checkRelease: ['ok', 'changes', 'errors'],
-  loadRuleset: ['errors', 'conflicts', 'creation', 'packs', 'enumOrigins', 'familyOrigins'],
+  loadRuleset: [
+    'errors',
+    'conflicts',
+    'creation',
+    'packs',
+    'enumOrigins',
+    'familyOrigins',
+    'contentTypes',
+  ],
 };
 
 function licenseParts(packs: readonly object[]): unknown[] {
@@ -106,6 +114,28 @@ function licenseParts(packs: readonly object[]): unknown[] {
     ...(p.credit === undefined ? {} : { credit: p.credit }),
     ...(p.notices === undefined ? {} : { notices: Object.entries(p.notices as object) }),
   }));
+}
+
+type ListedDecls = Record<string, Record<'fields' | 'state', Record<string, unknown>>>;
+
+/** The listed content types' listed item fields and state keys, each as `{ options }`. */
+function declOptions(loaded: Ruleset, listed: ListedDecls): ListedDecls {
+  return Object.fromEntries(
+    Object.entries(listed).map(([type, parts]) => [
+      type,
+      Object.fromEntries(
+        Object.entries(parts).map(([part, decls]) => [
+          part,
+          Object.fromEntries(
+            Object.keys(decls).map((name) => {
+              const decl = loaded.contentTypes[type]?.[part as 'fields' | 'state']?.[name];
+              return [name, decl?.options === undefined ? {} : { options: decl.options }];
+            }),
+          ),
+        ]),
+      ),
+    ]),
+  ) as ListedDecls;
 }
 
 function checkKeys(what: string, data: object, allowed: string[]): void {
@@ -184,6 +214,10 @@ function run(dir: string): void {
         expect(result.ruleset.familyOrigins).toEqual(expected.familyOrigins);
       if (expected.packs) {
         expect(licenseParts(result.ruleset.packs)).toEqual(licenseParts(expected.packs as []));
+      }
+      if (expected.contentTypes) {
+        const listed = expected.contentTypes as ListedDecls;
+        expect(declOptions(result.ruleset, listed)).toEqual(listed);
       }
       return;
     }
