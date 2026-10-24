@@ -375,4 +375,6 @@ type, `max`, `perItem`, the `count` held and the copies:
 - At `count >= max`, the type's Add becomes Replace when `max` is 1 (a `removeItem` then an
   `addItem` reusing the entry's ID, in one batch), and is disabled otherwise.
 - `max: 0`: the type is never added as a copy (it is picked in a choice); offer no Add.
+- A grant-only item (`grantOnly` in the ruleset's `content`; [content.md](content.md#grant-only-content))
+  is never offered for Add: `addItem` of it is `not-addable`.
 - An item with `perItem` copies among `entries` is shown as held, not offered again.

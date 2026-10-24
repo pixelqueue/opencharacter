@@ -90,11 +90,11 @@ its fighting style in the next.
 
 ## Three kinds of problem
 
-| Kind              | Example                                                                | Result                                |
-| ----------------- | ---------------------------------------------------------------------- | ------------------------------------- |
-| **Shape error**   | `equip` with no `equipped`; a number where text belongs                | Rejected                              |
-| **Runtime error** | Equipping an item the character doesn't own; Strength set to `"hello"` | Rejected; character unchanged         |
-| **Rules issue**   | A feat whose prerequisite isn't met; too many attuned items            | **Applied**, and reported in `issues` |
+| Kind              | Example                                                                                        | Result                                |
+| ----------------- | ---------------------------------------------------------------------------------------------- | ------------------------------------- |
+| **Shape error**   | `equip` with no `equipped`; a number where text belongs                                        | Rejected                              |
+| **Runtime error** | Equipping an item the character doesn't own; adding a class feature on its own (`not-addable`) | Rejected; character unchanged         |
+| **Rules issue**   | A feat whose prerequisite isn't met; too many attuned items                                    | **Applied**, and reported in `issues` |
 
 A runtime error means the result wouldn't be a valid character file, so it's never allowed:
 

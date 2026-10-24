@@ -122,7 +122,9 @@ picks as rules-level choices instead: a new FitD scoundrel has a pending `specia
 right away (and an optional `playbook` when the table has its own).
 
 Which content a game adds and which it chooses is the pack's design. An any-game builder works
-from `pending` alone, and adds a "add content" screen per content type for the rest.
+from `pending` alone, and adds a "add content" screen per content type for the rest, leaving
+out grant-only content (`item.grantOnly`): class features, subclasses and the like come only
+from what grants or picks them, and `addItem` of one is the error `not-addable`.
 
 ## Pending choices
 

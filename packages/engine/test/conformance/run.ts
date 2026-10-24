@@ -103,6 +103,7 @@ const expectedKeys: Record<string, string[]> = {
     'enumOrigins',
     'familyOrigins',
     'contentTypes',
+    'grantOnly',
   ],
 };
 
@@ -209,6 +210,12 @@ function run(dir: string): void {
       expect(expected.errors).toBeUndefined();
       if (expected.conflicts) expect(result.ruleset.conflicts).toEqual(expected.conflicts);
       if (expected.creation) expect(result.ruleset.creation).toEqual(expected.creation);
+      if (expected.grantOnly)
+        expect(
+          Object.values(result.ruleset.content)
+            .filter((item) => item.grantOnly === true)
+            .map((item) => item.qid),
+        ).toEqual(expected.grantOnly);
       if (expected.enumOrigins) expect(result.ruleset.enumOrigins).toEqual(expected.enumOrigins);
       if (expected.familyOrigins)
         expect(result.ruleset.familyOrigins).toEqual(expected.familyOrigins);

@@ -1118,7 +1118,12 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
   }
   // Content order: the load order, then each pack's content order.
   ruleset.content = Object.fromEntries(
-    Object.keys(ruleset.content).map((qid) => [qid, resolved.get(qid) as LoadedItem]),
+    Object.keys(ruleset.content).map((qid) => {
+      const item = resolved.get(qid) as LoadedItem;
+      return item.grantOnly === undefined && ruleset.contentTypes[item.type]?.grantOnly
+        ? [qid, { ...item, grantOnly: true }]
+        : [qid, item];
+    }),
   );
   declOptions(ruleset, takes);
 

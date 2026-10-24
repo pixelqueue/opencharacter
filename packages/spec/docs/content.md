@@ -123,6 +123,35 @@ looked up as `<contentId>.texts.<name>`, none required ([i18n.md](i18n.md#key-co
 with `copies` may word its limit as `types.<type>.copies` (optional; `max` and `count` as
 arguments).
 
+### Grant-only content
+
+Some content only makes sense held through what grants or picks it: a class feature at level N,
+a subclass picked under its class, an ancestry trait. A content type or an item says so with
+`grantOnly: true`:
+
+```yaml
+# packs/5e/srd-5.1/rules/content-types.yaml
+contentTypes:
+  feature:
+    grantOnly: true
+```
+
+- **Refused as a copy:** `addItem` of a grant-only item is the runtime error `not-addable`
+  (data: `item`), in an action's proposed changes as in an app's batch, so no flow can add one
+  either; such content comes from a grant or a pick, never from an `addItem`.
+- **Still granted and picked:** grants, choices (`from: { type: feature }`) and rules-level choices
+  take it as before, and a pick's own picks too.
+- **An item's own** `grantOnly` replaces its type's: `false` lets one item of a grant-only type be
+  added, `true` makes one item of another type grant-only.
+- **Homebrew** items follow their type, as any item does.
+- **Listed:** each item in the loaded ruleset carries `grantOnly: true` when it applies (its own,
+  else its type's), so an app leaves it out of an add-item catalog
+  ([engine-interface.md](engine-interface.md#what-apps-own)); the type carries its own as written.
+- A copy saved before its item became grant-only stays on the sheet as it was; only adding one is
+  refused.
+- `copies: { max: 0 }` is a limit, not a refusal: a copy past it is the rules issue
+  `too-many-copies`. A type held only by picks may say both.
+
 ### Content-type effects and grants
 
 A content type may declare `effects`, `followUps` and `grants` that every item of the type
@@ -160,6 +189,7 @@ A content item ([`content-item.schema.json`](../schemas/content-item.schema.json
 | `keepsTemplates` | Templates kept on the character's copies while the item is active ([below](#kept-templates))                                                                                                                                         |
 | `keepsFields`    | Item fields the templates it keeps leave alone ([below](#kept-templates))                                                                                                                                                            |
 | `repeatable`     | `true`: exempt from exclusivity groups, so several choices of one can pick it ([below](#exclusive-choices))                                                                                                                          |
+| `grantOnly`      | `true`: held only through grants and picks; `addItem` of it is `not-addable`. Replaces its type's ([above](#grant-only-content))                                                                                                     |
 | `deprecated`     | `{ since, replacedBy? }`                                                                                                                                                                                                             |
 
 ### When content is active

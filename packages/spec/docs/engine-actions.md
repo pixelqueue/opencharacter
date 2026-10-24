@@ -434,7 +434,8 @@ it in a flag before the roll.
     (`type-mismatch` otherwise), the rest of `choices` passed on as written. Without an `id`, the
     copy gets `<item local id with dots as hyphens>-<n>`, the smallest `n` ≥ 1 that the character
     and the action's earlier `addItem` changes don't use, so a replay gives the same IDs. An `item`
-    that names no content, or a template, is the error `unknown-reference` (data: `id`);
+    that names no content, or a template, is the error `unknown-reference` (data: `id`), and a
+    grant-only one `not-addable` (data: `item`; [content.md](content.md#grant-only-content));
   - an `applyEffect` has its `source` evaluated to a content ID and qualified
     against the action's pack, as an `addItem`'s `item` is (no content, or a template, is
     `unknown-reference`, data: `id`); `active` is evaluated to a boolean (`type-mismatch`
