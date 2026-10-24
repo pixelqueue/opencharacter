@@ -1,6 +1,26 @@
 fields:
   mystic.connection:
-    { type: enum, values: [none, akashic, elemental, healing, rhythm, shadow], formula: "'none'" }
+    {
+      type: enum,
+      values: [none, akashic, elemental, healing, rhythm, shadow],
+      formula: "'none'",
+      open: true,
+    }
+  # What the epiphany feats' prerequisites read: the rank in the connection's own skill, and how
+  # many other connections' skills are expert (New Epiphany) or master with that connection's
+  # initial spell (Syncretic Epiphany). An add-on's connection adds its own (rules effects).
+  mystic.connectionRank:
+    type: integer
+    formula: >-
+      mystic.connection == 'akashic' ? skills.occultism.rank : mystic.connection == 'elemental' ? skills.nature.rank : mystic.connection == 'healing' ? skills.medicine.rank : mystic.connection == 'rhythm' ? skills.performance.rank : mystic.connection == 'shadow' ? skills.stealth.rank : 0
+  mystic.otherExpertConnections:
+    type: integer
+    formula: >-
+      (mystic.connection != 'akashic' && skills.occultism.rank >= 2 ? 1 : 0) + (mystic.connection != 'elemental' && skills.nature.rank >= 2 ? 1 : 0) + (mystic.connection != 'healing' && skills.medicine.rank >= 2 ? 1 : 0) + (mystic.connection != 'rhythm' && skills.performance.rank >= 2 ? 1 : 0) + (mystic.connection != 'shadow' && skills.stealth.rank >= 2 ? 1 : 0)
+  mystic.otherMasterEpiphanies:
+    type: integer
+    formula: >-
+      (mystic.connection != 'akashic' && skills.occultism.rank >= 3 && countCopies(copy.item == @spells.akashic-fount) > 0 ? 1 : 0) + (mystic.connection != 'elemental' && skills.nature.rank >= 3 && countCopies(copy.item == @spells.elemental-weapon) > 0 ? 1 : 0) + (mystic.connection != 'healing' && skills.medicine.rank >= 3 && countCopies(copy.item == @spells.infusion) > 0 ? 1 : 0) + (mystic.connection != 'rhythm' && skills.performance.rank >= 3 && countCopies(copy.item == @spells.anthem) > 0 ? 1 : 0) + (mystic.connection != 'shadow' && skills.stealth.rank >= 3 && countCopies(copy.item == @spells.shadow-snap) > 0 ? 1 : 0)
   vitality.archetype: { type: boolean, formula: false }
   vitality.max:
     type: integer
@@ -24,6 +44,9 @@ tags:
 display:
   fields:
     mystic.connection: { hidden: true }
+    mystic.connectionRank: { hidden: true }
+    mystic.otherExpertConnections: { hidden: true }
+    mystic.otherMasterEpiphanies: { hidden: true }
     vitality.spent:
       {
         groups: [spellcasting],

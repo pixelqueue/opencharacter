@@ -58,50 +58,7 @@ choices:
     unique: skill-training
     pick: '6 + max(0, attributes.int.mod)'
     from:
-      values:
-        - skill.acrobatics
-        - skill.arcana
-        - skill.athletics
-        - skill.computers
-        - skill.crafting
-        - skill.deception
-        - skill.diplomacy
-        - skill.intimidation
-        - skill.medicine
-        - skill.nature
-        - skill.occultism
-        - skill.performance
-        - skill.piloting
-        - skill.religion
-        - skill.society
-        - skill.stealth
-        - skill.survival
-        - skill.thievery
-        - skill.lore.academia
-        - skill.lore.alcohol
-        - skill.lore.animal
-        - skill.lore.art
-        - skill.lore.augmentation
-        - skill.lore.business
-        - skill.lore.cooking
-        - skill.lore.corporate
-        - skill.lore.games
-        - skill.lore.genealogy
-        - skill.lore.history
-        - skill.lore.hyperspace
-        - skill.lore.infosphere
-        - skill.lore.labor
-        - skill.lore.legal
-        - skill.lore.life-science
-        - skill.lore.media
-        - skill.lore.mining
-        - skill.lore.physical-science
-        - skill.lore.piracy
-        - skill.lore.plant
-        - skill.lore.sports
-        - skill.lore.underworld
-        - skill.lore.vidgame
-        - skill.lore.warfare
+      values: { formula: skills.offered }
       where: '!(value in skills.trained) && !(value in skills.chosen) || value in choice.picks'
     effects: [{ target: skills.chosen, op: grant, value: { formula: pick.value } }]
   - id: class-feat
