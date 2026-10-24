@@ -16,11 +16,13 @@ contentTypes:
               tack,
             ],
           required: true,
+          open: true,
         }
       cost: { type: decimal }
       weight: { type: decimal }
       bundle: { type: integer, min: 1 }
-      ammunition: { type: enum, values: [arrow, bolt, firearm-bullet, sling-bullet, needle] }
+      ammunition:
+        { type: enum, values: [arrow, bolt, firearm-bullet, sling-bullet, needle], open: true }
     state:
       stowed: { type: boolean, default: false }
 
@@ -34,6 +36,7 @@ contentTypes:
           type: enum,
           values: [artisans-tools, gaming-set, musical-instrument, other],
           required: true,
+          open: true,
         }
       ability: { type: enum, values: [str, dex, con, int, wis, cha], required: true }
       cost: { type: decimal }
@@ -53,7 +56,7 @@ contentTypes:
   vehicle:
     carried: true
     fields:
-      category: { type: enum, values: [drawn, waterborne, airborne], required: true }
+      category: { type: enum, values: [drawn, waterborne, airborne], required: true, open: true }
       cost: { type: decimal }
       weight: { type: decimal }
       speedMph: { type: decimal }

@@ -4,7 +4,7 @@ tags: [trait.mystic]
 fields: { level: 16, category: class, class: classes.mystic }
 prerequisites:
   - id: master
-    when: "mystic.connection != 'akashic' && skills.occultism.rank >= 3 && countCopies(copy.item == @spells.akashic-fount) > 0 || mystic.connection != 'elemental' && skills.nature.rank >= 3 && countCopies(copy.item == @spells.elemental-weapon) > 0 || mystic.connection != 'healing' && skills.medicine.rank >= 3 && countCopies(copy.item == @spells.infusion) > 0 || mystic.connection != 'rhythm' && skills.performance.rank >= 3 && countCopies(copy.item == @spells.anthem) > 0 || mystic.connection != 'shadow' && skills.stealth.rank >= 3 && countCopies(copy.item == @spells.shadow-snap) > 0"
+    when: mystic.otherMasterEpiphanies > 0
 effects: [{ target: focus.points, op: add, value: 1 }]
 choices:
   - id: spell

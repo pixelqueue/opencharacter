@@ -26,12 +26,15 @@ contentTypes:
               thunder,
             ],
           required: true,
+          open: true,
         }
       versatileDamage: { type: dice }
       normalRange: { type: integer }
       longRange: { type: integer }
-      ammunition: { type: enum, values: [arrow, bolt, firearm-bullet, sling-bullet, needle] }
-      mastery: { type: enum, values: [cleave, graze, nick, push, sap, slow, topple, vex] }
+      ammunition:
+        { type: enum, values: [arrow, bolt, firearm-bullet, sling-bullet, needle], open: true }
+      mastery:
+        { type: enum, values: [cleave, graze, nick, push, sap, slow, topple, vex], open: true }
       weight: { type: decimal }
       cost: { type: decimal }
     state:
@@ -167,7 +170,13 @@ contentTypes:
   feat:
     copies: { max: 0 }
     fields:
-      category: { type: enum, values: [origin, general, fighting-style, epic-boon], required: true }
+      category:
+        {
+          type: enum,
+          values: [origin, general, fighting-style, epic-boon],
+          required: true,
+          open: true,
+        }
 
   spell:
     texts: [material, trigger]
@@ -193,6 +202,7 @@ contentTypes:
               transmutation,
             ],
           required: true,
+          open: true,
         }
       classes: { type: set, of: class }
       ritual: { type: boolean }
@@ -251,6 +261,7 @@ contentTypes:
               slashing,
               thunder,
             ],
+          open: true,
         }
       damage: { type: dice }
       damageBonus: { type: integer }

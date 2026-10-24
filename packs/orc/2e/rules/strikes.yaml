@@ -32,6 +32,7 @@ contentTypes:
     fields:
       category: { type: enum, values: [unarmed, simple, martial, advanced], required: true }
       group:
+        open: true
         type: enum
         values:
           [
@@ -57,7 +58,8 @@ contentTypes:
       ownDice: { type: boolean, default: false }
       formAttack: { type: boolean, default: false }
       formDamage: { type: integer, default: 0 }
-      damageType: { type: enum, values: [bludgeoning, piercing, slashing, fire], required: true }
+      damageType:
+        { type: enum, values: [bludgeoning, piercing, slashing, fire], required: true, open: true }
       hands: { type: integer, default: 1, min: 1, max: 2 }
       range: { type: integer, default: 0, min: 0 }
       thrown: { type: integer, default: 0, min: 0 }

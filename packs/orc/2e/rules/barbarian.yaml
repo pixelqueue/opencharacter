@@ -2,17 +2,11 @@ fields:
   barbarian.instinct:
     type: enum
     values: [none, animal, dragon, fury, giant, spirit, superstition]
+    open: true
+    # The class's instinct sets it (each instinct's effect); Barbarian Dedication's pick otherwise.
     formula: >-
-      @classes.barbarian.instincts.animal in picksOf('classes.barbarian', 'instinct') ? 'animal'
-        : @classes.barbarian.instincts.dragon in picksOf('classes.barbarian', 'instinct') ? 'dragon'
-        : @classes.barbarian.instincts.fury in picksOf('classes.barbarian', 'instinct') ? 'fury'
-        : @classes.barbarian.instincts.giant in picksOf('classes.barbarian', 'instinct') ? 'giant'
-        : @classes.barbarian.instincts.spirit in picksOf('classes.barbarian', 'instinct') ? 'spirit'
-        : @classes.barbarian.instincts.superstition in picksOf('classes.barbarian', 'instinct')
-          ? 'superstition'
-        : size(picksOf('feats.archetype.barbarian.barbarian-dedication', 'instinct')) > 0
-          ? picksOf('feats.archetype.barbarian.barbarian-dedication', 'instinct')[0]
-        : 'none'
+      size(picksOf('feats.archetype.barbarian.barbarian-dedication', 'instinct')) > 0
+        ? picksOf('feats.archetype.barbarian.barbarian-dedication', 'instinct')[0] : 'none'
   rage.active: { type: boolean, formula: false }
   rage.damage: { type: integer, formula: 2 }
   rage.altDamage: { type: integer, formula: 0 }

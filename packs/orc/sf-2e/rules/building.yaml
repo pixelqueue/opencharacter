@@ -50,7 +50,8 @@ contentTypes:
   feat:
     fields:
       level: { type: integer, required: true, min: 1, max: 20 }
-      category: { type: enum, values: [ancestry, class, general, skill], required: true }
+      category:
+        { type: enum, values: [ancestry, class, general, skill], required: true, open: true }
       ancestry: { type: id, of: ancestry }
       heritage: { type: id, of: heritage }
       class: { type: id, of: class }

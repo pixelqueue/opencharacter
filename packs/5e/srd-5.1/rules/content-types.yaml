@@ -26,11 +26,13 @@ contentTypes:
               thunder,
             ],
           required: true,
+          open: true,
         }
       versatileDamage: { type: dice }
       normalRange: { type: integer }
       longRange: { type: integer }
-      ammunition: { type: enum, values: [arrow, blowgun-needle, crossbow-bolt, sling-bullet] }
+      ammunition:
+        { type: enum, values: [arrow, blowgun-needle, crossbow-bolt, sling-bullet], open: true }
       weight: { type: decimal } # pounds
       cost: { type: decimal } # gold pieces
     state:
@@ -191,6 +193,7 @@ contentTypes:
               transmutation,
             ],
           required: true,
+          open: true,
         }
       classes: { type: set, of: class }
       ritual: { type: boolean }
@@ -247,6 +250,7 @@ contentTypes:
               slashing,
               thunder,
             ],
+          open: true,
         }
       damage: { type: dice }
       damageBonus: { type: integer }
@@ -274,6 +278,7 @@ contentTypes:
               slashing,
               thunder,
             ],
+          open: true,
         }
       damage2: { type: dice }
       upcast2Dice: { type: integer }

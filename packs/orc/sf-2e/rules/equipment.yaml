@@ -50,6 +50,7 @@ contentTypes:
         {
           type: enum,
           values: [cloth, leather, composite, chain, plate, skeletal, ceramic, polymer],
+          open: true,
         }
       upgradeSlots: { type: integer, default: 1, min: 0, max: 4 }
       bulk: { type: decimal, default: 0, min: 0 }
@@ -197,7 +198,7 @@ contentTypes:
   ammunition:
     carried: true
     fields:
-      kind: { type: enum, values: [rounds, charges, chems], required: true }
+      kind: { type: enum, values: [rounds, charges, chems], required: true, open: true }
       level: { type: integer, default: 0, min: 0, max: 30 }
       charges: { type: integer, default: 0, min: 0 }
       bulk: { type: decimal, default: 0, min: 0 }
@@ -241,6 +242,7 @@ contentTypes:
     carried: true
     fields:
       category:
+        open: true
         type: enum
         values: [grenade, medical, serum, spell-amp, spell-gem, ammunition, other]
         required: true
@@ -254,6 +256,7 @@ contentTypes:
       family: { type: id, of: consumable }
       damage: { type: dice }
       damageType:
+        open: true
         type: enum
         values:
           [
@@ -272,7 +275,8 @@ contentTypes:
         default: none
       areaSize: { type: integer, default: 0, min: 0 }
       persistent: { type: dice }
-      persistentType: { type: enum, values: [none, acid, bleed, electricity, fire], default: none }
+      persistentType:
+        { type: enum, values: [none, acid, bleed, electricity, fire], default: none, open: true }
       itemBonus: { type: integer, default: 0, min: 0, max: 4 }
       save: { type: enum, values: [reflex, fortitude, will], default: reflex }
       basic: { type: boolean, default: true }

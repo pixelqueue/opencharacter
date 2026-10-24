@@ -89,9 +89,30 @@ A pack that depends on `orc-2e` can add to what it offers:
   (`tool.compass`) and shields against spells (`shield.against-spells`).
 - **Archetypes:** a new archetype declares its own `archetypes.<name>.feats` field tagged
   `archetype-feats`; a feat for an existing archetype adds 1 to that archetype's field.
-- **Not yet:** the identity enums (`barbarian.instinct`, `bard.muse`, `oracle.mystery`, …, which
-  feats' prerequisites and the dedications' value choices read), weapon and armor groups and
-  damage types wait for open enums; the skill and Lore lists are written out.
+- **Open enums** (`extendEnums`): the identity fields (`barbarian.instinct`, `bard.muse`,
+  `champion.cause`, `cleric.doctrine`, `druid.order`, `investigator.methodology`,
+  `oracle.mystery`, `ranger.edge`, `rogue.racket`, `sorcerer.bloodline`, `swashbuckler.style`,
+  `wizard.school`, `wizard.thesis`, `witch.patron`, `alchemist.field`, `stance.current`), which
+  a new subclass feature sets with its own effect (`{ target: barbarian.instinct, op: set,
+  value: "'thunder'" }`), as the core's do; weapon `group` and `damageType`, armor `group`,
+  consumable `category`, `damageType` and `persistentType`, spell damage types (`damageType`,
+  `damage2Type`, `persistentType` and the cast's `damageType` state), affliction and persistent
+  damage condition damage types, and feat `category`. A new damage type or group also needs its
+  tag (`damage.sonic`, `group.firearm`), declared and named in the add-on.
+- **Choices** (`extendChoices`): written value and inline option choices take additions: the
+  dedications' identity picks (Barbarian Dedication's `instinct`), the follow-up feats' inline
+  options (Order Explorer's `order`, Additional Lore's `lore`), and the 15- and 16-skill lists.
+- **Skills and Lores:** a choice of any skill reads `skills.offered` and one of any Lore
+  `skills.lores`; an add-on's Lore declares its fields (`skills.lore.<name>.rank`, `.mod`, …,
+  as `rules/lores.yaml` does) and grants its tag into both with a rules effect.
+- **Step tags** for rules-level `option` and `changes` effects: `creation.ancestry`,
+  `creation.heritage`, `creation.background`, `creation.class` and `creation.finish` (guided and
+  random creation), `level-up.gain`, and the actions' own (`strike.hit`, …).
+
+Still closed: attributes, proficiency ranks, saves, spell traditions (and a staff's
+`tradition`), weapon and armor categories, and physical damage types for `versatile` and
+`modular`, the game's fixed sets; action parameters (an alchemist's bomb damage type) can't be
+open.
 
 ## License
 

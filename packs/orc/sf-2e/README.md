@@ -86,11 +86,33 @@ copy has the same shape as `orc-2e`'s, and the same text where the wording match
 
 ## Add-on packs
 
-A pack that depends on `orc-sf-2e` can add a feature whose `classOption` names a class's choice
-(`envoy.leadership-style`, `mystic.connection`, `soldier.fighting-style`, `witchwarper.paradox`,
-`witchwarper.anchor`), which then joins it, and gear tagged `tool.compass` counts for Sense
-Direction. The identity enums (`mystic.connection`, …), weapon groups and damage types wait for
-open enums; the skill lists and the operative's specializations (inline options) are written out.
+A pack that depends on `orc-sf-2e` can add to what it offers:
+
+- **Subclasses:** a feature whose `classOption` names a class's choice (`envoy.leadership-style`,
+  `mystic.connection`, `soldier.fighting-style`, `witchwarper.paradox`, `witchwarper.anchor`)
+  joins it, and gear tagged `tool.compass` counts for Sense Direction.
+- **Open enums** (`extendEnums`): `mystic.connection` and `witchwarper.paradox`, which a new
+  connection or paradox sets with its own effect, as the core's do; weapon `group`,
+  `damageType` and `ammoKind`, ammunition `kind`, armor `group`, consumable `category`,
+  `damageType` and `persistentType`, spell damage types, affliction and persistent damage
+  condition damage types, and feat `category`. A new damage type or group also needs its tag,
+  declared and named in the add-on.
+- **Choices** (`extendChoices`): written value and inline option choices take additions: the
+  operative's `specialization`, the epiphany feats' `spell` (Basic, New, Advanced, Greater and
+  Syncretic Epiphany), Additional Lore's `lore`, and the short skill lists. A new connection's
+  epiphany counts for New Epiphany, Syncretic Epiphany and Realized Epiphany through rules
+  effects on `mystic.otherExpertConnections`, `mystic.otherMasterEpiphanies` and
+  `mystic.connectionRank`.
+- **Skills and Lores:** a choice of any skill reads `skills.offered` and one of any Lore
+  `skills.lores`; an add-on's Lore declares its fields (`skills.lore.<name>.rank`, `.mod`, …,
+  as `rules/skills.yaml` does) and grants its tag into both with a rules effect.
+- **Step tags** for rules-level `option` and `changes` effects: `creation.ancestry`,
+  `creation.heritage`, `creation.background`, `creation.class` and `creation.finish` (guided and
+  random creation), `level-up.gain`, and the actions' own (`strike.hit`, …).
+
+Still closed: attributes, proficiency ranks, saves, spell traditions, weapon and armor
+categories, the solarian's attunement and physical damage types for `versatile`, the game's
+fixed sets; action parameters can't be open.
 
 ## License
 

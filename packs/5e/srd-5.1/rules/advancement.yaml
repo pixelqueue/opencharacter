@@ -115,6 +115,7 @@ actions:
           - when: true
             flags: { maxBefore: hp.max }
       - id: class
+        tags: [level-up.class]
         kind: choice
         options:
           content:
@@ -124,6 +125,7 @@ actions:
                 && countCopies(copy.type == 'class' && !(copy.item in multiclass.qualified)) == 0)
         prefer: sumCopies(copy.state.level, copy.type == 'class' && copy.item == item.id)
       - id: gain
+        tags: [level-up.gain]
         kind: changes
         changes:
           - type: adjustState
@@ -136,6 +138,7 @@ actions:
             when: '!(steps.class.picked in classes.held)'
             entry: { item: steps.class.picked, state: { level: 1 } }
       - id: hitPoints
+        tags: [level-up.hit-points]
         kind: choice
         options: [{ id: roll }, { id: fixed }]
         recommend: "'fixed'"

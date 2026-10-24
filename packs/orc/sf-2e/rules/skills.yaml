@@ -61,6 +61,39 @@ tags:
   - skill.lore.custom2
   - skill.lore.custom3
 fields:
+  # What a choice of any skill offers (class trainings, Skill Training) and of any Lore: an
+  # add-on's Lore grants its tag into both.
+  skills.offered:
+    type: set
+    of: tag
+    members: { under: [skill], except: [skill.lore] }
+    formula: >-
+      ['skill.acrobatics', 'skill.arcana', 'skill.athletics', 'skill.computers',
+        'skill.crafting', 'skill.deception', 'skill.diplomacy', 'skill.intimidation',
+        'skill.medicine', 'skill.nature', 'skill.occultism', 'skill.performance',
+        'skill.piloting', 'skill.religion', 'skill.society', 'skill.stealth', 'skill.survival',
+        'skill.thievery', 'skill.lore.academia', 'skill.lore.alcohol', 'skill.lore.animal',
+        'skill.lore.art', 'skill.lore.augmentation', 'skill.lore.business', 'skill.lore.cooking',
+        'skill.lore.corporate', 'skill.lore.games', 'skill.lore.genealogy', 'skill.lore.history',
+        'skill.lore.hyperspace', 'skill.lore.infosphere', 'skill.lore.labor', 'skill.lore.legal',
+        'skill.lore.life-science', 'skill.lore.media', 'skill.lore.mining',
+        'skill.lore.physical-science', 'skill.lore.piracy', 'skill.lore.plant',
+        'skill.lore.sports', 'skill.lore.underworld', 'skill.lore.vidgame', 'skill.lore.warfare']
+  skills.lores:
+    type: set
+    of: tag
+    members: { under: [skill.lore] }
+    formula: >-
+      ['skill.lore.academia', 'skill.lore.alcohol', 'skill.lore.android', 'skill.lore.animal',
+        'skill.lore.art', 'skill.lore.augmentation', 'skill.lore.barathu', 'skill.lore.borai',
+        'skill.lore.business', 'skill.lore.cooking', 'skill.lore.corporate', 'skill.lore.games',
+        'skill.lore.genealogy', 'skill.lore.history', 'skill.lore.hyperspace',
+        'skill.lore.infosphere', 'skill.lore.kasatha', 'skill.lore.labor', 'skill.lore.lashunta',
+        'skill.lore.legal', 'skill.lore.life-science', 'skill.lore.media', 'skill.lore.mining',
+        'skill.lore.pahtra', 'skill.lore.physical-science', 'skill.lore.piracy',
+        'skill.lore.plant', 'skill.lore.prismeni', 'skill.lore.shirren',
+        'skill.lore.skittermander', 'skill.lore.sports', 'skill.lore.underworld',
+        'skill.lore.vesk', 'skill.lore.vidgame', 'skill.lore.warfare', 'skill.lore.ysoki']
   skills.trained: { type: set, of: tag, members: { under: [skill], except: [skill.lore] } }
   skills.trainings: { type: integer, formula: 0 }
   skills.chosen: { type: set, of: tag, members: { under: [skill], except: [skill.lore] } }
@@ -2381,63 +2414,7 @@ choices:
     unique: skill-training
     pick: max(0, skills.trainings - countList(skills.trained, !(x in skills.chosen)))
     from:
-      values:
-        [
-          skill.acrobatics,
-          skill.arcana,
-          skill.athletics,
-          skill.computers,
-          skill.crafting,
-          skill.deception,
-          skill.diplomacy,
-          skill.intimidation,
-          skill.medicine,
-          skill.nature,
-          skill.occultism,
-          skill.performance,
-          skill.piloting,
-          skill.religion,
-          skill.society,
-          skill.stealth,
-          skill.survival,
-          skill.thievery,
-          skill.lore.academia,
-          skill.lore.alcohol,
-          skill.lore.android,
-          skill.lore.animal,
-          skill.lore.art,
-          skill.lore.augmentation,
-          skill.lore.barathu,
-          skill.lore.borai,
-          skill.lore.business,
-          skill.lore.cooking,
-          skill.lore.corporate,
-          skill.lore.games,
-          skill.lore.genealogy,
-          skill.lore.history,
-          skill.lore.hyperspace,
-          skill.lore.infosphere,
-          skill.lore.kasatha,
-          skill.lore.labor,
-          skill.lore.lashunta,
-          skill.lore.legal,
-          skill.lore.life-science,
-          skill.lore.media,
-          skill.lore.mining,
-          skill.lore.pahtra,
-          skill.lore.physical-science,
-          skill.lore.piracy,
-          skill.lore.plant,
-          skill.lore.prismeni,
-          skill.lore.shirren,
-          skill.lore.skittermander,
-          skill.lore.sports,
-          skill.lore.underworld,
-          skill.lore.vesk,
-          skill.lore.vidgame,
-          skill.lore.warfare,
-          skill.lore.ysoki,
-        ]
+      values: { formula: skills.offered + skills.lores }
       where: '!(value in skills.trained) && !(value in skills.chosen) || value in choice.picks'
     effects:
       - { target: skills.chosen, op: grant, value: { formula: pick.value } }

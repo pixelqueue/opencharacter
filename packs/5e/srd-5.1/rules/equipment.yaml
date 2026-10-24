@@ -19,11 +19,13 @@ contentTypes:
               trade-good,
             ],
           required: true,
+          open: true,
         }
       cost: { type: decimal } # gold pieces, per unit
       weight: { type: decimal } # pounds, per unit
       bundle: { type: integer, min: 1 }
-      ammunition: { type: enum, values: [arrow, blowgun-needle, crossbow-bolt, sling-bullet] }
+      ammunition:
+        { type: enum, values: [arrow, blowgun-needle, crossbow-bolt, sling-bullet], open: true }
     state:
       stowed: { type: boolean, default: false }
       quivered: { type: boolean, default: false } # in an Efficient Quiver (below)
@@ -38,6 +40,7 @@ contentTypes:
           type: enum,
           values: [artisans-tools, gaming-set, musical-instrument, kit, other],
           required: true,
+          open: true,
         }
       cost: { type: decimal }
       weight: { type: decimal }
@@ -54,7 +57,7 @@ contentTypes:
   vehicle:
     carried: true
     fields:
-      category: { type: enum, values: [drawn, waterborne], required: true }
+      category: { type: enum, values: [drawn, waterborne], required: true, open: true }
       cost: { type: decimal }
       pulledWeight: { type: decimal }
       speedMph: { type: decimal }
@@ -77,13 +80,13 @@ fields:
   carrying.quiveredJavelins:
     type: integer
     formula: >-
-      sumCopies(copy.quantity, copy.item == @weapons.javelin
+      sumCopies(copy.quantity, 'quiver.javelin' in copy.tags
         && has(copy.state.quivered) && copy.state.quivered)
   carrying.quiveredLong:
     type: integer
     formula: >-
       sumCopies(copy.quantity, copy.type == 'weapon'
-        && copy.item != @weapons.javelin
+        && !('quiver.javelin' in copy.tags)
         && has(copy.state.quivered) && copy.state.quivered)
 
 constraints:

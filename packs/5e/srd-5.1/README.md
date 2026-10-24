@@ -287,10 +287,25 @@ processes:
 - **Metamagic options** are `metamagic` content and the Hunter's options `hunterTactic` content
   (`feature` names the choice that offers them). Containers add to `carrying.stowCapacity`,
   `carrying.stowUnlimited` or `carrying.quivers`, and content resets its uses on a rest with a
-  `changes` effect on the `rest.long` or `rest.short` step.
+  `changes` effect on the `rest.long` or `rest.short` step. A weapon tagged `quiver.javelin` goes
+  in an Efficient Quiver's javelin compartment.
+- **Open enums** (`extendEnums`): weapon `damageType` and `ammunition`, gear `category` and
+  `ammunition`, tool, vehicle and magic item `category`, spell `school`, `damageType` and
+  `damage2Type`, monster `subtype`, and monster action `damageType`, `damage2Type` and
+  `saveDamageType`. A new damage type also needs its tag (`damage.sonic`), declared and
+  named in the add-on.
+- **Choices** (`extendChoices`): a class's listed choices (skills, fighting styles, expertise)
+  take values and items; choices over a type (subclasses, spells, feats) offer the add-on's
+  content already.
+- **Step tags** for rules-level `option` and `changes` effects: `creation.race`,
+  `creation.subrace`, `creation.class`, `creation.background`, `creation.method` and
+  `creation.finish` (guided and random creation), `level-up.class`, `level-up.hit-points` and
+  `level-up.gain`, `rest.long` and `rest.short`, and the attack's `weapon-hit` and
+  `ammunition`.
 
-Still closed: the enums of weapon `ammunition`, gear and tool `category` and spell fields, until
-content types can open them; an Efficient Quiver's javelin compartment counts javelins by ID.
+Still closed: the abilities, skills, creature types, weapon and armor categories and conditions
+are the game's fixed sets (an attack reads its target's creature type as a closed view field); the `item-power` action's damage type is a parameter, which can't be open (an
+add-on item with a new damage type writes its own action).
 
 ## Limitations
 
