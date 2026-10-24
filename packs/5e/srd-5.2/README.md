@@ -287,6 +287,27 @@ Where the SRD is unclear or silent, the pack reads it this way:
 - **Sheet layout:** display groups for fields, actions and content, units, and a headline
   ("Level 3 Elf Wizard", "Goblin Warrior, CR 1/4").
 
+## Add-on packs
+
+A pack that depends on this one can add content of its types, and it flows into the same
+processes:
+
+- **Classes** take part in creation, random starts and multiclassing through item fields: a
+  `kit` action (`listed: false`, a `random` parameter) with `startingKit: true` gives the
+  starting equipment; `abilityPriority1`–`abilityPriority6` order a random start's scores;
+  `multiclassAll` and `multiclassAny` name the abilities multiclassing into it needs 13 in. Like a
+  core class, it carries the `multiclass` prerequisite
+  (`(self.startingClass && self.level == level.total) || item.id in multiclass.qualified`).
+- **Backgrounds** bring their starting equipment the same way (`startingKit` and a `kit` action).
+- **Magic items** and magic weapon or armor templates restricted to classes list them in
+  `attunementClasses`.
+- **Metamagic options** are `metamagic` content; containers add to `items.stowCapacity` or
+  `items.stowUnlimited`, and content resets its uses with a `changes` effect on `rest.long`.
+
+Still closed: the enums of weapon `ammunition` and `mastery`, feat `category`, gear and tool
+`category`, until content types can open them; Hunter's Prey's two options are written in the
+feature.
+
 ## Limitations
 
 Of the 339 spells, 143 do nothing on the sheet beyond spending the slot: what they do is their

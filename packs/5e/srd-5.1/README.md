@@ -270,6 +270,28 @@ Where the SRD is unclear or silent, the pack reads it this way:
 - **Sheet layout:** display groups for actions and content, with units (feet, pounds, gold
   pieces, miles per hour) and a compact `summary` view.
 
+## Add-on packs
+
+A pack that depends on this one can add content of its types, and it flows into the same
+processes:
+
+- **Classes** take part in creation, random starts and multiclassing through item fields: a
+  `kit` action (`listed: false`, a `random` parameter) with `startingKit: true` gives the
+  starting equipment; `abilityPriority1`–`abilityPriority6` order a random start's scores;
+  `multiclassAll` and `multiclassAny` name the abilities multiclassing into it needs 13 in. Like a
+  core class, it carries the `multiclass` prerequisite
+  (`(self.startingClass && self.level == level.total) || item.id in multiclass.qualified`).
+- **Backgrounds** bring their starting equipment the same way (`startingKit` and a `kit` action).
+- **Magic items** and magic weapon or armor templates restricted to classes list them in
+  `attunementClasses`.
+- **Metamagic options** are `metamagic` content and the Hunter's options `hunterTactic` content
+  (`feature` names the choice that offers them). Containers add to `carrying.stowCapacity`,
+  `carrying.stowUnlimited` or `carrying.quivers`, and content resets its uses on a rest with a
+  `changes` effect on the `rest.long` or `rest.short` step.
+
+Still closed: the enums of weapon `ammunition`, gear and tool `category` and spell fields, until
+content types can open them; an Efficient Quiver's javelin compartment counts javelins by ID.
+
 ## Limitations
 
 Of the 152 class and subclass features, 8 have no mechanics, and 63 of the 318 magic items are

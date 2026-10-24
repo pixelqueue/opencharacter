@@ -12,3 +12,9 @@ Depths and the species traits mark their own pick or grant (`pick: owner`, `gran
 Colossus Slayer and the goliath's powers read their picks (`picksOf`); the hidden
 `ranger.colossusSlayer`, `origins.giantAncestry` and `origins.giantAncestryLeft` fields are
 removed.
+
+Open to add-on packs: each class and background carries its own starting `kit` action
+(`startingKit`), a class orders a random start's abilities (`abilityPriority1`–`6`) and names its
+multiclass requirements (`multiclassAll`, `multiclassAny`), and magic items name the classes that
+can attune (`attunementClasses`, replacing the `attunement.<class>` tags). Starting equipment
+steps read `equipment/class/…` and `equipment/background/…`.
