@@ -29,6 +29,10 @@ Saved characters hold the item as an ordinary entry, which would otherwise stay 
 standard copy. An item that stops being standard, and a new item that is standard from the start,
 are not shape changes.
 
+An item's state key that the item's content type declares in the new release, with the same
+type, is not removed: its copies keep their saved values (a key moved to the type, so a pack
+that depends on it can add to an open enum there).
+
 A choice's options are compared only where both releases write them. A `values` formula's
 options are known only on a sheet, so written values it replaces are not `option-removed`, nor
 are the options of a formula the old release had: a saved pick the formula no longer offers is
