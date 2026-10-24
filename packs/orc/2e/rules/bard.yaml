@@ -1,5 +1,11 @@
 fields:
-  bard.muse: { type: enum, values: [none, enigma, maestro, polymath, warrior], formula: "'none'" }
+  bard.muse:
+    {
+      type: enum,
+      values: [none, enigma, maestro, polymath, warrior],
+      formula: "'none'",
+      open: true,
+    }
   bard.muses: { type: set, of: tag, members: { under: [muse] } }
   bard.grantedFeats: { type: set, of: feat }
   # Bardic Lore has no increases input: it is trained by the feat and becomes expert only when

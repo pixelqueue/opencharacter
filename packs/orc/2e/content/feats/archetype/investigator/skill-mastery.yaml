@@ -18,35 +18,7 @@ choices:
   - id: to-master
     unique: mastery
     uniqueScope: owner
-    from:
-      {
-        values:
-          [
-            skill.acrobatics,
-            skill.arcana,
-            skill.athletics,
-            skill.crafting,
-            skill.deception,
-            skill.diplomacy,
-            skill.intimidation,
-            skill.medicine,
-            skill.nature,
-            skill.occultism,
-            skill.performance,
-            skill.religion,
-            skill.society,
-            skill.stealth,
-            skill.survival,
-            skill.thievery,
-            skill.lore.academia,
-            skill.lore.circus,
-            skill.lore.farming,
-            skill.lore.legal,
-            skill.lore.scribing,
-            skill.lore.underworld,
-            skill.lore.warfare,
-          ],
-      }
+    from: { values: { formula: skills.offered } }
     eligible: "maxFields(value in f.tags ? f.value : 0, 'skill-rank' in f.tags) == 2 || value in choice.picks"
     effects:
       - target: { fields: { where: "'skill-granted' in item.tags && pick.value in item.tags" } }
@@ -55,35 +27,7 @@ choices:
   - id: to-expert
     unique: mastery
     uniqueScope: owner
-    from:
-      {
-        values:
-          [
-            skill.acrobatics,
-            skill.arcana,
-            skill.athletics,
-            skill.crafting,
-            skill.deception,
-            skill.diplomacy,
-            skill.intimidation,
-            skill.medicine,
-            skill.nature,
-            skill.occultism,
-            skill.performance,
-            skill.religion,
-            skill.society,
-            skill.stealth,
-            skill.survival,
-            skill.thievery,
-            skill.lore.academia,
-            skill.lore.circus,
-            skill.lore.farming,
-            skill.lore.legal,
-            skill.lore.scribing,
-            skill.lore.underworld,
-            skill.lore.warfare,
-          ],
-      }
+    from: { values: { formula: skills.offered } }
     eligible: "maxFields(value in f.tags ? f.value : 0, 'skill-rank' in f.tags) == 1 || value in choice.picks"
     effects:
       - target: { fields: { where: "'skill-granted' in item.tags && pick.value in item.tags" } }

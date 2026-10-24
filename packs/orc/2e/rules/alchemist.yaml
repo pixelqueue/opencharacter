@@ -12,7 +12,12 @@ fields:
     formula: '[[0, 0, 0, 0, 0], [0, 0, 2, 3, 4], [0, 0, 4, 6, 8]][weapons.specialization][attacks.bomb.rank]'
   # A formula is for a family of alchemical consumables, recorded as the family's lowest item.
   alchemist.field:
-    { type: enum, values: [none, bomber, chirurgeon, mutagenist, toxicologist], formula: "'none'" }
+    {
+      type: enum,
+      values: [none, bomber, chirurgeon, mutagenist, toxicologist],
+      formula: "'none'",
+      open: true,
+    }
   alchemist.vials.max: { type: integer, formula: 'max(0, 2 + attributes.int.mod)' }
   alchemist.vials.used: { type: integer, input: true, default: 0, min: 0, max: alchemist.vials.max }
   alchemist.formulas: { type: set, of: consumable }

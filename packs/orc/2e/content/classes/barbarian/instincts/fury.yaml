@@ -2,6 +2,7 @@ id: classes.barbarian.instincts.fury
 type: feature
 fields: { level: 1, classOption: barbarian.instinct }
 effects:
+  - { target: barbarian.instinct, op: set, value: "'fury'" }
   - { target: rage.damage, op: set, value: 'level >= 15 ? 13 : level >= 7 ? 7 : 3' }
   - { target: rage.resists, op: grant, value: { tag: damage.bludgeoning }, when: level >= 9 }
   - { target: rage.resists, op: grant, value: { tag: damage.piercing }, when: level >= 9 }
