@@ -177,6 +177,12 @@ effects:
     when: >-
       has(participants.target) && size(participants.target) > 0
         && character.id in participants.target[0].mastery.vexedBy
+    then:
+      to: target
+      when: applied
+      changes:
+        - type: removeEffect
+          applied: { where: 'item.id == @combat-effects.vexed && self.attacker == flags.me' }
   - id: target-elusive
     target: { rolls: [attack] }
     op: rollModifier
@@ -438,14 +444,6 @@ actions:
             when: flags.mastery == 'vex' && has(steps.damage)
             source: "'combat-effects.vexed'"
             state: { attacker: flags.me }
-      - id: unvex
-        kind: changes
-        when: flags.vexed
-        to: target
-        changes:
-          - type: removeEffect
-            applied:
-              where: 'item.id == @combat-effects.vexed && self.attacker == flags.me'
       - id: result
         kind: outcome
         result: "flags.hit ? 'hit' : 'miss'"
@@ -591,14 +589,6 @@ actions:
             by: -max(0, part.total)
             tags:
               [damage, attack, melee, unarmed, { formula: "flags.critical ? ['critical'] : []" }]
-      - id: unvex
-        kind: changes
-        when: flags.vexed
-        to: target
-        changes:
-          - type: removeEffect
-            applied:
-              where: 'item.id == @combat-effects.vexed && self.attacker == flags.me'
       - id: result
         kind: outcome
         result: "flags.hit ? 'hit' : 'miss'"

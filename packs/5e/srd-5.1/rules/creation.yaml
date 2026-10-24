@@ -157,7 +157,7 @@ actions:
         changes:
           - type: addItem
             entry: { id: background, item: picked.id }
-      # The class's ability priority (its abilityPriority fields): the highest roll goes to its
+      # The class's ability priority (its abilityPriority): the highest roll goes to its
       # first ability, the next to its second, and so on.
       - id: priority
         kind: branch
@@ -167,10 +167,7 @@ actions:
               sorted: >-
                 sortList([steps.roll1.total, steps.roll2.total, steps.roll3.total,
                   steps.roll4.total, steps.roll5.total, steps.roll6.total], -x)
-              priority: >-
-                [steps.class.item.abilityPriority1, steps.class.item.abilityPriority2,
-                  steps.class.item.abilityPriority3, steps.class.item.abilityPriority4,
-                  steps.class.item.abilityPriority5, steps.class.item.abilityPriority6]
+              priority: steps.class.item.abilityPriority
       - id: scores
         kind: allocate
         fields: { type: field, where: "'ability-base' in item.tags" }
@@ -182,12 +179,15 @@ actions:
           - steps.roll5.total
           - steps.roll6.total
         recommend:
-          'abilities.{ability}.base': flags.sorted[indexOf(flags.priority, '{ability}')]
+          'abilities.{ability}.base': flags.sorted[indexOf(flags.priority, @abilities.{ability}.score)]
       - id: picks
         kind: choice
         options: { pending: {} }
         random: "!(choice.owner == @races.half-elf && choice.id == 'ability-scores')"
-        recommend: flags.priority[minList(options, indexOf(flags.priority, x))]
+        recommend: >-
+          sortList(options, indexOf(flags.priority, [@abilities.str.score, @abilities.dex.score,
+            @abilities.con.score, @abilities.int.score, @abilities.wis.score,
+            @abilities.cha.score][indexOf(['str', 'dex', 'con', 'int', 'wis', 'cha'], x)]))[0]
       - id: equipment
         kind: action
         use: starting-equipment

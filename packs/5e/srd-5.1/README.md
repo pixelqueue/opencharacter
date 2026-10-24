@@ -277,7 +277,7 @@ processes:
 
 - **Classes** take part in creation, random starts and multiclassing through item fields: a
   `kit` action (`listed: false`, a `random` parameter) with `startingKit: true` gives the
-  starting equipment; `abilityPriority1`–`abilityPriority6` order a random start's scores;
+  starting equipment; `abilityPriority` lists a random start's abilities, best first (`abilities.str.score`, …);
   `multiclassAll` and `multiclassAny` name the abilities multiclassing into it needs 13 in. Like a
   core class, it carries the `multiclass` prerequisite
   (`(self.startingClass && self.level == level.total) || item.id in multiclass.qualified`).

@@ -80,7 +80,7 @@ computeSheet(ruleset, made.character).values['godbound-core:effort.max']?.value;
   - `random`: the attributes are rolled and recommended in the order rolled; the three Words are
     drawn uniformly; gifts are drawn uniformly among the bound Words' gifts and the universal
     gifts the remaining points afford, until the points are spent; armor (none or any armor of
-    the ruleset), a shield (none or any shield) and a weapon category are drawn uniformly; Sorcery's invocations are
+    the ruleset, lightest first), a shield (none or any shield) and a weapon category are drawn uniformly; Sorcery's invocations are
     drawn.
   - The choices the Words, gifts and armor bring (a Word's raised attribute, Excellence of the
     Word, the saves medium or heavy armor hinders, invocations) are asked at the end, each with a

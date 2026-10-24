@@ -3,12 +3,15 @@ type: class
 fields:
   hitDie: 1d6
   startingKit: true
-  abilityPriority1: cha
-  abilityPriority2: con
-  abilityPriority3: dex
-  abilityPriority4: wis
-  abilityPriority5: int
-  abilityPriority6: str
+  abilityPriority:
+    [
+      abilities.cha.score,
+      abilities.con.score,
+      abilities.dex.score,
+      abilities.wis.score,
+      abilities.int.score,
+      abilities.str.score,
+    ]
   multiclassAll: [cha]
 state:
   sorceryPointsSpent: { type: integer, default: 0, min: 0 }

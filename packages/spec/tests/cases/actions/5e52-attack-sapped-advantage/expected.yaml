@@ -1,0 +1,29 @@
+# Advantage and Disadvantage cancel: one d20, 12 + 4 + 3 = 19 hits. Sapped was in play, so it ends.
+status: finished
+outcome:
+  result: hit
+  data:
+    critical: false
+    attack: 19
+    damage: 11
+    mastery: graze
+    push: 0
+    cleave: false
+proposedChanges:
+  - to: self
+    step: test/roll
+    change: { type: removeEffect, id: sapped-1 }
+  - to: target
+    character: goblin
+    step: deal
+    change:
+      type: adjust
+      field: 5e-srd-5.2:hp.current
+      by: -11
+      tags:
+        - damage
+        - attack
+        - weapon
+        - melee
+        - nonmagical
+        - damage.slashing

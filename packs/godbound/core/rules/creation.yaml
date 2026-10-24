@@ -128,10 +128,11 @@ actions:
         changes:
           - type: addItem
             entry: { item: picked.id }
-      # None or any armor, then none or any shield, the gear of add-on packs included.
+      # None or any armor, then none or any shield, the gear of add-on packs included, lightest
+      # first (armor class falling, shield bonus rising).
       - id: armor
         kind: choice
-        options: { values: { formula: "['none'] + gear.armor" } }
+        options: { values: { formula: "['none'] + sortList(gear.armor, -itemField(x, 'ac'))" } }
         random: params.random
         recommend: "'none'"
         changes:
@@ -140,7 +141,7 @@ actions:
             entry: { item: picked.value, equipped: true }
       - id: shield
         kind: choice
-        options: { values: { formula: "['none'] + gear.shields" } }
+        options: { values: { formula: "['none'] + sortList(gear.shields, itemField(x, 'bonus'))" } }
         random: params.random
         recommend: "'none'"
         changes:

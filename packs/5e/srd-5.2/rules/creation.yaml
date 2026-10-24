@@ -38,10 +38,7 @@ actions:
         cases:
           - when: true
             flags:
-              priority: >-
-                [steps.class.item.abilityPriority1, steps.class.item.abilityPriority2,
-                  steps.class.item.abilityPriority3, steps.class.item.abilityPriority4,
-                  steps.class.item.abilityPriority5, steps.class.item.abilityPriority6]
+              priority: steps.class.item.abilityPriority
       - id: background
         tags: [creation.background]
         kind: choice
@@ -96,7 +93,7 @@ actions:
                   - steps.roll5.total
                   - steps.roll6.total
                 recommend:
-                  'abilities.{ability}.base': flags.sorted[indexOf(flags.priority, '{ability}')]
+                  'abilities.{ability}.base': flags.sorted[indexOf(flags.priority, @abilities.{ability}.score)]
           - when: "steps.method.picked == 'point-buy'"
             steps:
               - id: eights
@@ -117,7 +114,7 @@ actions:
                 limit: 7
                 cost: '[0, 1, 2, 3, 4, 5, 7, 9][amount]'
                 recommend:
-                  'abilities.{ability}.base': "[7, 6, 5, 4, 2, 0][indexOf(flags.priority, '{ability}')]"
+                  'abilities.{ability}.base': '[7, 6, 5, 4, 2, 0][indexOf(flags.priority, @abilities.{ability}.score)]'
           - when: "steps.method.picked == 'standard-array'"
             steps:
               - id: array
@@ -125,7 +122,7 @@ actions:
                 fields: { type: field, where: "'ability-base' in item.tags" }
                 values: [15, 14, 13, 12, 10, 8]
                 recommend:
-                  'abilities.{ability}.base': "[15, 14, 13, 12, 10, 8][indexOf(flags.priority, '{ability}')]"
+                  'abilities.{ability}.base': '[15, 14, 13, 12, 10, 8][indexOf(flags.priority, @abilities.{ability}.score)]'
       - id: picks
         kind: choice
         options: { pending: {} }

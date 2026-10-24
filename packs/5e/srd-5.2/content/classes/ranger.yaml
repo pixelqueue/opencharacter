@@ -3,12 +3,15 @@ type: class
 fields:
   hitDie: 1d10
   startingKit: true
-  abilityPriority1: dex
-  abilityPriority2: wis
-  abilityPriority3: con
-  abilityPriority4: str
-  abilityPriority5: cha
-  abilityPriority6: int
+  abilityPriority:
+    [
+      abilities.dex.score,
+      abilities.wis.score,
+      abilities.con.score,
+      abilities.str.score,
+      abilities.cha.score,
+      abilities.int.score,
+    ]
   multiclassAll: [dex, wis]
 state:
   favoredEnemySpent: { type: integer, default: 0, min: 0 }

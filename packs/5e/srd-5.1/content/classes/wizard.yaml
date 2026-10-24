@@ -3,12 +3,15 @@ type: class
 fields:
   hitDie: 1d6
   startingKit: true
-  abilityPriority1: int
-  abilityPriority2: con
-  abilityPriority3: dex
-  abilityPriority4: wis
-  abilityPriority5: cha
-  abilityPriority6: str
+  abilityPriority:
+    [
+      abilities.int.score,
+      abilities.con.score,
+      abilities.dex.score,
+      abilities.wis.score,
+      abilities.cha.score,
+      abilities.str.score,
+    ]
   multiclassAll: [int]
 state:
   arcaneRecoveryUsed: { type: boolean, default: false }
