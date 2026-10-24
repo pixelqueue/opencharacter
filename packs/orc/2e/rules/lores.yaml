@@ -901,6 +901,7 @@ fields:
       min: 0,
       max: 1,
       tags: [skill-increase, skill-training, skill.lore.custom1, lore],
+      nameFrom: skills.lore.custom1.subject,
     }
   skills.lore.custom1.rank:
     type: integer
@@ -942,6 +943,7 @@ fields:
       min: 0,
       max: 1,
       tags: [skill-increase, skill-training, skill.lore.custom2, lore],
+      nameFrom: skills.lore.custom2.subject,
     }
   skills.lore.custom2.rank:
     type: integer
@@ -983,6 +985,7 @@ fields:
       min: 0,
       max: 1,
       tags: [skill-increase, skill-training, skill.lore.custom3, lore],
+      nameFrom: skills.lore.custom3.subject,
     }
   skills.lore.custom3.rank:
     type: integer
@@ -1163,11 +1166,7 @@ effects:
 
 display:
   fields:
-    skills.lore.custom1.subject:
-      {
-        groups: [skills],
-        showWhen: "skills.lore.custom1.subject != '' || skills.lore.custom1.rank > 0",
-      }
+    skills.lore.custom1.subject: { groups: [skills], visibility: background }
     skills.lore.custom1.rank:
       {
         format: { bands: rank },
@@ -1180,11 +1179,11 @@ display:
         rolls: [{ action: check, params: { check: skills.lore.custom1.mod } }],
         with: [{ field: skills.lore.custom1.rank, as: detail }],
       }
-    skills.lore.custom2.subject:
-      {
-        groups: [skills],
-        showWhen: "skills.lore.custom2.subject != '' || skills.lore.custom2.rank > 0",
-      }
+    skills.lore.custom1.increases:
+      { showWhen: "skills.lore.custom1.subject != '' || skills.lore.custom1.rank > 0" }
+    skills.lore.custom1.trainedByIncrease:
+      { showWhen: "skills.lore.custom1.subject != '' || skills.lore.custom1.rank > 0" }
+    skills.lore.custom2.subject: { groups: [skills], visibility: background }
     skills.lore.custom2.rank:
       {
         format: { bands: rank },
@@ -1197,11 +1196,11 @@ display:
         rolls: [{ action: check, params: { check: skills.lore.custom2.mod } }],
         with: [{ field: skills.lore.custom2.rank, as: detail }],
       }
-    skills.lore.custom3.subject:
-      {
-        groups: [skills],
-        showWhen: "skills.lore.custom3.subject != '' || skills.lore.custom3.rank > 0",
-      }
+    skills.lore.custom2.increases:
+      { showWhen: "skills.lore.custom2.subject != '' || skills.lore.custom2.rank > 0" }
+    skills.lore.custom2.trainedByIncrease:
+      { showWhen: "skills.lore.custom2.subject != '' || skills.lore.custom2.rank > 0" }
+    skills.lore.custom3.subject: { groups: [skills], visibility: background }
     skills.lore.custom3.rank:
       {
         format: { bands: rank },
@@ -1214,6 +1213,10 @@ display:
         rolls: [{ action: check, params: { check: skills.lore.custom3.mod } }],
         with: [{ field: skills.lore.custom3.rank, as: detail }],
       }
+    skills.lore.custom3.increases:
+      { showWhen: "skills.lore.custom3.subject != '' || skills.lore.custom3.rank > 0" }
+    skills.lore.custom3.trainedByIncrease:
+      { showWhen: "skills.lore.custom3.subject != '' || skills.lore.custom3.rank > 0" }
     skills.lore.alcohol.rank: { format: { bands: rank }, showWhen: skills.lore.alcohol.rank > 0 }
     skills.lore.alcohol.mod:
       {
@@ -1222,6 +1225,8 @@ display:
         with: [{ field: skills.lore.alcohol.rank, as: detail }],
         showWhen: skills.lore.alcohol.rank > 0,
       }
+    skills.lore.alcohol.increases: { showWhen: skills.lore.alcohol.rank > 0 }
+    skills.lore.alcohol.trainedByIncrease: { showWhen: skills.lore.alcohol.rank > 0 }
     skills.lore.art.rank: { format: { bands: rank }, showWhen: skills.lore.art.rank > 0 }
     skills.lore.art.mod:
       {
@@ -1230,6 +1235,8 @@ display:
         with: [{ field: skills.lore.art.rank, as: detail }],
         showWhen: skills.lore.art.rank > 0,
       }
+    skills.lore.art.increases: { showWhen: skills.lore.art.rank > 0 }
+    skills.lore.art.trainedByIncrease: { showWhen: skills.lore.art.rank > 0 }
     skills.lore.cooking.rank: { format: { bands: rank }, showWhen: skills.lore.cooking.rank > 0 }
     skills.lore.cooking.mod:
       {
@@ -1238,6 +1245,8 @@ display:
         with: [{ field: skills.lore.cooking.rank, as: detail }],
         showWhen: skills.lore.cooking.rank > 0,
       }
+    skills.lore.cooking.increases: { showWhen: skills.lore.cooking.rank > 0 }
+    skills.lore.cooking.trainedByIncrease: { showWhen: skills.lore.cooking.rank > 0 }
     skills.lore.engineering.rank:
       { format: { bands: rank }, showWhen: skills.lore.engineering.rank > 0 }
     skills.lore.engineering.mod:
@@ -1247,6 +1256,8 @@ display:
         with: [{ field: skills.lore.engineering.rank, as: detail }],
         showWhen: skills.lore.engineering.rank > 0,
       }
+    skills.lore.engineering.increases: { showWhen: skills.lore.engineering.rank > 0 }
+    skills.lore.engineering.trainedByIncrease: { showWhen: skills.lore.engineering.rank > 0 }
     skills.lore.fortuneTelling.rank:
       { format: { bands: rank }, showWhen: skills.lore.fortuneTelling.rank > 0 }
     skills.lore.fortuneTelling.mod:
@@ -1256,6 +1267,8 @@ display:
         with: [{ field: skills.lore.fortuneTelling.rank, as: detail }],
         showWhen: skills.lore.fortuneTelling.rank > 0,
       }
+    skills.lore.fortuneTelling.increases: { showWhen: skills.lore.fortuneTelling.rank > 0 }
+    skills.lore.fortuneTelling.trainedByIncrease: { showWhen: skills.lore.fortuneTelling.rank > 0 }
     skills.lore.games.rank: { format: { bands: rank }, showWhen: skills.lore.games.rank > 0 }
     skills.lore.games.mod:
       {
@@ -1264,6 +1277,8 @@ display:
         with: [{ field: skills.lore.games.rank, as: detail }],
         showWhen: skills.lore.games.rank > 0,
       }
+    skills.lore.games.increases: { showWhen: skills.lore.games.rank > 0 }
+    skills.lore.games.trainedByIncrease: { showWhen: skills.lore.games.rank > 0 }
     skills.lore.genealogy.rank:
       { format: { bands: rank }, showWhen: skills.lore.genealogy.rank > 0 }
     skills.lore.genealogy.mod:
@@ -1273,6 +1288,8 @@ display:
         with: [{ field: skills.lore.genealogy.rank, as: detail }],
         showWhen: skills.lore.genealogy.rank > 0,
       }
+    skills.lore.genealogy.increases: { showWhen: skills.lore.genealogy.rank > 0 }
+    skills.lore.genealogy.trainedByIncrease: { showWhen: skills.lore.genealogy.rank > 0 }
     skills.lore.gladiatorial.rank:
       { format: { bands: rank }, showWhen: skills.lore.gladiatorial.rank > 0 }
     skills.lore.gladiatorial.mod:
@@ -1282,6 +1299,8 @@ display:
         with: [{ field: skills.lore.gladiatorial.rank, as: detail }],
         showWhen: skills.lore.gladiatorial.rank > 0,
       }
+    skills.lore.gladiatorial.increases: { showWhen: skills.lore.gladiatorial.rank > 0 }
+    skills.lore.gladiatorial.trainedByIncrease: { showWhen: skills.lore.gladiatorial.rank > 0 }
     skills.lore.guild.rank: { format: { bands: rank }, showWhen: skills.lore.guild.rank > 0 }
     skills.lore.guild.mod:
       {
@@ -1290,6 +1309,8 @@ display:
         with: [{ field: skills.lore.guild.rank, as: detail }],
         showWhen: skills.lore.guild.rank > 0,
       }
+    skills.lore.guild.increases: { showWhen: skills.lore.guild.rank > 0 }
+    skills.lore.guild.trainedByIncrease: { showWhen: skills.lore.guild.rank > 0 }
     skills.lore.heraldry.rank: { format: { bands: rank }, showWhen: skills.lore.heraldry.rank > 0 }
     skills.lore.heraldry.mod:
       {
@@ -1298,6 +1319,8 @@ display:
         with: [{ field: skills.lore.heraldry.rank, as: detail }],
         showWhen: skills.lore.heraldry.rank > 0,
       }
+    skills.lore.heraldry.increases: { showWhen: skills.lore.heraldry.rank > 0 }
+    skills.lore.heraldry.trainedByIncrease: { showWhen: skills.lore.heraldry.rank > 0 }
     skills.lore.herbalism.rank:
       { format: { bands: rank }, showWhen: skills.lore.herbalism.rank > 0 }
     skills.lore.herbalism.mod:
@@ -1307,6 +1330,8 @@ display:
         with: [{ field: skills.lore.herbalism.rank, as: detail }],
         showWhen: skills.lore.herbalism.rank > 0,
       }
+    skills.lore.herbalism.increases: { showWhen: skills.lore.herbalism.rank > 0 }
+    skills.lore.herbalism.trainedByIncrease: { showWhen: skills.lore.herbalism.rank > 0 }
     skills.lore.labor.rank: { format: { bands: rank }, showWhen: skills.lore.labor.rank > 0 }
     skills.lore.labor.mod:
       {
@@ -1315,6 +1340,8 @@ display:
         with: [{ field: skills.lore.labor.rank, as: detail }],
         showWhen: skills.lore.labor.rank > 0,
       }
+    skills.lore.labor.increases: { showWhen: skills.lore.labor.rank > 0 }
+    skills.lore.labor.trainedByIncrease: { showWhen: skills.lore.labor.rank > 0 }
     skills.lore.mercantile.rank:
       { format: { bands: rank }, showWhen: skills.lore.mercantile.rank > 0 }
     skills.lore.mercantile.mod:
@@ -1324,6 +1351,8 @@ display:
         with: [{ field: skills.lore.mercantile.rank, as: detail }],
         showWhen: skills.lore.mercantile.rank > 0,
       }
+    skills.lore.mercantile.increases: { showWhen: skills.lore.mercantile.rank > 0 }
+    skills.lore.mercantile.trainedByIncrease: { showWhen: skills.lore.mercantile.rank > 0 }
     skills.lore.mining.rank: { format: { bands: rank }, showWhen: skills.lore.mining.rank > 0 }
     skills.lore.mining.mod:
       {
@@ -1332,6 +1361,8 @@ display:
         with: [{ field: skills.lore.mining.rank, as: detail }],
         showWhen: skills.lore.mining.rank > 0,
       }
+    skills.lore.mining.increases: { showWhen: skills.lore.mining.rank > 0 }
+    skills.lore.mining.trainedByIncrease: { showWhen: skills.lore.mining.rank > 0 }
     skills.lore.sailing.rank: { format: { bands: rank }, showWhen: skills.lore.sailing.rank > 0 }
     skills.lore.sailing.mod:
       {
@@ -1340,6 +1371,8 @@ display:
         with: [{ field: skills.lore.sailing.rank, as: detail }],
         showWhen: skills.lore.sailing.rank > 0,
       }
+    skills.lore.sailing.increases: { showWhen: skills.lore.sailing.rank > 0 }
+    skills.lore.sailing.trainedByIncrease: { showWhen: skills.lore.sailing.rank > 0 }
     skills.lore.tanning.rank: { format: { bands: rank }, showWhen: skills.lore.tanning.rank > 0 }
     skills.lore.tanning.mod:
       {
@@ -1348,6 +1381,8 @@ display:
         with: [{ field: skills.lore.tanning.rank, as: detail }],
         showWhen: skills.lore.tanning.rank > 0,
       }
+    skills.lore.tanning.increases: { showWhen: skills.lore.tanning.rank > 0 }
+    skills.lore.tanning.trainedByIncrease: { showWhen: skills.lore.tanning.rank > 0 }
     skills.lore.theater.rank: { format: { bands: rank }, showWhen: skills.lore.theater.rank > 0 }
     skills.lore.theater.mod:
       {
@@ -1356,6 +1391,8 @@ display:
         with: [{ field: skills.lore.theater.rank, as: detail }],
         showWhen: skills.lore.theater.rank > 0,
       }
+    skills.lore.theater.increases: { showWhen: skills.lore.theater.rank > 0 }
+    skills.lore.theater.trainedByIncrease: { showWhen: skills.lore.theater.rank > 0 }
     skills.lore.cave.rank: { format: { bands: rank }, showWhen: skills.lore.cave.rank > 0 }
     skills.lore.cave.mod:
       {
@@ -1364,6 +1401,8 @@ display:
         with: [{ field: skills.lore.cave.rank, as: detail }],
         showWhen: skills.lore.cave.rank > 0,
       }
+    skills.lore.cave.increases: { showWhen: skills.lore.cave.rank > 0 }
+    skills.lore.cave.trainedByIncrease: { showWhen: skills.lore.cave.rank > 0 }
     skills.lore.desert.rank: { format: { bands: rank }, showWhen: skills.lore.desert.rank > 0 }
     skills.lore.desert.mod:
       {
@@ -1372,6 +1411,8 @@ display:
         with: [{ field: skills.lore.desert.rank, as: detail }],
         showWhen: skills.lore.desert.rank > 0,
       }
+    skills.lore.desert.increases: { showWhen: skills.lore.desert.rank > 0 }
+    skills.lore.desert.trainedByIncrease: { showWhen: skills.lore.desert.rank > 0 }
     skills.lore.forest.rank: { format: { bands: rank }, showWhen: skills.lore.forest.rank > 0 }
     skills.lore.forest.mod:
       {
@@ -1380,6 +1421,8 @@ display:
         with: [{ field: skills.lore.forest.rank, as: detail }],
         showWhen: skills.lore.forest.rank > 0,
       }
+    skills.lore.forest.increases: { showWhen: skills.lore.forest.rank > 0 }
+    skills.lore.forest.trainedByIncrease: { showWhen: skills.lore.forest.rank > 0 }
     skills.lore.mountain.rank: { format: { bands: rank }, showWhen: skills.lore.mountain.rank > 0 }
     skills.lore.mountain.mod:
       {
@@ -1388,6 +1431,8 @@ display:
         with: [{ field: skills.lore.mountain.rank, as: detail }],
         showWhen: skills.lore.mountain.rank > 0,
       }
+    skills.lore.mountain.increases: { showWhen: skills.lore.mountain.rank > 0 }
+    skills.lore.mountain.trainedByIncrease: { showWhen: skills.lore.mountain.rank > 0 }
     skills.lore.plains.rank: { format: { bands: rank }, showWhen: skills.lore.plains.rank > 0 }
     skills.lore.plains.mod:
       {
@@ -1396,6 +1441,8 @@ display:
         with: [{ field: skills.lore.plains.rank, as: detail }],
         showWhen: skills.lore.plains.rank > 0,
       }
+    skills.lore.plains.increases: { showWhen: skills.lore.plains.rank > 0 }
+    skills.lore.plains.trainedByIncrease: { showWhen: skills.lore.plains.rank > 0 }
     skills.lore.swamp.rank: { format: { bands: rank }, showWhen: skills.lore.swamp.rank > 0 }
     skills.lore.swamp.mod:
       {
@@ -1404,3 +1451,5 @@ display:
         with: [{ field: skills.lore.swamp.rank, as: detail }],
         showWhen: skills.lore.swamp.rank > 0,
       }
+    skills.lore.swamp.increases: { showWhen: skills.lore.swamp.rank > 0 }
+    skills.lore.swamp.trainedByIncrease: { showWhen: skills.lore.swamp.rank > 0 }
