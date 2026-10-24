@@ -302,8 +302,9 @@ actions:
         changes:
           - { type: removeItem, entry: kit }
       # A kit may ready more than half Strength. Readied gear, then all but one weapon (the
-      # weakest first), are stowed while they fit within Strength, so play starts within the
-      # limits where the kit allows; armor stays worn.
+      # weakest first), are stowed while they fit within Strength. Past that, readied gear, a
+      # shield, the last weapon and then armor are stowed anyway, and Stowed gear, weapons and
+      # armor past Strength are left behind (the heaviest first), so play starts unencumbered.
       - id: stowGear
         kind: choice
         sheet: proposed
@@ -336,4 +337,95 @@ actions:
         prefer: -maxOf(item.damage)
         changes:
           - { type: equip, entry: picked, equipped: false }
+      - id: stowGearOver
+        kind: choice
+        sheet: proposed
+        repeat: { max: 20, min: 20 }
+        options:
+          copies:
+            type: gear
+            where: >-
+              self.equipped && has(item.enc) && item.enc > 0
+                && encumbrance.readied > encumbrance.readiedLimit
+        prefer: item.enc
+        changes:
+          - { type: equip, entry: picked, equipped: false }
+      - id: stowShield
+        kind: choice
+        sheet: proposed
+        repeat: { max: 20, min: 20 }
+        options:
+          copies:
+            type: armor
+            where: >-
+              self.equipped && has(item.enc) && item.enc > 0 && item.shield
+                && encumbrance.readied > encumbrance.readiedLimit
+        prefer: item.enc
+        changes:
+          - { type: equip, entry: picked, equipped: false }
+      - id: stowLastWeapon
+        kind: choice
+        sheet: proposed
+        repeat: { max: 20, min: 20 }
+        options:
+          copies:
+            type: weapon
+            where: >-
+              self.equipped && has(item.enc) && item.enc > 0
+                && encumbrance.readied > encumbrance.readiedLimit
+        prefer: -maxOf(item.damage)
+        changes:
+          - { type: equip, entry: picked, equipped: false }
+      - id: stowArmor
+        kind: choice
+        sheet: proposed
+        repeat: { max: 20, min: 20 }
+        options:
+          copies:
+            type: armor
+            where: >-
+              self.equipped && has(item.enc) && item.enc > 0
+                && encumbrance.readied > encumbrance.readiedLimit
+        prefer: item.enc
+        changes:
+          - { type: equip, entry: picked, equipped: false }
+      - id: dropGear
+        kind: choice
+        sheet: proposed
+        repeat: { max: 20, min: 20 }
+        options:
+          copies:
+            type: gear
+            where: >-
+              !self.equipped && !self.stored && has(item.enc) && item.enc > 0
+                && encumbrance.stowed > encumbrance.stowedLimit
+        prefer: 'item.enc * ceil(self.quantity / item.bundle)'
+        changes:
+          - { type: removeItem, entry: picked }
+      - id: dropWeapon
+        kind: choice
+        sheet: proposed
+        repeat: { max: 20, min: 20 }
+        options:
+          copies:
+            type: weapon
+            where: >-
+              !self.equipped && !self.stored && has(item.enc) && item.enc > 0
+                && encumbrance.stowed > encumbrance.stowedLimit
+        prefer: 'item.enc * ceil(self.quantity / item.bundle)'
+        changes:
+          - { type: removeItem, entry: picked }
+      - id: dropArmor
+        kind: choice
+        sheet: proposed
+        repeat: { max: 20, min: 20 }
+        options:
+          copies:
+            type: armor
+            where: >-
+              !self.equipped && !self.stored && has(item.enc) && item.enc > 0
+                && encumbrance.stowed > encumbrance.stowedLimit
+        prefer: 'item.enc * ceil(self.quantity / item.bundle)'
+        changes:
+          - { type: removeItem, entry: picked }
       - { id: result, kind: outcome, result: "'equipped'" }
