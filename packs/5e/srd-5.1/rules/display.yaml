@@ -462,11 +462,14 @@ display:
     sorcery.left: { groups: [class-features], priority: 1, showWhen: sorcery.points > 0 }
     sorcery.shortRestRegain: { hidden: true }
     sorcery.metamagic: { hidden: true }
-    draconic.damageType: { hidden: true }
     elementalAffinity.resistant:
       { groups: [class-features], priority: 0, showWhen: elementalAffinity.resistant }
     dragonWings.active:
-      { groups: [class-features], priority: 0, showWhen: draconic.damageType != 'none' }
+      {
+        groups: [class-features],
+        priority: 0,
+        showWhen: "size(picksOf('features.sorcerer.dragon-ancestor', 'dragon')) > 0",
+      }
     warlock.boons: { groups: [class-features], priority: 1, showWhen: size(warlock.boons) > 0 }
     spellcasting.bard.dc:
       { groups: [spellcasting], priority: 0, showWhen: spellcasting.bard.dc > 0 }
