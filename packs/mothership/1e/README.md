@@ -175,6 +175,14 @@ for the player's choices and other characters.
   weapon shows its damage as dice and its shots as a track (only with a magazine); armor shows
   `destroyed` only when destroyed.
 
+## Add-on packs
+
+A pack that depends on `mothership-1e` can add content of its types. Creation offers every class
+of the ruleset: the guided start lists it, the random start draws over all of them (the book's d4
+with the core four), and the class's own choices (its stat change, its skills) are asked as the
+core classes' are. Skills, weapons and armor join their picks and actions the same way. A
+weapon's wound type is a written list (an enum), so an add-on can't add one yet.
+
 ## Text only, or the app's
 
 - **No items.** Weapon and armor lists, loadouts, trinkets and patches stay out of this pack (a
