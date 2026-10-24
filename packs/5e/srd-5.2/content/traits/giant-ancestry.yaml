@@ -2,9 +2,10 @@ id: traits.giant-ancestry
 type: trait
 # The uses spent since the last long rest, shared by every power (proficiency bonus of them). An
 # action spends one with `grant: self`; Stone's Endurance's `then` writes it here too, since the
-# trait declares the key.
+# trait declares the key. The granting species sets the lineage picked.
 state:
   giantAncestryUsed: { type: integer, default: 0, min: 0 }
+  lineage: { type: string, default: '' }
 effects:
   - target: { incoming: { fields: [hp.current], tags: [damage] } }
     op: add
@@ -29,8 +30,7 @@ actions:
   - id: clouds-jaunt
     tags: [feature]
     available: >-
-      @lineages.cloud-giant in picksOf('species.goliath', 'lineage')
-        && self.giantAncestryUsed < proficiency.bonus
+      self.lineage == @lineages.cloud-giant && self.giantAncestryUsed < proficiency.bonus
     results: [teleported]
     steps:
       - id: spend
@@ -45,8 +45,7 @@ actions:
   - id: fires-burn
     tags: [feature]
     available: >-
-      @lineages.fire-giant in picksOf('species.goliath', 'lineage')
-        && self.giantAncestryUsed < proficiency.bonus
+      self.lineage == @lineages.fire-giant && self.giantAncestryUsed < proficiency.bonus
     params:
       critical: { type: boolean, default: false }
     participants:
@@ -87,8 +86,7 @@ actions:
   - id: frosts-chill
     tags: [feature]
     available: >-
-      @lineages.frost-giant in picksOf('species.goliath', 'lineage')
-        && self.giantAncestryUsed < proficiency.bonus
+      self.lineage == @lineages.frost-giant && self.giantAncestryUsed < proficiency.bonus
     params:
       critical: { type: boolean, default: false }
     participants:
@@ -131,8 +129,7 @@ actions:
   - id: hills-tumble
     tags: [feature]
     available: >-
-      @lineages.hill-giant in picksOf('species.goliath', 'lineage')
-        && self.giantAncestryUsed < proficiency.bonus
+      self.lineage == @lineages.hill-giant && self.giantAncestryUsed < proficiency.bonus
     participants:
       target:
         max: 1
@@ -162,8 +159,7 @@ actions:
   - id: storms-thunder
     tags: [feature]
     available: >-
-      @lineages.storm-giant in picksOf('species.goliath', 'lineage')
-        && self.giantAncestryUsed < proficiency.bonus
+      self.lineage == @lineages.storm-giant && self.giantAncestryUsed < proficiency.bonus
     participants:
       target:
         max: 1

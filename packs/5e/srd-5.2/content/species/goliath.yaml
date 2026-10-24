@@ -7,7 +7,9 @@ suppress: [size]
 effects:
   - { target: creature.type, op: set, value: "'humanoid'" }
 grants:
+  # The trait takes the lineage from its grant.
   - item: traits.giant-ancestry
+    state: { lineage: "size(picksOf('lineage')) > 0 ? picksOf('lineage')[0] : ''" }
   - item: traits.large-form
   - item: traits.powerful-build
 choices:
