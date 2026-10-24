@@ -99,7 +99,7 @@ actions:
         recommend: flags.suggest
         changes:
           - type: adjust
-            field: { formula: "'skills.' + picked.value + '.level'" }
+            field: { formula: "fieldId('skills.{skill}.level', picked.value)" }
             by: 1
       - id: result
         kind: outcome
