@@ -293,7 +293,7 @@ export class PackChecker {
       // Named for a custom template's form, in each pack that declares it.
       this.requiredKeys.add(`templateFields.${name}.name`);
       this.optionalKeys.add(`templateFields.${name}.description`);
-      this.memberKind(def, file, where, { itemField: true });
+      this.memberKind(def, file, where, { itemField: true, takesWhere: true });
       if (def.default !== undefined)
         this.itemFieldValue(def.default, def, file, `${where} default`);
       const earlier = this.ruleset.templateFields(this.scope.slice(1)).get(name);
@@ -323,9 +323,9 @@ export class PackChecker {
         this.optionalKeys.add(`types.${name}.fields.${field}.description`);
       }
       for (const decl of Object.values(def.fields ?? {}))
-        this.memberKind(decl, file, where, { canOpen: true, itemField: true });
+        this.memberKind(decl, file, where, { canOpen: true, itemField: true, takesWhere: true });
       for (const decl of Object.values(def.state ?? {}))
-        this.memberKind(decl, file, where, { canOpen: true });
+        this.memberKind(decl, file, where, { canOpen: true, takesWhere: true });
       for (const [key, decl] of Object.entries(def.state ?? {}))
         if (decl.perCopy !== undefined)
           this.report.error(file, `${where}: state ${key}: perCopy is for item fields`);
@@ -915,7 +915,7 @@ export class PackChecker {
     for (const query of appliesQueries(item)) this.query(query, file, `${owner} appliesTo`);
     for (const decl of Object.values(item.params ?? {})) this.memberKind(decl, file, owner);
     for (const [key, decl] of Object.entries(item.state ?? {})) {
-      this.memberKind(decl, file, owner, { canOpen: true });
+      this.memberKind(decl, file, owner, { canOpen: true, takesWhere: true });
       if (decl.perCopy !== undefined)
         this.report.error(file, `${owner}: state ${key}: perCopy is for item fields`);
     }
@@ -1274,8 +1274,18 @@ export class PackChecker {
     decl: ValueDecl,
     file: string,
     where: string,
-    { canOpen = false, itemField = false } = {},
+    { canOpen = false, itemField = false, takesWhere = false } = {},
   ): void {
+    const refs =
+      ['id', 'set', 'list'].includes(decl.type) &&
+      decl.of !== undefined &&
+      decl.of !== 'tag' &&
+      decl.of !== 'string';
+    if (takesWhere && decl.where !== undefined && !refs)
+      this.report.error(
+        file,
+        `${where}: where is only for an id, set or list of fields or content`,
+      );
     if (decl.type === 'list' && !itemField)
       this.report.error(file, `${where}: type list is for item fields`);
     if (decl.open !== undefined && (!canOpen || decl.type !== 'enum'))

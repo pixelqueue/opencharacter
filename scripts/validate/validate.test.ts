@@ -134,6 +134,10 @@ describe('pnpm validate', () => {
         'where on a parameter that is not a field or content parameter',
         /param who: where is only for field and content parameters/,
       ],
+      [
+        'where on an item field that is not an id, set or list of fields or content',
+        /content type weapon: where is only for an id, set or list of fields or content/,
+      ],
       ['a field parameter that allows no field', /param stat allows no field/],
       ['ifEmpty on a part without dice', /ifEmpty is only for dice parts/],
       [
