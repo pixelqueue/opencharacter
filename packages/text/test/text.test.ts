@@ -672,11 +672,13 @@ describe('prerequisite text', () => {
 describe('FitD crew factions', () => {
   const { ruleset, text } = load('fitd/crew');
 
-  it("names an item's own state values", () => {
-    expect(text.stateValue('fitd-crew:cohorts.gang', 'gangType', 'rooks')).toBe('Rooks');
-    expect(text.stateValue('fitd-crew:cohorts.gang', 'extraGangType', 'none')).toBe('None');
-    expect(text.stateValue('fitd-crew:cohorts.gang', 'gangType', 'unknown')).toBe('unknown');
-    expect(keys.stateValueKey('fitd-crew:cohorts.gang', 'gangType', 'rooks')).toEqual({
+  it("names a cohort's state values by its type's text", () => {
+    const gang = 'fitd-crew:cohorts.gang';
+    const cohort = 'fitd-crew:cohort';
+    expect(text.stateValue(gang, 'gangType', 'rooks', cohort)).toBe('Rooks');
+    expect(text.stateValue(gang, 'extraGangType', 'none', cohort)).toBe('None');
+    expect(text.stateValue(gang, 'gangType', 'unknown', cohort)).toBe('unknown');
+    expect(keys.stateValueKey(gang, 'gangType', 'rooks')).toEqual({
       pack: 'fitd-crew',
       key: 'cohorts.gang.state.gangType.values.rooks.name',
     });
