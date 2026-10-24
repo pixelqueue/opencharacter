@@ -353,7 +353,7 @@ contentTypes:
       applyTo: { type: enum, values: [none, self, ally, target], default: none }
       applyAt: { type: integer, default: 2, min: 1, max: 3 }
       stabilizes: { type: boolean, default: false }
-      copyTemplates: { type: set, of: string }
+      copyTemplates: { type: list, of: string, unique: true }
     state:
       rank: { type: integer, default: item.rank, min: 1, max: 10 }
       source: { type: string, default: '' }
