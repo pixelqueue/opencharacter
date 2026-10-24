@@ -518,7 +518,7 @@ function startable(
     if (!available(def.available, def.pack, sheet.actionRoots(activation))) return undefined;
     return fromContent(ref);
   }
-  return available(def.available, def.pack, {}) ? { id: ref } : undefined;
+  return available(def.available, def.pack, sheet.rulesRoots()) ? { id: ref } : undefined;
 }
 
 /** Like an action's `changes` step; a change aimed at copies passes its formulas on unchanged. */

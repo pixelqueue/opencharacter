@@ -1,0 +1,21 @@
+# Valor is sworn, so the vow's action is available and the follow-up is stored.
+ok: true
+followUps:
+  - id: vow-1
+    kind: ephemeral
+    followUp: test-pack:vow
+    to: self
+    required: false
+    action:
+      id: test-pack:vow
+      followUp: vow-1
+    params: {}
+    cause:
+      field: test-pack:hp
+      by: -3
+      requested: -3
+      taken: -3
+      reason: requested
+      clamped: false
+      tags:
+        - damage

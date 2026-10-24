@@ -636,7 +636,8 @@ An action is available when its `available` formula (if any) is true. An availab
   - Each action is listed once per `(action, entry, source)`, so the same content reached by
     two paths with no copy is listed once.
 - **Rules actions:** shared actions that no content type or item `use`s, listed without an
-  `entry`.
+  `entry`. Their `available` reads the rules-level choices with `picksOf(choice)`, as their
+  steps do.
 
 An item action written as `use` is listed under the used action's qualified ID. An action
 defined inline on an item is listed as `<item id>#<action id>`.
