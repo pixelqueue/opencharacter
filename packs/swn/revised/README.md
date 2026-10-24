@@ -159,6 +159,19 @@ with the core content alone):
   ends), `level-up.level` (each new level's skill points), `rest.night` (a night's rest) and
   `rest.scene` (the end of a scene).
 
-Still closed: skills and psychic disciplines. They are families an add-on could extend, but the
-core's changes name a skill's fields by key (`'skills.' + skill + '.level'`), which resolve in
-this pack only, so an added skill could be read (`fieldOf`) and not raised.
+- **Skills and psychic disciplines** are families: an added skill joins `skill` and `general` or
+  `combat` (`families: { 'swn-revised:skill': [xenology], 'swn-revised:general': [xenology] }`), a
+  discipline `skill` and `psychic`, and the add-on declares its `skills.<key>.level` (tagged
+  `skill` and `skill.general`, `skill.combat` or `skill.psychic`), `.dice` and `.credit`, and its
+  check tag (`check.<key>`). The core's changes reach them through `fieldId`, so creation,
+  `raise-skill`, focus points and `skill-check` gain, raise and roll them. The enums that hold a
+  skill are open and take its key: a background's entries (`freeSkill`, `quick1`, `quick2`,
+  `growth1`–`growth6`, `learning1`–`learning8`), a focus's `skill`, a weapon's `skill`, and the
+  parameters `gain-skill.entry`, `focus-skill-points.entry`, `raise-skill.skill` and
+  `skill-check.skill`; a discipline's also `psionics.discipline`, a technique's `discipline` and
+  `pick-technique.discipline`, so a new skill level picks its techniques. The Partial Psychic's
+  and Psychic Training's discipline choices take it through `extendChoices`.
+
+Still closed: the core psychic classes grant each core discipline's level-0 technique by ID, so an
+added discipline's own core technique isn't granted by them; an add-on gives it from its own
+content.

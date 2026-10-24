@@ -97,6 +97,7 @@ actions:
     params:
       entry:
         type: enum
+        open: true
         required: true
         values:
           [
@@ -196,11 +197,11 @@ actions:
         changes:
           - type: set
             when: flags.level != flags.from
-            field: { formula: "'skills.' + flags.skill + '.level'" }
+            field: { formula: "fieldId('skills.{skill}.level', flags.skill)" }
             value: flags.level
           - type: set
             when: '(flags.level >= 4 ? 0 : flags.pool) != flags.had'
-            field: { formula: "'skills.' + flags.skill + '.credit'" }
+            field: { formula: "fieldId('skills.{skill}.credit', flags.skill)" }
             value: 'flags.level >= 4 ? 0 : flags.pool'
           - type: adjust
             when: flags.level >= 4 && flags.pool > 0
@@ -225,6 +226,7 @@ actions:
     params:
       discipline:
         type: enum
+        open: true
         required: true
         values: [biopsionics, metapsionics, precognition, telekinesis, telepathy, teleportation]
       random: { type: boolean, default: false }
@@ -254,6 +256,7 @@ actions:
     params:
       skill:
         type: enum
+        open: true
         required: true
         values:
           [
@@ -332,7 +335,7 @@ actions:
         changes:
           - type: adjust
             when: flags.fromCredit > 0
-            field: { formula: "'skills.' + params.skill + '.credit'" }
+            field: { formula: "fieldId('skills.{skill}.credit', params.skill)" }
             by: -flags.fromCredit
           - {
               type: adjust,
@@ -358,7 +361,11 @@ actions:
               by: -flags.fromGeneral,
               when: flags.fromGeneral > 0,
             }
-          - { type: adjust, field: { formula: "'skills.' + params.skill + '.level'" }, by: 1 }
+          - {
+              type: adjust,
+              field: { formula: "fieldId('skills.{skill}.level', params.skill)" },
+              by: 1,
+            }
       - id: technique
         kind: action
         when: >-

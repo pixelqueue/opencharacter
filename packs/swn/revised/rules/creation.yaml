@@ -16,6 +16,7 @@ actions:
       entry:
         {
           type: enum,
+          open: true,
           required: true,
           values:
             [
@@ -112,7 +113,11 @@ actions:
         kind: changes
         when: flags.skill != ''
         changes:
-          - { type: adjust, field: { formula: "'skills.' + flags.skill + '.level'" }, by: 1 }
+          - {
+              type: adjust,
+              field: { formula: "fieldId('skills.{skill}.level', flags.skill)" },
+              by: 1,
+            }
       # A psychic skill raised to level-1 brings a level-1 technique of its discipline.
       - id: technique
         kind: choice

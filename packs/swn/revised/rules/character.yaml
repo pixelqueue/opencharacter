@@ -8,6 +8,7 @@ fields:
   # A restricted psychic's one discipline, picked with the Partial Psychic option.
   psionics.discipline:
     type: enum
+    open: true
     values: [none, biopsionics, metapsionics, precognition, telekinesis, telepathy, teleportation]
     formula: "'none'"
   # Extra focus levels a new character picks: non-combat (Expert) and combat (Warrior).
@@ -47,6 +48,7 @@ contentTypes:
     fields:
       freeSkill:
         type: enum
+        open: true
         required: true
         values:
           &entries [
@@ -78,16 +80,17 @@ contentTypes:
             mental,
           ]
       # The quick skills besides the free one.
-      quick1: { type: enum, required: true, values: *entries }
-      quick2: { type: enum, required: true, values: *entries }
-      'growth{growthRow}': { type: enum, required: true, values: *entries }
-      'learning{learningRow}': { type: enum, required: true, values: *entries }
+      quick1: { type: enum, required: true, values: *entries, open: true }
+      quick2: { type: enum, required: true, values: *entries, open: true }
+      'growth{growthRow}': { type: enum, required: true, values: *entries, open: true }
+      'learning{learningRow}': { type: enum, required: true, values: *entries, open: true }
   focus:
     fields:
       kind: { type: enum, values: [combat, noncombat, psychic, special], required: true }
       # The bonus skill its first level gives; `chosen` is the skill the focus's own choice names.
       skill:
         type: enum
+        open: true
         default: none
         values:
           [
