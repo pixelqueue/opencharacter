@@ -1,0 +1,17 @@
+# The breath's damage type, read from the picked lineage wherever it came from.
+fields:
+  breath: { type: string, formula: "itemField(lineage, 'damageType', 'none')" }
+  lineage:
+    type: string
+    formula: "size(picksOf('species.drake', 'lineage')) > 0 ? picksOf('species.drake', 'lineage')[0] : ''"
+  scales: { type: integer, formula: 0 }
+  souls: { type: integer, formula: 0 }
+
+tags: [chromatic, metallic]
+
+contentTypes:
+  lineage:
+    fields:
+      damageType: { type: enum, values: [fire, cold, acid] }
+  species: {}
+  feat: {}

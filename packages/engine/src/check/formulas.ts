@@ -1631,6 +1631,49 @@ class FormulaChecker<L> {
     visit(tree.value);
   }
 
+  /**
+   * `itemField(id, name)` names an item field some content type the pack sees (or the template
+   * fields) declares; a literal ID names content the pack sees, whose type declares it.
+   */
+  private contentItems(formula: Formula, at: L, where: string): void {
+    const tree = formulaTree(formula);
+    if (!tree.ok) return;
+    const problem = (message: string) =>
+      this.problems.push({ at, where, formula, code: 'unknown-reference', message });
+    const declares = (type: string | undefined, name: string, scope: string[]) => {
+      if (type !== undefined && type !== 'template')
+        return this.set.contentType(type, scope)?.def.fields?.[name] !== undefined;
+      return (
+        this.set.templateFields(scope).has(name) ||
+        scope.some((pid) =>
+          [...(this.set.rules.get(pid)?.contentTypes.values() ?? [])].some(
+            (t) => t.def.fields?.[name] !== undefined,
+          ),
+        )
+      );
+    };
+    const visit = (node: Node): void => {
+      if (node.type === 'call' && (node.fn === 'itemField' || node.fn === 'itemTags')) {
+        const [id, name] = node.args;
+        const entry = id?.type === 'string' ? this.set.item(id.value, this.scope) : undefined;
+        if (id?.type === 'string' && !entry)
+          problem(`${node.fn}('${id.value}', …) names no content visible from the pack`);
+        if (node.fn === 'itemField' && name?.type === 'string') {
+          const type = entry ? this.set.typeOf(entry) : undefined;
+          const scope = entry ? this.set.scope(entry.pack) : this.scope;
+          if (!declares(type, name.value, scope))
+            problem(
+              entry
+                ? `itemField('${entry.qid}', '${name.value}'): its content type declares no item field "${name.value}"`
+                : `itemField(…, '${name.value}'): no content type declares an item field "${name.value}"`,
+            );
+        }
+      }
+      for (const child of children(node)) visit(child);
+    };
+    visit(tree.value);
+  }
+
   private showWhen(formula: Formula | undefined, at: L, where: string): void {
     if (formula === undefined) return;
     this.choicesBound = true;
@@ -1725,6 +1768,7 @@ class FormulaChecker<L> {
     if (!problem) {
       if (context.picks) this.ownerPicks(formula, at, where);
       this.contentChoices(formula, at, where);
+      this.contentItems(formula, at, where);
       return;
     }
     const hint =

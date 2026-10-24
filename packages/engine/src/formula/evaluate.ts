@@ -50,6 +50,13 @@ export interface CharacterQueries {
    * preset picks, else the saved ones. Unbound during activation.
    */
   contentPicks?(content: string, choice: string): readonly (string | number)[];
+  /**
+   * A content item as merged at load, by qualified ID: its tags and item field values (its
+   * content type's defaults included), as `item` reads them; undefined for no such content.
+   */
+  contentItem?(
+    id: string,
+  ): { tags: readonly string[]; fields: Record<string, unknown> } | undefined;
   /** Whether a listed choice draws from the content type; bound only in display hints. */
   hasChoice?(type: string): boolean;
 }
@@ -470,6 +477,32 @@ function call(fn: string, args: Node[], ctx: EvalContext): Value {
       if (!Object.hasOwn(owner, name.value))
         return fail('no-such-key', `the owner has no choice "${name.value}"`, { key: name.value });
       return fromData(owner[name.value]);
+    }
+    case 'itemField':
+    case 'itemTags': {
+      const contentItem = ctx.character?.contentItem;
+      if (!contentItem)
+        return fail('unknown-function', `${fn}() is bound only where a character is`, {
+          function: fn,
+        });
+      const tags = fn === 'itemTags';
+      if (tags) arity(fn, args, 1);
+      else arity(fn, args, 2, 3);
+      const id = stringArg(fn, evaluateTree(args[0] as Node, ctx));
+      const name = tags ? undefined : args[1];
+      if (name !== undefined && name.type !== 'string')
+        return fail('type-mismatch', 'itemField() takes an item field name');
+      const item = contentItem(ctx.id?.(id) ?? id);
+      if (tags) {
+        if (!item) return fail('no-such-key', `no content has the ID "${id}"`, { key: id });
+        return fromData(item.tags);
+      }
+      const key = (name as { value: string }).value;
+      if (item && Object.hasOwn(item.fields, key)) return fromData(item.fields[key]);
+      if (args[2]) return evaluateTree(args[2], ctx);
+      return item
+        ? fail('no-such-key', `"${id}" has no item field "${key}"`, { key })
+        : fail('no-such-key', `no content has the ID "${id}"`, { key: id });
     }
     case 'grantedPicksOf': {
       const granted = ctx.roots[OWNER_GRANTED] as

@@ -420,6 +420,8 @@ define functions.
 | `picksOf`                             | (string choice) → list                      | The saved picks of a choice of the formula's owner: content IDs or values, in saved order. The ID is a string literal. Bound where a formula has an owner; [below](#picks-of-the-owners-choices)                                                                                                                                                                                      |
 | `picksOf`                             | (string content, string choice) → list      | The picks of a content's choice on every activation of it, in activation order. String literals. Bound where a character is, but activation conditions; [below](#picks-of-other-content)                                                                                                                                                                                              |
 | `grantedPicksOf`                      | (string content, string choice) → list      | The saved picks of a choice of content the formula's owner grants. String literals. Bound where `picksOf(choice)` is; [below](#picks-of-other-content)                                                                                                                                                                                                                                |
+| `itemField`                           | (string id, string name, default?) → any    | An item field of content by ID, as merged at load; `default` when it has none. Bound where a character is; [below](#fields-and-tags-of-content-by-id)                                                                                                                                                                                                                                 |
+| `itemTags`                            | (string id) → list<string>                  | The tags of content by ID, as merged at load. Bound where `itemField` is; [below](#fields-and-tags-of-content-by-id)                                                                                                                                                                                                                                                                  |
 | `countEquipped`                       | (string type) → int                         | **Deprecated:** `countCopies(copy.type == type && copy.equipped)`. The character's equipped copies of a content type                                                                                                                                                                                                                                                                  |
 | `countState`                          | (string key) → int                          | **Deprecated:** `countCopies(has(copy.state.<key>) && copy.state.<key>)`. The copies whose per-copy state `key` is `true`                                                                                                                                                                                                                                                             |
 | `sumState`                            | (string type, string key) → int             | **Deprecated:** `sumCopies(copy.state.<key>, copy.type == type && has(copy.state.<key>))`. Sum of an integer state key over the copies of a type                                                                                                                                                                                                                                      |
@@ -546,6 +548,37 @@ grants:
 - **The IDs** are string literals (`type-mismatch` otherwise). The content resolves in the
   formula's pack, as an ID literal does. At load, content the pack doesn't see, or a choice key
   (a choice ID, or a slot's `<id>-<slot>`) it doesn't declare, is `unknown-reference`.
+
+### Fields and tags of content by ID
+
+A pick, a field's value or a literal names content by ID; two functions read that content:
+
+```yaml
+# Dragonborn breath: the picked lineage's damage type, with no field mirroring it.
+tags: [{ formula: "'damage.' + itemField(picksOf('lineage')[0], 'damageType')" }]
+# A grant's when: Fire Soul for a fire lineage.
+when: "size(picksOf('lineage')) > 0 && itemField(picksOf('lineage')[0], 'damageType') == 'fire'"
+# A crew's upgrades, listed on its crew type.
+showWhen: "@upgrades.hardened in itemField(crewType.id, 'upgrades', [])"
+```
+
+- **`itemField(id, name)`** is the item field `name` of the content with that ID, as the item
+  is merged at load (`extends` and overrides, its content type's defaults), read as
+  `item.<name>` reads it (a formula field over input fields). A copy's templates and own values
+  aren't in it: the content, not a copy. **`itemField(id, name, default)`** gives `default` when
+  the content doesn't have the field, or the ID names no content; without one, either is
+  `no-such-key`. The type is `dyn`, or the default's.
+- **`itemTags(id)`** is the content's tags, as merged at load; an ID naming no content is
+  `no-such-key`.
+- **The ID** is any string, resolved in the formula's pack as an ID literal is (a pick is
+  qualified already). `name` is a string literal (`type-mismatch` otherwise). At load, a name no
+  content type the pack sees declares (nor a template field), a literal ID naming no content
+  the pack sees, or a literal ID whose content type doesn't declare the name, is
+  `unknown-reference`.
+- **Bound** wherever a character is, activation conditions included: content is fixed at load
+  and its formula fields read input fields only, so it adds no dependency on what activation
+  decides. Not in item field values, state defaults or queries resolved at load
+  (`unknown-function`); a query `where` calling it reads the character.
 
 The deprecated functions keep working in this spec version. Each is the `countCopies` or
 `sumCopies` call shown, which official packs use instead. A later major version may remove them.

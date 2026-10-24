@@ -306,7 +306,7 @@ immunity's `when` and query `where`. What activation decides (`countGrants`,
 evaluated before any field is computed, so they may read only `self`, `item`, `character` (its
 `applied` list included, which is raw), `entry` in an immunity's query, the character functions,
 the owner's saved picks (`picksOf(choice)`, `grantedPicksOf`) and saved picks
-(`countPicks`), and the raw values of **input fields** (saved value, or default). Effects
+(`countPicks`), content by ID (`itemField`, `itemTags`), and the raw values of **input fields** (saved value, or default). Effects
 are not applied to those values. A condition that reads a derived field is rejected by the build
 (`type-mismatch`). **PROVISIONAL.** This keeps activation free of loops: a class grants features
 by `self.level`, never by a computed field.

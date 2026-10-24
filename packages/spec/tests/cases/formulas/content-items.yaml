@@ -1,0 +1,66 @@
+description: "itemField(id, name) and itemTags(id): a content item's field and tags by its ID, as merged at load"
+specVersion: 0.2.0
+cases:
+  # `character.content` gives each content item's `tags` and `fields` by ID.
+  - name: a picked item's field
+    evaluate: itemField(id, 'damageType')
+    roots: { id: lineages.red }
+    character: { content: { lineages.red: { fields: { damageType: fire } } } }
+    value: fire
+    valueType: string
+  - name: a list field keeps its members
+    evaluate: itemField('crews.bravos', 'upgrades')
+    character: { content: { crews.bravos: { fields: { upgrades: [armor, mastery] } } } }
+    value: [armor, mastery]
+    valueType: list
+  - name: the default, when the item lacks the field
+    evaluate: itemField('lineages.red', 'breath', 'none')
+    character: { content: { lineages.red: { fields: { damageType: fire } } } }
+    value: none
+    valueType: string
+  - name: the default, when no content has the ID
+    evaluate: itemField('', 'damageType', 'none')
+    character: { content: {} }
+    value: none
+    valueType: string
+  - name: no such field, without a default
+    evaluate: itemField('lineages.red', 'breath')
+    character: { content: { lineages.red: { fields: {} } } }
+    error: no-such-key
+  - name: no such content, without a default
+    evaluate: itemField('lineages.none', 'damageType')
+    character: { content: {} }
+    error: no-such-key
+  - name: an item's tags
+    evaluate: "'dragon' in itemTags('lineages.red')"
+    character: { content: { lineages.red: { tags: [dragon, chromatic] } } }
+    value: true
+    valueType: bool
+  - name: tags of no content
+    evaluate: itemTags('lineages.none')
+    character: { content: {} }
+    error: no-such-key
+  # Checking.
+  - name: bound in activation conditions
+    check: itemField(id, 'damageType') == 'fire'
+    roots: [id]
+    activation: true
+    type: bool
+  - name: the default gives the type
+    check: itemField(id, 'speed', 0) + 1
+    roots: [id]
+    type: int
+  - name: not bound without a character
+    check: itemTags('lineages.red')
+    character: false
+    error: unknown-function
+  - name: the field name is a string literal
+    check: itemField('lineages.red', name)
+    roots: [name]
+    error: type-mismatch
+  - name: the ID is a string
+    check: itemTags(1)
+    error: type-mismatch
+  - name: two or three arguments
+    check: itemField('lineages.red')
+    error: wrong-arity
