@@ -6,4 +6,6 @@ effects:
     value: { kind: disadvantage }
     scope: applied
     then:
-      - { type: removeEffect, entry: self }
+      when: applied
+      changes:
+        - { type: removeEffect, entry: self }

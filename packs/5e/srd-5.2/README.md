@@ -119,8 +119,8 @@ Where the SRD is unclear or silent, the pack reads it this way:
 - **Prone targets:** "within 5 feet" is read as a melee attack, beyond it as a ranged one; a
   Paralyzed or Unconscious target's automatic Critical Hits likewise.
 - **Weapon mastery** is offered after the attack roll (recommended). Sap ends with the target's
-  next attack roll it gives Disadvantage (one where Advantage cancels it leaves it), Vex with the
-  attacker's next attack against that target, and two Slows don't stack; their other timing is
+  next attack roll (one where Advantage cancels its Disadvantage included), Vex with the
+  attacker's next attack roll against that target, and two Slows don't stack; their other timing is
   the app's. Push and Cleave are reported in the outcome (`push`,
   `cleave`) for the app to resolve; Cleave's attack runs the weapon's attack with `cleave` set.
 - **Grapple and Shove:** the target saves with the better of Strength and Dexterity (its
