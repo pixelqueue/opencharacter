@@ -6,6 +6,7 @@ fields:
   oracle.cursebound: { type: integer, input: true, default: 0, min: 0, max: oracle.curseMax }
   oracle.curseMax: { type: integer, formula: 'level >= 17 ? 4 : level >= 11 ? 3 : 2' }
   oracle.granted: { type: set, of: spell }
+  oracle.domains: { type: set, of: domain }
   oracle.revelations: { type: set, of: spell }
   oracle.grantedFeats: { type: set, of: feat }
 
@@ -48,5 +49,6 @@ display:
       with: [{ field: oracle.curseMax, as: max }]
     oracle.curseMax: { groups: [spellcasting], priority: 2, showWhen: "oracle.mystery != 'none'" }
     oracle.granted: { hidden: true }
+    oracle.domains: { hidden: true }
     oracle.revelations: { hidden: true }
     oracle.grantedFeats: { hidden: true }

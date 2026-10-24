@@ -75,6 +75,24 @@ reading is listed under [Rule readings](#rule-readings).
   GM Core's relics and vehicles, the setting's proper nouns, and anything from the pre-Remaster
   (OGL) books, such as Ancestry Paragon and dual-class characters; GM Core's level 0 characters.
 
+## Add-on packs
+
+A pack that depends on `orc-2e` can add to what it offers:
+
+- **Subclasses:** a feature whose `classOption` names a class's choice (`barbarian.instinct`,
+  `bard.muse`, `cleric.doctrine`, `wizard.school`, …) joins that choice, and Champion's Reaction
+  for causes.
+- **Domains:** a `domain` item joins Domain Initiate and Domain Acumen (an advanced one, with
+  `advanced: true`, Advanced Domain); an initial domain spell names its domain in its `domain`
+  field for Deity's Domain; a mystery grants its domains into `oracle.domains`.
+- **Gear:** tags, not IDs, mark Force Open's crowbar (`tool.crowbar`), Sense Direction's compass
+  (`tool.compass`) and shields against spells (`shield.against-spells`).
+- **Archetypes:** a new archetype declares its own `archetypes.<name>.feats` field tagged
+  `archetype-feats`; a feat for an existing archetype adds 1 to that archetype's field.
+- **Not yet:** the identity enums (`barbarian.instinct`, `bard.muse`, `oracle.mystery`, …, which
+  feats' prerequisites and the dedications' value choices read), weapon and armor groups and
+  damage types wait for open enums; the skill and Lore lists are written out.
+
 ## License
 
 - **License:** the ORC License. Its four notices (Article III) are in the manifest, which apps

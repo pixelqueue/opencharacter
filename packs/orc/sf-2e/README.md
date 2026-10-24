@@ -84,6 +84,14 @@ offer fantasy content. The format can hide a dependency's content only item by i
 would still be in the ruleset. Where the two books print the same rule or item, this pack's
 copy has the same shape as `orc-2e`'s, and the same text where the wording matches.
 
+## Add-on packs
+
+A pack that depends on `orc-sf-2e` can add a feature whose `classOption` names a class's choice
+(`envoy.leadership-style`, `mystic.connection`, `soldier.fighting-style`, `witchwarper.paradox`,
+`witchwarper.anchor`), which then joins it, and gear tagged `tool.compass` counts for Sense
+Direction. The identity enums (`mystic.connection`, …), weapon groups and damage types wait for
+open enums; the skill lists and the operative's specializations (inline options) are written out.
+
 ## License
 
 - **License:** the ORC License. Its four notices (Article III) are in the manifest, which apps
