@@ -1450,7 +1450,7 @@ export class Sheet {
     if (typeof grant.item === 'string') return this.ruleset.content[grant.item];
     let id: string;
     try {
-      const value = this.evaluateInput(grant.item.formula, pack, roots);
+      const value = this.evaluateActivation(grant.item.formula, pack, roots);
       if (value.kind !== 'string')
         throw new Failure({ code: 'type-mismatch', message: 'a grant item formula is a string' });
       id = value.value;
@@ -1491,7 +1491,7 @@ export class Sheet {
     };
     for (const [key, formula] of Object.entries(grant.state ?? {})) {
       try {
-        const value = this.evaluateInput(formula, pack, roots);
+        const value = this.evaluateActivation(formula, pack, roots);
         self[key] =
           value.kind === 'decimal' || value.kind === 'dice' ? f.wrapValue(value) : f.toData(value);
         defaults[key] = f.toData(value) as Literal;
@@ -1533,7 +1533,7 @@ export class Sheet {
         if (typeof pick.option !== 'object') option = pick.option;
         else {
           try {
-            const value = this.evaluateInput(pick.option.formula, pack, roots);
+            const value = this.evaluateActivation(pick.option.formula, pack, roots);
             if (value.kind !== 'string' && value.kind !== 'int' && value.kind !== 'decimal')
               throw new Failure({
                 code: 'type-mismatch',
