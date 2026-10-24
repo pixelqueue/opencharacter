@@ -45,9 +45,9 @@ const loaded = loadRuleset([morkBorg]);
 if (!loaded.ok) throw new Error(JSON.stringify(loaded.errors));
 
 const scvm: CharacterFile = {
-  specVersion: '0.2.0',
+  specVersion: '0.3.0',
   id: 'scvm',
-  packs: [{ id: 'mork-borg-core', version: '0.1.1' }],
+  packs: [{ id: 'mork-borg-core', version: '0.2.0' }],
   values: { 'mork-borg-core:abilities.strength': 1 },
   features: [{ id: 'class', item: 'mork-borg-core:classes.fanged-deserter' }],
 };

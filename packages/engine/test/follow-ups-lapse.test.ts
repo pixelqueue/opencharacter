@@ -16,7 +16,7 @@ const ruleset = loaded.ruleset;
 const start: CharacterDoc = {
   specVersion: '0.1.0',
   id: 'test',
-  packs: [{ id: 'mork-borg-core', version: '0.1.1' }],
+  packs: [{ id: 'mork-borg-core', version: '0.2.0' }],
   values: { 'mork-borg-core:hp.max': 8, 'mork-borg-core:hp.current': 1 },
 } as CharacterDoc;
 

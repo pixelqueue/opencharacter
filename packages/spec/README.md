@@ -5,7 +5,7 @@ the written spec, JSON Schemas, fixed sets, standard text and the shared conform
 It is for anyone implementing OCF: engine ports in other languages, validators, and apps that
 check pack or character files. It is language-neutral; the TypeScript helpers are a convenience.
 
-Spec version **0.2.0**.
+Spec version **0.3.0**.
 
 ## Install
 
@@ -23,11 +23,11 @@ import { loadSchemas } from '@opencharacter/spec/node';
 
 const ajv = new Ajv2020({ strict: false });
 for (const schema of loadSchemas().values()) ajv.addSchema(schema);
-const validate = ajv.getSchema('https://opencharacterformat.org/schemas/0.2/character.schema.json');
+const validate = ajv.getSchema('https://opencharacterformat.org/schemas/0.3/character.schema.json');
 const character = {
-  specVersion: '0.2.0',
+  specVersion: '0.3.0',
   id: 'x',
-  packs: [{ id: '5e-srd-5.1', version: '0.2.0' }],
+  packs: [{ id: '5e-srd-5.1', version: '0.3.0' }],
 };
 console.log(validate?.(character), validate?.errors); // true null
 ```
@@ -44,7 +44,7 @@ console.log(validate?.(character), validate?.errors); // true null
 | `@opencharacter/spec`                        | `SPEC_VERSION`, `SCHEMA_BASE` and the TypeScript types generated from the schemas (`CharacterFile`, …).                                                |
 | `@opencharacter/spec/node`                   | Node.js helpers: `loadSchemas`, `loadFixedSet`, `fixedSetIds` and the package's `paths`.                                                               |
 
-The schemas' `$id`s are under `https://opencharacterformat.org/schemas/0.2/`, where the website
+The schemas' `$id`s are under `https://opencharacterformat.org/schemas/0.3/`, where the website
 serves them too. The [guides](https://opencharacterformat.org/guides/) show how an app uses OCF;
 [`@opencharacter/engine`](https://www.npmjs.com/package/@opencharacter/engine) is the reference
 engine.

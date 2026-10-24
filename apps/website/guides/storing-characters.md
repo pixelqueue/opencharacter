@@ -7,10 +7,10 @@ you; this page covers what has to survive the trip.
 ## What's in a character file
 
 ```yaml
-specVersion: 0.2.0
+specVersion: 0.3.0
 id: 7d1c2f4e-5b0a-4c39-9a51-2f7e8a6b3c10
 packs: # exact pack versions, in load order
-  - { id: 5e-srd-5.1, version: 0.2.0 }
+  - { id: 5e-srd-5.1, version: 0.3.0 }
 values: # input fields, by qualified field ID
   5e-srd-5.1:abilities.str.base: 16
   5e-srd-5.1:hp.current: 37
@@ -114,7 +114,7 @@ character stays self-contained when it moves to another app or to the GM:
 
 ```yaml
 packs:
-  - { id: mothership-1e, version: 0.1.1 }
+  - { id: mothership-1e, version: 0.2.0 }
 homebrew:
   defaultLanguage: en
   content:
@@ -189,7 +189,7 @@ Anything that round-trips the file is fine:
 
 Whatever you choose, validate imported files against
 [character.schema.json](../../../packages/spec/schemas/character.schema.json) (the schemas are
-published with the spec package and at `schemas/0.2/` on this site). Then compute the sheet:
+published with the spec package and at `schemas/0.3/` on this site). Then compute the sheet:
 `computeSheet` never fails, and it lists anything in the file that doesn't resolve (an unknown
 item, a value for a field that no longer exists) in `errors`, computing the rest.
 
@@ -201,11 +201,11 @@ pin: one character, a roster, or linked characters (a crew and its scoundrels, a
 file ([Characters](../../../packages/spec/docs/characters.md#exports)):
 
 ```yaml
-specVersion: 0.2.0
+specVersion: 0.3.0
 characters: [...] # whole character files
 packs:
   # A reference: the receiving app supplies it.
-  - { id: mork-borg-core, version: 0.1.1 }
+  - { id: mork-borg-core, version: 0.2.0 }
   - release: { manifest: { ... }, rules: { ... }, content: [...] } # embedded
     integrity: sha256-…
 ```

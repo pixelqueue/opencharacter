@@ -1,5 +1,59 @@
 # @opencharacter/web-editor
 
+## 0.1.3
+
+### Patch Changes
+
+- Updated dependencies [a26226f]
+- Updated dependencies [033d16d]
+- Updated dependencies [033d16d]
+- Updated dependencies [033d16d]
+- Updated dependencies [033d16d]
+- Updated dependencies [033d16d]
+- Updated dependencies [033d16d]
+- Updated dependencies [033d16d]
+- Updated dependencies [033d16d]
+- Updated dependencies [033d16d]
+- Updated dependencies [033d16d]
+- Updated dependencies [a26226f]
+- Updated dependencies [a26226f]
+- Updated dependencies [a26226f]
+- Updated dependencies [033d16d]
+- Updated dependencies [033d16d]
+- Updated dependencies [a26226f]
+- Updated dependencies [033d16d]
+- Updated dependencies [033d16d]
+- Updated dependencies [033d16d]
+- Updated dependencies [033d16d]
+- Updated dependencies [033d16d]
+- Updated dependencies [033d16d]
+- Updated dependencies [033d16d]
+- Updated dependencies [a26226f]
+- Updated dependencies [033d16d]
+- Updated dependencies [033d16d]
+- Updated dependencies [a26226f]
+- Updated dependencies [033d16d]
+- Updated dependencies [033d16d]
+- Updated dependencies [033d16d]
+- Updated dependencies [033d16d]
+- Updated dependencies [033d16d]
+- Updated dependencies [033d16d]
+- Updated dependencies [033d16d]
+- Updated dependencies [033d16d]
+- Updated dependencies [033d16d]
+- Updated dependencies [033d16d]
+- Updated dependencies [033d16d]
+- Updated dependencies [033d16d]
+- Updated dependencies [033d16d]
+- Updated dependencies [a26226f]
+- Updated dependencies [033d16d]
+- Updated dependencies [033d16d]
+- Updated dependencies [033d16d]
+- Updated dependencies [033d16d]
+- Updated dependencies [a26226f]
+- Updated dependencies [033d16d]
+  - @opencharacter/engine@0.3.0
+
 ## 0.1.2
 
 ### Patch Changes

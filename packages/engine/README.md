@@ -23,9 +23,9 @@ const loaded = loadRuleset([srd]);
 if (!loaded.ok) throw new Error(JSON.stringify(loaded.errors));
 
 const character: CharacterFile = {
-  specVersion: '0.2.0',
+  specVersion: '0.3.0',
   id: 'example',
-  packs: [{ id: '5e-srd-5.1', version: '0.2.0' }],
+  packs: [{ id: '5e-srd-5.1', version: '0.3.0' }],
   values: { '5e-srd-5.1:abilities.str.base': 16 },
 };
 

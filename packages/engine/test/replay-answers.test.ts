@@ -17,7 +17,7 @@ const ruleset = loaded.ruleset;
 const blank = {
   specVersion: '0.1.0',
   id: 'test',
-  packs: [{ id: 'mothership-1e', version: '0.1.1' }],
+  packs: [{ id: 'mothership-1e', version: '0.2.0' }],
   creating: true,
 };
 const input = {
