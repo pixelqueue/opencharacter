@@ -7,6 +7,19 @@ state:
 # passed and even when a class knows the spell. A spell no class knows is also in spells.limited, so
 # no slot is offered for it.
 effects:
+  - target: { steps: [rest.long] }
+    op: changes
+    when: self.hellishRebukeUsed || self.darknessUsed
+    value:
+      changes:
+        - {
+            type: setState,
+            grant: owner,
+            key: hellishRebukeUsed,
+            value: false,
+            when: self.hellishRebukeUsed,
+          }
+        - { type: setState, grant: owner, key: darknessUsed, value: false, when: self.darknessUsed }
   - { target: spellcasting.racial.mod, op: set, value: abilities.cha.mod }
   - { target: spellcasting.racial.dc, op: set, value: 8 + proficiency.bonus + abilities.cha.mod }
   - { target: spellcasting.racial.attack, op: set, value: proficiency.bonus + abilities.cha.mod }

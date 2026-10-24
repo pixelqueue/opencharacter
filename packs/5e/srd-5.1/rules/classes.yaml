@@ -63,6 +63,13 @@ fields:
 contentTypes:
   invocation:
     copies: { max: 0 }
+    # An invocation usable once per rest keeps `used` on its pick.
+    effects:
+      - target: { steps: [rest.long] }
+        op: changes
+        when: has(self.used) && self.used
+        value:
+          changes: [{ type: setState, pick: owner, key: used, value: false }]
 
   pactBoon:
     copies: { max: 0 }

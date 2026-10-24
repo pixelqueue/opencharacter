@@ -28,3 +28,9 @@ actions:
       - id: result
         kind: outcome
         result: "has(steps.save) && steps.save.result == 'failure' ? 'exhausted' : 'seeing'"
+effects:
+  - target: { steps: [rest.long] }
+    op: changes
+    when: self.used
+    value:
+      changes: [{ type: setState, entry: self, key: used, value: false }]

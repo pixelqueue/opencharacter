@@ -303,6 +303,12 @@ contentTypes:
       used: { type: boolean, default: false }
     actions:
       - use: breath-weapon
+    effects:
+      - target: { steps: [rest.short, rest.long] }
+        op: changes
+        when: self.used
+        value:
+          changes: [{ type: setState, pick: owner, key: used, value: false }]
 
   background:
     copies: { max: 1 }

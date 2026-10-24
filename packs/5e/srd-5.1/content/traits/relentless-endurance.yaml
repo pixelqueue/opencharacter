@@ -21,3 +21,9 @@ actions:
       - id: result
         kind: outcome
         result: "'endured'"
+effects:
+  - target: { steps: [rest.long] }
+    op: changes
+    when: self.used
+    value:
+      changes: [{ type: setState, grant: owner, key: used, value: false }]

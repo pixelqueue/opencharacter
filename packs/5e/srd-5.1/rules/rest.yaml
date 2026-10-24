@@ -86,6 +86,8 @@ actions:
     steps:
       - id: rest
         kind: changes
+        # Content resets its own uses here (`rest.long` changes effects).
+        tags: [rest.long]
         changes:
           - { type: set, field: hp.current, value: hp.max, when: rest.longRestHeals }
           - { type: set, field: hp.temp, value: 0 }
@@ -279,33 +281,6 @@ actions:
             key: wholenessUsed
             value: false
           - type: setState
-            when: >-
-              countGrants(grant.item == @traits.infernal-legacy && grant.state.hellishRebukeUsed) > 0
-            grants: { where: 'item.id == @traits.infernal-legacy && self.hellishRebukeUsed' }
-            key: hellishRebukeUsed
-            value: false
-          - type: setState
-            when: countGrants(grant.item == @traits.infernal-legacy && grant.state.darknessUsed) > 0
-            grants: { where: 'item.id == @traits.infernal-legacy && self.darknessUsed' }
-            key: darknessUsed
-            value: false
-          - type: setState
-            when: >-
-              countCopies(copy.item == @magic-items.ring-of-x-ray-vision
-                && copy.state.used) > 0
-            copies:
-              {
-                type: magicItem,
-                where: 'item.id == @magic-items.ring-of-x-ray-vision && self.used',
-              }
-            key: used
-            value: false
-          - type: setState
-            when: countGrants(grant.item == @traits.relentless-endurance && grant.state.used) > 0
-            grants: { where: 'item.id == @traits.relentless-endurance && self.used' }
-            key: used
-            value: false
-          - type: setState
             when: countCopies(has(copy.state.signatureSpell1Used) && copy.state.signatureSpell1Used) > 0
             copies:
               { type: class, where: has(self.signatureSpell1Used) && self.signatureSpell1Used }
@@ -316,19 +291,6 @@ actions:
             copies:
               { type: class, where: has(self.signatureSpell2Used) && self.signatureSpell2Used }
             key: signatureSpell2Used
-            value: false
-          - type: setState
-            when: >-
-              countPicks(pick.type == 'invocation' && has(pick.state.used) && pick.state.used) > 0
-            picks: { where: "item.type == 'invocation' && self.used" }
-            key: used
-            value: false
-          - type: setState
-            when: >-
-              countPicks(pick.type == 'draconicAncestry' && has(pick.state.used) && pick.state.used)
-                > 0
-            picks: { where: "item.type == 'draconicAncestry' && self.used" }
-            key: used
             value: false
           - type: setState
             when: countCopies(copy.type == 'monsterAction') > 0
