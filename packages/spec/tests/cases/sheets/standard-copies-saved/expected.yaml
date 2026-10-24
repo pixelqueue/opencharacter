@@ -12,3 +12,20 @@ actions:
   - { action: test-standard:gear.lantern#light, entry: lantern-2 }
   - { action: test-standard:gear.lantern#light, entry: test-standard-gear-lantern }
 errors: []
+# Standard copies, saved or not, are `standard`; the file's own entries for standard items aren't.
+activations:
+  - {
+      item: test-standard:traits.basic,
+      entry: test-standard-traits-basic,
+      via: copy,
+      standard: true,
+    }
+  - { item: test-standard:gear.rope, entry: test-standard-gear-rope, via: copy, standard: true }
+  - { item: test-standard:gear.torch, entry: torch, via: copy }
+  - { item: test-standard:gear.lantern, entry: lantern-2, via: copy }
+  - {
+      item: test-standard:gear.lantern,
+      entry: test-standard-gear-lantern,
+      via: copy,
+      standard: true,
+    }

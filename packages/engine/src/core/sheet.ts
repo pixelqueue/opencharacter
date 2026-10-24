@@ -167,6 +167,7 @@ export interface ListedActivation {
   item: string;
   entry?: string;
   via: 'copy' | 'template' | 'grant' | 'pick' | 'applied';
+  standard?: true;
   scope?: 'applied';
   parent?: number;
   keptBy?: number;
@@ -3299,6 +3300,7 @@ export class Sheet {
     const index = new Map(listed.map((a, i) => [a, i]));
     // A kept template's keeper: the first activation that keeps it on the copy.
     const keepers = new Map<string, Activation>();
+    const standard = new Set(this.standard.map((s) => s.entry));
     if (this.kept.size > 0)
       for (const k of this.keptWanted()) {
         const key = `${k.entry.id} ${k.kept.template}`;
@@ -3331,6 +3333,9 @@ export class Sheet {
         item: (a.item as LoadedItem).qid,
         ...(entry === undefined ? {} : { entry }),
         via,
+        ...(via === 'copy' && entry !== undefined && standard.has(entry)
+          ? { standard: true as const }
+          : {}),
         ...(a.scope === 'applied' ? { scope: 'applied' as const } : {}),
         ...(at === undefined ? {} : { parent: at }),
         ...(keptBy === undefined ? {} : { keptBy }),

@@ -31,7 +31,7 @@ this field exist, is 25 in range) is checked against the ruleset.
 | `set`            | Sets an input field                                                   | `{ type: 'set', field: '5e-srd-5.1:abilities.str.base', value: 16 }`                            |
 | `adjust`         | Adds to a numeric input field, through resistances                    | `{ type: 'adjust', field: '5e-srd-5.1:hp.current', by: -10, tags: ['damage.fire'] }`            |
 | `addItem`        | Adds a copy of content to `inventory` or `features`                   | `{ type: 'addItem', entry: { id: 'inv-6', item: '5e-srd-5.1:weapons.dagger' } }`                |
-| `removeItem`     | Removes a copy, with its picks                                        | `{ type: 'removeItem', entry: 'inv-6' }`                                                        |
+| `removeItem`     | Removes a copy, with its picks (not a standard copy)                  | `{ type: 'removeItem', entry: 'inv-6' }`                                                        |
 | `equip`          | Equips or unequips a copy                                             | `{ type: 'equip', entry: 'inv-4', equipped: true }`                                             |
 | `setState`       | Sets a per-copy state value                                           | `{ type: 'setState', entry: 'inv-2', key: 'ignited', value: true }`                             |
 | `adjustState`    | Adds to a numeric per-copy state value                                | `{ type: 'adjustState', entry: 'fighter', key: 'level', by: 1 }`                                |
