@@ -757,3 +757,33 @@ describe('values named by the content an action runs for', () => {
     expect(worded.options).toEqual([{ id: 'str', label: 'Disadvantage with Strength' }]);
   });
 });
+
+describe('values an add-on adds to open enums', () => {
+  const text = createText({
+    languages: ['en'],
+    packs: {
+      en: {
+        core: { 'types.weapon.fields.damageType.values.blunt.name': 'Blunt' },
+        addon: {
+          'types.weapon.fields.damageType.values.sonic.name': 'Sonic',
+          'types.weapon.state.edge.values.humming.name': 'Humming',
+          'fields.stance.values.floating.name': 'Floating',
+        },
+      },
+    },
+    spec: {},
+    enumOrigins: {
+      'core:types.weapon.fields.damageType': { sonic: 'addon' },
+      'core:types.weapon.state.edge': { humming: 'addon' },
+      'core:fields.stance': { floating: 'addon' },
+    },
+  });
+
+  it("are named by the adding pack's text, under the enum's own key", () => {
+    expect(text.value('core:weapon', 'damageType', 'sonic')).toBe('Sonic');
+    expect(text.value('core:weapon', 'damageType', 'blunt')).toBe('Blunt');
+    expect(text.fieldValue('core:stance', 'floating')).toBe('Floating');
+    expect(text.stateValue('core:weapons.club', 'edge', 'humming', 'core:weapon')).toBe('Humming');
+    expect(text.fieldValue('core:stance', 'lofty')).toBe('lofty');
+  });
+});

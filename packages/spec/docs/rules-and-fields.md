@@ -206,6 +206,50 @@ fields:
   keeps `families` for `fieldOf`, `keysOf` and additions. An engine given an unexpanded pack
   (inline, homebrew) expands it before merging ([engine-core.md](engine-core.md#loadruleset)).
 
+### Open enums
+
+An enum is closed: its declaration lists every value. A declaration may mark it `open: true`, and
+then a pack that depends on the declaring one may add values, the way it adds values to a family.
+Open enums are a rules field's, and a content type's item fields and state keys; `open` elsewhere
+is a build error. An add-on pack lists its values in a rules document's `extendEnums`, keyed by
+the enum's address, qualified with the declaring pack:
+
+| Address                              | The enum                    |
+| ------------------------------------ | --------------------------- |
+| `<pack>:fields.<field>`              | a rules field's             |
+| `<pack>:types.<type>.fields.<field>` | a content type's item field |
+| `<pack>:types.<type>.state.<key>`    | a content type's state key  |
+
+```yaml
+# orc-2e, rules/strikes.yaml: the core marks the damage type open
+contentTypes:
+  weapon:
+    fields:
+      damageType: { type: enum, values: [bludgeoning, piercing, slashing, fire], open: true }
+
+# an add-on pack depending on orc-2e, rules/weapons.yaml
+extendEnums:
+  'orc-2e:types.weapon.fields.damageType': [sonic]
+# its i18n/en.yaml
+types.weapon.fields.damageType.values.sonic.name: Sonic
+```
+
+- **Merged list.** With both packs loaded, the enum's values are its own, then each loaded pack's
+  additions in load order, each once (two add-ons may add the same value). Everything that reads
+  the enum sees the merged list: item fields at load (`invalid-item-field`), a template's
+  `{ formula }` value, saved input values and state, and changes. `pnpm validate` checks each
+  pack's content against the enum as the pack's dependencies and its own additions leave it, so
+  the add-on's content may use its values and the core's, or another add-on's, may not.
+- **Text.** The adding pack names each value it adds, under the key the declaring pack would use
+  (`types.weapon.fields.damageType.values.sonic.name`), required as the declaring pack's are: a
+  field's unless it's hidden, a state key's, not an item field's. The ruleset's `enumOrigins` maps
+  each added value to its pack, so an app (and the wording helper) looks the name up there.
+- **Errors.** An address whose pack isn't one of the adding pack's dependencies, that names no
+  enum, or an enum that isn't open, is `invalid-extension` (data: `pack`, `target`, `message`).
+- **Releases.** Marking an enum open is not a breaking change; closing one again is an interface
+  change (`enum-closed`), and so is an add-on dropping a value it added (`extension-removed`), see
+  [upgrades.md](upgrades.md#a-packs-interface).
+
 ## Tags
 
 The rules declare every tag the pack uses, in `tags`. That covers tags on content and fields, roll and change tags, effect targets, and members of `tag` sets such as proficiencies:

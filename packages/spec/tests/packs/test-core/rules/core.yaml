@@ -1,5 +1,17 @@
+fields:
+  # Open: an add-on may add stances.
+  stance: { type: enum, values: [low, high], input: true, default: low, open: true }
+
 contentTypes:
   class: {}
+  weapon:
+    carried: true
+    fields:
+      damageType: { type: enum, values: [blunt, edged], required: true, open: true }
+      # Closed: no pack may add to it.
+      reach: { type: enum, values: [close, far], default: close }
+    state:
+      edge: { type: enum, values: [keen, dull], default: keen, open: true }
 
 choices:
   - id: class
@@ -7,6 +19,7 @@ choices:
 
 actions:
   - id: pick-class
+    results: [picked]
     params:
       random: { type: boolean, optional: true }
     steps:
@@ -17,4 +30,5 @@ actions:
         recommend: options[0]
       - id: done
         kind: outcome
+        result: "'picked'"
         data: { class: steps.class.picked }

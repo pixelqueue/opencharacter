@@ -92,9 +92,12 @@ changes**:
 | An enum item field loses values                                               | `item-field-values-removed` | `<pack>:<type>/<field>` |
 | A tag the pack's rules declare is no longer declared                          | `tag-removed`               | `<pack>:<tag>`          |
 | A rules action is removed                                                     | `action-removed`            | `<pack>:<action>`       |
+| An open enum stops being open (packs that add to it no longer load)           | `enum-closed`               | `<pack>:<enum address>` |
+| A value or option the pack adds to a dependency's enum or choice is gone      | `extension-removed`         | `<target>/<value>`      |
 
 `checkRelease` lists them in `changes` after the shape changes, in this table's order, then by
-ID. Each needs a breaking bump, but no upgrade script: no step can migrate a removed tag, and a
+ID. An `extension-removed` ID names the dependency's enum or choice as the extension's key does
+(`orc-2e:types.weapon.fields.damageType/sonic`), not the pack itself. Each needs a breaking bump, but no upgrade script: no step can migrate a removed tag, and a
 character's homebrew that uses one is reported by `upgrade`. A step that renames the thing
 (`renameField`, `renameContentType`, `renameItemField`, `mapItemValues`, `renameTag`,
 `renameAction`) migrates homebrew that uses it.

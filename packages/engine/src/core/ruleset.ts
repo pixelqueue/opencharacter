@@ -126,6 +126,8 @@ export interface Ruleset {
   families: Record<string, string[]>;
   /** By qualified family: the pack each added value comes from, whose fields `fieldOf` reads. */
   familyOrigins: Record<string, Record<string, string>>;
+  /** By `<pack>:<enum>` address: the pack each added value comes from, whose text names it. */
+  enumOrigins: Record<string, Record<string, string>>;
   conflicts: Conflict[];
   /** The releases loaded, so a character's homebrew can be layered wherever the ruleset is sent. */
   sources: PackRelease[];

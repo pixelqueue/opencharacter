@@ -25,6 +25,11 @@ Input: pack releases in load order (later packs win). Output: a ruleset, or erro
      constraints are keyed by qualified ID (`pack:id`), so packs never collide. Content type names
      are qualified too, and a type name resolves like any reference.
    - Tags are the union of all packs' tags.
+   - **Open enums:** each pack's `extendEnums` values are appended to the enum it names, in
+     load order, each once, before anything reads the declarations; the ruleset's `enumOrigins`
+     maps each added value to its pack. A pack that isn't a dependency of the adding one, an
+     address naming no enum, or one not `open`, is `invalid-extension` (data: `pack`, `target`,
+     `message`) ([rules-and-fields.md](rules-and-fields.md#open-enums)).
    - Settings merge key by key; a later pack overrides an earlier one, and the override is
      reported in `conflicts`.
    - Display groups and field hints from later packs override earlier ones with the same ID.
@@ -63,7 +68,7 @@ Input: pack releases in load order (later packs win). Output: a ruleset, or erro
    - **Item fields:** each item's own `fields` (an override's too) must be declared by its
      content type and have the declared shape: no list for an `integer`, `decimal`, `boolean` or
      `dice` field (a string there is a formula, checked in step 5), a string for a `string` or
-     `id` field, one of the values for an `enum`, a list for a `set`. After `extends`, every
+     `id` field, one of the values for an `enum` (an open enum's merged list), a list for a `set`. After `extends`, every
      `required` field must have a value. Otherwise `invalid-item-field` (data: `item`, `field`,
      `reason`: `missing`, `undeclared` or `wrong-type`, `pack`; `path`:
      `/packs/<i>/content/<j>/fields/<field>`). Templates' fields are checked by the build only.

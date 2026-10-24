@@ -1,0 +1,39 @@
+description: "An add-on that stops adding a value to its dependency's open enum makes an interface change, named by the enum it added to; a patch bump is too small"
+specVersion: 0.2.0
+call: checkRelease
+previous:
+  inline:
+    manifest:
+      {
+        id: addon-pack,
+        version: 0.1.0,
+        specVersion: 0.2.0,
+        license: CC0-1.0,
+        defaultLanguage: en,
+        dependencies: { test-core: ^0.1.0 },
+      }
+    rules:
+      extendEnums:
+        'test-core:types.weapon.fields.damageType': [sonic, acid]
+        'test-core:fields.stance': [floating]
+    content: []
+next:
+  inline:
+    manifest:
+      {
+        id: addon-pack,
+        version: 0.1.1,
+        specVersion: 0.2.0,
+        license: CC0-1.0,
+        defaultLanguage: en,
+        dependencies: { test-core: ^0.1.0 },
+      }
+    rules:
+      extendEnums:
+        'test-core:types.weapon.fields.damageType': [sonic]
+    content: []
+dependencies:
+  previous:
+    - path: ../../../packs/test-core
+  next:
+    - path: ../../../packs/test-core

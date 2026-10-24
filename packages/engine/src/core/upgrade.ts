@@ -725,7 +725,11 @@ export interface ShapeChange {
     | 'item-field-removed'
     | 'item-field-values-removed'
     | 'tag-removed'
-    | 'action-removed';
+    | 'action-removed'
+    // An open enum stops being open: dependents' additions no longer load.
+    | 'enum-closed'
+    // A value or option the pack added to a dependency's enum or choice is gone.
+    | 'extension-removed';
   id: string;
 }
 
@@ -920,6 +924,20 @@ export function checkRelease(
   const nextTags = new Set(next.rules.tags ?? []);
   for (const tag of new Set(previous.rules.tags ?? []))
     if (!nextTags.has(tag)) interfaceChanges.push({ kind: 'tag-removed', id: tag });
+  for (const [id, def] of Object.entries(prevFields) as [string, FieldDef][])
+    if (def.open === true && nextFields[id]?.open !== true)
+      interfaceChanges.push({ kind: 'enum-closed', id: `fields.${id}` });
+  for (const [name, def] of Object.entries(prevTypes))
+    for (const of of ['fields', 'state'] as const)
+      for (const [key, decl] of Object.entries(def[of] ?? {}) as [string, ValueDecl][])
+        if (decl.open === true && nextTypes[name]?.[of]?.[key]?.open !== true)
+          interfaceChanges.push({ kind: 'enum-closed', id: `types.${name}.${of}.${key}` });
+  for (const [target, values] of Object.entries(previous.rules.extendEnums ?? {})) {
+    const kept = new Set(next.rules.extendEnums?.[target] ?? []);
+    for (const value of values)
+      if (!kept.has(value))
+        interfaceChanges.push({ kind: 'extension-removed', id: `${target}/${value}` });
+  }
   const nextActions = new Set((next.rules.actions ?? []).map((a) => a.id));
   for (const action of previous.rules.actions ?? [])
     if (!nextActions.has(action.id))
@@ -963,6 +981,8 @@ export function checkRelease(
   const pack = next.manifest.id;
   const qualify = (change: ShapeChange): ShapeChange => {
     const id = change.id.startsWith('rules/') ? change.id.slice('rules/'.length) : change.id;
+    // A dependency's enum or choice an extension named is qualified already.
+    if (change.kind === 'extension-removed') return change;
     return { kind: change.kind, id: `${pack}:${id}` };
   };
   const order: ShapeChange['kind'][] = [
@@ -980,6 +1000,8 @@ export function checkRelease(
     'item-field-values-removed',
     'tag-removed',
     'action-removed',
+    'enum-closed',
+    'extension-removed',
   ];
   // A removed derived field is listed with the shape changes' `field-removed`.
   const out = [...changes, ...interfaceChanges]

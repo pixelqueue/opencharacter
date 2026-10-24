@@ -68,6 +68,7 @@ One-line definitions of OCF terms, consistent with the [specification](../../pac
 - **Monster / NPC:** a character file like any other, usually with mostly fixed values.
 - **Nested choice:** a choice inside an option, pending as soon as that option is picked.
 - **Overflow:** what happens when an adjust takes an input field past a bound: another field is adjusted and this one resets (FitD stress into trauma).
+- **Open enum:** an enum a rules field or content type marks `open: true`, to which packs depending on its pack add values (`extendEnums`), named in their own text; everything reads the merged list.
 - **Override:** a homebrew content file that changes only the properties it mentions on another pack's item.
 - **Pack:** a versioned bundle of rules and/or content with a manifest, license and translations.
 - **Pack release:** the single JSON document the build produces from a pack's files; the input to loadRuleset.

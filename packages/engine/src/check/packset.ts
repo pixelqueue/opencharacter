@@ -55,6 +55,8 @@ export interface MergedRules<L> {
   typeHints: Map<string, Located<TypeHints, L>>;
   /** Families as written: own ones by name, additions by qualified name. */
   families: Map<string, string[]>;
+  /** Values added to a dependency's open enums, by `<pack>:<enum>` address. */
+  extendEnums: Map<string, Located<string[], L>>;
 }
 
 export interface ContentEntry<L> {
@@ -131,12 +133,50 @@ export class PackSet<L> {
     return undefined;
   }
 
+  /** With the values the scope's packs add to its open enums. */
   field(ref: string, scope: string[]) {
-    return this.find(ref, scope, (r) => r.fields);
+    const hit = this.find(ref, scope, (r) => r.fields);
+    if (!hit || hit.def.type !== 'enum' || hit.def.open !== true) return hit;
+    const values = this.enumValues(
+      hit.def.values,
+      `${hit.pack}:fields.${hit.qid.slice(hit.pack.length + 1)}`,
+      scope,
+    );
+    return values ? { ...hit, def: { ...hit.def, values } } : hit;
   }
 
+  /** With the values the scope's packs add to its open enums. */
   contentType(name: string, scope: string[]) {
-    return this.find(name, scope, (r) => r.contentTypes);
+    const hit = this.find(name, scope, (r) => r.contentTypes);
+    if (!hit) return hit;
+    const local = hit.qid.slice(hit.pack.length + 1);
+    let def = hit.def;
+    for (const of of ['fields', 'state'] as const)
+      for (const [key, decl] of Object.entries(def[of] ?? {})) {
+        if (decl.type !== 'enum' || decl.open !== true) continue;
+        const values = this.enumValues(
+          decl.values,
+          `${hit.pack}:types.${local}.${of}.${key}`,
+          scope,
+        );
+        if (values) def = { ...def, [of]: { ...def[of], [key]: { ...decl, values } } };
+      }
+    return def === hit.def ? hit : { ...hit, def };
+  }
+
+  /** An open enum's values with each scoped pack's additions, farthest dependency first. */
+  private enumValues(
+    own: string[] | undefined,
+    target: string,
+    scope: string[],
+  ): string[] | undefined {
+    let out: string[] | undefined;
+    for (const pid of scope.toReversed())
+      for (const value of this.rules.get(pid)?.extendEnums.get(target)?.def ?? []) {
+        out ??= [...(own ?? [])];
+        if (!out.includes(value)) out.push(value);
+      }
+    return out;
   }
 
   action(ref: string, scope: string[]) {
@@ -244,6 +284,7 @@ function merge<L>(
     fieldHints: new Map(),
     typeHints: new Map(),
     families: new Map(),
+    extendEnums: new Map(),
   };
   const put = <T>(map: Map<string, Located<T, L>>, key: string, def: T, at: L, what: string) => {
     const existing = map.get(key);
@@ -256,6 +297,12 @@ function merge<L>(
   for (const { at, doc } of pack.rules) {
     for (const [name, values] of Object.entries(doc.families ?? {}))
       merged.families.set(name, values.map(String));
+    for (const [target, values] of Object.entries(doc.extendEnums ?? {}))
+      merged.extendEnums.set(target, {
+        def: [...(merged.extendEnums.get(target)?.def ?? []), ...values],
+        at: merged.extendEnums.get(target)?.at ?? at,
+        pack: pid,
+      });
     for (const tag of doc.tags ?? []) put(merged.tags, tag, tag, at, 'tag');
     for (const [id, def] of Object.entries(doc.fields ?? {}))
       put(merged.fields, id, def, at, 'field');

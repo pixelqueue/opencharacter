@@ -92,6 +92,31 @@ wins and the ruleset lists it in `ruleset.conflicts`
 Show conflicts to whoever chose the packs (a GM's campaign settings screen), not to players
 mid-session.
 
+### Add-on packs
+
+An add-on pack depends on a core pack and adds to it: monsters, weapons, spells, classes of the
+core's content types. Its manifest names the core in `dependencies`, and its content uses the
+core's types by name (`type: weapon`), so the core's processes (creation, starting gear, attacks,
+monster starts) offer it beside the core's own:
+
+- **Content order.** The engine lists content in load order, then each pack's file order, so the
+  core's content comes first in every option list and an automatic run's first pick stays the
+  core's, whatever the add-on is called.
+- **Open enums.** A core enum marked `open: true` (a weapon's damage type) takes values from
+  the packs that depend on it. The add-on lists them in its rules' `extendEnums`, keyed by the
+  enum's address, and names them in its own text under the enum's key:
+
+  ```yaml
+  # rules/weapons.yaml
+  extendEnums:
+    'orc-2e:types.weapon.fields.damageType': [sonic]
+  # i18n/en.yaml
+  types.weapon.fields.damageType.values.sonic.name: Sonic
+  ```
+
+  The ruleset's `enumOrigins` says which pack added each value; pass it to `createText`
+  ([Showing text](showing-text.md)) so added values get their names.
+
 ## Which packs a character uses
 
 A character file pins the **exact versions** of the packs it uses, in load order:

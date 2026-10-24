@@ -96,6 +96,16 @@
         }
       }
     },
+    "enumOrigins": {
+      "description": "Values packs add to other packs' open enums (`extendEnums`): by the enum's address (`<pack>:types.<type>.fields.<field>`, `<pack>:types.<type>.state.<key>`, `<pack>:fields.<field>`), each added value's pack, whose text names it under the key the enum's pack would use.",
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": {
+          "type": "string"
+        }
+      }
+    },
     "conflicts": {
       "description": "Overrides of the same property by two packs; the later pack won.",
       "type": "array",

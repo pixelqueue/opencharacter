@@ -219,7 +219,7 @@ export class PackChecker {
           `${where}: field IDs cannot start with the context root "${id.split('.')[0]}"`,
         );
       }
-      this.memberKind(def, file, where);
+      this.memberKind(def, file, where, true);
       if (def.members && def.default !== undefined)
         for (const tag of [def.default].flat())
           this.memberTag(String(tag), def, file, `${where} default`);
@@ -233,6 +233,9 @@ export class PackChecker {
         for (const value of def.values ?? [])
           (hidden ? this.optionalKeys : this.requiredKeys).add(`fields.${id}.values.${value}.name`);
     }
+
+    for (const [target, { def: values, at: file }] of rules.extendEnums)
+      this.enumExtension(target, values, file);
 
     this.calculationOrder();
 
@@ -299,7 +302,7 @@ export class PackChecker {
         this.optionalKeys.add(`types.${name}.fields.${field}.description`);
       }
       for (const decl of [...Object.values(def.fields ?? {}), ...Object.values(def.state ?? {})]) {
-        this.memberKind(decl, file, where);
+        this.memberKind(decl, file, where, true);
       }
       for (const [key, decl] of Object.entries(def.state ?? {}))
         if (decl.perCopy !== undefined)
@@ -1050,6 +1053,48 @@ export class PackChecker {
         );
   }
 
+  /**
+   * Values for a dependency's open enum: named in this pack's text by the key the enum's own pack
+   * would use, required as that pack's values are (an item field's are optional).
+   */
+  private enumExtension(target: string, values: string[], file: string): void {
+    const where = `extendEnums ${target}`;
+    const colon = target.indexOf(':');
+    const owner = target.slice(0, colon);
+    const address = target.slice(colon + 1);
+    if (owner === this.packId || !this.scope.includes(owner)) {
+      this.report.error(file, `${where}: invalid-extension: ${owner} is not a dependency`);
+      return;
+    }
+    // The enum as this pack's dependencies leave it: values one of them adds need no name here.
+    const scope = this.scope.slice(1);
+    const field = /^fields\.(.+)$/.exec(address);
+    const typed = /^types\.([^.]+)\.(fields|state)\.([^.]+)$/.exec(address);
+    let decl: ValueDecl | undefined;
+    let required = true;
+    if (field) {
+      const found = this.ruleset.field(`${owner}:${field[1]}`, scope);
+      decl = found?.def;
+      required = this.ruleset.rules.get(owner)?.fieldHints.get(field[1] ?? '')?.def.hidden !== true;
+    } else if (typed) {
+      const type = this.ruleset.contentType(`${owner}:${typed[1]}`, scope);
+      decl = type?.def[typed[2] as 'fields' | 'state']?.[typed[3] ?? ''];
+      required = typed[2] === 'state';
+    }
+    if (decl?.type !== 'enum') {
+      this.report.error(file, `${where}: invalid-extension: not an enum of ${owner}`);
+      return;
+    }
+    if (decl.open !== true) {
+      this.report.error(file, `${where}: invalid-extension: the enum is not open`);
+      return;
+    }
+    for (const value of values) {
+      if (decl.values?.includes(value)) continue;
+      (required ? this.requiredKeys : this.optionalKeys).add(`${address}.values.${value}.name`);
+    }
+  }
+
   private itemFieldValue(value: Literal, decl: ValueDecl, file: string, where: string): void {
     if (!fitsItemField(value, decl)) {
       const expected: Record<string, string> = {
@@ -1101,7 +1146,13 @@ export class PackChecker {
       this.report.error(file, `${where}: "${tag}" is not one of its members`);
   }
 
-  private memberKind(decl: ValueDecl, file: string, where: string): void {
+  /** `canOpen`: a rules field's or a content type's declaration, which `open` may mark. */
+  private memberKind(decl: ValueDecl, file: string, where: string, canOpen = false): void {
+    if (decl.open !== undefined && (!canOpen || decl.type !== 'enum'))
+      this.report.error(
+        file,
+        `${where}: open is for the enums of rules fields and of content types' item fields and state keys`,
+      );
     const { under = [], tags = [], except = [] } = decl.members ?? {};
     for (const tag of [...under, ...tags, ...except]) this.tag(tag, file, `${where} members`);
     if (!decl.of || MEMBER_KINDS.has(decl.of)) return;

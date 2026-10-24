@@ -1181,6 +1181,8 @@ export type ValueDecl = {
   type: ValueType;
   /** enum: allowed values. */
   values?: Slug[];
+  /** An enum item field or state key of a content type: packs that depend on this one may add values, in their rules' `extendEnums` (`<pack>:types.<type>.fields.<field>`, `<pack>:types.<type>.state.<key>`). Items, copies and formulas see the merged list. Elsewhere it is an error. */
+  open?: boolean;
   /** id/set: the content type (or `field`, `tag`, `string`) of the members. */
   of?: Name;
   /** id/set of `tag`: which tags it takes. Without it, any declared tag. */
@@ -1934,7 +1936,9 @@ export type CheckReleaseOutput = {
       | 'item-field-removed'
       | 'item-field-values-removed'
       | 'tag-removed'
-      | 'action-removed';
+      | 'action-removed'
+      | 'enum-closed'
+      | 'extension-removed';
     id: string;
     data?: Record<string, unknown>;
   }[];
@@ -2255,6 +2259,8 @@ export type Ruleset = {
     random: boolean;
     pack: PackId;
   }[];
+  /** Values packs add to other packs' open enums (`extendEnums`): by the enum's address (`<pack>:types.<type>.fields.<field>`, `<pack>:types.<type>.state.<key>`, `<pack>:fields.<field>`), each added value's pack, whose text names it under the key the enum's pack would use. */
+  enumOrigins?: Record<string, Record<string, string>>;
   /** Overrides of the same property by two packs; the later pack won. */
   conflicts?: {
     target: string;
@@ -2374,6 +2380,8 @@ export type Field = {
   type: ValueType;
   /** enum: the allowed values. */
   values?: Slug[];
+  /** enum: packs that depend on this one may add values, in their rules' `extendEnums` (`<pack>:fields.<id>`). Validation and formulas see the merged list. */
+  open?: boolean;
   /** id/set: what the members are: a content type name, `field`, `tag` or `string`. */
   of?: Name;
   /** id/set of `tag`: which tags it takes. Without it, any declared tag. */
@@ -2713,6 +2721,8 @@ export type RolledFace = {
 export type RulesDocument = {
   /** Named lists of keys: any mapping key of the pack's rules documents that holds `{<name>}` stands for one entry per value, with `{<name>}` replaced in the key and in every string of the entry. Declared once per pack, in any rules document; seen by the pack and the packs that depend on it. A qualified name (`<pack>:<name>`) adds values to that pack's family. Expanded by the engine with the packs loaded together; a built release keeps it as written. */
   families?: Record<string, (string | number)[]>;
+  /** Values this pack adds to a dependency's open enums (`open: true`), by the enum's address: `<pack>:fields.<field>` (a rules field), `<pack>:types.<type>.fields.<field>` (an item field) or `<pack>:types.<type>.state.<key>` (a state key). Each value is named in this pack's text under the key the enum's own pack would use (`types.weapon.fields.damageType.values.sonic.name`). Added after the enum's own values, in load order, each once (rules-and-fields.md, "Open enums"). */
+  extendEnums?: Record<string, Slug[]>;
   /** Named sets of declared fields read from other characters: a link slot's or a participant role's `fields` may name one instead of declaring them again. Expanded before the pack loads. */
   viewFields?: Record<string, DeclaredFields>;
   fields?: Record<string, Field>;
@@ -2960,6 +2970,7 @@ export type ErrorCode =
   | 'link-field-mismatch'
   | 'invalid-create-offer'
   | 'invalid-family'
+  | 'invalid-extension'
   | 'link-start-mismatch'
   | 'invalid-item-field'
   | 'template-field-mismatch'

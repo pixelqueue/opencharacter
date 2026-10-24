@@ -31,6 +31,8 @@ export interface ValueDecl {
   optional?: boolean;
   /** Item fields: each copy may save its own value. */
   perCopy?: boolean;
+  /** Enums of a content type or rules field: dependent packs may add values (`extendEnums`). */
+  open?: boolean;
   default?: Literal;
   min?: Formula;
   max?: Formula;
@@ -632,6 +634,8 @@ export function bandSet(doc: BandSetDoc): BandSet {
 export interface RulesDoc {
   /** Named lists of keys for field families; expanded before loading. */
   families?: Record<string, (string | number)[]>;
+  /** Values added to a dependency's open enums, by `<pack>:<enum>` address. */
+  extendEnums?: Record<string, string[]>;
   /** Named sets of declared view fields; expanded before loading. */
   viewFields?: Record<string, Record<string, DeclaredField>>;
   tags?: string[];

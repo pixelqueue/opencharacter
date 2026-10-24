@@ -257,6 +257,7 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
     queries: {},
     families: Object.fromEntries(families),
     familyOrigins,
+    enumOrigins: {},
     conflicts: [],
     sources: packs,
   };
@@ -304,6 +305,7 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
     }
   }
   ruleset.tags = [...tags].toSorted();
+  extendEnums(ruleset, byId.values(), scopeOf, err);
   const declaredByPack = new Map<string, Set<string>>();
   const declaredTags = (pack: string): Set<string> => {
     let set = declaredByPack.get(pack);
@@ -1368,3 +1370,61 @@ function matchesQuery(
 }
 
 export type { FormulaError };
+
+/**
+ * A dependent pack's values for an open enum, after the enum's own, in load order, each once:
+ * `<pack>:fields.<field>`, `<pack>:types.<type>.fields.<field>` or `<pack>:types.<type>.state.<key>`.
+ */
+function extendEnums(
+  ruleset: Ruleset,
+  packs: Iterable<PackRelease>,
+  scopeOf: (id: string) => string[],
+  err: (code: string, data: Record<string, unknown>) => void,
+): void {
+  for (const pack of packs) {
+    const pid = pack.manifest.id;
+    for (const [target, values] of Object.entries(pack.rules.extendEnums ?? {})) {
+      const bad = (message: string) => err('invalid-extension', { pack: pid, target, message });
+      const colon = target.indexOf(':');
+      const owner = target.slice(0, colon);
+      const address = target.slice(colon + 1);
+      if (owner === pid || !scopeOf(pid).includes(owner)) {
+        bad(`${owner} is not a dependency of ${pid}`);
+        continue;
+      }
+      const field = /^fields\.(.+)$/.exec(address);
+      const typed = /^types\.([^.]+)\.(fields|state)\.([^.]+)$/.exec(address);
+      let decl: ValueDecl | undefined;
+      let replace: ((next: ValueDecl) => void) | undefined;
+      if (field) {
+        const qid = `${owner}:${field[1]}`;
+        decl = ruleset.fields[qid];
+        replace = (next) => (ruleset.fields[qid] = { ...ruleset.fields[qid]!, ...next });
+      } else if (typed) {
+        const [, name, of, key] = typed as unknown as [string, string, 'fields' | 'state', string];
+        const qid = `${owner}:${name}`;
+        const type = ruleset.contentTypes[qid];
+        decl = type?.[of]?.[key];
+        replace = (next) => {
+          const def = ruleset.contentTypes[qid]!;
+          ruleset.contentTypes[qid] = { ...def, [of]: { ...def[of], [key]: next } };
+        };
+      }
+      if (!decl || !replace || decl.type !== 'enum') {
+        bad(`${address} is not an enum of ${owner}`);
+        continue;
+      }
+      if (decl.open !== true) {
+        bad(`${address} is not open`);
+        continue;
+      }
+      const merged = [...(decl.values ?? [])];
+      for (const value of values) {
+        if (merged.includes(value)) continue;
+        merged.push(value);
+        (ruleset.enumOrigins[target] ??= {})[value] = pid;
+      }
+      replace({ ...decl, values: merged });
+    }
+  }
+}

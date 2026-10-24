@@ -30,6 +30,10 @@ export function buildRelease(source: PackSource): PackRelease {
     // Kept for loadRuleset to expand; the build's documents come expanded already.
     if (doc.families) rules.families = { ...rules.families, ...doc.families };
     if (doc.viewFields) rules.viewFields = { ...rules.viewFields, ...doc.viewFields };
+    for (const [target, values] of Object.entries(doc.extendEnums ?? {}))
+      (rules.extendEnums ??= {})[target] = [
+        ...new Set([...(rules.extendEnums?.[target] ?? []), ...values]),
+      ];
     if (doc.tags) rules.tags = [...new Set([...(rules.tags ?? []), ...doc.tags])];
     if (doc.fields) rules.fields = { ...rules.fields, ...doc.fields };
     if (doc.links) rules.links = { ...rules.links, ...doc.links };
