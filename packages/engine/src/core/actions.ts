@@ -681,6 +681,71 @@ function startFrame(
         ...(source ? { source } : {}),
       });
   }
+  const found = findAction(sheet, ruleset, id, entry, source);
+  if (found) ({ def, definedBy, pack, activation, fixed } = found);
+  if (!def) throw new ActionError('unknown-action', { action: id });
+
+  const ownerSource: Source = activation?.item
+    ? { type: 'item', id: activation.item.qid, ...(entry !== undefined ? { entry } : {}) }
+    : { type: 'rules', id };
+  const own = activation ? sheet.actionRoots(activation) : sheet.rulesRoots();
+  const base: Record<string, unknown> = ownerRoots(own);
+  const given = nested.situational ?? ctx.state.situational;
+  const situational = situationalRoot(ruleset, pack, given);
+  const frame: Frame = {
+    def,
+    qid: definedBy,
+    pack,
+    ...(activation ? { activation } : {}),
+    sheet,
+    ...(entry !== undefined ? { entry } : {}),
+    ...(source !== undefined ? { source } : {}),
+    ownerSource,
+    roots: { ...base, situational },
+    steps: {},
+    flags: {},
+    prefix,
+    depth,
+    rollItems: new Map(),
+    eachOf: new Map(),
+    passOf: new Map(),
+    flagsEach: new Map(),
+    held: new Map(),
+    views: new Map(),
+    added: nested.added,
+    situational: given,
+  };
+  frame.roots.params = params(ctx, frame, rawParams, fixed);
+  const roles = def.participants ?? {};
+  const passed = depth === 0 ? (ctx.state.participants ?? {}) : (nested.participants ?? {});
+  frame.roots.participants = participantsRoot(roles, passed);
+  for (const list of Object.values(passed)) for (const view of list) frame.views.set(view.id, view);
+  return frame;
+}
+
+/** An action as computeSheet lists it: its definition, the action defining it, its pack and owner. */
+export interface FoundAction {
+  def: ActionDef;
+  /** The rules action, or `<item id>#<action id>` for an inline one. */
+  definedBy: string;
+  pack: string;
+  activation?: Activation;
+  /** The parameters a `use` fixes. */
+  fixed: Record<string, Formula>;
+}
+
+export function findAction(
+  sheet: Sheet,
+  ruleset: Ruleset,
+  id: string,
+  entry: string | undefined,
+  source: string | undefined,
+): FoundAction | undefined {
+  let def: ActionDef | undefined;
+  let definedBy = id;
+  let pack = '';
+  let activation: Activation | undefined;
+  let fixed: Record<string, Formula> = {};
   if (entry !== undefined || source !== undefined) {
     // An entry's own item is named by `entry`; content on it by `entry` and `source`; content
     // with no owning copy by `source` alone. An applied entry's source is named by the entry's ID.
@@ -726,44 +791,8 @@ function startFrame(
     def = ruleset.rules.actions[id];
     pack = def ? (ruleset.rules.actions[id]?.pack ?? '') : '';
   }
-  if (!def) throw new ActionError('unknown-action', { action: id });
-
-  const ownerSource: Source = activation?.item
-    ? { type: 'item', id: activation.item.qid, ...(entry !== undefined ? { entry } : {}) }
-    : { type: 'rules', id };
-  const own = activation ? sheet.actionRoots(activation) : sheet.rulesRoots();
-  const base: Record<string, unknown> = ownerRoots(own);
-  const given = nested.situational ?? ctx.state.situational;
-  const situational = situationalRoot(ctx, pack, given);
-  const frame: Frame = {
-    def,
-    qid: definedBy,
-    pack,
-    ...(activation ? { activation } : {}),
-    sheet,
-    ...(entry !== undefined ? { entry } : {}),
-    ...(source !== undefined ? { source } : {}),
-    ownerSource,
-    roots: { ...base, situational },
-    steps: {},
-    flags: {},
-    prefix,
-    depth,
-    rollItems: new Map(),
-    eachOf: new Map(),
-    passOf: new Map(),
-    flagsEach: new Map(),
-    held: new Map(),
-    views: new Map(),
-    added: nested.added,
-    situational: given,
-  };
-  frame.roots.params = params(ctx, frame, rawParams, fixed);
-  const roles = def.participants ?? {};
-  const passed = depth === 0 ? (ctx.state.participants ?? {}) : (nested.participants ?? {});
-  frame.roots.participants = participantsRoot(roles, passed);
-  for (const list of Object.values(passed)) for (const view of list) frame.views.set(view.id, view);
-  return frame;
+  if (!def) return undefined;
+  return { def, definedBy, pack, ...(activation ? { activation } : {}), fixed };
 }
 
 /**
@@ -793,14 +822,14 @@ function participantsRoot(
   return out;
 }
 
-function situationalRoot(
-  ctx: Ctx,
+export function situationalRoot(
+  ruleset: Ruleset,
   pack: string,
   values: Record<string, unknown>,
 ): Record<string, unknown> {
-  const scope = ctx.ruleset.packs.find((p) => p.id === pack)?.scope ?? [];
+  const scope = ruleset.packs.find((p) => p.id === pack)?.scope ?? [];
   const out: Record<string, unknown> = {};
-  for (const [qid, def] of Object.entries(ctx.ruleset.rules.situational)) {
+  for (const [qid, def] of Object.entries(ruleset.rules.situational)) {
     if (!scope.includes(def.pack)) continue;
     const given = values[qid];
     out[def.id] = given !== undefined ? given : situationalDefault(def);
@@ -852,18 +881,12 @@ function params(
       const field = qid ? ctx.ruleset.fields[qid] : undefined;
       if (!qid || !field)
         throw new ActionError('invalid-option', { param: name, option: value, ...at });
-      const tags = ctx.sheet.fieldTags(qid);
-      if (decl.where !== undefined) {
-        const ok = ctx.sheet.evaluate(decl.where, frame.pack, {
-          item: { id: qid, type: field.type, tags },
-        });
-        if (ok.kind !== 'bool' || !ok.value)
-          throw new ActionError('invalid-option', { param: name, option: value, ...at });
-      }
+      if (!fieldParamTakes(ctx.sheet, ctx.ruleset, decl, frame.pack, qid))
+        throw new ActionError('invalid-option', { param: name, option: value, ...at });
       out[name] = {
         id: qid,
         type: field.type,
-        tags,
+        tags: ctx.sheet.fieldTags(qid),
         value: rootValue(ctx.sheet.fieldValue(qid)),
       };
       continue;
@@ -877,17 +900,7 @@ function params(
       const type = resolveType(ctx.ruleset, decl.of, frame.pack);
       if (!qid || !item || item.type !== type)
         throw new ActionError('invalid-option', { param: name, option: value, ...at });
-      const ok = ctx.sheet.evaluate(decl.where, frame.pack, {
-        item: itemView(ctx.ruleset, item, [], (field, pack) => {
-          const id = resolveField(ctx.ruleset, field, pack);
-          return id ? ctx.sheet.inputValue(id) : undefined;
-        }),
-        action: {
-          ...(frame.roots.item !== undefined ? { item: frame.roots.item } : {}),
-          ...(frame.roots.self !== undefined ? { self: frame.roots.self } : {}),
-        },
-      });
-      if (ok.kind !== 'bool' || !ok.value)
+      if (!contentParamTakes(ctx.sheet, ctx.ruleset, decl, frame.pack, item, frame.roots))
         throw new ActionError('invalid-option', { param: name, option: value, ...at });
       out[name] = qid;
       continue;
@@ -914,6 +927,46 @@ function paramAction(frame: Frame): Record<string, string> {
     ...(frame.entry !== undefined ? { entry: frame.entry } : {}),
     ...(frame.source !== undefined ? { source: frame.source } : {}),
   };
+}
+
+/** Whether a field parameter takes the field: its `where` over the field's `id`, `type` and `tags`. */
+export function fieldParamTakes(
+  sheet: Sheet,
+  ruleset: Ruleset,
+  decl: ValueDecl,
+  pack: string,
+  qid: string,
+): boolean {
+  const field = ruleset.fields[qid];
+  if (!field) return false;
+  if (decl.where === undefined) return true;
+  const ok = sheet.evaluate(decl.where, pack, {
+    item: { id: qid, type: field.type, tags: sheet.fieldTags(qid) },
+  });
+  return ok.kind === 'bool' && ok.value;
+}
+
+/** Whether a content parameter's `where` takes the item, with the action's own `item` and `self`. */
+export function contentParamTakes(
+  sheet: Sheet,
+  ruleset: Ruleset,
+  decl: ValueDecl,
+  pack: string,
+  item: LoadedItem,
+  roots: Record<string, unknown>,
+): boolean {
+  if (decl.where === undefined) return true;
+  const ok = sheet.evaluate(decl.where, pack, {
+    item: itemView(ruleset, item, [], (field, at) => {
+      const id = resolveField(ruleset, field, at);
+      return id ? sheet.inputValue(id) : undefined;
+    }),
+    action: {
+      ...(roots.item !== undefined ? { item: roots.item } : {}),
+      ...(roots.self !== undefined ? { self: roots.self } : {}),
+    },
+  });
+  return ok.kind === 'bool' && ok.value;
 }
 
 /** A number parameter outside its `min`/`max`, evaluated as the action starts, is out-of-range. */
@@ -1170,7 +1223,7 @@ function onSheet(ctx: Ctx, frame: Frame): Frame {
 }
 
 /** The roots an action takes from its owner: `item`, `self` and the picks `picksOf` reads. */
-function ownerRoots(own: Record<string, unknown>): Record<string, unknown> {
+export function ownerRoots(own: Record<string, unknown>): Record<string, unknown> {
   const out: Record<string, unknown> = {};
   for (const key of ['item', 'self', f.OWNER_PICKS, f.OWNER_GRANTED])
     if (own[key] !== undefined) out[key] = own[key];

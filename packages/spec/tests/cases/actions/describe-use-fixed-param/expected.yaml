@@ -1,0 +1,14 @@
+action:
+  definedBy: test-describe:check
+  tags: [check]
+  results: { bands: test-describe:check }
+  params:
+    - name: skill
+      type: id
+      of: field
+      required: false
+      fixed: true
+      value: test-describe:skills.climb
+      options: [test-describe:skills.climb, test-describe:skills.sneak]
+    - { name: mode, type: enum, required: false, values: [calm, rushed] }
+  participants: []

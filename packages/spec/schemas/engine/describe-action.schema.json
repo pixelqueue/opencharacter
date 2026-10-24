@@ -1,0 +1,208 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://opencharacterformat.org/schemas/0.2/engine/describe-action.schema.json",
+  "title": "describeAction",
+  "$defs": {
+    "input": {
+      "type": "object",
+      "required": ["ruleset", "character", "action"],
+      "properties": {
+        "ruleset": {
+          "$ref": "ruleset.schema.json"
+        },
+        "character": {
+          "$ref": "../character.schema.json"
+        },
+        "action": {
+          "description": "The action as computeSheet lists it (`listed: false` ones too, as startAction takes them).",
+          "type": "object",
+          "required": ["id"],
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "entry": {
+              "$ref": "../common.schema.json#/$defs/instanceId"
+            },
+            "source": {
+              "$ref": "../common.schema.json#/$defs/qualifiedId"
+            }
+          },
+          "additionalProperties": false
+        },
+        "links": {
+          "$ref": "compute-sheet.schema.json#/$defs/links"
+        }
+      },
+      "additionalProperties": false
+    },
+    "param": {
+      "type": "object",
+      "required": ["name", "type", "required"],
+      "properties": {
+        "name": {
+          "$ref": "../common.schema.json#/$defs/name"
+        },
+        "type": {
+          "$ref": "../common.schema.json#/$defs/declValueType"
+        },
+        "of": {
+          "description": "id/set/list: `field`, `tag`, `string` or the qualified content type.",
+          "type": "string"
+        },
+        "required": {
+          "description": "Neither `optional`, defaulted nor fixed: startAction needs a value (`missing-param`).",
+          "type": "boolean"
+        },
+        "default": {
+          "$ref": "../common.schema.json#/$defs/literal"
+        },
+        "fixed": {
+          "description": "The item's `use` fixes it: startAction takes `value`, never the app's.",
+          "const": true
+        },
+        "value": {
+          "description": "A fixed parameter's value, evaluated as startAction does; dice as canonical text."
+        },
+        "min": {
+          "description": "The `min` bound, evaluated as startAction does with every situational choice at its default.",
+          "type": "number"
+        },
+        "max": {
+          "description": "The `max` bound, evaluated likewise.",
+          "type": "number"
+        },
+        "values": {
+          "description": "An enum's values, with those dependent packs add (`extendEnums`).",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "options": {
+          "description": "id/set/list of a content type, `field` or `tag`: every ID startAction takes, its `where` applied. Content in ruleset order (hidden items left out), fields in ruleset order, tags sorted.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "unique": {
+          "const": true
+        },
+        "label": {
+          "description": "The parameter's own label key; without it, `<actionKey>.params.<name>.name`.",
+          "$ref": "../common.schema.json#/$defs/i18nKey"
+        }
+      },
+      "additionalProperties": false
+    },
+    "role": {
+      "type": "object",
+      "required": ["role", "min"],
+      "properties": {
+        "role": {
+          "$ref": "../common.schema.json#/$defs/name"
+        },
+        "min": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "max": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "pack": {
+          "description": "The pack participants are expected to use.",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "output": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": ["action"],
+          "properties": {
+            "action": {
+              "type": "object",
+              "required": ["action", "definedBy", "tags", "params", "participants"],
+              "properties": {
+                "action": {
+                  "type": "string"
+                },
+                "entry": {
+                  "$ref": "../common.schema.json#/$defs/instanceId"
+                },
+                "source": {
+                  "$ref": "../common.schema.json#/$defs/qualifiedId"
+                },
+                "definedBy": {
+                  "description": "The action that defines it, as a pause's `needs.action` names it: the rules action a `use` names, or `<item id>#<action id>` for an inline one (on the item or its content type). Its text keys are built from it.",
+                  "type": "string"
+                },
+                "tags": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "results": {
+                  "description": "The results its outcome can have, as declared.",
+                  "anyOf": [
+                    {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "required": ["bands"],
+                      "properties": {
+                        "bands": {
+                          "type": "string"
+                        }
+                      },
+                      "additionalProperties": false
+                    }
+                  ]
+                },
+                "params": {
+                  "description": "Its parameters, in declaration order.",
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/$defs/param"
+                  }
+                },
+                "participants": {
+                  "description": "Its roles, in declaration order.",
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/$defs/role"
+                  }
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": ["errors"],
+          "properties": {
+            "errors": {
+              "type": "array",
+              "items": {
+                "$ref": "error.schema.json"
+              },
+              "minItems": 1
+            }
+          },
+          "additionalProperties": false
+        }
+      ]
+    }
+  }
+}
