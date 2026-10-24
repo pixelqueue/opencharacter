@@ -203,7 +203,8 @@ no crew types, so a crew-type pack's are the ones offered).
   `fitd-crew:types.claim.fields.scaleGang`, `fitd-crew:types.cohort.state.gangType`,
   `fitd-crew:types.cohort.state.extraGangType` and `fitd-crew:types.claim.state.trainedGang`,
   named in its text under the core's keys. The creation's gang pick offers the family's types,
-  and elite and claim scale read them by key. A claim like Training Rooms sets `trainsGang` to
+  the add-on's named by its `actions.create-crew.options.<type>.name` (found through the
+  ruleset's `familyOrigins`), and elite and claim scale read them by key. A claim like Training Rooms sets `trainsGang` to
   show its `trainedGang` pick.
 - **Tagged steps**, for an add-on's rules-level `option` effects: `creation.crew-type`,
   `creation.ability`, `creation.operation`, `creation.more` (two upgrades or a cohort) and

@@ -117,8 +117,13 @@ it with the core's, in the guided picks and the random draws:
 - **Open enums:** the stigma fields (`stigma.part`, `stigma.part2`, `stigma.nature`,
   `stigma.detail`), for more suggestions to set by hand; the rolled tables keep the book's.
 
-Still closed: skills. The core's changes name a skill's fields by key, which resolve in this pack
-only, so an added skill could be read and not raised.
+- **Skills** are the `skill` family: an add-on adds one (`families: { 'awn-core:skill': [<key>] }`)
+  and declares its `skills.<key>.level` (tagged `skill` and `skill.<key>`), `.credit` and `.cap`
+  (tagged `skill-cap` and `skill.<key>`). The core's changes reach them through `fieldId`, so
+  creation, `improve-skill`, skill points and a forbidding mutation gain, raise and lower it as the
+  core's. A background's entries (`freeSkill`, `quickSkill1`, `quickSkill2`, `growth1`–`growth6`,
+  `learning1`–`learning8`) and the parameters `improve-skill.skill` and `gain-benefit.entry` are
+  open enums that take its key.
 
 The near-future and wasteland d20 tables are the book's own tables.
 

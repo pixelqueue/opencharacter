@@ -312,10 +312,10 @@ actions:
         kind: changes
         changes:
           - type: set
-            field: { formula: "'skills.' + steps.skill.picked + '.level'" }
+            field: { formula: "fieldId('skills.{skill}.level', steps.skill.picked)" }
             value: flags.level3
           - type: set
-            field: { formula: "'skills.' + steps.skill.picked + '.credit'" }
+            field: { formula: "fieldId('skills.{skill}.credit', steps.skill.picked)" }
             value: flags.credit3
       - id: result
         kind: outcome
@@ -330,6 +330,7 @@ actions:
     params:
       skill:
         type: enum
+        open: true
         values:
           [
             administer,
@@ -381,10 +382,10 @@ actions:
         kind: changes
         changes:
           - type: set
-            field: { formula: "'skills.' + params.skill + '.level'" }
+            field: { formula: "fieldId('skills.{skill}.level', params.skill)" }
             value: flags.level + 1
           - type: set
-            field: { formula: "'skills.' + params.skill + '.credit'" }
+            field: { formula: "fieldId('skills.{skill}.credit', params.skill)" }
             value: flags.credit - flags.fromCredit
           - { type: adjust, field: skills.points, by: 'flags.fromCredit - flags.cost' }
       - id: result

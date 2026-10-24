@@ -170,11 +170,11 @@ actions:
           - { type: adjust, when: flags.attribute, field: attributes.boosts, by: 1 }
           - type: adjust
             when: '!flags.attribute'
-            field: { formula: "'skills.' + steps.pick.picked" }
+            field: { formula: "fieldId('skills.{skill}', steps.pick.picked)" }
             by: 1
           - type: set
             when: '!flags.attribute'
-            field: { formula: "'skillCredit.' + steps.pick.picked" }
+            field: { formula: "fieldId('skillCredit.{skill}', steps.pick.picked)" }
             value: 0
           - { type: adjust, when: flags.expert > 0, field: skillPoints.expert, by: -flags.expert }
           - type: adjust

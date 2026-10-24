@@ -686,7 +686,7 @@ actions:
         changes:
           - type: set
             forEach: flags.barred
-            field: { formula: "'skills.' + x + '.level'" }
+            field: { formula: "fieldId('skills.{skill}.level', x)" }
             value: "max(-1, fieldOf('skills.{skill}.cap', x))"
       - {
           id: relearn1,

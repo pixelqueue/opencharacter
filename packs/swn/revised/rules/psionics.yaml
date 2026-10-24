@@ -38,6 +38,7 @@ contentTypes:
     fields:
       discipline:
         type: enum
+        open: true
         required: true
         values: [biopsionics, metapsionics, precognition, telekinesis, telepathy, teleportation]
       level: { type: integer, required: true, min: 0, max: 4 }
@@ -57,8 +58,8 @@ constraints:
   - id: psychic-skills
     check: >-
       psionics.access == 'unrestricted'
-        || sumFields(f.value >= 0 && (psionics.access == 'none'
-          || f.id != 'swn-revised:skills.' + psionics.discipline + '.level') ? 1 : 0,
+        || sumFields(f.value >= 0 && (psionics.access == 'none' || psionics.discipline == 'none'
+          || f.id != fieldId('skills.{psychic}.level', psionics.discipline)) ? 1 : 0,
           'skill.psychic' in f.tags) == 0
 
 actions:

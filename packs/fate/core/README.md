@@ -232,9 +232,13 @@ A pack that depends on `fate-core` (a setting pack) adds to it without changing 
   standard start's stunt picks and the random start's draws), `milestone.benefit` (a minor
   milestone's benefit, which every milestone runs) and `milestone.stunt` (its new stunt); for
   its `changes` effects: `creation.finish` (the last step of both starts).
-- **No open enums.** A stunt's `shape`, `action` and `limit`, a consequence's slot, harm's
-  physical and mental, and the NPC kinds are the SRD's fixed sets that the core's rules read;
-  a setting with another stress track or action is a variant, not an add-on.
+- **Open enum:** a stunt's `limit` (`fate-core:types.stunt.fields.limit`), a written stunt's
+  or a custom stunt's own (`setField`). The core's `use` counts an added limit's uses as its
+  own; the core's ends of a conflict, scene and session reset only theirs, so the add-on resets
+  its limit with its own action (a `setState` of `used` over the stunts with it).
+- **Still closed:** a stunt's `shape` and `action`, a consequence's slot, harm's physical and
+  mental, and the NPC kinds are the SRD's fixed sets that the core's rules read; a setting with
+  another stress track or action is a variant, not an add-on.
 
 ## Text only, and left to the app
 

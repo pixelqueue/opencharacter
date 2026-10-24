@@ -306,10 +306,16 @@ processes:
 - **Open enums** (`extendEnums`): weapon `damageType`, `ammunition` and `mastery`, feat
   `category`, gear `category` and `ammunition`, tool, vehicle and magic item `category`, spell
   `school` and damage types (and a lineage's `damageType`, the same list), monster `typeTag` and
-  monster action damage types. A new damage type or mastery also needs its tag (`damage.sonic`,
+  monster action damage types, and the `spell-effect`, `item-power` and `throw-item` actions'
+  `damageType` (`5e-srd-5.2:actions.<action>.params.damageType`). A new damage type or mastery
+  also needs its tag (`damage.sonic`,
   `mastery.pierce`), declared and named in the add-on; a new feat category is offered wherever a
   choice asks for it (`item.category == 'dragonmark'`), and a fighting-style feat joins every
   Fighting Style pick.
+- **Creature types:** a new one goes in `5e-srd-5.2:fields.creature.type`, the monster's
+  `creatureType`, a condition's `by` (`types.condition.state.by`) and the Ammunition of Slaying's
+  `slays` (`magic-items.ammunition-of-slaying.state.slays`); an attack reads the target's type
+  through an open view field, so a target of the added type is attacked as any other.
 - **Choices** (`extendChoices`): listed choices take items and values, and inline ones options:
   Hunter's Prey (`features.ranger.hunters-prey`, `option`), a class's skills and expertise.
   Choices over a type (subclasses, spells, feats, weapon mastery) offer the add-on's content
@@ -321,10 +327,8 @@ processes:
   `weapon-mastery.rider` (a new mastery's effect: a `changes` effect with
   `when: flags.mastery == '<mastery>'`).
 
-Still closed: abilities, skills, creature types, weapon and armor categories and conditions are
-the game's fixed sets (an attack reads its target's creature type as a closed view field); the
-`spell-effect`, `item-power` and `throw-item` actions' damage types are parameters, which can't be
-open (an add-on item with a new damage type writes its own action).
+Still closed: abilities, skills, weapon and armor categories and conditions are the game's fixed
+sets.
 
 ## Limitations
 

@@ -148,7 +148,7 @@ for the player's choices and other characters.
   - `natural-healing` (once a day after 6+ hours of rest, the app's clock): a Body save;
     success resets health to its maximum, and wounds stay.
   - `death-save` and `wound-roll` (by damage type) roll the d10 (0–9) and return it for the
-    tables.
+    tables; `wound-roll`'s outcome carries the type in its data.
   - Follow-ups: a wound stores `wound-roll` (the app supplies the damage type), one per
     adjustment, and reaching maximum wounds stores `death-save`. They and the excess stress
     are all required follow-ups stored on the character until acted on or
@@ -189,6 +189,8 @@ A pack that depends on `mothership-1e` can add content of its types, and it join
 - **Open enums** (values in the add-on's rules' `extendEnums`, named in its text under the
   core's key):
   - `mothership-1e:types.weapon.fields.woundType`: a weapon's wound type;
+  - `mothership-1e:actions.wound-roll.params.woundType`: the wound roll's type, so an added
+    wound type (added to both) is rolled as the core's are;
   - `mothership-1e:types.class.fields.trauma`: a class's trauma response, for an added class
     whose own effects and rules read `trauma.response`.
 - **Tagged creation steps:** an add-on's rules-level `option` effects reach the choice steps
@@ -196,9 +198,7 @@ A pack that depends on `mothership-1e` can add content of its types, and it join
   kit beside the loadout and credits), and its `changes` effects the `creation.save` step (a
   gear pack adding the class's loadout and clearing `loadout.owed`).
 
-Still closed: a weapon's `range` and a skill's `tier` (the game's fixed sets), and the
-`wound-roll` action's `woundType` parameter and results: an action parameter can't be an open
-enum, so `wound-roll` takes the five core wound types only.
+Still closed: a weapon's `range` and a skill's `tier` (the game's fixed sets).
 
 ## Text only, or the app's
 

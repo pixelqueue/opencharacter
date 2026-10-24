@@ -10,7 +10,14 @@ contentTypes:
         values: [any, overcome, advantage, attack, defend]
         default: any
         perCopy: true
-      limit: { type: enum, values: [none, conflict, scene, session], default: none, perCopy: true }
+      limit:
+        {
+          type: enum,
+          values: [none, conflict, scene, session],
+          default: none,
+          perCopy: true,
+          open: true,
+        }
       uses: { type: integer, default: 1, min: 1, perCopy: true }
       fatePoint: { type: boolean, default: false, perCopy: true }
       contestTie: { type: boolean, default: false }

@@ -49,6 +49,7 @@ actions:
       flat: { type: integer, optional: true }
       damageType:
         type: enum
+        open: true
         values:
           [
             acid,
@@ -66,7 +67,8 @@ actions:
       splash: { type: integer, optional: true, min: 0 }
       persistent: { type: dice, optional: true }
       persistentFlat: { type: integer, optional: true, min: 0 }
-      persistentType: { type: enum, optional: true, values: [acid, bleed, fire, poison] }
+      persistentType:
+        { type: enum, optional: true, values: [acid, bleed, fire, poison], open: true }
       itemBonus: { type: integer, optional: true, min: 0, max: 4 }
       hitCondition:
         { type: enum, optional: true, values: [none, off-guard, enfeebled, frightened, speed] }
