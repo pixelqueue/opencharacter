@@ -7,11 +7,13 @@ contentTypes:
     equippable: true
     fields:
       load: { type: integer, required: true }
+      # Open: an added kind's quality is the crew's tier, with no quality upgrade.
       kind:
         {
           type: enum,
           values: [none, documents, gear, implements, supplies, tools, weapons],
           default: none,
+          open: true,
         }
     computed:
       quality:
