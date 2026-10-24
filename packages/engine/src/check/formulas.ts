@@ -819,27 +819,38 @@ class FormulaChecker<L> {
     );
   }
 
-  /** A grant's `when` and `state` are activation formulas: `self`, `item` and input fields. */
+  /**
+   * A grant's formulas are activation formulas: `self`, `item` and input fields; `x` under
+   * `forEach`, and in an item query's `where` the candidate as `item`.
+   */
   private grant(grant: Grant, at: L, where: string): void {
-    this.activation(() => {
-      this.formula(grant.when, at, where, BOOL);
-      if (typeof grant.item !== 'string')
-        this.formula(grant.item.formula, at, `${where} item`, ['string']);
-      for (const [key, value] of Object.entries(grant.state ?? {}))
-        this.formula(value, at, `${where} state ${key}`, ANY);
-      const presets = (tree: PresetTree | undefined) => {
-        for (const [choice, picks] of Object.entries(tree ?? {}))
-          for (const pick of picks) {
-            if (typeof pick.option === 'object')
-              this.formula(pick.option.formula, at, `${where} choices ${choice}`, [
-                'string',
-                'decimal',
-              ]);
-            presets(pick.choices);
-          }
-      };
-      presets(grant.choices);
-    });
+    this.activation(() =>
+      this.forEach(grant.forEach, at, `${where} forEach`, () => {
+        this.formula(grant.when, at, where, BOOL);
+        if (typeof grant.item !== 'string' && 'formula' in grant.item)
+          this.formula(grant.item.formula, at, `${where} item`, ['string']);
+        else if (typeof grant.item !== 'string') {
+          const query = grant.item.query;
+          this.typed({ item: this.itemOf(this.contentTypeDef(query.type)) }, () =>
+            this.withRoots(['item'], () => this.formula(query.where, at, `${where} item`, BOOL)),
+          );
+        }
+        for (const [key, value] of Object.entries(grant.state ?? {}))
+          this.formula(value, at, `${where} state ${key}`, ANY);
+        const presets = (tree: PresetTree | undefined) => {
+          for (const [choice, picks] of Object.entries(tree ?? {}))
+            for (const pick of picks) {
+              if (typeof pick.option === 'object')
+                this.formula(pick.option.formula, at, `${where} choices ${choice}`, [
+                  'string',
+                  'decimal',
+                ]);
+              presets(pick.choices);
+            }
+        };
+        presets(grant.choices);
+      }),
+    );
   }
 
   private inlineOptions(options: InlineOption[], at: L, key: string): void {

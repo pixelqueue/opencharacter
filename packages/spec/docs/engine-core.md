@@ -316,8 +316,8 @@ else the grant's `state` values, else the declared defaults, over the owner copy
 content reads its pick's ([content.md](content.md#when-content-is-active)). An applied grant's
 content sees the granting entry with the grant's `state` values in place.
 
-**Activation conditions** decide what is active: grant `when`, choice `when`, and an
-immunity's `when` and query `where`. What activation decides (`countGrants`,
+**Activation conditions** decide what is active: grant `when`, `forEach`, `item` formula and
+item query `where`, choice `when`, and an immunity's `when` and query `where`. What activation decides (`countGrants`,
 `picksOf(content, choice)`) isn't bound in them. They are
 evaluated before any field is computed, so they may read only `self`, `item`, `character` (its
 `applied` list included, which is raw), `entry` in an immunity's query, the character functions,
@@ -329,7 +329,10 @@ by `self.level`, never by a computed field.
 
 Activation is found by walking from the copies, the `applied` list and the rules. Each grant and
 pick is followed once; the same content reached twice by different paths is two activations.
-Grants and choices nest at most `maxChoiceDepth` deep.
+A grant with `forEach` is followed once per element, in list order, and a grant whose `item` is
+a query once per match, in ruleset order, each its own activation
+([content.md](content.md#when-content-is-active)). Grants and choices nest at most
+`maxChoiceDepth` deep.
 
 **Applied grants**. An applied activation follows its content's grants with
 `scope: applied` (the content type's, then the item's) whose `when` holds, an activation

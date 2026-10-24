@@ -280,7 +280,7 @@
       "required": ["item"],
       "properties": {
         "item": {
-          "description": "The content granted: an ID, or `{ formula }`, a string formula evaluated as an activation condition is (it reads `self`, `item` and input fields) to a content ID, qualified in the grant's pack as a literal one is; an empty string grants nothing, and an ID that names no content grants nothing with the sheet error `unknown-id`. So content grants what the player named in its state (a spell picked for the day).",
+          "description": "The content granted: an ID; `{ formula }`, a string formula evaluated as an activation condition is (it reads `self`, `item` and input fields) to a content ID, qualified in the grant's pack as a literal one is; an empty string grants nothing, and an ID that names no content grants nothing with the sheet error `unknown-id`. So content grants what the player named in its state (a spell picked for the day). Or `{ query }`: every content item of the query's type it matches, hidden items left out, in ruleset order, each granted as its own grant; `where` is an activation condition with the candidate as `item` (a query that reads only `item` is resolved at load), so a core grant reaches content an add-on adds.",
           "anyOf": [
             {
               "$ref": "common.schema.json#/$defs/ref"
@@ -294,8 +294,22 @@
                 }
               },
               "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "required": ["query"],
+              "properties": {
+                "query": {
+                  "$ref": "query.schema.json"
+                }
+              },
+              "additionalProperties": false
             }
           ]
+        },
+        "forEach": {
+          "description": "The grant is made once per element of this list, in list order, with `x` bound to the element in `when`, `item` (a query's `where` too), `state` and `choices`. The list is an activation formula as `when` is (it reads `self`, `item` and input fields; `x` is unbound in it); an empty list grants nothing, and one that fails or isn't a list grants nothing with its sheet error. So one core grant covers every key of a family, an add-on's too: `{ forEach: keysOf('ward'), when: \"fieldOf('wards.{ward}', x) > 0\", item: { query: { type: rite, where: item.ward == x } } }`.",
+          "$ref": "formula.schema.json"
         },
         "when": {
           "$ref": "formula.schema.json#/$defs/condition"
@@ -384,7 +398,14 @@
     "keptTemplate": {
       "type": "object",
       "required": ["template"],
-      "oneOf": [{ "required": ["copies"] }, { "required": ["content"] }],
+      "oneOf": [
+        {
+          "required": ["copies"]
+        },
+        {
+          "required": ["content"]
+        }
+      ],
       "properties": {
         "template": {
           "description": "The template kept on the copies or the content.",

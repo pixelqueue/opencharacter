@@ -22,9 +22,8 @@ situational:
     default: false
     incoming: { fields: [hp.current], tags: [damage] }
     available: >-
-      @lineages.stone-giant in picksOf('species.goliath', 'lineage')
-        && countGrants(grant.item == @traits.giant-ancestry
-          && grant.state.giantAncestryUsed < proficiency.bonus) > 0
+      countGrants(grant.item == @traits.giant-ancestry && grant.state.lineage == @lineages.stone-giant
+        && grant.state.giantAncestryUsed < proficiency.bonus) > 0
 
 display:
   fields:
@@ -33,3 +32,4 @@ display:
     trait:
       state:
         damageType: { hidden: true }
+        lineage: { hidden: true }

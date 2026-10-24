@@ -257,7 +257,9 @@ export interface FollowUp {
 }
 
 export interface Grant {
-  item: string | { formula: Formula };
+  item: string | { formula: Formula } | { query: Query };
+  /** Made once per element, with `x` bound; an activation formula. */
+  forEach?: Formula;
   when?: Formula;
   scope?: 'holder' | 'applied';
   waivePrerequisites?: boolean;
