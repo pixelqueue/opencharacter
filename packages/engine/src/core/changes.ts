@@ -837,6 +837,7 @@ function applyOne(
       const item = ruleset.content[entry.item];
       if (!item || item.type === 'template')
         throw new ChangeError('unknown-id', { id: entry.item });
+      if (item.grantOnly) throw new ChangeError('not-addable', { item: entry.item });
       const type = ruleset.contentTypes[item.type];
       const templates = (entry.templates ?? []).map((t) => checkTemplate(ruleset, sheet, item, t));
       if (entry.equipped !== undefined && !type?.equippable)

@@ -104,6 +104,7 @@ describe('pnpm validate', () => {
       ['a template field default not of its enum', /rarity default: expected one of common, rare/],
       ['a typo in a template field formula', /unknown-name: "base\.damag" names nothing/],
       ['a proposed addItem of unknown content', /unknown content "weapons\.nope"/],
+      ['a proposed addItem of grant-only content', /"tricks\.vanish" is grant-only/],
       ['an entry object on a change other than addItem', /entry object is only for addItem/],
       ['copies on a change that is not per copy', /copies is only for per-copy changes/],
       ['copies of an unknown content type', /unknown content type "gadget"/],

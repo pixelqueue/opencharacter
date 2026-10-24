@@ -1,5 +1,6 @@
 contentTypes:
   playbook:
+    grantOnly: true
     copies: { max: 0 }
     fields:
       twoDots: { type: set, of: field, required: true }
@@ -70,12 +71,15 @@ contentTypes:
         when: '@ratings.sway in item.twoDots + item.oneDot'
         value: '@ratings.sway in item.twoDots ? 2 : 1'
   specialAbility:
+    grantOnly: true
     effects:
       - target: abilities.special
         op: grant
         value: { formula: item.id }
-  vice: {}
-  traumaCondition: {}
+  vice:
+    grantOnly: true
+  traumaCondition:
+    grantOnly: true
 
 fields:
   # Without a playbook the player places the template's three starting dots (the playbook's three,

@@ -1,6 +1,7 @@
 contentTypes:
   # `startingUpgrades` are field IDs, qualified at load.
   crewType:
+    grantOnly: true
     copies: { max: 0 }
     fields:
       upgrades: { type: set, of: field, required: true }
@@ -19,11 +20,13 @@ contentTypes:
         op: set
         value: "size(item.startingUpgrades) + (item.startingCohort != 'none' ? 2 : 0)"
   crewAbility:
+    grantOnly: true
     effects:
       - target: abilities.crew
         op: grant
         value: { formula: item.id }
-  operation: {}
+  operation:
+    grantOnly: true
   contact:
     nameFrom: label
     state:

@@ -530,6 +530,8 @@ export interface ContentTypeDef {
   equippable?: boolean;
   /** Integer literals, read without evaluating anything. */
   copies?: CopyLimit;
+  /** Held only through grants and picks: `addItem` of its items is `not-addable`. */
+  grantOnly?: boolean;
   actions?: ActionOrUse[];
   label?: string;
   /** Named texts: `<contentId>.texts.<name>` keys; the engine doesn't read them. */
@@ -569,6 +571,8 @@ export interface ContentItem {
   suppress?: string[];
   /** Exempt from exclusivity groups: picked again in another choice of a group. */
   repeatable?: boolean;
+  /** Replaces its type's `grantOnly`; the loaded item carries the value that applies. */
+  grantOnly?: boolean;
 }
 
 export interface Situational {

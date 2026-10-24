@@ -1093,6 +1093,8 @@ export type ContentItem = {
   keepsTemplates?: KeptTemplate[];
   /** Conditions for having this item. Failing ones are rules issues (`prerequisite-not-met`), never blocking unless strict mode is on. */
   prerequisites?: Prerequisite[];
+  /** The item is held only through a grant or a pick (a class feature, a subclass), never as a copy of its own: `addItem` of it is `not-addable`, and apps leave it out of add-item catalogs. Replaces its content type's `grantOnly` (`false` lets one item of a grant-only type be added). The loaded ruleset gives every item the value that applies. */
+  grantOnly?: boolean;
   /** The item may be picked more than once (a feat taken again): exclusivity groups (a choice's `unique`) don't apply to it, so a pick of it in one choice of a group leaves it eligible in the others, and isn't `already-picked`. Default false. */
   repeatable?: boolean;
   /** Templates only: the items this template may be applied to: one query, or several, any of which may match. With several, the template's item fields are the template fields and those every listed type declares; its formulas see `item` as the first type's. */
@@ -1175,6 +1177,8 @@ export type ContentType = {
   /** Copies have the core `equipped` flag (`self.equipped`). */
   equippable?: boolean;
   copies?: Copies;
+  /** Items of this type are held only through grants and picks (class features, subclasses, ancestry traits), never as copies of their own: `addItem` of one is `not-addable`, and apps leave them out of add-item catalogs. An item's own `grantOnly` replaces it. Homebrew items of the type follow it. Default false. */
+  grantOnly?: boolean;
   /** Actions every item of this type has, in addition to the item's own. */
   actions?: ActionOrUse[];
   label?: I18nKey;
@@ -2348,17 +2352,23 @@ export type Ruleset = {
       tagOptions?: Tag[];
     }
   >;
-  /** The content types, by qualified ID. PROVISIONAL shape, except that a type with a copy limit carries it as written (`copies`), so an app reads it here, and each item field and state key with `where` carries `options`: the IDs it takes, content in content order (hidden items left out) or fields in ruleset order, for an app's picker. `templateFields` and items' own state keys with `where` carry it too. */
+  /** The content types, by qualified ID. PROVISIONAL shape, except that a type with a copy limit carries it as written (`copies`), so an app reads it here, as does a grant-only type (`grantOnly`), and each item field and state key with `where` carries `options`: the IDs it takes, content in content order (hidden items left out) or fields in ruleset order, for an app's picker. `templateFields` and items' own state keys with `where` carry it too. */
   contentTypes: Record<
     string,
     {
       copies?: Copies;
+      grantOnly?: boolean;
       fields?: DeclsWithOptions;
       state?: DeclsWithOptions;
     }
   >;
-  /** The content items by qualified ID, in content order: packs in load order, then each pack's content in its release's order (packs.md, "Dependencies and load order"). */
-  content: Record<string, unknown>;
+  /** The content items by qualified ID, in content order: packs in load order, then each pack's content in its release's order (packs.md, "Dependencies and load order"). PROVISIONAL shape, except that an item held only through grants and picks carries `grantOnly: true` (its own, else its content type's), so an app leaves it out of an add-item catalog. */
+  content: Record<
+    string,
+    {
+      grantOnly?: boolean;
+    }
+  >;
   rules?: Record<string, unknown>;
   /** The creation starts: every pack's `creation` list in load order, a later start replacing an earlier one with the same `id` in its place. `action` is qualified; `pack` is the pack that declared the start, whose text names it (`creation.<id>.name`). */
   creation?: {
@@ -3078,6 +3088,7 @@ export type ErrorCode =
   | 'duplicate-id'
   | 'standard-copy'
   | 'not-per-copy'
+  | 'not-addable'
   | 'not-equippable'
   | 'unknown-state-key'
   | 'template-not-applicable'

@@ -28,8 +28,9 @@ The spec leaves these to the app. Packs give the app what it needs for each: an 
   ephemeral one.
 - **Sheet layout and catalogs:** laying out the sheet from the display hints (computeSheet
   gives each group's members, sorted, and says which groups, fields and state keys are shown;
-  priority and visibility are the app's), and listing content that isn't a choice. Engines may
-  offer helpers outside the spec.
+  priority and visibility are the app's), and listing content that isn't a choice, leaving out
+  hidden and grant-only items (`hidden`, `grantOnly` in the ruleset's `content`;
+  [content.md](content.md#grant-only-content)). Engines may offer helpers outside the spec.
 
 ## The calls
 

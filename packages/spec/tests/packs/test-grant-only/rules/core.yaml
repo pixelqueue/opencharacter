@@ -1,0 +1,23 @@
+# Traits come only from a species (its grant or its pick); a feat is added on its own unless it
+# says otherwise, and one trait may be.
+fields:
+  toughness: { type: integer, formula: 0 }
+
+contentTypes:
+  species: {}
+  trait:
+    grantOnly: true
+  feat: {}
+
+actions:
+  # Adds the trait the app names.
+  - id: gain
+    params:
+      trait: { type: string }
+    steps:
+      - id: add
+        kind: changes
+        to: self
+        changes:
+          - type: addItem
+            entry: { item: "'traits.' + params.trait" }

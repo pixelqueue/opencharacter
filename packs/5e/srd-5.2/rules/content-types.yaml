@@ -170,13 +170,16 @@ contentTypes:
       - use: spend-hit-die
 
   subclass:
+    grantOnly: true
     copies: { max: 0 }
     fields:
       class: { type: id, of: class, required: true }
 
-  feature: {}
+  feature:
+    grantOnly: true
 
   feat:
+    grantOnly: true
     copies: { max: 0 }
     fields:
       category:
@@ -288,7 +291,8 @@ contentTypes:
       upcastHealDice: { type: integer }
       upcastHealBonus: { type: integer }
 
-  trait: {}
+  trait:
+    grantOnly: true
 
   species:
     copies: { max: 1 }
@@ -307,6 +311,7 @@ contentTypes:
       - { id: species, target: creature.species, op: set, value: item.id }
 
   lineage:
+    grantOnly: true
     copies: { max: 0 }
     fields:
       species: { type: id, of: species, required: true }

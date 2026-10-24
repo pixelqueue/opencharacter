@@ -263,7 +263,7 @@ ruleset:
 
 ```ts
 const classes = Object.values(ruleset.content).filter(
-  (item) => item.type === '5e-srd-5.1:class' && !item.hidden,
+  (item) => item.type === '5e-srd-5.1:class' && !item.hidden && !item.grantOnly,
 );
 // item.qid is the qualified ID to put in an addItem change
 ```
@@ -271,8 +271,10 @@ const classes = Object.values(ruleset.content).filter(
 - `ruleset.contentTypes` lists every content type by qualified name, with its declared fields.
 - `ruleset.content` lists every item by qualified ID, in content order (packs in load order,
   then each pack's content in file order), after `extends` and overrides, with
-  `type` (the qualified type name), `hidden` (hidden by a later pack: leave it out) and
-  `deprecated` (still valid, but don't offer it for new characters).
+  `type` (the qualified type name), `hidden` (hidden by a later pack: leave it out),
+  `grantOnly` (held only through what grants or picks it, a class feature or a subclass:
+  leave it out of an "add" catalog; `addItem` of it is `not-addable`) and `deprecated` (still
+  valid, but don't offer it for new characters).
 - An item's `fields` are its raw values. Numbers and dice in them are formulas as written in the
   pack (usually plain literals like `1d8`).
 

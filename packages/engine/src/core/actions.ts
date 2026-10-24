@@ -4025,6 +4025,8 @@ function proposedEntry(
 ): Record<string, unknown> {
   const qid = contentRef(ctx, frame, decl.item, bound, linked, other);
   const foreign = linked || unloadedPack(ctx.ruleset, qid);
+  if (!foreign && ctx.ruleset.content[qid]?.grantOnly)
+    throw new ActionError('not-addable', { item: qid });
   let id = decl.id;
   if (id === undefined) {
     const used = new Set(

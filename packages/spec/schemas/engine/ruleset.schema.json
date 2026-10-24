@@ -53,13 +53,16 @@
       }
     },
     "contentTypes": {
-      "description": "The content types, by qualified ID. PROVISIONAL shape, except that a type with a copy limit carries it as written (`copies`), so an app reads it here, and each item field and state key with `where` carries `options`: the IDs it takes, content in content order (hidden items left out) or fields in ruleset order, for an app's picker. `templateFields` and items' own state keys with `where` carry it too.",
+      "description": "The content types, by qualified ID. PROVISIONAL shape, except that a type with a copy limit carries it as written (`copies`), so an app reads it here, as does a grant-only type (`grantOnly`), and each item field and state key with `where` carries `options`: the IDs it takes, content in content order (hidden items left out) or fields in ruleset order, for an app's picker. `templateFields` and items' own state keys with `where` carry it too.",
       "type": "object",
       "additionalProperties": {
         "type": "object",
         "properties": {
           "copies": {
             "$ref": "../content-type.schema.json#/$defs/copies"
+          },
+          "grantOnly": {
+            "type": "boolean"
           },
           "fields": {
             "$ref": "#/$defs/declsWithOptions"
@@ -71,8 +74,16 @@
       }
     },
     "content": {
-      "description": "The content items by qualified ID, in content order: packs in load order, then each pack's content in its release's order (packs.md, \"Dependencies and load order\").",
-      "type": "object"
+      "description": "The content items by qualified ID, in content order: packs in load order, then each pack's content in its release's order (packs.md, \"Dependencies and load order\"). PROVISIONAL shape, except that an item held only through grants and picks carries `grantOnly: true` (its own, else its content type's), so an app leaves it out of an add-item catalog.",
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "grantOnly": {
+            "type": "boolean"
+          }
+        }
+      }
     },
     "rules": {
       "type": "object"

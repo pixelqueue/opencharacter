@@ -2243,6 +2243,14 @@ export class PackChecker {
         if (!hit) this.report.error(file, `${where}: unknown content "${tree.value.value}"`);
         else if (hit.item.type === 'template')
           this.report.error(file, `${where}: "${tree.value.value}" is a template`);
+        else {
+          const typeName = this.ruleset.typeOf(hit);
+          const typeDef = typeName
+            ? this.ruleset.contentType(typeName, this.ruleset.scope(hit.pack))?.def
+            : undefined;
+          if ((hit.item.grantOnly ?? typeDef?.grantOnly) === true)
+            this.report.error(file, `${where}: "${tree.value.value}" is grant-only`);
+        }
       }
       for (const ref of typeof to === 'object' ? [] : (change.entry.templates ?? []))
         if (!this.ruleset.item(ref, this.scope))
