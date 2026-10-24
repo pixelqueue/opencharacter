@@ -51,9 +51,9 @@ shape, an optional **dice function**.
      `params.<name>` as `{ id, type, tags, value }`: the field view its `where` sees (the qualified
      ID, the field's type and its tags on the sheet, written and computed, `[]` if none) and the
      field's computed value.
-   - A **content parameter with `where`** (`type: id, of: <content type>`)
-     takes an item ID, qualified or local to the action's pack. An ID that isn't an item of the
-     type, or whose item doesn't match `where` (`item` the candidate, the character's fields,
+   - A **content parameter** (`type: id, of: <content type>`) takes an item ID, qualified or
+     local to the action's pack. An ID that isn't an item of the type, or whose item doesn't
+     match its `where` if it has one (`item` the candidate, the character's fields,
      `action.item` and `action.self` the action's own), is `invalid-option` (data: `param`,
      `option`). Formulas see `params.<name>` as the qualified ID.
 3. **Situational choices.** `situational` maps qualified situational IDs to values. Missing
