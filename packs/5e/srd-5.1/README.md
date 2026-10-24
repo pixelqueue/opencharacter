@@ -292,8 +292,13 @@ processes:
 - **Open enums** (`extendEnums`): weapon `damageType` and `ammunition`, gear `category` and
   `ammunition`, tool, vehicle and magic item `category`, spell `school`, `damageType` and
   `damage2Type`, monster `subtype`, and monster action `damageType`, `damage2Type` and
-  `saveDamageType`. A new damage type also needs its tag (`damage.sonic`), declared and
-  named in the add-on.
+  `saveDamageType`, and the `item-power` action's `damageType`
+  (`5e-srd-5.1:actions.item-power.params.damageType`). A new damage type also needs its tag
+  (`damage.sonic`), declared and named in the add-on.
+- **Creature types:** a new one goes in `5e-srd-5.1:fields.creature.type`, the monster's
+  `creatureType`, a condition's `by` (`types.condition.state.by`) and the Arrow of Slaying's
+  `slays` (`magic-items.arrow-of-slaying.state.slays`); an attack reads the target's type through
+  an open view field, so a target of the added type is attacked as any other.
 - **Choices** (`extendChoices`): a class's listed choices (skills, fighting styles, expertise)
   take values and items; choices over a type (subclasses, spells, feats) offer the add-on's
   content already.
@@ -303,9 +308,8 @@ processes:
   `level-up.gain`, `rest.long` and `rest.short`, and the attack's `weapon-hit` and
   `ammunition`.
 
-Still closed: the abilities, skills, creature types, weapon and armor categories and conditions
-are the game's fixed sets (an attack reads its target's creature type as a closed view field); the `item-power` action's damage type is a parameter, which can't be open (an
-add-on item with a new damage type writes its own action).
+Still closed: the abilities, skills, weapon and armor categories and conditions are the game's
+fixed sets.
 
 ## Limitations
 
