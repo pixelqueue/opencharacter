@@ -1,0 +1,36 @@
+description: an item's state key its type now declares, of the same type, is not removed
+specVersion: 0.1.0
+call: checkRelease
+previous:
+  inline:
+    manifest:
+      id: test-pack
+      version: 1.0.0
+      specVersion: 0.1.0
+      license: CC0-1.0
+      defaultLanguage: en
+    rules:
+      contentTypes:
+        cohort: {}
+    content:
+      - id: cohorts.gang
+        type: cohort
+        state:
+          gangType: { type: enum, values: [rooks, thugs], default: thugs }
+next:
+  inline:
+    manifest:
+      id: test-pack
+      version: 1.1.0
+      specVersion: 0.1.0
+      license: CC0-1.0
+      defaultLanguage: en
+    rules:
+      contentTypes:
+        cohort:
+          state:
+            gangType: { type: enum, values: [rooks, thugs], default: thugs, open: true }
+    content:
+      - id: cohorts.gang
+        type: cohort
+# gangType moves from the item to its type: its copies keep their saved values

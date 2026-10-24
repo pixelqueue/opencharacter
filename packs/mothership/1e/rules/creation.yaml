@@ -23,6 +23,7 @@ actions:
       - { id: body, kind: roll, tags: [creation], parts: [{ dice: 2d10 }, { value: 10 }] }
       - id: class
         kind: choice
+        tags: [creation.class]
         options: { content: { type: class } }
         random: '!params.choose'
         recommend: options[0]
@@ -32,16 +33,19 @@ actions:
       - { id: health, kind: roll, tags: [creation], parts: [{ dice: 1d10 }, { value: 10 }] }
       - id: skills
         kind: choice
+        tags: [creation.skills]
         options: { pending: { entry: 'steps.class.added[0]' } }
         random: '!params.choose'
         recommend: options[0]
       - { id: credits, kind: roll, tags: [creation], parts: [{ dice: 2d10 }] }
       - id: kit
         kind: choice
+        tags: [creation.kit]
         options: [{ id: loadout }, { id: credits }]
         recommend: "'loadout'"
       - id: save
         kind: changes
+        tags: [creation.save]
         changes:
           - { type: set, field: stats.strength, value: steps.strength.total }
           - { type: set, field: stats.speed, value: steps.speed.total }

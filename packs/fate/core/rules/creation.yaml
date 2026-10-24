@@ -20,6 +20,7 @@ actions:
         values: [4, 3, 3, 2, 2, 2, 1, 1, 1, 1]
       - id: stunts
         kind: choice
+        tags: [creation.stunts]
         options: { content: { type: stunt, where: picks == 0 } }
         repeat: { max: 3 }
         changes:
@@ -32,6 +33,7 @@ actions:
         recommend: options[0]
       - id: extra
         kind: choice
+        tags: [creation.stunts]
         when: has(steps.more) && steps.more.value > 0
         options:
           content: { type: stunt, where: '!(item.id in steps.stunts.picked) && picks == 0' }
@@ -56,6 +58,7 @@ actions:
           - { type: set, when: "params.phase3 != ''", field: aspects.phase3, value: params.phase3 }
       - id: finish
         kind: changes
+        tags: [creation.finish]
         changes:
           - type: set
             field: fatePoints.current
@@ -84,6 +87,7 @@ actions:
         random: true
       - id: stunts
         kind: choice
+        tags: [creation.stunts]
         options:
           content:
             type: stunt
@@ -110,6 +114,7 @@ actions:
           - { type: set, when: "params.phase3 != ''", field: aspects.phase3, value: params.phase3 }
       - id: finish
         kind: changes
+        tags: [creation.finish]
         changes:
           - { type: set, field: fatePoints.current, value: refresh.base }
           - { type: finishCreation }

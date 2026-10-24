@@ -863,7 +863,11 @@ export function checkRelease(
   const prevStates = states(previous);
   const nextStates = states(next);
   for (const [id, { decl }] of prevStates) {
-    const now = nextStates.get(id);
+    // An item's key that its type declares now, of the same type, stays on its copies.
+    const slash = id.lastIndexOf('/');
+    const type = nextItems.get(id.slice(0, slash))?.type;
+    const now =
+      nextStates.get(id) ?? (type ? nextStates.get(`${type}${id.slice(slash)}`) : undefined);
     if (!now || now.decl.type !== decl.type) changes.push({ kind: 'state-removed', id });
   }
   const prevChoices = choicesOf(previous);

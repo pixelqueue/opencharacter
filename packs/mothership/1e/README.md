@@ -177,11 +177,28 @@ for the player's choices and other characters.
 
 ## Add-on packs
 
-A pack that depends on `mothership-1e` can add content of its types. Creation offers every class
-of the ruleset: the guided start lists it, the random start draws over all of them (the book's d4
-with the core four), and the class's own choices (its stat change, its skills) are asked as the
-core classes' are. Skills, weapons and armor join their picks and actions the same way. A
-weapon's wound type is a written list (an enum), so an add-on can't add one yet.
+A pack that depends on `mothership-1e` can add content of its types, and it joins the core's:
+
+- **Classes:** creation offers every class of the ruleset: the guided start lists it, the random
+  start draws over all of them (the book's d4 with the core four), and the class's own choices
+  (its stat change, its skills) are asked as the core classes' are.
+- **Skills:** each class's skill picks are queries by tier, so an added skill is offered by tier.
+  The Scientist's Expert and first Trained picks offer the skills whose `towardMaster` is set (on
+  the way to some Master skill); an added Expert or Trained skill sets it when a Master skill
+  follows it.
+- **Open enums** (values in the add-on's rules' `extendEnums`, named in its text under the
+  core's key):
+  - `mothership-1e:types.weapon.fields.woundType`: a weapon's wound type;
+  - `mothership-1e:types.class.fields.trauma`: a class's trauma response, for an added class
+    whose own effects and rules read `trauma.response`.
+- **Tagged creation steps:** an add-on's rules-level `option` effects reach the choice steps
+  tagged `creation.class`, `creation.skills` and `creation.kit` of `roll-character` (an added
+  kit beside the loadout and credits), and its `changes` effects the `creation.save` step (a
+  gear pack adding the class's loadout and clearing `loadout.owed`).
+
+Still closed: a weapon's `range` and a skill's `tier` (the game's fixed sets), and the
+`wound-roll` action's `woundType` parameter and results: an action parameter can't be an open
+enum, so `wound-roll` takes the five core wound types only.
 
 ## Text only, or the app's
 

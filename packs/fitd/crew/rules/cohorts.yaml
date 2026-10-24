@@ -1,3 +1,9 @@
+# The gang types. An add-on adds one to the family, its `upgrades.elite.<type>` field, and the
+# value to the gang type enums (`startingCohort`, `scaleGang`, `gangType`, `extraGangType`,
+# `trainedGang`).
+families:
+  gang: [adepts, rooks, rovers, skulks, thugs]
+
 contentTypes:
   cohort:
     nameFrom: label
@@ -6,6 +12,16 @@ contentTypes:
       cost: { type: integer, default: 2 }
     state:
       label: { type: string, default: '' }
+      # A gang's types; an expert's are `expertType` and `extraType`.
+      gangType:
+        { type: enum, values: [adepts, rooks, rovers, skulks, thugs], default: thugs, open: true }
+      extraGangType:
+        {
+          type: enum,
+          values: [none, adepts, rooks, rovers, skulks, thugs],
+          default: none,
+          open: true,
+        }
       traits: { type: integer, default: 1, min: 1, max: 2 }
       harm: { type: integer, default: 0, min: 0, max: 4 }
     computed:
@@ -27,10 +43,7 @@ fields:
   cohorts.elite:
     type: set
     of: string
-    formula: >-
-      (upgrades.elite.adepts > 0 ? ['adepts'] : []) + (upgrades.elite.rooks > 0 ? ['rooks'] : [])
-        + (upgrades.elite.rovers > 0 ? ['rovers'] : []) + (upgrades.elite.skulks > 0 ? ['skulks'] : [])
-        + (upgrades.elite.thugs > 0 ? ['thugs'] : [])
+    formula: "filterList(keysOf('gang'), fieldOf('upgrades.elite.{gang}', x) > 0)"
   cohorts.boxes:
     type: integer
     formula: >-

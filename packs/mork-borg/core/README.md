@@ -293,6 +293,35 @@ start a character with `creating: true` and run one of the creation starts below
   armor damage as dots, a broken weapon or shield only when broken, and prices in silver
   (`units.silver`); quantity is hidden except where it counts (ammunition, scrolls, weapons).
 
+## Add-on packs
+
+A pack that depends on `mork-borg-core` can add content of its types, and it joins the core's:
+
+- **Classes:** the random `class` start draws among every class offered (a d6 with the core six)
+  and the guided one lists them; a class's `feature` choice is drawn among its options, its
+  features' weapons go through `features.weapons`, a class with `startingScroll` gets the random
+  scroll, one with `getsBetter` runs its own `get-better-part`, and one with `brews` shows the
+  decoctions group.
+- **Gear:** the guided start offers each item the tables give as a pick among its type's
+  content, add-on gear included; a picked weapon with `ammo` is followed by a pick among the
+  ammunition of that kind (Presence + 10 of it). The random starts keep the book's tables.
+- **Open enums** (values in the add-on's rules' `extendEnums`, named in its text under the
+  core's key): `mork-borg-core:types.weapon.fields.ammo` and `mork-borg-core:types.ammo.fields.kind`
+  (a new kind of ammunition, added to both), and `mork-borg-core:types.scroll.fields.kind` (a
+  new kind of scroll; the sheet sections scrolls by kind, and the book's tables, the Hermit's
+  scroll and the Invisible College keep to unclean and sacred).
+- **Extendable choices:** each core class's `feature` takes inline options from the add-on's
+  `extendChoices` (`'mork-borg-core:classes.fanged-deserter': { feature: { options: [...] } }`),
+  drawn with the class's own (a d7 with one added).
+- **Tagged creation steps** of `create-character`, for an add-on's rules-level `option` effects:
+  `creation.class`, `creation.abilities` (the classless best abilities), `creation.weapon`,
+  `creation.armor`, `creation.scroll`, `creation.equipment`, `creation.shield`, `creation.ammo`
+  and `creation.features`; for its `changes` effects: `creation.scores` (saving the rolls) and
+  `creation.gear` (adding the starting gear).
+
+Still closed: a scroll's and a decoction's `amountKind`, `durationUnit` and a decoction's
+`state`, which the core's actions read.
+
 ## Coverage
 
 The sheet and the core rules are modeled. What's missing is left to the app or the table:
