@@ -69,7 +69,7 @@
       "type": "boolean"
     },
     "then": {
-      "description": "Incoming-change and roll effects only: changes to the effect's own entry once it counted. On an incoming-change effect, applyChanges applies them right after the adjust is routed, when the effect counted (its `when` held and stacking kept it); on a roll effect, the action proposes them `to: self` after the roll step, once, when the effect changed the roll (effects.md, \"Roll effects that end themselves\"). The entry is `self`: the copy for a `holder` effect, the applied entry for an `applied` one (for content an applied grant reaches, the granting entry). Each is a `setState` or `adjustState` with `entry: self`, which changes the state `self` reads the key from (for picked or held granted content that declares the key, its pick's state or its grant's saved state; otherwise the entry's, for picked or granted content the owning copy's), or with `pick: owner` or `grant: owner`, the pick or holder grant that activated the effect's content; their `value` and `by` are formulas seeing `item`, `self` and `incoming` (on a roll effect, the roll effect's context). On an `applied` effect, a `removeEffect` with `entry: self` ends the entry (a ward that triggers once, a condition that lasts one roll). Only for effects with an entry: on the rules' effects, a situational choice's and choice effects it is a load error (`then-without-copy`).",
+      "description": "Incoming-change and roll effects only: changes to the effect's own entry once it counted. On an incoming-change effect, applyChanges applies them right after the adjust is routed, when the effect counted (its `when` held and stacking kept it); on a roll effect, the action proposes them `to: self` after the first roll step of the run that the effect changed, at most once per action run (effects.md, \"Roll effects that end themselves\"). The entry is `self`: the copy for a `holder` effect, the applied entry for an `applied` one (for content an applied grant reaches, the granting entry). Each is a `setState` or `adjustState` with `entry: self`, which changes the state `self` reads the key from (for picked or held granted content that declares the key, its pick's state or its grant's saved state; otherwise the entry's, for picked or granted content the owning copy's), or with `pick: owner` or `grant: owner`, the pick or holder grant that activated the effect's content; their `value` and `by` are formulas seeing `item`, `self` and `incoming` (on a roll effect, the roll effect's context). On an `applied` effect, a `removeEffect` with `entry: self` ends the entry (a ward that triggers once, a condition that lasts one roll). Only for effects with an entry: on the rules' effects, a situational choice's and choice effects it is a load error (`then-without-copy`).",
       "type": "array",
       "items": {
         "$ref": "#/$defs/thenChange"
@@ -516,14 +516,14 @@
           "type": "array"
         },
         "from": {
-          "description": "`self`: only choice steps of actions made by the item carrying this effect. `any` (default): every matching choice step the character's actions reach.",
+          "description": "`self`: only choice steps of actions made by the item carrying this effect (not on the rules' effects, which have no item). `any` (default): every matching choice step the character's actions reach.",
           "enum": ["self", "any"]
         }
       },
       "additionalProperties": false
     },
     "option": {
-      "description": "An option an `option` effect adds to a choice step. Its ID is `<content id>#<id>`, named by `<content id>.options.<id>.name`; the effect's `when` is its condition. When it is picked, its `flags` are set, then its `changes`, if any, are resolved like a `changes` step's at the choice step's path, before the step's own `changes`; without them the pick is only recorded, for later steps to read (`steps.<id>.picked`). In its `when` and `changes`, `item` and `self` are the content carrying the effect (`entry: self` is that copy), and the action's own are `action.item`, `action.self` and `action.step`.",
+      "description": "An option an `option` effect adds to a choice step. Its ID is `<content id>#<id>`, named by `<content id>.options.<id>.name` (for the rules' effects, `<pack>:rules#<id>`, named by `rules.options.<id>.name` in the pack); the effect's `when` is its condition. When it is picked, its `flags` are set, then its `changes`, if any, are resolved like a `changes` step's at the choice step's path, before the step's own `changes`; without them the pick is only recorded, for later steps to read (`steps.<id>.picked`). In its `when` and `changes`, `item` and `self` are the content carrying the effect (`entry: self` is that copy), and the action's own are `action.item`, `action.self` and `action.step`.",
       "type": "object",
       "required": ["id"],
       "properties": {

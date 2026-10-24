@@ -518,6 +518,8 @@ interface Ctx {
   proposed: Proposed[];
   stepsRun: number;
   rolls: Map<string, { result: Record<string, unknown>; items: BuiltItem[] }>;
+  /** The effects whose `then` the run has proposed: each proposes it at most once. */
+  ended: Set<string>;
 }
 
 interface Frame {
@@ -572,6 +574,7 @@ function run(
     proposed: [],
     stepsRun: 0,
     rolls: new Map(),
+    ended: new Set(),
   };
   // An ephemeral offer is cleared by the changes of the run that takes it up.
   const takenUp = state.action.followUp;
@@ -2186,14 +2189,19 @@ function rollStep(ctx: Ctx, frame: Frame, step: Step, path: string): void {
     ...(bounds.length ? { bounds } : {}),
     ...(result.rolls ? { rolls: result.rolls as RollLog[] } : {}),
   });
-  // Each effect that changed the roll proposes its `then` once, in effect order.
-  for (const c of [...changed].toSorted((a, b) => a.instance.order - b.instance.order))
-    for (const then of c.effect.then ?? []) {
+  // Each effect that changed the roll proposes its `then`, in effect order, once per run.
+  for (const c of [...changed].toSorted((a, b) => a.instance.order - b.instance.order)) {
+    const i = c.instance;
+    const key = JSON.stringify([i.optionId, i.applied ?? null, i.source.entry ?? null]);
+    if (!c.effect.then?.length || ctx.ended.has(key)) continue;
+    ctx.ended.add(key);
+    for (const then of c.effect.then) {
       const change = rollThen(ruleset, c.instance, then, (formula) =>
         outputData(sheet.evaluate(formula, c.pack, effectCtx(c))),
       );
       if (change) ctx.proposed.push({ to: 'self', step: path, change });
     }
+  }
 }
 
 /**
@@ -2604,6 +2612,17 @@ function optionFrame(frame: Frame, instance: EffectInstance): Frame {
   };
 }
 
+/**
+ * Content items, templates and the rules add options and changes to steps; `from: self`, only a
+ * copy's to its own actions.
+ */
+function addsToSteps(instance: EffectInstance, frame: Frame, from: string | undefined): boolean {
+  const { type, id, entry } = instance.source;
+  if (type === 'rules') return from !== 'self' && id !== undefined;
+  if (type !== 'item' && type !== 'template') return false;
+  return id !== undefined && (from !== 'self' || entry === frame.entry);
+}
+
 /** Of instances sharing a `stackKey` or an ID, only the first is offered. */
 function addedOptions(
   ctx: Ctx,
@@ -2620,9 +2639,7 @@ function addedOptions(
     const target = effect.target;
     if (effect.op !== 'option' || typeof target !== 'object' || !('choices' in target)) continue;
     if (!target.choices.some((tag) => matchesTag(tag, tags))) continue;
-    if (target.from === 'self' && instance.source.entry !== frame.entry) continue;
-    if (instance.source.type !== 'item' && instance.source.type !== 'template') continue;
-    if (instance.source.id === undefined) continue;
+    if (!addsToSteps(instance, frame, target.from)) continue;
     const value = effect.value as OptionValue;
     const id = `${instance.source.id}#${value.id}`;
     if (out.some((c) => c.id === id)) continue;
@@ -2669,7 +2686,7 @@ const contentOrder = new WeakMap<Ruleset['content'], LoadedItem[]>();
 function contentInOrder(ruleset: Ruleset): LoadedItem[] {
   let items = contentOrder.get(ruleset.content);
   if (!items) {
-    items = Object.values(ruleset.content).toSorted((a, b) => (a.qid < b.qid ? -1 : 1));
+    items = Object.values(ruleset.content);
     contentOrder.set(ruleset.content, items);
   }
   return items;
@@ -3326,8 +3343,7 @@ function addedChanges(ctx: Ctx, frame: Frame, step: Step, path: string): void {
     const target = effect.target;
     if (effect.op !== 'changes' || typeof target !== 'object' || !('steps' in target)) continue;
     if (!target.steps.some((tag) => matchesTag(tag, tags))) continue;
-    if (target.from === 'self' && instance.source.entry !== frame.entry) continue;
-    if (instance.source.type !== 'item' && instance.source.type !== 'template') continue;
+    if (!addsToSteps(instance, frame, target.from)) continue;
     const added = optionFrame(frame, instance);
     if (effect.when !== undefined) {
       const v = ctx.sheet.evaluate(effect.when, instance.pack, context(added, { action }));

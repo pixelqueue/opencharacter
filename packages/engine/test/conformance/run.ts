@@ -92,7 +92,7 @@ const expectedKeys: Record<string, string[]> = {
   startAction: ['status', 'outcome', 'proposedChanges', 'needs', 'log', 'errors', 'errorData'],
   upgrade: ['ok', 'errors', 'character', 'pending', 'report'],
   checkRelease: ['ok', 'changes', 'errors'],
-  loadRuleset: ['errors', 'conflicts', 'creation', 'packs'],
+  loadRuleset: ['errors', 'conflicts', 'creation', 'packs', 'enumOrigins'],
 };
 
 function licenseParts(packs: readonly object[]): unknown[] {
@@ -176,6 +176,7 @@ function run(dir: string): void {
       expect(expected.errors).toBeUndefined();
       if (expected.conflicts) expect(result.ruleset.conflicts).toEqual(expected.conflicts);
       if (expected.creation) expect(result.ruleset.creation).toEqual(expected.creation);
+      if (expected.enumOrigins) expect(result.ruleset.enumOrigins).toEqual(expected.enumOrigins);
       if (expected.packs) {
         expect(licenseParts(result.ruleset.packs)).toEqual(licenseParts(expected.packs as []));
       }

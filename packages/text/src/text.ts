@@ -66,6 +66,10 @@ export interface TextOptions {
   content?: Readonly<Record<string, HeadlineItem>>;
   /** Field display hints (`ruleset.rules.display`), for a headline's `field_<field>_text`. */
   display?: { fields?: Readonly<Record<string, FieldHint>> } | undefined;
+  /** `ruleset.enumOrigins`: the pack whose text names a value another pack's open enum gained. */
+  enumOrigins?: Readonly<Record<string, Readonly<Record<string, string>>>>;
+  /** `ruleset.optionOrigins`: the pack whose text names an option another pack's choice gained. */
+  optionOrigins?: Readonly<Record<string, Readonly<Record<string, string>>>>;
 }
 
 export interface HeadlineItem {
@@ -317,6 +321,14 @@ export function createText(options: TextOptions): Text {
     ref.pack === null ? specMessage(ref.key, args) : message(ref.pack, ref.key, args);
 
   const content = (id: string, args?: Args) => lookup(contentKey(id), args) ?? id;
+  // A value added to an open enum is named by the adding pack, under the enum's own key.
+  const enumValue = (ref: MessageRef, value: string): string | undefined => {
+    const own = lookup(ref);
+    if (own !== undefined || ref.pack === null) return own;
+    const at = /^(.*)\.values\.[^.]+\.name$/.exec(ref.key)?.[1];
+    const origin = at ? options.enumOrigins?.[`${ref.pack}:${at}`]?.[value] : undefined;
+    return origin === undefined ? undefined : message(origin, ref.key);
+  };
   // `<item>#<option>` a content type adds: named by the type, found through `options.content`.
   const lookupTypeOption = (option: string) => {
     const hash = option.lastIndexOf('#');
@@ -341,7 +353,7 @@ export function createText(options: TextOptions): Text {
   };
   const action = (id: string) => lookup(actionKey(id)) ?? id;
   const value = (typeId: string, name: string, v: string, of: 'fields' | 'state' = 'fields') =>
-    lookup(valueKey(typeId, name, v, of)) ?? v;
+    enumValue(valueKey(typeId, name, v, of), v) ?? v;
 
   const blockArgs = (
     template: string,
@@ -373,7 +385,7 @@ export function createText(options: TextOptions): Text {
         v === undefined || v === null
           ? undefined
           : ((of === 'state' ? lookup(stateValueKey(qid, name, String(v))) : undefined) ??
-            lookup(valueKey(typeId, name, String(v), of)));
+            enumValue(valueKey(typeId, name, String(v), of), String(v)));
       if (own !== undefined || typeof v !== 'string') return own ?? v;
       return setMember(v, pack);
     };
@@ -640,13 +652,13 @@ export function createText(options: TextOptions): Text {
       return name;
     },
     field,
-    fieldValue: (id, v) => lookup(fieldValueKey(id, v)) ?? v,
+    fieldValue: (id, v) => enumValue(fieldValueKey(id, v), v) ?? v,
     param: (actionId, param) => lookup(paramKey(actionId, param)) ?? param,
     paramDescription: (actionId, param) => lookup(paramKey(actionId, param, 'description')),
     paramValue: (actionId, param, v) => lookup(paramValueKey(actionId, param, v)) ?? v,
     stateValue: (item, key, v, typeId) =>
       lookup(stateValueKey(item, key, v)) ??
-      (typeId ? lookup(valueKey(typeId, key, v, 'state')) : undefined) ??
+      (typeId ? enumValue(valueKey(typeId, key, v, 'state'), v) : undefined) ??
       v,
     situational: (id) => lookup(situationalKey(id)) ?? id,
     situationalValue: (id, v) => lookup(situationalValueKey(id, v)) ?? v,
@@ -674,11 +686,17 @@ export function createText(options: TextOptions): Text {
       if (copy) return text.copy(copy);
       const isContent = context.isContent ?? ((x: string) => x.includes(':'));
       if (isContent(option)) return content(option);
-      if (context.choice)
+      if (context.choice) {
+        const { owner, slot, id: choiceId } = context.choice;
+        const ref = inlineOptionKey(context.choice, id);
+        // An option a dependent pack added is named by that pack, under the choice's own key.
+        const origin = options.optionOrigins?.[`${owner}/${slot?.choice ?? choiceId}`]?.[option];
         return (
-          lookup(inlineOptionKey(context.choice, id)) ??
-          setMember(option, split(context.choice.owner)[0])
+          lookup(ref) ??
+          (origin === undefined ? undefined : message(origin, ref.key)) ??
+          setMember(option, origin ?? split(owner)[0])
         );
+      }
       if (context.action)
         return (
           (context.content ? lookup(contentOptionKey(context.content, option)) : undefined) ??

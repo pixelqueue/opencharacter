@@ -1,0 +1,54 @@
+description: 'requireChoice on content held as a pick with no nested picks saved: the step is reported, and the new choice comes back as pending'
+specVersion: 0.2.0
+call: upgrade
+from:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.2.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        contentTypes:
+          class: {}
+          boon: {}
+      content:
+        - id: classes.seer
+          type: class
+          choices:
+            - id: boon
+              from: { type: boon }
+        - id: boons.lucky
+          type: boon
+to:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 2.0.0
+        specVersion: 0.2.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        contentTypes:
+          class: {}
+          boon: {}
+      content:
+        - id: classes.seer
+          type: class
+          choices:
+            - id: boon
+              from: { type: boon }
+        - id: boons.lucky
+          type: boon
+          choices:
+            - id: charm
+              from: { values: [coin, feather] }
+      upgrades:
+        - pack: test-pack
+          from: 1.0.0
+          to: 2.0.0
+          steps:
+            - op: requireChoice
+              owner: boons.lucky
+              choice: charm

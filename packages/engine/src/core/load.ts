@@ -257,6 +257,8 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
     queries: {},
     families: Object.fromEntries(families),
     familyOrigins,
+    enumOrigins: {},
+    optionOrigins: {},
     conflicts: [],
     sources: packs,
   };
@@ -304,6 +306,7 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
     }
   }
   ruleset.tags = [...tags].toSorted();
+  extendEnums(ruleset, byId.values(), scopeOf, err);
   const declaredByPack = new Map<string, Set<string>>();
   const declaredTags = (pack: string): Set<string> => {
     let set = declaredByPack.get(pack);
@@ -974,6 +977,72 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
       else unknown('content', hidden, pid);
     }
   }
+  // Options packs add to their dependencies' choices, after every override, in load order.
+  for (const pack of byId.values()) {
+    const pid = pack.manifest.id;
+    for (const [target, choices] of Object.entries(pack.rules.extendChoices ?? {})) {
+      const bad = (message: string) => err('invalid-extension', { pack: pid, target, message });
+      const owner = target.slice(0, target.indexOf(':'));
+      if (owner === pid || !scopeOf(pid).includes(owner)) {
+        bad(`${owner} is not a dependency of ${pid}`);
+        continue;
+      }
+      const rulesLevel = target === `${owner}:rules`;
+      const item = rulesLevel ? undefined : resolved.get(target);
+      if (!rulesLevel && !item) {
+        unknown('content', target, pid);
+        continue;
+      }
+      const roots: Choice[] = rulesLevel
+        ? Object.values(ruleset.rules.choices)
+            .filter((c) => c.pack === owner)
+            .map((c) => structuredClone(c))
+        : structuredClone(item?.choices ?? []);
+      for (const [path, addition] of Object.entries(choices)) {
+        const parts = path.split('/');
+        let choice = roots.find((c) => c.id === parts[0]);
+        let keyRoot = target;
+        for (let at = 1; choice && at < parts.length; at += 2) {
+          const from = choice.from;
+          const option =
+            'options' in from ? from.options.find((o) => o.id === parts[at]) : undefined;
+          keyRoot = `${keyRoot}.choices.${choice.id}.options.${parts[at]}`;
+          choice = option?.choices?.find((c) => c.id === parts[at + 1]);
+        }
+        if (!choice) {
+          bad(`no choice "${path}"`);
+          continue;
+        }
+        const origins = (ruleset.optionOrigins[`${keyRoot}/${choice.id}`] ??= {});
+        const from = choice.from;
+        if ('items' in addition && 'items' in from) {
+          for (const ref of addition.items) {
+            const qid = q.content(ref, pid);
+            if (!from.items.includes(qid)) from.items.push(qid);
+          }
+        } else if ('values' in addition && 'values' in from && Array.isArray(from.values)) {
+          for (const value of addition.values) {
+            if (from.values.includes(value)) continue;
+            from.values.push(value);
+            origins[String(value)] = pid;
+          }
+        } else if ('options' in addition && 'options' in from) {
+          for (const option of addition.options) {
+            if (from.options.some((o) => o.id === option.id)) {
+              err('duplicate-id', { id: option.id, owner: `${target}/${path}`, pack: pid });
+              continue;
+            }
+            from.options.push({ ...q.option(option, pid), pack: pid });
+            origins[option.id] = pid;
+          }
+        } else {
+          bad(`"${path}" doesn't take ${Object.keys(addition)[0]}`);
+        }
+      }
+      if (item) resolved.set(target, { ...item, choices: roots });
+      else for (const c of roots) ruleset.rules.choices[`${owner}:${c.id}`] = c as never;
+    }
+  }
   // Item fields against their content type: the item's own values, then the required ones on the
   // merged item.
   [...byId.values()].forEach((pack, i) => {
@@ -1016,8 +1085,9 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
     }
     resolved.set(qid, { ...item, fields });
   }
+  // Content order: the load order, then each pack's content order.
   ruleset.content = Object.fromEntries(
-    [...resolved.entries()].toSorted(([a], [b]) => (a < b ? -1 : 1)),
+    Object.keys(ruleset.content).map((qid) => [qid, resolved.get(qid) as LoadedItem]),
   );
 
   // The start by its ID, or `<pack>:<id>`; from the slot's pack or a dependency of it, when that
@@ -1367,3 +1437,61 @@ function matchesQuery(
 }
 
 export type { FormulaError };
+
+/**
+ * A dependent pack's values for an open enum, after the enum's own, in load order, each once:
+ * `<pack>:fields.<field>`, `<pack>:types.<type>.fields.<field>` or `<pack>:types.<type>.state.<key>`.
+ */
+function extendEnums(
+  ruleset: Ruleset,
+  packs: Iterable<PackRelease>,
+  scopeOf: (id: string) => string[],
+  err: (code: string, data: Record<string, unknown>) => void,
+): void {
+  for (const pack of packs) {
+    const pid = pack.manifest.id;
+    for (const [target, values] of Object.entries(pack.rules.extendEnums ?? {})) {
+      const bad = (message: string) => err('invalid-extension', { pack: pid, target, message });
+      const colon = target.indexOf(':');
+      const owner = target.slice(0, colon);
+      const address = target.slice(colon + 1);
+      if (owner === pid || !scopeOf(pid).includes(owner)) {
+        bad(`${owner} is not a dependency of ${pid}`);
+        continue;
+      }
+      const field = /^fields\.(.+)$/.exec(address);
+      const typed = /^types\.([^.]+)\.(fields|state)\.([^.]+)$/.exec(address);
+      let decl: ValueDecl | undefined;
+      let replace: ((next: ValueDecl) => void) | undefined;
+      if (field) {
+        const qid = `${owner}:${field[1]}`;
+        decl = ruleset.fields[qid];
+        replace = (next) => (ruleset.fields[qid] = { ...ruleset.fields[qid]!, ...next });
+      } else if (typed) {
+        const [, name, of, key] = typed as unknown as [string, string, 'fields' | 'state', string];
+        const qid = `${owner}:${name}`;
+        const type = ruleset.contentTypes[qid];
+        decl = type?.[of]?.[key];
+        replace = (next) => {
+          const def = ruleset.contentTypes[qid]!;
+          ruleset.contentTypes[qid] = { ...def, [of]: { ...def[of], [key]: next } };
+        };
+      }
+      if (!decl || !replace || decl.type !== 'enum') {
+        bad(`${address} is not an enum of ${owner}`);
+        continue;
+      }
+      if (decl.open !== true) {
+        bad(`${address} is not open`);
+        continue;
+      }
+      const merged = [...(decl.values ?? [])];
+      for (const value of values) {
+        if (merged.includes(value)) continue;
+        merged.push(value);
+        (ruleset.enumOrigins[target] ??= {})[value] = pid;
+      }
+      replace({ ...decl, values: merged });
+    }
+  }
+}

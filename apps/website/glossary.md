@@ -23,6 +23,7 @@ One-line definitions of OCF terms, consistent with the [specification](../../pac
 - **Computed value:** a value worked out for each copy of an item from the character (a FitD cohort's quality), declared by its content type, item or templates, never saved; computeSheet returns it in `copies` and the copy's actions and follow-ups read it as `self.<name>`.
 - **Condition:** a formula that must evaluate to true or false (`when`, `showWhen`, `where`, prerequisites).
 - **Constraint:** a game rule in the rules data, checked against the current character, whose failure is a rules issue.
+- **Content order:** the order the engine lists content in: packs in load order, each pack's content in its release's order (file path order), homebrew last; query matches and choice options follow it, so a dependency's content comes first.
 - **Content item:** one piece of content (a weapon, spell, class, playbook), mechanics only, one file per item.
 - **Content type:** a kind of content a game defines in data, with fields, effects, actions and per-copy state.
 - **Content-type effects:** effects and grants a content type declares for every item of the type, applied before the item's own; an item can `suppress` them by ID.
@@ -44,6 +45,7 @@ One-line definitions of OCF terms, consistent with the [specification](../../pac
 - **Exclusivity group:** choices sharing a `unique` key; an option picked in one is ineligible (`already-picked`) in the others.
 - **Export:** a file of one or more characters with every pack version they pin, each by reference (ID, version, optional URL and integrity hash) or embedded as a release; one that embeds every pack is a bundle, which opens anywhere with nothing else.
 - **Extends:** a pack author's permanent variant of an item, inheriting everything and overriding parts.
+- **Extension (pack):** what a pack adds to a dependency without overriding it: values to an open enum (`extendEnums`), options to a choice (`extendChoices`), options and changes to tagged action steps (its rules' `option` and `changes` effects); additions merge in load order.
 - **Extension (character):** app-specific data in a character file under the app's own namespace, carried along untouched.
 - **Field:** one value on a character, keyed by a permanent field ID.
 - **Field parameter:** an action parameter of type `id` with `of: field`, read as `params.<name>.value` and `.id`.
@@ -67,6 +69,7 @@ One-line definitions of OCF terms, consistent with the [specification](../../pac
 - **Monster / NPC:** a character file like any other, usually with mostly fixed values.
 - **Nested choice:** a choice inside an option, pending as soon as that option is picked.
 - **Overflow:** what happens when an adjust takes an input field past a bound: another field is adjusted and this one resets (FitD stress into trauma).
+- **Open enum:** an enum a rules field or content type marks `open: true`, to which packs depending on its pack add values (`extendEnums`), named in their own text; everything reads the merged list.
 - **Override:** a homebrew content file that changes only the properties it mentions on another pack's item.
 - **Pack:** a versioned bundle of rules and/or content with a manifest, license and translations.
 - **Pack release:** the single JSON document the build produces from a pack's files; the input to loadRuleset.

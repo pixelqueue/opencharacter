@@ -1,0 +1,16 @@
+description: "An open enum takes only its own values and those a loaded pack adds: an add-on's weapon with a damage type nobody adds is invalid-item-field"
+specVersion: 0.2.0
+call: loadRuleset
+packs:
+  - path: ../../../packs/test-core
+  - inline:
+      manifest:
+        id: addon-pack
+        version: 1.0.0
+        specVersion: 0.2.0
+        license: CC0-1.0
+        defaultLanguage: en
+        dependencies: { test-core: ^0.1.0 }
+      rules: {}
+      content:
+        - { id: weapons.ray, type: weapon, fields: { damageType: cosmic } }

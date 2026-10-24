@@ -209,6 +209,11 @@
       "description": "A pack's field families or shared view fields don't expand: a placeholder names no family, a view-field set is unknown, an expanded key isn't a field ID or comes out twice, or a family or set is declared twice. Data: `pack`, `message`."
     },
     {
+      "id": "invalid-extension",
+      "kind": "load",
+      "description": "A pack's `extendEnums` or `extendChoices` entry doesn't apply: the pack it names isn't one of the pack's dependencies, the enum isn't declared or isn't `open`, the content item or the choice isn't there, or the additions are of another kind than the choice's options. Data: `pack`, `target`, `message`."
+    },
+    {
       "id": "link-start-mismatch",
       "kind": "load",
       "description": "A follow-up's `create` names a creation start from a pack that a character using the slot's `pack` wouldn't load: neither that pack nor one of its dependencies. Checked when the slot's pack is loaded too; `pnpm validate` checks it always. Data: `link`, `start`, `pack`."

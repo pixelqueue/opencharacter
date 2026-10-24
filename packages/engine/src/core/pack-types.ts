@@ -31,6 +31,8 @@ export interface ValueDecl {
   optional?: boolean;
   /** Item fields: each copy may save its own value. */
   perCopy?: boolean;
+  /** Enums of a content type or rules field: dependent packs may add values (`extendEnums`). */
+  open?: boolean;
   default?: Literal;
   min?: Formula;
   max?: Formula;
@@ -161,7 +163,15 @@ export interface InlineOption {
   effects?: Effect[];
   grants?: Grant[];
   choices?: Choice[];
+  /** Loaded: the pack an option another pack's choice gained comes from (`extendChoices`). */
+  pack?: string;
 }
+
+/** Options one pack adds to a dependency's choice, of the choice's own kind. */
+export type ChoiceAddition =
+  | { items: string[] }
+  | { values: (string | number)[] }
+  | { options: InlineOption[] };
 
 export interface Choice {
   id: string;
@@ -632,6 +642,10 @@ export function bandSet(doc: BandSetDoc): BandSet {
 export interface RulesDoc {
   /** Named lists of keys for field families; expanded before loading. */
   families?: Record<string, (string | number)[]>;
+  /** Values added to a dependency's open enums, by `<pack>:<enum>` address. */
+  extendEnums?: Record<string, string[]>;
+  /** Options added to a dependency's choices: by `<pack>:<content id>` or `<pack>:rules`, then choice. */
+  extendChoices?: Record<string, Record<string, ChoiceAddition>>;
   /** Named sets of declared view fields; expanded before loading. */
   viewFields?: Record<string, Record<string, DeclaredField>>;
   tags?: string[];

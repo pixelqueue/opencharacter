@@ -1,4 +1,11 @@
-import type { ContentItem, I18nDoc, PackManifest, RulesDoc, UpgradeDoc } from './pack-types.ts';
+import type {
+  ChoiceAddition,
+  ContentItem,
+  I18nDoc,
+  PackManifest,
+  RulesDoc,
+  UpgradeDoc,
+} from './pack-types.ts';
 
 /** A pack's source documents, as read from its folder (pack.yaml, rules/, content/, i18n/). */
 export interface PackSource {
@@ -30,6 +37,17 @@ export function buildRelease(source: PackSource): PackRelease {
     // Kept for loadRuleset to expand; the build's documents come expanded already.
     if (doc.families) rules.families = { ...rules.families, ...doc.families };
     if (doc.viewFields) rules.viewFields = { ...rules.viewFields, ...doc.viewFields };
+    for (const [target, choices] of Object.entries(doc.extendChoices ?? {}))
+      for (const [choice, addition] of Object.entries(choices)) {
+        const into = ((rules.extendChoices ??= {})[target] ??= {});
+        const earlier = into[choice] as Record<string, unknown[]> | undefined;
+        const [kind, list] = Object.entries(addition)[0] as [string, unknown[]];
+        into[choice] = { [kind]: [...(earlier?.[kind] ?? []), ...list] } as ChoiceAddition;
+      }
+    for (const [target, values] of Object.entries(doc.extendEnums ?? {}))
+      (rules.extendEnums ??= {})[target] = [
+        ...new Set([...(rules.extendEnums?.[target] ?? []), ...values]),
+      ];
     if (doc.tags) rules.tags = [...new Set([...(rules.tags ?? []), ...doc.tags])];
     if (doc.fields) rules.fields = { ...rules.fields, ...doc.fields };
     if (doc.links) rules.links = { ...rules.links, ...doc.links };

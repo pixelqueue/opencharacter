@@ -755,3 +755,62 @@ describe('values named by the content an action runs for', () => {
     expect(worded.options).toEqual([{ id: 'str', label: 'Disadvantage with Strength' }]);
   });
 });
+
+describe('values an add-on adds to open enums', () => {
+  const text = createText({
+    languages: ['en'],
+    packs: {
+      en: {
+        core: { 'types.weapon.fields.damageType.values.blunt.name': 'Blunt' },
+        addon: {
+          'types.weapon.fields.damageType.values.sonic.name': 'Sonic',
+          'types.weapon.state.edge.values.humming.name': 'Humming',
+          'fields.stance.values.floating.name': 'Floating',
+        },
+      },
+    },
+    spec: {},
+    enumOrigins: {
+      'core:types.weapon.fields.damageType': { sonic: 'addon' },
+      'core:types.weapon.state.edge': { humming: 'addon' },
+      'core:fields.stance': { floating: 'addon' },
+    },
+  });
+
+  it("are named by the adding pack's text, under the enum's own key", () => {
+    expect(text.value('core:weapon', 'damageType', 'sonic')).toBe('Sonic');
+    expect(text.value('core:weapon', 'damageType', 'blunt')).toBe('Blunt');
+    expect(text.fieldValue('core:stance', 'floating')).toBe('Floating');
+    expect(text.stateValue('core:weapons.club', 'edge', 'humming', 'core:weapon')).toBe('Humming');
+    expect(text.fieldValue('core:stance', 'lofty')).toBe('lofty');
+  });
+});
+
+describe('options an add-on adds to a choice', () => {
+  const text = createText({
+    languages: ['en'],
+    packs: {
+      en: {
+        core: { 'classes.warden.choices.knack.options.tracking.name': 'Tracking' },
+        addon: {
+          'classes.warden.choices.knack.options.hexing.name': 'Hexing',
+          'rules.choices.boon.options.grace.name': 'Grace',
+          'rules.options.meditate.name': 'Meditate',
+        },
+      },
+    },
+    spec: {},
+    optionOrigins: {
+      'core:classes.warden/knack': { hexing: 'addon' },
+      'core:rules/boon': { grace: 'addon' },
+    },
+  });
+
+  it("are named by the adding pack's text, under the choice's own key", () => {
+    const knack = { owner: 'core:classes.warden', id: 'knack' };
+    expect(text.option('tracking', { choice: knack })).toBe('Tracking');
+    expect(text.option('hexing', { choice: knack })).toBe('Hexing');
+    expect(text.option('grace', { choice: { owner: 'core:rules', id: 'boon' } })).toBe('Grace');
+    expect(text.option('addon:rules#meditate')).toBe('Meditate');
+  });
+});

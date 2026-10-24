@@ -92,9 +92,12 @@ changes**:
 | An enum item field loses values                                               | `item-field-values-removed` | `<pack>:<type>/<field>` |
 | A tag the pack's rules declare is no longer declared                          | `tag-removed`               | `<pack>:<tag>`          |
 | A rules action is removed                                                     | `action-removed`            | `<pack>:<action>`       |
+| An open enum stops being open (packs that add to it no longer load)           | `enum-closed`               | `<pack>:<enum address>` |
+| A value or option the pack adds to a dependency's enum or choice is gone      | `extension-removed`         | `<target>/<value>`      |
 
 `checkRelease` lists them in `changes` after the shape changes, in this table's order, then by
-ID. Each needs a breaking bump, but no upgrade script: no step can migrate a removed tag, and a
+ID. An `extension-removed` ID names the dependency's enum or choice as the extension's key does
+(`orc-2e:types.weapon.fields.damageType/sonic`), not the pack itself. Each needs a breaking bump, but no upgrade script: no step can migrate a removed tag, and a
 character's homebrew that uses one is reported by `upgrade`. A step that renames the thing
 (`renameField`, `renameContentType`, `renameItemField`, `mapItemValues`, `renameTag`,
 `renameAction`) migrates homebrew that uses it.
@@ -134,7 +137,7 @@ state can refer to what it names:
 | `renameChoice`  | `owner?`, `from`, `to`                                                        | Renames a choice key on entries holding `owner`, in picks of `owner`, and in prefixed keys (`<owner>/<choice>`). Without `owner`, renames a rules-level choice. A prefixed `from` moves another content's choice onto `owner`'s ([below](#prefixed-choice-keys)) |
 | `removeChoice`  | `owner?`, `choice`                                                            | Removes the choice's picks, with their nested picks, wherever `renameChoice` would rename it                                                                                                                                                                     |
 | `renameOption`  | `owner?`, `choice`, `from`, `to?`                                             | Replaces a picked option of the choice (`from`) with `to`; without `to`, removes the pick and its nested picks                                                                                                                                                   |
-| `requireChoice` | `owner?`, `choice`                                                            | Records that a new required choice exists; the upgraded character reports it as pending                                                                                                                                                                          |
+| `requireChoice` | `owner?`, `choice`                                                            | Records that a new required choice exists; the upgraded character reports it as pending. Listed in the report when the character holds `owner` (a copy or a pick of it, with picks of its own saved or not), always for a rules-level choice                     |
 | `renameTag`     | `from`, `to`                                                                  | Replaces the tag in saved `set` values of `of: tag` input fields (and in the homebrew, below)                                                                                                                                                                    |
 | `adoptStandard` | `item`                                                                        | Renames the first entry holding the item (features, then inventory, in file order) to the item's standard copy ID, keeping its state, picks and templates; nothing when an entry has that ID                                                                     |
 

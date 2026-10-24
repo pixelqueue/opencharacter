@@ -13,7 +13,7 @@ A content type's interface has four parts:
 | Actions | `actions` on the type (every item gets them) and on items | What rolls can it make?                                |
 | State   | `state: { <name>: valueDecl }`                            | What's tracked on _your_ copy? (charges, shots, level) |
 
-A `valueDecl` has `type` (a value type), plus `values` for enums, `of` for `id`/`set`, `members` for an `id` or `set` of `tag` ([rules-and-fields.md](rules-and-fields.md#which-tags-a-field-takes)), `required`, `default`, and `min`/`max`.
+A `valueDecl` has `type` (a value type), plus `values` for enums (and `open: true` for a content type's enum that dependent packs may add values to, [rules-and-fields.md](rules-and-fields.md#open-enums)), `of` for `id`/`set`, `members` for an `id` or `set` of `tag` ([rules-and-fields.md](rules-and-fields.md#which-tags-a-field-takes)), `required`, `default`, and `min`/`max`.
 
 Item fields are what an item's author writes, never what changes in play (that is `state`), so
 an app can build a custom-item form from them; each has a name and an optional hint in the
@@ -1083,6 +1083,55 @@ choice's picks, and a copy's computed values, effects, actions and follow-ups ca
 The siblings are the choices of the same owner: the item's, or an inline option's (here
 `two-and-one`'s). Picks are saved input, so two choices may read each other without a loop; each
 sees the other's picks, not its recommendation.
+
+### Adding options to a dependency's choices
+
+A pack that depends on another may add options to that pack's choices without overriding the
+owner, so two add-ons that each add a subclass to the same class both count. It lists them in a
+rules document's `extendChoices`, by the choice's owner, a qualified content ID or
+`<pack>:rules` for a rules-level choice, then by the choice's ID:
+
+```yaml
+# packages/spec/tests/packs/test-addon/rules/core.yaml: an add-on depending on test-core
+extendChoices:
+  'test-core:classes.warden':
+    oath: { items: [oaths.storm] } # its own content, resolved in this pack
+    knack:
+      options:
+        - id: hexing
+          effects: [{ target: hexes, op: add, value: hexPower }] # its own fields
+    skills: { values: [fly] }
+  'test-core:rules':
+    boon: { values: [grace] }
+# its i18n/en.yaml
+classes.warden.choices.knack.options.hexing.name: Hexing
+```
+
+- **Kind.** An addition is the choice's own kind: `items` for a choice over listed items,
+  `values` for written values, `options` for inline options. A choice over a query, or over a
+  `values` formula, takes no additions (the query offers the add-on's content already, by its
+  type), and neither does an addition of another kind: `invalid-extension`.
+- **Which choice.** The ID is the declared one (a slotted choice gains the options in every
+  slot); `<choice>/<option>/<choice>` names a choice of one of its inline options. A choice the
+  owner doesn't have, after overrides, is `invalid-extension`; an owner that isn't loaded content,
+  `unknown-reference`. The owner's pack must be a dependency of the adding pack.
+- **Order.** The additions come after the choice's own options, in load order, and are applied
+  after every override, so an override of the owner keeps them. A listed item or a value already
+  offered is offered once; an inline option whose ID the choice has already is `duplicate-id`.
+  They change the named item only, not items that `extends` it.
+- **Added inline options** belong to the adding pack: their effects, grants, prerequisites and
+  choices read its fields and resolve its references, with the owner's `item` and `self`. They
+  are named in its text under the key the owner's pack would use
+  (`<owner>.choices.<choice>.options.<id>.name`, required); added values optionally so. Their
+  own `option` and `changes` effects would be named by the owner, so they are a build error: the
+  adding pack writes them in its rules' effects instead (below). The
+  ruleset's `optionOrigins` maps each added value and inline option to its pack, by
+  `<owner key root>/<choice>`, so an app (and the wording helper) looks the name up there.
+- **Releases.** Dropping an addition is an interface change (`extension-removed`), see
+  [upgrades.md](upgrades.md#a-packs-interface).
+
+Choice steps of actions take options from the rules too: an add-on's rules-level `option` and
+`changes` effects reach a dependency's tagged steps ([effects.md](effects.md#targets)).
 
 ### Where picks are kept
 
