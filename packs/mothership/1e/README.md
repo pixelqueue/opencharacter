@@ -82,9 +82,9 @@ for the player's choices and other characters.
 - **Character creation:** two starts, both running `roll-character` on a character being
   created that has no class yet, in the Player's Survival Guide's order: stats and saves, the
   class, health, the class's stat change, skills, then the loadout or credits.
-  - `roll` (random): a d4 recommends the class (in the ruleset's content order) and, for the
-    Android and the Scientist, the stat the class lowers or raises; every pick is recommended,
-    so an automatic run finishes the character.
+  - `roll` (random): a die with a face per class offered (a d4 with the four core classes)
+    recommends the class and, for the Android and the Scientist, the stat the class lowers or
+    raises; every pick is recommended, so an automatic run finishes the character.
   - `guided`: no die is rolled for those; the player picks, the first option recommended.
   - Each stat is 2d10+25, each save 2d10+10, maximum health 1d10+10, credits 2d10×10 with a
     class loadout (recommended) or 2d10×100 without one (the `kit` choice). Taking the loadout
@@ -201,8 +201,9 @@ public copies) and its skill tree.
 
 Where the guide is unclear or silent, the pack reads it this way:
 
-- **Random start:** a d4 recommends the class, and for the Android and the Scientist the stat
-  they change: every option equally likely.
+- **Random start:** a draw over the classes offered (a d4 with the core four) recommends the
+  class, and a d4 for the Android and the Scientist the stat they change: every option equally
+  likely.
 - **Class skill picks** never offer a skill the character already has. The Scientist's Expert
   and first Trained picks are limited to those on the way to some Master skill, so a guided run
   can't reach a dead end.
