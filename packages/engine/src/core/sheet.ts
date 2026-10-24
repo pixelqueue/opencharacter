@@ -557,6 +557,14 @@ export class Sheet {
       }),
       picks: () => (this.pickData ??= this.savedPicks()),
       contentPicks: (content, choice) => this.contentPicks(content, choice),
+      rulesPicks: (choice) => {
+        this.rulesPickData ??= ownerPicks(
+          Object.values(ruleset.rules.choices) as Choice[],
+          character.choices ?? {},
+          '',
+        );
+        return Object.hasOwn(this.rulesPickData, choice) ? (this.rulesPickData[choice] ?? []) : [];
+      },
       contentItem: (qid) => this.contentItem(qid),
       grants: () => (this.grantData ??= this.grantViews()),
       fields: () => fieldViews(ruleset),
@@ -695,7 +703,9 @@ export class Sheet {
   private familyContext(
     pack: string,
     read: (qid: string) => f.Value | undefined,
-  ): Required<Omit<f.EvalContext, 'field' | 'roots' | 'character' | 'inAggregate' | 'id'>> {
+  ): Required<
+    Omit<f.EvalContext, 'field' | 'roots' | 'character' | 'inAggregate' | 'nestedAggregate' | 'id'>
+  > {
     const fieldId = (name: string, key: string, id: string) =>
       resolveField(this.ruleset, id, familyFieldPack(this.ruleset, name, key, pack));
     return {
@@ -3365,6 +3375,7 @@ export class Sheet {
   }
 
   private choicesOf: Map<Activation, ChoiceRecord[]> | undefined;
+  private rulesPickData: Record<string, (string | number)[]> | undefined;
 
   /** A choice's picks on every activation of the content, in activation order. */
   private contentPicks(content: string, choice: string): (string | number)[] {

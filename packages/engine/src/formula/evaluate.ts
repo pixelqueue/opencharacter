@@ -7,6 +7,7 @@ import {
   readsCharacter,
   reduceOf,
   staticFilterProblem,
+  unboundAggregate,
 } from './aggregates.ts';
 import type { Node } from './ast.ts';
 import { fail } from './errors.ts';
@@ -50,6 +51,8 @@ export interface CharacterQueries {
    * preset picks, else the saved ones. Unbound during activation.
    */
   contentPicks?(content: string, choice: string): readonly (string | number)[];
+  /** The saved picks of a rules-level choice, `[]` for none; bound activation conditions too. */
+  rulesPicks?(choice: string): readonly (string | number)[];
   /**
    * A content item as merged at load, by qualified ID: its tags and item field values (its
    * content type's defaults included), as `item` reads them; undefined for no such content.
@@ -67,6 +70,11 @@ export interface CharacterQueries {
  */
 export const OWNER_PICKS = '#picks';
 
+/** `rules` or `<pack>:rules`: the owner of rules-level choices, which `picksOf` reads by it. */
+export function isRulesId(id: string): boolean {
+  return id === 'rules' || id.endsWith(':rules');
+}
+
 /**
  * The roots key holding the saved picks of content the owner's tree holds under prefixed keys,
  * `{ <content>: { <choice key>: picks } }`, which `grantedPicksOf` reads.
@@ -78,8 +86,10 @@ export interface EvalContext {
   field(id: string): Value | undefined;
   roots: Readonly<Record<string, unknown>>;
   character?: CharacterQueries;
-  /** Inside an aggregate's argument, where no aggregate is bound again. */
+  /** Inside an aggregate's argument, where only `countPicks` and `countGrants` are bound. */
   inAggregate?: boolean;
+  /** Inside a `countPicks` or `countGrants` within another aggregate: no aggregate is bound. */
+  nestedAggregate?: boolean;
   /** An ID literal's qualified content or field ID, or undefined; unbound: the ID as written. */
   id?(text: string): string | undefined;
   /** A family's values, by the name the formula's pack sees; unbound: none. */
@@ -455,6 +465,21 @@ function call(fn: string, args: Node[], ctx: EvalContext): Value {
     }
     case 'picksOf': {
       if (args.length === 2) {
+        const [content, choice] = args;
+        if (content?.type !== 'string' || choice?.type !== 'string')
+          return fail('type-mismatch', 'picksOf() takes a content ID and a choice ID');
+        if (isRulesId(content.value)) {
+          const rulesPicks = ctx.character?.rulesPicks;
+          if (!rulesPicks)
+            return fail(
+              'unknown-function',
+              "picksOf('rules', choice) is bound only where a character is",
+              {
+                function: fn,
+              },
+            );
+          return fromData(rulesPicks(choice.value));
+        }
         const contentPicks = ctx.character?.contentPicks;
         if (!contentPicks)
           return fail(
@@ -462,9 +487,6 @@ function call(fn: string, args: Node[], ctx: EvalContext): Value {
             'picksOf(content, choice) is not bound in activation conditions or without a character',
             { function: fn },
           );
-        const [content, choice] = args;
-        if (content?.type !== 'string' || choice?.type !== 'string')
-          return fail('type-mismatch', 'picksOf() takes a content ID and a choice ID');
         const qid = ctx.id?.(content.value) ?? content.value;
         return fromData(contentPicks(qid, choice.value));
       }
@@ -688,12 +710,15 @@ export function keptFields(
 
 /** `cond` is evaluated first, `value` only where it holds; `f.value` is computed on first read. */
 function aggregate(fn: string, over: Over, args: Node[], ctx: EvalContext): Value {
-  if (ctx.inAggregate || (readsCharacter(over) && !ctx.character)) {
-    const why = ctx.inAggregate ? 'inside another aggregate' : 'without a character';
-    return fail('unknown-function', `${fn}() is not bound ${why}`, { function: fn });
-  }
+  const why = unboundAggregate(over, ctx);
+  if (why || (readsCharacter(over) && !ctx.character))
+    return fail('unknown-function', `${fn}() is not bound ${why ?? 'without a character'}`, {
+      function: fn,
+    });
   const parts = aggregateArgs(fn, over, args);
-  const inner: EvalContext = { ...ctx, inAggregate: true };
+  const inner: EvalContext = ctx.inAggregate
+    ? { ...ctx, nestedAggregate: true }
+    : { ...ctx, inAggregate: true };
   const character = ctx.character as CharacterQueries;
   let elements: unknown[];
   let cond = parts.cond;

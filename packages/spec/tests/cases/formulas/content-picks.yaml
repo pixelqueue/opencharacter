@@ -1,4 +1,4 @@
-description: "picksOf(content, choice) and grantedPicksOf: the picks of a content's choice, merged over its activations or on the content the owner grants"
+description: "picksOf(content, choice) and grantedPicksOf: the picks of a content's choice, merged over its activations or on the content the owner grants; picksOf('rules', choice), a rules-level choice's"
 specVersion: 0.2.0
 cases:
   # `character.contentPicks` is each content's choices' picks over its activations; `granted`
@@ -53,3 +53,33 @@ cases:
     check: grantedPicksOf('feats.lore')
     granted: {}
     error: wrong-arity
+  # A rules-level choice's picks, by the rules' ID.
+  - name: a rules-level choice
+    evaluate: picksOf('rules', 'crew-type')
+    character: { rulesPicks: { crew-type: [crew-types.bravos] } }
+    value: [crew-types.bravos]
+    valueType: list
+  - name: a rules-level choice by a pack's rules
+    evaluate: picksOf('test-core:rules', 'crew-type')
+    character: { rulesPicks: { crew-type: [crew-types.bravos] } }
+    value: [crew-types.bravos]
+    valueType: list
+  - name: a rules-level choice with no picks
+    evaluate: picksOf('rules', 'crew-type')
+    character: {}
+    value: []
+    valueType: list
+  - name: the rules' choices are bound in activation conditions
+    evaluate: size(picksOf('rules', 'crew-type')) > 0
+    activation: true
+    character: { rulesPicks: { crew-type: [crew-types.bravos] } }
+    value: true
+    valueType: bool
+  - name: the rules' choices are bound in activation conditions, when checking
+    check: size(picksOf('rules', 'crew-type')) > 0
+    activation: true
+    type: bool
+  - name: the rules' choices are not bound without a character
+    check: picksOf('rules', 'crew-type')
+    character: false
+    error: unknown-function
