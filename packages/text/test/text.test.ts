@@ -386,6 +386,29 @@ describe('Forged in the Dark', () => {
 describe('Fate', () => {
   const { ruleset, text } = load('fate/core');
 
+  it("names a parameter error's parameter by its label", () => {
+    const mara = parse(
+      readFileSync(join(root, 'examples', 'characters', 'fate-mara.yaml'), 'utf8'),
+    ) as CharacterDoc;
+    const result = startAction(ruleset, mara, {
+      action: { id: 'fate-core:skill-roll' },
+      params: { action: 'overcome', helpers: -1 },
+    });
+    if (!('errors' in result) || 'status' in result) throw new Error(JSON.stringify(result));
+    const [error] = result.errors;
+    expect(error).toMatchObject({
+      code: 'out-of-range',
+      data: { target: 'helpers', action: 'fate-core:skill-roll' },
+    });
+    expect(text.error(error!)).toBe('"Helpers (+1 each)" must be at least 0.');
+    expect(
+      text.error({
+        code: 'missing-param',
+        data: { param: 'action', action: 'fate-core:skill-roll' },
+      }),
+    ).toBe('The action needs "Action".');
+  });
+
   it('words Fate dice and the ladder', () => {
     const mara = parse(
       readFileSync(join(root, 'examples', 'characters', 'fate-mara.yaml'), 'utf8'),
@@ -630,6 +653,16 @@ describe('error text by its data', () => {
     );
     expect(text.error({ code: 'out-of-range', data: { target, min: 1, max: 5 } })).toBe(
       '"Maximum HP" must be between 1 and 5.',
+    );
+  });
+
+  it("names an item's action parameter by its label", () => {
+    const action = 'mork-borg-core:classes.fanged-deserter#bite';
+    expect(
+      text.error({ code: 'wrong-type', data: { target: 'dr', expected: 'integer', action } }),
+    ).toBe('"Difficulty rating (DR)" needs a value of type integer.');
+    expect(text.error({ code: 'missing-param', data: { param: 'gone', action } })).toBe(
+      'The action needs "gone".',
     );
   });
 

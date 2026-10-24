@@ -633,6 +633,19 @@ export function createText(options: TextOptions): Text {
       }),
     );
 
+  // A parameter error names the parameter by its label in the action's text.
+  const paramLabel = (data: Args): Args => {
+    const owner = data.action;
+    if (typeof owner !== 'string') return {};
+    const out: Record<string, unknown> = {};
+    for (const k of ['param', 'target'] as const) {
+      const name = data[k];
+      if (typeof name === 'string' && !name.includes(':'))
+        out[k] = lookup(paramKey(owner, name)) ?? name;
+    }
+    return out;
+  };
+
   // The spec's text for a code, by the variant its data picks; text that misses an argument is
   // unworded, never the raw template.
   const standard = (
@@ -641,7 +654,7 @@ export function createText(options: TextOptions): Text {
     second: 'errors' | 'issues',
   ): string => {
     const data: Args = error.data ?? {};
-    const args = named(data);
+    const args = { ...named(data), ...paramLabel(data) };
     const keys = [
       ...variants(error.code, data).map((v) => `errors.${error.code}.${v}`),
       `${first}.${error.code}`,

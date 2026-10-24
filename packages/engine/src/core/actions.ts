@@ -827,6 +827,7 @@ function params(
   fixed: Record<string, Formula>,
 ): Record<string, unknown> {
   const out: Record<string, unknown> = {};
+  const at = paramAction(frame);
   for (const [name, decl] of Object.entries(frame.def.params ?? {})) {
     let value: unknown = raw[name];
     if (fixed[name] !== undefined) {
@@ -841,22 +842,23 @@ function params(
     if (value === undefined && decl.default !== undefined) value = decl.default;
     if (value === undefined) {
       if (decl.optional) continue;
-      throw new ActionError('missing-param', { param: name });
+      throw new ActionError('missing-param', { param: name, ...at });
     }
     if (decl.type === 'id' && decl.of === 'field') {
       value = fieldIdOf(value);
       if (typeof value !== 'string')
-        throw new ActionError('wrong-type', { target: name, expected: 'a field ID' });
+        throw new ActionError('wrong-type', { target: name, expected: 'a field ID', ...at });
       const qid = resolveField(ctx.ruleset, value, frame.pack);
       const field = qid ? ctx.ruleset.fields[qid] : undefined;
-      if (!qid || !field) throw new ActionError('invalid-option', { param: name, option: value });
+      if (!qid || !field)
+        throw new ActionError('invalid-option', { param: name, option: value, ...at });
       const tags = ctx.sheet.fieldTags(qid);
       if (decl.where !== undefined) {
         const ok = ctx.sheet.evaluate(decl.where, frame.pack, {
           item: { id: qid, type: field.type, tags },
         });
         if (ok.kind !== 'bool' || !ok.value)
-          throw new ActionError('invalid-option', { param: name, option: value });
+          throw new ActionError('invalid-option', { param: name, option: value, ...at });
       }
       out[name] = {
         id: qid,
@@ -868,13 +870,13 @@ function params(
     }
     const typed = typedValue(decl, value);
     if (typeof typed === 'string')
-      throw new ActionError('wrong-type', { target: name, expected: typed });
+      throw new ActionError('wrong-type', { target: name, expected: typed, ...at });
     if (decl.type === 'id' && decl.of !== undefined && decl.where !== undefined) {
       const qid = resolveContent(ctx.ruleset, value as string, frame.pack);
       const item = qid ? ctx.ruleset.content[qid] : undefined;
       const type = resolveType(ctx.ruleset, decl.of, frame.pack);
       if (!qid || !item || item.type !== type)
-        throw new ActionError('invalid-option', { param: name, option: value });
+        throw new ActionError('invalid-option', { param: name, option: value, ...at });
       const ok = ctx.sheet.evaluate(decl.where, frame.pack, {
         item: itemView(ctx.ruleset, item, [], (field, pack) => {
           const id = resolveField(ctx.ruleset, field, pack);
@@ -886,7 +888,7 @@ function params(
         },
       });
       if (ok.kind !== 'bool' || !ok.value)
-        throw new ActionError('invalid-option', { param: name, option: value });
+        throw new ActionError('invalid-option', { param: name, option: value, ...at });
       out[name] = qid;
       continue;
     }
@@ -894,9 +896,9 @@ function params(
       const list = Array.isArray(value) ? value : [value];
       for (const tag of list.map(String))
         if (!admitsTag(decl.members, tag))
-          throw new ActionError('invalid-option', { param: name, option: tag });
+          throw new ActionError('invalid-option', { param: name, option: tag, ...at });
     }
-    paramRange(name, decl, typed, (bound) => {
+    paramRange(name, at, decl, typed, (bound) => {
       const v = ctx.sheet.evaluate(bound, frame.pack, frame.roots);
       return v.kind === 'int' || v.kind === 'decimal' ? v.value : undefined;
     });
@@ -905,9 +907,19 @@ function params(
   return out;
 }
 
+/** The action a parameter error names, and the entry and source it was started on. */
+function paramAction(frame: Frame): Record<string, string> {
+  return {
+    action: frame.qid,
+    ...(frame.entry !== undefined ? { entry: frame.entry } : {}),
+    ...(frame.source !== undefined ? { source: frame.source } : {}),
+  };
+}
+
 /** A number parameter outside its `min`/`max`, evaluated as the action starts, is out-of-range. */
 function paramRange(
   name: string,
+  at: Record<string, string>,
   decl: ValueDecl,
   value: f.Value,
   boundOf: (bound: Formula) => number | undefined,
@@ -918,7 +930,7 @@ function paramRange(
   const min = bound(decl.min);
   const max = bound(decl.max);
   if ((min !== undefined && value.value < min) || (max !== undefined && value.value > max))
-    throw new ActionError('out-of-range', { target: name, min, max });
+    throw new ActionError('out-of-range', { target: name, min, max, ...at });
 }
 
 function fieldIdOf(value: unknown): unknown {
@@ -1468,14 +1480,16 @@ function handoff(ctx: Ctx, frame: Frame, step: Step, path: string): void {
     const value = given[name];
     if (value === undefined) {
       if (decl.optional || decl.default !== undefined) continue;
-      throw new ActionError('missing-param', { param: name });
+      throw new ActionError('missing-param', { param: name, action: qid });
     }
     const typed = decl.type === 'id' && decl.of === 'field' ? undefined : typedValue(decl, value);
     if (typeof typed === 'string')
-      throw new ActionError('wrong-type', { target: name, expected: typed });
+      throw new ActionError('wrong-type', { target: name, expected: typed, action: qid });
     // A bound that reads the participant's character is checked when its action starts.
     if (typed)
-      paramRange(name, decl, typed, (bound) => (typeof bound === 'number' ? bound : undefined));
+      paramRange(name, { action: qid }, decl, typed, (bound) =>
+        typeof bound === 'number' ? bound : undefined,
+      );
   }
   const passed = handoffParticipants(ctx, frame, step, used);
   const participant = { role: each.role, id: each.view.id as string };
