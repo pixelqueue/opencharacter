@@ -149,5 +149,16 @@ with the core content alone):
   `kit`, runs its `unpack`, then removes it, so only the gear stays.
 - **Foci** join every focus pick; the tags `needs-psionics` and `no-psionics` limit one to
   characters with psionic access or without it.
+- **Open enums:** weapon `ammo`, gear `category` and `kind` (what a weapon reloads with), and
+  armor `category`. An add-on lists new values in `extendEnums`
+  (`'swn-revised:types.weapon.fields.ammo': [spikes]`) and names them in its text.
+- **Tagged steps** take an add-on's rules-level `option` and `changes` effects: `creation.kit`
+  (the starting package pick: an added option replaces the package), `creation.focus` and
+  `level-up.focus` (a focus pick at creation or on advancement: an added option is taken instead
+  of a focus), `creation.finish` (the last changes of both creation actions, before creation
+  ends), `level-up.level` (each new level's skill points), `rest.night` (a night's rest) and
+  `rest.scene` (the end of a scene).
 
-Skills and psychic disciplines are written lists (enums), so an add-on can't add one yet.
+Still closed: skills and psychic disciplines. They are families an add-on could extend, but the
+core's changes name a skill's fields by key (`'skills.' + skill + '.level'`), which resolve in
+this pack only, so an added skill could be read (`fieldOf`) and not raised.

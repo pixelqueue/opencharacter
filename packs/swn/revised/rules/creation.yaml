@@ -208,6 +208,7 @@ actions:
     steps:
       - id: focus
         kind: choice
+        tags: [{ formula: "params.advancement ? 'level-up.focus' : 'creation.focus'" }]
         sheet: proposed
         random: params.random
         recommend: options[0]
@@ -222,13 +223,17 @@ actions:
                   && copy.state.level >= item.maxLevel) == 0)
         changes:
           - type: adjustState
-            when: '!steps.focus.item.repeatable && countCopies(copy.item == picked.id) > 0'
+            when: >-
+              has(picked.item) && !picked.item.repeatable
+                && countCopies(copy.item == picked.id) > 0
             copies: { type: focus, where: item.id == steps.focus.picked }
             limit: 1
             key: level
             by: 1
           - type: addItem
-            when: steps.focus.item.repeatable || countCopies(copy.item == picked.id) == 0
+            when: >-
+              has(picked.item)
+                && (picked.item.repeatable || countCopies(copy.item == picked.id) == 0)
             entry: { item: picked.id }
       - id: picks
         kind: choice
@@ -267,6 +272,7 @@ actions:
       # A package (an add-on pack's too), or credits instead: the class's own package is
       # recommended. The package's own action adds its gear and credits.
       - id: kit
+        tags: [creation.kit]
         kind: choice
         sheet: proposed
         random: params.random
@@ -274,14 +280,17 @@ actions:
         prefer: "countCopies(copy.type == 'class' && copy.fields.kit == item.id)"
         changes:
           - type: addItem
+            when: has(picked.item)
             entry: { id: kit, item: picked.id }
       - id: unpack
         kind: action
+        when: has(steps.kit.item)
         sheet: proposed
         entry: "'kit'"
         use: unpack
       - id: unpacked
         kind: changes
+        when: has(steps.kit.item)
         changes:
           - { type: removeItem, entry: kit }
       # A kit may ready more than half Strength. Readied gear, then all but one weapon (the

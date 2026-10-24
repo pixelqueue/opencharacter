@@ -105,8 +105,20 @@ it with the core's, in the guided picks and the random draws:
 - **Weapons:** a wasteland warrior's weapon is any primitive melee weapon, or a primitive one with
   `kitAmmo` (the bow and its arrows), which comes with that ammunition.
 - **Mutations** join the chosen and the fallback picks; the d6 category and d10 tables, and the
-  d100 negative table, keep the book's odds. The category is a written list (an enum), so an
-  add-on can't add one yet.
+  d100 negative table, keep the book's odds.
+- **Mutation categories** are content of the type `mutationCategory`, which a mutation names in
+  `category`. An added category joins the "two in one category" pick; its mutations' `roll` is
+  their d10 roll within it.
+- **Tagged steps** take an add-on's rules-level `option` and `changes` effects: `creation.kit`
+  (the starting equipment option: an added option is another way to equip), `creation.mutation`
+  (how mutation points are spent), `creation.finish` (the last step of creation) and
+  `advancement.level` (each new level's level and skill points).
+
+- **Open enums:** the stigma fields (`stigma.part`, `stigma.part2`, `stigma.nature`,
+  `stigma.detail`), for more suggestions to set by hand; the rolled tables keep the book's.
+
+Still closed: skills. The core's changes name a skill's fields by key, which resolve in this pack
+only, so an added skill could be read and not raised.
 
 The near-future and wasteland d20 tables are the book's own tables.
 

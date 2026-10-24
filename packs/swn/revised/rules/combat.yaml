@@ -179,6 +179,7 @@ actions:
     results: [rested]
     steps:
       - id: rest
+        tags: [rest.night]
         kind: changes
         changes:
           - { type: adjust, field: hp.current, by: level, when: hp.current > 0, tags: [healing] }
@@ -195,6 +196,7 @@ actions:
     results: [ended]
     steps:
       - id: reset
+        tags: [rest.scene]
         kind: changes
         changes:
           - { type: set, field: effort.scene, value: 0 }

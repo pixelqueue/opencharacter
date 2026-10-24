@@ -292,6 +292,7 @@ actions:
       # afford; spellcasters and the Vowed skip armor, which hinders their magic.
       - { id: silverRoll, kind: roll, tags: [creation], parts: [{ dice: 3d6 }] }
       - id: purse
+        tags: [creation.purse]
         kind: changes
         changes:
           - { type: adjust, field: coins.silver, by: steps.silverRoll.total * 10 }
@@ -371,6 +372,7 @@ actions:
           - *change
 
       - id: finish
+        tags: [creation.finish]
         kind: changes
         sheet: proposed
         changes:
