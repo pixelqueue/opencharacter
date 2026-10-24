@@ -869,6 +869,10 @@ export function createText(options: TextOptions): Text {
         }
         if (found !== undefined) return found;
       }
+      if (issue.code === 'too-many-copies' && data.item !== undefined) {
+        const found = format(findSpec('issues.too-many-copies.item'), named(data), true);
+        if (found !== undefined) return found;
+      }
       return standard(issue, 'issues', 'errors');
     },
     error: (error) => standard(error, 'errors', 'issues'),

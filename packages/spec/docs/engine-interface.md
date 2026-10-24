@@ -87,7 +87,8 @@ Besides these calls, `checkRelease` ([upgrades.md](upgrades.md#the-build-check),
   `{ entry, item, saved }`: the rules' first, then those of active items, so an app can show the
   unsaved ones without running the queries. Each is also a copy in `inventory` or `features`.
 - `activations` lists every content activation in instance order, each with
-  its owner `entry`, how it was reached (`via`), `scope`, `parent` and, for a pick, its choice
+  its owner `entry`, how it was reached (`via`), whether a copy is a standard one
+  (`standard`), `scope`, `parent` and, for a pick, its choice
   `path` ([engine-core.md](engine-core.md#the-activation-list)). A content group's `from: own`
   members are its holder activations of the group's type.
 - `copyLimits` lists each content type with `copies`, in ruleset order, as `{ type, max, perItem,

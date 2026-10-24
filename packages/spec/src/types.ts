@@ -2055,6 +2055,8 @@ export type ComputeSheetOutput = {
     entry?: InstanceId;
     /** How it was reached: `copy` (a `features` or `inventory` entry), `template` (applied to a copy), `grant` (granted by active content, its `when` holding), `pick` (picked in an applicable choice that activates its content) or `applied` (an `applied` entry, or a `scope: applied` grant of one). */
     via: 'copy' | 'template' | 'grant' | 'pick' | 'applied';
+    /** `true` for a copy that is a standard copy, saved or not: one the rules or an active item give every character, which `removeItem` can't remove (`standard-copy`). Absent for every other activation. A `copy` without it is an entry the file saves, which an app may offer to remove. */
+    standard?: true;
     /** `applied` for applied activations; absent for holder ones. */
     scope?: 'applied';
     /** The index in this list of the activation that granted it, owns the choice it was picked in, or owns the template (the nearest listed one, past an inline option); absent for copies, applied entries and content picked or granted at the rules level. */

@@ -6,3 +6,27 @@ standardCopies:
 values:
   test-standard:gear.count: { value: 3 }
 errors: []
+# The kit's lockpicks are `standard` like the rules' copies.
+activations:
+  - item: test-standard:kits.thief
+    via: pick
+    path: { choice: [kit, test-standard:kits.thief] }
+  - {
+      item: test-standard:traits.basic,
+      entry: test-standard-traits-basic,
+      via: copy,
+      standard: true,
+    }
+  - {
+      item: test-standard:gear.lantern,
+      entry: test-standard-gear-lantern,
+      via: copy,
+      standard: true,
+    }
+  - { item: test-standard:gear.rope, entry: test-standard-gear-rope, via: copy, standard: true }
+  - {
+      item: test-standard:gear.lockpicks,
+      entry: test-standard-gear-lockpicks,
+      via: copy,
+      standard: true,
+    }

@@ -696,7 +696,7 @@ is `{ entry?, activation?, item, templates, tags, fields }`:
 `activations` lists every content activation ([Activation](#activation)), in instance order:
 the rules-level picks, then each copy with its templates, grants and picks,
 depth first, then the active applied entries with their applied grants. Each is
-`{ item, entry?, via, scope?, parent?, keptBy?, path? }`:
+`{ item, entry?, via, standard?, scope?, parent?, keptBy?, path? }`:
 
 - `item`: the content's qualified ID (the base item; a template is its own activation).
 - `entry`: the owner copy's instance ID, or for applied content the applied entry's ID; absent
@@ -705,6 +705,9 @@ depth first, then the active applied entries with their applied grants. Each is
   `grant` (granted by active content, its `when` holding), `pick` (a content option of an
   applicable choice that activates its picks) or `applied` (an `applied` entry, or a
   `scope: applied` grant of one).
+- `standard`: `true` for a copy that is a [standard copy](content.md#standard-copies), saved or
+  not, which `removeItem` can't remove (`standard-copy`); absent for every other activation. A
+  `copy` without it is an entry the file saves, the only activation an app offers Remove for.
 - `scope`: `applied` for applied activations; absent for holder ones.
 - `parent`: the index in this list of the activation that granted it, owns the choice it was
   picked in, or owns the template: the nearest listed one, so content picked in an inline
