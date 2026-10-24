@@ -88,7 +88,9 @@ cases:
   `activation: true` makes the case an activation condition, where `countGrants` is unbound.
 - `character.contentPicks` gives `picksOf(content, choice)` its picks, by content and choice
   (`contentPicks: { feats.lore: { topic: [history] } }`); a content it doesn't list has none.
-  `granted` binds `grantedPicksOf` the same way, by content and choice.
+  `granted` binds `grantedPicksOf` the same way, by content and choice. `character.rulesPicks`
+  gives `picksOf('rules', choice)` the rules-level choices' picks, by choice
+  (`rulesPicks: { crew-type: [crew-types.bravos] }`); a choice it doesn't list has none.
 - `character.content` gives `itemField` and `itemTags` their content items, by ID, each with
   `tags` and `fields` (`content: { lineages.red: { fields: { damageType: fire } } }`); an ID it
   doesn't list names no content.

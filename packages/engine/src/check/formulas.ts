@@ -6,6 +6,7 @@ import {
   evaluate,
   fieldFormulaType,
   type FType,
+  isRulesId,
   type Node,
   print,
   references,
@@ -1639,7 +1640,11 @@ class FormulaChecker<L> {
         node.args.length === 2
       ) {
         const [content, choice] = node.args;
-        if (content?.type === 'string' && choice?.type === 'string') {
+        if (content?.type === 'string' && choice?.type === 'string' && isRulesId(content.value)) {
+          const problem = this.rulesChoice(node.fn, content.value, choice.value);
+          if (problem)
+            this.problems.push({ at, where, formula, code: 'unknown-reference', message: problem });
+        } else if (content?.type === 'string' && choice?.type === 'string') {
           const entry = this.set.item(content.value, this.scope);
           const doc = entry?.item;
           const problem = !entry
@@ -1654,6 +1659,21 @@ class FormulaChecker<L> {
       for (const child of children(node)) visit(child);
     };
     visit(tree.value);
+  }
+
+  /** `rules` is the formula's pack's rules, `<pack>:rules` a visible pack's: a choice they declare. */
+  private rulesChoice(fn: string, content: string, choice: string): string | undefined {
+    if (fn === 'grantedPicksOf')
+      return `grantedPicksOf('${content}', …) names no content: the rules aren't granted`;
+    const pack = content === 'rules' ? this.packId : content.slice(0, content.lastIndexOf(':'));
+    if (!this.scope.includes(pack))
+      return `picksOf('${content}', …) names the rules of a pack not visible from the pack`;
+    const keys = choiceKeys(
+      [...(this.set.rules.get(pack)?.choices.values() ?? [])].map((c) => c.def),
+    );
+    return keys.includes(choice)
+      ? undefined
+      : `picksOf('${content}', '${choice}') names no rules-level choice of ${pack} (${keys.join(', ') || 'none'})`;
   }
 
   /**

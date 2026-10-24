@@ -14,8 +14,6 @@ contentTypes:
         }
       claims: { type: set, of: claim, default: [] }
     effects:
-      - { id: upgrades, target: crewType.upgrades, op: set, value: item.upgrades }
-      - { id: claims, target: crewType.claims, op: set, value: item.claims }
       - id: starting
         target: upgrades.starting
         op: set
@@ -33,8 +31,6 @@ contentTypes:
       favorite: { type: boolean, default: false }
 
 fields:
-  crewType.upgrades: { type: set, of: field, formula: '[]' }
-  crewType.claims: { type: set, of: claim, formula: '[]' }
   abilities.crew: { type: set, of: crewAbility }
 
 choices:
@@ -58,6 +54,4 @@ display:
     - id: crew-type
       priority: 0
   fields:
-    crewType.upgrades: { hidden: true }
-    crewType.claims: { hidden: true }
     abilities.crew: { hidden: true }

@@ -42,6 +42,16 @@ export function readsCharacter(over: Over): boolean {
   return over !== 'list';
 }
 
+/** Inside an aggregate, `countPicks` and `countGrants` nest one level, bound per outer element. */
+export function unboundAggregate(
+  over: Over,
+  ctx: { inAggregate?: boolean; nestedAggregate?: boolean },
+): string | undefined {
+  if (!ctx.inAggregate) return undefined;
+  if (ctx.nestedAggregate) return 'inside a nested aggregate';
+  return over === 'picks' || over === 'grants' ? undefined : 'inside another aggregate';
+}
+
 export type Reduce = 'count' | 'sum' | 'max' | 'min' | 'filter' | 'map' | 'sort';
 
 export function reduceOf(fn: string): Reduce {

@@ -1,4 +1,4 @@
-import { familyPattern, patternIds } from './evaluate.ts';
+import { familyPattern, isRulesId, patternIds } from './evaluate.ts';
 import {
   AGGREGATE_ROOT,
   aggregateArgs,
@@ -7,6 +7,7 @@ import {
   readsCharacter,
   reduceOf,
   staticFilterProblem,
+  unboundAggregate,
 } from './aggregates.ts';
 import type { Node } from './ast.ts';
 import { fail } from './errors.ts';
@@ -48,8 +49,10 @@ export interface CheckContext {
   activation?: boolean;
   /** Whether `picksOf` is bound: the formula has an owner whose choices it can read. */
   picks?: boolean;
-  /** Inside an aggregate's argument, where no aggregate is bound again. */
+  /** Inside an aggregate's argument, where only `countPicks` and `countGrants` are bound. */
   inAggregate?: boolean;
+  /** Inside a `countPicks` or `countGrants` within another aggregate: no aggregate is bound. */
+  nestedAggregate?: boolean;
   /** Whether an ID literal names content or a field the pack sees; unbound, any ID passes. */
   id?(text: string): boolean;
   /** A family's values, by the name the pack sees. Unbound: any family, `dyn`. */
@@ -407,10 +410,13 @@ function checkCall(fn: string, args: Node[], ctx: CheckContext): FType {
       return 'bool';
     case 'picksOf': {
       if (args.length === 2) {
-        if (!ctx.character || ctx.activation)
+        const rules = args[0]?.type === 'string' && isRulesId(args[0].value);
+        if (!ctx.character || (ctx.activation && !rules))
           return fail(
             'unknown-function',
-            'picksOf(content, choice) is not bound in activation conditions or without a character',
+            rules
+              ? "picksOf('rules', choice) is bound only where a character is"
+              : 'picksOf(content, choice) is not bound in activation conditions or without a character',
             { function: fn },
           );
         if (args.some((a) => a.type !== 'string'))
@@ -515,16 +521,19 @@ function checkCall(fn: string, args: Node[], ctx: CheckContext): FType {
 }
 
 function checkAggregate(fn: string, over: Over, args: Node[], ctx: CheckContext): FType {
-  if (ctx.inAggregate || (readsCharacter(over) && !ctx.character)) {
-    const why = ctx.inAggregate ? 'inside another aggregate' : 'without a character';
-    return fail('unknown-function', `${fn}() is not bound ${why}`, { function: fn });
-  }
+  const why = unboundAggregate(over, ctx);
+  if (why || (readsCharacter(over) && !ctx.character))
+    return fail('unknown-function', `${fn}() is not bound ${why ?? 'without a character'}`, {
+      function: fn,
+    });
   if (over === 'grants' && ctx.activation)
     return fail('unknown-function', `${fn}() is not bound in activation conditions`, {
       function: fn,
     });
   const parts = aggregateArgs(fn, over, args);
-  const inner: CheckContext = { ...ctx, inAggregate: true };
+  const inner: CheckContext = ctx.inAggregate
+    ? { ...ctx, nestedAggregate: true }
+    : { ...ctx, inAggregate: true };
   let rootType: FType =
     over === 'copies' ? COPY : over === 'picks' || over === 'grants' ? PICK_ROOT : FIELD_ROOT;
   if (parts.list) {

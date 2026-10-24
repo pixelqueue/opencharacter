@@ -69,3 +69,42 @@ cases:
     check: countPicks(countCopies(true) > 0)
     roots: []
     error: unknown-function
+  - name: countPicks inside another aggregate
+    check: 'sumFields(countPicks(f.id in pick.fields.upgrades) > 0 ? 0 : 1)'
+    roots: []
+    type: int
+  - name: countGrants inside another aggregate
+    check: countCopies(countGrants(grant.item == copy.item) > 0)
+    roots: []
+    type: int
+  - name: no aggregate inside a nested countPicks
+    check: countCopies(countPicks(countGrants(true) > 0) > 0)
+    roots: []
+    error: unknown-function
+  - name: countPicks is bound per outer element
+    evaluate: "countCopies(countPicks('draconic' in pick.tags && pick.fields.damage == copy.fields.damage) > 0)"
+    character:
+      copies:
+        - { type: armor, fields: { damage: fire } }
+        - { type: armor, fields: { damage: cold } }
+        - { type: armor, fields: { damage: fire } }
+      picks:
+        - { type: trait, tags: [draconic], fields: { damage: fire } }
+    value: 2
+    valueType: int
+  - name: countGrants is bound per outer element
+    evaluate: 'sumList([1, 2, 3], countGrants(grant.state.committed == x) > 0 ? x : 0)'
+    character:
+      grants:
+        - { type: gift, state: { committed: 1 } }
+        - { type: gift, state: { committed: 3 } }
+    value: 4
+    valueType: int
+  - name: countPicks inside a list's per-element argument, where the list is
+    evaluate: 'countList([true, false], countPicks(pick.state.used == x) == 1)'
+    character:
+      picks:
+        - { type: invocation, state: { used: true } }
+        - { type: invocation, state: { used: false } }
+    value: 2
+    valueType: int
