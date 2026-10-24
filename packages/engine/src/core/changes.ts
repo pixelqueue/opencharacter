@@ -16,9 +16,10 @@ import type {
   Formula,
   Literal,
   Situational,
+  ThenChange,
   ValueDecl,
 } from './pack-types.ts';
-import { appliesQueries } from './pack-types.ts';
+import { appliesQueries, thenRule } from './pack-types.ts';
 import { admitsTag, type LoadedItem, localPart, type Ruleset } from './ruleset.ts';
 import { homebrewIdsInUse, withHomebrew, withoutHomebrew } from './homebrew.ts';
 import {
@@ -1720,7 +1721,7 @@ function applyThen(
         });
       }
     };
-    for (const then of i.effect.then) {
+    for (const then of (thenRule(i.effect)?.changes ?? []) as ThenChange[]) {
       if (entry !== undefined && removed.has(entry)) break;
       if (then.type === 'removeEffect') {
         if (i.applied === undefined || entry === undefined) continue;

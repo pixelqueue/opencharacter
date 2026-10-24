@@ -20,6 +20,16 @@ effects:
     op: rollModifier
     value: { kind: advantage }
     when: aided
+  # Advantage against a marked target, which ends the target's mark.
+  - target: { rolls: [attack] }
+    op: rollModifier
+    value: { kind: advantage }
+    when: has(participants.target) && size(participants.target) > 0 && participants.target[0].marked
+    then:
+      to: target
+      when: applied
+      changes:
+        - { type: removeEffect, applied: { where: 'item.id == @conditions.marked' } }
 
 actions:
   - id: attack
@@ -47,3 +57,18 @@ actions:
       - { id: roll, kind: roll, tags: [attack], parts: [{ dice: 1d20 }] }
       - { id: again, kind: roll, tags: [attack], parts: [{ dice: 1d20 }] }
       - { id: result, kind: outcome, data: { total: steps.again.total } }
+  # An attack at one target, whose view says whether it is marked.
+  - id: strike
+    participants:
+      target:
+        max: 1
+        fields:
+          marked: { type: boolean, default: false }
+    steps:
+      - { id: roll, kind: roll, tags: [attack], parts: [{ dice: 1d20 }] }
+      - { id: result, kind: outcome, data: { total: steps.roll.total } }
+  # An attack whose changes are held and never released.
+  - id: held-attack
+    steps:
+      - { id: inner, kind: action, use: attack, hold: true }
+      - { id: result, kind: outcome, data: { total: steps.inner.data.total } }

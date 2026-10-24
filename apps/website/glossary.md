@@ -94,6 +94,7 @@ One-line definitions of OCF terms, consistent with the [specification](../../pac
 - **Rules issue:** an objection by the game's rules to a valid character; reported, not blocking, unless strict mode is on.
 - **Ruleset:** the output of loadRuleset: all packs merged and resolved, passed to every other call.
 - **Runtime error:** a change rejected because the result wouldn't be a valid character file; the character is unchanged.
+- **Roll effect `then`:** changes a roll effect proposes after a roll step it changed (or, with `when: applied`, was in play on), once per action run or, with `once: roll`, per roll: ending a condition, spending a use, or, `to` another character, ending the target's entry.
 - **Safety limit:** a spec-defined cap (exploding dice, nesting depth, action steps) protecting engines from untrusted packs.
 - **Shape change:** a difference between two pack releases that changes what saved state means (removed content, field, state key, choice or option; a new required choice); it needs a breaking bump and an upgrade script that covers it.
 - **Shape error:** input that doesn't match the spec's JSON Schema, rejected before running.

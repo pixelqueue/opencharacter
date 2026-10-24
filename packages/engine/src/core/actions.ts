@@ -26,12 +26,14 @@ import type {
   StepOption,
   ValueSource,
   TagOrFormula,
+  ThenChange,
   ValueDecl,
 } from './pack-types.ts';
 import {
   innerSteps,
   optionQuery,
   pendingSource,
+  thenRule,
   valueSource,
   writtenOptions,
 } from './pack-types.ts';
@@ -2201,18 +2203,42 @@ function rollStep(ctx: Ctx, frame: Frame, step: Step, path: string): void {
     ...(bounds.length ? { bounds } : {}),
     ...(result.rolls ? { rolls: result.rolls as RollLog[] } : {}),
   });
-  // Each effect that changed the roll proposes its `then`, in effect order, once per run.
-  for (const c of [...changed].toSorted((a, b) => a.instance.order - b.instance.order)) {
+  // Each effect that changed the roll (or, `when: applied`, was in play on it) proposes its
+  // `then`, in effect order, once per run (or, `once: roll`, per roll step run).
+  const inPlay = (c: (typeof active)[number]) =>
+    !targets(c.effect)?.parts || items.some((i) => i.part !== undefined && onPart(c, i.tags));
+  const fired = active.filter((c) => {
+    const rule = thenRule(c.effect);
+    return rule !== undefined && (rule.when === 'applied' ? inPlay(c) : changed.has(c));
+  });
+  for (const c of fired.toSorted((a, b) => a.instance.order - b.instance.order)) {
     const i = c.instance;
-    const key = JSON.stringify([i.optionId, i.applied ?? null, i.source.entry ?? null]);
-    if (!c.effect.then?.length || ctx.ended.has(key)) continue;
+    const rule = thenRule(c.effect) as NonNullable<ReturnType<typeof thenRule>>;
+    const key = JSON.stringify([
+      i.optionId,
+      i.applied ?? null,
+      i.source.entry ?? null,
+      rule.once === 'roll' ? path : null,
+    ]);
+    if (ctx.ended.has(key)) continue;
     ctx.ended.add(key);
-    for (const then of c.effect.then) {
-      const change = rollThen(ruleset, c.instance, then, (formula) =>
-        outputData(sheet.evaluate(formula, c.pack, effectCtx(c))),
+    if (rule.to !== 'self')
+      proposeChanges(
+        ctx,
+        optionFrame(frame, i),
+        step,
+        path,
+        rule.to,
+        rule.changes as ProposedChange[],
+        { action, roll: rollRoot },
       );
-      if (change) ctx.proposed.push({ to: 'self', step: path, change });
-    }
+    else
+      for (const then of rule.changes as ThenChange[]) {
+        const change = rollThen(ruleset, i, then, (formula) =>
+          outputData(sheet.evaluate(formula, c.pack, effectCtx(c))),
+        );
+        if (change) ctx.proposed.push({ to: 'self', step: path, change });
+      }
   }
 }
 
@@ -2225,7 +2251,7 @@ function rollStep(ctx: Ctx, frame: Frame, step: Step, path: string): void {
 function rollThen(
   ruleset: Ruleset,
   i: EffectInstance,
-  then: NonNullable<Effect['then']>[number],
+  then: ThenChange,
   value: (formula: Formula) => unknown,
 ): Change | undefined {
   const entry = i.applied ?? i.source.entry;

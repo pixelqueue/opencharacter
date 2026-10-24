@@ -30,7 +30,13 @@ import {
   valueSource,
   writtenOptions,
 } from '../../packages/engine/src/core/pack-types.ts';
-import { appliesQueries, innerSteps, stepArms } from '../../packages/engine/src/core/pack-types.ts';
+import {
+  appliesQueries,
+  innerSteps,
+  stepArms,
+  thenRule,
+  thenToSelf,
+} from '../../packages/engine/src/core/pack-types.ts';
 import { HOMEBREW } from '../../packages/engine/src/core/homebrew.ts';
 import {
   blockArgument,
@@ -1549,7 +1555,11 @@ export class PackChecker {
   private effect(effect: Effect, file: string, where: string, copy = true): void {
     const kind = targetKind(effect.target);
     const label = `${where} effect${effect.id ? ` ${effect.id}` : ''}`;
-    if (effect.then && !copy)
+    const then = thenRule(effect);
+    if (then && then.to !== 'self')
+      for (const change of then.changes as ProposedChange[])
+        this.proposedChange(change, file, `${label} then`, false, new Set(), then.to);
+    if (effect.then && !copy && thenToSelf(effect))
       this.report.error(
         file,
         `${label}: then-without-copy: only an effect with an entry (content's, not the rules', a situational choice's or a choice's) can change its entry`,

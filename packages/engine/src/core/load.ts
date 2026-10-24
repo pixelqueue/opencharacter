@@ -26,7 +26,7 @@ import type {
   StepChanges,
   ValueDecl,
 } from './pack-types.ts';
-import { appliesQueries, fitsItemField, keptQuery } from './pack-types.ts';
+import { appliesQueries, fitsItemField, keptQuery, thenToSelf } from './pack-types.ts';
 import { bandSet, stepArms } from './pack-types.ts';
 import type { PackRelease } from './release.ts';
 import { expandFamilies } from './families.ts';
@@ -442,7 +442,7 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
     },
     /** An effect with `then` changes its own entry (a copy or an applied entry), so it must have one. */
     copyless(effect: Effect, pack: string): void {
-      if (effect.then)
+      if (effect.then && thenToSelf(effect))
         err('then-without-copy', {
           ...(effect.id !== undefined ? { effect: effect.id } : {}),
           pack,
@@ -450,6 +450,15 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
     },
     effect(effect: Effect, pack: string): Effect {
       const out: Effect = { ...effect };
+      if (effect.then && !Array.isArray(effect.then) && !thenToSelf(effect)) {
+        const then = effect.then;
+        // oxlint-disable-next-line unicorn/no-thenable
+        out.then = {
+          ...then,
+          changes: q.changes(then.changes as ProposedChange[], pack, then.to),
+          ...q.to(then.to, pack),
+        };
+      }
       if (typeof effect.target === 'string') out.target = q.field(effect.target, pack);
       else if ('rolls' in effect.target && effect.target.tally !== undefined) {
         const ref = effect.target.tally;

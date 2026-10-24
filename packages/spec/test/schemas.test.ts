@@ -126,6 +126,15 @@ const partEffect = (value: unknown) => ({
   value,
 });
 
+const rollThen = (scope: string | undefined, then: object) => ({
+  target: { rolls: ['attack'] },
+  op: 'add',
+  value: '1',
+  ...(scope ? { scope } : {}),
+  // oxlint-disable-next-line unicorn/no-thenable
+  then,
+});
+
 const typeWith = (decl: object) => ({ fields: { order: decl } });
 
 describe('display, template and change shapes', () => {
@@ -239,6 +248,21 @@ describe('display, template and change shapes', () => {
       valid('content-type.schema.json', typeWith({ type: 'set', of: 'string', unique: true })),
     ).toBe(false);
     expect(valid('field.schema.json', { type: 'list', of: 'string' })).toBe(false);
+  });
+
+  it('gives roll effects a then rule: when, once and to; not incoming-change effects', () => {
+    const remove = [{ type: 'removeEffect', entry: 'self' }];
+    const spend = [{ type: 'adjustState', entry: 'self', key: 'uses', by: '-1' }];
+    const effect = 'effect.schema.json';
+    expect(valid(effect, rollThen('applied', { when: 'applied', changes: remove }))).toBe(true);
+    expect(valid(effect, rollThen(undefined, { once: 'roll', changes: spend }))).toBe(true);
+    expect(valid(effect, rollThen(undefined, { changes: remove }))).toBe(false);
+    expect(valid(effect, rollThen(undefined, { when: 'counted', changes: spend }))).toBe(false);
+    const unmark = [{ type: 'removeEffect', applied: { where: 'true' } }];
+    expect(valid(effect, rollThen(undefined, { to: 'target', changes: unmark }))).toBe(true);
+    expect(valid(effect, rollThen(undefined, { changes: unmark }))).toBe(false);
+    // oxlint-disable-next-line unicorn/no-thenable
+    expect(valid(effect, { ...ward('holder', spend), then: { changes: spend } })).toBe(false);
   });
 
   it('lets roll effects carry then, naming their entry, pick or grant; not field effects', () => {

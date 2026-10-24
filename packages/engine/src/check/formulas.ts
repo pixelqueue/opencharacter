@@ -35,11 +35,13 @@ import type {
   Query,
   RollModifier,
   Step,
+  ThenChange,
   ValueDecl,
   ValueOptions,
 } from '../core/pack-types.ts';
 import {
   keptQuery,
+  thenRule,
   optionQuery,
   pendingSource,
   valueSource,
@@ -729,10 +731,15 @@ class FormulaChecker<L> {
     if (effect.tags && kind === 'roll') this.tagList(effect.tags, at, label);
     this.formula(effect.when, at, label, BOOL);
     this.formula(effect.duration?.amount, at, label, NUMBER);
-    for (const then of effect.then ?? []) {
-      this.formula(then.value, at, `${label} then`, ANY);
-      this.formula(then.by, at, `${label} then`, NUMBER);
-    }
+    const then = thenRule(effect);
+    if (then && then.to !== 'self')
+      for (const change of then.changes as ProposedChange[])
+        this.proposedChange(change, at, `${label} then`);
+    else
+      for (const change of (then?.changes ?? []) as ThenChange[]) {
+        this.formula(change.value, at, `${label} then`, ANY);
+        this.formula(change.by, at, `${label} then`, NUMBER);
+      }
   }
 
   private grantValue(value: GrantValue, at: L, where: string): void {

@@ -155,8 +155,39 @@ export interface Effect {
   multiplied?: boolean;
   scope?: 'holder' | 'applied';
   duration?: { amount?: Formula; unit: string };
-  then?: ThenChange[];
+  then?: ThenChange[] | ThenRule;
 }
+
+/** A roll effect's `then` with its firing rule. */
+export interface ThenRule {
+  changes: (ThenChange | ProposedChange)[];
+  when?: 'changed' | 'applied';
+  once?: 'action' | 'roll';
+  to?: Destination;
+}
+
+/** An effect's `then` as a rule, the list form's defaults filled in; undefined without one. */
+export function thenRule(effect: Effect):
+  | {
+      changes: (ThenChange | ProposedChange)[];
+      when: 'changed' | 'applied';
+      once: 'action' | 'roll';
+      to: Destination;
+    }
+  | undefined {
+  const then = effect.then;
+  if (!then) return undefined;
+  if (Array.isArray(then)) return { changes: then, when: 'changed', once: 'action', to: 'self' };
+  return {
+    changes: then.changes,
+    when: then.when ?? 'changed',
+    once: then.once ?? 'action',
+    to: then.to ?? 'self',
+  };
+}
+
+/** Whether a `then` goes to the effect's own entry, so it needs one. */
+export const thenToSelf = (effect: Effect): boolean => (thenRule(effect)?.to ?? 'self') === 'self';
 
 export interface InlineOption {
   id: string;
