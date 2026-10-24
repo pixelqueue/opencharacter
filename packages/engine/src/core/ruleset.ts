@@ -204,7 +204,7 @@ export function standardId(qid: string): string {
   return qid.replaceAll(/[:.]/g, '-');
 }
 
-/** The items standard copies queries match: in query order, each query's sorted, each once. */
+/** The items standard copies queries match: in query order, each query's in content order, each once. */
 function standardMatches(
   ruleset: Ruleset,
   queries: readonly { query: Query; pack: string }[],

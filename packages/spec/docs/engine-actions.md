@@ -695,12 +695,12 @@ participant runs the used action on its own character, and the engine doesn't ru
 A choice step has one source of options (a fifth, pending choices, is
 [below](#choice-steps-over-pending-choices)):
 
-| `options`                                       | Offers                                                                                                          | Option ID                |
-| ----------------------------------------------- | --------------------------------------------------------------------------------------------------------------- | ------------------------ |
-| a list `[{ id, when?, changes?, to?, flags? }]` | the written options whose `when` holds, in written order                                                        | the written `id`         |
-| `{ content: { type, where? } }`                 | the ruleset's content of `type` (qualified against the action's pack), by qualified ID, hidden content left out | the qualified content ID |
-| `{ copies: { type, where? } }`                  | the character's copies of `type`, inventory then features, each in file order                                   | the instance ID          |
-| `{ values, where? }`                            | the written values, or the strings and numbers a `{ formula }` gives, in list order, each once                  | the value as a string    |
+| `options`                                       | Offers                                                                                                           | Option ID                |
+| ----------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- | ------------------------ |
+| a list `[{ id, when?, changes?, to?, flags? }]` | the written options whose `when` holds, in written order                                                         | the written `id`         |
+| `{ content: { type, where? } }`                 | the ruleset's content of `type` (qualified against the action's pack), in content order, hidden content left out | the qualified content ID |
+| `{ copies: { type, where? } }`                  | the character's copies of `type`, inventory then features, each in file order                                    | the instance ID          |
+| `{ values, where? }`                            | the written values, or the strings and numbers a `{ formula }` gives, in list order, each once                   | the value as a string    |
 
 - **Added options**. A step with `tags` also offers, after its source's
   options, the options content adds: each of the character's active `option` effects (in

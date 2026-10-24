@@ -1,0 +1,20 @@
+contentTypes:
+  class: {}
+
+choices:
+  - id: class
+    from: { type: class }
+
+actions:
+  - id: pick-class
+    params:
+      random: { type: boolean, optional: true }
+    steps:
+      - id: class
+        kind: choice
+        options: { content: { type: class } }
+        random: has(params.random) && params.random
+        recommend: options[0]
+      - id: done
+        kind: outcome
+        data: { class: steps.class.picked }

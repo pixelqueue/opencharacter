@@ -1,15 +1,15 @@
-# options in ID order: hunter, scholar, soldier. The roll is 6: options[(6 - 1) % 3] = soldier.
-# The addItem gets the first unused copy ID; the health roll is the soldier's 1d10.
+# options in content order: scholar, soldier, hunter. The roll is 6: options[(6 - 1) % 3] = hunter.
+# The addItem gets the first unused copy ID; the health roll is the hunter's 1d8.
 status: finished
 outcome:
   result: created
-  data: { calling: test-pack:callings.soldier, health: 7 }
+  data: { calling: test-pack:callings.hunter, health: 7 }
 proposedChanges:
   - to: self
     step: calling
     change:
       type: addItem
-      entry: { id: callings-soldier-1, item: test-pack:callings.soldier }
+      entry: { id: callings-hunter-1, item: test-pack:callings.hunter }
 log:
   - { step: roll, action: test-pack:create, kind: dice, by: engine, faces: [6], total: 6 }
   - {
@@ -17,6 +17,6 @@ log:
       action: test-pack:create,
       kind: choice,
       by: engine,
-      option: test-pack:callings.soldier,
+      option: test-pack:callings.hunter,
     }
   - { step: health, action: test-pack:create, kind: dice, by: engine, faces: [7], total: 7 }

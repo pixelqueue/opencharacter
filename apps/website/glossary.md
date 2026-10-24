@@ -23,6 +23,7 @@ One-line definitions of OCF terms, consistent with the [specification](../../pac
 - **Computed value:** a value worked out for each copy of an item from the character (a FitD cohort's quality), declared by its content type, item or templates, never saved; computeSheet returns it in `copies` and the copy's actions and follow-ups read it as `self.<name>`.
 - **Condition:** a formula that must evaluate to true or false (`when`, `showWhen`, `where`, prerequisites).
 - **Constraint:** a game rule in the rules data, checked against the current character, whose failure is a rules issue.
+- **Content order:** the order the engine lists content in: packs in load order, each pack's content in its release's order (file path order), homebrew last; query matches and choice options follow it, so a dependency's content comes first.
 - **Content item:** one piece of content (a weapon, spell, class, playbook), mechanics only, one file per item.
 - **Content type:** a kind of content a game defines in data, with fields, effects, actions and per-copy state.
 - **Content-type effects:** effects and grants a content type declares for every item of the type, applied before the item's own; an item can `suppress` them by ID.

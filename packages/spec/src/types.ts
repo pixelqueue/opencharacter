@@ -2244,6 +2244,7 @@ export type Ruleset = {
       copies?: Copies;
     }
   >;
+  /** The content items by qualified ID, in content order: packs in load order, then each pack's content in its release's order (packs.md, "Dependencies and load order"). */
   content: Record<string, unknown>;
   rules?: Record<string, unknown>;
   /** The creation starts: every pack's `creation` list in load order, a later start replacing an earlier one with the same `id` in its place. `action` is qualified; `pack` is the pack that declared the start, whose text names it (`creation.<id>.name`). */

@@ -1016,8 +1016,9 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
     }
     resolved.set(qid, { ...item, fields });
   }
+  // Content order: the load order, then each pack's content order.
   ruleset.content = Object.fromEntries(
-    [...resolved.entries()].toSorted(([a], [b]) => (a < b ? -1 : 1)),
+    Object.keys(ruleset.content).map((qid) => [qid, resolved.get(qid) as LoadedItem]),
   );
 
   // The start by its ID, or `<pack>:<id>`; from the slot's pack or a dependency of it, when that

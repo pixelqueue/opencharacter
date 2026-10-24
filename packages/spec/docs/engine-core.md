@@ -79,7 +79,8 @@ Input: pack releases in load order (later packs win). Output: a ruleset, or erro
      gets `tagOptions`: the ruleset's declared tags, with the tags above each, that `members`
      takes, sorted ([rules-and-fields.md](rules-and-fields.md#which-tags-a-field-takes)).
 4. **Resolve content-only queries.** A query whose `where` reads only `item` is evaluated once
-   against every non-hidden item of its type. Its result (sorted qualified IDs) is stored in the
+   against every non-hidden item of its type. Its result (qualified IDs in content order,
+   [packs.md](packs.md#dependencies-and-load-order)) is stored in the
    ruleset. Queries that read the character run later. The rules' and items' `standardCopies`
    queries are always content-only (a `where` that reads anything else is a `formula-error`,
    cause `unknown-name`). Two items they match whose derived instance IDs are the same are
@@ -237,7 +238,7 @@ reads them and never computes the other character.
 The rules and content items may declare `standardCopies` ([content.md](content.md#standard-copies)). The engines see the character with them:
 
 - **Which.** The rules' standard items are the matches of the rules' queries, in load order,
-  then declaration order, each query's matches sorted, each item once. An item's are the matches
+  then declaration order, each query's matches in content order, each item once. An item's are the matches
   of its own queries, held while it has an activation. They are found in rounds: activate with
   the rules' copies; add the copies of every item now active, in activation order, that aren't
   there yet; activate again, until a round adds none (at most `maxChoiceDepth` rounds). A copy
@@ -826,7 +827,8 @@ Input: a choice path. Output: every option of the choice, in a stable order:
 - listed `items` and `values` in written order, a `values` formula's list in its order (each
   value once);
 - inline options in written order;
-- query matches sorted by qualified ID.
+- query matches in content order ([packs.md](packs.md#dependencies-and-load-order)): the load
+  order, then each pack's content order.
 
 For each option:
 

@@ -155,7 +155,8 @@ const classes = Object.values(ruleset.content).filter(
 ```
 
 - `ruleset.contentTypes` lists every content type by qualified name, with its declared fields.
-- `ruleset.content` lists every item by qualified ID, after `extends` and overrides, with
+- `ruleset.content` lists every item by qualified ID, in content order (packs in load order,
+  then each pack's content in file order), after `extends` and overrides, with
   `type` (the qualified type name), `hidden` (hidden by a later pack: leave it out) and
   `deprecated` (still valid, but don't offer it for new characters).
 - An item's `fields` are its raw values. Numbers and dice in them are formulas as written in the

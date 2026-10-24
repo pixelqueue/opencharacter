@@ -2677,7 +2677,7 @@ const contentOrder = new WeakMap<Ruleset['content'], LoadedItem[]>();
 function contentInOrder(ruleset: Ruleset): LoadedItem[] {
   let items = contentOrder.get(ruleset.content);
   if (!items) {
-    items = Object.values(ruleset.content).toSorted((a, b) => (a.qid < b.qid ? -1 : 1));
+    items = Object.values(ruleset.content);
     contentOrder.set(ruleset.content, items);
   }
   return items;

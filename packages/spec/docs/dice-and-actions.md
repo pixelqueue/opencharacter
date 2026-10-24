@@ -815,7 +815,9 @@ A choice step's `options` come from one source:
 - **A written list** `[{ id, when?, changes?, to?, flags? }]`: each option is named
   `<actionKey>.options.<id>.name`. An option's `changes` are proposed when it is picked,
   `to` its `to` (default `self`); its `flags` are set first.
-- **Content**, `{ content: { type, where? } }`: the ruleset's content of a type, by qualified ID.
+- **Content**, `{ content: { type, where? } }`: the ruleset's content of a type, in content
+  order ([packs.md](packs.md#dependencies-and-load-order)): a dependency's before the packs
+  built on it.
   Each option is a qualified content ID, named by the item's name.
 - **The character's copies**, `{ copies: { type, where? } }`: inventory then features.
   Each option is an instance ID, named by the copy's item name.

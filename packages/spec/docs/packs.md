@@ -88,6 +88,12 @@ Bare field names in formulas resolve the same way as local content references: t
 - A pack declares the packs it builds on in `dependencies`. `loadRuleset` fails with `missing-dependency` when one is missing or outside its range.
 - The **app** chooses the load order, and every dependency MUST load before the packs that depend on it. **Later packs win.**
 - When two packs override the same property of the same thing, the later one wins and the ruleset reports the conflict in `conflicts`, so nothing is overridden silently.
+- **Content order** is the load order, then each pack's content in its release's order (the
+  build writes it in file path order); a character's homebrew comes last. Every list of content
+  the engine gives follows it: the ruleset's `content`, query matches, a choice's or a choice
+  step's content options and random draws over them. So a dependency's content leads, and an
+  automatic run that takes the first option (`recommend: options[0]`) takes the core pack's,
+  whatever an add-on pack is called.
 
 ## Overrides, hiding and `extends`
 
