@@ -30,3 +30,9 @@ actions:
     steps:
       - { id: roll, kind: roll, tags: [check], parts: [{ dice: 1d20 }] }
       - { id: result, kind: outcome, data: { total: steps.roll.total } }
+  # An attack rolled again in the same run: the second roll replaces the first.
+  - id: reroll-attack
+    steps:
+      - { id: roll, kind: roll, tags: [attack], parts: [{ dice: 1d20 }] }
+      - { id: again, kind: roll, tags: [attack], parts: [{ dice: 1d20 }] }
+      - { id: result, kind: outcome, data: { total: steps.again.total } }

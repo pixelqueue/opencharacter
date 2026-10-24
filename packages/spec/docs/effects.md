@@ -201,7 +201,7 @@ effect's and its other effects', are skipped.
 **Roll effects that end themselves**. A roll effect may carry `then` too, with the same changes
 and targets (`entry: self`, `pick: owner`, `grant: owner`; `removeEffect` on an `applied`
 effect). applyChanges never sees a roll, so the action proposes them: after a roll step, each
-effect that **changed the roll** proposes its `then` changes once, `to: self`, as changes of
+effect that **changed the roll** proposes its `then` changes, `to: self`, as changes of
 that step, in effect order, resolved as a proposed change is (`entry: self` becomes the copy's
 or applied entry's ID, or the pick's `path` and `option`, or the grant's address, as applyChanges
 would route it; `removeEffect` its `id`), with `value` and `by` evaluated in the effect's roll
@@ -217,8 +217,12 @@ difference:
   moving a die, `setFaces` giving an item faces, and `reroll`, `minimumFace` and `explode`
   reaching a dice item.
 
-A roll made more than once still proposes each `then` once. The rolling action needn't know
-which effects end: 5E's Sapped gives disadvantage on the target's next attack roll:
+An effect proposes its `then` **at most once per action run**: the first roll step it changed
+proposes it, and a later roll in the run (a roll made more than once, a reroll step, a used
+action's roll) that it changes too proposes nothing more, so a condition that ends after a roll
+is removed once and a boon spends one use, however often the run rolls. An effect is one effect
+of one source: its entry's (an applied entry, a copy) or its pick's. The rolling action needn't
+know which effects end: 5E's Sapped gives disadvantage on the target's next attack roll:
 
 ```yaml
 # Sapped, applied to its target

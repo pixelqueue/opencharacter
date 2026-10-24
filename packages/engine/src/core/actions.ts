@@ -518,6 +518,8 @@ interface Ctx {
   proposed: Proposed[];
   stepsRun: number;
   rolls: Map<string, { result: Record<string, unknown>; items: BuiltItem[] }>;
+  /** The effects whose `then` the run has proposed: each proposes it at most once. */
+  ended: Set<string>;
 }
 
 interface Frame {
@@ -572,6 +574,7 @@ function run(
     proposed: [],
     stepsRun: 0,
     rolls: new Map(),
+    ended: new Set(),
   };
   // An ephemeral offer is cleared by the changes of the run that takes it up.
   const takenUp = state.action.followUp;
@@ -2186,14 +2189,19 @@ function rollStep(ctx: Ctx, frame: Frame, step: Step, path: string): void {
     ...(bounds.length ? { bounds } : {}),
     ...(result.rolls ? { rolls: result.rolls as RollLog[] } : {}),
   });
-  // Each effect that changed the roll proposes its `then` once, in effect order.
-  for (const c of [...changed].toSorted((a, b) => a.instance.order - b.instance.order))
-    for (const then of c.effect.then ?? []) {
+  // Each effect that changed the roll proposes its `then`, in effect order, once per run.
+  for (const c of [...changed].toSorted((a, b) => a.instance.order - b.instance.order)) {
+    const i = c.instance;
+    const key = JSON.stringify([i.optionId, i.applied ?? null, i.source.entry ?? null]);
+    if (!c.effect.then?.length || ctx.ended.has(key)) continue;
+    ctx.ended.add(key);
+    for (const then of c.effect.then) {
       const change = rollThen(ruleset, c.instance, then, (formula) =>
         outputData(sheet.evaluate(formula, c.pack, effectCtx(c))),
       );
       if (change) ctx.proposed.push({ to: 'self', step: path, change });
     }
+  }
 }
 
 /**
