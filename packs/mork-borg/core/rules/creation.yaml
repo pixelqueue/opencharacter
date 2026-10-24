@@ -143,12 +143,12 @@ actions:
               (has(steps.uncleanScroll) || has(steps.sacredScroll))
                 && has(steps.class.item.scrollArmorDie)
                 ? steps.class.item.scrollArmorDie : steps.class.item.armorDie
-      # A d2 for the kind (1 unclean, 2 sacred), then a d10 on that kind's table in the book's
-      # order.
+      # A class with a starting scroll (the Hermit): a d2 for the kind (1 unclean, 2 sacred), then a
+      # d10 on that kind's table in the book's order.
       - id: scrollKind
         kind: roll
         tags: [creation]
-        when: 'steps.class.picked == @classes.esoteric-hermit'
+        when: steps.class.item.startingScroll
         parts: [{ dice: 1d2 }]
       - id: hermitScroll
         kind: roll

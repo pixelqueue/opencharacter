@@ -185,9 +185,9 @@ start a character with `creating: true` and run one of the creation starts below
   - Both roll each ability and read the ability table; roll HP (Toughness + hit die, at least
     1), omens, powers (Presence + d4) and silver (×10), and save them as input values.
   - They add the starting weapon and armor the rolls pick from the starting lists below (armor
-    1 is none), equipped, and Presence + 10 arrows or bolts with a bow or crossbow. The Esoteric
-    Hermit also gets its random scroll: a d2 for the kind, then a d10 on that kind's table in the
-    book's order.
+    1 is none), equipped, and Presence + 10 arrows or bolts with a bow or crossbow (the
+    weapon's `ammo`). The Esoteric Hermit (a class whose `startingScroll` is set) also gets its
+    random scroll: a d2 for the kind, then a d10 on that kind's table in the book's order.
   - They ask the class's own `feature` choice over its pending choices, each pick drawn among
     the class's options (a d6 for the core classes, in table order): two different ones for the
     Royalty (a picked one isn't offered again, so the second is a d5 over the five left), one
