@@ -15,7 +15,9 @@ effects:
 actions:
   - id: breath-weapon
     tags: [feature]
-    available: origins.draconicDamage != '' && self.breathWeaponUsed < proficiency.bonus
+    available: >-
+      size(picksOf('species.dragonborn', 'lineage')) > 0
+        && self.breathWeaponUsed < proficiency.bonus
     params:
       shape: { type: enum, values: [cone, line], default: cone }
     participants:
@@ -28,7 +30,10 @@ actions:
         tags: [damage]
         parts:
           - dice: '(level.total >= 17 ? 4 : level.total >= 11 ? 3 : level.total >= 5 ? 2 : 1)d10'
-            tags: [{ formula: "'damage.' + origins.draconicDamage" }]
+            tags:
+              - formula: >-
+                  mapList(picksOf('species.dragonborn', 'lineage'),
+                    'damage.' + itemField(x, 'damageType'))
       - id: spend
         kind: changes
         changes:
