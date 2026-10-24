@@ -345,7 +345,8 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
     },
     /** A formula item is resolved per sheet. */
     grant(g: Grant, pack: string): Grant {
-      return typeof g.item === 'string' ? { ...g, item: q.content(g.item, pack) } : g;
+      if (typeof g.item === 'string') return { ...g, item: q.content(g.item, pack) };
+      return 'query' in g.item ? { ...g, item: { query: q.query(g.item.query, pack) } } : g;
     },
     content(ref: string, pack: string): string {
       return resolveContent(ruleset, ref, pack) ?? (unknown('content', ref, pack), ref);
@@ -1136,7 +1137,10 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
     for (const choice of choices ?? []) {
       if ('type' in choice.from) queries.push({ query: choice.from, pack });
       if ('options' in choice.from)
-        for (const o of choice.from.options) collectChoices(o.choices, pack);
+        for (const o of choice.from.options) {
+          collectChoices(o.choices, pack);
+          collectGrants(o.grants, pack);
+        }
       collectEffects(choice.effects, pack);
     }
   };
@@ -1146,8 +1150,15 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
       if (e.op === 'grant' && v?.query) queries.push({ query: v.query, pack });
     }
   };
+  const collectGrants = (grants: readonly Grant[] | undefined, pack: string) => {
+    for (const g of grants ?? [])
+      if (typeof g.item === 'object' && 'query' in g.item)
+        queries.push({ query: g.item.query, pack });
+  };
+  for (const type of Object.values(ruleset.contentTypes)) collectGrants(type.grants, type.pack);
   for (const item of Object.values(ruleset.content)) {
     const pack = item.pack;
+    collectGrants(item.grants, item.scopes?.grants ?? pack);
     collectChoices(item.choices, item.scopes?.choices ?? pack);
     collectEffects(item.effects, item.scopes?.effects ?? pack);
     for (const query of appliesQueries(item))

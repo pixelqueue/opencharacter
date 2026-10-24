@@ -4,6 +4,7 @@ families:
 
 fields:
   stamina: { type: integer, input: true, default: 3, min: 0 }
+  ritePower: { type: integer, formula: 0 }
   'wards.{ward}': { type: integer, input: true, default: 0 }
   # Open: an add-on may add stances.
   stance: { type: enum, values: [low, high], input: true, default: low, open: true }
@@ -13,6 +14,15 @@ tags: [train, train.done]
 contentTypes:
   class: {}
   oath: {}
+  # A rite serves one ward; a circle grants each ward's rites while the ward is up.
+  rite:
+    fields:
+      ward: { type: string, required: true }
+  circle:
+    grants:
+      - forEach: keysOf('ward')
+        when: "fieldOf('wards.{ward}', x) > 0"
+        item: { query: { type: rite, where: item.ward == x } }
   weapon:
     carried: true
     fields:

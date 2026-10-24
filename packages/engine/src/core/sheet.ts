@@ -1402,28 +1402,90 @@ export class Sheet {
     ];
     for (const [at, { grant, pack }] of grants.entries()) {
       if ((grant.scope ?? 'holder') !== 'applied') continue;
-      if (!this.condition(grant.when, pack, a.roots, `${a.sourceId} grant`)) continue;
-      const granted = this.grantedItem(grant, pack, a.roots, `${a.sourceId} grant`);
-      if (!granted) continue;
-      list.push({
-        ...a,
-        kind: 'grant',
-        waived: false,
-        item: granted,
-        pack: granted.pack,
-        roots: {
-          ...a.roots,
-          item: itemView(this.ruleset, granted, [], (n, p) => this.inputByName(n, p)),
-          self: this.grantedSelf(grant, pack, a.roots, `${a.sourceId} grant`).self,
-        },
-        presets: undefined,
-        source: { type: 'item', id: granted.qid },
-        sourceId: granted.qid,
-        key: this.freeKey(`${a.key}/grant:${at}:${granted.qid}`),
-        keyPrefix: `${granted.qid}/`,
-      });
+      const where = `${a.sourceId} grant`;
+      for (const roots of this.grantRoots(grant, pack, a.roots, where)) {
+        if (!this.condition(grant.when, pack, roots, where)) continue;
+        for (const granted of this.grantedItems(grant, pack, roots, where))
+          list.push({
+            ...a,
+            kind: 'grant',
+            waived: false,
+            item: granted,
+            pack: granted.pack,
+            roots: {
+              ...a.roots,
+              item: itemView(this.ruleset, granted, [], (n, p) => this.inputByName(n, p)),
+              self: this.grantedSelf(grant, pack, roots, where).self,
+            },
+            presets: undefined,
+            source: { type: 'item', id: granted.qid },
+            sourceId: granted.qid,
+            key: this.freeKey(`${a.key}/grant:${at}:${granted.qid}`),
+            keyPrefix: `${granted.qid}/`,
+          });
+      }
     }
     return list;
+  }
+
+  /**
+   * A grant's roots: once, or with `forEach` once per element with `x` bound. The list is an
+   * activation formula; one that fails or isn't a list grants nothing, with its error.
+   */
+  private grantRoots(
+    grant: Grant,
+    pack: string,
+    roots: Record<string, unknown>,
+    where: string,
+  ): Record<string, unknown>[] {
+    if (grant.forEach === undefined) return [roots];
+    try {
+      const list = this.evaluateActivation(grant.forEach, pack, roots);
+      if (list.kind !== 'list')
+        throw new Failure({ code: 'type-mismatch', message: 'forEach needs a list' });
+      return list.value.map((x) => ({
+        ...roots,
+        x: x.kind === 'decimal' || x.kind === 'dice' ? f.wrapValue(x) : f.toData(x),
+      }));
+    } catch (error) {
+      if (!(error instanceof Failure)) throw error;
+      this.errors.push({
+        code: error.error.code,
+        data: { where: `${where} forEach`, message: error.error.message, ...error.error.data },
+      });
+      return [];
+    }
+  }
+
+  /**
+   * The content a grant gives: its ID, its formula's or every visible item its query matches,
+   * the query's `where` an activation condition with the candidate as `item`.
+   */
+  private grantedItems(
+    grant: Grant,
+    pack: string,
+    roots: Record<string, unknown>,
+    where: string,
+  ): LoadedItem[] {
+    if (typeof grant.item === 'string' || 'formula' in grant.item) {
+      const item = this.grantedItem(grant, pack, roots, where);
+      return item ? [item] : [];
+    }
+    const query = grant.item.query;
+    const stored = this.ruleset.queries[queryKey(pack, query.type, query.where)];
+    if (stored) return stored.flatMap((qid) => this.ruleset.content[qid] ?? []);
+    const out: LoadedItem[] = [];
+    for (const item of itemsOfType(this.ruleset, query.type)) {
+      if (item.hidden) continue;
+      let view = this.queryViews.get(item);
+      if (!view) {
+        view = itemView(this.ruleset, item, [], (n, p) => this.inputByName(n, p));
+        this.queryViews.set(item, view);
+      }
+      if (this.condition(query.where, pack, { ...roots, item: view }, `${where} item`))
+        out.push(item);
+    }
+    return out;
   }
 
   /**
@@ -1438,6 +1500,7 @@ export class Sheet {
     where: string,
   ): LoadedItem | undefined {
     if (typeof grant.item === 'string') return this.ruleset.content[grant.item];
+    if (!('formula' in grant.item)) return undefined;
     let id: string;
     try {
       const value = this.evaluateInput(grant.item.formula, pack, roots);
@@ -1795,50 +1858,11 @@ export class Sheet {
     ];
     for (const [at, { grant, pack }] of grants.entries()) {
       if ((grant.scope ?? 'holder') !== 'holder') continue;
-      if (!this.condition(grant.when, pack, activation.roots, `${activation.sourceId} grant`))
-        continue;
-      const granted = this.grantedItem(
-        grant,
-        pack,
-        activation.roots,
-        `${activation.sourceId} grant`,
-      );
-      if (!granted) continue;
       const where = `${activation.sourceId} grant`;
-      const { self, defaults } = this.grantedSelf(grant, pack, activation.roots, where, {
-        granted,
-        node: activation.node,
-      });
-      const presets = grant.choices
-        ? { tree: this.evaluatePresets(grant.choices, pack, activation.roots, where), pack }
-        : undefined;
-      const key = this.freeKey(`${activation.key}/grant:${at}:${granted.qid}`);
-      this.content(
-        {
-          ...activation,
-          kind: 'grant',
-          waived: grant.waivePrerequisites === true,
-          item: granted,
-          inline: undefined as unknown as InlineOption,
-          pack: granted.pack,
-          roots: {
-            ...activation.roots,
-            item: this.contentView(key, granted),
-            self,
-          },
-          presets,
-          grantDefaults: defaults,
-          source: {
-            type: 'item',
-            id: granted.qid,
-            ...(activation.entry ? { entry: activation.entry.id } : {}),
-          },
-          sourceId: granted.qid,
-          key,
-          keyPrefix: `${granted.qid}/`,
-        },
-        depth + 1,
-      );
+      for (const roots of this.grantRoots(grant, pack, activation.roots, where))
+        if (this.condition(grant.when, pack, roots, where))
+          for (const granted of this.grantedItems(grant, pack, roots, where))
+            this.holderGrant(activation, depth, grant, pack, at, roots, granted);
     }
     const choices = item?.choices ?? activation.inline?.choices ?? [];
     const choicePack = item ? (item.scopes?.choices ?? item.pack) : activation.pack;
@@ -1846,6 +1870,53 @@ export class Sheet {
       activation,
       choices.map((choice) => ({ choice, pack: choicePack })),
       depth,
+    );
+  }
+
+  /** One holder grant's content, its `state` and preset formulas read with the grant's roots. */
+  private holderGrant(
+    activation: Activation,
+    depth: number,
+    grant: Grant,
+    pack: string,
+    at: number,
+    roots: Record<string, unknown>,
+    granted: LoadedItem,
+  ): void {
+    const where = `${activation.sourceId} grant`;
+    const { self, defaults } = this.grantedSelf(grant, pack, roots, where, {
+      granted,
+      node: activation.node,
+    });
+    const presets = grant.choices
+      ? { tree: this.evaluatePresets(grant.choices, pack, roots, where), pack }
+      : undefined;
+    const key = this.freeKey(`${activation.key}/grant:${at}:${granted.qid}`);
+    this.content(
+      {
+        ...activation,
+        kind: 'grant',
+        waived: grant.waivePrerequisites === true,
+        item: granted,
+        inline: undefined as unknown as InlineOption,
+        pack: granted.pack,
+        roots: {
+          ...activation.roots,
+          item: this.contentView(key, granted),
+          self,
+        },
+        presets,
+        grantDefaults: defaults,
+        source: {
+          type: 'item',
+          id: granted.qid,
+          ...(activation.entry ? { entry: activation.entry.id } : {}),
+        },
+        sourceId: granted.qid,
+        key,
+        keyPrefix: `${granted.qid}/`,
+      },
+      depth + 1,
     );
   }
 

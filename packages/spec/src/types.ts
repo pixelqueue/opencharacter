@@ -1103,12 +1103,17 @@ export type ContentItem = {
 };
 
 export type Grant = {
-  /** The content granted: an ID, or `{ formula }`, a string formula evaluated as an activation condition is (it reads `self`, `item` and input fields) to a content ID, qualified in the grant's pack as a literal one is; an empty string grants nothing, and an ID that names no content grants nothing with the sheet error `unknown-id`. So content grants what the player named in its state (a spell picked for the day). */
+  /** The content granted: an ID; `{ formula }`, a string formula evaluated as an activation condition is (it reads `self`, `item` and input fields) to a content ID, qualified in the grant's pack as a literal one is; an empty string grants nothing, and an ID that names no content grants nothing with the sheet error `unknown-id`. So content grants what the player named in its state (a spell picked for the day). Or `{ query }`: every content item of the query's type it matches, hidden items left out, in ruleset order, each granted as its own grant; `where` is an activation condition with the candidate as `item` (a query that reads only `item` is resolved at load), so a core grant reaches content an add-on adds. */
   item:
     | Ref
     | {
         formula: Formula;
+      }
+    | {
+        query: Query;
       };
+  /** The grant is made once per element of this list, in list order, with `x` bound to the element in `when`, `item` (a query's `where` too), `state` and `choices`. The list is an activation formula as `when` is (it reads `self`, `item` and input fields; `x` is unbound in it); an empty list grants nothing, and one that fails or isn't a list grants nothing with its sheet error. So one core grant covers every key of a family, an add-on's too: `{ forEach: keysOf('ward'), when: "fieldOf('wards.{ward}', x) > 0", item: { query: { type: rite, where: item.ward == x } } }`. */
+  forEach?: Formula;
   when?: Condition;
   /** `holder` (default): the grant applies while the content is held, and the granted content is activated as held content. `applied`: while the content is the source of an active, unblocked `applied` entry, the granted content is activated as applied content (its `scope: applied` effects, immunities, grants and actions) with the granting entry as `self`, and immunities block it as they would an entry of it. */
   scope?: 'holder' | 'applied';

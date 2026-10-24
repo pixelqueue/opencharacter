@@ -196,7 +196,9 @@ fields:
   declared for a key it added. `fieldId('<pattern>', key)` gives the qualified ID of the field
   `fieldOf` would read, for a change's, an effect's or an `id` field's `{ formula }` target:
   `field: { formula: "fieldId('effort.{tradition}.day', x)" }` over `forEach: keysOf('tradition')`
-  reaches every tradition's field, the add-on's too.
+  reaches every tradition's field, the add-on's too. A grant with `forEach: keysOf('<family>')`
+  and an `item` query grants content per key, an added key's content too
+  ([content.md](content.md#when-content-is-active)).
 - **Reading by key.** `fieldOf('<pattern>', key)` reads the field a family pattern names for a key
   (`fieldOf('spellcasting.{caster}.dc', flags.cls)`); a pattern with two placeholders takes two
   keys, in order (`fieldOf('slots.{caster}.rank{rank}', flags.cls, 3)`). `keysOf('<family>')` lists

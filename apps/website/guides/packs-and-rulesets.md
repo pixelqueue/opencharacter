@@ -126,7 +126,15 @@ monster starts) offer it beside the core's own:
   under the core action's key (`actions.create-crew.options.wreckers.name`), found through
   `ruleset.familyOrigins`, which `createText` takes too. A core change to a field built from a
   key writes `fieldId('<pattern>', key)` rather than concatenating the ID, so it reaches the
-  add-on's field.
+  add-on's field. A core grant made per key, its item a query, grants the content an add-on
+  adds for its key too:
+
+  ```yaml
+  grants:
+    - forEach: keysOf('psychic')
+      when: "fieldOf('skills.{psychic}.level', x) >= 0"
+      item: { query: { type: technique, where: item.core && item.discipline == x } }
+  ```
 
 - **Choice options.** A core choice over listed items, written values or inline options (a
   class's subclass pick) takes options from the add-on's rules' `extendChoices`, after the core's
