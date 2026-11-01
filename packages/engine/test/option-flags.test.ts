@@ -98,3 +98,47 @@ describe('option flags at load', () => {
     expect(errors([pack as unknown as PackRelease, addon({ slot: 3 }, 'cost.spell')])).toEqual([]);
   });
 });
+
+/** A pack depending on `base` whose trait's `changes` effect sets these flags on `target` steps. */
+const stepAddon = (flags: Record<string, unknown>, target = 'paid'): PackRelease =>
+  ({
+    manifest: manifest('addon', { base: '^1.0.0' }),
+    rules: {},
+    content: [
+      {
+        id: 'traits.legacy',
+        type: 'trait',
+        effects: [{ target: { steps: [target] }, op: 'changes', value: { flags } }],
+      },
+    ],
+  }) as unknown as PackRelease;
+
+/** `base` with a changes step tagged `paid` after its choice. */
+const paidBase = (): PackRelease => {
+  const pack = base() as unknown as { rules: { actions: { steps: unknown[] }[] } };
+  pack.rules.actions[0]?.steps.push({ id: 'paid', kind: 'changes', tags: ['paid'] });
+  (pack.rules as unknown as { tags: string[] }).tags.push('paid');
+  return pack as unknown as PackRelease;
+};
+
+describe('changes effect flags at load', () => {
+  it('accepts a flag the reached action sets, of its type', () => {
+    expect(errors([paidBase(), stepAddon({ slot: 2 })])).toEqual([]);
+  });
+
+  it('reports a flag the reached action does not set', () => {
+    expect(errors([paidBase(), stepAddon({ level: 2 })])).toEqual([
+      ['formula-error', 'unknown-name'],
+    ]);
+  });
+
+  it('reports a value of another type', () => {
+    expect(errors([paidBase(), stepAddon({ slot: "'two'" })])).toEqual([
+      ['formula-error', 'type-mismatch'],
+    ]);
+  });
+
+  it('does not check a choice step with the tag', () => {
+    expect(errors([paidBase(), stepAddon({ level: 2 }, 'cost')])).toEqual([]);
+  });
+});

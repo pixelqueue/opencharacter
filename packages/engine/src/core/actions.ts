@@ -67,7 +67,7 @@ import {
 } from './sheet.ts';
 import { literalTree, type RollSummary, rollSummary } from './roll-summary.ts';
 import { samePath } from './tree.ts';
-import { expectedData, itemView, outputData, stateDecls, typedValue } from './views.ts';
+import { diceText, expectedData, itemView, outputData, stateDecls, typedValue } from './views.ts';
 
 /** Rolls `count` dice: faces 1..sides, 0..sides-1 when `zero`, or -1..1 for Fate dice. */
 export type DiceFunction = (count: number, sides: number | 'F', zero: boolean) => number[];
@@ -199,6 +199,8 @@ export interface LogEntry {
   bounds?: BoundLog[];
   /** Roll steps made more than once (`of: roll`): every whole roll, in order. */
   rolls?: RollLog[];
+  /** A proposed change's rolled amount: its dice, as canonical text. */
+  dice?: string;
 }
 
 /** One whole roll of a roll step made more than once; `kept` marks the one kept. */
@@ -2672,6 +2674,74 @@ function draw(
   return face - 1;
 }
 
+const die = (count: number, sides: number | 'F', zero: boolean) => ({
+  count,
+  sides,
+  ...(zero ? { zero: true } : {}),
+});
+
+/**
+ * A proposed change's amount given as dice: a dice checkpoint at the step, matched by the change's
+ * tags, rolled with the action's dice (or the answered faces) and logged with its dice and total.
+ */
+function rolledAmount(
+  ctx: Ctx,
+  frame: Frame,
+  path: string,
+  tags: string[],
+  dice: f.DiceValue,
+): number {
+  const answers = takeAnswers(ctx, path, 'dice');
+  const queue = answers.flatMap((a) => a.faces ?? []);
+  let by: 'engine' | 'app' = answers.some((a) => a.by === 'app') ? 'app' : 'engine';
+  const auto = decide(ctx.policy, 'roll', tags, path) === 'auto';
+  const pause = (needs: NonNullable<Need['dice']>) =>
+    new Pause({ step: path, action: frame.qid, kind: 'dice', dice: needs });
+  if (answers.length === 0 && dice.terms.some((t) => t.count > 0)) {
+    if (!auto) throw pause(dice.terms.map((t) => die(t.count, t.sides, t.zero === true)));
+    const faces = dice.terms.flatMap((t) => ctx.dice(t.count, t.sides, t.zero === true));
+    recordAnswer(ctx, { step: path, kind: 'dice', by: 'engine', faces });
+    queue.push(...faces);
+  }
+  const consumed: number[] = [];
+  const source: f.FaceSource = (sides, zero) => {
+    if (queue.length === 0) {
+      const more = takeAnswers(ctx, path, 'dice');
+      if (more.length > 0) {
+        queue.push(...more.flatMap((a) => a.faces ?? []));
+        if (more.some((a) => a.by === 'app')) by = 'app';
+      } else if (auto) {
+        const faces = ctx.dice(1, sides, zero);
+        recordAnswer(ctx, { step: path, kind: 'dice', by: 'engine', faces });
+        queue.push(...faces);
+      } else throw pause([die(1, sides, zero)]);
+    }
+    const face = queue.shift() as number;
+    consumed.push(face);
+    return face;
+  };
+  const rolled = f.roll(dice, source);
+  if (!rolled.ok) {
+    if (rolled.error.code === 'invalid-face')
+      throw new ActionError('answer-mismatch', { reason: rolled.error.message });
+    throw new ActionError(rolled.error.code, {
+      message: rolled.error.message,
+      ...rolled.error.data,
+    });
+  }
+  const total = rolled.value.total;
+  ctx.log.push({
+    step: path,
+    action: frame.qid,
+    kind: 'dice',
+    by,
+    faces: consumed,
+    dice: diceText(dice),
+    total,
+  });
+  return total;
+}
+
 function randomHolds(
   ctx: Ctx,
   frame: Frame,
@@ -3457,8 +3527,11 @@ function randomAmounts(
 function changesStep(ctx: Ctx, frame: Frame, step: Step, path: string): void {
   const first = ctx.proposed.length;
   if (step.release) release(ctx, frame, step.release);
+  const added =
+    step.tags !== undefined || frame.added.length > 0 ? addedChanges(ctx, frame, step) : [];
+  for (const a of added) if (a.value.order === 'before') proposeAdded(ctx, step, path, a);
   if (step.changes) proposeChanges(ctx, frame, step, path, step.to ?? 'self', step.changes);
-  if (step.tags !== undefined || frame.added.length > 0) addedChanges(ctx, frame, step, path);
+  for (const a of added) if (a.value.order !== 'before') proposeAdded(ctx, step, path, a);
   setResult(frame, step.id, { added: addedIds(ctx, first, path) });
 }
 
@@ -3471,11 +3544,22 @@ function addedIds(ctx: Ctx, first: number, path: string): string[] {
     );
 }
 
-/** Each proposes its changes after the step's own, with the content as `item` and `self`. */
-function addedChanges(ctx: Ctx, frame: Frame, step: Step, path: string): void {
+interface AddedChanges {
+  frame: Frame;
+  value: StepChanges;
+  action: ReturnType<typeof actionRoot>;
+}
+
+/**
+ * The `changes` effects reaching the step whose `when` holds, in instance order, each with the
+ * content as `item` and `self`. Each sets its flags at once (per participant in an `each` step),
+ * so later effects and the step's own changes see them.
+ */
+function addedChanges(ctx: Ctx, frame: Frame, step: Step): AddedChanges[] {
   const action = actionRoot(ctx, frame, step);
   const tags = action.step.tags;
-  if (tags.length === 0) return;
+  if (tags.length === 0) return [];
+  const out: AddedChanges[] = [];
   for (const instance of ctx.sheet.instances) {
     const effect = instance.effect;
     const target = effect.target;
@@ -3488,10 +3572,20 @@ function addedChanges(ctx: Ctx, frame: Frame, step: Step, path: string): void {
       if (v.kind !== 'bool' || !v.value) continue;
     }
     const value = effect.value as StepChanges;
-    proposeChanges(ctx, added, step, path, value.to ?? step.to ?? 'self', value.changes, {
-      action,
-    });
+    for (const [name, formula] of Object.entries(value.flags ?? {})) {
+      const v = rootValue(evaluate(ctx, added, formula, { action }));
+      setFlag(frame, name, v, step.each !== undefined);
+    }
+    out.push({ frame: added, value, action });
   }
+  return out;
+}
+
+/** An added effect's changes, `to` its own `to`, else the step's. */
+function proposeAdded(ctx: Ctx, step: Step, path: string, a: AddedChanges): void {
+  if (!a.value.changes) return;
+  const to = a.value.to ?? step.to ?? 'self';
+  proposeChanges(ctx, a.frame, step, path, to, a.value.changes, { action: a.action });
 }
 
 /**
@@ -3716,6 +3810,9 @@ function proposeOne(
 ): void {
   if (!test(ctx, frame, change.when, bound)) return;
   const tags = tagsOf(ctx, change.tags, (fm) => evaluate(ctx, frame, fm, bound));
+  // A `by` that gives dice is rolled now: the change carries the total.
+  const amount = (v: f.Value): unknown =>
+    v.kind === 'dice' ? rolledAmount(ctx, frame, path, tags, v.value) : f.toData(v);
   const resolve = (part: Record<string, unknown>, extraTags: string[]): Change => {
     const extra = { ...bound, ...part };
     const out: Record<string, unknown> = { type: change.type };
@@ -3831,11 +3928,11 @@ function proposeOne(
       if (change.by !== undefined)
         out.by = perCopy(change.by)
           ? passOn(ctx, frame, change.by, passed)
-          : f.toData(evaluate(ctx, frame, change.by, extra));
+          : amount(evaluate(ctx, frame, change.by, extra));
     } else {
       if (change.value !== undefined)
         out.value = outputData(evaluate(ctx, frame, change.value, extra));
-      if (change.by !== undefined) out.by = f.toData(evaluate(ctx, frame, change.by, extra));
+      if (change.by !== undefined) out.by = amount(evaluate(ctx, frame, change.by, extra));
     }
     const all = [...tags, ...extraTags];
     if (all.length > 0) out.tags = all;

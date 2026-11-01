@@ -1,0 +1,73 @@
+description: 'A `changes` effect sets flags before the step''s own changes, per participant in an `each` step: one adds forced movement to a hit, one deals damage "instead" of the step''s own condition'
+specVersion: 0.3.0
+call: startAction
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.3.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        tags: [hit, psychic]
+        fields:
+          hp: { type: integer, input: true, default: 10 }
+          presence: { type: integer, input: true, default: 2 }
+        contentTypes:
+          feature: {}
+          condition: {}
+        actions:
+          # Frightens each target; the outcome reports each target's forced movement.
+          - id: menace
+            participants:
+              target:
+                fields:
+                  judged: { type: boolean, default: false }
+                  frightened: { type: boolean, default: false }
+            steps:
+              - id: outcome
+                kind: branch
+                each: target
+                cases:
+                  - when: true
+                    flags: { landed: true, move: "''", moveDistance: 0 }
+              - id: hit
+                kind: changes
+                each: target
+                to: target
+                tags: [hit]
+                changes:
+                  - { type: applyEffect, when: flags.landed, source: "'conditions.frightened'" }
+              - id: done
+                kind: outcome
+                data: { move: flags.move, moveDistance: flags.moveDistance, landed: flags.landed }
+      content:
+        - id: conditions.frightened
+          type: condition
+        # The judged target is pulled 2 × presence squares.
+        - id: features.paragon
+          type: feature
+          effects:
+            - target: { steps: [hit] }
+              op: changes
+              when: participant.judged
+              value:
+                flags: { move: "'pull'", moveDistance: 2 * presence }
+        # A target already frightened takes 3 psychic damage instead of being frightened again.
+        - id: features.justice
+          type: feature
+          effects:
+            - target: { steps: [hit] }
+              op: changes
+              when: participant.frightened
+              value:
+                flags: { landed: 'false' }
+                changes:
+                  - { type: adjust, field: hp, by: -3, tags: [psychic] }
+input:
+  action: { id: 'test-pack:menace' }
+  participants:
+    target:
+      - { id: orc, values: { 'test-pack:judged': true } }
+      - { id: knight, values: { 'test-pack:frightened': true } }

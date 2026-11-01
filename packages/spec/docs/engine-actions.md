@@ -410,7 +410,15 @@ it in a flag before the roll.
   in list order, with `x` bound to the element; an empty list proposes nothing. Each copy counts
   toward `maxActionSteps`. A change whose `when` is false (for each element, with `forEach`) is
   skipped. Each other proposed change is resolved:
-  - formulas are evaluated (`value`, `by`);
+  - formulas are evaluated (`value`, `by`). A `by` the action evaluates that gives dice is
+    rolled at once: a dice checkpoint at the step's path, matched by the change's evaluated
+    `tags` in the policy, rolled as [formulas.md](formulas.md#rolling-dice-values) says with the
+    action's dice function (or, when the policy pauses, the faces the app answers with: the pause
+    lists each dice term as `{ count, sides }`, and asks again for one die at a time when a
+    reroll or explosion needs more). The change carries the total, and the log gets a `dice`
+    entry with the `faces`, the `dice` (canonical text) and the `total`. Each copy of a `split`
+    or `forEach` change rolls its own; changes for several participants are resolved once, so
+    they share one roll. A `by` passed on per copy is never rolled;
   - a computed field (`field: { formula }`, `set` and `adjust` only) is evaluated
     to a string (`type-mismatch` otherwise) and qualified against the action's pack, as a
     literal field is. For `to: self` or a role it must name a field of the ruleset
@@ -540,13 +548,21 @@ it in a flag before the roll.
 - **Changes content adds**: a changes step's `tags` (computed entries
   evaluated when it runs, with the tags `action` steps running the action add after them, as for
   roll and choice steps) are matched by content's `changes` effects
-  (`target: { steps: [<tag>], from? }`, [effects.md](effects.md#targets)). After the step's own
-  `release` and `changes`, each active `changes` instance whose source is a content item, a
-  template or the rules' effects (`item` and `self` unbound, `from: self` never matching),
-  whose target tags match one of the step's (a tag matches itself and the tags below it), whose
-  `from: self` (if any) names the action's own copy (and the content granted or picked under the
-  copy, named by `source`, as for roll effects), and whose `when` holds, proposes
-  its `changes`, in instance order, `to` its value's `to`, else the step's. Its formulas see what
+  (`target: { steps: [<tag>], from? }`, [effects.md](effects.md#targets)). The step runs in this
+  order:
+  1. Its `release`, if any.
+  2. Each active `changes` instance whose source is a content item, a template or the rules'
+     effects (`item` and `self` unbound, `from: self` never matching), whose target tags match
+     one of the step's (a tag matches itself and the tags below it), whose `from: self` (if any)
+     names the action's own copy (and the content granted or picked under the copy, named by
+     `source`, as for roll effects), and whose `when` holds is taken, in instance order: its `flags`
+     are evaluated and set at once, as a branch case's (per participant in an `each` step), so
+     later instances' `when`s and the step's own changes read them.
+  3. The changes of those with `order: before`, in instance order.
+  4. The step's own `changes`, their `when`s seeing the flags step 2 set.
+  5. The changes of the others (`order: after`, the default), in instance order.
+
+  Each instance's changes go `to` its value's `to`, else the step's. Its formulas see what
   an added option's see: `item` and `self` the content carrying the effect (`entry: self` its
   copy), the action's own as `action.item`, `action.self` and `action.step` (the step's
   evaluated tags), and the action's `params`, `situational`, `steps`, `flags`, `participants`
@@ -554,6 +570,7 @@ it in a flag before the roll.
   step's path (per participant in an `each` step), and held by a `hold` action step like any
   other. A step with no `changes` and no `release` (only `tags`) is a place content adds to;
   without matching content it proposes nothing.
+
 - **The step's result** is `steps.<id>.added`: the instance IDs of the copies the step's
   `addItem` changes to `self` add, its own and those content adds, in the order proposed (`[]`
   for none). An ID the engine picked is listed as picked, so a later step can aim a computed
@@ -1001,7 +1018,9 @@ Every checkpoint adds a log entry:
   }` (an `atLeast` or `atMost` is listed only when it changed the value); `bounds`, when a bound
   changed the total; `rolls`, for a roll made more than once (as in the step's result), while
   `faces` lists every roll's faces as supplied; and `summary`, the roll's [summary](#the-roll-summary), a dice-less roll's
-  included.
+  included;
+- for a proposed change's rolled amount ([Other steps](#other-steps)), `kind: dice` with its
+  `faces`, the `dice` as canonical text and the `total`, at the changes step's path.
 
 **A paused action is its inputs plus its answers so far** (`state`): the ruleset version, the
 character, the action, params, situational choices, link views, participants, and every

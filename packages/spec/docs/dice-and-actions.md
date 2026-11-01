@@ -560,6 +560,58 @@ effects:
           state: { damage: 1d10, damageType: "'fire'" }
 ```
 
+The effect may also set the action's **flags**, as an added option does: `value.flags` is set as
+the step runs, before its own changes (per participant in an `each` step), so the step's own
+`when`s, later steps and the outcome read it. A flag must be one the action sets elsewhere, in a
+branch case or a written option (checked at load). So content adds to what a shared action works
+out (forced movement it reports), or turns off a change of its own ("instead"). With
+`order: before`, the changes are proposed before the step's own instead of after, so a gain
+counts before the step's own spending clamps the field.
+
+```yaml
+# A shared ability action: each target's forced movement in flags, a condition when it lands.
+- id: hit
+  kind: changes
+  each: target
+  to: target
+  tags: [ability.hit]
+  changes:
+    - { type: applyEffect, when: flags.landed, source: flags.cond }
+# Paragon order: the judged creature is pulled 2 × Presence squares.
+- target: { steps: [ability.hit] }
+  op: changes
+  when: participant.id in judgment.targets
+  value:
+    flags: { move: "'pull'", moveDistance: 2 * characteristics.presence.score }
+# It Is Justice You Fear: a frightened target takes psychic damage instead of being frightened.
+- target: { steps: [ability.hit] }
+  op: changes
+  when: participant.conditions.frightened && flags.landed
+  value:
+    flags: { landed: 'false' }
+    changes: [{ type: adjust, field: stamina.current, by: -3, tags: [damage.psychic] }]
+# Teamwork Has Its Place: 1 surge before the power roll, so the ability's own surges can use it.
+- target: { steps: [ability.pay] }
+  op: changes
+  value:
+    order: before
+    changes: [{ type: adjust, field: surges.current, by: 1 }]
+```
+
+**Rolled amounts.** A proposed change's `by` (an `adjust`, `adjustState` or `adjustQuantity`)
+may give dice: the action rolls it with its dice function as the change is resolved, a dice
+checkpoint at the step's path that the policy matches by the change's tags, and the change
+carries the total. The log records the `faces`, the `dice` and the `total`
+([engine-actions.md](engine-actions.md#other-steps)). A Talent's strain costs `1d6` Stamina:
+
+```yaml
+- target: { steps: [ability.after] }
+  op: changes
+  when: action.item.strained && heroic.current < 0
+  value:
+    changes: [{ type: adjust, field: stamina.current, by: -1d6, tags: [strain] }]
+```
+
 **Offering a follow-up**. A proposed `offerFollowUp` names a follow-up of the
 content whose option or added changes propose it (or of its content type), else of the content
 defining the action, else of the rules, with `params` formulas the action evaluates. The action

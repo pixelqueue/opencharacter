@@ -178,15 +178,16 @@ interface ActionTarget<L> {
   ownerType?: string;
 }
 
-function reachesChoice(steps: Step[], tags: string[]): boolean {
+/** Whether a step of `kind` carries a literal tag the target names. */
+function reachesStep(steps: Step[], tags: string[], kind: 'choice' | 'changes'): boolean {
   return steps.some((step) => {
     const own = (step.tags ?? []).filter((t): t is string => typeof t === 'string');
     if (
-      step.kind === 'choice' &&
+      step.kind === kind &&
       tags.some((target) => own.some((t) => t === target || t.startsWith(`${target}.`)))
     )
       return true;
-    return stepArms(step).some((arm) => reachesChoice(arm.steps ?? [], tags));
+    return stepArms(step).some((arm) => reachesStep(arm.steps ?? [], tags, kind));
   });
 }
 
@@ -736,13 +737,17 @@ class FormulaChecker<L> {
       this.typed({ picked: pickedType({}) }, () =>
         this.onlyRoots([...this.extraRoots.filter((r) => r !== 'picks'), 'picked'], () => {
           for (const [name, formula] of Object.entries(value.flags ?? {}))
-            this.optionFlag(tags, name, formula, at, label);
+            this.optionFlag(tags, 'choice', name, formula, at, label);
           for (const change of value.changes ?? []) this.proposedChange(change, at, label);
         }),
       );
     } else if (effect.op === 'changes') {
-      for (const change of (effect.value as StepChanges).changes ?? [])
-        this.proposedChange(change, at, label);
+      const value = effect.value as StepChanges;
+      const target = effect.target;
+      const tags = typeof target === 'object' && 'steps' in target ? target.steps : [];
+      for (const [name, formula] of Object.entries(value.flags ?? {}))
+        this.optionFlag(tags, 'changes', name, formula, at, label);
+      for (const change of value.changes ?? []) this.proposedChange(change, at, label);
     } else if (effect.op === 'rollModifier') {
       const modifier = effect.value as RollModifier;
       for (const value of [modifier.below, modifier.factor, modifier.value, modifier.at])
@@ -1361,7 +1366,7 @@ class FormulaChecker<L> {
     const perCopy = (fm: Formula | undefined) =>
       change.copies !== undefined && fm !== undefined && readsCopy(fm);
     const value: Expect = change.type === 'setQuantity' ? ['int'] : ANY;
-    const by: Expect = change.type === 'adjustQuantity' ? ['int'] : NUMBER;
+    const by: FType[] = change.type === 'adjustQuantity' ? ['int'] : ['decimal'];
     if (change.copies) {
       const def = this.contentTypeDef(change.copies.type);
       // They may also read `steps`, `flags`, `params` and `action`, substituted by the action as
@@ -1396,7 +1401,8 @@ class FormulaChecker<L> {
     this.typed({ part: PART }, () =>
       this.withRoots(change.split ? ['part'] : [], () => {
         if (!perEntry(change.value)) this.formula(change.value, at, where, value);
-        if (!perEntry(change.by)) this.formula(change.by, at, where, by);
+        // The action rolls an amount given as dice.
+        if (!perEntry(change.by)) this.formula(change.by, at, where, [...by, 'dice']);
       }),
     );
   }
@@ -1571,9 +1577,16 @@ class FormulaChecker<L> {
    * A flag an added option sets must be set elsewhere, with a matching type, by every action in
    * scope whose choice step the option reaches.
    */
-  private optionFlag(tags: string[], name: string, formula: Formula, at: L, where: string): void {
+  private optionFlag(
+    tags: string[],
+    kind: 'choice' | 'changes',
+    name: string,
+    formula: Formula,
+    at: L,
+    where: string,
+  ): void {
     const declared: FType[] = [];
-    for (const target of this.optionTargets(tags)) {
+    for (const target of this.optionTargets(tags, kind)) {
       const types = actionFlagTypes(this.set, target).get(name);
       if (!types) {
         this.problems.push({
@@ -1581,7 +1594,7 @@ class FormulaChecker<L> {
           where,
           formula,
           code: 'unknown-name',
-          message: `${target.key} doesn't set the flag "${name}"; an option sets only flags its action sets elsewhere`,
+          message: `${target.key} doesn't set the flag "${name}"; content sets only flags its action sets elsewhere`,
         });
         return;
       }
@@ -1591,14 +1604,14 @@ class FormulaChecker<L> {
     this.formula(formula, at, where, open ? ANY : declared);
   }
 
-  private optionTargets(tags: string[]): ActionTarget<L>[] {
-    const memo = JSON.stringify(tags);
+  private optionTargets(tags: string[], kind: 'choice' | 'changes'): ActionTarget<L>[] {
+    const memo = JSON.stringify([kind, tags]);
     const known = this.targetsByTags.get(memo);
     if (known) return known;
     const out: ActionTarget<L>[] = [];
     this.targetsByTags.set(memo, out);
     const add = (def: ActionOrUse, pack: string, at: L, key: string, ownerType?: string) => {
-      if ('use' in def || !reachesChoice(def.steps, tags)) return;
+      if ('use' in def || !reachesStep(def.steps, tags, kind)) return;
       out.push({ def, pack, at, key, ...(ownerType !== undefined ? { ownerType } : {}) });
     };
     for (const pid of this.scope) {

@@ -604,9 +604,9 @@ export type ProposedChange = {
   field?: FieldRef | ComputedField;
   entry?: string | ProposedEntry | ComputedEntry;
   key?: Name;
-  /** Evaluated by the action, unless the change has `copies` (or `applied`) and this reads `self`, `item` or `batch`: then it is passed on for applyChanges to evaluate per copy, with each path rooted at `steps`, `flags`, `params` or `action` replaced by its value as a literal. */
+  /** Evaluated by the action, unless the change has `copies` (or `applied`) and this reads `self`, `item` or `batch`: then it is passed on for applyChanges to evaluate per copy, with each path rooted at `steps`, `flags`, `params` or `action` replaced by its value as a literal. Evaluated by the action, it may give dice (`-1d6`): the action rolls them, a dice checkpoint at the step matched by the change's tags, logs the faces, and the change carries the total. */
   value?: Formula;
-  /** Evaluated by the action, unless the change has `copies` (or `applied`) and this reads `self`, `item` or `batch`: then it is passed on for applyChanges to evaluate per copy, with each path rooted at `steps`, `flags`, `params` or `action` replaced by its value as a literal. */
+  /** Evaluated by the action, unless the change has `copies` (or `applied`) and this reads `self`, `item` or `batch`: then it is passed on for applyChanges to evaluate per copy, with each path rooted at `steps`, `flags`, `params` or `action` replaced by its value as a literal. Evaluated by the action, it may give dice (`-1d6`): the action rolls them, a dice checkpoint at the step matched by the change's tags, logs the faces, and the change carries the total. */
   by?: Formula;
   tags?: TagList;
   /** adjust only: split this change by tag. The engine emits one adjust per distinct tag under `by` among the roll items of step `roll`, evaluating the change's `by` formula once per group with `part` bound (`part.total`, `part.tag`). Each emitted change carries the change's tags plus the group's tag; items with no tag under `by` form one more group carrying only the change's tags. Incoming-change effects (resistance) then apply to each change separately. */
@@ -1462,9 +1462,13 @@ export type StepTarget = {
   from?: 'self' | 'any';
 };
 
-/** What a `changes` effect adds to a tagged changes step: `changes`, proposed after the step's own each time the step runs (per participant in an `each` step) while the effect's `when` holds, `to` this `to`, else the step's. In its `when` and `changes`, `item` and `self` are the content carrying the effect (`entry: self` is that copy), the action's own are `action.item`, `action.self` and `action.step`, and the action's `params`, `situational`, `steps`, `flags`, `participants` (and `participant` in an `each` step) are bound. */
+/** What a `changes` effect adds to a tagged changes step each time the step runs (per participant in an `each` step) while the effect's `when` holds: `flags`, set before the step's own changes, and `changes`, proposed after the step's own (or, with `order: before`, before them), `to` this `to`, else the step's. In its `when`, `flags` and `changes`, `item` and `self` are the content carrying the effect (`entry: self` is that copy), the action's own are `action.item`, `action.self` and `action.step`, and the action's `params`, `situational`, `steps`, `flags`, `participants` (and `participant` in an `each` step) are bound. */
 export type StepChanges = {
-  changes: ProposedChange[];
+  /** Flags set as the step runs, before its own changes, as a branch case's: each formula is evaluated in the effect's context and set as `flags.<name>`, in instance order of the effects, so the step's own `when`s and changes, later effects and later steps read it. In an `each` step, it is set for the current participant, as an `each` branch's. A flag already set is replaced. The action must set each flag elsewhere, in a branch case or a written option: one it doesn't is `formula-error` (cause `unknown-name`) at load, and a value of another type `type-mismatch`. */
+  flags?: OptionFlags;
+  /** `before`: the changes are proposed before the step's own (after any it releases), so an added gain counts before the step's own spending clamps the field. Default `after`. */
+  order?: 'before' | 'after';
+  changes?: ProposedChange[];
   /** Who the changes are for, as a `changes` step's `to`. Default: the step's `to`. */
   to?: Destination;
 };
@@ -1666,6 +1670,8 @@ export type LogEntry = {
   of?: string;
   /** The faces the step used. A roll step with no dice items is not a checkpoint and has none. */
   faces?: number[];
+  /** Dice entries of a proposed change's rolled amount (a `by` that gave dice): the dice, as canonical text. `faces` are the faces used and `total` the amount the change carries. */
+  dice?: string;
   /** Dice entries of a random draw on a choice or allocate step: what the face picked among. Its one face is `faces[0]`. */
   draw?: Draw;
   /** The picked option ID; `#done` when a repeated choice step was ended early. */

@@ -1,0 +1,18 @@
+# The orc is judged: pulled 4 and frightened. The knight is already frightened: 3 psychic damage
+# instead, and no condition. Outside the `each` steps, each flag is the list of the targets'.
+status: finished
+outcome:
+  data:
+    move: [pull, '']
+    moveDistance: [4, 0]
+    landed: [true, false]
+proposedChanges:
+  - to: target
+    character: orc
+    step: hit[0]
+    change: { type: applyEffect, source: test-pack:conditions.frightened }
+  - to: target
+    character: knight
+    step: hit[1]
+    change: { type: adjust, field: test-pack:hp, by: -3, tags: [psychic] }
+log: []

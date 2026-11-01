@@ -1,0 +1,22 @@
+# Teamwork's +1 comes before the step's -1, so a character with no surges can pay. The strain's
+# 1d6 + 1 rolls a 4: the change carries -5, and the log records the dice.
+status: finished
+outcome: {}
+proposedChanges:
+  - to: self
+    step: pay
+    change: { type: adjust, field: test-pack:surges, by: 1 }
+  - to: self
+    step: pay
+    change: { type: adjust, field: test-pack:surges, by: -1 }
+  - to: self
+    step: after
+    change: { type: adjust, field: test-pack:hp, by: -5, tags: [strain] }
+log:
+  - step: after
+    action: test-pack:use-ability
+    kind: dice
+    by: engine
+    faces: [4]
+    dice: '-1d6 - 1'
+    total: -5

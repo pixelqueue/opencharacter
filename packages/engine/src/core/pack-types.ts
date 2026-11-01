@@ -115,9 +115,13 @@ export type EffectTarget =
   | { steps: string[]; from?: string };
 
 export interface StepChanges {
-  changes: ProposedChange[];
+  changes?: ProposedChange[];
   /** Default: the step's `to`. */
   to?: Destination;
+  /** Flags set before the step's own changes. */
+  flags?: Record<string, Formula>;
+  /** `before`: proposed before the step's own changes. Default `after`. */
+  order?: 'before' | 'after';
 }
 
 export interface OptionValue {

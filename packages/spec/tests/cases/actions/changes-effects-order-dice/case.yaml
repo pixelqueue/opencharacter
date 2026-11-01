@@ -1,0 +1,54 @@
+description: "A `changes` effect with `order: before` proposes its changes before the step's own, so a gain counts before the spending clamps; an added `adjust` whose `by` gives dice is rolled with the action's dice and logged"
+specVersion: 0.3.0
+call: startAction
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.3.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        tags: [pay, after, strain]
+        fields:
+          surges: { type: integer, input: true, default: 0 }
+          hp: { type: integer, input: true, default: 10 }
+        contentTypes:
+          feature: {}
+        actions:
+          - id: use-ability
+            params:
+              surges: { type: integer, default: 0 }
+            steps:
+              - id: pay
+                kind: changes
+                tags: [pay]
+                changes:
+                  - { type: adjust, when: params.surges > 0, field: surges, by: -params.surges }
+              - id: after
+                kind: changes
+                tags: [after]
+      content:
+        # Gains 1 surge before the ability is paid for.
+        - id: features.teamwork
+          type: feature
+          effects:
+            - target: { steps: [pay] }
+              op: changes
+              value:
+                order: before
+                changes:
+                  - { type: adjust, field: surges, by: 1 }
+        # Strained: the ability costs 1d6 + 1 hit points.
+        - id: features.strained
+          type: feature
+          effects:
+            - target: { steps: [after] }
+              op: changes
+              value:
+                changes:
+                  - { type: adjust, field: hp, by: -(1d6 + 1), tags: [strain] }
+input:
+  action: { id: 'test-pack:use-ability' }
+  params: { surges: 1 }
