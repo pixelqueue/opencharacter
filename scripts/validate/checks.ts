@@ -1383,6 +1383,12 @@ export class PackChecker {
             file,
             `${prefix}grant of "${grant.item}" presets choice "${key}", which it doesn't declare`,
           );
+        // A preset pick is never chosen, so no copy would be added for it.
+        else if (choices.get(key)?.addAs !== undefined)
+          this.report.error(
+            file,
+            `${prefix}grant of "${grant.item}" presets choice "${key}", whose picks are held as copies (addAs)`,
+          );
       if (!grant.state) continue;
       const typeName = this.ruleset.typeOf(granted);
       const type = typeName
@@ -1804,6 +1810,11 @@ export class PackChecker {
         this.report.error(file, `${where}: activate applies only to a query or items`);
       if (choice.addAs !== undefined && ('values' in from || 'options' in from))
         this.report.error(file, `${where}: addAs applies only to a query or items`);
+      if (choice.activeWhen !== undefined && choice.activate === false)
+        this.report.warn(
+          file,
+          `${where}: activeWhen gates only the choice's effects, as its picks aren't activated (activate: false)`,
+        );
       // A computed list's values aren't known here.
       if ('values' in from) this.optionalPrefixes.add(`${key}.options.`);
       if ('items' in from) {

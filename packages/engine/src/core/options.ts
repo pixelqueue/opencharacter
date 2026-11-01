@@ -130,7 +130,10 @@ export function optionsOn(
 
   let recommended: unknown;
   if (choice.recommend !== undefined) {
-    const offered = candidates.filter((_, i) => early[i]?.length === 0).map((c) => c.option);
+    // The choice's own picks are left out, so `options[0]` is the next one to pick.
+    const offered = candidates
+      .filter((c, i) => early[i]?.length === 0 && !record.picks.some((p) => p.option === c.option))
+      .map((c) => c.option);
     recommended = safe(
       () =>
         f.toData(
@@ -175,10 +178,7 @@ export function optionsOn(
             const item = ruleset.content[String(option)];
             const list =
               item && ruleset.contentTypes[item.type]?.carried ? 'inventory' : 'features';
-            trial[list] = [
-              ...(trial[list] ?? []),
-              { id: 'listoptions-trial-copy', item: String(option) },
-            ];
+            trial[list] = [...(trial[list] ?? []), { id: '#trial', item: String(option) }];
           }
         }
       }

@@ -1,0 +1,35 @@
+description: "A choice that gains or loses addAs: copy makes an interface change, its saved picks' copy links no longer fitting; a patch bump is too small, and no upgrade script is needed"
+specVersion: 0.1.0
+call: checkRelease
+previous:
+  inline:
+    manifest:
+      { id: test-pack, version: 0.1.0, specVersion: 0.1.0, license: CC0-1.0, defaultLanguage: en }
+    rules:
+      contentTypes:
+        trinket: { carried: true }
+        feature: {}
+      choices:
+        - { id: keepsake, from: { type: trinket } }
+    content:
+      - { id: trinkets.coin, type: trinket }
+      - id: features.twin
+        type: feature
+        choices:
+          - { id: trinket, from: { type: trinket }, addAs: copy }
+next:
+  inline:
+    manifest:
+      { id: test-pack, version: 0.1.1, specVersion: 0.1.0, license: CC0-1.0, defaultLanguage: en }
+    rules:
+      contentTypes:
+        trinket: { carried: true }
+        feature: {}
+      choices:
+        - { id: keepsake, from: { type: trinket }, addAs: copy }
+    content:
+      - { id: trinkets.coin, type: trinket }
+      - id: features.twin
+        type: feature
+        choices:
+          - { id: trinket, from: { type: trinket } }

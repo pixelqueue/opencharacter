@@ -220,8 +220,10 @@ export interface Text {
    */
   option(id: string | number, context?: OptionContext): string;
   /**
-   * An inline option's or a value's optional description (Markdown):
-   * `<owner>.choices.<choice>.options.<id>.description`, in the pack that names the option.
+   * A choice option's description (Markdown), `undefined` when the pack has none:
+   * `<owner>.choices.<choice>.options.<id>.description`, optional for an inline option and for a
+   * value choice's value alike. Read in the owner's pack, or in the pack that added the option
+   * (`optionOrigins`).
    */
   optionDescription(choice: ChoiceRef, id: string | number): string | undefined;
   band(bandSet: string, band: string): string;

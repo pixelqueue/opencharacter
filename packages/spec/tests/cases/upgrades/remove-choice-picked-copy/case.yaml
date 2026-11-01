@@ -1,0 +1,34 @@
+description: "An upgrade step that removes a pick of an addAs: copy choice (removeChoice) removes the pick's copy too, as applyChanges does; another copy of the item stays"
+specVersion: 0.1.0
+call: upgrade
+from:
+  - inline:
+      manifest:
+        { id: test-pack, version: 1.0.0, specVersion: 0.1.0, license: CC0-1.0, defaultLanguage: en }
+      rules:
+        contentTypes:
+          trinket: { carried: true }
+          feature: {}
+      content:
+        - { id: trinkets.coin, type: trinket }
+        - id: features.twin
+          type: feature
+          choices:
+            - { id: trinket, from: { type: trinket }, addAs: copy }
+to:
+  - inline:
+      manifest:
+        { id: test-pack, version: 2.0.0, specVersion: 0.1.0, license: CC0-1.0, defaultLanguage: en }
+      rules:
+        contentTypes:
+          trinket: { carried: true }
+          feature: {}
+      content:
+        - { id: trinkets.coin, type: trinket }
+        - { id: features.twin, type: feature }
+      upgrades:
+        - pack: test-pack
+          from: 1.0.0
+          to: 2.0.0
+          steps:
+            - { op: removeChoice, owner: features.twin, choice: trinket }

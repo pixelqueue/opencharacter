@@ -30,6 +30,7 @@ import { display } from './display.ts';
 import { loadRuleset } from './load.ts';
 import { itemStandard, rulesStandard, standardId } from './ruleset.ts';
 import { upgradeSpec } from './spec-upgrade.ts';
+import { dropUnpicked, pickLinks } from './tree.ts';
 import { expandSlots, Sheet } from './sheet.ts';
 import { copyFieldProblem, stateDecls } from './views.ts';
 
@@ -158,6 +159,9 @@ export function upgrade(from: Ruleset, to: Ruleset, saved: CharacterDoc): Upgrad
     }
     pin.version = target;
   }
+  // A step that removes a pick (removeChoice, renameOption, removeContent) removes its copy, as
+  // applyChanges does.
+  dropUnpicked(next, old.pickedCopies().keys());
 
   const layeredTo = withHomebrew(to, next);
   const after = new Sheet(layeredTo.ok ? layeredTo.ruleset : to, next);
@@ -676,11 +680,12 @@ function applyStep(
       return changed;
     }
     case 'adoptStandard': {
-      // The first entry of the item becomes its standard copy.
+      // The first entry of the item becomes its standard copy; a pick's copy stays the pick's.
       const item = q(step.item as string);
       const id = standardId(item);
       if (allEntries(c).some((e) => e.id === id)) return false;
-      const entry = allEntries(c).find((e) => e.item === item);
+      const linked = pickLinks(c);
+      const entry = allEntries(c).find((e) => e.item === item && !linked.has(e.id));
       if (!entry) return false;
       entry.id = id;
       return true;
@@ -731,7 +736,9 @@ export interface ShapeChange {
     // An open enum stops being open: dependents' additions no longer load.
     | 'enum-closed'
     // A value or option the pack added to a dependency's enum or choice is gone.
-    | 'extension-removed';
+    | 'extension-removed'
+    // An existing choice gains or loses `addAs`: its saved picks' copy links no longer fit.
+    | 'choice-copies-changed';
   id: string;
 }
 
@@ -879,6 +886,9 @@ export function checkRelease(
       changes.push({ kind: 'choice-removed', id });
       continue;
     }
+    // Picks held as copies, or not: saved picks gain or lose their copy links.
+    if ((choice.addAs ?? null) !== (now.choice.addAs ?? null))
+      interfaceChanges.push({ kind: 'choice-copies-changed', id });
     // A `values` formula's options can't be known before a sheet: written values it replaces
     // aren't removed (a character's pick the formula no longer offers is reported then).
     const offered = optionIds(now.choice);
@@ -1028,6 +1038,7 @@ export function checkRelease(
     'action-removed',
     'enum-closed',
     'extension-removed',
+    'choice-copies-changed',
   ];
   // A removed derived field is listed with the shape changes' `field-removed`.
   const out = [...changes, ...interfaceChanges]

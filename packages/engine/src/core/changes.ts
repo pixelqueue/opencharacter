@@ -42,7 +42,7 @@ import {
   Sheet,
   type Source,
 } from './sheet.ts';
-import { pickedCopies, samePath, treeFor } from './tree.ts';
+import { dropUnpicked, pickLinks, samePath, treeFor } from './tree.ts';
 import {
   pickState,
   appliedView,
@@ -200,9 +200,13 @@ export function applyBatch(
       continue;
     }
     try {
-      const held = pickedCopies(next);
+      // The copies picks hold now: a change that removes their picks removes them too.
+      const held =
+        pickLinks(next).size > 0
+          ? [...new Sheet(ruleset, next, [], links).pickedCopies().keys()]
+          : [];
       const patch = applyOne(ruleset, next, change as AnyChange, adjustments, links, dice, sheets);
-      if (held.size > 0) dropUnpickedCopies(next, held);
+      if (held.length > 0) dropUnpicked(next, held);
       // An adjust comes back with the faces it used, an applyEffect with its computed state.
       applied.push(patch ? ({ ...change, ...patch } as Change) : change);
     } catch (error) {
@@ -269,21 +273,6 @@ function setHomebrew(
   return { ok: true, ruleset: layered.ruleset };
 }
 
-/**
- * Removes the copies picks held before a change whose picks it removed (`addAs: copy`), and the
- * copies those copies' own picks held.
- */
-function dropUnpickedCopies(c: CharacterDoc, held: ReadonlyMap<string, ChoicePath>): void {
-  let gone = [...held.keys()].filter((id) => !pickedCopies(c).has(id));
-  while (gone.length > 0) {
-    const before = pickedCopies(c);
-    c.features = (c.features ?? []).filter((e) => !gone.includes(e.id));
-    c.inventory = (c.inventory ?? []).filter((e) => !gone.includes(e.id));
-    const after = pickedCopies(c);
-    gone = [...before.keys()].filter((id) => !after.has(id));
-  }
-}
-
 function allEntries(c: CharacterDoc): Entry[] {
   return [...(c.features ?? []), ...(c.inventory ?? [])];
 }
@@ -323,8 +312,10 @@ function noPicks(
 function dropDefaultStandard(ruleset: Ruleset, sheet: Sheet, c: CharacterDoc): boolean {
   const saved = new Set(sheet.standard.filter((s) => s.saved).map((s) => s.entry));
   if (saved.size === 0) return false;
+  // A copy a pick names is the pick's, never dropped as a standard copy at its defaults.
+  const linked = pickLinks(c);
   const atDefaults = (entry: Entry): boolean => {
-    if (!saved.has(entry.id)) return false;
+    if (!saved.has(entry.id) || linked.has(entry.id)) return false;
     if (entry.equipped === true || (entry.quantity ?? 1) !== 1) return false;
     if ((entry.templates ?? []).length > 0 || !noPicks(entry.choices)) return false;
     if (Object.keys(entry.grants ?? {}).length > 0) return false;
@@ -900,7 +891,7 @@ function applyOne(
       if (sheet.standard.some((s) => s.entry === id))
         throw new ChangeError('standard-copy', { entry: id });
       // A pick's copy goes with its pick.
-      const pickedBy = pickedCopies(c).get(id);
+      const pickedBy = sheet.pickedCopies().get(id);
       if (pickedBy) throw new ChangeError('picked-copy', { entry: id, path: pickedBy });
       entryOf(id);
       c.features = (c.features ?? []).filter((e) => e.id !== id);
@@ -1136,12 +1127,21 @@ function applyOne(
       if (picks.some((p) => p.option === option))
         throw new ChangeError('duplicate-id', { id: option });
       if (record.choice.addAs === 'copy' && typeof option === 'string') {
-        // The pick holds a copy of its own, added as addItem adds one, under a free derived ID.
+        // The pick holds a copy of its own, added as addItem adds one. Its ID ends `_pick`, which
+        // no standard copy's derived ID can (content IDs have no `_`).
         const used = usedIds(c, sheet);
-        const base = standardId(option);
+        const base = `${standardId(option)}_pick`;
         let id = base;
         for (let n = 2; used.has(id); n++) id = `${base}-${n}`;
-        applyOne(ruleset, c, { type: 'addItem', entry: { id, item: option } }, adjustments, links);
+        applyOne(
+          ruleset,
+          c,
+          { type: 'addItem', entry: { id, item: option } },
+          adjustments,
+          links,
+          dice,
+          sheets,
+        );
         tree[key] = [...picks, { option, entry: id }];
         return;
       }

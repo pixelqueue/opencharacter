@@ -1,0 +1,22 @@
+values:
+  test-choice-activation:ward: { value: 0 }
+pending:
+  - { entry: gift, choice: [gift, hoard, trait] }
+choices:
+  - path: { entry: gift, choice: [gift] }
+    owner: test-choice-activation:features.dream-gift
+    id: gift
+    min: 1
+    max: 1
+    picks: [hoard]
+    open: false
+    inactive: true
+  - path: { entry: gift, choice: [gift, hoard, trait] }
+    owner: test-choice-activation:features.dream-gift.choices.gift.options.hoard
+    id: trait
+    type: test-choice-activation:trait
+    min: 1
+    max: 1
+    picks: []
+    open: true
+    inactive: true

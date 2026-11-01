@@ -42,19 +42,34 @@ export function samePath(a: ChoicePath, b: ChoicePath): boolean {
   );
 }
 
-/** The copies picks hold (`addAs: copy`), by instance ID, with each pick's choice path. */
-export function pickedCopies(character: CharacterDoc): Map<string, ChoicePath> {
-  const out = new Map<string, ChoicePath>();
-  const walk = (tree: ChoiceTree | undefined, at: ChoicePath): void => {
-    for (const [key, picks] of Object.entries(tree ?? {}))
+/** The instance IDs saved picks name as their copies (`entry`), at any depth, as written. */
+export function pickLinks(character: CharacterDoc): Set<string> {
+  const out = new Set<string>();
+  const walk = (tree: ChoiceTree | undefined): void => {
+    for (const picks of Object.values(tree ?? {}))
       for (const pick of picks ?? []) {
-        if (pick.entry !== undefined && !out.has(pick.entry))
-          out.set(pick.entry, { ...at, choice: [...at.choice, key] });
-        walk(pick.choices, { ...at, choice: [...at.choice, key, pick.option] });
+        if (pick.entry !== undefined) out.add(pick.entry);
+        walk(pick.choices);
       }
   };
-  walk(character.choices, { choice: [] });
+  walk(character.choices);
   for (const entry of [...(character.features ?? []), ...(character.inventory ?? [])])
-    walk(entry.choices, { entry: entry.id, choice: [] });
+    walk(entry.choices);
   return out;
+}
+
+/**
+ * Removes the copies in `held` (picks' copies before a change) whose links the change removed,
+ * then those whose links went with them (picks of a removed copy), until none is left.
+ */
+export function dropUnpicked(character: CharacterDoc, held: Iterable<string>): void {
+  const ids = new Set(held);
+  for (;;) {
+    const linked = pickLinks(character);
+    const has = (id: string) => ids.has(id) && !linked.has(id);
+    const entries = [...(character.features ?? []), ...(character.inventory ?? [])];
+    if (!entries.some((e) => has(e.id))) return;
+    if (character.features) character.features = character.features.filter((e) => !has(e.id));
+    if (character.inventory) character.inventory = character.inventory.filter((e) => !has(e.id));
+  }
 }

@@ -1070,9 +1070,12 @@ only whether its picks are active:
 - While `activeWhen` fails, the choice is still listed, asked and counted: it is pending with
   too few picks, and its saved picks are kept and checked against its options as usual. But
   they aren't active: picked content and inline options don't activate (no effects, grants,
-  choices, actions, follow-ups or immunities), and the choice's own `effects` don't run.
-  computeSheet's choice list marks it `inactive: true`
+  actions, follow-ups or immunities), and the choice's own `effects` don't run. The picks' own
+  choices are still walked, inactive in turn: listed, asked and pending as usual, their picks
+  kept and none active. computeSheet's choice list marks each such choice `inactive: true`
   ([engine-core.md](engine-core.md#the-choice-list)). A hidden pick is still `content-hidden`.
+- With `activate: false` there is nothing to wake but the choice's `effects`; `pnpm validate`
+  warns.
 
 So the picks of a rule usable only under some condition are made once, at creation, and wake
 when it holds, where a `when` would leave the choice unasked until then:
@@ -1092,20 +1095,38 @@ picked item, not activated in place. "A trinket of your choice" is then a trinke
 inventory, equippable and with state, like one bought:
 
 - **Adding.** `choose` adds the copy as `addItem` would (in `inventory` for carried types,
-  else `features`; formula state defaults evaluated; grant-only content `not-addable`), under
-  the option's derived ID (its qualified ID with the colon and dots as hyphens, as a
-  [standard copy's](#standard-copies)), or that ID with `-2`, `-3`, … when it is taken. The pick
-  saves the copy's instance ID as `entry` ([characters.md](characters.md#choices-tree)).
+  else `features`; formula state defaults evaluated) and saves its instance ID on the pick as
+  `entry` ([characters.md](characters.md#choices-tree)). The ID is the option's derived ID (its
+  qualified ID with the colon and dots as hyphens) plus `_pick`, or plus `_pick-2`, `_pick-3`, …
+  when that is taken. Content IDs have no `_`, so it is never a
+  [standard copy's](#standard-copies) ID, and a copy a pick names is never adopted or dropped as
+  one.
+- **Eligible.** Grant-only content can't be added, so it is `option-not-eligible` in such a
+  choice. A grant can't preset the choice (`pnpm validate` reports it): a preset pick is never
+  chosen, so it would hold no copy.
 - **Active.** The pick activates nothing itself, so the item's effects apply once, through its
   copy, as any copy's do (an equippable one's `when: self.equipped` while equipped). The choice's
   own `effects` run per pick as usual. `listOptions` checks an option's prerequisites as that
   copy's.
+- **Held as any copy.** Once added, the copy is an entry like one bought: it stays, and stays
+  active, while the choice's `when` fails or its owner is inactive (a class feature not yet
+  reached), as an item the character was given stays in the pack. Only removing the pick removes
+  it.
 - **Removing.** Removing the pick (`unchoose`, or removing what holds it, such as the owner's
-  entry or a pick it is nested under) removes its copy in the same change. `removeItem` of the
-  copy itself is `picked-copy`: the app unchooses the pick instead.
-- A pick saved without `entry` (written by hand) holds no copy and activates nothing.
-- `addAs` takes neither `activate` nor `activeWhen` (a schema error); values and inline options
-  have no copies, which `pnpm validate` reports.
+  entry or a pick it is nested under) removes its copy in the same change, and so does an
+  upgrade step that removes the pick (`removeChoice`, `renameOption` without `to`,
+  `removeContent` of what holds it). `removeItem` of the copy itself is `picked-copy`: the app
+  unchooses the pick instead.
+- **Links.** A pick's link holds when the choice is `addAs: copy` and `entry` names an entry of
+  the picked item that no earlier pick names. Any other saved link (no `entry`, an entry that is
+  gone or of another item, one an earlier pick names, or `entry` on a pick of a choice without
+  `addAs`) is the rules issue `picked-copy-invalid`, with data `problem` (`missing`,
+  `other-item`, `shared`, `not-held-as-copy`). Such an entry isn't the pick's copy: it is an
+  ordinary entry, and removing the pick leaves it.
+- `addAs` takes neither `activate`, `activeWhen` nor `waivePrerequisites` (a schema error);
+  values and inline options have no copies, which `pnpm validate` reports. Adding or dropping
+  `addAs` on a released choice is an interface change (`choice-copies-changed`,
+  [upgrades.md](upgrades.md#the-build-check)).
 
 ```yaml
 # Secret Twin: a 1st-echelon trinket of your choice.
@@ -1230,10 +1251,13 @@ pack with long lists keeps `where` on the item (its level, its traits) and puts 
 character's part in `eligible`.
 
 **Recommending among the eligible.** A choice's `recommend` also sees `options`: the options it
-offers that are eligible apart from prerequisites, in the order offered (content IDs, inline
-option IDs or values). An option is left out when it fails `from` (a query's `where`, a value
-choice's `where`, a value a formula no longer lists), fails `eligible`, or is taken in another
-choice of its `unique` group; prerequisites, which need a trial sheet per option, aren't checked.
+offers that are eligible apart from prerequisites and not picked yet, in the order offered
+(content IDs, inline option IDs, or a value choice's strings or numbers). An option is left out
+when it fails `from` (a query's `where`, a value choice's `where`, a value a formula no longer
+lists), fails `eligible`, is taken in another choice of its `unique` group, or is one of the
+choice's own picks, so with `pick: 2` and one picked, `options[0]` is the next to pick, as a
+choice step's `options` leaves out its earlier picks. Prerequisites, which need a trial sheet
+per option, aren't checked.
 So a choice whose options depend on the character still recommends one, and a guided or random
 start over pending choices doesn't stop there:
 

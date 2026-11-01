@@ -835,13 +835,13 @@ export type Choice = {
   eligible?: Condition;
   /** When the choice applies, e.g. `self.level >= 3`. Until then it is neither pending nor active. */
   when?: Condition;
-  /** When the picks are active, an activation condition like `when`. While the choice applies and this is false, it is asked and its picks are saved and counted as usual, but they aren't active: picked content and inline options don't activate, and the choice's `effects` don't run. So a rule usable only while an input holds (5 Victories) keeps its picks without leaving the choice pending. */
+  /** When the picks are active, an activation condition like `when`. While the choice applies and this is false, it is asked and its picks are saved and counted as usual, but they aren't active: picked content and inline options don't activate, and the choice's `effects` don't run; the picks' own choices are still listed and asked, inactive in turn. So a rule usable only while an input holds (5 Victories) keeps its picks without leaving the choice pending. */
   activeWhen?: Condition;
-  /** Content choices (a query or `items`): `copy` holds each pick as a copy of the picked item instead of activating it in place. `choose` adds the copy (in `inventory` for carried types, else `features`) as `addItem` would and saves its instance ID on the pick (`entry`); removing the pick removes the copy, and `removeItem` of the copy is `picked-copy`. A trinket of your choice. Not with `activate` or `activeWhen`. */
+  /** Content choices (a query or `items`): `copy` holds each pick as a copy of the picked item instead of activating it in place. `choose` adds the copy (in `inventory` for carried types, else `features`) as `addItem` would and saves its instance ID on the pick (`entry`); removing the pick removes the copy, and `removeItem` of the copy is `picked-copy`. A trinket of your choice. Not with `activate`, `activeWhen` or `waivePrerequisites` (a copy is held as any copy, its prerequisites checked). Grant-only content can't be added, so it is `option-not-eligible`. A grant can't preset it: `pnpm validate` reports one. */
   addAs?: 'copy';
   /** A required choice with too few picks is reported as pending. Default true. */
   required?: boolean;
-  /** Optional formula naming the option the rules recommend (an option ID or value). It sees `options`: the options the choice offers that are eligible apart from prerequisites (in `from` and its `where`, passing `eligible`, not taken in another choice of its `unique` group), in the order offered, so a choice whose options depend on the character can recommend one (`options[0]`). */
+  /** Optional formula naming the option the rules recommend (an option ID or value). It sees `options`: the options the choice offers that are eligible apart from prerequisites (in `from` and its `where`, passing `eligible`, not taken in another choice of its `unique` group) and not among its own picks, in the order offered (content IDs, inline option IDs, or a value choice's strings or numbers), so a choice whose options depend on the character can recommend one (`options[0]`). */
   recommend?: Formula;
   /** Effects applied once per pick, with the picked option visible as `pick` (its `id` or `value`). Used when options are values or fields rather than content (choose two skills), or picks that aren't activated (`activate: false`). */
   effects?: Effect[];
@@ -1985,7 +1985,8 @@ export type CheckReleaseOutput = {
       | 'tag-removed'
       | 'action-removed'
       | 'enum-closed'
-      | 'extension-removed';
+      | 'extension-removed'
+      | 'choice-copies-changed';
     id: string;
     data?: Record<string, unknown>;
   }[];
@@ -2183,7 +2184,7 @@ export type ListedChoice = {
   open: boolean;
   /** `true` when a grant presets the choice (its `choices`): `picks` are the grant's, the choice is never open, and `choose` and `unchoose` on it are `preset-choice`. */
   preset?: true;
-  /** `true` while the choice's `activeWhen` fails: its picks are kept and counted, but neither activated nor applied. */
+  /** `true` while the choice's `activeWhen` fails, or while it belongs to a pick of such a choice (at any depth): its picks are kept and counted, but neither activated nor applied. */
   inactive?: true;
 };
 
@@ -3176,5 +3177,6 @@ export type RulesIssueCode =
   | 'content-hidden'
   | 'immune'
   | 'already-picked'
+  | 'picked-copy-invalid'
   | 'out-of-limits'
   | 'too-many-copies';

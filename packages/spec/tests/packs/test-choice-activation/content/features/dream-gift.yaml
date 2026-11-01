@@ -1,0 +1,14 @@
+# A gift active with 5 or more Victories; its trait is asked even before then.
+id: features.dream-gift
+type: feature
+choices:
+  - id: gift
+    activeWhen: victories >= 5
+    from:
+      options:
+        - id: hoard
+          effects:
+            - { target: ward, op: add, value: 1 }
+          choices:
+            - id: trait
+              from: { type: trait }
