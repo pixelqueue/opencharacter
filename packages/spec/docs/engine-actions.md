@@ -171,7 +171,8 @@ A roll step is built, then rolled, then classified.
      integer or enum choice when it differs from its default.
 
    An instance with `from: self` applies only to rolls made by its own copy: its source entry is
-   the action's entry. Each effect's `when` sees `roll` (`item`, `self`, `tags`) and the action
+   the action's entry, and when the action runs for content on the copy (it has a `source`), its
+   source content is that content. Each effect's `when` sees `roll` (`item`, `self`, `tags`) and the action
    context, `participants` and `participant` included, with `item`, `self` and the content's
    other roots the effect's own, as an option effect's are: the Bracers of Archery's `self` is
    the bracers' copy, whichever weapon attacks. The action's own item, copy and step are
@@ -540,7 +541,7 @@ it in a flag before the roll.
   (`target: { steps: [<tag>], from? }`, [effects.md](effects.md#targets)). After the step's own
   `release` and `changes`, each active `changes` instance whose source is a content item, a
   template or the rules' effects (`item` and `self` unbound, `from: self` never matching), whose target tags match one of the step's (a tag matches itself and the tags below
-  it), whose `from: self` (if any) names the action's own copy, and whose `when` holds, proposes
+  it), whose `from: self` (if any) names the action's own copy (and its `source`, as for roll effects), and whose `when` holds, proposes
   its `changes`, in instance order, `to` its value's `to`, else the step's. Its formulas see what
   an added option's see: `item` and `self` the content carrying the effect (`entry: self` its
   copy), the action's own as `action.item`, `action.self` and `action.step` (the step's
@@ -720,7 +721,7 @@ A choice step has one source of options (a fifth, pending choices, is
   options, the options content adds: each of the character's active `option` effects (in
   instance order, as for roll effects) whose target tags match one of the step's evaluated tags
   ([tag matching](effects.md#tag-matching)), whose `from: self`, if given, names the action's
-  entry, and whose `when` holds. Its ID is `<content id>#<option id>`, the content being the item
+  entry (and its `source`, as for roll effects), and whose `when` holds. Its ID is `<content id>#<option id>`, the content being the item
   whose copy, pick or grant carries the effect, or `<pack>:rules#<option id>` for the rules'
   effects (`item` and `self` unbound; `from: self` never matches). Of the effects sharing a `stackKey` (`source`: the
   same source, as for stacking), only the first offered is; an ID offered already (two copies

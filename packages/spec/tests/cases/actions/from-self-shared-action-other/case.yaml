@@ -1,0 +1,48 @@
+description: "In a content type's action run for one granted ability, another ability's `from: self` roll effect on the same copy doesn't apply: `from: self` names the content the action runs for"
+specVersion: 0.3.0
+call: startAction
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.3.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        tags: [damage]
+        contentTypes:
+          class: {}
+          ability:
+            actions:
+              - use: use-ability
+        actions:
+          # Every ability's shared action: 2 damage, plus what effects add.
+          - id: use-ability
+            results: [used]
+            steps:
+              - id: damage
+                kind: roll
+                tags: [damage]
+                parts: [{ value: 2 }]
+              - id: done
+                kind: outcome
+                result: "'used'"
+                data: { total: steps.damage.total }
+      content:
+        - id: classes.shadow
+          type: class
+          grants:
+            - item: abilities.coup-de-grace
+            - item: abilities.teamwork
+        # Its own damage rolls take 5 more.
+        - id: abilities.coup-de-grace
+          type: ability
+          effects:
+            - target: { rolls: [damage], from: self }
+              op: add
+              value: 5
+        - id: abilities.teamwork
+          type: ability
+input:
+  action: { id: test-pack:use-ability, entry: shadow, source: test-pack:abilities.teamwork }

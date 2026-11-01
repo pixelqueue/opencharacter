@@ -1739,7 +1739,7 @@ function rollStep(ctx: Ctx, frame: Frame, step: Step, path: string): void {
   for (const instance of sheet.instances) {
     const t = targets(instance.effect);
     if (!t || !t.rolls.some((tag) => matchesTag(tag, stepTags))) continue;
-    if (t.from === 'self' && instance.source.entry !== frame.entry) continue;
+    if (t.from === 'self' && !ownEffect(instance, frame)) continue;
     candidates.push({
       instance,
       effect: instance.effect,
@@ -2731,10 +2731,20 @@ function optionFrame(frame: Frame, instance: EffectInstance): Frame {
  * copy's to its own actions.
  */
 function addsToSteps(instance: EffectInstance, frame: Frame, from: string | undefined): boolean {
-  const { type, id, entry } = instance.source;
+  const { type, id } = instance.source;
   if (type === 'rules') return from !== 'self' && id !== undefined;
   if (type !== 'item' && type !== 'template') return false;
-  return id !== undefined && (from !== 'self' || entry === frame.entry);
+  return id !== undefined && (from !== 'self' || ownEffect(instance, frame));
+}
+
+/**
+ * Whether `from: self` matches: the effect's copy is the action's entry, and for an action run
+ * for content on it (a pick or grant, named by `source`) the content carrying the effect is that
+ * content, so granted abilities sharing their type's action each reach only their own runs.
+ */
+function ownEffect(instance: EffectInstance, frame: Frame): boolean {
+  if (instance.source.entry !== frame.entry) return false;
+  return frame.source === undefined || instance.source.id === frame.source;
 }
 
 /** Of instances sharing a `stackKey` or an ID, only the first is offered. */

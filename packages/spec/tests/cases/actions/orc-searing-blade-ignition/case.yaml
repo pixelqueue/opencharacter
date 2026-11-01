@@ -1,0 +1,10 @@
+description: "orc-2e: a Searing Blade casts ignition, a spell it grants; the blade's +2 potency is a `from: self` effect of the blade, not the spell, so the spell attack doesn't take it"
+specVersion: 0.3.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/orc/2e
+input:
+  action: { id: orc-2e:cast-spell, entry: blade, source: orc-2e:spells.ignition }
+  participants:
+    target:
+      - { id: foe, values: { orc-2e:defenses.ac: 11 } }
