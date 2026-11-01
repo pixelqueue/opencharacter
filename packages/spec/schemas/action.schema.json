@@ -37,7 +37,7 @@
       "propertyNames": {
         "$ref": "common.schema.json#/$defs/name",
         "not": {
-          "const": "self"
+          "enum": ["self", "applied"]
         }
       },
       "additionalProperties": {
@@ -1075,7 +1075,7 @@
       "additionalProperties": false
     },
     "destination": {
-      "description": "Who proposed changes are for: `self` (the actor), `target` (another character the app picks, or the action's `target` participants), a declared role, or `{ link: <slot> }`, the character filling one of the actor's link slots. The app applies each to that character. A change for a role names its participant in `character`: the current one in an `each` step over the role, else one copy per participant. A change sent to a link names fields and content by qualified ID, since they are the linked character's.",
+      "description": "Who proposed changes are for: `self` (the actor), `target` (another character the app picks, or the action's `target` participants), a declared role, `{ link: <slot> }`, the character filling one of the actor's link slots, or `applied`, every character holding an entry the actor applied. The app applies each to that character. A change for a role names its participant in `character`: the current one in an `each` step over the role, else one copy per participant. A change sent to a link names fields and content by qualified ID, since they are the linked character's. A change sent `to: applied` carries no `character`: it must be a removeEffect, toggleEffect, setState or adjustState naming applied entries by query (`invalid-applied-change` at load otherwise); the engine limits the query to the entries the actor applied (`appliedBy`), and the app applies it to every character that may hold one, where it matches nothing else.",
       "anyOf": [
         {
           "$ref": "common.schema.json#/$defs/name"

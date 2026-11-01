@@ -81,6 +81,12 @@
           },
           "state": {
             "$ref": "#/$defs/state"
+          },
+          "appliedBy": {
+            "description": "The `id` of the character who applied the entry: the actor of the action or the character of the follow-up that proposed the `applyEffect`, or whoever the app names. Formulas read it as `self.appliedBy`; a change sent `to: applied` reaches only the entries its actor applied.",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2048
           }
         },
         "additionalProperties": false
@@ -296,15 +302,22 @@
           "$ref": "common.schema.json#/$defs/source"
         },
         "to": {
-          "description": "For a follow-up to a linked character: `{ link }` with the qualified slot ID. It is stored here, on the character whose change triggered it, since one applyChanges writes one file; the app shows it to whoever runs the linked character. Absent for the character's own.",
-          "type": "object",
-          "required": ["link"],
-          "properties": {
-            "link": {
-              "$ref": "common.schema.json#/$defs/slotId"
+          "description": "For a follow-up to another character, stored here, on the character whose change triggered it, since one applyChanges writes one file: `{ link }` with the qualified slot ID, for the character filling the slot (the app shows it to whoever runs that character); `applied`, for every character holding an entry this one applied (its changes reach only those entries). Absent for the character's own.",
+          "anyOf": [
+            {
+              "type": "object",
+              "required": ["link"],
+              "properties": {
+                "link": {
+                  "$ref": "common.schema.json#/$defs/slotId"
+                }
+              },
+              "additionalProperties": false
+            },
+            {
+              "const": "applied"
             }
-          },
-          "additionalProperties": false
+          ]
         },
         "character": {
           "description": "For a follow-up to a link: the ID of the character filling the slot when it was triggered.",

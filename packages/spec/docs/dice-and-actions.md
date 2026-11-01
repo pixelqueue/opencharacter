@@ -568,6 +568,38 @@ a step's changes to the role's characters. Each proposed change names its partic
 participant, in order. With no participants, a change is proposed once without `character`, as
 before. The changes name the actor's own fields, as `to: target` changes do.
 
+**Who applied it.** Every `applyEffect` an action proposes, to any character, carries the actor's
+`id` as `appliedBy`, and applyChanges saves it on the entry
+([characters.md](characters.md#entries)). The entry's formulas read it as `self.appliedBy`, so
+the holder's rules can tell whose mark it is, or end only what one creature applied.
+
+**Changes for whoever holds what the actor applied.** `to: applied` sends a step's changes to
+every character holding an entry the actor applied, wherever the actor put it: the earlier marks
+a new Mark replaces, an aura that ends when its source is dying. The engine can't know who they
+are, so each change is proposed once with no `character`, and it must name applied entries by
+query (a removeEffect, toggleEffect, setState or adjustState with `applied`;
+`invalid-applied-change` at load otherwise). The engine adds the actor's ID to the query as
+`applied.appliedBy`, so on any other character it matches nothing: the app applies it to every
+character it holds that may have one (those whose `applied` names the actor in `appliedBy`).
+Inside any `to`, a query may say `appliedBy: self` to reach only the actor's entries on that
+character.
+
+```yaml
+# Draw Steel's Mark: the tactician's earlier marks end wherever they are, and the target is marked.
+- id: unmark
+  kind: changes
+  to: applied
+  changes:
+    - type: removeEffect
+      applied: { where: 'item.id == @features.tactician.marked' }
+- id: mark
+  kind: changes
+  to: target
+  changes:
+    - type: applyEffect
+      source: "'features.tactician.marked'"
+```
+
 ### Steps
 
 | Kind       | Does                                                                                                                                                                                                              | Result                                                               |

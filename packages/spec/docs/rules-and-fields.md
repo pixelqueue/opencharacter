@@ -670,7 +670,24 @@ followUps:
   content by qualified ID, as changes sent to a link do. An ephemeral one is stored on the
   character whose change fired it, marked for the link with the linked character's ID: the app
   that holds both files finds it in this character's `offers` (`to.link`, `character`), runs it
-  on the linked character, and clears it here.
+  on the linked character, and clears it here. `to: applied` is for every character holding an
+  entry this one applied, with `changes` only, each naming applied entries by query
+  (`invalid-applied-change` otherwise), which the engine limits to this character's entries
+  (`applied.appliedBy`, as an action's step `to: applied`;
+  [dice-and-actions.md](dice-and-actions.md#participants)). It is stored and listed here like a
+  link's; the app applies its changes to each character that may hold such an entry, then clears
+  it here. A tactician's marks end when the tactician is dying:
+
+  ```yaml
+  followUps:
+    - id: marks-end
+      becomes: stamina.dying
+      to: applied
+      changes:
+        - type: removeEffect
+          applied: { where: 'item.id == @features.tactician.marked' }
+  ```
+
 - **On content.** Content types and items may declare `followUps` too. They apply while the
   character has the copy or pick (not content in the `applied` list), and their formulas see
   `item` and `self`.

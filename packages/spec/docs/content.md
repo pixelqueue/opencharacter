@@ -386,7 +386,8 @@ reapply:
 
 `state` names, per state key, how the existing entry's value and the new one merge: `highest`,
 `lowest`, `add` (numeric keys) or `replace` (the new value). `match` names state keys that must
-be equal as well. Every key must be a declared state key of the content (`unknown-state-key` at
+be equal as well; `appliedBy` in it compares the entries' appliers, so two creatures' taunts stay
+two entries. The merged entry takes the new applier. Every key must be a declared state key of the content (`unknown-state-key` at
 load; `add` on a key that isn't a number is `wrong-type`). applyChanges merges instead of adding
 an entry ([engine-core.md](engine-core.md#applychanges)).
 

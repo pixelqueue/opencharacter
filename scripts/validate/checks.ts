@@ -87,6 +87,8 @@ const OP_TARGETS = new Map(
   loadFixedSet('effect-operations').items.map((op) => [op.id, op['targets'] as string[]]),
 );
 
+/** The changes a step or follow-up may send `to: applied`. */
+const APPLIED_ROUTE = new Set(['removeEffect', 'toggleEffect', 'setState', 'adjustState']);
 const COPY_CORE = new Set(['id', 'item', 'templates', 'equipped', 'quantity', 'choices', 'state']);
 
 function hasOutcome(steps: Step[]): boolean {
@@ -1083,10 +1085,12 @@ export class PackChecker {
         for (const tag of def.on.tags ?? []) this.tag(tag, file, where);
       }
       const to = def.to === 'self' ? undefined : def.to;
-      if (to) this.linkScope(to.link, file, where);
+      if (typeof to === 'object') this.linkScope(to.link, file, where);
+      if (to === 'applied' && def.action !== undefined)
+        this.report.error(file, `${where}: a follow-up to applied has changes, not an action`);
       if (def.create) this.createOffer(def.create, file, where);
       if (def.action !== undefined) {
-        if (to) {
+        if (typeof to === 'object') {
           if (!def.action.includes(':'))
             this.report.error(
               file,
@@ -2128,7 +2132,11 @@ export class PackChecker {
           ...(step.kind === 'changes' ? [step.to] : []),
           ...writtenOptions(step).map((o) => o.to),
         ])
-          if (typeof to === 'string' && to !== 'self' && to !== 'target' && !declared(to))
+          if (
+            typeof to === 'string' &&
+            !['self', 'target', 'applied'].includes(to) &&
+            !declared(to)
+          )
             this.report.error(file, `${where}: to names undeclared role "${to}"`);
       }
     };
@@ -2192,6 +2200,12 @@ export class PackChecker {
       const pack = ref.slice(0, ref.indexOf(':'));
       return this.ruleset.packs.has(pack) ? this.ruleset.scope(pack) : undefined;
     };
+    // A change for every holder of the actor's entries names them by query.
+    if (to === 'applied' && (!APPLIED_ROUTE.has(change.type) || change.applied === undefined))
+      this.report.error(
+        file,
+        `${where}: a change sent to applied is a removeEffect, toggleEffect, setState or adjustState naming applied entries by query`,
+      );
     if (change.type === 'offerFollowUp') {
       const ref = change.followUp ?? '';
       const def = this.offered(ref);

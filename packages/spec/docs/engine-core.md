@@ -1046,7 +1046,10 @@ value is left as it is. Other keys keep the existing entry's values. The result 
 `setState` would be (`wrong-type`, `out-of-range`), and the change adds `{ applied: [<the
 entry's ID>] }` to `adjustments`. An `id` the change gives is not used, nor checked. Without a
 match, the entry is added as usual. Replaying the batch gives the same result, since the merge
-depends only on the character and the change.
+depends only on the character and the change. A merged entry takes the change's `appliedBy`, when
+it gives one, so the latest applier owns it; `match: [appliedBy]` compares the entries' appliers
+instead of a state key, so each applier keeps an entry of its own. An added entry saves the
+change's `appliedBy`.
 
 **Changes aimed at copies**. `setState`, `adjustState`, `setField`,
 `setQuantity`, `adjustQuantity`, `equip` and `removeItem` may give `copies: { type, where }`
@@ -1079,6 +1082,9 @@ replaying the batch on the same character gives the same ID. `removeEffect`, `to
 - `by` and `value` are formulas, evaluated per match with the same binding. Names in these
   formulas resolve in the source's pack.
 - The change is then applied to each match as if it named that entry, with the same checks.
+- With `appliedBy` (a character ID), only the entries that character applied match: those whose
+  `appliedBy` is it. An action or follow-up fills it in for a change it sends `to: applied`, or
+  one whose query says `appliedBy: self`.
 - No match is not an error. Every such change adds `{ applied: [<matched instance IDs>] }` to
   `adjustments`, in order.
 

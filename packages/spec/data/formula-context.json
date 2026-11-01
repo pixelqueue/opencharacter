@@ -17,7 +17,7 @@
     },
     {
       "id": "self",
-      "description": "The character's copy of the item carrying the formula: `self.equipped`, `self.<state key>`, `self.templates` (saved, then those content keeps on the copy). For content made active by a pick or a grant, the copy that owns the choice or grant (a subclass sees its class copy's `self.level`); picked or held granted content that declares state keys reads them from its pick, or its grant's saved state (else the grant's `state`), with declared defaults, over that copy. Absent for content with no owning copy (picked in a rules-level choice). In a choice step over copies (`where`, `prefer`), the candidate copy; not bound in one over content. In an applied entry's effects and its actions (`scope: applied`), the entry: `id` and its state keys. In a change aimed at applied entries (`applied.where`, a per-entry `by` or `value`), the entry: `id` and its state keys with declared defaults. In the copy's own actions (and actions it reaches through `use`) and its follow-ups, `self` also has the copy's computed values, `self.<name>`; in a computed value, those declared before it; everywhere else a computed name is `unknown-name`. In a content display group's `where`, `sectionBy` and `sortBy` and a content-type state hint's `showWhen`, the member copy, absent for picked content with no owning copy. In a `keepsTemplates` query that reads the keeper, and in its `params`, the keeper's. The copy's choices aren't on `self`: `picksOf(<choice>)` reads them."
+      "description": "The character's copy of the item carrying the formula: `self.equipped`, `self.<state key>`, `self.templates` (saved, then those content keeps on the copy). For content made active by a pick or a grant, the copy that owns the choice or grant (a subclass sees its class copy's `self.level`); picked or held granted content that declares state keys reads them from its pick, or its grant's saved state (else the grant's `state`), with declared defaults, over that copy. Absent for content with no owning copy (picked in a rules-level choice). In a choice step over copies (`where`, `prefer`), the candidate copy; not bound in one over content. In an applied entry's effects and its actions (`scope: applied`), the entry: `id`, `appliedBy` (the ID of the character who applied it, `''` when the file names none) and its state keys. In a change aimed at applied entries (`applied.where`, a per-entry `by` or `value`), the entry: `id`, `appliedBy` and its state keys with declared defaults. In the copy's own actions (and actions it reaches through `use`) and its follow-ups, `self` also has the copy's computed values, `self.<name>`; in a computed value, those declared before it; everywhere else a computed name is `unknown-name`. In a content display group's `where`, `sectionBy` and `sortBy` and a content-type state hint's `showWhen`, the member copy, absent for picked content with no owning copy. In a `keepsTemplates` query that reads the keeper, and in its `params`, the keeper's. The copy's choices aren't on `self`: `picksOf(<choice>)` reads them."
     },
     {
       "id": "pick",
@@ -93,7 +93,7 @@
     },
     {
       "id": "character",
-      "description": "The character as a whole: `character.id` (the file's `id`: a handoff's `participants` name the running character by it), `character.inventory`, `character.features` (lists of copies), `character.creating` (whether it is being created; false unless the file says so) and `character.applied` (the file's applied entries in file order, raw: each `{ id, source, active, state }`, `source` the qualified content ID, `active` the saved flag (default true), `state` the saved values with the source's declared defaults (`dyn`). Blocking by immunities isn't reflected, so activation conditions may read it)."
+      "description": "The character as a whole: `character.id` (the file's `id`: a handoff's `participants` name the running character by it), `character.inventory`, `character.features` (lists of copies), `character.creating` (whether it is being created; false unless the file says so) and `character.applied` (the file's applied entries in file order, raw: each `{ id, source, active, appliedBy, state }`, `source` the qualified content ID, `active` the saved flag (default true), `appliedBy` the applier's character ID (`''` when none), `state` the saved values with the source's declared defaults (`dyn`). Blocking by immunities isn't reflected, so activation conditions may read it)."
     },
     {
       "id": "links",
@@ -109,7 +109,7 @@
     },
     {
       "id": "entry",
-      "description": "In an immunity query's `where`: the candidate applied entry, `entry.id` and its state keys (`entry.<key>`, the saved value or the declared default), as its `self`; `item` is its source's item. State keys the query's content type declares are typed; the view is open. Not bound elsewhere (`unknown-name`)."
+      "description": "In an immunity query's `where`: the candidate applied entry, `entry.id`, `entry.appliedBy` and its state keys (`entry.<key>`, the saved value or the declared default), as its `self`; `item` is its source's item. State keys the query's content type declares are typed; the view is open. Not bound elsewhere (`unknown-name`)."
     },
     {
       "id": "f",

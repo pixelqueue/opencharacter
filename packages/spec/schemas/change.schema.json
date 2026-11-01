@@ -869,7 +869,7 @@
       "type": "object"
     },
     "applyEffect": {
-      "description": "Apply content to the character: an `applied` entry. Without `id`, applyChanges gives the entry `<source local id, dots as hyphens>-<n>`, the smallest n >= 1 that no copy, applied entry or earlier change in the batch uses.",
+      "description": "Apply content to the character: an `applied` entry. Without `id`, applyChanges gives the entry `<source local id, dots as hyphens>-<n>`, the smallest n >= 1 that no copy, applied entry or earlier change in the batch uses. `appliedBy`, saved on the entry, is the character applying it.",
       "required": ["source"],
       "properties": {
         "type": true,
@@ -881,6 +881,12 @@
         },
         "active": {
           "type": "boolean"
+        },
+        "appliedBy": {
+          "description": "The `id` of the character applying the entry, saved on it. Actions and follow-ups fill it in with the character proposing the change; an app applying content by hand names the applier itself. Applying content again (`reapply`) gives the merged entry this applier.",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2048
         },
         "state": {
           "description": "The entry's state. A value may be `{ formula }`, a formula an action passed on because it reads `batch`: applyChanges evaluates it with `item` the source's item, this character's fields and `batch`, and the change as applied (`changes` in the result) carries the value.",
@@ -1273,7 +1279,7 @@
           "$ref": "#/$defs/limit"
         },
         "applied": {
-          "description": "removeEffect, toggleEffect, setState and adjustState: the applied entries to change, by query, instead of `id` or `entry`. `where` and per-entry formulas (those reading `self` or `item`) are passed on for applyChanges to evaluate per entry, with `steps`, `flags`, `params` and `action` replaced by their values as literals, as for `copies`. `limit` is a literal integer >= 1.",
+          "description": "removeEffect, toggleEffect, setState and adjustState: the applied entries to change, by query, instead of `id` or `entry`. `where` and per-entry formulas (those reading `self` or `item`) are passed on for applyChanges to evaluate per entry, with `steps`, `flags`, `params` and `action` replaced by their values as literals, as for `copies`. `limit` is a literal integer >= 1. `appliedBy: self` limits it to the entries the actor applied, as a change sent `to: applied` always is.",
           "type": "object",
           "required": ["where"],
           "properties": {
@@ -1283,6 +1289,10 @@
             "limit": {
               "type": "integer",
               "minimum": 1
+            },
+            "appliedBy": {
+              "description": "`self`: only the entries the actor (the character running the action, or whose follow-up it is) applied. The proposed change carries the actor's ID.",
+              "const": "self"
             }
           },
           "additionalProperties": false
@@ -1541,7 +1551,7 @@
       "additionalProperties": false
     },
     "applied": {
-      "description": "removeEffect, toggleEffect, setState and adjustState may name applied entries by query instead of `id` or `entry`. applyChanges resolves it against the character it changes, at that point in the batch: the `applied` entries, in file order, whose `where` holds with `item` the source's item and `self` the entry (`id` and its state, with declared defaults). With `limit`, only the first that many. In such a change, `by` and `value` are formulas evaluated per entry with the same binding, and formulas resolve names in the source's pack. No match is not an error: each such change adds `{ applied: [ids] }` to `adjustments`.",
+      "description": "removeEffect, toggleEffect, setState and adjustState may name applied entries by query instead of `id` or `entry`. applyChanges resolves it against the character it changes, at that point in the batch: the `applied` entries, in file order, whose `where` holds with `item` the source's item and `self` the entry (`id` and its state, with declared defaults). With `limit`, only the first that many. In such a change, `by` and `value` are formulas evaluated per entry with the same binding, and formulas resolve names in the source's pack. No match is not an error: each such change adds `{ applied: [ids] }` to `adjustments`. With `appliedBy`, only the entries that character applied (their `appliedBy`).",
       "type": "object",
       "required": ["where"],
       "properties": {
@@ -1551,6 +1561,12 @@
         "limit": {
           "type": "integer",
           "minimum": 1
+        },
+        "appliedBy": {
+          "description": "A character ID: only the entries it applied. An action or follow-up fills it in for a change it sends `to: applied`, or one whose query says `appliedBy: self`.",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2048
         }
       },
       "additionalProperties": false

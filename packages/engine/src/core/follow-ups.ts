@@ -43,7 +43,7 @@ interface Declared {
 }
 
 interface Resolved {
-  to: 'self' | { link: string };
+  to: 'self' | 'applied' | { link: string };
   character?: string;
   action?: NonNullable<ListedFollowUp['action']>;
   params?: Record<string, unknown>;
@@ -179,7 +179,7 @@ export function storeFollowUps(
       id,
       followUp: d.id,
       ...(d.activation ? { source: d.activation.source as Source } : {}),
-      ...(typeof resolved.to === 'object' ? { to: resolved.to } : {}),
+      ...(resolved.to !== 'self' ? { to: resolved.to } : {}),
       ...(resolved.character !== undefined ? { character: resolved.character } : {}),
       ...(resolved.params ? { params: resolved.params } : {}),
       ...(cause ? { cause } : {}),
@@ -422,7 +422,7 @@ function resolve(
   try {
     if (check && !sheet.test(def.when, pack, roots)) return undefined;
     const linked = typeof def.to === 'object';
-    const out: Resolved = { to: linked ? (def.to as { link: string }) : 'self' };
+    const out: Resolved = { to: def.to ?? 'self' };
     if (linked) {
       const character = sheet.linkedId((def.to as { link: string }).link);
       if (character !== undefined) out.character = character;
@@ -455,7 +455,16 @@ function resolve(
           copies += each.length;
         }
         return each.flatMap((own) => {
-          const resolved = resolveChange(ruleset, sheet, change, pack, own, activation, linked);
+          const resolved = resolveChange(
+            ruleset,
+            sheet,
+            change,
+            pack,
+            own,
+            activation,
+            linked,
+            def.to === 'applied',
+          );
           return resolved ? [resolved] : [];
         });
       });
@@ -530,6 +539,7 @@ function resolveChange(
   roots: Record<string, unknown>,
   activation: Activation | undefined,
   linked: boolean,
+  applied = false,
 ): Change | undefined {
   if (!sheet.test(change.when, pack, roots)) return undefined;
   const evaluate = (formula: Formula) => sheet.evaluate(formula, pack, roots);
@@ -573,6 +583,8 @@ function resolveChange(
       });
     out.source = qid;
   }
+  // The character applies what its follow-up proposes; `to: applied` reaches only its entries.
+  if (change.type === 'applyEffect') out.appliedBy = sheet.file.id;
   if (change.active !== undefined) {
     const active = evaluate(change.active);
     if (active.kind !== 'bool')
@@ -667,7 +679,13 @@ function resolveChange(
     out.copies = { ...change.copies };
     if (change.limit !== undefined) out.limit = change.limit;
   }
-  if (change.applied) out.applied = { ...change.applied };
+  if (change.applied) {
+    const { appliedBy, ...query } = change.applied;
+    out.applied = {
+      ...query,
+      ...(applied || appliedBy === 'self' ? { appliedBy: sheet.file.id } : {}),
+    };
+  }
   if (change.picks) out.picks = { ...change.picks };
   if (change.grants) out.grants = { ...change.grants };
   const perCopy = (formula: Formula) =>

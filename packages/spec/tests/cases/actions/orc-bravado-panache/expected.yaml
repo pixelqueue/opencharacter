@@ -10,7 +10,13 @@ proposedChanges:
     change: { type: removeEffect, applied: { where: "item.id == 'orc-2e:effects.panache'" } }
   - to: self
     step: gain
-    change: { type: applyEffect, source: orc-2e:effects.panache, state: { brief: false } }
+    change:
+      {
+        type: applyEffect,
+        source: orc-2e:effects.panache,
+        state: { brief: false },
+        appliedBy: example-orc-ines,
+      }
 log:
   - step: check/roll
     action: orc-2e:check

@@ -242,12 +242,12 @@
       "additionalProperties": false
     },
     "reapply": {
-      "description": "What applying this content again does: an `applyEffect` of it, while the character has an `applied` entry of it that isn't inactive (`active` not `false`; a blocked entry counts) and whose `match` state keys are equal to the new entry's, adds no entry. Instead each key of `state` of the first such entry becomes the higher (`highest`; dice by average), the lower (`lowest`), the sum (`add`, numeric keys) or the new value (`replace`). An item's replaces its content type's.",
+      "description": "What applying this content again does: an `applyEffect` of it, while the character has an `applied` entry of it that isn't inactive (`active` not `false`; a blocked entry counts) and whose `match` state keys are equal to the new entry's, adds no entry. Instead each key of `state` of the first such entry becomes the higher (`highest`; dice by average), the lower (`lowest`), the sum (`add`, numeric keys) or the new value (`replace`). The merged entry takes the change's `appliedBy`, when it gives one. An item's replaces its content type's.",
       "type": "object",
       "required": ["state"],
       "properties": {
         "match": {
-          "description": "State keys whose values must be equal as well (the new entry's with their defaults against the existing one's), e.g. a persistent damage's damage type.",
+          "description": "State keys whose values must be equal as well (the new entry's with their defaults against the existing one's), e.g. a persistent damage's damage type. `appliedBy` compares the entries' appliers instead, so each applier keeps an entry of its own.",
           "type": "array",
           "items": {
             "$ref": "common.schema.json#/$defs/name"

@@ -1,0 +1,13 @@
+ok: true
+followUps:
+  - id: marks-end-1
+    kind: ephemeral
+    followUp: test-cross:marks-end
+    to: applied
+    required: false
+    changes:
+      - type: removeEffect
+        applied: { where: 'item.id == @conditions.marked', appliedBy: tactician }
+character:
+  followUps:
+    - { id: marks-end-1, followUp: test-cross:marks-end, to: applied }

@@ -1,0 +1,26 @@
+description: 'A change sent `to: applied` that is not a removeEffect, toggleEffect, setState or adjustState naming applied entries by query is invalid-applied-change'
+specVersion: 0.3.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        { id: test-pack, version: 1.0.0, specVersion: 0.3.0, license: CC0-1.0, defaultLanguage: en }
+      rules:
+        fields:
+          hp.current: { type: integer, input: true, default: 10 }
+        actions:
+          - id: smite
+            steps:
+              - id: hurt
+                kind: changes
+                to: applied
+                changes:
+                  - { type: adjust, field: hp.current, by: -1 }
+                  - { type: removeEffect, id: x }
+        followUps:
+          - id: fade
+            becomes: hp.current == 0
+            to: applied
+            changes:
+              - { type: adjust, field: hp.current, by: 1 }
+      content: []

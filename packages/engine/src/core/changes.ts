@@ -460,7 +460,7 @@ function applyToApplied(
   adjustments: Adjustment[],
   links: Links,
 ): void {
-  const query = change.applied as { where: Formula; limit?: number };
+  const query = change.applied as { where: Formula; limit?: number; appliedBy?: string };
   const evaluate = (formula: Formula, pack: string, roots: Record<string, unknown>) => {
     try {
       return sheet.evaluate(formula, pack, roots);
@@ -476,6 +476,7 @@ function applyToApplied(
   const matches: { id: string; pack: string; roots: Record<string, unknown> }[] = [];
   for (const entry of c.applied ?? []) {
     if (query.limit !== undefined && matches.length >= query.limit) break;
+    if (query.appliedBy !== undefined && entry.appliedBy !== query.appliedBy) continue;
     const item = ruleset.content[entry.source];
     if (!item) continue;
     const pack = ruleset.contentTypes[item.type]?.pack ?? item.pack;
@@ -1069,7 +1070,8 @@ function applyOne(
             decl,
             num(typedValue(decl, state[key]) as f.Value),
           );
-      const merged = reapplied(ruleset, sheet, c, item, view, pack, state);
+      const by = change.appliedBy === undefined ? undefined : str('appliedBy');
+      const merged = reapplied(ruleset, sheet, c, item, view, pack, state, by);
       if (merged !== undefined) {
         adjustments.push({ applied: [merged] });
         return computed ? { state } : undefined;
@@ -1081,6 +1083,7 @@ function applyOne(
         source,
         ...(change.active !== undefined ? { active: change.active as boolean } : {}),
         ...(change.state ? { state } : {}),
+        ...(by !== undefined ? { appliedBy: by } : {}),
       };
       c.applied = [...(c.applied ?? []), applied];
       return computed ? { state } : undefined;
@@ -1300,6 +1303,7 @@ function reapplied(
   view: Record<string, unknown>,
   pack: string,
   state: Record<string, Literal>,
+  appliedBy: string | undefined,
 ): string | undefined {
   const reapply = item.reapply ?? ruleset.contentTypes[item.type]?.reapply;
   if (!reapply) return undefined;
@@ -1323,7 +1327,11 @@ function reapplied(
     (a) =>
       a.source === item.qid &&
       a.active !== false &&
-      (reapply.match ?? []).every((key) => same(valueOf(a.state, key), valueOf(state, key))),
+      (reapply.match ?? []).every((key) =>
+        key === 'appliedBy'
+          ? a.appliedBy === appliedBy
+          : same(valueOf(a.state, key), valueOf(state, key)),
+      ),
   );
   if (!existing) return undefined;
   const next: Record<string, Literal> = { ...existing.state };
@@ -1348,6 +1356,7 @@ function reapplied(
     next[key] = raw;
   }
   existing.state = next;
+  if (appliedBy !== undefined) existing.appliedBy = appliedBy;
   return existing.id;
 }
 

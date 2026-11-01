@@ -28,15 +28,28 @@ proposedChanges:
   - to: target
     character: zombie
     step: onTarget[0]
-    change: { type: applyEffect, source: orc-2e:conditions.frightened, state: { value: 1 } }
+    change:
+      {
+        type: applyEffect,
+        source: orc-2e:conditions.frightened,
+        state: { value: 1 },
+        appliedBy: test-prepared-caster,
+      }
   - to: target
     character: skeleton
     step: onTarget[1]
-    change: { type: applyEffect, source: orc-2e:conditions.frightened, state: { value: 1 } }
+    change:
+      {
+        type: applyEffect,
+        source: orc-2e:conditions.frightened,
+        state: { value: 1 },
+        appliedBy: test-prepared-caster,
+      }
   - to: target
     character: skeleton
     step: onTarget[1]
-    change: { type: applyEffect, source: orc-2e:conditions.fleeing }
+    change:
+      { type: applyEffect, source: orc-2e:conditions.fleeing, appliedBy: test-prepared-caster }
   - to: ally
     character: fighter
     step: restore[0]

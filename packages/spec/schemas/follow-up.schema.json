@@ -45,10 +45,13 @@
       "$ref": "formula.schema.json#/$defs/condition"
     },
     "to": {
-      "description": "Whose follow-up it is: `self` (the default, the character the batch changed) or `{ link: <slot> }`, the character filling one of its link slots. A follow-up to a link names the linked character's action, fields and content by qualified ID.",
+      "description": "Whose follow-up it is: `self` (the default, the character the batch changed), `{ link: <slot> }`, the character filling one of its link slots, or `applied`, every character holding an entry this character applied (`changes` only, each a removeEffect, toggleEffect, setState or adjustState naming applied entries by query, which then reaches only the entries this character applied). A follow-up to a link names the linked character's action, fields and content by qualified ID.",
       "anyOf": [
         {
           "const": "self"
+        },
+        {
+          "const": "applied"
         },
         {
           "type": "object",
@@ -134,6 +137,20 @@
     ]
   },
   "allOf": [
+    {
+      "description": "`to: applied`: only `changes`.",
+      "if": {
+        "required": ["to"],
+        "properties": {
+          "to": {
+            "const": "applied"
+          }
+        }
+      },
+      "then": {
+        "required": ["changes"]
+      }
+    },
     {
       "description": "A consequence: `action`, `changes` or `create`.",
       "if": {

@@ -1,0 +1,10 @@
+description: 'A step `to: applied` proposes its change with no character and its query limited to the actor (`appliedBy`); an applyEffect records the actor as `appliedBy`'
+specVersion: 0.3.0
+call: startAction
+packs:
+  - path: ../../../packs/test-cross
+input:
+  action: { id: test-cross:mark }
+  params: { until: start }
+  participants:
+    target: [{ id: goblin, values: {} }]

@@ -82,6 +82,8 @@ const COPY_ONLY = [
   'suppress',
 ] as const;
 const BUILT_IN_MEMBER_KINDS = new Set(['field', 'tag', 'string']);
+/** The changes a step or follow-up may send `to: applied`. */
+const APPLIED_ROUTE = new Set(['removeEffect', 'toggleEffect', 'setState', 'adjustState']);
 
 const isObj = (v: unknown) => typeof v === 'object' && v !== null && !Array.isArray(v);
 
@@ -477,6 +479,11 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
     },
     /** Changes sent to a link are the linked character's, so they must already be qualified. */
     changes(changes: ProposedChange[], pack: string, to?: Destination): ProposedChange[] {
+      // A change for every holder of the actor's entries names them by query.
+      if (to === 'applied')
+        for (const c of changes)
+          if (!APPLIED_ROUTE.has(c.type) || c.applied === undefined)
+            err('invalid-applied-change', { type: c.type, pack });
       if (typeof to === 'object') {
         for (const c of changes) {
           if (typeof c.field === 'string' && !c.field.includes(':'))
@@ -678,7 +685,7 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
         ...(Array.isArray(step.options) ? step.options.map((o) => o.to) : []),
       ];
       for (const to of destinations)
-        if (typeof to === 'string' && to !== 'self' && to !== 'target' && !declared(to))
+        if (typeof to === 'string' && !['self', 'target', 'applied'].includes(to) && !declared(to))
           err('unknown-role', { role: to, step: step.id, pack });
       // An `each` branch step's case steps run per participant already.
       if (step.kind === 'branch' && step.each !== undefined) {
@@ -1372,7 +1379,9 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
     const reapply = item.reapply ?? type?.reapply;
     if (!reapply) continue;
     const state = { ...type?.state, ...item.state };
-    for (const key of [...(reapply.match ?? []), ...Object.keys(reapply.state)]) {
+    // `match` may compare the entries' appliers.
+    const matched = (reapply.match ?? []).filter((key) => key !== 'appliedBy');
+    for (const key of [...matched, ...Object.keys(reapply.state)]) {
       const decl = state[key];
       if (!decl) err('unknown-state-key', { item: item.qid, key });
       else if (reapply.state[key] === 'add' && !['integer', 'decimal'].includes(decl.type))

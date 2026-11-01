@@ -306,7 +306,7 @@ export type OutcomeStep = {
   data?: Record<string, Formula>;
 };
 
-/** Who proposed changes are for: `self` (the actor), `target` (another character the app picks, or the action's `target` participants), a declared role, or `{ link: <slot> }`, the character filling one of the actor's link slots. The app applies each to that character. A change for a role names its participant in `character`: the current one in an `each` step over the role, else one copy per participant. A change sent to a link names fields and content by qualified ID, since they are the linked character's. */
+/** Who proposed changes are for: `self` (the actor), `target` (another character the app picks, or the action's `target` participants), a declared role, `{ link: <slot> }`, the character filling one of the actor's link slots, or `applied`, every character holding an entry the actor applied. The app applies each to that character. A change for a role names its participant in `character`: the current one in an `each` step over the role, else one copy per participant. A change sent to a link names fields and content by qualified ID, since they are the linked character's. A change sent `to: applied` carries no `character`: it must be a removeEffect, toggleEffect, setState or adjustState naming applied entries by query (`invalid-applied-change` at load otherwise); the engine limits the query to the entries the actor applied (`appliedBy`), and the app applies it to every character that may hold one, where it matches nothing else. */
 export type Destination =
   | Name
   | {
@@ -468,12 +468,14 @@ export type TemplateChange = {
   template: QualifiedId;
 };
 
-/** Apply content to the character: an `applied` entry. Without `id`, applyChanges gives the entry `<source local id, dots as hyphens>-<n>`, the smallest n >= 1 that no copy, applied entry or earlier change in the batch uses. */
+/** Apply content to the character: an `applied` entry. Without `id`, applyChanges gives the entry `<source local id, dots as hyphens>-<n>`, the smallest n >= 1 that no copy, applied entry or earlier change in the batch uses. `appliedBy`, saved on the entry, is the character applying it. */
 export type ApplyEffectChange = {
   type: 'applyEffect';
   id?: InstanceId;
   source: QualifiedId;
   active?: boolean;
+  /** The `id` of the character applying the entry, saved on it. Actions and follow-ups fill it in with the character proposing the change; an app applying content by hand names the applier itself. Applying content again (`reapply`) gives the merged entry this applier. */
+  appliedBy?: string;
   /** The entry's state. A value may be `{ formula }`, a formula an action passed on because it reads `batch`: applyChanges evaluates it with `item` the source's item, this character's fields and `batch`, and the change as applied (`changes` in the result) carries the value. */
   state?: Record<
     string,
@@ -624,10 +626,12 @@ export type ProposedChange = {
     where?: Condition;
   };
   limit?: CopiesLimit;
-  /** removeEffect, toggleEffect, setState and adjustState: the applied entries to change, by query, instead of `id` or `entry`. `where` and per-entry formulas (those reading `self` or `item`) are passed on for applyChanges to evaluate per entry, with `steps`, `flags`, `params` and `action` replaced by their values as literals, as for `copies`. `limit` is a literal integer >= 1. */
+  /** removeEffect, toggleEffect, setState and adjustState: the applied entries to change, by query, instead of `id` or `entry`. `where` and per-entry formulas (those reading `self` or `item`) are passed on for applyChanges to evaluate per entry, with `steps`, `flags`, `params` and `action` replaced by their values as literals, as for `copies`. `limit` is a literal integer >= 1. `appliedBy: self` limits it to the entries the actor applied, as a change sent `to: applied` always is. */
   applied?: {
     where: Condition;
     limit?: number;
+    /** `self`: only the entries the actor (the character running the action, or whose follow-up it is) applied. The proposed change carries the actor's ID. */
+    appliedBy?: 'self';
   };
   path?: ProposedPath;
   /** choose and unchoose: a formula naming the option (`picked.id`). An unchoose may leave it out to remove every pick of the choice. */
@@ -705,10 +709,12 @@ export type Grants = {
   limit?: number;
 };
 
-/** removeEffect, toggleEffect, setState and adjustState may name applied entries by query instead of `id` or `entry`. applyChanges resolves it against the character it changes, at that point in the batch: the `applied` entries, in file order, whose `where` holds with `item` the source's item and `self` the entry (`id` and its state, with declared defaults). With `limit`, only the first that many. In such a change, `by` and `value` are formulas evaluated per entry with the same binding, and formulas resolve names in the source's pack. No match is not an error: each such change adds `{ applied: [ids] }` to `adjustments`. */
+/** removeEffect, toggleEffect, setState and adjustState may name applied entries by query instead of `id` or `entry`. applyChanges resolves it against the character it changes, at that point in the batch: the `applied` entries, in file order, whose `where` holds with `item` the source's item and `self` the entry (`id` and its state, with declared defaults). With `limit`, only the first that many. In such a change, `by` and `value` are formulas evaluated per entry with the same binding, and formulas resolve names in the source's pack. No match is not an error: each such change adds `{ applied: [ids] }` to `adjustments`. With `appliedBy`, only the entries that character applied (their `appliedBy`). */
 export type Applied = {
   where: Condition;
   limit?: number;
+  /** A character ID: only the entries it applied. An action or follow-up fills it in for a change it sends `to: applied`, or one whose query says `appliedBy: self`. */
+  appliedBy?: string;
 };
 
 /** The standard interchange file for one character, monster or NPC. Holds only base state: input field values, owned content and per-copy state, choices made, and which temporary effects are on. Derived values are never saved. Every content and field reference is fully qualified (`pack:id`). */
@@ -737,6 +743,8 @@ export type CharacterFile = {
     /** Default true. */
     active?: boolean;
     state?: EntryState;
+    /** The `id` of the character who applied the entry: the actor of the action or the character of the follow-up that proposed the `applyEffect`, or whoever the app names. Formulas read it as `self.appliedBy`; a change sent `to: applied` reaches only the entries its actor applied. */
+    appliedBy?: string;
   }[];
   /** Ephemeral follow-ups: each `on` or `becomes` follow-up a batch triggered, stored by that applyChanges until it is acted on (`clearFollowUp`, which startAction proposes) or dismissed (`dismissFollowUp`). The engine writes them; apps change them only with those two changes. computeSheet lists each in `offers`. Derived (`while`) offers are never stored. */
   followUps?: StoredFollowUp[];
@@ -800,10 +808,12 @@ export type StoredFollowUp = {
   followUp: string;
   /** For a follow-up on content: the content and copy it comes from, as computeSheet's sources name them. */
   source?: Source;
-  /** For a follow-up to a linked character: `{ link }` with the qualified slot ID. It is stored here, on the character whose change triggered it, since one applyChanges writes one file; the app shows it to whoever runs the linked character. Absent for the character's own. */
-  to?: {
-    link: SlotId;
-  };
+  /** For a follow-up to another character, stored here, on the character whose change triggered it, since one applyChanges writes one file: `{ link }` with the qualified slot ID, for the character filling the slot (the app shows it to whoever runs that character); `applied`, for every character holding an entry this one applied (its changes reach only those entries). Absent for the character's own. */
+  to?:
+    | {
+        link: SlotId;
+      }
+    | 'applied';
   /** For a follow-up to a link: the ID of the character filling the slot when it was triggered. */
   character?: string;
   /** The parameters the follow-up fixes, evaluated when it was triggered. */
@@ -1240,9 +1250,9 @@ export type ValueDecl = {
   where?: Condition;
 };
 
-/** What applying this content again does: an `applyEffect` of it, while the character has an `applied` entry of it that isn't inactive (`active` not `false`; a blocked entry counts) and whose `match` state keys are equal to the new entry's, adds no entry. Instead each key of `state` of the first such entry becomes the higher (`highest`; dice by average), the lower (`lowest`), the sum (`add`, numeric keys) or the new value (`replace`). An item's replaces its content type's. */
+/** What applying this content again does: an `applyEffect` of it, while the character has an `applied` entry of it that isn't inactive (`active` not `false`; a blocked entry counts) and whose `match` state keys are equal to the new entry's, adds no entry. Instead each key of `state` of the first such entry becomes the higher (`highest`; dice by average), the lower (`lowest`), the sum (`add`, numeric keys) or the new value (`replace`). The merged entry takes the change's `appliedBy`, when it gives one. An item's replaces its content type's. */
 export type Reapply = {
-  /** State keys whose values must be equal as well (the new entry's with their defaults against the existing one's), e.g. a persistent damage's damage type. */
+  /** State keys whose values must be equal as well (the new entry's with their defaults against the existing one's), e.g. a persistent damage's damage type. `appliedBy` compares the entries' appliers instead, so each applier keeps an entry of its own. */
   match?: Name[];
   /** Per state key, how the existing entry's value and the new one merge. Keys not named keep the existing entry's values. */
   state: Record<string, 'highest' | 'lowest' | 'add' | 'replace'>;
@@ -1827,7 +1837,7 @@ export type ActionResult =
       status: 'finished';
       outcome: Outcome;
       proposedChanges: {
-        /** `self`, `target`, a role of the action, or `{ link }` with the qualified slot ID. */
+        /** `self`, `target`, a role of the action, `{ link }` with the qualified slot ID, or `applied`: every character holding an entry the actor applied (the change's query carries `appliedBy`, so it matches only those entries; the app applies it to each character that may hold one). */
         to:
           | Name
           | {
@@ -1865,9 +1875,10 @@ export type ListedFollowUp = {
   followUp: string;
   /** For a follow-up declared on content: the content and copy it comes from, as computeSheet's sources name them. */
   source?: Source;
-  /** `self`, or `{ link }` with the qualified slot ID. */
+  /** `self`, `{ link }` with the qualified slot ID, or `applied`: every character holding an entry this one applied, which the app applies the offer's `changes` to (they reach only those entries). */
   to:
     | 'self'
+    | 'applied'
     | {
         link: SlotId;
       };
@@ -2625,9 +2636,10 @@ export type FollowUp = {
   while?: Condition;
   /** Evaluated on the character after the whole batch (an ephemeral offer) or on the current character (a derived offer); the follow-up fires or is offered only when it holds. */
   when?: Condition;
-  /** Whose follow-up it is: `self` (the default, the character the batch changed) or `{ link: <slot> }`, the character filling one of its link slots. A follow-up to a link names the linked character's action, fields and content by qualified ID. */
+  /** Whose follow-up it is: `self` (the default, the character the batch changed), `{ link: <slot> }`, the character filling one of its link slots, or `applied`, every character holding an entry this character applied (`changes` only, each a removeEffect, toggleEffect, setState or adjustState naming applied entries by query, which then reaches only the entries this character applied). A follow-up to a link names the linked character's action, fields and content by qualified ID. */
   to?:
     | 'self'
+    | 'applied'
     | {
         link: Name;
       };
@@ -3181,6 +3193,7 @@ export type ErrorCode =
   | 'template-without-copy'
   | 'link-field-mismatch'
   | 'invalid-create-offer'
+  | 'invalid-applied-change'
   | 'invalid-family'
   | 'invalid-extension'
   | 'link-start-mismatch'

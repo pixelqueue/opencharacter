@@ -278,6 +278,7 @@ describe('pnpm validate', () => {
       ['a role field the pack lacks', /role lookout: "lookout.eyes" is not a field of broken/],
       ['each over an undeclared role', /step bribe: each names undeclared role "ghost"/],
       ['changes to an undeclared role', /step tip: to names undeclared role "accomplice"/],
+      ['a change to applied that is no query', /step shun: a change sent to applied is a remove/],
       ['an applyEffect of unknown content', /step hex: unknown content "weapons.nothing"/],
       ['an applied entry named both ways', /step hex: a change names its entries by applied or/],
       ['applied on a change that takes no query', /step hex: applied is only for removeEffect/],

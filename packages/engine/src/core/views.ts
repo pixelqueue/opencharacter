@@ -417,9 +417,12 @@ export function appliedState(ruleset: Ruleset, entry: AppliedEntry): Record<stri
   return state;
 }
 
-/** `self` on an applied entry's activation and `entry` in an immunity's query. */
+/**
+ * `self` on an applied entry's activation and `entry` in an immunity's query: its state, `id` and
+ * `appliedBy` (`''` when no one is named).
+ */
 export function appliedView(ruleset: Ruleset, entry: AppliedEntry): Record<string, unknown> {
-  return { ...appliedState(ruleset, entry), id: entry.id };
+  return { ...appliedState(ruleset, entry), id: entry.id, appliedBy: entry.appliedBy ?? '' };
 }
 
 /** `character.applied`, raw: blocking by immunities isn't reflected. */
@@ -428,6 +431,7 @@ export function appliedList(ruleset: Ruleset, character: CharacterDoc): Record<s
     id: entry.id,
     source: entry.source,
     active: entry.active !== false,
+    appliedBy: entry.appliedBy ?? '',
     state: appliedState(ruleset, entry),
   }));
 }

@@ -1,0 +1,55 @@
+fields:
+  hp.current: { type: integer, input: true, default: 10, min: 0 }
+  # Each active mark on the character adds one.
+  marks: { type: integer, formula: 0 }
+
+contentTypes:
+  condition:
+    carried: false
+    state:
+      # When the entry ends: at the start of its applier's next turn, or with the encounter.
+      until: { type: enum, values: [start, encounter], default: encounter }
+    # A mark by someone else takes the mark over.
+    reapply: { state: { until: replace } }
+
+actions:
+  # Marks the target, ending the actor's earlier marks wherever they are.
+  - id: mark
+    params:
+      until: { type: enum, values: [start, encounter], default: encounter }
+    participants:
+      target: { max: 1 }
+    steps:
+      - id: unmark
+        kind: changes
+        to: applied
+        changes:
+          - type: removeEffect
+            applied: { where: 'item.id == @conditions.marked' }
+      - id: mark
+        kind: changes
+        to: target
+        changes:
+          - type: applyEffect
+            source: "'conditions.marked'"
+            state: { until: params.until }
+  # Ends the actor's own marks on the target only.
+  - id: release
+    participants:
+      target: { min: 1, max: 1 }
+    steps:
+      - id: release
+        kind: changes
+        to: target
+        changes:
+          - type: removeEffect
+            applied: { where: 'item.id == @conditions.marked', appliedBy: self }
+
+followUps:
+  # At 0 hit points, the character's marks end wherever they are.
+  - id: marks-end
+    becomes: hp.current == 0
+    to: applied
+    changes:
+      - type: removeEffect
+        applied: { where: 'item.id == @conditions.marked' }

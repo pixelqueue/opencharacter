@@ -1,0 +1,15 @@
+status: finished
+proposedChanges:
+  - to: applied
+    step: unmark
+    change:
+      type: removeEffect
+      applied: { where: "item.id == 'test-cross:conditions.marked'", appliedBy: tactician }
+  - to: target
+    character: goblin
+    step: mark
+    change:
+      type: applyEffect
+      source: test-cross:conditions.marked
+      state: { until: start }
+      appliedBy: tactician

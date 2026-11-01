@@ -25,10 +25,13 @@
           "$ref": "../common.schema.json#/$defs/source"
         },
         "to": {
-          "description": "`self`, or `{ link }` with the qualified slot ID.",
+          "description": "`self`, `{ link }` with the qualified slot ID, or `applied`: every character holding an entry this one applied, which the app applies the offer's `changes` to (they reach only those entries).",
           "anyOf": [
             {
               "const": "self"
+            },
+            {
+              "const": "applied"
             },
             {
               "type": "object",

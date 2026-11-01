@@ -270,7 +270,7 @@ export interface FollowUp {
   when?: Formula;
   /** Advisory: dismissing it needs an override. */
   required?: boolean;
-  to?: 'self' | { link: string };
+  to?: 'self' | 'applied' | { link: string };
   action?: string;
   params?: Record<string, Formula>;
   changes?: ProposedChange[];
@@ -491,7 +491,7 @@ export interface ProposedChange {
   split?: { roll: string; by: string };
   copies?: { type: string; where?: Formula };
   limit?: number;
-  applied?: { where: Formula; limit?: number };
+  applied?: { where: Formula; limit?: number; appliedBy?: 'self' };
   picks?: { where: Formula; limit?: number };
   pick?: 'self' | 'owner';
   grant?: 'self' | 'owner';

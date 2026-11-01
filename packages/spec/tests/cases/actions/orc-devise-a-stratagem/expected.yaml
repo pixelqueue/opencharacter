@@ -9,7 +9,13 @@ proposedChanges:
     change: { type: removeEffect, applied: { where: "'stratagem' in item.tags" } }
   - to: self
     step: plan
-    change: { type: applyEffect, source: orc-2e:effects.attack-stratagem, state: { roll: 17 } }
+    change:
+      {
+        type: applyEffect,
+        source: orc-2e:effects.attack-stratagem,
+        state: { roll: 17 },
+        appliedBy: example-orc-edda,
+      }
 log:
   - step: roll
     action: 'orc-2e:features.investigator.devise-a-stratagem#devise-a-stratagem'

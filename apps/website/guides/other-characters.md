@@ -159,6 +159,39 @@ so a caster who merely knows Bless doesn't bless themselves. When Bless ends (it
 out, or concentration breaks), remove it from every ally. The engine never tracks time, so keep
 the cast's targets and duration in your own data, for example keyed by `castId`.
 
+### Who applied it
+
+Give the entry its applier: `appliedBy`, the caster's `id`. Every `applyEffect` an action proposes
+already carries the actor's, so applying an attack's changes to the target records who marked,
+frightened or blessed it. The target's own rules read it (`self.appliedBy`): an edge against the
+creature that marked you, an effect that ends at its applier's turn.
+
+```ts
+applyChanges(rulesetFor(ally), ally, [
+  { type: 'applyEffect', source: '5e-srd-5.1:spells.bless', appliedBy: cleric.id },
+]);
+```
+
+### Changes for whoever holds what you applied
+
+Some rules end what one character put on others: a new Mark ends the old one, an aura ends when
+its source is dying. The engine doesn't know who holds those entries, so the pack sends the change
+`to: 'applied'`, with no `character`, and its query keeps to the actor's entries
+(`applied.appliedBy`). Apply it to every character you hold that has such an entry; on any other
+it matches nothing:
+
+```ts
+const holders = (actorId) =>
+  everyone.filter((c) => (c.applied ?? []).some((a) => a.appliedBy === actorId));
+
+const unmark = mark.proposedChanges.filter((p) => p.to === 'applied').map((p) => p.change);
+for (const holder of holders(tactician.id)) applyChanges(rulesetFor(holder), holder, unmark);
+```
+
+A follow-up can go there too: an offer with `to: 'applied'` (the tactician is dying, so their
+marks end) is stored on the character whose change fired it. Apply its `changes` the same way,
+then clear it on that character with `{ type: 'clearFollowUp', id }`.
+
 ## Monsters and NPCs
 
 Monsters and NPCs are character files like any other: a stat block is a character with mostly

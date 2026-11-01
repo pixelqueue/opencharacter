@@ -31,7 +31,7 @@ describe('applied content from actions', () => {
     const once = applyChanges(ruleset, before, changes);
     if (!once.ok) throw new Error(JSON.stringify(once.errors));
     expect(once.character.applied).toEqual([
-      { id: 'potions-haste-1', source: 'test-applied:potions.haste' },
+      { id: 'potions-haste-1', source: 'test-applied:potions.haste', appliedBy: 'test' },
     ]);
     expect(speed(once.character)).toBe(40);
     // Replaying the same batch on the same character gives the same ID.

@@ -3954,6 +3954,8 @@ function proposeOne(
     if (change.id !== undefined) out.id = change.id;
     if (change.source !== undefined)
       out.source = contentRef(ctx, frame, change.source, extra, linked, other);
+    // The actor applies what it proposes, and a change `to: applied` reaches only its own entries.
+    if (change.type === 'applyEffect') out.appliedBy = ctx.state.character.id;
     if (change.active !== undefined) {
       const active = evaluate(ctx, frame, change.active, extra);
       if (active.kind !== 'bool')
@@ -4033,6 +4035,9 @@ function proposeOne(
         out.applied = {
           where: passOn(ctx, frame, change.applied.where, passed),
           ...(change.applied.limit !== undefined ? { limit: change.applied.limit } : {}),
+          ...(route.to === 'applied' || change.applied.appliedBy === 'self'
+            ? { appliedBy: ctx.state.character.id }
+            : {}),
         };
       if (change.picks)
         out.picks = {
