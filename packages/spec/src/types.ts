@@ -2131,10 +2131,7 @@ export type FieldValue = {
   /** Each effect that changed the value, in application order ("AC 17 = 15 Mage Armor + 2 shield"). */
   breakdown?: {
     op: string;
-    /** The option's value; for a group spanning fields, the source's score. */
     value?: Literal;
-    /** For a group spanning fields: the source's value on each field it reaches, by field ID. */
-    values?: Record<string, Literal>;
     source: Source;
   }[];
   /** The field's tags on this sheet, in order: its written tags, then those its `{ formula }` entries give, each once. When its computed tags fail, the written ones. Absent when the field has none. */
