@@ -28,7 +28,7 @@ import type {
   Query,
 } from './pack-types.ts';
 import type { GrantStore } from '@opencharacter/spec';
-import { appliesQueries } from './pack-types.ts';
+import { appliesQueries, stackPolicy, type SpanningKey } from './pack-types.ts';
 import { openOptionsOn } from './options.ts';
 import { isContentOnly } from './load.ts';
 import {
@@ -2582,10 +2582,17 @@ export class Sheet {
       const group = `${key === 'source' ? instance.sourceId : key}`;
       groups.set(group, [...(groups.get(group) ?? []), instance]);
     }
-    const settings = this.ruleset.rules.settings.stacking;
     for (const [, group] of groups) {
       const key = group[0]?.effect.stackKey as string;
-      const policy = settings?.keys?.[key] ?? settings?.default ?? 'addAll';
+      const { policy, span } = stackPolicy(this.ruleset.rules.settings, key);
+      // A key spanning fields keeps its chosen source's effects here, whatever this field holds.
+      if (span && report) {
+        const chosen = this.spanChoice(key, group[0]?.effect.op as string, span);
+        for (const i of group)
+          if (spanSource(i) === chosen) out.push(i);
+          else this.suppressed.add(i);
+        continue;
+      }
       if (policy === 'addAll' || group.length === 1) {
         out.push(...group);
         continue;
@@ -2620,6 +2627,88 @@ export class Sheet {
   }
 
   // --- Output -------------------------------------------------------------------------------
+  private readonly spans = new Map<string, string | undefined>();
+  private readonly spanning = new Set<string>();
+
+  /**
+   * The source whose effects count for a stack key spanning fields, for one op: each source's
+   * active effects of the key on every field, scored, the best kept or, for `playerChooses`, the
+   * player's pick, reported once as competing. Throws Failure when a member fails, or reads a
+   * field the group reaches while it is being decided.
+   */
+  private spanChoice(key: string, op: string, span: SpanningKey): string | undefined {
+    const id = `${key}\u0000${op}`;
+    if (this.spans.has(id)) return this.spans.get(id);
+    if (this.spanning.has(id))
+      throw new Failure({
+        code: 'circular-formula',
+        message: `the stack key "${key}" spans fields its own effects read`,
+        data: { fields: [...this.stack] },
+      });
+    this.spanning.add(id);
+    try {
+      type Option = { first: EffectInstance; values: Map<string, f.Value> };
+      const options = new Map<string, Option>();
+      const fields: string[] = [];
+      for (const qid of Object.keys(this.ruleset.fields)) {
+        if (!this.byField.has(qid)) continue;
+        for (const i of this.instancesOn(qid)) {
+          const e = i.effect;
+          if (e.op !== op || e.stackKey !== key || !this.test(e.when, i.pack, i.roots)) continue;
+          const value = this.evaluate(e.value as Formula, i.pack, i.roots);
+          let option = options.get(spanSource(i));
+          if (!option) options.set(spanSource(i), (option = { first: i, values: new Map() }));
+          else if (i.order < option.first.order) option.first = i;
+          const had = option.values.get(qid);
+          option.values.set(qid, had ? addValues(had, value) : value);
+          if (!fields.includes(qid)) fields.push(qid);
+        }
+      }
+      const zero: f.Value = { kind: 'int', value: 0 };
+      const scored = [...options.values()]
+        .toSorted((a, b) => a.first.order - b.first.order)
+        .map((o) => {
+          const score =
+            typeof span.score === 'object'
+              ? (o.values.get(span.score.field) ?? zero)
+              : [...o.values.values()].reduce((sum, v) => addValues(sum, v), zero);
+          return { ...o, score, v: average(score) };
+        });
+      let best = scored[0];
+      for (const c of scored)
+        if (best && (span.policy === 'lowestOnly' ? c.v < best.v : c.v > best.v)) best = c;
+      let chosen = best;
+      if (span.policy === 'playerChooses' && best && scored.length > 1) {
+        chosen = scored.find((c) => this.picks.has(c.first.optionId)) ?? best;
+        const ordered = fields; // ruleset order
+        this.competing.push({
+          field: ordered[0] as string,
+          fields: ordered,
+          op: op as CompetingOptions['op'],
+          stackKey: key,
+          options: scored.map((c) => ({
+            id: c.first.optionId,
+            value: literal(c.score),
+            values: Object.fromEntries(
+              ordered.flatMap((qid) => {
+                const v = c.values.get(qid);
+                return v ? [[qid, literal(v)]] : [];
+              }),
+            ),
+            source: c.first.source,
+          })),
+          recommended: best.first.optionId,
+          applied: (chosen as typeof best).first.optionId,
+        });
+      }
+      const out = chosen && spanSource(chosen.first);
+      this.spans.set(id, out);
+      return out;
+    } finally {
+      this.spanning.delete(id);
+    }
+  }
+
 
   values(): Record<string, FieldValue> {
     const out: Record<string, FieldValue> = {};
@@ -3708,6 +3797,11 @@ function compareValues(a: f.Value, b: f.Value): number {
 function addValues(a: f.Value, b: f.Value): f.Value {
   if (a.kind === 'int' && b.kind === 'int') return { kind: 'int', value: a.value + b.value };
   if (isNumber(a) && isNumber(b))
+/** A source of a spanning group: the content and where it was reached (two copies are two). */
+function spanSource(i: EffectInstance): string {
+  return `${i.sourceId}\u0000${JSON.stringify(i.source)}`;
+}
+
     return { kind: 'decimal', value: f.roundDecimal(a.value + b.value) };
   if (a.kind === 'dice' || b.kind === 'dice') {
     const da = a.kind === 'dice' ? a.value : { terms: [], flat: isNumber(a) ? a.value : 0 };

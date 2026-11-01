@@ -272,6 +272,7 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
   };
 
   // 2. Merge the rules. Names first, so references can resolve across packs.
+  const spanPacks = new Map<string, string>();
   const tags = new Set<string>();
   for (const pack of byId.values()) {
     const pid = pack.manifest.id;
@@ -302,6 +303,8 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
     for (const name of r.rollTallies ?? [])
       ruleset.rules.tallies[`${pid}:${name}`] = { name, pack: pid };
     for (const [id, set] of Object.entries(r.resultBands ?? {}))
+    // A spanning key's score field resolves in the pack that declared the key.
+    for (const key of Object.keys(r.settings?.stacking?.keys ?? {})) spanPacks.set(key, pid);
       ruleset.rules.bands[`${pid}:${id}`] = { ...bandSet(set), pack: pid };
     for (const [key, value] of Object.entries(r.settings ?? {})) {
       const settings = ruleset.rules.settings as Record<string, unknown>;
@@ -804,6 +807,16 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
         ? { overflow: def.overflow.map((o) => ({ ...o, into: q.field(o.into, def.pack) })) }
         : {}),
     };
+  const stacking = ruleset.rules.settings.stacking;
+  if (stacking?.keys)
+    stacking.keys = Object.fromEntries(
+      Object.entries(stacking.keys).map(([key, decl]) => [
+        key,
+        typeof decl === 'object' && typeof decl.score === 'object'
+          ? { ...decl, score: { field: q.field(decl.score.field, spanPacks.get(key) as string) } }
+          : decl,
+      ]),
+    );
   }
   // A link slot's fields are checked against its pack only when that pack is loaded too.
   for (const [qid, link] of Object.entries(ruleset.rules.links)) {

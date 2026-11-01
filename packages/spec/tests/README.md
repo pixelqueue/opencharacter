@@ -158,8 +158,9 @@ input: # any other call inputs (action, params, situational, policy, strict, lin
     - `actions`: the exact list of `{ action, entry, source }`.
     - `situational`: the exact list of offered situational choice IDs, in order.
     - `competing`: for each listed field, every entry for that field, in order, comparing `op`,
-      `stackKey`, `options` (option IDs, or `{ id, value }` to compare values too),
-      `recommended` and `applied` when listed.
+      `stackKey`, `fields`, `options` (option IDs, or `{ id, value }` to compare values too, or
+      `{ id, value, values }` for a group spanning fields), `recommended` and `applied` when
+      listed.
     - `errors`: the exact list of codes.
     - `valueErrors`: the exact list of fields whose value is an error, in order (`[]` for a
       character that computes cleanly, such as a blank one).

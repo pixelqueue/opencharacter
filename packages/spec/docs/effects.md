@@ -447,7 +447,7 @@ Content in `applied` runs only its `applied` effects, and held content runs only
 
 When more than one `set` effect is active on the same field (Mage Armor and Unarmored Defense both setting AC), the engine **does not decide**. It reports the options and the rules' recommended pick in `computeSheet`'s `competing` output: `{ field, op, stackKey?, options: [{ id, value, source }], recommended, applied }`. The recommendation follows the field's `recommend` or `settings.competing.recommend` (`highest`, `lowest`, `first`, `last`).
 
-Each entry is one **competing group**: the `set` effects on a field (`op: set`), or a `playerChooses` [stacking](#stacking) group (its `op` and `stackKey`). A field can have several groups, such as two AC formulas and a choice of morale bonus, and each is picked on its own.
+Each entry is one **competing group**: the `set` effects on a field (`op: set`), or a `playerChooses` [stacking](#stacking) group (its `op` and `stackKey`). A field can have several groups, such as two AC formulas and a choice of morale bonus, and each is picked on its own. A key [spanning fields](#one-source-across-fields) is one group across all its fields: its entry lists them as `fields` (`field` is the first), and each option is a source, with its score as `value` and its value per field as `values`.
 
 The app applies the recommendation automatically or asks the player, and passes the picks back through `computeSheet`'s `competing` input: a list of option IDs, such as `['5e-srd-5.1:features.unarmored-defense#0']`. Each group applies the first of its options that is listed, in instance order; a group with none listed uses its recommended option.
 
@@ -467,6 +467,35 @@ An effect with a `stackKey` is grouped with other effects that have the same key
 The key `source` is reserved: it means "the content item this effect comes from". It is how 5E says two Blesses don't stack (`keys: { source: highestOnly }`). Any other key is a literal: orc-2e uses `item`, `status` and `circumstance`. Effects without a key always count.
 
 Effects that don't count because of stacking still appear in `computeSheet`'s `effects` with `suppressed: true`.
+
+### One source across fields
+
+Some bonuses are one bonus written on several fields: a Draw Steel kit's melee damage bonus is
++2/+2/+2 for the Martial Artist and +0/+0/+4 for the Mountain, one per tier. Grouped per field,
+a hero with both kits would take +2/+2/+4, which the rules forbid. A key declared as
+**spanning fields** groups its effects of one op on every field, and keeps one **source** for
+all of them:
+
+```yaml
+settings:
+  stacking:
+    keys:
+      kit-melee: { policy: playerChooses, spansFields: true }
+      kit-stamina: highestOnly
+```
+
+- `policy` is `highestOnly`, `lowestOnly` or `playerChooses`; the source kept counts on every
+  field of the group, and every other source's effects are suppressed there.
+- A source's **score** decides: `score: sum` (the default), its values on every field added up,
+  or `score: { field: kit.melee3 }`, its value on that field. Dice count by average.
+- `playerChooses` reports the group once in `competing`, one option per source, the highest
+  score recommended. Its option ID is the source's first effect's, and picking it applies the
+  source on every field.
+- A source is an item where it was reached, so two copies of one item are two sources. The
+  reserved key `source` never spans.
+
+Rolls and incoming changes stack a spanning key per group by its `policy`, as any key
+([engine-core.md](engine-core.md#stacking)).
 
 An effect on a [set of fields](#targets) stacks on each field it reaches, with that field's other effects, as if written on it. A roll that reads a field carries the field's keyed `add` effects into its own stacking, so a roll-time bonus competes with the field's bonus of the same key instead of adding on top of it ([engine-actions.md](engine-actions.md#building-the-roll)).
 

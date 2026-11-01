@@ -105,7 +105,7 @@ One-line definitions of OCF terms, consistent with the [specification](../../pac
 - **Spec version:** the version of the OCF formats and behavior, which is the `@opencharacter/spec` package version; packs declare the minimum they need, and an engine lists the major.minor versions it implements (`IMPLEMENTS_SPEC`).
 - **Split (typed damage):** a proposed adjust split into one change per tag group of a roll's items, so resistances apply per damage type.
 - **Stacking key:** a label on an effect grouping it with others for the stacking policy; `source` means the effect's content item.
-- **Stacking policy:** how effects sharing a stacking key combine: addAll, highestOnly, lowestOnly, playerChooses.
+- **Stacking policy:** how effects sharing a stacking key combine: addAll, highestOnly, lowestOnly, playerChooses. A key may span fields, so one source counts on all of them (a kit's bonus across tiers).
 - **Standard copy:** a copy every character holds without the file listing it (FitD gear a table tags `standard`, the ritual the Ritual ability starts with), declared by the rules or an active item as `standardCopies`; its ID is derived from its item, and the file saves it only once it differs from its defaults.
 - **Strict mode:** an applyChanges option that turns rules issues into a runtime error.
 - **Tag:** a dotted label on content, fields or rolls (`damage.fire`); matches itself and every tag below it.

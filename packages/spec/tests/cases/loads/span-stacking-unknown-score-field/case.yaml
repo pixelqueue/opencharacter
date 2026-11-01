@@ -1,0 +1,15 @@
+description: "A spanning stack key's score field must name a field: one that names none is unknown-reference"
+specVersion: 0.1.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        { id: test-pack, version: 1.0.0, specVersion: 0.1.0, license: CC0-1.0, defaultLanguage: en }
+      rules:
+        settings:
+          stacking:
+            keys:
+              kit-melee: { policy: playerChooses, spansFields: true, score: { field: kit.melee9 } }
+        fields:
+          kit.melee1: { type: integer, formula: 0 }
+      content: []

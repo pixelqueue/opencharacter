@@ -1,0 +1,39 @@
+# A kit's melee bonus is one bonus across three tiers: of two kits, one kit's counts on every
+# tier. Melee scores a kit by its sum, ranged by its last tier; guard keeps the higher kit unasked.
+# Stability is a playerChooses key on one field, which competes per field as before.
+settings:
+  stacking:
+    keys:
+      kit-melee: { policy: playerChooses, spansFields: true }
+      kit-ranged: { policy: playerChooses, spansFields: true, score: { field: kit.ranged3 } }
+      kit-guard: { policy: highestOnly, spansFields: true }
+      kit-stability: playerChooses
+
+fields:
+  'kit.melee{tier}': { type: integer, formula: 0 }
+  'kit.ranged{tier}': { type: integer, formula: 0 }
+  kit.guard: { type: integer, formula: 10 }
+  kit.ward: { type: integer, formula: 10 }
+  kit.stability: { type: integer, formula: 0 }
+
+families:
+  tier: [1, 2, 3]
+
+contentTypes:
+  kit:
+    fields:
+      'melee{tier}': { type: integer, default: 0 }
+      'ranged{tier}': { type: integer, default: 0 }
+      guard: { type: integer, default: 0 }
+      ward: { type: integer, default: 0 }
+      stability: { type: integer, default: 0 }
+    effects:
+      - { target: kit.melee1, op: add, value: item.melee1, stackKey: kit-melee }
+      - { target: kit.melee2, op: add, value: item.melee2, stackKey: kit-melee }
+      - { target: kit.melee3, op: add, value: item.melee3, stackKey: kit-melee }
+      - { target: kit.ranged1, op: add, value: item.ranged1, stackKey: kit-ranged }
+      - { target: kit.ranged2, op: add, value: item.ranged2, stackKey: kit-ranged }
+      - { target: kit.ranged3, op: add, value: item.ranged3, stackKey: kit-ranged }
+      - { target: kit.guard, op: add, value: item.guard, stackKey: kit-guard }
+      - { target: kit.ward, op: add, value: item.ward, stackKey: kit-guard }
+      - { target: kit.stability, op: add, value: item.stability, stackKey: kit-stability }

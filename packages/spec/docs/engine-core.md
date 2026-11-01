@@ -529,6 +529,32 @@ group is reduced by the policy for its key (`settings.stacking.keys`, else
 Instances that don't count are listed in `effects` with `suppressed: true`. Instances without a
 `stackKey` always count.
 
+**Keys spanning fields.** A key declared `{ policy, spansFields: true, score? }` groups its
+instances of one op on **every** field instead of per field, and keeps a source rather than an
+instance: a kit's melee bonus on three tiers is one bonus, so of two kits one kit's counts on all
+three. The reserved key `source` never spans.
+
+1. **Gather:** every active instance (its `when` holding) with the key and the op, on every field
+   in ruleset order. A source is the content the instance comes from where it was reached (its
+   `source`: two copies of an item are two sources). Each source's value on a field is the sum
+   of its instances there.
+2. **Score:** `sum` (the default) adds the source's values on every field; `{ field }` takes its
+   value on that field, 0 where it has none. Dice count by average.
+3. **Keep:** `highestOnly` keeps the highest score, `lowestOnly` the lowest, ties going to the
+   source whose first instance comes first. `playerChooses` recommends the highest and, with two
+   sources or more, is one `competing` entry: `field` the first of `fields`, every field the
+   group reaches in ruleset order, its `op` and `stackKey`, and one option per source, its `id`
+   the option ID of the source's first instance (in instance order), `value` its score and
+   `values` its value per field. It applies the first option whose `id` the input lists, else the
+   recommended one.
+4. **Apply:** on each field, the kept source's instances of the group count and every other
+   source's are suppressed, whatever that field holds alone.
+
+The group is decided once per sheet, when the first of its fields is computed, so evaluating its
+instances must not read a field the group reaches: that is `circular-formula` on the field
+being computed. A roll carries a field's counted instances as usual, and on a roll or an
+incoming change the key's `policy` applies per group, not spanning.
+
 ### Pending choices and issues
 
 For each activation's choices, and the rules-level choices:

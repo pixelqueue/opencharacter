@@ -636,13 +636,31 @@ export interface TypeHints {
 }
 
 export type StackingPolicy = 'addAll' | 'highestOnly' | 'lowestOnly' | 'playerChooses';
+/** A stack key whose group spans fields: one source counts on all of them. */
+export interface SpanningKey {
+  policy: 'highestOnly' | 'lowestOnly' | 'playerChooses';
+  spansFields: true;
+  /** `sum` (the default), or the source's value on one field (qualified at load). */
+  score?: 'sum' | { field: string };
+}
+
+/** A key's policy, and its spanning declaration when it spans fields (never `source`). */
+export function stackPolicy(
+  settings: Settings,
+  key: string,
+): { policy: StackingPolicy; span?: SpanningKey } {
+  const decl = settings.stacking?.keys?.[key] ?? settings.stacking?.default ?? 'addAll';
+  if (typeof decl === 'string') return { policy: decl };
+  return key === 'source' ? { policy: decl.policy } : { policy: decl.policy, span: decl };
+}
+
 export type Recommend = 'highest' | 'lowest' | 'first' | 'last';
 
 export interface Settings {
   rounding?: 'floor' | 'ceil' | 'round' | 'truncate';
   roundIncoming?: 'value' | 'magnitude';
   rollModifiers?: { advantage?: 'cancel' | 'net' | 'stack' };
-  stacking?: { default?: StackingPolicy; keys?: Record<string, StackingPolicy> };
+  stacking?: { default?: StackingPolicy; keys?: Record<string, StackingPolicy | SpanningKey> };
   competing?: { recommend?: Recommend };
 }
 

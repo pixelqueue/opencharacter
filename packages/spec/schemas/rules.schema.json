@@ -370,14 +370,21 @@
               "$ref": "#/$defs/stackingPolicy"
             },
             "keys": {
-              "description": "Policy per stack key (`source`, `item`, `status`, …).",
+              "description": "Policy per stack key (`source`, `item`, `status`, …): a policy, or a key spanning fields (`{ policy, spansFields: true, score? }`).",
               "type": "object",
               "propertyNames": {
                 "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
                 "type": "string"
               },
               "additionalProperties": {
-                "$ref": "#/$defs/stackingPolicy"
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/stackingPolicy"
+                  },
+                  {
+                    "$ref": "#/$defs/spanningKey"
+                  }
+                ]
               }
             }
           },
@@ -412,6 +419,39 @@
     "stackingPolicy": {
       "description": "Kept in sync with `data/stacking-policies.json`.",
       "enum": ["addAll", "highestOnly", "lowestOnly", "playerChooses"]
+    },
+    "spanningKey": {
+      "description": "A stack key whose group spans every field its effects target: one source counts on all of them (a kit's melee damage bonus across three tiers). The group is the key's effects of one op on every field; the policy keeps one source, by its score, and that source's effects count on every field while the others' are suppressed. `playerChooses` reports the group once as competing, one option per source.",
+      "type": "object",
+      "required": ["policy", "spansFields"],
+      "properties": {
+        "policy": {
+          "description": "`highestOnly` keeps the source with the highest score, `lowestOnly` the lowest; `playerChooses` reports the sources as competing options and recommends the highest.",
+          "enum": ["highestOnly", "lowestOnly", "playerChooses"]
+        },
+        "spansFields": {
+          "const": true
+        },
+        "score": {
+          "description": "A source's score: `sum` (the default), its values on every field added up, or `{ field }`, its value on that one field (0 where it has none). Dice count by their average.",
+          "anyOf": [
+            {
+              "const": "sum"
+            },
+            {
+              "type": "object",
+              "required": ["field"],
+              "properties": {
+                "field": {
+                  "$ref": "common.schema.json#/$defs/fieldRef"
+                }
+              },
+              "additionalProperties": false
+            }
+          ]
+        }
+      },
+      "additionalProperties": false
     },
     "linkSlot": {
       "type": "object",

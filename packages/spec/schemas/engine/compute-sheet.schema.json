@@ -447,8 +447,16 @@
           "type": "boolean"
         },
         "error": {
+                "description": "The option's value; for a group spanning fields, the source's score.",
           "description": "Set instead of `value` when this field could not be computed (a loop). Everything else still calculates.",
           "$ref": "error.schema.json"
+              "values": {
+                "description": "For a group spanning fields: the source's value on each field it reaches, by field ID.",
+                "type": "object",
+                "additionalProperties": {
+                  "$ref": "../common.schema.json#/$defs/literal"
+                }
+              },
         }
       },
       "additionalProperties": false
@@ -604,8 +612,16 @@
               },
               "source": {
                 "$ref": "../common.schema.json#/$defs/source"
+          "description": "The field the group is on; for a group spanning fields, the first of `fields`.",
               }
             }
+        "fields": {
+          "description": "For a group of a stack key spanning fields: every field it reaches, in ruleset order. Absent otherwise.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
           }
         },
         "recommended": {
@@ -618,3 +634,11 @@
     }
   }
 }
+                "description": "The option's value; for a group spanning fields, the source's score.",
+              "values": {
+                "description": "For a group spanning fields: the source's value on each field it reaches, by field ID.",
+                "type": "object",
+                "additionalProperties": {
+                  "$ref": "../common.schema.json#/$defs/literal"
+                }
+              },

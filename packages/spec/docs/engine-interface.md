@@ -75,7 +75,7 @@ Besides these calls, `checkRelease` ([upgrades.md](upgrades.md#the-build-check),
   as `{ path, owner, id, slot?, min, max?, picks, open, preset? }`, inline options' and
   `activate: false` choices included; `preset: true` marks a choice a grant answers, which
   `choose` and `unchoose` refuse (`preset-choice`) ([engine-core.md](engine-core.md#the-choice-list)).
-- `competing` lists competing options, one entry per competing group with its `op` and, for a stacking group, `stackKey` (see [effects.md](effects.md#competing-options)). The input's `competing` is a list of picked option IDs; each group applies its listed option, else its recommendation.
+- `competing` lists competing options, one entry per competing group with its `op` and, for a stacking group, `stackKey` (see [effects.md](effects.md#competing-options)); a group of a key spanning fields also lists `fields`, and each option its `values` per field. The input's `competing` is a list of picked option IDs; each group applies its listed option, else its recommendation.
 - `issues` lists rules issues.
 - `copies` maps each copy's instance ID to its computed values (`{ <name>: value }`), for copies that have any.
 - `copyNames` maps each copy's instance ID to its name from its state (`nameFrom`), for copies that have one; apps show it in place of the item's name.

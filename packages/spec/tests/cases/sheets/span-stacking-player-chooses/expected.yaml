@@ -1,0 +1,52 @@
+# Melee by sum: Martial Artist 6 over Mountain 4, so +2/+2/+2, never +2/+2/+4.
+# Ranged by its last tier: Mountain 2 over Martial Artist 0, so +0/+0/+2.
+# Guard (highestOnly, by sum): Mountain 3 over Martial Artist 2, so Martial Artist's ward is out too.
+values:
+  test-span-stacking:kit.melee1: { value: 2 }
+  test-span-stacking:kit.melee2: { value: 2 }
+  test-span-stacking:kit.melee3: { value: 2 }
+  test-span-stacking:kit.ranged1: { value: 0 }
+  test-span-stacking:kit.ranged2: { value: 0 }
+  test-span-stacking:kit.ranged3: { value: 2 }
+  test-span-stacking:kit.guard: { value: 13 }
+  test-span-stacking:kit.ward: { value: 10 }
+  test-span-stacking:kit.stability: { value: 2 }
+competing:
+  - field: test-span-stacking:kit.melee1
+    fields:
+      - test-span-stacking:kit.melee1
+      - test-span-stacking:kit.melee2
+      - test-span-stacking:kit.melee3
+    op: add
+    stackKey: kit-melee
+    options:
+      - id: 'test-span-stacking:kits.martial-artist#type.0'
+        value: 6
+        values:
+          test-span-stacking:kit.melee1: 2
+          test-span-stacking:kit.melee2: 2
+          test-span-stacking:kit.melee3: 2
+      - id: 'test-span-stacking:kits.mountain#type.0'
+        value: 4
+        values:
+          test-span-stacking:kit.melee1: 0
+          test-span-stacking:kit.melee2: 0
+          test-span-stacking:kit.melee3: 4
+    recommended: 'test-span-stacking:kits.martial-artist#type.0'
+    applied: 'test-span-stacking:kits.martial-artist#type.0'
+  - field: test-span-stacking:kit.ranged1
+    stackKey: kit-ranged
+    options:
+      - { id: 'test-span-stacking:kits.martial-artist#type.3', value: 0 }
+      - { id: 'test-span-stacking:kits.mountain#type.3', value: 2 }
+    recommended: 'test-span-stacking:kits.mountain#type.3'
+    applied: 'test-span-stacking:kits.mountain#type.3'
+  # A single-field playerChooses key competes on its field alone, as before: no fields, no values.
+  - field: test-span-stacking:kit.stability
+    op: add
+    stackKey: kit-stability
+    options:
+      - { id: 'test-span-stacking:kits.martial-artist#type.8', value: 1 }
+      - { id: 'test-span-stacking:kits.mountain#type.8', value: 2 }
+    recommended: 'test-span-stacking:kits.mountain#type.8'
+    applied: 'test-span-stacking:kits.mountain#type.8'

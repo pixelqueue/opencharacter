@@ -264,6 +264,14 @@ Each group applies the first of its options (in instance order) that the list na
 recommendation.
 
 These picks aren't part of the character file. Store them yourself (in `extensions` if they
+A stack key can **span fields**: a Draw Steel kit's melee damage bonus is one bonus across three
+tiers, so with two kits the player takes one kit's bonus on all three. Its entry is one group for
+every field: `fields` lists them (`field` is the first), and each option is a source, with its
+score as `value` and its value on each field as `values`
+(`{ "…:kit.melee1": 2, "…:kit.melee2": 2, "…:kit.melee3": 2 }`). Show it as one picker ("Martial
+Artist +2/+2/+2 or Mountain +0/+0/+4"), not one per field; picking an option applies that source
+on every field.
+
 should travel with the character), and pass them on every `computeSheet` call. A pick that no
 longer names an option falls back to the recommendation.
 

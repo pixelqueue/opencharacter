@@ -2131,7 +2131,10 @@ export type FieldValue = {
   }[];
   /** The field's tags on this sheet, in order: its written tags, then those its `{ formula }` entries give, each once. When its computed tags fail, the written ones. Absent when the field has none. */
   tags?: Tag[];
+    /** The option's value; for a group spanning fields, the source's score. */
   /** The field's name from its `nameFrom` string field, when that field's value is a non-empty string (a Lore's subject, "Absalom"). The field's text formats it as `{name}`. */
+    /** For a group spanning fields: the source's value on each field it reaches, by field ID. */
+    values?: Record<string, Literal>;
   name?: string;
   /** Whether the field is shown on the sheet (display-hints.md, "Shown"): its hint isn't `hidden`, its `showWhen` holds, and it is in no `fields` group or in at least one shown one. */
   shown?: boolean;
@@ -2194,14 +2197,20 @@ export type CompetingOptions = {
   op: 'set' | 'add' | 'multiply' | 'atLeast' | 'atMost';
   /** For a `playerChooses` stacking group, its stack key as written (`source` for the reserved key). Absent for competing `set` effects. */
   stackKey?: string;
+  /** The field the group is on; for a group spanning fields, the first of `fields`. */
   options: {
+  /** For a group of a stack key spanning fields: every field it reaches, in ruleset order. Absent otherwise. */
+  fields?: string[];
     id: string;
     value: Literal;
     source: Source;
   }[];
   recommended: string;
   applied?: string;
+    /** The option's value; for a group spanning fields, the source's score. */
 };
+    /** For a group spanning fields: the source's value on each field it reaches, by field ID. */
+    values?: Record<string, Literal>;
 
 export type ContinueActionInput = {
   ruleset: Ruleset;
@@ -2948,8 +2957,8 @@ export type Settings = {
   stacking?: {
     /** Policy for effects sharing a stack key that has no specific policy. Default `addAll`. */
     default?: StackingPolicy;
-    /** Policy per stack key (`source`, `item`, `status`, …). */
-    keys?: Record<string, StackingPolicy>;
+    /** Policy per stack key (`source`, `item`, `status`, …): a policy, or a key spanning fields (`{ policy, spansFields: true, score? }`). */
+    keys?: Record<string, StackingPolicy | SpanningKey>;
   };
   competing?: {
     recommend?: RecommendPolicy;
@@ -2970,6 +2979,19 @@ export type LinkSlot = {
   pack?: PackId;
   /** The fields this pack reads from the linked character, typed, so formulas type-check without the other pack; or the name of a `viewFields` set. */
   fields: DeclaredFields | ViewFieldsRef;
+/** A stack key whose group spans every field its effects target: one source counts on all of them (a kit's melee damage bonus across three tiers). The group is the key's effects of one op on every field; the policy keeps one source, by its score, and that source's effects count on every field while the others' are suppressed. `playerChooses` reports the group once as competing, one option per source. */
+export type SpanningKey = {
+  /** `highestOnly` keeps the source with the highest score, `lowestOnly` the lowest; `playerChooses` reports the sources as competing options and recommends the highest. */
+  policy: 'highestOnly' | 'lowestOnly' | 'playerChooses';
+  spansFields: true;
+  /** A source's score: `sum` (the default), its values on every field added up, or `{ field }`, its value on that one field (0 where it has none). Dice count by their average. */
+  score?:
+    | 'sum'
+    | {
+        field: FieldRef;
+      };
+};
+
 };
 
 /** One way to start creating a character: a rules action, run on a character with `creating: true`. */

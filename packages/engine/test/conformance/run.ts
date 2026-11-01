@@ -298,6 +298,7 @@ function run(dir: string): void {
       op?: string;
       stackKey?: string;
       options?: unknown[];
+      fields?: string[];
       recommended?: string;
       applied?: string;
     };
@@ -312,18 +313,25 @@ function run(dir: string): void {
           'op',
           'stackKey',
           'options',
+          'fields',
           'recommended',
           'applied',
         ]);
         const g = got[i];
         if (w.op) expect(g?.op).toBe(w.op);
         if ('stackKey' in w) expect(g?.stackKey).toBe(w.stackKey);
-        // Options are option IDs, or `{ id, value }` to check the values too.
+        if (w.fields) expect(g?.fields).toEqual(w.fields);
+        // Options are option IDs, or `{ id, value }` to check the values too, and `values` for a
+        // group spanning fields.
         if (w.options)
           expect(
-            g?.options.map((o, j) =>
-              typeof w.options?.[j] === 'string' ? o.id : { id: o.id, value: o.value },
-            ),
+            g?.options.map((o, j) => {
+              const option = w.options?.[j];
+              if (typeof option === 'string') return o.id;
+              return option && typeof option === 'object' && 'values' in option
+                ? { id: o.id, value: o.value, values: o.values }
+                : { id: o.id, value: o.value };
+            }),
           ).toEqual(w.options);
         if (w.recommended) expect(g?.recommended).toBe(w.recommended);
         if (w.applied) expect(g?.applied).toBe(w.applied);

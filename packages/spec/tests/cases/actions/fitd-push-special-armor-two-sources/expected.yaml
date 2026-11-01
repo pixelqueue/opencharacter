@@ -1,0 +1,18 @@
+# Battleborn and Fortitude both add the special-armor option; it is offered once, Battleborn's.
+# The recommendation is still the rules' stress.
+status: paused
+needs:
+  step: pushCost
+  action: fitd-scoundrel:action-roll
+  kind: choice
+  options: [stress, 'fitd-scoundrel:special-abilities.battleborn#special-armor']
+  recommended: stress
+log:
+  - step: roll
+    action: fitd-scoundrel:action-roll
+    kind: dice
+    by: engine
+    faces: [2, 4, 6]
+    total: 6
+    band: success
+    bandSet: fitd-scoundrel:action

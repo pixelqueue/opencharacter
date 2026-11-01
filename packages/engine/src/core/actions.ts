@@ -33,6 +33,7 @@ import {
   innerSteps,
   optionQuery,
   pendingSource,
+  stackPolicy,
   thenRule,
   valueSource,
   writtenOptions,
@@ -2537,10 +2538,9 @@ function stack<T extends { instance: EffectInstance; effect: Effect; pack: strin
       groups.set(group, [...(groups.get(group) ?? []), c]);
     }
   }
-  const settings = ctx.ruleset.rules.settings.stacking;
   for (const group of groups.values()) {
     const key = group[0]?.effect.stackKey as string;
-    const policy = settings?.keys?.[key] ?? settings?.default ?? 'addAll';
+    const { policy } = stackPolicy(ctx.ruleset.rules.settings, key);
     if (policy === 'addAll' || group.length === 1) {
       out.push(...group);
       continue;
