@@ -1,0 +1,32 @@
+description: "A content group with members is shown whatever its `showWhen`: a spell held by a character the spells group doesn't apply to still shows, while the empty relics group stays hidden"
+specVersion: 0.1.0
+call: computeSheet
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        fields:
+          magic.level: { type: integer, input: true, default: 0 }
+        contentTypes:
+          spell: { carried: false }
+          relic: { carried: true }
+        display:
+          groups:
+            - id: spells
+              kind: content
+              priority: 1
+              showWhen: magic.level > 0
+              members: { type: spell }
+            - id: relics
+              kind: content
+              priority: 1
+              showWhen: magic.level > 0
+              members: { type: relic }
+      content:
+        - { id: spells.light, type: spell }
+        - { id: relics.bone, type: relic }

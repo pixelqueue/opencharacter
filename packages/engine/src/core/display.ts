@@ -275,7 +275,11 @@ export function display(
     } else if (actions) {
       if (kind === 'actions')
         group.actions = actionMembers(sheet, def.members?.where, def.pack, actions);
-      else group.items = contentMembers(sheet, def, listed);
+      else {
+        group.items = contentMembers(sheet, def, listed);
+        // Held content never disappears: a content group with members is shown.
+        if (group.items.length > 0) group.shown = true;
+      }
     }
     return group;
   });

@@ -21,7 +21,7 @@ display:
 
 - `label` is a translation key; the default is `groups.<id>.label`.
 - A field joins a group by listing the group in its own hints (`fields.<id>.groups`), or by matching the group's `members` query. A query lets homebrew join automatically.
-- A field may belong to several groups, such as AC in both `combat` and `summary`.
+- A field may belong to several groups, such as AC in both `combat` and `summary`. It shows in each: the repeat is the pack's intent (a summary strip repeats headline values from their sections), so an app doesn't dedupe. A pack lists a field in more than one group only for such a repeat.
 - `showWhen` is a condition: the Spellcasting group hides itself for a fighter.
 
 ### Group kinds
@@ -97,7 +97,7 @@ display:
   still exists: an "Other" section keeps homebrew from disappearing. A template on a copy isn't
   such an item: it shows with its copy (above).
 - **Empty groups**: `showWhen` says whether a group applies to the character; members
-  don't. A pack gives `showWhen` to a group that applies to some characters only (a
+  don't, except that a content group with members always shows ([Shown](#shown)). A pack gives `showWhen` to a group that applies to some characters only (a
   dragonborn's ancestry), true from when the character can gain its members (before the pick is
   made). A group that applies but has no members on this character (no feats yet, nothing
   applied) may be shown empty or collapsed, or hidden, as the app likes; an app shouldn't need
@@ -168,7 +168,9 @@ computeSheet evaluates `hidden`, `showWhen`, `members`, `sectionBy` and `sortBy`
 ([engine-core.md](engine-core.md#display)), so every app shows the same sheet:
 
 - **A group is shown** when its `showWhen` holds, or it has none. This holds for groups of every
-  kind.
+  kind, with one exception: a content group with members is shown whatever its `showWhen`, so
+  content the character holds never disappears (a spell added from the catalog to a character
+  whose spells group applies to casters only).
 - **A fields group's members** are the fields whose hint lists it in `groups` and those its
   `members` query matches. The query's `where` sees `item` as `{ id, type, tags }`, the field's
   tags on the sheet (computed ones included), and the character's fields and copies.

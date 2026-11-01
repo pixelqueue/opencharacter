@@ -116,7 +116,8 @@ The rules for using them ([Display hints](../../../packages/spec/docs/display-hi
 1. **Groups** are sections of the sheet (`abilities`, `combat`, `skills`). A field belongs to a
    group if its hint lists the group in `groups`, or if it matches the group's `members` query;
    `sheet.groups` lists each fields group's members for you. A field can be in several groups:
-   AC is in both `combat` and `summary`.
+   AC is in both `combat` and `summary`. Show it in each; the repeat is intended, so don't
+   dedupe.
 2. **Priority:** 0 is most important, then 1, 2, … Sort groups by priority. Sort fields within a
    group by their own priority. Ties keep their written order (pack load order last), so every app
    shows the same order.
@@ -202,8 +203,8 @@ for (const group of sheet.groups) {
 ```
 
 - **`sheet.groups`** lists every group in ruleset order as `{ id, shown, fields?, actions?,
-  items? }`. `shown` is its `showWhen`. The members are listed whether the group is shown or
-  not.
+  items? }`. `shown` is its `showWhen`, and always true for a content group with members, so
+  held content never disappears. The members are listed whether the group is shown or not.
 - **`values[id].shown`** is false for a hidden field, a field whose `showWhen` is false, and a
   field whose every group is hidden. A field in no group shows in your "Other" section.
 - **Actions and content in no group** (no group's `actions` or `items` names them) go in
