@@ -1,0 +1,46 @@
+description: "Changes content adds to a content action's tagged step offer a follow-up the adding content doesn't declare: it is the follow-up of the content defining the action, with that content's source"
+specVersion: 0.3.0
+call: startAction
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.3.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        tags: [zap]
+        contentTypes:
+          charm: { carried: true }
+        actions:
+          - id: steady
+            results: [steady]
+            steps:
+              - { id: result, kind: outcome, result: "'steady'" }
+        followUps:
+          - id: spark
+            action: steady
+      content:
+        # The wand's zap offers nothing itself; it declares `spark`, as the rules do.
+        - id: charms.wand
+          type: charm
+          actions:
+            - id: zap
+              results: [zapped]
+              steps:
+                - { id: hit, kind: changes, tags: [zap], changes: [] }
+                - { id: result, kind: outcome, result: "'zapped'" }
+          followUps:
+            - id: spark
+              action: steady
+        - id: charms.ember
+          type: charm
+          effects:
+            - target: { steps: [zap] }
+              op: changes
+              value:
+                changes:
+                  - { type: offerFollowUp, followUp: spark }
+input:
+  action: { id: 'test-pack:charms.wand#zap', entry: wand-1 }

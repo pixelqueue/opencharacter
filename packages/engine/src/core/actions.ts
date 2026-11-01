@@ -3595,20 +3595,27 @@ function offerFollowUp(
 ): Change | undefined {
   if (!test(ctx, frame, change.when, bound)) return undefined;
   const ref = change.followUp ?? '';
-  const owner: Source | undefined =
-    frame.adder ?? (frame.qid.includes('#') ? frame.activation?.source : undefined);
+  const owners = [frame.adder, frame.qid.includes('#') ? frame.activation?.source : undefined];
+  let owner: Source | undefined;
   let id: string | undefined;
   let def: FollowUp | undefined;
-  if (owner && owner.type !== 'rules' && owner.id !== undefined) {
-    const item = ctx.ruleset.content[owner.id];
-    def = item?.followUps?.find((fu: FollowUp) => fu.id === ref);
-    if (item && def) id = `${item.qid}#${ref}`;
-    else if (item) {
+  for (const candidate of owners) {
+    if (!candidate || candidate.type === 'rules' || candidate.id === undefined) continue;
+    const item = ctx.ruleset.content[candidate.id];
+    if (!item) continue;
+    def = item.followUps?.find((fu: FollowUp) => fu.id === ref);
+    if (def) id = `${item.qid}#${ref}`;
+    else {
       const type = ctx.ruleset.contentTypes[item.type];
       def = type?.followUps?.find((fu: FollowUp) => fu.id === ref);
       if (type && def) id = `${type.pack}:${type.name}#${ref}`;
     }
-  } else {
+    if (id) {
+      owner = candidate;
+      break;
+    }
+  }
+  if (!id) {
     const qid = ref.includes(':') ? ref : `${frame.pack}:${ref}`;
     def = ctx.ruleset.rules.followUps.find((fu) => `${fu.pack}:${fu.id}` === qid);
     if (def) id = qid;
@@ -3624,7 +3631,7 @@ function offerFollowUp(
   return {
     type: 'offerFollowUp',
     followUp: id,
-    ...(owner && owner.type !== 'rules' && owner.id !== undefined ? { source: owner } : {}),
+    ...(owner ? { source: owner } : {}),
     ...(change.params ? { params: values } : {}),
   } as Change;
 }

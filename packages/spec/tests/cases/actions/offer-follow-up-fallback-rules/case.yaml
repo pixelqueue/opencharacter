@@ -1,0 +1,39 @@
+description: "Changes content adds to a rules action's tagged step offer a follow-up neither the content nor its type declares: it is the rules', with no source"
+specVersion: 0.3.0
+call: startAction
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.3.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        tags: [swing]
+        contentTypes:
+          charm: { carried: true }
+        actions:
+          - id: steady
+            results: [steady]
+            steps:
+              - { id: result, kind: outcome, result: "'steady'" }
+          - id: swing
+            results: [swung]
+            steps:
+              - { id: hit, kind: changes, tags: [swing], changes: [] }
+              - { id: result, kind: outcome, result: "'swung'" }
+        followUps:
+          - id: recover
+            action: steady
+      content:
+        - id: charms.ember
+          type: charm
+          effects:
+            - target: { steps: [swing] }
+              op: changes
+              value:
+                changes:
+                  - { type: offerFollowUp, followUp: recover }
+input:
+  action: { id: test-pack:swing }

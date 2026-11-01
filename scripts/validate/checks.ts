@@ -132,6 +132,11 @@ export class PackChecker {
   private contentOwner: string | undefined;
   private offerable: FollowUp[] | undefined;
 
+  /** The pack's rules follow-ups: the last place an offered follow-up is looked for. */
+  private rulesFollowUps(): FollowUp[] {
+    return (this.ruleset.rules.get(this.packId)?.followUps ?? []).map(({ def }) => def);
+  }
+
   constructor(
     private readonly ruleset: Ruleset,
     private readonly report: Reporter,
@@ -338,7 +343,7 @@ export class PackChecker {
           this.report.error(file, `${where}: duplicate effect id "${effect.id}"`);
         if (effect.id !== undefined) ids.add(effect.id);
       }
-      this.offerable = def.followUps ?? [];
+      this.offerable = [...(def.followUps ?? []), ...this.rulesFollowUps()];
       this.contentOwner = `types.${name}`;
       for (const effect of def.effects ?? []) this.effect(effect, file, where);
       this.contentOwner = undefined;
@@ -948,7 +953,11 @@ export class PackChecker {
       typeName && !BUILT_IN_TYPES.has(typeName)
         ? this.ruleset.contentType(typeName, this.scope)
         : undefined;
-    this.offerable = [...(item.followUps ?? []), ...(itemType?.def.followUps ?? [])];
+    this.offerable = [
+      ...(item.followUps ?? []),
+      ...(itemType?.def.followUps ?? []),
+      ...this.rulesFollowUps(),
+    ];
     for (const effect of item.effects ?? []) this.effect(effect, file, owner);
     this.followUps(
       (item.followUps ?? []).map((fu) => ({ def: fu, file })),

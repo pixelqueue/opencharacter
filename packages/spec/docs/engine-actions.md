@@ -449,13 +449,14 @@ it in a flag before the roll.
     as `source` is, but must name a template (`unknown-reference` otherwise, data: `id`).
     `setExtension` can't be proposed: extension data is an app's;
   - an `offerFollowUp` names its follow-up: one the content declares (or its
-    content type) whose added option or added changes propose it, else
-    the content defining the action (`<item>#<action>`), else the rules (a local ID qualified
-    against the action's pack). It is resolved to `{ type: offerFollowUp, followUp, source?,
+    content type) whose added option or added changes propose it, else one
+    the content defining the action (`<item>#<action>`) declares (or its content type), else the
+    rules' (a local ID qualified against the action's pack). The first that declares it wins, so
+    content adding to a rules action can offer the rules' follow-up. It is resolved to `{ type: offerFollowUp, followUp, source?,
     params? }`: the qualified follow-up ID (`<content>#<id>`, `<pack>:<type>#<id>`,
     `<pack>:<id>`), the content's source as computeSheet names it, and `params` evaluated (one
-    giving `null` left out). It is proposed `to: self` whatever the step's `to`. A follow-up the
-    owner doesn't declare, or a derived one, is `unknown-reference` (data: `followUp`);
+    giving `null` left out). It is proposed `to: self` whatever the step's `to`. A follow-up none of
+    them declares, or a derived one, is `unknown-reference` (data: `followUp`);
   - `entry: picked`, in a choice step's `changes` over copies, becomes the picked instance ID;
   - a `choose` or `unchoose` resolves its `path`: `path.entry` like `entry` (`self`, `picked`
     or an instance ID; left out for a rules-level choice) and `path.choice` as written, or, given

@@ -71,4 +71,42 @@ describe('pnpm validate on content reaching shared definitions', () => {
     });
     expect(errors).toEqual([]);
   });
+
+  it("accepts content's added changes offering the rules' follow-up", () => {
+    const errors = validate({
+      [`${pack}/rules/core.yaml`]: [
+        'tags: [swing]',
+        'fields:',
+        '  swings: { type: integer, input: true, default: 0 }',
+        'contentTypes:',
+        '  charm: { carried: true }',
+        'actions:',
+        '  - id: steady',
+        '    results: [steady]',
+        `    steps: [{ id: result, kind: outcome, result: "'steady'" }]`,
+        '  - id: swing',
+        '    steps:',
+        '      - id: hit',
+        '        kind: changes',
+        '        tags: [swing]',
+        '        changes: [{ type: adjust, field: swings, by: 1 }]',
+        'followUps:',
+        '  - { id: recover, action: steady }',
+      ].join('\n'),
+      [`${pack}/content/charms/ember.yaml`]: [
+        'id: charms.ember',
+        'type: charm',
+        'effects:',
+        '  - target: { steps: [swing] }',
+        '    op: changes',
+        '    value: { changes: [{ type: offerFollowUp, followUp: recover }] }',
+        '  - target: { steps: [swing] }',
+        '    op: changes',
+        '    value: { changes: [{ type: offerFollowUp, followUp: nowhere }] }',
+      ].join('\n'),
+    });
+    expect(errors).toEqual([
+      `${pack}/content/charms/ember.yaml: charms.ember effect: offers unknown follow-up "nowhere"`,
+    ]);
+  });
 });
