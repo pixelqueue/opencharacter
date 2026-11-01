@@ -209,13 +209,13 @@ actions:
         when: >-
           has(steps.damage)
             && ((has(item.sepsis) && item.sepsis) || (has(item.skullSmash) && item.skullSmash))
-        tags: [attack]
+        tags: [chance]
         parts:
           - dice: 1d6
       - id: curse
         kind: roll
         when: has(item.cursed) && item.cursed
-        tags: [attack]
+        tags: [chance]
         parts:
           - dice: 1d6
       - id: slay
@@ -269,7 +269,7 @@ actions:
       - id: warding
         kind: roll
         when: has(steps.ward) && steps.ward.picked == 'reduce'
-        tags: [defense]
+        tags: [chance]
         parts:
           - dice: 1d6
       - id: spend

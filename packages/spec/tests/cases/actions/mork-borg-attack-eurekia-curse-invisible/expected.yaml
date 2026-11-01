@@ -1,0 +1,21 @@
+# 11 + 1 (Strength) + 6 (invisible) = 18 hits. The curse d6 is a 1, untouched: Hamfund is slain
+# and Eurekia vanishes.
+status: finished
+outcome:
+  result: success
+  data: { damage: 7, sepsis: false, skullSmashed: false }
+proposedChanges:
+  - to: target
+    step: deal
+    change: { type: adjust, field: mork-borg-core:hp.current, by: -7, tags: [damage] }
+  - to: { link: mork-borg-core:hamfund }
+    character: example-hamfund
+    step: slay
+    change: { type: set, field: mork-borg-core:hp.current, value: -1 }
+  - to: self
+    step: vanish
+    change: { type: removeItem, entry: eurekia }
+log:
+  - { step: check/check, kind: dice, faces: [11], total: 18 }
+  - { step: damage, kind: dice, faces: [3, 4], total: 7 }
+  - { step: curse, kind: dice, faces: [1], total: 1 }

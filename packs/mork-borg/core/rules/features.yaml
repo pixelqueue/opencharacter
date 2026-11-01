@@ -88,7 +88,7 @@ actions:
     available: features.wizardTeeth
     results: [rolled]
     steps:
-      - { id: teeth, kind: roll, tags: [attack], parts: [{ dice: 4d6 }] }
+      - { id: teeth, kind: roll, tags: [chance], parts: [{ dice: 4d6 }] }
       - id: charge
         kind: changes
         to: self
@@ -176,7 +176,7 @@ actions:
       - id: blind
         kind: roll
         when: "steps.check.result == 'success' || steps.check.result == 'crit'"
-        tags: [attack]
+        tags: [chance]
         parts: [{ dice: 1d4 }]
       - id: allies
         kind: action
