@@ -2503,6 +2503,8 @@ function balancedBraces(text: string): boolean {
 
 export class CharacterChecker {
   private scope: string[] = [];
+  /** Choice trees that a computed grant reaches. */
+  private readonly computed = new WeakSet<Map<string, Choice>>();
 
   constructor(
     private readonly ruleset: Ruleset,
@@ -2668,7 +2670,7 @@ export class CharacterChecker {
    * Choices whose picks live in one tree: the tree's own item uses bare choice IDs; templates and
    * granted content use `<qualified owner id>/<choice id>`.
    */
-  private choicesOf(owners: ContentEntry[]): Map<string, Choice> {
+  private choicesOf(owners: ContentEntry[], ownFirst = true): Map<string, Choice> {
     const result = new Map<string, Choice>();
     const seen = new Set<string>();
     const visit = (entry: ContentEntry, own: boolean) => {
@@ -2682,18 +2684,36 @@ export class CharacterChecker {
         : [];
       for (const grant of [...typeGrants, ...(entry.item.grants ?? [])]) {
         // A grant of applied content isn't held, so its choices aren't the copy's.
-        if (grant.scope === 'applied' || typeof grant.item !== 'string') continue;
+        if (grant.scope === 'applied') continue;
+        // A computed grant (formula or query) gives content only the character shows.
+        if (typeof grant.item !== 'string') {
+          this.computed.add(result);
+          continue;
+        }
         const granted = this.ruleset.item(grant.item, this.ruleset.scope(entry.pack));
         if (granted) visit(granted, false);
       }
     };
-    owners.forEach((owner, i) => visit(owner, i === 0));
+    owners.forEach((owner, i) => visit(owner, ownFirst && i === 0));
     return result;
+  }
+
+  /**
+   * In a tree with a computed grant, a `<qualified id>/<choice id>` key names any visible
+   * content's choice: what the grant gives depends on the character, as the engine works it out.
+   */
+  private grantedChoice(allowed: Map<string, Choice>, key: string): Choice | undefined {
+    if (!this.computed.has(allowed)) return undefined;
+    const slash = key.indexOf('/');
+    if (slash < 0) return undefined;
+    const hit = this.ruleset.content.get(key.slice(0, slash));
+    if (!hit || !this.scope.includes(hit.pack)) return undefined;
+    return this.choicesOf([hit], false).get(key);
   }
 
   private tree(tree: ChoiceTree, allowed: Map<string, Choice>, file: string, where: string): void {
     for (const [choiceId, picks] of Object.entries(tree)) {
-      const choice = allowed.get(choiceId);
+      const choice = allowed.get(choiceId) ?? this.grantedChoice(allowed, choiceId);
       const path = `${where}.choices.${choiceId}`;
       if (!choice) {
         this.report.error(file, `${path}: no such choice here`);
