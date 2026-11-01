@@ -1,0 +1,44 @@
+description: grantsToCopies gives content granted twice two copies with their own instance IDs, and handles each holder's grants once however many of its steps name the holder
+specVersion: 0.1.0
+call: upgrade
+from:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        contentTypes:
+          monster: {}
+          action: {}
+      content:
+        - id: monsters.hydra
+          type: monster
+          grants:
+            - item: actions.bite
+            - item: actions.bite
+        - { id: actions.bite, type: action }
+to:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 2.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        contentTypes:
+          monster: {}
+          action: {}
+      content:
+        - { id: monsters.hydra, type: monster }
+        - { id: actions.bite, type: action }
+      upgrades:
+        - pack: test-pack
+          from: 1.0.0
+          to: 2.0.0
+          steps:
+            - { op: grantsToCopies, type: monster }
+            - { op: grantsToCopies, item: monsters.hydra }

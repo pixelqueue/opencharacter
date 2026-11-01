@@ -1,0 +1,60 @@
+description: grantsToCopies reads the old release's IDs through the renames before it, reports content it can't copy and drops its saved state, and leaves state of content the holder still grants on the holder
+specVersion: 0.1.0
+call: upgrade
+from:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        contentTypes:
+          monster: {}
+          action:
+            state:
+              used: { type: integer, default: 0, min: 0 }
+      content:
+        - id: monsters.ogre
+          type: monster
+          grants:
+            - item: actions.club
+            - item: actions.howl
+        - id: actions.club
+          type: action
+          grants:
+            - item: actions.smash
+        - { id: actions.smash, type: action }
+        - { id: actions.howl, type: action }
+to:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 2.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        contentTypes:
+          monster: {}
+          action:
+            state:
+              used: { type: integer, default: 0, min: 0 }
+      content:
+        - id: monsters.ogre
+          type: monster
+          grants:
+            - item: actions.smash
+        - id: actions.cudgel
+          type: action
+          grants:
+            - item: actions.smash
+        - { id: actions.smash, type: action }
+      upgrades:
+        - pack: test-pack
+          from: 1.0.0
+          to: 2.0.0
+          steps:
+            - { op: renameContent, from: actions.club, to: actions.cudgel }
+            - { op: grantsToCopies, type: monster }

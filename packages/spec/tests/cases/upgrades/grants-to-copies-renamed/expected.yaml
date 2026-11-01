@@ -1,0 +1,18 @@
+# The club, renamed the cudgel, becomes a copy with its state. The ogre grants the smash itself
+# now, so the smash's state stays on the ogre. The howl is gone: no copy, its state dropped, and
+# reported.
+ok: true
+character:
+  features:
+    - id: ogre
+      item: test-pack:monsters.ogre
+      grants:
+        test-pack:actions.smash: { state: { used: 2 } }
+    - { id: actions-cudgel-1, item: test-pack:actions.cudgel, state: { used: 1 } }
+pending: []
+report:
+  values: []
+  steps:
+    - { pack: test-pack, from: 1.0.0, to: 2.0.0, op: renameContent }
+    - { pack: test-pack, from: 1.0.0, to: 2.0.0, op: grantsToCopies }
+  errors: [grant-not-copied]

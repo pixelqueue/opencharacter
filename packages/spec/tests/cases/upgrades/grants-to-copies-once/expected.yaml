@@ -1,0 +1,14 @@
+# One copy per grant, each with an ID of its own; the second step finds the hydra's grants
+# handled and changes nothing.
+ok: true
+character:
+  features:
+    - { id: hydra, item: test-pack:monsters.hydra }
+    - { id: actions-bite-1, item: test-pack:actions.bite }
+    - { id: actions-bite-2, item: test-pack:actions.bite }
+pending: []
+report:
+  values: []
+  steps:
+    - { pack: test-pack, from: 1.0.0, to: 2.0.0, op: grantsToCopies }
+  errors: []

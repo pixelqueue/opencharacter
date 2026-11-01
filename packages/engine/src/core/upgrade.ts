@@ -130,6 +130,13 @@ export function upgrade(from: Ruleset, to: Ruleset, saved: CharacterDoc): Upgrad
     homebrew: [],
   };
   const renamedFields = new Map<string, string>();
+  const ctx: StepContext = {
+    renamedFields,
+    renamedContent: new Map(),
+    entryWas: new Map(),
+    copied: new Map(),
+    errors: [],
+  };
   const rewriter = new HomebrewRewriter(next, from, to, homebrewFormulas(from));
 
   for (const pin of next.packs) {
@@ -148,7 +155,7 @@ export function upgrade(from: Ruleset, to: Ruleset, saved: CharacterDoc): Upgrad
       if (!script) break;
       for (const raw of script.steps) {
         const step = raw as Step;
-        const changed = applyStep(step, script.pack, next, from, to, old, renamedFields, rewriter);
+        const changed = applyStep(step, script.pack, next, from, to, old, ctx, rewriter);
         const rewritten = rewriter.apply(step, script.pack);
         for (const path of rewritten) report.homebrew.push({ path, step });
         if (changed || rewritten.length > 0) {
@@ -181,7 +188,7 @@ export function upgrade(from: Ruleset, to: Ruleset, saved: CharacterDoc): Upgrad
   for (const id of Object.keys(before))
     if (!seenOld.has(id)) report.values.push(valueChange(id, before[id]));
   report.values.sort((x, y) => (x.field < y.field ? -1 : x.field > y.field ? 1 : 0));
-  report.errors = [...(layeredTo.ok ? [] : layeredTo.errors), ...after.errors];
+  report.errors = [...ctx.errors, ...(layeredTo.ok ? [] : layeredTo.errors), ...after.errors];
   return { ok: true, character: next, pending: after.pending().pending, report };
 }
 
@@ -385,17 +392,20 @@ function renameGrant(c: CharacterDoc, from: string, to?: string): boolean {
  * grants in turn. Its instance ID is `<local id with dots as hyphens>-<n>`, the smallest unused n.
  */
 function grantToCopy(
-  c: CharacterDoc,
   to: Ruleset,
   holder: Entry,
   granted: { item: string; defaults: Record<string, Literal>; nested: string[] },
   item: NonNullable<Ruleset['content'][string]>,
+  used: Set<string>,
+  still: Map<string, Set<string>>,
 ): Entry {
-  const used = new Set([...allEntries(c).map((e) => e.id), ...(c.applied ?? []).map((a) => a.id)]);
   const stem = granted.item.slice(granted.item.indexOf(':') + 1).replaceAll('.', '-');
   let n = 1;
   while (used.has(`${stem}-${n}`)) n++;
+  used.add(`${stem}-${n}`);
   const copy: Entry = { id: `${stem}-${n}`, item: granted.item };
+  // Content the holder still grants itself keeps its saved state and picks there.
+  const nested = granted.nested.filter((id) => !still.has(id));
   const decls = stateDecls(to, item, []);
   const state: Record<string, Literal> = {};
   for (const [key, value] of Object.entries({
@@ -405,17 +415,17 @@ function grantToCopy(
     if (Object.hasOwn(decls, key)) state[key] = value;
   if (Object.keys(state).length > 0) copy.state = state;
   if (holder.grants) delete holder.grants[granted.item];
-  for (const nested of granted.nested) {
-    const saved = holder.grants?.[nested];
+  for (const id of nested) {
+    const saved = holder.grants?.[id];
     if (!saved || !holder.grants) continue;
-    copy.grants = { ...copy.grants, [nested]: saved };
-    delete holder.grants[nested];
+    copy.grants = { ...copy.grants, [id]: saved };
+    delete holder.grants[id];
   }
   const own = `${granted.item}/`;
   for (const key of Object.keys(holder.choices ?? {})) {
     const tree = holder.choices as ChoiceTree;
     const bare = key.startsWith(own) ? key.slice(own.length) : undefined;
-    if (bare === undefined && !granted.nested.some((id) => key.startsWith(`${id}/`))) continue;
+    if (bare === undefined && !nested.some((id) => key.startsWith(`${id}/`))) continue;
     copy.choices = { ...copy.choices, [bare ?? key]: tree[key] as Pick[] };
     delete tree[key];
   }
@@ -509,6 +519,20 @@ function renameKey(tree: ChoiceTree, from: string, to: string): boolean {
   return true;
 }
 
+/** What the steps applied so far leave for later ones. */
+interface StepContext {
+  /** Old field ID → its ID now. */
+  renamedFields: Map<string, string>;
+  /** Old content ID → its ID now, through every renameContent so far. */
+  renamedContent: Map<string, string>;
+  /** An entry's ID now → its ID in the saved file (adoptStandard renames entries). */
+  entryWas: Map<string, string>;
+  /** By the holder's original entry ID: the old granted content grantsToCopies has handled. */
+  copied: Map<string, Set<string>>;
+  /** Reported in `report.errors`. */
+  errors: EngineError[];
+}
+
 function applyStep(
   step: Step,
   pack: string,
@@ -516,9 +540,10 @@ function applyStep(
   from: Ruleset,
   to: Ruleset,
   old: Sheet,
-  renamedFields: Map<string, string>,
+  ctx: StepContext,
   rewriter: HomebrewRewriter,
 ): boolean {
+  const { renamedFields } = ctx;
   const q = (local: string) => (local.includes(':') ? local : `${pack}:${local}`);
   // A picked option: content as a qualified ID, else an inline option or value as written.
   const option = (o: string | number) =>
@@ -535,6 +560,8 @@ function applyStep(
     case 'renameContent': {
       const a = q(step.from as string);
       const b = q(step.to as string);
+      for (const [was, now] of ctx.renamedContent) if (now === a) ctx.renamedContent.set(was, b);
+      if (!ctx.renamedContent.has(a)) ctx.renamedContent.set(a, b);
       for (const e of allEntries(c)) {
         if (e.item === a) {
           e.item = b;
@@ -686,16 +713,40 @@ function applyStep(
       return changed;
     }
     case 'grantsToCopies': {
+      // Old-release IDs, as renamed by the steps so far; content an earlier grantsToCopies
+      // handled on the holder is skipped.
+      const now = (id: string) => ctx.renamedContent.get(id) ?? id;
+      const used = new Set([
+        ...allEntries(c).map((e) => e.id),
+        ...(c.applied ?? []).map((a) => a.id),
+      ]);
       for (const list of ['features', 'inventory'] as const)
         for (const holder of c[list] ?? []) {
           if (!holds(holder.item)) continue;
+          const original = ctx.entryWas.get(holder.id) ?? holder.id;
+          const done = ctx.copied.get(original) ?? new Set<string>();
+          ctx.copied.set(original, done);
+          // Handled by an earlier step; content granted twice is copied twice by this one.
+          const earlier = new Set(done);
           const still = heldGrants(to, holder);
           const made: Record<'features' | 'inventory', Entry[]> = { features: [], inventory: [] };
-          for (const granted of old.directGrants(holder.id)) {
+          for (const raw of old.directGrants(original)) {
+            if (earlier.has(raw.item)) continue;
+            const granted = { ...raw, item: now(raw.item), nested: raw.nested.map(now) };
             if (still.has(granted.item)) continue;
+            done.add(raw.item);
             const item = to.content[granted.item];
-            if (!item || item.grantOnly) continue;
-            const copy = grantToCopy(c, to, holder, granted, item);
+            if (!item || item.grantOnly) {
+              // No copy: its saved grant state goes, reported.
+              if (holder.grants?.[granted.item]) delete holder.grants[granted.item];
+              ctx.errors.push({
+                code: 'grant-not-copied',
+                data: { entry: holder.id, item: granted.item },
+              });
+              changed = true;
+              continue;
+            }
+            const copy = grantToCopy(to, holder, granted, item, used, still);
             made[to.contentTypes[item.type]?.carried ? 'inventory' : 'features'].push(copy);
             changed = true;
           }
@@ -788,6 +839,7 @@ function applyStep(
       const linked = pickLinks(c);
       const entry = allEntries(c).find((e) => e.item === item && !linked.has(e.id));
       if (!entry) return false;
+      ctx.entryWas.set(id, ctx.entryWas.get(entry.id) ?? entry.id);
       entry.id = id;
       return true;
     }

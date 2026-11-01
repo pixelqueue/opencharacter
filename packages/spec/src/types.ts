@@ -2578,7 +2578,7 @@ export type UpgradeOutput =
             step: SpecUpgradeStep;
           }[];
         };
-        /** The upgraded character's computeSheet errors (references no script handled). */
+        /** The upgraded character's computeSheet errors (references no script handled), after `grant-not-copied` for each granted content a grantsToCopies step couldn't copy. */
         errors?: EngineError[];
         /** Each place in the character's homebrew a step rewrote, in order. */
         homebrew?: {
@@ -3288,6 +3288,7 @@ export type ErrorCode =
   | 'conflicting-roll-modifiers'
   | 'no-upgrade-path'
   | 'character-spec-unsupported'
+  | 'grant-not-copied'
   | 'version-not-increased'
   | 'version-bump-too-small'
   | 'missing-upgrade-script'

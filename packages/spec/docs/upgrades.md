@@ -243,8 +243,12 @@ its `monster` item, and is now copied onto the sheet when the monster is created
 copy the step names, content its item or type granted it directly on the old release (the grants
 whose `when` held on the old sheet, their `forEach` and formula items resolved, not the grants of
 its templates, picks or inline options) becomes a copy when the copy doesn't hold it by a holder
-grant on the new release (a grant whose `item` is a formula isn't followed). Content missing
-from the new release, or grant-only there, gets no copy. Each new copy:
+grant on the new release (a grant whose `item` is a formula isn't followed). The old release's
+IDs are read through the `renameContent` steps before it on the upgrade's path, scripts
+included. Content still missing from the new release, or grant-only there, gets no copy: its
+saved grant state is dropped and the report's `errors` has `grant-not-copied` (`data`: `entry`,
+`item`). Each holder's granted content is handled once per upgrade: a later `grantsToCopies`
+that names the holder again (listed twice, or by `item` after `type`) skips it. Each new copy:
 
 - goes right after its holder when both go in the same list (`features` or `inventory`, by the
   new type's `carried`), else at the end of its list, in grant order;
@@ -253,7 +257,8 @@ from the new release, or grant-only there, gets no copy. Each new copy:
 - takes as its `state` the grant's `state` values, overridden by the saved state of the
   granted content on the holder (`grants`), each key the content declares on the new release;
 - takes the picks saved in the holder's tree under `<qualified id>/<choice>` as its own
-  (`<choice>`), and the saved state and picks of content it grants in turn.
+  (`<choice>`), and the saved state and picks of content it grants in turn, except content the
+  holder still grants itself on the new release, which keeps its state there.
 
 That state and those picks leave the holder. A grant's preset picks aren't saved and don't
 carry over: the new copy's choices are its own.
@@ -312,7 +317,9 @@ ruleset to move it to. See [`engine/upgrade.schema.json`](../schemas/engine/upgr
    - **`spec`:** when the character's `specVersion` changed, `{ from, steps }`: the version it
      had, and each spec upgrade step that changed it, as `{ version, step }`. Absent for a
      character already at `SPEC_VERSION`.
-   - **`errors`:** the upgraded character's `computeSheet` errors (a reference no script handled).
+   - **`errors`:** `grant-not-copied` for each granted content a `grantsToCopies` step couldn't
+     copy ([above](#granted-content-to-copies)), then the upgraded character's `computeSheet`
+     errors (a reference no script handled).
      For a character with homebrew, `homebrew-error` for each load error of the homebrew on `to`;
      the upgraded character is still returned, so the app can show the report and let the player
      fix the custom content.
