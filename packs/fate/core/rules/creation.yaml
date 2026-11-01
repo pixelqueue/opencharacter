@@ -18,11 +18,32 @@ actions:
         kind: allocate
         fields: { type: field, where: "'skill' in item.tags" }
         values: [4, 3, 3, 2, 2, 2, 1, 1, 1, 1]
+        # A fighter: Great Fight; Good Athletics and Physique; Fair Will, Notice and Shoot;
+        # Average Empathy, Rapport, Stealth and Lore.
+        recommend:
+          skills.fight: 4
+          skills.athletics: 3
+          skills.physique: 3
+          skills.will: 2
+          skills.notice: 2
+          skills.shoot: 2
+          skills.empathy: 1
+          skills.rapport: 1
+          skills.stealth: 1
+          skills.lore: 1
+      # Recommends written stunts for the recommended pyramid's top skills (Fight, Athletics,
+      # Physique), then any written stunt; never the custom one.
       - id: stunts
         kind: choice
         tags: [creation.stunts]
         options: { content: { type: stunt, where: picks == 0 } }
         repeat: { max: 3 }
+        recommend: >-
+          size(filterList(options, itemField(x, 'shape', '') != 'custom'
+            && itemField(x, 'skill', '') in [@skills.fight, @skills.athletics, @skills.physique])) > 0
+            ? filterList(options, itemField(x, 'shape', '') != 'custom'
+              && itemField(x, 'skill', '') in [@skills.fight, @skills.athletics, @skills.physique])[0]
+            : filterList(options, itemField(x, 'shape', '') != 'custom')[0]
         changes:
           - type: addItem
             entry: { item: picked.id }

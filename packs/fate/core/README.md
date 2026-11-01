@@ -108,7 +108,10 @@ the player's choices and other characters.
   of play views.
   - **Guided:** the starting pyramid (the values 4, 3, 3, 2, 2, 2, 1, 1, 1, 1, each to a
     different skill), up to three free stunts and, if the player wants, one or two more at a
-    point of refresh each; fate points equal to the refresh.
+    point of refresh each; fate points equal to the refresh. It recommends a fighter (Great
+    Fight; Good Athletics and Physique; Fair Will, Notice and Shoot; Average Empathy, Rapport,
+    Stealth and Lore), written stunts for Fight, Athletics or Physique first, and no stunt past
+    the free three, so run automatically it finishes.
   - **Random:** the SRD has players choose, so the odds are the pack's. The pyramid's ten
     ratings go to ten skills drawn without replacement (every skill equally likely, a setting
     pack's included), and three stunts are drawn from the written stunts: the SRD's 17
