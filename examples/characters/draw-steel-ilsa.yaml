@@ -1,0 +1,81 @@
+# A first-level high elf telekinetic talent with the Quick Build picks (sage career), made by the
+# guided start. In the second round of a fight she is at -1 clarity: strained (her minimum is
+# -(1 + Reason), -3).
+specVersion: 0.3.0
+id: example-draw-steel-ilsa
+packs:
+  - id: draw-steel-heroes
+    version: 0.1.0
+features:
+  - id: ancestries-high-elf-1
+    item: draw-steel-heroes:ancestries.high-elf
+    choices:
+      trait-1:
+        - option: draw-steel-heroes:ancestry-traits.high-elf.high-senses
+      trait-2:
+        - option: draw-steel-heroes:ancestry-traits.high-elf.otherworldly-grace
+  - id: cultures-culture-1
+    item: draw-steel-heroes:cultures.culture
+    choices:
+      language:
+        - option: draw-steel-heroes:languages.hyrallic
+      environment:
+        - option: draw-steel-heroes:culture-aspects.secluded
+          choices:
+            skill:
+              - option: draw-steel-heroes:skills.brag
+      organization:
+        - option: draw-steel-heroes:culture-aspects.bureaucratic
+          choices:
+            skill:
+              - option: draw-steel-heroes:skills.persuade
+      upbringing:
+        - option: draw-steel-heroes:culture-aspects.martial
+          choices:
+            skill:
+              - option: draw-steel-heroes:skills.intimidate
+  - id: careers-sage-1
+    item: draw-steel-heroes:careers.sage
+    choices:
+      skills:
+        - option: draw-steel-heroes:skills.history
+        - option: draw-steel-heroes:skills.magic
+      languages:
+        - option: draw-steel-heroes:languages.vaslorian
+      perk:
+        - option: draw-steel-heroes:perks.lore.expert-sage
+      incident:
+        - option: bookish-ideas
+  - id: classes-talent-1
+    item: draw-steel-heroes:classes.talent
+    state:
+      level: 1
+    choices:
+      subclass:
+        - option: draw-steel-heroes:subclasses.talent.telekinesis
+      skills:
+        - option: draw-steel-heroes:skills.empathize
+        - option: draw-steel-heroes:skills.timescape
+      augmentation:
+        - option: draw-steel-heroes:features.talent.force-augmentation
+      ward:
+        - option: draw-steel-heroes:features.talent.repulsive-ward
+      signature:
+        - option: draw-steel-heroes:abilities.talent.incinerate
+        - option: draw-steel-heroes:abilities.talent.kinetic-grip
+      heroic-3:
+        - option: draw-steel-heroes:abilities.talent.choke
+      heroic-5:
+        - option: draw-steel-heroes:abilities.talent.inertia-soak
+values:
+  draw-steel-heroes:characteristics.reason.base: 2
+  draw-steel-heroes:characteristics.presence.base: 2
+  draw-steel-heroes:characteristics.might.base: -1
+  draw-steel-heroes:characteristics.agility.base: -1
+  draw-steel-heroes:characteristics.intuition.base: 2
+  draw-steel-heroes:xp.current: 0
+  draw-steel-heroes:stamina.current: 18
+  draw-steel-heroes:recoveries.spent: 0
+  draw-steel-heroes:combat.active: true
+  draw-steel-heroes:combat.round: 2
+  draw-steel-heroes:heroic.current: -1
