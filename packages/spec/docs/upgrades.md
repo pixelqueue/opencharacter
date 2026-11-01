@@ -21,6 +21,7 @@ character could refer to something that no longer means the same:
 | An option is removed from a `values` or inline-options choice                    | `option-removed`       | `renameOption`                                              |
 | A new required choice appears on existing content or in the rules                | `choice-added`         | `requireChoice`                                             |
 | An existing item becomes standard (a standard copies query now matches it)       | `standard-copy-added`  | `adoptStandard`                                             |
+| A remaining item stops granting content it granted                               | `grant-removed`        | `grantsToCopies` or `removeContent`                         |
 
 `standard-copy-added` is for an item of the pack, in both releases with the same
 type, that the standard copies queries ([content.md](content.md#standard-copies)) match in the
@@ -28,6 +29,14 @@ new release but not the old: the rules' and every item's, whichever loaded pack 
 Saved characters hold the item as an ordinary entry, which would otherwise stay beside the new
 standard copy. An item that stops being standard, and a new item that is standard from the start,
 are not shape changes.
+
+`grant-removed` is for an item of the pack in both releases whose holder grants (its own and its
+type's, with a literal `item`) named content on the old release that they don't name on the new
+one, when that content is on the new release and not grant-only there: saved copies of the item
+would lose it. Its ID is the holder's then the granted content's (`<pack>:<holder>/<granted>`).
+A `grantsToCopies` step covers it when its `item` and `type` (where given) match the holder, and
+a `removeContent` of the holder or of the granted content covers it too. Grants under choices
+and formula grants aren't compared: their content depends on a sheet.
 
 An item's state key that the item's content type declares in the new release, with the same
 type, is not removed: its copies keep their saved values (a key moved to the type, so a pack
@@ -77,6 +86,8 @@ shape changes and these errors:
 - **`upgrade-script-incomplete`:** each shape change must be covered by a step of that script, as
   in the table. `data` names the uncovered change. Interface changes need neither a script nor
   a step ([below](#a-packs-interface)).
+- **`upgrade-step-mismatch`:** a `changeContentType` step's `from` and `to` must be the item's
+  content types on the previous and new release (`data`: `pack`, `id`, `from`, `to`).
 
 A pack's release carries **all** its upgrade scripts, old ones included, so any pinned version
 can be upgraded from the latest release.

@@ -881,6 +881,8 @@ export interface ShapeChange {
     | 'choice-added'
     // An existing item became standard: covered by adoptStandard.
     | 'standard-copy-added'
+    // A remaining item no longer grants content it granted: covered by grantsToCopies.
+    | 'grant-removed'
     | 'content-type-removed'
     | 'item-field-removed'
     | 'item-field-values-removed'
@@ -896,6 +898,10 @@ export interface ShapeChange {
   /** content-type-changed: the item's content type on each release. */
   from?: string;
   to?: string;
+  /** grant-removed: the holder (local), its content type and the granted content. */
+  holder?: string;
+  holderType?: string;
+  granted?: string;
 }
 
 export interface CheckReleaseResult {
@@ -1090,6 +1096,27 @@ export function checkRelease(
       if (now.has(qid) && !was.has(qid) && prevItems.get(id)?.type === item.type)
         changes.push({ kind: 'standard-copy-added', id });
     }
+    // Content a remaining item (or its type) granted and no longer grants: saved holders lose it
+    // unless a step copies it.
+    const pack = next.manifest.id;
+    for (const [id, item] of nextItems) {
+      if (!prevItems.has(id)) continue;
+      const qid = `${pack}:${id}`;
+      const still = literalGrants(after, qid);
+      for (const content of literalGrants(before, qid)) {
+        if (still.has(content)) continue;
+        const target = after.content[content];
+        if (!target || target.grantOnly) continue;
+        const local = content.startsWith(`${pack}:`) ? content.slice(pack.length + 1) : content;
+        changes.push({
+          kind: 'grant-removed',
+          id: `${id}/${local}`,
+          holder: id,
+          ...(item.type === undefined ? {} : { holderType: item.type }),
+          granted: local,
+        });
+      }
+    }
   }
 
   const prevTypes = previous.rules.contentTypes ?? {};
@@ -1173,6 +1200,22 @@ export function checkRelease(
       }
     }
   }
+  // A changeContentType step names the item's types on both releases.
+  const typeScript = (next.upgrades ?? []).find(
+    (s) => s.from === prevVersion && s.to === nextVersion,
+  );
+  for (const s of (typeScript?.steps ?? []) as Step[]) {
+    if (s.op !== 'changeContentType') continue;
+    const pack = next.manifest.id;
+    const id = (s.id as string).startsWith(`${pack}:`)
+      ? (s.id as string).slice(pack.length + 1)
+      : (s.id as string);
+    if (prevItems.get(id)?.type !== s.from || nextItems.get(id)?.type !== s.to)
+      errors.push({
+        code: 'upgrade-step-mismatch',
+        data: { pack, id: `${pack}:${id}`, from: s.from as string, to: s.to as string },
+      });
+  }
   // Output IDs are qualified: content and fields `<pack>:<id>`, state `<pack>:<owner>/<key>`,
   // choices `<pack>:<owner>/<choice>` (`<pack>:<choice>` at rules level), options
   // `<choice id>/<option>`. Sorted by kind (in the spec table's order), then ID.
@@ -1193,6 +1236,7 @@ export function checkRelease(
     'option-removed',
     'choice-added',
     'standard-copy-added',
+    'grant-removed',
     'content-type-removed',
     'item-field-removed',
     'item-field-values-removed',
@@ -1306,6 +1350,18 @@ function covered(
           ownerMatches(s, owner),
       );
     }
+    case 'grant-removed': {
+      const local = (id: string | undefined) =>
+        id?.startsWith(`${pack}:`) ? id.slice(pack.length + 1) : id;
+      return has(
+        (s) =>
+          (s.op === 'grantsToCopies' &&
+            (s.item === undefined || local(s.item) === change.holder) &&
+            (s.type === undefined || local(s.type) === change.holderType)) ||
+          (s.op === 'removeContent' &&
+            (local(s.id) === change.granted || local(s.id) === change.holder)),
+      );
+    }
     case 'standard-copy-added':
       return has(
         (s) =>
@@ -1314,6 +1370,17 @@ function covered(
     default:
       return true;
   }
+}
+
+/** The content an item's holder grants (its type's and its own) name by a literal `item`. */
+function literalGrants(ruleset: Ruleset, qid: string): Set<string> {
+  const item = ruleset.content[qid];
+  const type = item ? ruleset.contentTypes[item.type] : undefined;
+  return new Set(
+    [...(type?.grants ?? []), ...(item?.grants ?? [])]
+      .filter((g) => (g.scope ?? 'holder') === 'holder' && typeof g.item === 'string')
+      .map((g) => g.item as string),
+  );
 }
 
 /** The addresses of a release's open action parameters and items' own open enums. */

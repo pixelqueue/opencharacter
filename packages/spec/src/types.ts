@@ -2051,6 +2051,7 @@ export type CheckReleaseOutput = {
       | 'option-removed'
       | 'choice-added'
       | 'standard-copy-added'
+      | 'grant-removed'
       | 'content-type-removed'
       | 'item-field-removed'
       | 'item-field-values-removed'
@@ -3293,6 +3294,7 @@ export type ErrorCode =
   | 'version-bump-too-small'
   | 'missing-upgrade-script'
   | 'upgrade-script-incomplete'
+  | 'upgrade-step-mismatch'
   | 'unknown-follow-up';
 
 /** Codes in `data/rules-issue-codes.json`. */
