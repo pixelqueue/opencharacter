@@ -130,7 +130,29 @@
               "$ref": "common.schema.json#/$defs/name"
             },
             "additionalProperties": {
-              "$ref": "content-type.schema.json#/$defs/valueDecl"
+              "description": "Optional or defaulted: only the run the app starts has it, and it may leave it out.",
+              "allOf": [
+                {
+                  "$ref": "content-type.schema.json#/$defs/valueDecl"
+                },
+                {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "required": ["default"]
+                    },
+                    {
+                      "type": "object",
+                      "required": ["optional"],
+                      "properties": {
+                        "optional": {
+                          "const": true
+                        }
+                      }
+                    }
+                  ]
+                }
+              ]
             },
             "minProperties": 1
           }

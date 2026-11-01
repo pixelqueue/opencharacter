@@ -7,7 +7,6 @@ import type { EngineError } from './load.ts';
 import { openOptionsOn, pickBounds } from './options.ts';
 import type {
   ActionDef,
-  ActionOrUse,
   CharacterDoc,
   Destination,
   Effect,
@@ -201,6 +200,9 @@ export interface LogEntry {
   rolls?: RollLog[];
   /** A proposed change's rolled amount: its dice, as canonical text. */
   dice?: string;
+  /** A rolled amount: the change's tags and field. */
+  tags?: string[];
+  field?: string;
 }
 
 /** One whole roll of a roll step made more than once; `kept` marks the one kept. */
@@ -229,7 +231,7 @@ export interface Need {
   /** The qualified ID of the action whose step this is. */
   action: string;
   kind: 'dice' | 'choice' | 'allocate' | 'handoff';
-  dice?: { count: number; sides: number | 'F'; zero?: boolean; tags?: string[] }[];
+  dice?: { count: number; sides: number | 'F'; zero?: boolean; tags?: string[]; field?: string }[];
   /** A random draw on a choice or allocate step: what the die picks among. */
   draw?: { among: string[] };
   items?: RollItem[];
@@ -665,6 +667,7 @@ function startFrame(
   let pack = '';
   let activation: Activation | undefined;
   let fixed: Record<string, Formula> = {};
+  let fixedPack = '';
 
   if (depth === 0) {
     // A selected situational choice must be offered; one left at its default is fine.
@@ -685,7 +688,7 @@ function startFrame(
       });
   }
   const found = findAction(sheet, ruleset, id, entry, source);
-  if (found) ({ def, definedBy, pack, activation, fixed } = found);
+  if (found) ({ def, definedBy, pack, activation, fixed, fixedPack } = found);
   if (!def) throw new ActionError('unknown-action', { action: id });
 
   const ownerSource: Source = activation?.item
@@ -718,7 +721,7 @@ function startFrame(
     added: nested.added,
     situational: given,
   };
-  frame.roots.params = params(ctx, frame, rawParams, fixed);
+  frame.roots.params = params(ctx, frame, rawParams, fixed, fixedPack);
   const roles = def.participants ?? {};
   const passed = depth === 0 ? (ctx.state.participants ?? {}) : (nested.participants ?? {});
   frame.roots.participants = participantsRoot(roles, passed);
@@ -735,6 +738,8 @@ export interface FoundAction {
   activation?: Activation;
   /** The parameters a `use` fixes. */
   fixed: Record<string, Formula>;
+  /** The pack the `use` that fixes them is written in, where they are evaluated. */
+  fixedPack: string;
 }
 
 export function findAction(
@@ -749,6 +754,7 @@ export function findAction(
   let pack = '';
   let activation: Activation | undefined;
   let fixed: Record<string, Formula> = {};
+  let fixedPack: string | undefined;
   if (entry !== undefined || source !== undefined) {
     // An entry's own item is named by `entry`; content on it by `entry` and `source`; content
     // with no owning copy by `source` alone. An applied entry's source is named by the entry's ID.
@@ -756,29 +762,19 @@ export function findAction(
       if (entryOf(a) !== entry || !a.item) continue;
       const own = ownsEntry(a);
       if (source !== undefined ? own || a.item.qid !== source : !own) continue;
-      const list: ActionOrUse[] = [
-        ...(ruleset.contentTypes[a.item.type]?.actions ?? []),
-        ...(a.item.actions ?? []),
-      ];
-      for (const action of list) {
-        if ((action.scope ?? 'holder') !== a.scope) continue;
-        if ('use' in action ? action.use === id : `${a.item.qid}#${action.id}` === id) {
-          activation = a;
-          if ('use' in action) {
-            const used = ruleset.rules.actions[action.use];
-            def = used;
-            definedBy = action.use;
-            pack = used?.pack ?? a.pack;
-            fixed = action.params ?? {};
-          } else {
-            def = action;
-            definedBy = `${a.item.qid}#${action.id}`;
-            pack = a.item.pack;
-          }
-          break;
-        }
+      // The listing computeSheet lists: the first available one with the ID.
+      const listing = sheet.listings(a).find((l) => l.id === id);
+      if (listing) {
+        activation = a;
+        def = listing.def;
+        definedBy = listing.id;
+        if ('use' in listing.action) {
+          pack = listing.pack;
+          fixed = listing.action.params ?? {};
+          fixedPack = listing.written;
+        } else pack = a.item.pack;
+        break;
       }
-      if (def) break;
     }
     if (!def && ruleset.rules.actions[id]) {
       def = ruleset.rules.actions[id];
@@ -795,7 +791,14 @@ export function findAction(
     pack = def ? (ruleset.rules.actions[id]?.pack ?? '') : '';
   }
   if (!def) return undefined;
-  return { def, definedBy, pack, ...(activation ? { activation } : {}), fixed };
+  return {
+    def,
+    definedBy,
+    pack,
+    ...(activation ? { activation } : {}),
+    fixed,
+    fixedPack: fixedPack ?? pack,
+  };
 }
 
 /**
@@ -852,36 +855,51 @@ function situationalDefault(def: Situational): unknown {
   return def.default ?? (def.type === 'boolean' ? false : def.type === 'integer' ? 0 : '');
 }
 
+/** A parameter as startAction reads it: its pack, the roots its bounds see, its error data. */
+interface ParamSpec {
+  name: string;
+  decl: ValueDecl;
+  pack: string;
+  roots: Record<string, unknown>;
+  at: Record<string, string>;
+}
+
+/**
+ * The action's own parameters, then, for the run the app started (not an `action` step's), those
+ * `params` effects add. A `use`'s fixed value wins, evaluated in the pack writing the use.
+ */
 function params(
   ctx: Ctx,
   frame: Frame,
   raw: Record<string, unknown>,
   fixed: Record<string, Formula>,
+  fixedPack: string,
 ): Record<string, unknown> {
   const out: Record<string, unknown> = {};
   const own = paramAction(frame);
-  const all: [string, ValueDecl, string, Record<string, string>][] = [
-    ...Object.entries(frame.def.params ?? {}).map(
-      ([name, decl]): [string, ValueDecl, string, Record<string, string>] => [
-        name,
-        decl,
-        frame.pack,
-        own,
-      ],
-    ),
-    ...addedParams(ctx.sheet, frame.def, frame.pack, frame.roots, frame).map(
-      (p): [string, ValueDecl, string, Record<string, string>] => [
-        p.name,
-        p.decl,
-        p.pack,
-        { ...own, addedBy: p.addedBy },
-      ],
-    ),
+  const all: ParamSpec[] = [
+    ...Object.entries(frame.def.params ?? {}).map(([name, decl]): ParamSpec => ({
+      name,
+      decl,
+      pack: frame.pack,
+      roots: frame.roots,
+      at: own,
+    })),
+    ...(frame.depth === 0
+      ? addedParams(ctx.sheet, frame.def, frame.pack, frame.roots, frame)
+      : []
+    ).map((p): ParamSpec => ({
+      name: p.name,
+      decl: p.decl,
+      pack: p.pack,
+      roots: p.roots,
+      at: { ...own, addedBy: p.addedBy },
+    })),
   ];
-  for (const [name, decl, pack, at] of all) {
+  for (const { name, decl, pack, roots, at } of all) {
     let value: unknown = raw[name];
-    if (fixed[name] !== undefined && frame.def.params?.[name]) {
-      const evaluated = ctx.sheet.evaluate(fixed[name] as Formula, frame.pack, frame.roots);
+    if (fixed[name] !== undefined) {
+      const evaluated = ctx.sheet.evaluate(fixed[name] as Formula, fixedPack, frame.roots);
       // A dice value has no plain data form, so a fixed dice parameter keeps the value itself.
       if (decl.type === 'dice' && evaluated.kind === 'dice') {
         out[name] = rootValue(evaluated);
@@ -933,7 +951,7 @@ function params(
           throw new ActionError('invalid-option', { param: name, option: tag, ...at });
     }
     paramRange(name, at, decl, typed, (bound) => {
-      const v = ctx.sheet.evaluate(bound, pack, frame.roots);
+      const v = ctx.sheet.evaluate(bound, pack, roots);
       return v.kind === 'int' || v.kind === 'decimal' ? v.value : undefined;
     });
     out[name] = rootValue(typed);
@@ -949,6 +967,8 @@ export interface AddedParam {
   pack: string;
   /** The content whose text names it: `<content id>`, `<pack>:types.<type>` or `<pack>:rules`. */
   addedBy: string;
+  /** What its `min` and `max` see, as the effect's `when`: the content's roots and `action`. */
+  roots: Record<string, unknown>;
 }
 
 /**
@@ -962,7 +982,7 @@ export function addedParams(
   def: ActionDef,
   pack: string,
   roots: Record<string, unknown>,
-  run: RunOwner,
+  owner: RunOwner,
 ): AddedParam[] {
   const out: AddedParam[] = [];
   let tags: string[] | undefined;
@@ -972,15 +992,16 @@ export function addedParams(
     if (effect.op !== 'params' || typeof target !== 'object' || !('actions' in target)) continue;
     tags ??= sheet.actionTags(def, pack, roots);
     if (!target.actions.some((tag) => matchesTag(tag, tags as string[]))) continue;
-    if (!addsTo(instance, run, target.from)) continue;
+    if (!addsTo(instance, owner, target.from)) continue;
+    const action = {
+      ...(roots.item !== undefined ? { item: roots.item } : {}),
+      ...(roots.self !== undefined ? { self: roots.self } : {}),
+    };
+    const own = { ...instance.roots, action };
     if (effect.when !== undefined) {
-      const action = {
-        ...(roots.item !== undefined ? { item: roots.item } : {}),
-        ...(roots.self !== undefined ? { self: roots.self } : {}),
-      };
       let holds = false;
       try {
-        const v = sheet.evaluate(effect.when, instance.pack, { ...instance.roots, action });
+        const v = sheet.evaluate(effect.when, instance.pack, own);
         holds = v.kind === 'bool' && v.value;
       } catch (error) {
         if (!(error instanceof Failure)) throw error;
@@ -989,7 +1010,8 @@ export function addedParams(
     }
     for (const [name, decl] of Object.entries(effect.value as Record<string, ValueDecl>)) {
       if (Object.hasOwn(def.params ?? {}, name) || out.some((p) => p.name === name)) continue;
-      out.push({ name, decl, pack: instance.pack, addedBy: addedBy(sheet.ruleset, instance) });
+      const by = addedBy(sheet.ruleset, instance);
+      out.push({ name, decl, pack: instance.pack, addedBy: by, roots: own });
     }
   }
   return out;
@@ -2755,27 +2777,33 @@ function draw(
   return face - 1;
 }
 
-const die = (count: number, sides: number | 'F', zero: boolean) => ({
-  count,
-  sides,
-  ...(zero ? { zero: true } : {}),
-});
-
 /**
- * A proposed change's amount given as dice: a dice checkpoint at the step, matched by the change's
- * tags, rolled with the action's dice (or the answered faces) and logged with its dice and total.
+ * A proposed change's amount given as dice: a dice checkpoint at the path the change is proposed
+ * at, matched by the change's tags, rolled with the action's dice (or the answered faces) and
+ * logged with its dice, total, tags and field. Each die a pause asks for carries them too.
  */
 function rolledAmount(
   ctx: Ctx,
   frame: Frame,
   path: string,
   tags: string[],
+  field: string | undefined,
   dice: f.DiceValue,
 ): number {
   const answers = takeAnswers(ctx, path, 'dice');
   const queue = answers.flatMap((a) => a.faces ?? []);
   let by: 'engine' | 'app' = answers.some((a) => a.by === 'app') ? 'app' : 'engine';
   const auto = decide(ctx.policy, 'roll', tags, path) === 'auto';
+  const about = {
+    ...(tags.length > 0 ? { tags: [...tags] } : {}),
+    ...(field !== undefined ? { field } : {}),
+  };
+  const die = (count: number, sides: number | 'F', zero: boolean) => ({
+    count,
+    sides,
+    ...(zero ? { zero: true } : {}),
+    ...about,
+  });
   const pause = (needs: NonNullable<Need['dice']>) =>
     new Pause({ step: path, action: frame.qid, kind: 'dice', dice: needs });
   if (answers.length === 0 && dice.terms.some((t) => t.count > 0)) {
@@ -2819,6 +2847,7 @@ function rolledAmount(
     faces: consumed,
     dice: diceText(dice),
     total,
+    ...about,
   });
   return total;
 }
@@ -2892,11 +2921,11 @@ interface RunOwner {
   activation?: Activation | undefined;
 }
 
-function addsTo(instance: EffectInstance, run: RunOwner, from?: string): boolean {
+function addsTo(instance: EffectInstance, owner: RunOwner, from?: string): boolean {
   const { type, id } = instance.source;
   if (type === 'rules') return from !== 'self' && id !== undefined;
   if (type !== 'item' && type !== 'template') return false;
-  return id !== undefined && (from !== 'self' || ownEffect(instance, run));
+  return id !== undefined && (from !== 'self' || ownEffect(instance, owner));
 }
 
 /**
@@ -2905,11 +2934,11 @@ function addsTo(instance: EffectInstance, run: RunOwner, from?: string): boolean
  * effect is that content, so granted abilities sharing their type's action each reach only their
  * own runs. A template is part of its copy: its own action matches by entry, as the copy's does.
  */
-function ownEffect(instance: EffectInstance, run: RunOwner): boolean {
-  if (instance.source.entry !== run.entry) return false;
-  const kind = run.activation?.kind;
-  if (run.source === undefined || (kind !== 'grant' && kind !== 'pick')) return true;
-  return instance.source.id === run.source;
+function ownEffect(instance: EffectInstance, owner: RunOwner): boolean {
+  if (instance.source.entry !== owner.entry) return false;
+  const kind = owner.activation?.kind;
+  if (owner.source === undefined || (kind !== 'grant' && kind !== 'pick')) return true;
+  return instance.source.id === owner.source;
 }
 
 /** Of instances sharing a `stackKey` or an ID, only the first is offered. */
@@ -3903,8 +3932,11 @@ function proposeOne(
   if (!test(ctx, frame, change.when, bound)) return;
   const tags = tagsOf(ctx, change.tags, (fm) => evaluate(ctx, frame, fm, bound));
   // A `by` that gives dice is rolled now: the change carries the total.
-  const amount = (v: f.Value): unknown =>
-    v.kind === 'dice' ? rolledAmount(ctx, frame, path, tags, v.value) : f.toData(v);
+  const amount = (v: f.Value, field: unknown): unknown =>
+    v.kind === 'dice'
+      ? rolledAmount(ctx, frame, path, tags, typeof field === 'string' ? field : undefined, v.value)
+      : f.toData(v);
+
   const resolve = (part: Record<string, unknown>, extraTags: string[]): Change => {
     const extra = { ...bound, ...part };
     const out: Record<string, unknown> = { type: change.type };
@@ -4020,11 +4052,12 @@ function proposeOne(
       if (change.by !== undefined)
         out.by = perCopy(change.by)
           ? passOn(ctx, frame, change.by, passed)
-          : amount(evaluate(ctx, frame, change.by, extra));
+          : amount(evaluate(ctx, frame, change.by, extra), out.field);
     } else {
       if (change.value !== undefined)
         out.value = outputData(evaluate(ctx, frame, change.value, extra));
-      if (change.by !== undefined) out.by = amount(evaluate(ctx, frame, change.by, extra));
+      if (change.by !== undefined)
+        out.by = amount(evaluate(ctx, frame, change.by, extra), out.field);
     }
     const all = [...tags, ...extraTags];
     if (all.length > 0) out.tags = all;

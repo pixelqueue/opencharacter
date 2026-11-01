@@ -17,4 +17,10 @@ Content extends a shared action per item (#194):
   `addedBy`, and content reads them as `params.<name>` in its effects. Their text is
   `<content key>.params.<name>.name`; the text package adds `addedParam`,
   `addedParamDescription`, `addedParamValue` and the keys `addedParamKey` and
-  `addedParamValueKey`, and names a parameter error by `addedBy`.
+  `addedParamValueKey`, and names a parameter error by `addedBy`. Each added parameter is
+  optional or defaulted and reaches only the run the app starts (not a nested `action` step's);
+  a required one, a name an action the effect's tags reach declares, or two effects declaring
+  one name differently over tags that meet are the new load error `invalid-added-param`. Its
+  `min` and `max` see the effect's roots; a `use` may fix it.
+- startAction and describeAction read the `use` computeSheet lists (the first available one
+  with the ID), and evaluate its fixed `params` in the pack that writes the use.

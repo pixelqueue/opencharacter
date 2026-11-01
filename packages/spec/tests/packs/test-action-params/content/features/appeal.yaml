@@ -1,11 +1,14 @@
 # An opt-in at the start of a turn: one more drama, asked as a parameter of the rules action.
+# How many verses is bounded by the feature's own limit: the bound sees the effect's `item`.
 id: features.appeal
 type: feature
+fields: { limit: 2 }
 effects:
   - target: { actions: [turn] }
     op: params
     value:
       appeal: { type: boolean, default: false }
+      verses: { type: integer, default: 0, min: 0, max: item.limit }
   - target: { steps: [turn] }
     op: changes
     when: params.appeal

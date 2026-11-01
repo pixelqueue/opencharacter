@@ -114,7 +114,21 @@ parameters to the listed actions whose tags match, while its `when` holds. Each 
 the action's own and given by the app the same way; describeAction lists it after the action's
 own with `addedBy`. The action's own formulas see only the parameters it declares; the content
 reads its own as `params.<name>` in its roll, option and `changes` effects. So an ability
-chooses its damage type on each use, and a feature adds an opt-in to a rules action:
+chooses its damage type on each use, and a feature adds an opt-in to a rules action.
+
+- An added parameter is `optional` or has a `default`, and only the run the app starts
+  (startAction, a follow-up taken up, a handoff's run on its own character) has it: an `action`
+  step's nested run doesn't. A required one is the load error `invalid-added-param`.
+- Its `min` and `max` see the effect's roots, as its `when` (`item` and `self` the content's,
+  the listing's as `action.item` and `action.self`); a content parameter's `where` sees the
+  candidate as `item` and the listing's as `action`, as an action's own does.
+- A `use` may fix an added parameter in its `params`, as its own.
+- A name an action its literal target tags reach already declares, or one another `params`
+  effect adds with another declaration over target tags that meet, is `invalid-added-param` at
+  load. An action reached only through computed tags keeps its own parameter, and the first
+  effect's declaration wins.
+- Text: `<content key>.params.<name>.name`: an item's or a template's own key,
+  `types.<type>` for a content type's effect, `rules` for the rules'.
 
 ```yaml
 # Hurl Element: the element is chosen on each use of the shared ability action.
@@ -122,7 +136,8 @@ effects:
   - target: { actions: [ability], from: self }
     op: params
     value:
-      element: { type: enum, values: [acid, cold, corruption, fire, lightning, poison] }
+      element:
+        { type: enum, values: [acid, cold, corruption, fire, lightning, poison], default: fire }
   - target: { rolls: [damage], from: self }
     op: add
     value: 2

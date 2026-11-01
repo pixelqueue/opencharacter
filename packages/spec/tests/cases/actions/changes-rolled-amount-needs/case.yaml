@@ -1,0 +1,31 @@
+description: "A rolled amount's pause lists its dice, each with the change's tags and field"
+specVersion: 0.3.0
+call: startAction
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.3.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        tags: [strain]
+        fields:
+          hp: { type: integer, input: true, default: 10 }
+        contentTypes:
+          feature: {}
+        actions:
+          - id: strain
+            steps:
+              - id: hurt
+                kind: changes
+                changes:
+                  - { type: adjust, field: hp, by: -2d6kh1, tags: [strain] }
+      content: []
+input:
+  action: { id: 'test-pack:strain' }
+  policy:
+    dice: auto
+    rules:
+      - { tags: [strain], then: pause }

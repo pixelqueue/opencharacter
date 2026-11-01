@@ -1683,8 +1683,12 @@ export type LogEntry = {
   of?: string;
   /** The faces the step used. A roll step with no dice items is not a checkpoint and has none. */
   faces?: number[];
-  /** Dice entries of a proposed change's rolled amount (a `by` that gave dice): the dice, as canonical text. `faces` are the faces used and `total` the amount the change carries. */
+  /** Dice entries of a proposed change's rolled amount (a `by` that gave dice): the dice, as canonical text. `faces` are the faces used and `total` the amount the change carries; `tags` and `field` are the change's. */
   dice?: string;
+  /** A rolled amount's entry: the change's tags. */
+  tags?: Tags;
+  /** A rolled amount's entry: the field the change adjusts, when it names one. */
+  field?: string;
   /** Dice entries of a random draw on a choice or allocate step: what the face picked among. Its one face is `faces[0]`. */
   draw?: Draw;
   /** The picked option ID; `#done` when a repeated choice step was ended early. */
@@ -1744,6 +1748,8 @@ export type ActionNeed = {
     count: number;
     sides: number | 'F';
     tags?: Tags;
+    /** A proposed change's rolled amount: the field the change adjusts (its `tags` are the change's). */
+    field?: string;
     zero?: boolean;
   }[];
   /** A dice pause for a random draw on a choice or allocate step: one die, as many sides as `among` has entries; the face picks among them. */
@@ -3182,6 +3188,7 @@ export type ErrorCode =
   | 'invalid-stacking'
   | 'template-field-mismatch'
   | 'unknown-role'
+  | 'invalid-added-param'
   | 'circular-extends'
   | 'safety-limit-exceeded'
   | 'unknown-action'

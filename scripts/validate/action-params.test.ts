@@ -46,7 +46,7 @@ describe('pnpm validate on params effects, computed action tags and a use with a
         '  - target: { actions: [ability], from: self }',
         '    op: params',
         '    value:',
-        '      shape: { type: enum, values: [cone, line] }',
+        '      shape: { type: enum, values: [cone, line], default: cone }',
       ].join('\n'),
     });
     expect(errors.filter((m) => m.includes('abilities.hurl-element.params.shape'))).toHaveLength(3);

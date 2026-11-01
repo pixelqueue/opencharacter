@@ -759,9 +759,19 @@ class FormulaChecker<L> {
         this.optionFlag(tags, 'changes', name, formula, at, label);
       for (const change of value.changes ?? []) this.proposedChange(change, at, label);
     } else if (effect.op === 'params') {
+      // Bounds see the effect's roots, as its `when`; a `where` sees what an action's own does.
       for (const [name, decl] of Object.entries(effect.value as Record<string, ValueDecl>)) {
-        this.formula(decl.min, at, `${label} param ${name} min`, NUMBER);
-        this.formula(decl.max, at, `${label} param ${name} max`, NUMBER);
+        const place = `${label} param ${name}`;
+        this.formula(decl.min, at, `${place} min`, NUMBER);
+        this.formula(decl.max, at, `${place} max`, NUMBER);
+        if (decl.where === undefined || decl.type !== 'id' || decl.of === undefined) continue;
+        if (decl.of === 'field') this.query({ type: 'field', where: decl.where }, at, place);
+        else if (decl.of !== 'tag' && decl.of !== 'string')
+          this.typed(
+            { item: this.itemOf(this.contentTypeDef(decl.of)), action: actionType('dyn', 'dyn') },
+            () =>
+              this.onlyRoots(['item', 'action'], () => this.formula(decl.where, at, place, BOOL)),
+          );
       }
     } else if (effect.op === 'rollModifier') {
       const modifier = effect.value as RollModifier;

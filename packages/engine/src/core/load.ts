@@ -130,6 +130,78 @@ export interface LoadOptions {
   onFormula?: (pack: string, text: string) => void;
 }
 
+const tagsMeet = (a: string, b: string) =>
+  a === b || a.startsWith(`${b}.`) || b.startsWith(`${a}.`);
+
+/**
+ * `params` effects: each added parameter is optional or has a default (nested runs and
+ * startAction's other callers never give it), its name isn't one an action its literal target
+ * tags reach declares, and no other effect adds it with another declaration over tags that meet.
+ */
+function checkAddedParams(
+  ruleset: Ruleset,
+  err: (code: string, data: Record<string, unknown>) => void,
+): void {
+  const added: { source: string; tags: string[]; name: string; decl: ValueDecl }[] = [];
+  const walkChoices = (choices: readonly Choice[] | undefined, source: string): void => {
+    for (const choice of choices ?? []) {
+      walk(choice.effects, source);
+      if ('options' in choice.from)
+        for (const o of choice.from.options) {
+          walk(o.effects, source);
+          walkChoices(o.choices, source);
+        }
+    }
+  };
+  const walk = (effects: readonly Effect[] | undefined, source: string): void => {
+    for (const e of effects ?? []) {
+      if (e.op !== 'params' || typeof e.target !== 'object' || !('actions' in e.target)) continue;
+      for (const [name, decl] of Object.entries((e.value ?? {}) as Record<string, ValueDecl>))
+        added.push({ source, tags: e.target.actions, name, decl });
+    }
+  };
+  for (const type of Object.values(ruleset.contentTypes)) {
+    const source = `${type.pack}:types.${type.name}`;
+    walk(type.effects, source);
+  }
+  for (const item of Object.values(ruleset.content)) {
+    walk(item.effects, item.qid);
+    walkChoices(item.choices, item.qid);
+  }
+  for (const e of ruleset.rules.effects) walk([e], `${e.pack}:rules`);
+  for (const choice of Object.values(ruleset.rules.choices))
+    walkChoices([choice], `${choice.pack}:rules`);
+  if (added.length === 0) return;
+
+  const actions: { key: string; def: ActionDef }[] = [
+    ...Object.entries(ruleset.rules.actions).map(([key, def]) => ({ key, def })),
+    ...Object.entries(ruleset.contentTypes).flatMap(([name, type]) =>
+      (type.actions ?? []).flatMap((a) => ('use' in a ? [] : [{ key: `${name}#${a.id}`, def: a }])),
+    ),
+    ...Object.values(ruleset.content).flatMap((item) =>
+      (item.actions ?? []).flatMap((a) =>
+        'use' in a ? [] : [{ key: `${item.qid}#${a.id}`, def: a }],
+      ),
+    ),
+  ];
+  for (const [i, p] of added.entries()) {
+    const data = { param: p.name, source: p.source };
+    if (!p.decl.optional && p.decl.default === undefined)
+      err('invalid-added-param', { ...data, reason: 'required' });
+    for (const { key, def } of actions) {
+      if (!Object.hasOwn(def.params ?? {}, p.name)) continue;
+      const own = writtenTags(def.tags);
+      if (p.tags.some((t) => own.some((tag) => tag === t || tag.startsWith(`${t}.`))))
+        err('invalid-added-param', { ...data, reason: 'declared', action: key });
+    }
+    for (const other of added.slice(0, i)) {
+      if (other.name !== p.name || JSON.stringify(other.decl) === JSON.stringify(p.decl)) continue;
+      if (p.tags.some((t) => other.tags.some((o) => tagsMeet(t, o))))
+        err('invalid-added-param', { ...data, reason: 'conflict', other: other.source });
+    }
+  }
+}
+
 /** loadRuleset's steps, with options for layering a character's homebrew. */
 export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): LoadResult {
   const errors: EngineError[] = [];
@@ -1409,6 +1481,8 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
   for (const def of Object.values(ruleset.rules.actions)) situationalSteps(def.steps, def.pack);
   for (const def of Object.values(ruleset.contentTypes)) situationalActions(def.actions, def.pack);
   for (const item of Object.values(ruleset.content)) situationalActions(item.actions, item.pack);
+
+  checkAddedParams(ruleset, err);
 
   // 5. Check formulas: each must parse and type-check where it appears, as in the build.
   if (errors.length === 0) {

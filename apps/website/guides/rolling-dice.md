@@ -172,8 +172,8 @@ const next = continueAction(ruleset, paused, { faces: [17, 9, 3] }, { dice: 'pau
 
 If rolling needs more dice than that (a reroll, an exploding die), the action pauses again for
 one die at a time. A pause at a `changes` step is a rolled amount (a change's `by` given as
-dice, such as `-1d6` Stamina): `needs.dice` lists its dice, and the log entry has `dice` (the
-notation) and `total`. A wrong number of faces, or a face that isn't on the die, is the error
+dice, such as `-1d6` Stamina): `needs.dice` lists its dice, each with the change's `tags` and
+`field`, and the log entry has `dice` (the notation), `total`, `tags` and `field`. A wrong number of faces, or a face that isn't on the die, is the error
 `answer-mismatch`.
 
 **Rolling the whole roll twice.** Some rules roll a whole roll again and keep the better or

@@ -20,13 +20,17 @@ fields:
 
 contentTypes:
   # Every ability uses `use-ability`; its listing is tagged with its usage and keywords.
+  # A focused ability offers its own use instead (below).
   ability:
     fields:
       usage: { type: enum, values: [main, maneuver], default: main }
       damage: { type: integer, default: 0 }
+      focused: { type: boolean, default: false }
     actions:
-      - use: use-ability
-  feature: {}
+      - { use: use-ability, available: '!item.focused' }
+  feature:
+    fields:
+      limit: { type: integer, default: 0 }
   # A condition's saving throw is offered only while the condition is "save ends".
   condition:
     state:

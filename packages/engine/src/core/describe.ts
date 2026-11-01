@@ -46,31 +46,35 @@ export function describeAction(
         },
       ],
     };
-  const { def, definedBy, pack, activation, fixed } = found;
+  const { def, definedBy, pack, activation, fixed, fixedPack } = found;
   const roots: Record<string, unknown> = {
     ...ownerRoots(activation ? sheet.actionRoots(activation) : sheet.rulesRoots()),
     situational: situationalRoot(ruleset, pack, {}),
   };
-  const number = (formula: Formula | undefined) => {
+  const number = (formula: Formula | undefined, at: string, seen: Record<string, unknown>) => {
     if (formula === undefined) return undefined;
-    const v = attempt(() => sheet.evaluate(formula, pack, roots));
+    const v = attempt(() => sheet.evaluate(formula, at, seen));
     return v && (v.kind === 'int' || v.kind === 'decimal') ? v.value : undefined;
   };
 
-  const all: [string, ValueDecl, string, string | undefined][] = [
-    ...Object.entries(def.params ?? {}).map(
-      ([name, decl]): [string, ValueDecl, string, string | undefined] => [
-        name,
-        decl,
-        pack,
-        undefined,
-      ],
-    ),
-    ...addedParams(sheet, def, pack, roots, { entry, source, activation }).map(
-      (p): [string, ValueDecl, string, string | undefined] => [p.name, p.decl, p.pack, p.addedBy],
-    ),
+  // The action's own, then those `params` effects add, their bounds seeing the effect's roots.
+  const all: {
+    name: string;
+    decl: ValueDecl;
+    pack: string;
+    roots: Record<string, unknown>;
+    by?: string;
+  }[] = [
+    ...Object.entries(def.params ?? {}).map(([name, decl]) => ({ name, decl, pack, roots })),
+    ...addedParams(sheet, def, pack, roots, { entry, source, activation }).map((p) => ({
+      name: p.name,
+      decl: p.decl,
+      pack: p.pack,
+      roots: p.roots,
+      by: p.addedBy,
+    })),
   ];
-  const params = all.map(([name, decl, declPack, by]): DescribedParam => {
+  const params = all.map(({ name, decl, pack: declPack, roots: seen, by }): DescribedParam => {
     const out: DescribedParam = {
       name,
       type: decl.type as DescribedParam['type'],
@@ -81,11 +85,11 @@ export function describeAction(
     if (decl.default !== undefined) out.default = decl.default;
     if (fixed[name] !== undefined) {
       out.fixed = true;
-      const v = attempt(() => sheet.evaluate(fixed[name] as Formula, pack, roots));
-      if (v) out.value = qualified(ruleset, decl, pack, outputData(v));
+      const v = attempt(() => sheet.evaluate(fixed[name] as Formula, fixedPack, roots));
+      if (v) out.value = qualified(ruleset, decl, declPack, outputData(v));
     }
-    const min = number(decl.min);
-    const max = number(decl.max);
+    const min = number(decl.min, declPack, seen);
+    const max = number(decl.max, declPack, seen);
     if (min !== undefined) out.min = min;
     if (max !== undefined) out.max = max;
     if (decl.values) out.values = [...decl.values];

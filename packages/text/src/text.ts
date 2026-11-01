@@ -1006,6 +1006,7 @@ function variants(code: string, data: Args): string[] {
   if (code === 'safety-limit-exceeded' && typeof data.limit === 'string') return [data.limit];
   if (code === 'invalid-option')
     return (['param', 'field', 'target'] as const).filter((k) => typeof data[k] === 'string');
+  if (code === 'invalid-added-param' && typeof data.reason === 'string') return [data.reason];
   return [];
 }
 

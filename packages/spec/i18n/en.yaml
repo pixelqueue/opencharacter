@@ -77,6 +77,11 @@ errors.invalid-item-field: 'The field "{field}" of "{item}" is missing, undeclar
 errors.invalid-stacking: 'The stack key "{key}" scores its sources by {field}, a field none of its effects targets.'
 errors.template-field-mismatch: 'Two packs declare the template field "{field}" with different types.'
 errors.unknown-role: 'An action step names a role the action does not declare, or hands off outside a step over a role.'
+errors.invalid-added-param: 'The parameter "{param}" that {source} adds to actions cannot be added.'
+# `invalid-added-param` by its `reason`.
+errors.invalid-added-param.required: 'The parameter "{param}" that {source} adds to actions must be optional or have a default.'
+errors.invalid-added-param.declared: 'The parameter "{param}" that {source} adds is already a parameter of {action}.'
+errors.invalid-added-param.conflict: '{source} and {other} both add the parameter "{param}", declared differently.'
 errors.circular-extends: 'These items extend each other in a loop.'
 errors.safety-limit-exceeded: 'A safety limit was reached ({limit}).'
 # `safety-limit-exceeded` by its `limit` (data/safety-limits.json).

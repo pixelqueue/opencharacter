@@ -233,7 +233,15 @@
           }
         },
         "dice": {
-          "description": "Dice entries of a proposed change's rolled amount (a `by` that gave dice): the dice, as canonical text. `faces` are the faces used and `total` the amount the change carries.",
+          "description": "Dice entries of a proposed change's rolled amount (a `by` that gave dice): the dice, as canonical text. `faces` are the faces used and `total` the amount the change carries; `tags` and `field` are the change's.",
+          "type": "string"
+        },
+        "tags": {
+          "description": "A rolled amount's entry: the change's tags.",
+          "$ref": "../common.schema.json#/$defs/tags"
+        },
+        "field": {
+          "description": "A rolled amount's entry: the field the change adjusts, when it names one.",
           "type": "string"
         },
         "draw": {
@@ -411,6 +419,10 @@
               },
               "tags": {
                 "$ref": "../common.schema.json#/$defs/tags"
+              },
+              "field": {
+                "description": "A proposed change's rolled amount: the field the change adjusts (its `tags` are the change's).",
+                "type": "string"
               },
               "zero": {
                 "type": "boolean"

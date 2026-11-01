@@ -1,0 +1,13 @@
+# The lance's 2 damage, then the psi boost's 1: the use fixes `boost` to true over the app's false.
+status: finished
+outcome: { result: used }
+proposedChanges:
+  - to: target
+    character: orc
+    step: hit
+    change: { type: adjust, field: test-action-params:stamina, by: -2, tags: [damage] }
+  - to: target
+    character: orc
+    step: hit
+    change: { type: adjust, field: test-action-params:stamina, by: -1, tags: [damage] }
+log: []

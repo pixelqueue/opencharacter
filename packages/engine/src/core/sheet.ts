@@ -14,6 +14,7 @@ import type {
   CharacterDoc,
   Choice,
   ChoiceTree,
+  TagOrFormula,
   DeclaredField,
   Effect,
   Entry,
@@ -2344,13 +2345,7 @@ export class Sheet {
   /** `fieldTags`, or the written tags when its computed tags fail. */
   sheetTags(qid: string): string[] {
     const def = this.ruleset.fields[qid] as FieldDef;
-    if (!hasComputedTags(def)) return writtenTags(def.tags);
-    try {
-      return [...this.fieldTags(qid)];
-    } catch (error) {
-      if (!(error instanceof Failure)) throw error;
-      return writtenTags(def.tags);
-    }
+    return orWrittenTags(def.tags, () => [...this.fieldTags(qid)]);
   }
 
   /** Computed on demand. Throws Failure when the field has an error. */
@@ -3430,44 +3425,23 @@ export class Sheet {
     // `entry`.
     for (const a of this.activations) {
       if (!a.item) continue;
-      const type = this.ruleset.contentTypes[a.item.type];
-      const own = a.item.pack;
-      const list: [ActionOrUse, string][] = [
-        ...(type?.actions ?? []).map((x): [ActionOrUse, string] => [x, type?.pack ?? own]),
-        ...(a.item.actions ?? []).map((x): [ActionOrUse, string] => [x, own]),
-      ];
       // Content picked or granted on the entry is named by `source`, so several picks can share one
       // action. Content with no owning copy is named by `source` alone.
       const source = ownsEntry(a) ? undefined : a.item.qid;
       const entry = entryOf(a);
-      for (const [action, written] of list) {
-        if ((action.scope ?? 'holder') !== a.scope) continue;
-        const id = 'use' in action ? action.use : `${a.item.qid}#${action.id}`;
-        const def = 'use' in action ? this.ruleset.rules.actions[action.use] : action;
-        const pack =
-          'use' in action ? (this.ruleset.rules.actions[action.use]?.pack ?? a.pack) : a.pack;
-        const key = `${id} ${entry ?? ''} ${source ?? ''}`;
-        if (!def || seen.has(key)) continue;
-        if (!unlisted && (('use' in action ? action.listed : undefined) ?? def.listed) === false)
-          continue;
-        const roots = this.actionRoots(a);
-        let available = false;
-        try {
-          available =
-            this.test(def.available, pack, roots) &&
-            (!('use' in action) || this.test(action.available, written, roots));
-        } catch (error) {
-          if (!(error instanceof Failure)) throw error;
-        }
-        if (!available) continue;
+      for (const l of this.listings(a)) {
+        const key = `${l.id} ${entry ?? ''} ${source ?? ''}`;
+        if (seen.has(key)) continue;
+        const listed = ('use' in l.action ? l.action.listed : undefined) ?? l.def.listed;
+        if (!unlisted && listed === false) continue;
         seen.add(key);
         out.push({
           listed: {
-            action: id,
+            action: l.id,
             ...(entry !== undefined ? { entry } : {}),
             ...(source ? { source } : {}),
           },
-          tags: this.actionTags(def, pack, roots),
+          tags: this.actionTags(l.def, l.pack, l.roots),
         });
       }
     }
@@ -3489,20 +3463,52 @@ export class Sheet {
   }
 
   /**
+   * The actions an item activation offers, in order (its content type's, then its item's own) with
+   * its scope, each available: the action's `available` and, for a `use`, the use's own, evaluated
+   * in the pack that writes the use. computeSheet lists the first of each ID; startAction runs it.
+   */
+  listings(a: Activation): ActionListing[] {
+    if (!a.item) return [];
+    const type = this.ruleset.contentTypes[a.item.type];
+    const own = a.item.pack;
+    const list: [ActionOrUse, string][] = [
+      ...(type?.actions ?? []).map((x): [ActionOrUse, string] => [x, type?.pack ?? own]),
+      ...(a.item.actions ?? []).map((x): [ActionOrUse, string] => [x, own]),
+    ];
+    const roots = this.actionRoots(a);
+    const out: ActionListing[] = [];
+    for (const [action, written] of list) {
+      if ((action.scope ?? 'holder') !== a.scope) continue;
+      const used = 'use' in action ? this.ruleset.rules.actions[action.use] : undefined;
+      const def = 'use' in action ? used : action;
+      if (!def) continue;
+      const pack = used?.pack ?? a.pack;
+      let available = false;
+      try {
+        available =
+          this.test(def.available, pack, roots) &&
+          (!('use' in action) || this.test(action.available, written, roots));
+      } catch (error) {
+        if (!(error instanceof Failure)) throw error;
+      }
+      if (!available) continue;
+      const id = 'use' in action ? action.use : `${a.item.qid}#${action.id}`;
+      out.push({ id, action, def, pack, written, roots });
+    }
+    return out;
+  }
+
+  /**
    * An action's tags for a listing: written tags, then those its `{ formula }` entries give with
    * the listing's `item` and `self`; only the written ones when a formula fails.
    */
   actionTags(def: ActionDef, pack: string, roots: Record<string, unknown>): string[] {
-    if (!(def.tags ?? []).some((t) => typeof t !== 'string')) return writtenTags(def.tags);
-    try {
+    return orWrittenTags(def.tags, () => {
       const result = evaluateTags(this.ruleset, def.tags, (formula) =>
         this.evaluate(formula, pack, roots),
       );
       return result.ok ? result.tags : writtenTags(def.tags);
-    } catch (error) {
-      if (!(error instanceof Failure)) throw error;
-      return writtenTags(def.tags);
-    }
+    });
   }
 
   // --- Computed values on copies and content -------------------------------------------------
@@ -3838,6 +3844,35 @@ export class Sheet {
 /** A source of a spanning group: the content and where it was reached (two copies are two). */
 function spanSource(i: EffectInstance): string {
   return `${i.sourceId}\u0000${JSON.stringify(i.source)}`;
+}
+
+/**
+ * A tag list with `{ formula }` entries as `computed` gives it; only the written tags when there are
+ * none to compute or a formula fails.
+ */
+function orWrittenTags(
+  list: readonly TagOrFormula[] | undefined,
+  computed: () => string[],
+): string[] {
+  if (!(list ?? []).some((t) => typeof t !== 'string')) return writtenTags(list);
+  try {
+    return computed();
+  } catch (error) {
+    if (!(error instanceof Failure)) throw error;
+    return writtenTags(list);
+  }
+}
+
+/** An action an activation offers: the definition, its pack and the pack that writes it. */
+export interface ActionListing {
+  /** The used rules action's ID, or `<item id>#<action id>`. */
+  id: string;
+  action: ActionOrUse;
+  def: ActionDef;
+  pack: string;
+  /** The pack of the content or type that writes the action or `use`. */
+  written: string;
+  roots: Record<string, unknown>;
 }
 
 export function entryOf(a: Activation): string | undefined {

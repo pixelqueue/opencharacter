@@ -34,9 +34,15 @@ shape, an optional **dice function**.
      the stored entry in the same batch. A run that fails, pauses for good or whose changes are
      never applied clears nothing. A derived offer needs no clearing: the action's changes end
      its condition.
-2. **Parameters.** Each declared parameter takes the app's value, then each one content adds
-   through a `params` effect ([effects.md](effects.md#targets)), its IDs resolved in the
-   effect's pack. A `use` that fixes a parameter wins over the app's value. Missing required parameters are `missing-param`; wrong types are
+2. **Parameters.** The action is the listing computeSheet lists: for an entry or source, the
+   first of its content type's and item's actions with that ID whose `available` (and, for a
+   `use`, the use's own) holds, so startAction and describeAction read the same `use` as the
+   listing. Each declared parameter takes the app's value, then, for the run the app starts
+   (not one an `action` step runs), each one content adds through a `params` effect
+   ([effects.md](effects.md#targets)): its IDs resolve in the effect's pack and its `min` and
+   `max` see the effect's roots (as its `when`). A `use` that fixes a parameter, an added one
+   included, wins over the app's value; its formula is evaluated in the pack that writes the
+   use, with the listing's `item` and `self`. Missing required parameters are `missing-param`; wrong types are
    `wrong-type`. Every parameter error (`missing-param`, `wrong-type`, `out-of-range`,
    `invalid-option`), here or at a handoff, also carries `action` (the qualified ID of the action
    the parameter belongs to; `<item ID>#<action ID>` for an item's inline action), for an added
@@ -413,14 +419,19 @@ it in a flag before the roll.
   toward `maxActionSteps`. A change whose `when` is false (for each element, with `forEach`) is
   skipped. Each other proposed change is resolved:
   - formulas are evaluated (`value`, `by`). A `by` the action evaluates that gives dice is
-    rolled at once: a dice checkpoint at the step's path, matched by the change's evaluated
-    `tags` in the policy, rolled as [formulas.md](formulas.md#rolling-dice-values) says with the
-    action's dice function (or, when the policy pauses, the faces the app answers with: the pause
-    lists each dice term as `{ count, sides }`, and asks again for one die at a time when a
-    reroll or explosion needs more). The change carries the total, and the log gets a `dice`
-    entry with the `faces`, the `dice` (canonical text) and the `total`. Each copy of a `split`
-    or `forEach` change rolls its own; changes for several participants are resolved once, so
-    they share one roll. A `by` passed on per copy is never rolled;
+    rolled at once: a dice checkpoint at the path the change is proposed at (the `changes`
+    step's; for a picked option's changes the choice step's, after its pick; for a roll effect's
+    `then` to another character the roll step's, after the roll's own dice), matched by the
+    change's evaluated `tags` in the policy, rolled as
+    [formulas.md](formulas.md#rolling-dice-values) says with the action's dice function (or,
+    when the policy pauses, the faces the app answers with: the pause lists each dice term as
+    `{ count, sides, tags?, field? }`, the change's tags and field on each, and asks again for
+    one die at a time when a reroll or explosion needs more). The change carries the total, and
+    the log gets a `dice` entry with the `faces`, the `dice` (canonical text), the `total` and
+    the change's `tags` and `field`. Each copy of a `split` or `forEach` change rolls its own;
+    changes for several participants are resolved once, so they share one roll. A `by` passed
+    on per copy is never rolled, nor is a roll effect's `then` to `self` (its `by` is a number,
+    applied to the effect's own entry);
   - a computed field (`field: { formula }`, `set` and `adjust` only) is evaluated
     to a string (`type-mismatch` otherwise) and qualified against the action's pack, as a
     literal field is. For `to: self` or a role it must name a field of the ruleset

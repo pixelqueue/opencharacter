@@ -1916,6 +1916,26 @@ export class PackChecker {
     });
   }
 
+  private addedNames: Set<string> | undefined;
+
+  /** Every parameter name a `params` effect in scope adds: a `use` may fix one. */
+  private addedParamNames(): Set<string> {
+    if (this.addedNames) return this.addedNames;
+    const names = new Set<string>();
+    const add = (effects: readonly Effect[] | undefined) => {
+      for (const e of effects ?? [])
+        if (e.op === 'params') for (const name of Object.keys(e.value ?? {})) names.add(name);
+    };
+    for (const pid of this.scope) {
+      const rules = this.ruleset.rules.get(pid);
+      add(rules?.effects.map(({ def }) => def));
+      for (const [, { def }] of rules?.contentTypes ?? []) add(def.effects);
+      for (const { doc } of this.ruleset.packContent.get(pid) ?? []) add(doc.effects);
+    }
+    this.addedNames = names;
+    return names;
+  }
+
   private actionOrUse(action: ActionOrUse, file: string, keyPrefix: string): void {
     if ('use' in action) {
       const target = this.ruleset.action(action.use, this.scope);
@@ -1924,7 +1944,7 @@ export class PackChecker {
         return;
       }
       for (const name of Object.keys(action.params ?? {})) {
-        if (!target.def.params?.[name])
+        if (!target.def.params?.[name] && !this.addedParamNames().has(name))
           this.report.error(file, `action "${action.use}" has no parameter "${name}"`);
       }
       return;
