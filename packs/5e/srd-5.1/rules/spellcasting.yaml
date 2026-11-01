@@ -105,6 +105,7 @@ actions:
         cases:
           - when: true
             flags:
+              me: character.id
               cls: >-
                 countList(keysOf('caster'), item.id in fieldOf('spells.{caster}', x)) > 0
                   ? filterList(keysOf('caster'), item.id in fieldOf('spells.{caster}', x))[0]
@@ -465,6 +466,7 @@ actions:
             source: item.id
             state:
               castSlot: flags.slot
+              caster: flags.me
               option: "has(steps.spellOption) ? steps.spellOption.value : ''"
           - type: adjust
             when: has(item.maxHp)
@@ -482,6 +484,7 @@ actions:
             source: item.id
             state:
               castSlot: flags.slot
+              caster: flags.me
               option: "has(steps.spellOptionSelf) ? steps.spellOptionSelf.value : ''"
           - type: adjust
             when: has(item.maxHp)

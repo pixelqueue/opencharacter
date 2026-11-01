@@ -13,5 +13,22 @@ fields:
   material: false
   durationUnit: hour
   durationAmount: 1
+  applied: true
 actions:
   - use: cast-spell
+# The caster's weapon hits on the creature it marked deal an extra 1d6, of the weapon's damage
+# type. Finding the quarry (advantage on Perception and Survival checks) and moving the mark are
+# the app's.
+effects:
+  - target: { rolls: [damage.weapon] }
+    op: add
+    value: 1d6
+    tags:
+      [
+        {
+          formula: "'damage.' + (has(roll.item.damageType) ? roll.item.damageType : 'bludgeoning')",
+        },
+      ]
+    when: >-
+      has(participants.target) && size(participants.target) > 0
+        && character.id in participants.target[0].huntersMark.markedBy

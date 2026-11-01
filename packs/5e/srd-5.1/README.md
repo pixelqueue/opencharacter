@@ -60,7 +60,7 @@ the [guides](https://opencharacterformat.org/guides/) explain each call.
 - **Modeled:** abilities, skills and saves; creation (guided, random, point buy, standard
   array, rolled) and leveling to 20 with multiclassing; the nine races, the acolyte and the
   Grappler feat; all twelve classes and their SRD subclasses, feature by feature; all 319
-  spells (slots, Pact Magic, damage, healing, saves, conditions, and 36 spells' effects on the
+  spells (slots, Pact Magic, damage, healing, saves, conditions, and 37 spells' effects on the
   creature they are cast on); weapons, armor, gear, tools, mounts and vehicles; the SRD magic
   items; conditions and diseases; combat, damage, resting and death saves; all 322 monsters,
   with their attacks, legendary actions, spellcasting and forms. Details in
@@ -264,10 +264,12 @@ Where the SRD is unclear or silent, the pack reads it this way:
 - **Spellcasting:** all 319 SRD spells as mechanics (level, school, class lists, casting time,
   range, components, duration, attack or save, damage and healing); class DCs and attack bonuses;
   spell slots by the multiclass table; Pact Magic; `cast-spell` with upcasting and cantrip
-  scaling; concentration; 36 spells whose effects apply to their target's sheet, with the option
+  scaling; concentration; 37 spells whose effects apply to their target's sheet, with the option
   picked per cast where the spell offers one (`castOptions`: Protection from Energy's damage
   type, Fire Shield's warm or chill shield, Enhance Ability's effect, Enlarge or Reduce,
-  Blindness or Deafness) read as the applied spell's `option`; racial spells;
+  Blindness or Deafness) read as the applied spell's `option`, and the caster as its `caster`
+  (Hunter's Mark: the caster's weapon hits on a creature whose `huntersMark.markedBy` view
+  holds the caster's ID deal an extra 1d6); racial spells;
   subclass spells; the wizard's spellbook (a spell only in the book is cast only as a ritual).
 - **Equipment:** every SRD weapon and armor, 135 gear items, 7 equipment packs, 35 tools, 8
   mounts and 11 vehicles, with cost (gp) and weight (lb) per unit. Extradimensional containers

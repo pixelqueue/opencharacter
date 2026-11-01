@@ -9,6 +9,7 @@ viewFields:
     combat.elusive: { type: boolean, default: false }
     protection.evilAndGood: { type: boolean, default: false }
     sanctuary.dc: { type: integer, default: 0 }
+    huntersMark.markedBy: { type: set, of: string, default: [] }
     sanctuary.beastsAndPlantsDc: { type: integer, default: 0 }
     combat.noCriticals: { type: boolean, default: false }
     combat.attackersDisadvantage: { type: boolean, default: false }
@@ -58,6 +59,13 @@ fields:
   monk.kiEmpoweredStrikes: { type: boolean, formula: false }
   protection.evilAndGood: { type: boolean, formula: false }
   sanctuary.dc: { type: integer, formula: 0, min: 0 }
+  # The characters whose Hunter's Mark is on this creature, by character ID.
+  huntersMark.markedBy:
+    type: set
+    of: string
+    formula: >-
+      mapList(filterList(character.applied, x.active && x.source == @spells.hunters-mark
+        && has(x.state.caster) && x.state.caster != ''), x.state.caster)
   combat.elusive: { type: boolean, formula: false }
   combat.uncannyDodge: { type: boolean, formula: false }
   sanctuary.beastsAndPlantsDc: { type: integer, formula: 0, min: 0 }
