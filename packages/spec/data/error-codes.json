@@ -234,6 +234,11 @@
       "description": "A content item's `fields` don't match its content type: a required field is missing (after `extends`), a name the type doesn't declare, or a value of the wrong shape (a list for a number, boolean or dice field; not a string for a `string` or `id` field; not one of an enum's values; not a list for a `set` field). A member outside the field's `where` is `not-allowed`. Data: `item`, `field`, `reason` (`missing`, `undeclared`, `wrong-type` or `not-allowed`), `pack`; `path` points to the field."
     },
     {
+      "id": "invalid-stacking",
+      "kind": "load",
+      "description": "A stack key spanning fields (`settings.stacking.keys`) scores by a field (`score: { field }`) that none of the key's effects targets. Data: `key`, `field` (qualified), `pack` (the pack declaring the key)."
+    },
+    {
       "id": "template-field-mismatch",
       "kind": "load",
       "description": "Two packs declare a template field (`templateFields`) with the same name and a different `type`, `of` or `values`. Data: `field`, `packs` (the earlier pack, then the later)."

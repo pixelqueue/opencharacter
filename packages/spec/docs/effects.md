@@ -487,14 +487,20 @@ settings:
 - `policy` is `highestOnly`, `lowestOnly` or `playerChooses`; the source kept counts on every
   field of the group, and every other source's effects are suppressed there.
 - A source's **score** decides: `score: sum` (the default), its values on every field added up,
-  or `score: { field: kit.melee3 }`, its value on that field. Dice count by average.
+  or `score: { field: kit.melee3 }`, its value on that field: one of the fields the key's
+  effects target (`invalid-stacking` at load otherwise). Dice count by average.
 - `playerChooses` reports the group once in `competing`, one option per source, the highest
   score recommended. Its option ID is the source's first effect's, and picking it applies the
   source on every field.
+- The group is per op, as stacking always is: a key whose effects both `add` and `multiply` is
+  two groups, each decided and picked on its own.
 - A source is an item where it was reached, so two copies of one item are two sources. The
   reserved key `source` never spans.
 
-Rolls and incoming changes stack a spanning key per group by its `policy`, as any key
+Spanning is for the character's fields only. **Incoming changes and rolls** apply a spanning
+key's `policy` per field (or per roll), not across fields: their effects group by key on the
+change or roll they reach, and `playerChooses` keeps the highest there, as for any key. A roll
+that reads a field still carries only the source the field kept
 ([engine-core.md](engine-core.md#stacking)).
 
 An effect on a [set of fields](#targets) stacks on each field it reaches, with that field's other effects, as if written on it. A roll that reads a field carries the field's keyed `add` effects into its own stacking, so a roll-time bonus competes with the field's bonus of the same key instead of adding on top of it ([engine-actions.md](engine-actions.md#building-the-roll)).

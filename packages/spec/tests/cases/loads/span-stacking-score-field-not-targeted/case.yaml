@@ -1,0 +1,20 @@
+description: "A spanning stack key's score field must be one its effects target: another field is invalid-stacking"
+specVersion: 0.1.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        { id: test-pack, version: 1.0.0, specVersion: 0.1.0, license: CC0-1.0, defaultLanguage: en }
+      rules:
+        settings:
+          stacking:
+            keys:
+              kit-melee: { policy: playerChooses, spansFields: true, score: { field: speed } }
+        fields:
+          kit.melee1: { type: integer, formula: 0 }
+          speed: { type: integer, formula: 5 }
+        contentTypes:
+          kit:
+            effects:
+              - { target: kit.melee1, op: add, value: 1, stackKey: kit-melee }
+      content: []

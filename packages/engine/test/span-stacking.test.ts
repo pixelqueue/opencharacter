@@ -51,6 +51,69 @@ describe('stack keys spanning fields', () => {
     expect(melee[0]?.recommended).toBe('test-span-stacking:kits.martial-artist#type.0');
   });
 
+  it("isn't failed by another field's failing tags, and decides a failing group once", () => {
+    const pack = {
+      manifest: {
+        id: 'p',
+        version: '1.0.0',
+        specVersion: '0.1.0',
+        license: 'CC0-1.0',
+        defaultLanguage: 'en',
+      },
+      rules: {
+        tags: ['x', 'y'],
+        settings: {
+          stacking: { keys: { melee: { policy: 'playerChooses', spansFields: true } } },
+        },
+        fields: {
+          zero: { type: 'integer', input: true, default: 0 },
+          melee1: { type: 'integer', formula: 0 },
+          melee2: { type: 'integer', formula: 0 },
+          // Its computed tag divides by zero, so an effect on a set of fields can't tell whether
+          // it reaches it: the field fails, not the melee group.
+          odd: { type: 'integer', formula: 0, tags: [{ formula: "1 / zero > 0 ? 'x' : 'y'" }] },
+        },
+        contentTypes: { kit: { fields: { m1: { type: 'integer' }, m2: { type: 'integer' } } } },
+        effects: [{ target: { fields: { where: "'x' in item.tags" } }, op: 'add', value: 1 }],
+      },
+      content: [
+        {
+          id: 'kits.a',
+          type: 'kit',
+          fields: { m1: 2, m2: 2 },
+          effects: [
+            { target: 'melee1', op: 'add', value: 'item.m1', stackKey: 'melee' },
+            { target: 'melee2', op: 'add', value: 'item.m2', stackKey: 'melee' },
+          ],
+        },
+        {
+          id: 'kits.b',
+          type: 'kit',
+          fields: { m1: 0, m2: 4 },
+          effects: [
+            { target: 'melee1', op: 'add', value: 'item.m1', stackKey: 'melee' },
+            { target: 'melee2', op: 'add', value: 'item.m2', stackKey: 'melee' },
+          ],
+        },
+      ],
+    };
+    const built = loadRuleset([pack as never]);
+    if (!built.ok) throw new Error(JSON.stringify(built.errors));
+    const doc: CharacterDoc = {
+      specVersion: '0.1.0',
+      id: 'c',
+      packs: [{ id: 'p', version: '1.0.0' }],
+      features: [
+        { id: 'a', item: 'p:kits.a' },
+        { id: 'b', item: 'p:kits.b' },
+      ],
+    };
+    const sheet = computeSheet(built.ruleset, doc);
+    expect(sheet.values['p:odd']?.error).toBeDefined();
+    expect([sheet.values['p:melee1']?.value, sheet.values['p:melee2']?.value]).toEqual([2, 2]);
+    expect(sheet.competing.filter((c) => c.stackKey === 'melee')).toHaveLength(1);
+  });
+
   it('suppresses the other sources on every field', () => {
     const sheet = computeSheet(ruleset, kits('martial-artist', 'mountain'));
     const suppressed = sheet.effects

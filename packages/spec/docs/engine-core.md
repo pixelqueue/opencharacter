@@ -550,10 +550,17 @@ three. The reserved key `source` never spans.
 4. **Apply:** on each field, the kept source's instances of the group count and every other
    source's are suppressed, whatever that field holds alone.
 
+The group is per op: a key with `add` and `multiply` instances is two groups, each decided and
+reported on its own. Only the fields its instances of that op target are read, so another
+field failing (its computed tags, say) doesn't fail the group. A `score` field none of the key's
+instances targets is `invalid-stacking` at load.
+
 The group is decided once per sheet, when the first of its fields is computed, so evaluating its
 instances must not read a field the group reaches: that is `circular-formula` on the field
-being computed. A roll carries a field's counted instances as usual, and on a roll or an
-incoming change the key's `policy` applies per group, not spanning.
+being computed. A group that fails (a `when` or value that fails, or that loop) is decided once
+too: each of its fields fails with that error. A roll carries a field's counted instances as
+usual, and on a roll or an incoming change the key's `policy` applies per field or roll, not
+spanning.
 
 ### Pending choices and issues
 

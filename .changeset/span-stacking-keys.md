@@ -8,4 +8,5 @@ groups the key's effects of one op on every field and keeps one source for all o
 score (`sum`, or `{ field }`). `playerChooses` reports it as one `competing` entry with `fields`,
 one option per source with its score as `value` and its value per field as `values`; picking it
 applies the source on every field. A Draw Steel kit's bonus across three tiers is one bonus
-(#197). Keys declared as a plain policy behave as before.
+(#197). A score field none of the key's effects targets is the load error `invalid-stacking`. Keys
+declared as a plain policy behave as before.

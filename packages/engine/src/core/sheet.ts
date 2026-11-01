@@ -2627,18 +2627,24 @@ export class Sheet {
     return out.toSorted((a, b) => a.order - b.order);
   }
 
-  private readonly spans = new Map<string, string | undefined>();
+  /** Each decided group's source, or the Failure that kept it from being decided. */
+  private readonly spans = new Map<string, string | undefined | Failure>();
   private readonly spanning = new Set<string>();
 
   /**
    * The source whose effects count for a stack key spanning fields, for one op: each source's
    * active effects of the key on every field, scored, the best kept or, for `playerChooses`, the
    * player's pick, reported once as competing. Throws Failure when a member fails, or reads a
-   * field the group reaches while it is being decided.
+   * field the group reaches while it is being decided. A group that failed fails the same way on
+   * every field, decided once.
    */
   private spanChoice(key: string, op: string, span: SpanningKey): string | undefined {
     const id = `${key}\u0000${op}`;
-    if (this.spans.has(id)) return this.spans.get(id);
+    if (this.spans.has(id)) {
+      const known = this.spans.get(id);
+      if (known instanceof Failure) throw known;
+      return known;
+    }
     if (this.spanning.has(id))
       throw new Failure({
         code: 'circular-formula',
@@ -2650,8 +2656,10 @@ export class Sheet {
       type Option = { first: EffectInstance; values: Map<string, f.Value> };
       const options = new Map<string, Option>();
       const fields: string[] = [];
+      const member = (i: EffectInstance) => i.effect.op === op && i.effect.stackKey === key;
       for (const qid of Object.keys(this.ruleset.fields)) {
-        if (!this.byField.has(qid)) continue;
+        // Only the fields the key's effects target: another field's can't fail the group.
+        if (!this.byField.get(qid)?.some(member)) continue;
         for (const i of this.instancesOn(qid)) {
           const e = i.effect;
           if (e.op !== op || e.stackKey !== key || !this.test(e.when, i.pack, i.roots)) continue;
@@ -2704,6 +2712,9 @@ export class Sheet {
       const out = chosen && spanSource(chosen.first);
       this.spans.set(id, out);
       return out;
+    } catch (error) {
+      if (error instanceof Failure) this.spans.set(id, error);
+      throw error;
     } finally {
       this.spanning.delete(id);
     }

@@ -3158,6 +3158,7 @@ export type ErrorCode =
   | 'invalid-extension'
   | 'link-start-mismatch'
   | 'invalid-item-field'
+  | 'invalid-stacking'
   | 'template-field-mismatch'
   | 'unknown-role'
   | 'circular-extends'
