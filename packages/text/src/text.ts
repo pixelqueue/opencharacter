@@ -265,7 +265,8 @@ export interface Text {
   issue(issue: RulesIssue | EngineError): string;
   /**
    * The spec's text, by the variant its data picks (`errors.out-of-range.min`,
-   * `errors.out-of-range.exact`, `errors.wrong-type.values`, `errors.invalid-option.param`,
+   * `errors.out-of-range.exact`, `errors.wrong-type.values`, `errors.invalid-option.param`, `.field`
+   * and `.target`,
    * `errors.safety-limit-exceeded.<limit>`); a code without text, or whose text misses an
    * argument, as its `data.message` when it has one, else `errors.other`. Neither names the code:
    * log `code` and `data` for developers.
@@ -882,13 +883,17 @@ export function createText(options: TextOptions): Text {
       ) {
         // A rules-level choice's ID (`rules/<choice>`) has no pack: its prompt is in the one
         // pack that declares the choice.
-        const prompt = (k: { pack: string | null; key: string }) =>
-          k.pack
-            ? message(k.pack, k.key)
+        // A slot's prompt is formatted with its number; a prompt missing an argument is skipped.
+        const prompt = (k: { pack: string | null; key: string; slot?: number }) => {
+          const args = k.slot === undefined ? {} : { slot: k.slot };
+          const one = (pack: string) => format(findPack(pack, k.key), args, true);
+          return k.pack
+            ? one(k.pack)
             : packOrder
                 .flatMap((l) => Object.keys(options.packs[l] ?? {}))
-                .map((pack) => message(pack, k.key))
+                .map(one)
                 .find((m) => m !== undefined);
+        };
         const choice = issueChoicePromptKeys(issue.id)
           .map(prompt)
           .find((m) => m !== undefined);

@@ -515,6 +515,22 @@ describe('orc-2e', () => {
     expect(text.field('orc-2e:skills.lore.custom2.mod')).toBe('Lore');
   });
 
+  it("names a slot choice's issue by its prompt, with the slot's number", () => {
+    const id = 'orc-2e:features.variants.automatic-bonus-progression/skill-potency-6';
+    expect(text.issue({ code: 'too-many-picks', id, data: { max: 1 } })).toBe(
+      'Skill potency (level 6): too many options are picked (at most 1).',
+    );
+  });
+
+  it('keeps a variant group with only its standard copy hidden while the variant is off', () => {
+    const ren = parse(
+      readFileSync(join(root, 'examples', 'characters', 'orc-ren.yaml'), 'utf8'),
+    ) as CharacterDoc;
+    const group = computeSheet(ruleset, ren).groups.find((g) => g.id === 'variant-features');
+    expect(group?.items?.length).toBeGreaterThan(0);
+    expect(group?.shown).toBe(false);
+  });
+
   it("names an option a content type adds by the type's text", () => {
     expect(text.option('orc-2e:staves.staff-of-healing#rank1')).toBe('1 charge from the staff');
     expect(text.option('orc-2e:wands.magic-wand-1st-rank-spell#cast')).toBe(

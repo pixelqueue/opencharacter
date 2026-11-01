@@ -165,10 +165,11 @@ export function prerequisiteOwner(id: string):
 
 /**
  * A choice issue's choice prompt keys, from its `<owner>/<choice>` ID (an inline option's choice
- * `<item>/<choice>/<option>/<choice>`): the key as written, then a slot's declared choice's. A
+ * `<item>/<choice>/<option>/<choice>`): the key as written, then a slot's declared choice's with
+ * the slot's number (a slot's prompt takes `{slot}`). A
  * rules-level choice's (`rules/<choice>`) has pack `''`: the ID doesn't name it.
  */
-export function issueChoicePromptKeys(id: string): MessageRef[] {
+export function issueChoicePromptKeys(id: string): (MessageRef & { slot?: number })[] {
   const [pack, local] = split(id);
   const parts = local.split('/');
   if (parts.length < 2 || parts.length % 2 !== 0) return [];
@@ -176,11 +177,12 @@ export function issueChoicePromptKeys(id: string): MessageRef[] {
   for (let i = 1; i + 2 < parts.length; i += 2)
     root += `.choices.${parts[i] as string}.options.${parts[i + 1] as string}`;
   const choice = parts.at(-1) as string;
-  const slot = choice.replace(/-\d+$/, '');
-  return [choice, ...(slot === choice ? [] : [slot])].map((c) => ({
-    pack,
-    key: `${root}.choices.${c}.prompt`,
-  }));
+  const key = (c: string) => `${root}.choices.${c}.prompt`;
+  const slot = /^(.+)-(\d+)$/.exec(choice);
+  return [
+    { pack, key: key(choice) },
+    ...(slot ? [{ pack, key: key(slot[1] as string), slot: Number(slot[2]) }] : []),
+  ];
 }
 
 /** A rules issue's own key in its pack, or `undefined` when the spec's `issues.<code>` applies. */
