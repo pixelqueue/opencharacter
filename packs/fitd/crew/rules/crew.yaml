@@ -55,8 +55,8 @@ followUps:
     action: crew-advance
 
 actions:
-  # The crew can't reach its members, so each scoundrel's stash is the outcome's `stash`, for their
-  # own sheets.
+  # Each member passed in the `member` role gains stash on their own sheet; the outcome's `stash`
+  # reports it too, for an app that passes none.
   - id: crew-advance
     available: xp.current >= xp.max
     # The members, who each gain stash (tier + 2) on their own sheets: the change names the
