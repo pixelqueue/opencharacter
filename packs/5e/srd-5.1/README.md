@@ -337,8 +337,10 @@ six Hunter's tactics (Escape the Horde, Giant Killer, Horde Breaker, Multiattack
 Against the Tide, Steel Will), two invocations (Eyes of the Rune Keeper, Gaze of Two Minds), the
 Protection and Two-Weapon Fighting styles, Pact of the Blade, four traits (Halfling Nimbleness,
 Naturally Stealthy, Trance, Nimble Escape) and Shelter of the Faithful: 24 files in all. 63 of
-the 318 magic items are text. Of the 319 spells, 198 do nothing on the sheet beyond spending the slot: what they do is
-their SRD text, for the app and the table (detection, illusions, summoning, movement, utility).
+the 318 magic items are text. Of the 319 spells, 163 do nothing on the sheet beyond spending the
+slot (no attack, save, damage, healing, condition, applied effect or action of their own): what
+they do is their SRD text, for the app and the table (detection, illusions, summoning, movement,
+utility).
 
 - **The app's:** turns and action economy (Cunning Action, Fast Hands, Vanish, Persistent Rage,
   Nimble Escape; once per turn), the clock (durations, dawn, rests, crafting time), space and
