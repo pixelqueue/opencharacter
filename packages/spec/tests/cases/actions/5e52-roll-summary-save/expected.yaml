@@ -1,0 +1,15 @@
+# A save can't crit or fumble: `critical` and `natural-one` resolve to false, and so does
+# `rolled` (a DC is given), so they're left out.
+status: paused
+needs:
+  step: test/roll
+  action: 5e-srd-5.2:d20-test
+  kind: dice
+  summary:
+    bandSet: 5e-srd-5.2:d20
+    bands:
+      - band: success
+        success: true
+        when: 'roll.total >= 15'
+        tests: [{ of: roll.total, compare: ge, value: 15 }]
+      - { band: failure, when: 'true', tests: [] }

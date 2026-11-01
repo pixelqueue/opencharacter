@@ -1,0 +1,21 @@
+# The champion's critical range (19) and the target's AC (15) are params of the nested
+# d20-test; `rolled` (no DC) can't hold, so it's left out.
+status: paused
+needs:
+  step: test/roll
+  action: 5e-srd-5.2:d20-test
+  kind: dice
+  summary:
+    bandSet: 5e-srd-5.2:d20
+    bands:
+      - band: critical
+        when: 'roll.kept[0] >= 19'
+        tests: [{ of: 'roll.kept[0]', compare: ge, value: 19 }]
+      - band: natural-one
+        when: 'roll.kept[0] == 1'
+        tests: [{ of: 'roll.kept[0]', compare: eq, value: 1 }]
+      - band: success
+        success: true
+        when: 'roll.total >= 15'
+        tests: [{ of: roll.total, compare: ge, value: 15 }]
+      - { band: failure, when: 'true', tests: [] }

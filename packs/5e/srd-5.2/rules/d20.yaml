@@ -15,6 +15,15 @@ effects:
     value: { kind: disadvantage }
     when: has(params.disadvantage) && params.disadvantage
 
+# Classifies each d20 roll before rerolls and features adjust it: the outcome step decides.
+resultBands:
+  d20:
+    - { id: critical, when: "params.kind == 'attack' && roll.kept[0] >= params.crit" }
+    - { id: natural-one, when: "params.kind == 'attack' && roll.kept[0] == 1" }
+    - { id: rolled, when: '!has(params.dc)' }
+    - { id: success, when: roll.total >= params.dc, success: true }
+    - { id: failure, when: true }
+
 actions:
   - id: d20-test
     available: false
@@ -48,6 +57,7 @@ actions:
               me: character.id
       - id: roll
         kind: roll
+        bands: d20
         tags:
           [d20-test, { formula: "params.ability != 'none' ? ['ability.' + params.ability] : []" }]
         parts: &d20-parts
@@ -75,6 +85,7 @@ actions:
         recommend: "'keep'"
       - id: inspiredRoll
         kind: roll
+        bands: d20
         when: flags.inspired
         tags:
           [d20-test, { formula: "params.ability != 'none' ? ['ability.' + params.ability] : []" }]
@@ -109,6 +120,7 @@ actions:
         recommend: "'keep'"
       - id: retryRoll
         kind: roll
+        bands: d20
         when: flags.retry
         tags:
           [d20-test, { formula: "params.ability != 'none' ? ['ability.' + params.ability] : []" }]
