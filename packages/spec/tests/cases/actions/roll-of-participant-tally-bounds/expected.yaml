@@ -9,3 +9,20 @@ outcome:
     tiers: [3, 2]
     edges: [1, 0]
     banes: [0, 0]
+log:
+  - { step: roll, kind: dice, by: engine, faces: [8, 5], total: 15, band: tier2 }
+  - { step: 'tier[0]', kind: dice, by: engine, of: roll, total: 17, bounded: 15, band: tier3 }
+  - step: 'tier[1]'
+    kind: dice
+    by: engine
+    of: roll
+    total: 15
+    band: tier2
+    tallies:
+      - name: banes
+        value: 0
+        sources:
+          - { source: { type: rules, id: test-power-rolls:rules }, op: add, value: 1 }
+          - source: { type: item, id: test-power-rolls:features.resonance, entry: resonance }
+            op: atMost
+            value: 0

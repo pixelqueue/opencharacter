@@ -190,14 +190,24 @@ actions:
       - id: done
         kind: outcome
         result: "'other'"
+  # A roll whose band set has no value, which a band-value bound matches.
+  - id: tap
+    results: { bands: plain }
+    steps:
+      - { id: roll, kind: roll, tags: [melee], bands: plain, parts: [{ dice: 1d6 }] }
   - id: peek
     results: { bands: nothing }
     steps:
       - id: done
         kind: outcome
         result: "'seen'"
+resultBands:
+  plain:
+    - { id: any, when: true }
 # A rules option effect can't limit itself to its own copy's actions.
 effects:
+  # A bound on the band value of a set that has none.
+  - { target: { rolls: [melee], band: value }, op: atLeast, value: 2 }
   - target: { choices: [melee], from: self }
     op: option
     value: { id: rest, changes: [{ type: adjust, field: abilities.str.score, by: 1 }] }

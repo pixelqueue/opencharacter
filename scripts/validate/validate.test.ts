@@ -420,6 +420,12 @@ describe('pnpm validate', () => {
       expect(messages.filter((m) => /unknown action "whirl"/.test(m))).toEqual([]);
     });
 
+    it('warns about a bound on the band value of a set that has none', () => {
+      expect(reporter.warnings.map((w) => w.message)).toContain(
+        'rules effect effect: bounds a band set\'s value, but band set "plain" of a matching roll has no value',
+      );
+    });
+
     it('warns about an action with an outcome but no declared results', () => {
       expect(reporter.warnings.map((w) => w.message)).toContain(
         'actions.swing: has an outcome step but declares no results',

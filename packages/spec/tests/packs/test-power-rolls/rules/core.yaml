@@ -90,3 +90,23 @@ actions:
           tiers: mapList(steps.tier, x.bandValue)
           edges: mapList(steps.tier, x.tallies.edges)
           banes: mapList(steps.tier, x.tallies.banes)
+  # The same, banded again per target with no tags of its own: only the roll's bounds apply.
+  - id: sweep
+    participants:
+      target:
+        fields:
+          prone: { type: boolean, default: false }
+    results: { bands: power }
+    steps:
+      - id: roll
+        kind: roll
+        tags: [power]
+        bands: power
+        parts: [{ dice: 2d10 }, { value: might }]
+      - { id: tier, kind: roll, each: target, of: roll, bands: power }
+      - id: result
+        kind: outcome
+        result: steps.roll.band
+        data:
+          tier: steps.roll.bandValue
+          tiers: mapList(steps.tier, x.bandValue)

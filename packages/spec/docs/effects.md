@@ -453,14 +453,17 @@ and an effect targets one with `target: { rolls: [action-roll], tally: effect }`
 - A step that classifies an earlier roll again per participant (`of`, `each`) with tags of its
   own works the tallies out again from the roll's, with the effects matching its tags and
   `participant` bound, so an edge against one target reaches only that target's band
-  ([dice-and-actions.md](dice-and-actions.md#steps)).
+  ([dice-and-actions.md](dice-and-actions.md#steps)). The roll's own `atLeast` and `atMost`
+  hold there too, after the step's adds. Aim an `add` at one of the two tags, never both: it
+  would count twice.
 
 ### Bounds on a band set's value
 
 `target: { rolls, band: value }` aims an `atLeast` or `atMost` (an integer `value`) at the value
 of the band set the matching roll step classifies by, once the set's `value` is worked out and
-before its bands read it as `roll.value`. It needs a set whose value is a number, and does
-nothing on any other. Stacking applies per op, as for bounds on the total; the log entry lists
+before its bands read it as `roll.value`, and again whenever that roll is classified again
+(`of`). It needs a set whose value is a number, and does nothing on any other (`pnpm validate`
+warns about a matching roll step whose set has no `value`). Stacking applies per op, as for bounds on the total; the log entry lists
 each bound that changed the value in `bandBounds`. A minimum tier, Draw Steel's Area of
 Expertise:
 

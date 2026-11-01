@@ -76,6 +76,7 @@ import type {
   ProposedChange,
   Query,
   Step,
+  TagOrFormula,
   TypeHints,
   ValueDecl,
 } from './types.ts';
@@ -1741,6 +1742,7 @@ export class PackChecker {
         if (!['add', 'atLeast', 'atMost'].includes(effect.op))
           this.report.error(file, `${label}: op "${effect.op}" cannot target a roll tally`);
       }
+      if (effect.target.band === 'value') this.bandValueTarget(effect.target.rolls, file, label);
     } else if ('incoming' in effect.target) {
       this.tagList(effect.target.incoming.tags, file, label);
       for (const ref of effect.target.incoming.fields ?? []) {
@@ -2453,6 +2455,34 @@ export class PackChecker {
       }
       this.tag(change.split.by, file, where);
     }
+  }
+
+  /**
+   * A bound on a band set's value does nothing on a set without a `value`: a warning for each
+   * roll step of the rules' actions in scope whose literal tags it matches and whose set has none.
+   */
+  private bandValueTarget(rolls: string[], file: string, label: string): void {
+    const matches = (tags: TagOrFormula[] | undefined) =>
+      (tags ?? []).some(
+        (t) => typeof t === 'string' && rolls.some((r) => t === r || t.startsWith(`${r}.`)),
+      );
+    const valueless = new Set<string>();
+    const visit = (steps: Step[]) => {
+      for (const step of steps) {
+        if (step.kind === 'roll' && step.bands && matches(step.tags)) {
+          const set = this.ruleset.bands(step.bands, this.scope);
+          if (set && set.def.value === undefined) valueless.add(step.bands);
+        }
+        for (const arm of stepArms(step)) visit(arm.steps ?? []);
+      }
+    };
+    for (const pid of this.scope)
+      for (const [, { def }] of this.ruleset.rules.get(pid)?.actions ?? []) visit(def.steps);
+    for (const set of valueless)
+      this.report.warn(
+        file,
+        `${label}: bounds a band set's value, but band set "${set}" of a matching roll has no value`,
+      );
   }
 
   /**

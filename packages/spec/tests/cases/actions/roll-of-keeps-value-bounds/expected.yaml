@@ -1,0 +1,31 @@
+# 1 + 2 + 2 = 5, tier 1, raised to tier 2: the roll and both targets (the step has no tags, so
+# b's prone brings nothing).
+status: finished
+outcome:
+  result: tier2
+  data: { tier: 2, tiers: [2, 2] }
+log:
+  - step: roll
+    kind: dice
+    by: engine
+    faces: [1, 2]
+    total: 5
+    band: tier2
+    bandValue: 2
+    bandBounds: [{ source: { type: rules, id: test-power-rolls:rules }, op: atLeast, value: 2 }]
+  - step: 'tier[0]'
+    kind: dice
+    by: engine
+    of: roll
+    total: 5
+    band: tier2
+    bandValue: 2
+    bandBounds: [{ source: { type: rules, id: test-power-rolls:rules }, op: atLeast, value: 2 }]
+  - step: 'tier[1]'
+    kind: dice
+    by: engine
+    of: roll
+    total: 5
+    band: tier2
+    bandValue: 2
+    bandBounds: [{ source: { type: rules, id: test-power-rolls:rules }, op: atLeast, value: 2 }]

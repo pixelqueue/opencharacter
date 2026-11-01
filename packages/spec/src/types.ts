@@ -67,7 +67,7 @@ export type RollStep = {
   sheet?: StepSheet;
   /** Run the step once per participant of this declared role, in input order, with `participant` bound and `when` evaluated per participant. With none, the step doesn't run. Its result is a list in participant order (null where `when` skipped one); inside a later `each` step over the same role, it is the current participant's. Log paths gain the index (`saves[1]`). */
   each?: Name;
-  /** Tags of the roll; entries may be formulas. With `of`, the step's own tags: the roll effects matching them (tallies, and `atLeast` and `atMost` on the total or the band value) apply on top of the earlier roll's, in the step's context, `participant` bound with `each`. */
+  /** Tags of the roll; entries may be formulas. With `of`, the step's own tags: the roll effects matching them (tallies, and `atLeast` and `atMost` on the total or the band value) apply on top of the earlier roll's, in the step's context, `participant` bound with `each`. The earlier roll's bounds on its tallies and band value hold with or without them. */
   tags?: TagList;
   parts?: RollPart[];
   /** Classify an earlier roll again instead of rolling: the path of a roll step of this action as the log names it, relative to the action (`check/roll`, the roll of the nested action step `check`). The step's result is that roll's (total before its band set's `total`, faces, kept, items, tallies, bounds), with its own `tags`' tallies and bounds added, and the band its own `bands` gives in its own context: its flags, and with `each` the current participant and that participant's flags. In an `each` step, a path whose first step is an `each` step over the same role names that step's run for the current participant. A roll that didn't run leaves the step without a result. Not a checkpoint: nothing is asked or recorded. */
@@ -1769,7 +1769,7 @@ export type LogEntry = {
     kept: boolean;
     items: RollItem[];
   }[];
-  /** Roll steps: each roll tally with a non-zero value, with what contributed to it. On a step with `of`, each tally its own effects reached, `value` the final one and `sources` its own. */
+  /** Roll steps: each roll tally with a non-zero value, with what contributed to it. On a step with `of`, each tally its effects reached, `value` the final one and `sources` its own adds and the bounds that changed it there. */
   tallies?: {
     name: Name;
     value: number;

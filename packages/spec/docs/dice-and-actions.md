@@ -704,18 +704,21 @@ observer:
 - { id: against, kind: roll, each: observer, of: check/roll, bands: degree }
 ```
 
-**Per-participant tallies and bounds.** A roll step with `of` may carry `tags` of its own
+**Per-participant tallies and bounds.** The earlier roll's bounds on its tallies and on its
+band value (`atLeast` and `atMost`, never its `add`s) hold whenever it is classified again,
+re-applied there, with or without tags. A roll step with `of` may also carry `tags` of its own
 (computed entries allowed; the tags an `action` step adds don't count, as they reached the
 earlier roll). The roll effects matching them work out its tallies and bounds again, on top of
 the earlier roll's, in the step's context: with `each`, `participant` bound to the current
 view. Each tally starts from the earlier roll's value, takes every matching `add`, then the
-highest `atLeast` and the lowest `atMost`; the total starts from the earlier roll's (before its
-band set's `total`) and takes the matching `atLeast` and `atMost`. Other roll effects (items,
-dice) shape a roll that rolls and don't apply. So what one target brings to a roll reaches only
-that target's band. Draw Steel's power roll is rolled once, then banded per target, a prone
-target giving an edge, Executioner's Blade an edge against a winded one, and Manifold Resonance
-ignoring banes, the roll's own and each target's (its `atMost` matches both steps, so it
-applies after each target's banes are added):
+highest `atLeast` and the lowest `atMost` of the step's own and the roll's; the total starts
+from the earlier roll's (before its band set's `total`) and takes the step's own `atLeast` and
+`atMost`. Other roll effects (items, dice) shape a roll that rolls and don't apply, so a
+per-target advantage can't be made this way. What one target brings to a roll reaches only that
+target's band. Draw Steel's power roll is rolled once, then banded per target, a prone target
+giving an edge, Executioner's Blade an edge against a winded one, and Manifold Resonance
+ignoring banes, the roll's own and each target's (its `atMost` on the roll holds on each
+target's step, after that target's banes are added):
 
 ```yaml
 # The ability: one roll, a tier per target.
@@ -732,12 +735,16 @@ applies after each target's banes are added):
   value: 1
   when: participant.stamina.winded
 # Manifold Resonance.
-- { target: { rolls: [power-roll, power-target], tally: banes }, op: atMost, value: 0 }
+- { target: { rolls: [power-roll], tally: banes }, op: atMost, value: 0 }
 ```
 
 Give the per-participant step a tag that the roll's own effects don't match: one below the
-roll's tag (`power-roll.target`) would count every `power-roll` `add` twice. `steps.tier` is
-then each target's result, tallies included, and `i` pairs it with the targets
+roll's tag (`power-roll.target`) would count every `power-roll` `add` twice, and so does an
+`add` naming both tags. A bound may name both (it applies once per step, an effect both steps
+gather counting once, as the step's own), though it needn't: the roll's bounds hold anyway.
+Stacking is per step: an `add` on the roll and one on the per-participant step sharing a
+`stackKey` don't compete, each step keeping its own. `steps.tier` is then each target's result,
+tallies included, and `i` pairs it with the targets
 (`mapList(steps.tier, participants.target[i].id)`).
 
 **Costs after the roll.** An action proposes its changes; nothing is paid until the app applies
@@ -746,7 +753,10 @@ them, so a cost that depends on the roll is a `changes` step after it: Draw Stee
 maintained Elementalist ability pays nothing. `available`, checked before the run, reads the
 lowest cost the action can come to, through fields the content changes (a discount the Shadow's
 feature adds to, a set of free abilities), and an `outcome` step after the roll ends an action
-whose actual cost can't be paid, before any step proposes its effects:
+whose actual cost can't be paid, before any later step proposes its effects. By then the roll
+has happened: its dice are in the log, and the `then` of each roll effect that counted on the
+roll or the per-target step is already proposed (a use spent, an effect ended). Keep effects
+with a `then` off those tags, or accept that they fire on a use that ends unpaid:
 
 ```yaml
 available: heroic.current - max(0, item.cost - abilities.discount) >= heroic.min

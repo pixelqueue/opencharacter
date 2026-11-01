@@ -321,7 +321,7 @@ Dice items are rolled in order, each by the formula language's rules
     with a `value` evaluates it once first, with `roll` bound to this result, and
     its bands see it as `roll.value`. A numeric value then takes the highest counted `atLeast`
     and the lowest counted `atMost` of the step's effects aimed at it (`target: { rolls, band:
-    value }`), truncated to integers, stacking per op as for the total; the log entry lists each
+    value }`; on a step with `of`, the earlier roll's too), truncated to integers, stacking per op as for the total; the log entry lists each
     that changed it in `bandBounds`, `{ source, op, value }`. On any other value they do nothing;
   - `bandValue`: that value, when the step's set has one (the log entry records it too);
   - `bandSet`: the qualified ID of the band set the step classified by
@@ -349,22 +349,28 @@ A roll step with `of` builds and rolls nothing and is not a checkpoint:
    step's `bands` in the step's band context (its flags, `params`, `steps`, `participants`, and
    in an `each` step `participant` and the participant's flags). A `split` may read it as it
    would the earlier roll.
-3. **The step's own effects.** With `tags` (its own: computed entries are evaluated, and an
+3. **The effects.** With `tags` (its own: computed entries are evaluated, and an
    `action` step's added tags don't count), the roll effects whose `rolls` match them are
    gathered as a roll step's are (the sheet's, then the selected situational choices'; `from:
    self` as usual) and their `when` evaluated in the step's context: `participant` in an `each`
-   step, `roll` with the action's `item` and `self` and the step's tags. Before the band:
-   - each tally starts from the earlier roll's value, then takes every matching `add`, the
-     highest `atLeast` and the lowest `atMost`, as a roll's tallies do;
-   - the total takes the highest matching `atLeast`, then the lowest `atMost`, added to
-     `bounds`; `bounded` is the result;
+   step, `roll` with the action's `item` and `self` and the step's tags. With them, with or
+   without tags, come the earlier roll's counted `atLeast` and `atMost` effects on its tallies and
+   its band value, evaluated as they were for that roll; an effect instance both gathered counts
+   once, as the step's own. Before the band:
+   - each tally starts from the earlier roll's value, then takes every `add` of the step's own,
+     then the highest `atLeast` and the lowest `atMost` of both, as a roll's tallies do;
+   - the total takes the step's own highest `atLeast`, then lowest `atMost`, added to `bounds`;
+     `bounded` is the result;
+   - the band value takes the bounds of both (below);
    - any other roll effect is ignored: nothing is rolled or built;
-   - after the band, an effect that changed a tally, the total or the band value (or, `when:
-     applied`, matched) proposes its `then`, as on a roll step, at this step's path.
+   - after the band, each of the step's own effects that changed a tally, the total or the band
+     value (or, `when: applied`, matched) proposes its `then`, as on a roll step, at this step's
+     path. The earlier roll's effects proposed theirs already.
 4. **The log** gets an entry `{ step, action, kind: dice, by: engine, of, items, total, bounded?,
    band?, bandSet?, bandValue?, bandBounds?, summary, tallies?, bounds? }`, `of` the earlier
-   roll's full path; no `faces`. `tallies` lists each tally the step's own effects reached
-   (`value` the final one, `sources` the step's own) and `bounds` the step's own bounds. Its
+   roll's full path; no `faces`. `tallies` lists each tally the step's effects reached (`value`
+   the final one, `sources` the step's adds and the bounds that changed it here) and `bounds`
+   the step's own bounds. Its
    summary is worked out as for any roll step, before the band.
 
 ### The roll summary

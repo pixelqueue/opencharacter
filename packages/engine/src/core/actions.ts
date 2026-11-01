@@ -533,7 +533,15 @@ interface Ctx {
   log: LogEntry[];
   proposed: Proposed[];
   stepsRun: number;
-  rolls: Map<string, { result: Record<string, unknown>; items: BuiltItem[] }>;
+  rolls: Map<
+    string,
+    {
+      result: Record<string, unknown>;
+      items: BuiltItem[];
+      /** The roll's counted bounds on its tallies and band value, re-applied when it's banded again. */
+      bounds?: { active: RollCandidate[]; roots: (c: RollCandidate) => Record<string, unknown> };
+    }
+  >;
   /** The effects whose `then` the run has proposed: each proposes it at most once. */
   ended: Set<string>;
   /** Changes a roll effect's `then` proposed: a record of rolls made, which `hold` leaves alone. */
@@ -2395,7 +2403,11 @@ function rollStep(ctx: Ctx, frame: Frame, step: Step, path: string): void {
   result.items = out;
   setResult(frame, step.id, result);
   frame.rollItems.set(itemsKey(frame, step.id), items);
-  ctx.rolls.set(path, { result, items });
+  ctx.rolls.set(path, {
+    result,
+    items,
+    bounds: { active: active.filter(isRebound), roots: effectCtx },
+  });
   ctx.log.push({
     step: path,
     action: frame.qid,
@@ -2434,6 +2446,19 @@ interface RollEffects {
   roots: (c: RollCandidate) => Record<string, unknown>;
   changed: Set<RollCandidate>;
 }
+
+/** A roll's bounds that hold when it is classified again: on a tally, or on the band value. */
+const isRebound = (c: { effect: Effect }) =>
+  (c.effect.op === 'atLeast' || c.effect.op === 'atMost') &&
+  (targets(c.effect)?.tally !== undefined || targets(c.effect)?.band === 'value');
+
+/** The same effect instance, whichever step gathered it. */
+const instanceKey = (c: RollCandidate) =>
+  JSON.stringify([
+    c.instance.optionId,
+    c.instance.applied ?? null,
+    c.instance.source.entry ?? null,
+  ]);
 
 /** Effects that bound the roll's total: not a tally's, nor the band set value's. */
 const boundsTotal = (c: { effect: Effect }) =>
@@ -2619,35 +2644,43 @@ function classifyAgain(ctx: Ctx, frame: Frame, step: Step, path: string, of: str
   );
   // Only the step's own tags: those an action step adds already reached the earlier roll.
   const tags = tagsOf(ctx, step.tags, (fm) => evaluate(ctx, frame, fm));
-  let effects: RollEffects | undefined;
-  let tallies: TallyLog[] = [];
-  let bounds: BoundLog[] = [];
   const rollRoot = rollRootOf(frame, tags);
   const action = actionRoot(ctx, frame, step);
-  if (tags.length > 0) {
-    const { item: _item, self: _self, ...actionContext } = context(frame);
-    const roots = (c: RollCandidate) => ({ ...actionContext, ...c.roots, action, roll: rollRoot });
-    const active = rollCandidates(ctx, frame, tags).filter((c) => {
-      if (c.effect.when === undefined) return true;
-      const v = ctx.sheet.evaluate(c.effect.when, c.pack, roots(c));
-      return v.kind === 'bool' && v.value;
-    });
-    effects = { active, roots, changed: new Set() };
-    const before = (rolled.tallies ?? {}) as Record<string, number>;
-    tallies = rollTallies(ctx, frame, active, roots, effects.changed, before);
-    result.tallies = Object.fromEntries(tallies.map((t) => [t.name, t.value]));
-    bounds = rollBounds(ctx, active.filter(boundsTotal), roots, start, effects.changed);
-    const total = bounds.at(-1)?.value ?? start;
-    result.total = total;
-    result.bounded = total;
+  const { item: _item, self: _self, ...actionContext } = context(frame);
+  const ownRoots = (c: RollCandidate) => ({ ...actionContext, ...c.roots, action, roll: rollRoot });
+  const own =
+    tags.length === 0
+      ? []
+      : rollCandidates(ctx, frame, tags).filter((c) => {
+          if (c.effect.when === undefined) return true;
+          const v = ctx.sheet.evaluate(c.effect.when, c.pack, ownRoots(c));
+          return v.kind === 'bool' && v.value;
+        });
+  // The earlier roll's bounds on its tallies and band value hold here too, after this step's
+  // adds; an effect both steps gathered counts once, as this step's.
+  const ownKeys = new Set(own.map(instanceKey));
+  const inherited = (earlier.bounds?.active ?? []).filter((c) => !ownKeys.has(instanceKey(c)));
+  const fromEarlier = new Set(inherited);
+  const roots = (c: RollCandidate) =>
+    fromEarlier.has(c)
+      ? (earlier.bounds as NonNullable<typeof earlier.bounds>).roots(c)
+      : ownRoots(c);
+  const active = [...inherited, ...own].toSorted((a, b) => a.instance.order - b.instance.order);
+  const effects: RollEffects = { active, roots, changed: new Set() };
+  const before = (rolled.tallies ?? {}) as Record<string, number>;
+  const tallies = rollTallies(ctx, frame, active, roots, effects.changed, before);
+  result.tallies = Object.fromEntries(tallies.map((t) => [t.name, t.value]));
+  const bounds = rollBounds(ctx, own.filter(boundsTotal), ownRoots, start, effects.changed);
+  result.total = bounds.at(-1)?.value ?? start;
+  result.bounded = result.total;
+  if (bounds.length)
     result.bounds = [...((rolled.bounds as BoundLog[] | undefined) ?? []), ...bounds];
-  }
   const bounded = result.total as number;
   const { bandValue, bandBounds } = classify(ctx, frame, step.bands, result, effects);
   setResult(frame, step.id, result);
   frame.rollItems.set(itemsKey(frame, step.id), earlier.items);
   ctx.rolls.set(path, { result, items: earlier.items });
-  const own = tallies.filter((t) => t.sources.length > 0);
+  const reached = tallies.filter((t) => t.sources.length > 0);
   ctx.log.push({
     step: path,
     action: frame.qid,
@@ -2661,10 +2694,20 @@ function classifyAgain(ctx: Ctx, frame: Frame, step: Step, path: string, of: str
     ...(bandValue !== undefined ? { bandValue: outputData(bandValue) } : {}),
     ...(bandBounds.length ? { bandBounds } : {}),
     summary,
-    ...(own.length ? { tallies: own } : {}),
+    ...(reached.length ? { tallies: reached } : {}),
     ...(bounds.length ? { bounds } : {}),
   });
-  if (effects) proposeThens(ctx, frame, step, path, effects, action, rollRoot, () => true);
+  // Only this step's own effects propose a `then`: the earlier roll's already did.
+  proposeThens(
+    ctx,
+    frame,
+    step,
+    path,
+    { active: own, roots: ownRoots, changed: effects.changed },
+    action,
+    rollRoot,
+    () => true,
+  );
 }
 
 /** Highest `atLeast` first, then lowest `atMost`; stacking applies per op. */
