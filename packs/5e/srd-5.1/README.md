@@ -250,9 +250,9 @@ Where the SRD is unclear or silent, the pack reads it this way:
   the attacks they name; legendary actions spend their cost; Spellcasting and Innate
   Spellcasting are traits that cast with the printed numbers; the vampire's and the
   lycanthropes' forms grant their form's attacks. Monsters saved with 0.3.0 or earlier, whose
-  item granted its traits and actions, get them as copies on upgrade. Languages only monsters speak aren't
-  offered to players. A monster's sheet leaves out experience points, character level (at 0) and
-  death saves, and shows carrying weight only once it carries something.
+  item granted its traits and actions, get them as copies on upgrade. Languages only monsters
+  speak aren't offered to players. A monster's sheet leaves out experience points, character
+  level (at 0) and death saves, and shows carrying weight only once it carries something.
 - **Resting:** `death-save`, `spend-hit-die`, `short-rest` and `long-rest` (spent hit dice back
   up to half the total level, the player choosing the classes).
 - **Follow-ups:** concentration checks, a failed death save from damage at 0 hit points,
