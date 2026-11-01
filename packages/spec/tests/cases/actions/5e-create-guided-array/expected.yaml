@@ -1,5 +1,24 @@
 status: paused
 needs:
-  step: scores/array
+  step: picks
   action: 5e-srd-5.1:create-character
-  kind: allocate
+  kind: choice
+  choice: { owner: 5e-srd-5.1:traits.tool-proficiency-dwarf, id: tool }
+log:
+  - { step: race, kind: choice, by: app, option: 5e-srd-5.1:races.dwarf }
+  - { step: subrace, kind: choice, by: app, option: 5e-srd-5.1:subraces.hill-dwarf }
+  - { step: class, kind: choice, by: app, option: 5e-srd-5.1:classes.barbarian }
+  - { step: background, kind: choice, by: app, option: 5e-srd-5.1:backgrounds.acolyte }
+  - { step: method, kind: choice, by: engine, option: standard-array }
+  - step: scores/array
+    kind: allocate
+    by: engine
+    amounts:
+      {
+        5e-srd-5.1:abilities.str.base: 15,
+        5e-srd-5.1:abilities.dex.base: 13,
+        5e-srd-5.1:abilities.con.base: 14,
+        5e-srd-5.1:abilities.int.base: 8,
+        5e-srd-5.1:abilities.wis.base: 12,
+        5e-srd-5.1:abilities.cha.base: 10,
+      }

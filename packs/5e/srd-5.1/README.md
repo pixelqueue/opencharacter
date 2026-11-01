@@ -157,6 +157,10 @@ Where the SRD is unclear or silent, the pack reads it this way:
     (`[0, 1, 2, 3, 4, 5, 7, 9][amount]`), each score at most 15;
   - **standard array:** 15, 14, 13, 12, 10 and 8.
 
+  The standard array is recommended, and each method recommends the scores by the class's
+  ability priority (below), the highest to its first ability (point buy at the same spread, 27
+  points). The race, subrace, class and background recommend nothing: they are the player's.
+
   Then what the race, class and background bring (a tool, a fighting style, skills, languages,
   a prepared caster's spells, …), one pick at a time; while creating, every pick must be made.
   Then the starting equipment: the class's "(a) or (b)" lines, each recommending (a), only the

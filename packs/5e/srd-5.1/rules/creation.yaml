@@ -35,6 +35,13 @@ actions:
         changes:
           - type: addItem
             entry: { id: class, item: picked.id, state: { level: 1, startingClass: true } }
+      # The class's ability priority (its abilityPriority), for the recommended ability scores.
+      - id: priority
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              priority: steps.class.item.abilityPriority
       - id: background
         tags: [creation.background]
         kind: choice
@@ -58,6 +65,14 @@ actions:
               - { id: roll4, kind: roll, tags: [creation], parts: [{ dice: 4d6dl1 }] }
               - { id: roll5, kind: roll, tags: [creation], parts: [{ dice: 4d6dl1 }] }
               - { id: roll6, kind: roll, tags: [creation], parts: [{ dice: 4d6dl1 }] }
+              - id: sorted
+                kind: branch
+                cases:
+                  - when: true
+                    flags:
+                      sorted: >-
+                        sortList([steps.roll1.total, steps.roll2.total, steps.roll3.total,
+                          steps.roll4.total, steps.roll5.total, steps.roll6.total], -x)
               - id: rolled
                 kind: allocate
                 fields: { type: field, where: "'ability-base' in item.tags" }
@@ -68,6 +83,8 @@ actions:
                   - steps.roll4.total
                   - steps.roll5.total
                   - steps.roll6.total
+                recommend:
+                  'abilities.{ability}.base': flags.sorted[indexOf(flags.priority, @abilities.{ability}.score)]
           - when: "steps.method.picked == 'point-buy'"
             steps:
               - id: eights
@@ -87,12 +104,16 @@ actions:
                 spend: upTo
                 limit: 7
                 cost: '[0, 1, 2, 3, 4, 5, 7, 9][amount]'
+                recommend:
+                  'abilities.{ability}.base': '[7, 6, 5, 4, 2, 0][indexOf(flags.priority, @abilities.{ability}.score)]'
           - when: "steps.method.picked == 'standard-array'"
             steps:
               - id: array
                 kind: allocate
                 fields: { type: field, where: "'ability-base' in item.tags" }
                 values: [15, 14, 13, 12, 10, 8]
+                recommend:
+                  'abilities.{ability}.base': '[15, 14, 13, 12, 10, 8][indexOf(flags.priority, @abilities.{ability}.score)]'
       - id: picks
         kind: choice
         options: { pending: {} }
