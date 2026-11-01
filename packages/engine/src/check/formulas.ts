@@ -316,6 +316,10 @@ class FormulaChecker<L> {
     }
 
     for (const [set, { def, at }] of rules.bands) {
+      if (def.total !== undefined)
+        this.typed({ roll: bandRoll(this.talliesRoot()), participants: 'dyn' }, () =>
+          this.at('band', () => this.formula(def.total, at, `band set ${set} total`, ['int'])),
+        );
       let value: FType | undefined;
       if (def.value !== undefined)
         this.typed({ roll: bandRoll(this.talliesRoot()), participants: 'dyn' }, () =>

@@ -486,9 +486,10 @@ in words ("kept the higher die").
 
 **One roll, several bands.** A roll compared with several creatures (orc-2e's Hide
 against each observer) is rolled once and classified again for each one: those log entries have
-`of`, the path of the roll they read (`check/roll`), the same `items` and `total`, their own
-`band`, and no `faces`. Show them as that roll's result against each creature, not as more
-rolls.
+`of`, the path of the roll they read (`check/roll`), the same `items`, their own `band`, and no
+`faces`. Show them as that roll's result against each creature, not as more rolls. What a
+creature brings to the roll (Draw Steel's edge against a prone target) can make its `total`
+differ, and its entry's `tallies` and `bounds` list what that creature added.
 
 **Roll tallies** count things beside the total (FitD's effect level). They're in
 each roll's `tallies` in the log, with what contributed to them.
@@ -496,7 +497,10 @@ each roll's `tallies` in the log, with what contributed to them.
 **Bounds** raise or lower a roll's total once it is rolled (5E's Indomitable Might: a Strength
 check is at least the Strength score). The log's `total` is the bounded one, and its `bounds`
 lists each bound that changed it (`{ source, op, value }`); the items keep their own values, so
-show the bound beside them ("7, raised to 20").
+show the bound beside them ("7, raised to 20"). A band set may also give the roll an effective
+total (Draw Steel's +2 for an edge): the log's `total` is then that one, and `bounded` the total
+before it ("13, 15 with an edge"). `bandBounds` lists each bound on the band set's value
+("tier 1, raised to tier 2").
 
 ### History and replay
 

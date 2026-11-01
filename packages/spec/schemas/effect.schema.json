@@ -97,6 +97,9 @@
       "$ref": "#/$defs/tallyOps"
     },
     {
+      "$ref": "#/$defs/bandOps"
+    },
+    {
       "$ref": "#/$defs/thenTarget"
     },
     {
@@ -555,6 +558,35 @@
         }
       ]
     },
+    "bandOps": {
+      "description": "An effect on a band set's value uses atLeast or atMost, with no tally and no parts.",
+      "if": {
+        "properties": {
+          "target": {
+            "type": "object",
+            "required": ["band"]
+          }
+        },
+        "required": ["target"],
+        "type": "object"
+      },
+      "then": {
+        "properties": {
+          "op": {
+            "enum": ["atLeast", "atMost"]
+          },
+          "target": {
+            "not": {
+              "anyOf": [
+                { "required": ["tally"], "type": "object" },
+                { "required": ["parts"], "type": "object" }
+              ]
+            }
+          }
+        },
+        "type": "object"
+      }
+    },
     "tallyOps": {
       "description": "An effect on a roll tally uses add, atLeast or atMost.",
       "if": {
@@ -792,6 +824,10 @@
         "tally": {
           "description": "A declared roll tally (`rollTallies`) the effect adds to instead of the roll's total. Ops: `add`, `atLeast`, `atMost`, with an integer value. Without it, `atLeast` and `atMost` bound the roll's total once it is rolled.",
           "$ref": "common.schema.json#/$defs/name"
+        },
+        "band": {
+          "description": "`value`: the effect bounds the value of the band set the roll step classifies by (`atLeast` or `atMost`, an integer), once the set's `value` is worked out and before its bands read it as `roll.value`; a minimum tier. Only on a set whose `value` gives a number.",
+          "const": "value"
         },
         "parts": {
           "description": "The roll's own parts, by tag: the effect reaches the items built from the action's parts (not those effects add) whose tags match. Only op `set` (replace the part) and the roll modifiers `stepDie`, `setFaces`, and `advantage` and `disadvantage` with `of: roll` (roll the matching parts again as a group, keeping the better or worse subtotal). Not with `tally`.",

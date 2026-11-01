@@ -90,7 +90,7 @@ effects:
     scope: applied
   ```
 
-- **Rolls as they happen:** `target: { rolls: [attack, damage], from: self }`. The effect applies to any roll carrying one of the tags. `from: self` limits it to rolls made by the item carrying the effect (a +1 weapon): the action's copy, and for an action run for content granted or picked under the copy (named by `source`) that content, so abilities a class grants that share their type's action each reach only their own rolls (a template is part of its copy, so its own action matches by the copy, as the copy's item's does; a nested `action` step keeps its `source`); `from: any` (the default) covers every matching roll the character makes (Bless). Roll effects add items to the itemized roll or modify its dice, and `atLeast` and `atMost` bound its total once it is rolled (see below). With `tally: <name>`, the effect adds to one of the roll's tallies instead (see below). With `parts: [<tag>]`, it reaches the roll's own parts carrying a matching tag instead of the whole roll: a `set` replaces them, and a `stepDie` or `setFaces` roll modifier changes only their dice (see [Replacing a roll's part](#replacing-a-rolls-part)). Its formulas see `item` and `self` as the content carrying the effect, the roll as `roll`, the action's own item and copy as `action.item` and `action.self`, and the running action's `params` (those `params` effects add included), `situational`, `steps`, `flags`, `participants` and, in an `each` step, `participant`, so Bracers of Archery test their own copy while a bow attacks.
+- **Rolls as they happen:** `target: { rolls: [attack, damage], from: self }`. The effect applies to any roll carrying one of the tags. `from: self` limits it to rolls made by the item carrying the effect (a +1 weapon): the action's copy, and for an action run for content granted or picked under the copy (named by `source`) that content, so abilities a class grants that share their type's action each reach only their own rolls (a template is part of its copy, so its own action matches by the copy, as the copy's item's does; a nested `action` step keeps its `source`); `from: any` (the default) covers every matching roll the character makes (Bless). Roll effects add items to the itemized roll or modify its dice, and `atLeast` and `atMost` bound its total once it is rolled (see below). With `tally: <name>`, the effect adds to one of the roll's tallies instead (see below). With `band: value`, an `atLeast` or `atMost` bounds the value of the roll's band set instead (see below). With `parts: [<tag>]`, it reaches the roll's own parts carrying a matching tag instead of the whole roll: a `set` replaces them, and a `stepDie` or `setFaces` roll modifier changes only their dice (see [Replacing a roll's part](#replacing-a-rolls-part)). Its formulas see `item` and `self` as the content carrying the effect, the roll as `roll`, the action's own item and copy as `action.item` and `action.self`, and the running action's `params` (those `params` effects add included), `situational`, `steps`, `flags`, `participants` and, in an `each` step, `participant`, so Bracers of Archery test their own copy while a bow attacks.
 - **Incoming changes:** `target: { incoming: { fields: [hp.current], tags: [damage.fire] } }`. The effect modifies the amount of an `adjust` change aimed at this character before it is applied, so apps don't apply resistances themselves. Both filters are optional; omitting both matches every incoming adjustment. After these effects, the change is routed through absorbing fields and overflow ([rules-and-fields.md](rules-and-fields.md#absorbing-and-overflow)). How a multiplied incoming amount rounds is a game setting (`settings.roundIncoming`). The effect's `when`, `value` and `then` see the change as `incoming` (see below), and the receiving player's [situational choices](rules-and-fields.md#choices-on-incoming-changes) on the change as `situational`. A situational choice's own incoming-change effects apply only to a change that selects it.
 - **Choice steps as actions run:** `target: { choices: [push-cost], from: self }`. The effect adds an option to every choice step of the character's actions that carries a matching tag; `from: self` limits it to the actions of the item carrying the effect, as for rolls. The only op is `option`.
 - **Changes steps as actions run:** `target: { steps: [strike.hit], from: self }`. The effect adds changes to every `changes` step of the character's actions that carries a matching tag, after the step's own, each time it runs (per participant in an `each` step); `from: self` limits it to the actions of the item carrying the effect, as for rolls. The only op is `changes`, whose value is `{ changes?, to?, flags?, order? }` (one of `changes` and `flags` at least): `flags` are set as the step runs, before its own changes (per participant in an `each` step; only flags the action sets elsewhere, checked at load, as an added option's), and `changes` are proposed after the step's own, or with `order: before` before them, `to` the value's `to`, else the step's. Its `when`, flags and changes see what an added option's do, with the action's `participants` (and `participant` in an `each` step) and no `picks`. Content items, templates, content types (for each active item of the type) and the rules' effects add changes, as for options (a build error on a situational choice's or a choice's). See [engine-actions.md](engine-actions.md#other-steps).
@@ -450,6 +450,26 @@ and an effect targets one with `target: { rolls: [action-roll], tally: effect }`
 - A tally name no visible pack declares is the load error `unknown-tally`.
 - The action reads the sums as `steps.<id>.tallies.<name>`, and result bands as
   `roll.tallies.<name>`. What a tally means is up to the action's formulas.
+- A step that classifies an earlier roll again per participant (`of`, `each`) with tags of its
+  own works the tallies out again from the roll's, with the effects matching its tags and
+  `participant` bound, so an edge against one target reaches only that target's band
+  ([dice-and-actions.md](dice-and-actions.md#steps)).
+
+### Bounds on a band set's value
+
+`target: { rolls, band: value }` aims an `atLeast` or `atMost` (an integer `value`) at the value
+of the band set the matching roll step classifies by, once the set's `value` is worked out and
+before its bands read it as `roll.value`. It needs a set whose value is a number, and does
+nothing on any other. Stacking applies per op, as for bounds on the total; the log entry lists
+each bound that changed the value in `bandBounds`. A minimum tier, Draw Steel's Area of
+Expertise:
+
+```yaml
+- target: { rolls: [test.crafting], band: value }
+  op: atLeast
+  value: 2
+  when: "flags.difficulty in ['easy', 'medium']"
+```
 
 ## Scope
 

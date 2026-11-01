@@ -342,6 +342,8 @@ function rollResult(tallies: FType): ObjectType {
       // Each bound that changed the total, and the total before them.
       bounds: { list: { object: { source: 'dyn', op: 'string', value: 'int' } } },
       unbounded: 'int',
+      // The total before the band set's `total`.
+      bounded: 'int',
       rolls: ROLLS,
     },
   };
@@ -354,6 +356,7 @@ export function bandRoll(tallies: FType = NO_TALLIES, value?: FType): ObjectType
       kept: { list: 'int' },
       empty: 'bool',
       tallies,
+      bounded: 'int',
       rolls: ROLLS,
       ...(value !== undefined ? { value } : {}),
     },

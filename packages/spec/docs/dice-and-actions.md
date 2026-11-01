@@ -704,6 +704,72 @@ observer:
 - { id: against, kind: roll, each: observer, of: check/roll, bands: degree }
 ```
 
+**Per-participant tallies and bounds.** A roll step with `of` may carry `tags` of its own
+(computed entries allowed; the tags an `action` step adds don't count, as they reached the
+earlier roll). The roll effects matching them work out its tallies and bounds again, on top of
+the earlier roll's, in the step's context: with `each`, `participant` bound to the current
+view. Each tally starts from the earlier roll's value, takes every matching `add`, then the
+highest `atLeast` and the lowest `atMost`; the total starts from the earlier roll's (before its
+band set's `total`) and takes the matching `atLeast` and `atMost`. Other roll effects (items,
+dice) shape a roll that rolls and don't apply. So what one target brings to a roll reaches only
+that target's band. Draw Steel's power roll is rolled once, then banded per target, a prone
+target giving an edge, Executioner's Blade an edge against a winded one, and Manifold Resonance
+ignoring banes, the roll's own and each target's (its `atMost` matches both steps, so it
+applies after each target's banes are added):
+
+```yaml
+# The ability: one roll, a tier per target.
+- { id: roll, kind: roll, tags: [power-roll], bands: power, parts: [{ dice: 2d10 }, …] }
+- { id: tier, kind: roll, each: target, of: roll, tags: [power-target], bands: power }
+# rules: what a target brings.
+- target: { rolls: [power-target], tally: edges }
+  op: add
+  value: 1
+  when: "'kw.melee' in action.item.tags && participant.conditions.prone"
+# Executioner's Blade.
+- target: { rolls: [power-target], tally: edges }
+  op: add
+  value: 1
+  when: participant.stamina.winded
+# Manifold Resonance.
+- { target: { rolls: [power-roll, power-target], tally: banes }, op: atMost, value: 0 }
+```
+
+Give the per-participant step a tag that the roll's own effects don't match: one below the
+roll's tag (`power-roll.target`) would count every `power-roll` `add` twice. `steps.tier` is
+then each target's result, tallies included, and `i` pairs it with the targets
+(`mapList(steps.tier, participants.target[i].id)`).
+
+**Costs after the roll.** An action proposes its changes; nothing is paid until the app applies
+them, so a cost that depends on the roll is a `changes` step after it: Draw Steel's Shadow pays
+1 less insight for an ability with a net edge on it (from `steps.tier`'s tallies), and a
+maintained Elementalist ability pays nothing. `available`, checked before the run, reads the
+lowest cost the action can come to, through fields the content changes (a discount the Shadow's
+feature adds to, a set of free abilities), and an `outcome` step after the roll ends an action
+whose actual cost can't be paid, before any step proposes its effects:
+
+```yaml
+available: heroic.current - max(0, item.cost - abilities.discount) >= heroic.min
+steps:
+  # … the roll, and the tier per target …
+  - id: cost
+    kind: branch
+    cases:
+      - when: true
+        flags:
+          cost: >-
+            max(0, item.cost - (countList(steps.tier,
+              min(2, x.tallies.edges) > min(2, x.tallies.banes)) > 0 ? abilities.edgeDiscount : 0))
+  - id: unaffordable
+    kind: outcome
+    when: heroic.current - flags.cost < heroic.min
+    result: "'unaffordable'"
+  - id: pay
+    kind: changes
+    tags: [ability.pay]
+    changes: [{ type: adjust, field: heroic.current, by: -flags.cost }]
+```
+
 **Changes content adds**. A `changes` step may carry `tags` (computed entries
 allowed, and those an `action` step adds count), and may have only tags: a place in a shared
 action that content adds to. A content item's, template's or the rules' `changes` effect aimed at a matching

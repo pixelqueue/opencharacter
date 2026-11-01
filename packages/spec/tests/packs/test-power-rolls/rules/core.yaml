@@ -1,0 +1,92 @@
+# A power roll is 2d10 + might. One edge is +2 and one bane −2, two of a kind move the tier
+# instead, and they cancel. A roll's own edges and banes are tallies on `power`; a target's
+# are tallies on `target`, the step that classifies the roll again for each target.
+tags: [power, target]
+rollTallies: [edges, banes]
+
+fields:
+  might: { type: integer, input: true, default: 2 }
+  expertise: { type: boolean, input: true, default: false }
+  # What a target brings to a roll against it.
+  prone: { type: boolean, input: true, default: false }
+  taunting: { type: boolean, input: true, default: false }
+  winded: { type: boolean, input: true, default: false }
+
+contentTypes:
+  feature: {}
+
+situational:
+  - id: edges
+    type: integer
+    default: 0
+    rolls: [power]
+    effects:
+      - { target: { rolls: [power], tally: edges }, op: add, value: situational.edges }
+  - id: banes
+    type: integer
+    default: 0
+    rolls: [power]
+    effects:
+      - { target: { rolls: [power], tally: banes }, op: add, value: situational.banes }
+
+effects:
+  # A prone target gives an edge, a taunting one a bane.
+  - { target: { rolls: [target], tally: edges }, op: add, value: 1, when: participant.prone }
+  - { target: { rolls: [target], tally: banes }, op: add, value: 1, when: participant.taunting }
+  # Expertise: a tier 1 is a tier 2.
+  - { target: { rolls: [power], band: value }, op: atLeast, value: 2, when: expertise }
+
+resultBands:
+  power:
+    total: >-
+      roll.total + [0, -2, 0, 2, 0][2 + min(2, roll.tallies.edges) - min(2, roll.tallies.banes)]
+    value: >-
+      max(1, min(3, (roll.total >= 17 ? 3 : roll.total >= 12 ? 2 : 1)
+        + [-1, 0, 0, 0, 1][2 + min(2, roll.tallies.edges) - min(2, roll.tallies.banes)]))
+    bands:
+      - { id: tier3, when: roll.value == 3 }
+      - { id: tier2, when: roll.value == 2 }
+      - { id: tier1, when: true }
+
+actions:
+  - id: test
+    results: { bands: power }
+    steps:
+      - id: roll
+        kind: roll
+        tags: [power]
+        bands: power
+        parts: [{ dice: 2d10 }, { value: might }]
+      - id: result
+        kind: outcome
+        result: steps.roll.band
+        data:
+          total: steps.roll.total
+          bounded: steps.roll.bounded
+          tier: steps.roll.bandValue
+  # One roll, a tier for each target with the edges and banes that target brings.
+  - id: strike
+    participants:
+      target:
+        fields:
+          prone: { type: boolean, default: false }
+          taunting: { type: boolean, default: false }
+          winded: { type: boolean, default: false }
+    results: { bands: power }
+    steps:
+      - id: roll
+        kind: roll
+        tags: [power]
+        bands: power
+        parts: [{ dice: 2d10 }, { value: might }]
+      - { id: tier, kind: roll, each: target, of: roll, tags: [target], bands: power }
+      - id: result
+        kind: outcome
+        result: steps.roll.band
+        data:
+          total: steps.roll.total
+          targets: mapList(steps.tier, participants.target[i].id)
+          totals: mapList(steps.tier, x.total)
+          tiers: mapList(steps.tier, x.bandValue)
+          edges: mapList(steps.tier, x.tallies.edges)
+          banes: mapList(steps.tier, x.tallies.banes)

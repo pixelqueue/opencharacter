@@ -1,0 +1,14 @@
+description: "A roll step with `of` and tags of its own works out the roll's tallies again per participant, from the roll's, with `participant` bound: a prone target and a winded one (the blade) bring edges, a taunting one a bane. The band set's `total` and `value` read each target's tallies"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../packs/test-power-rolls
+input:
+  action: { id: test-power-rolls:strike }
+  situational: { test-power-rolls:banes: 1 }
+  participants:
+    target:
+      - { id: a, values: {} }
+      - { id: b, values: { test-power-rolls:prone: true } }
+      - { id: c, values: { test-power-rolls:prone: true, test-power-rolls:winded: true } }
+      - { id: d, values: { test-power-rolls:taunting: true } }

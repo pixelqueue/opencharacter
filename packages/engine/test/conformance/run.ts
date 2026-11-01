@@ -486,7 +486,9 @@ function run(dir: string): void {
           'participant',
           'outcome',
           'amounts',
+          'of',
           'total',
+          'bounded',
           'band',
           'bandSet',
           'bandValue',
@@ -496,6 +498,8 @@ function run(dir: string): void {
           if (key in want) expect(got[key] ?? null, `log[${i}].${key}`).toEqual(want[key]);
         }
         if ('bounds' in want) expect(got.bounds ?? [], `log[${i}].bounds`).toEqual(want.bounds);
+        if ('bandBounds' in want)
+          expect(got.bandBounds ?? [], `log[${i}].bandBounds`).toEqual(want.bandBounds);
         if ('tallies' in want) expect(got.tallies ?? [], `log[${i}].tallies`).toEqual(want.tallies);
         if ('items' in want)
           expect(got.items, `log[${i}].items`).toMatchObject(want.items as object);

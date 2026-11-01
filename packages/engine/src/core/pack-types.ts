@@ -109,7 +109,7 @@ export interface RollModifier {
 export type EffectTarget =
   | string
   | { fields: { where: Formula } }
-  | { rolls: string[]; from?: string; tally?: string; parts?: string[] }
+  | { rolls: string[]; from?: string; tally?: string; parts?: string[]; band?: 'value' }
   | { incoming: { fields?: string[]; tags?: string[] } }
   | { choices: string[]; from?: string }
   | { steps: string[]; from?: string }
@@ -730,16 +730,22 @@ export interface Band {
   success?: true;
 }
 
-export type BandSetDoc = Band[] | { value: Formula; bands: Band[] };
+export type BandSetDoc = Band[] | { total?: Formula; value?: Formula; bands: Band[] };
 
-/** A result band set: its bands, and the value they read as `roll.value`. */
+/** A result band set: its bands, the roll's effective total, and the value bands read. */
 export interface BandSet {
+  total?: Formula;
   value?: Formula;
   bands: Band[];
 }
 
 export function bandSet(doc: BandSetDoc): BandSet {
-  return Array.isArray(doc) ? { bands: doc } : { value: doc.value, bands: doc.bands };
+  if (Array.isArray(doc)) return { bands: doc };
+  return {
+    ...(doc.total !== undefined ? { total: doc.total } : {}),
+    ...(doc.value !== undefined ? { value: doc.value } : {}),
+    bands: doc.bands,
+  };
 }
 
 export interface RulesDoc {

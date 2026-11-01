@@ -422,6 +422,36 @@ resultBands:
       - { id: failure, when: true }
 ```
 
+**A set's total**. A set written as an object may also have `total`, an integer formula in the
+band context giving the roll's **effective total**: what the rules call the roll's result when
+something the dice don't show moves it. It is evaluated first, each time the set classifies a
+roll, with `roll` bound to the result (`roll.total` the total after bounds), and becomes the
+roll's `total`: the step's `steps.<id>.total`, the log entry's `total`, and `roll.total` for the
+set's `value` and bands. The total before it stays `steps.<id>.bounded` (the log entry's
+`bounded`, when they differ). A set needs `value`, `total` or both. Draw Steel's edge is +2 and
+bane −2, a double edge or bane a tier instead, and they cancel; the app shows 15 for a 13 with an
+edge:
+
+```yaml
+resultBands:
+  power:
+    total: >-
+      roll.total + [0, -2, 0, 2, 0][2 + min(2, roll.tallies.edges) - min(2, roll.tallies.banes)]
+    value: >-
+      max(1, min(3, (roll.total >= 17 ? 3 : roll.total >= 12 ? 2 : 1)
+        + [-1, 0, 0, 0, 1][2 + min(2, roll.tallies.edges) - min(2, roll.tallies.banes)]))
+    bands:
+      - { id: tier3, when: roll.value == 3 }
+      - { id: tier2, when: roll.value == 2 }
+      - { id: tier1, when: true }
+```
+
+**A floor on the value**. Content bounds a set's numeric `value` with `atLeast` and `atMost`
+roll effects aimed at it, `target: { rolls, band: value }` ([effects.md](effects.md#targets)),
+applied after the value is worked out and before the bands read it: Draw Steel's Area of
+Expertise makes a tier 1 crafting test a tier 2. A step that classifies an earlier roll again
+(`of`) applies its own ([dice-and-actions.md](dice-and-actions.md#steps)).
+
 ## Roll tallies
 
 `rollTallies` declares the names of the integer counters effects may add to on a roll without

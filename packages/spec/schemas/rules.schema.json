@@ -185,7 +185,7 @@
       "uniqueItems": true
     },
     "resultBands": {
-      "description": "Named sets of result bands, e.g. FitD's 1–3 / 4–5 / 6 / critical. Bands are checked in order; the first whose `when` is true wins. Formulas see the roll as `roll` (`roll.total`, `roll.faces`, `roll.kept`) and the running action's `flags`, `params` and `steps` (provisional). A set is a list of bands, or `{ value, bands }`: `value` is evaluated once per classification, before the bands, which read it as `roll.value`.",
+      "description": "Named sets of result bands, e.g. FitD's 1–3 / 4–5 / 6 / critical. Bands are checked in order; the first whose `when` is true wins. Formulas see the roll as `roll` (`roll.total`, `roll.faces`, `roll.kept`) and the running action's `flags`, `params` and `steps` (provisional). A set is a list of bands, or `{ total?, value?, bands }`: `total` gives the roll's effective total, evaluated first; `value` is evaluated once per classification, before the bands, which read it as `roll.value`.",
       "type": "object",
       "propertyNames": {
         "$ref": "common.schema.json#/$defs/slug"
@@ -197,8 +197,16 @@
           },
           {
             "type": "object",
-            "required": ["value", "bands"],
+            "required": ["bands"],
+            "anyOf": [
+              { "required": ["value"], "type": "object" },
+              { "required": ["total"], "type": "object" }
+            ],
             "properties": {
+              "total": {
+                "description": "An integer formula in the band context giving the roll's effective total, evaluated first with `roll` bound to the result (`roll.total` the total after bounds). It becomes the step's `total`, which `value` and the bands read as `roll.total`; the total before it stays `bounded`. Draw Steel's edges and banes: `roll.total + [0, -2, 0, 2, 0][2 + min(2, roll.tallies.edges) - min(2, roll.tallies.banes)]`.",
+                "$ref": "formula.schema.json"
+              },
               "value": {
                 "description": "A formula in the band context, evaluated once each time the set classifies a roll; its bands read it as `roll.value`, and the roll step's result keeps it as `bandValue`.",
                 "$ref": "formula.schema.json"

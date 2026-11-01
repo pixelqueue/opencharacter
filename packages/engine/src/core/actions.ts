@@ -195,6 +195,10 @@ export interface LogEntry {
   bandSet?: string;
   /** The band set's value, when it has one. */
   bandValue?: unknown;
+  /** Each `atLeast` or `atMost` on the band set's value that changed it. */
+  bandBounds?: BoundLog[];
+  /** The total before the band set's `total`, when that changed it. */
+  bounded?: number;
   /** Roll steps: what the roll is rolled against, worked out before it. */
   summary?: RollSummary;
   tallies?: TallyLog[];
@@ -1799,6 +1803,64 @@ function netAdvantage(
   return { extra: advantage + disadvantage, kind: advantage > 0 ? 'advantage' : 'disadvantage' };
 }
 
+/** A roll's `roll` root in its effects: the action's item and copy, and the step's tags. */
+function rollRootOf(frame: Frame, tags: string[]): Record<string, unknown> {
+  return {
+    item: frame.roots.item,
+    self: frame.activation ? frame.activation.roots.self : frame.roots.self,
+    tags,
+  };
+}
+
+interface RollCandidate {
+  instance: EffectInstance;
+  effect: Effect;
+  pack: string;
+  roots: Record<string, unknown>;
+}
+
+/** The roll effects matching a step's tags: the sheet's, then the selected situational choices'. */
+function rollCandidates(ctx: Ctx, frame: Frame, stepTags: string[]): RollCandidate[] {
+  const { sheet, ruleset } = ctx;
+  const candidates: RollCandidate[] = [];
+  for (const instance of sheet.instances) {
+    const t = targets(instance.effect);
+    if (!t || !t.rolls.some((tag) => matchesTag(tag, stepTags))) continue;
+    if (t.from === 'self' && !ownEffect(instance, frame)) continue;
+    candidates.push({
+      instance,
+      effect: instance.effect,
+      pack: instance.pack,
+      roots: instance.roots,
+    });
+  }
+  const situational = frame.roots.situational as Record<string, unknown>;
+  for (const [qid, def] of Object.entries(ruleset.rules.situational)) {
+    const value = situational[def.id];
+    if (value === undefined) continue;
+    const selected =
+      def.type === 'boolean'
+        ? value === true
+        : value !== (def.default ?? (def.type === 'integer' ? 0 : ''));
+    if (!selected) continue;
+    (def.effects ?? []).forEach((effect, index) => {
+      const t = targets(effect);
+      if (!t || !t.rolls.some((tag) => matchesTag(tag, stepTags))) return;
+      const instance: EffectInstance = {
+        effect,
+        pack: def.pack,
+        roots: {},
+        source: { type: 'situational', id: qid },
+        optionId: `${qid}#${index}`,
+        sourceId: qid,
+        order: -1,
+      };
+      candidates.push({ instance, effect, pack: def.pack, roots: {} });
+    });
+  }
+  return candidates;
+}
+
 function rollStep(ctx: Ctx, frame: Frame, step: Step, path: string): void {
   if (step.of !== undefined) {
     classifyAgain(ctx, frame, step, path, step.of);
@@ -1844,52 +1906,8 @@ function rollStep(ctx: Ctx, frame: Frame, step: Step, path: string): void {
   });
 
   // 2. Roll effects. Their `roll.self` has no computed values.
-  const rollRoot = {
-    item: frame.roots.item,
-    self: frame.activation ? frame.activation.roots.self : frame.roots.self,
-    tags: stepTags,
-  };
-  const candidates: {
-    instance: EffectInstance;
-    effect: Effect;
-    pack: string;
-    roots: Record<string, unknown>;
-  }[] = [];
-  for (const instance of sheet.instances) {
-    const t = targets(instance.effect);
-    if (!t || !t.rolls.some((tag) => matchesTag(tag, stepTags))) continue;
-    if (t.from === 'self' && !ownEffect(instance, frame)) continue;
-    candidates.push({
-      instance,
-      effect: instance.effect,
-      pack: instance.pack,
-      roots: instance.roots,
-    });
-  }
-  const situational = frame.roots.situational as Record<string, unknown>;
-  for (const [qid, def] of Object.entries(ruleset.rules.situational)) {
-    const value = situational[def.id];
-    if (value === undefined) continue;
-    const selected =
-      def.type === 'boolean'
-        ? value === true
-        : value !== (def.default ?? (def.type === 'integer' ? 0 : ''));
-    if (!selected) continue;
-    (def.effects ?? []).forEach((effect, index) => {
-      const t = targets(effect);
-      if (!t || !t.rolls.some((tag) => matchesTag(tag, stepTags))) return;
-      const instance: EffectInstance = {
-        effect,
-        pack: def.pack,
-        roots: {},
-        source: { type: 'situational', id: qid },
-        optionId: `${qid}#${index}`,
-        sourceId: qid,
-        order: -1,
-      };
-      candidates.push({ instance, effect, pack: def.pack, roots: {} });
-    });
-  }
+  const rollRoot = rollRootOf(frame, stepTags);
+  const candidates = rollCandidates(ctx, frame, stepTags);
   // `item` and `self` are the effect's content, the action's own item and copy are `action`.
   const { item: _item, self: _self, ...actionContext } = context(frame);
   const action = actionRoot(ctx, frame, step);
@@ -2345,13 +2363,7 @@ function rollStep(ctx: Ctx, frame: Frame, step: Step, path: string): void {
   items = rolls[chosen] as BuiltItem[];
   const diceItems = diceOf(items);
   const unbounded = totals[chosen] as number;
-  const bounds = rollBounds(
-    ctx,
-    active.filter((c) => targets(c.effect)?.tally === undefined),
-    effectCtx,
-    unbounded,
-    changed,
-  );
+  const bounds = rollBounds(ctx, active.filter(boundsTotal), effectCtx, unbounded, changed);
   const total = bounds.at(-1)?.value ?? unbounded;
   const allFaces = diceItems.flatMap((i) => (i.rolled?.faces ?? []).map((face) => face.value));
   const kept = diceItems.flatMap((i) =>
@@ -2366,6 +2378,7 @@ function rollStep(ctx: Ctx, frame: Frame, step: Step, path: string): void {
     tallies: Object.fromEntries(tallies.map((t) => [t.name, t.value])),
     bounds,
     unbounded,
+    bounded: total,
   };
   if (rolls.length > 1)
     result.rolls = rolls.map((list, k) => ({
@@ -2373,7 +2386,11 @@ function rollStep(ctx: Ctx, frame: Frame, step: Step, path: string): void {
       kept: k === chosen,
       items: output(list),
     }));
-  const bandValue = classify(ctx, frame, step.bands, result);
+  const { bandValue, bandBounds } = classify(ctx, frame, step.bands, result, {
+    active,
+    roots: effectCtx,
+    changed,
+  });
   const out = output(items);
   result.items = out;
   setResult(frame, step.id, result);
@@ -2386,9 +2403,11 @@ function rollStep(ctx: Ctx, frame: Frame, step: Step, path: string): void {
     by,
     ...(checkpoint ? { faces: consumed } : {}),
     items: out,
-    total,
+    total: result.total as number,
+    ...(result.total !== total ? { bounded: total } : {}),
     ...(result.band ? { band: result.band as string, bandSet: step.bands } : {}),
     ...(bandValue !== undefined ? { bandValue: outputData(bandValue) } : {}),
+    ...(bandBounds.length ? { bandBounds } : {}),
     summary,
     ...(tallies.some((t) => t.value !== 0)
       ? { tallies: tallies.filter((t) => t.value !== 0) }
@@ -2396,10 +2415,45 @@ function rollStep(ctx: Ctx, frame: Frame, step: Step, path: string): void {
     ...(bounds.length ? { bounds } : {}),
     ...(result.rolls ? { rolls: result.rolls as RollLog[] } : {}),
   });
-  // Each effect that changed the roll (or, `when: applied`, was in play on it) proposes its
-  // `then`, in effect order, once per run (or, `once: roll`, per roll step run).
-  const inPlay = (c: (typeof active)[number]) =>
-    !targets(c.effect)?.parts || items.some((i) => i.part !== undefined && onPart(c, i.tags));
+  proposeThens(
+    ctx,
+    frame,
+    step,
+    path,
+    { active, roots: effectCtx, changed },
+    action,
+    rollRoot,
+    (c) =>
+      !targets(c.effect)?.parts || items.some((i) => i.part !== undefined && onPart(c, i.tags)),
+  );
+}
+
+/** A roll step's counted effects: those active, their roots, and those that changed the roll. */
+interface RollEffects {
+  active: RollCandidate[];
+  roots: (c: RollCandidate) => Record<string, unknown>;
+  changed: Set<RollCandidate>;
+}
+
+/** Effects that bound the roll's total: not a tally's, nor the band set value's. */
+const boundsTotal = (c: { effect: Effect }) =>
+  targets(c.effect)?.tally === undefined && targets(c.effect)?.band === undefined;
+
+/**
+ * Each effect that changed the roll (or, `when: applied`, was in play on it) proposes its
+ * `then`, in effect order, once per run (or, `once: roll`, per roll step run).
+ */
+function proposeThens(
+  ctx: Ctx,
+  frame: Frame,
+  step: Step,
+  path: string,
+  effects: RollEffects,
+  action: ReturnType<typeof actionRoot>,
+  rollRoot: Record<string, unknown>,
+  inPlay: (c: RollCandidate) => boolean,
+): void {
+  const { active, roots: effectCtx, changed } = effects;
   const fired = active.filter((c) => {
     const rule = thenRule(c.effect);
     return rule !== undefined && (rule.when === 'applied' ? inPlay(c) : changed.has(c));
@@ -2428,8 +2482,8 @@ function rollStep(ctx: Ctx, frame: Frame, step: Step, path: string): void {
       );
     else
       for (const then of rule.changes as ThenChange[]) {
-        const change = rollThen(ruleset, i, then, (formula) =>
-          outputData(sheet.evaluate(formula, c.pack, effectCtx(c))),
+        const change = rollThen(ctx.ruleset, i, then, (formula) =>
+          outputData(ctx.sheet.evaluate(formula, c.pack, effectCtx(c))),
         );
         if (change) ctx.proposed.push({ to: 'self', step: path, change });
       }
@@ -2490,20 +2544,42 @@ function rollThen(
   return out as Change;
 }
 
-/** A set's `value` is evaluated once, before its bands, which read it as `roll.value`. */
+/**
+ * A set's `total` is evaluated first and becomes the roll's total; its `value` is evaluated
+ * once, bounded by the step's effects on the band value, before its bands, which read it as
+ * `roll.value`.
+ */
 function classify(
   ctx: Ctx,
   frame: Frame,
   bands: string | undefined,
   result: Record<string, unknown>,
-): f.Value | undefined {
-  if (!bands) return undefined;
+  effects?: RollEffects,
+): { bandValue?: f.Value; bandBounds: BoundLog[] } {
+  const bandBounds: BoundLog[] = [];
+  if (!bands) return { bandBounds };
   const bandSet = ctx.ruleset.rules.bands[bands];
   const pack = bandSet?.pack ?? frame.pack;
+  if (bandSet?.total !== undefined) {
+    const total = ctx.sheet.evaluate(bandSet.total, pack, { ...context(frame), roll: result });
+    result.total = integer(total, 'a band set total');
+  }
   let bandValue: f.Value | undefined;
   let roll: Record<string, unknown> = result;
   if (bandSet?.value !== undefined) {
     bandValue = ctx.sheet.evaluate(bandSet.value, pack, { ...context(frame), roll: result });
+    if (effects && (bandValue.kind === 'int' || bandValue.kind === 'decimal')) {
+      const bounded = rollBounds(
+        ctx,
+        effects.active.filter((c) => targets(c.effect)?.band === 'value'),
+        effects.roots,
+        bandValue.value,
+        effects.changed,
+      );
+      bandBounds.push(...bounded);
+      const last = bounded.at(-1);
+      if (last) bandValue = { kind: 'int', value: last.value };
+    }
     result.bandValue = rootValue(bandValue);
     roll = { ...result, value: result.bandValue };
   }
@@ -2515,12 +2591,14 @@ function classify(
       break;
     }
   }
-  return bandValue;
+  return { ...(bandValue !== undefined ? { bandValue } : {}), bandBounds };
 }
 
 /**
  * A roll step with `of` rolls nothing and classifies the earlier roll its path names by its own
- * `bands`. A roll that didn't run leaves the step without a result, as a false `when` does.
+ * `bands`. A roll that didn't run leaves the step without a result, as a false `when` does. With
+ * `tags` of its own, the roll effects matching them work out its tallies and bounds again, from
+ * the earlier roll's, in the step's context (`participant` bound in an `each` step).
  */
 function classifyAgain(ctx: Ctx, frame: Frame, step: Step, path: string, of: string): void {
   const [first, ...rest] = of.split('/');
@@ -2532,15 +2610,44 @@ function classifyAgain(ctx: Ctx, frame: Frame, step: Step, path: string, of: str
   const earlier = ctx.rolls.get(named);
   if (!earlier) return;
   const { band: _band, bandSet: _set, bandValue: _value, ...rolled } = earlier.result;
-  const result: Record<string, unknown> = { ...rolled };
+  // The earlier roll's total before its band set's `total`.
+  const start = (rolled.bounded ?? rolled.total) as number;
+  const result: Record<string, unknown> = { ...rolled, total: start, bounded: start };
   const summarySet = step.bands ? ctx.ruleset.rules.bands[step.bands] : undefined;
   const summary = rollSummary(step.bands, summarySet, flagsOf(frame), (node) =>
     ctx.sheet.evaluate(f.print(node), summarySet?.pack ?? frame.pack, context(frame)),
   );
-  const bandValue = classify(ctx, frame, step.bands, result);
+  // Only the step's own tags: those an action step adds already reached the earlier roll.
+  const tags = tagsOf(ctx, step.tags, (fm) => evaluate(ctx, frame, fm));
+  let effects: RollEffects | undefined;
+  let tallies: TallyLog[] = [];
+  let bounds: BoundLog[] = [];
+  const rollRoot = rollRootOf(frame, tags);
+  const action = actionRoot(ctx, frame, step);
+  if (tags.length > 0) {
+    const { item: _item, self: _self, ...actionContext } = context(frame);
+    const roots = (c: RollCandidate) => ({ ...actionContext, ...c.roots, action, roll: rollRoot });
+    const active = rollCandidates(ctx, frame, tags).filter((c) => {
+      if (c.effect.when === undefined) return true;
+      const v = ctx.sheet.evaluate(c.effect.when, c.pack, roots(c));
+      return v.kind === 'bool' && v.value;
+    });
+    effects = { active, roots, changed: new Set() };
+    const before = (rolled.tallies ?? {}) as Record<string, number>;
+    tallies = rollTallies(ctx, frame, active, roots, effects.changed, before);
+    result.tallies = Object.fromEntries(tallies.map((t) => [t.name, t.value]));
+    bounds = rollBounds(ctx, active.filter(boundsTotal), roots, start, effects.changed);
+    const total = bounds.at(-1)?.value ?? start;
+    result.total = total;
+    result.bounded = total;
+    result.bounds = [...((rolled.bounds as BoundLog[] | undefined) ?? []), ...bounds];
+  }
+  const bounded = result.total as number;
+  const { bandValue, bandBounds } = classify(ctx, frame, step.bands, result, effects);
   setResult(frame, step.id, result);
   frame.rollItems.set(itemsKey(frame, step.id), earlier.items);
   ctx.rolls.set(path, { result, items: earlier.items });
+  const own = tallies.filter((t) => t.sources.length > 0);
   ctx.log.push({
     step: path,
     action: frame.qid,
@@ -2549,10 +2656,15 @@ function classifyAgain(ctx: Ctx, frame: Frame, step: Step, path: string, of: str
     of: named,
     items: result.items as RollItem[],
     total: result.total as number,
+    ...(result.total !== bounded ? { bounded } : {}),
     ...(result.band ? { band: result.band as string, bandSet: step.bands } : {}),
     ...(bandValue !== undefined ? { bandValue: outputData(bandValue) } : {}),
+    ...(bandBounds.length ? { bandBounds } : {}),
     summary,
+    ...(own.length ? { tallies: own } : {}),
+    ...(bounds.length ? { bounds } : {}),
   });
+  if (effects) proposeThens(ctx, frame, step, path, effects, action, rollRoot, () => true);
 }
 
 /** Highest `atLeast` first, then lowest `atMost`; stacking applies per op. */
@@ -2593,6 +2705,7 @@ function rollTallies<T extends { instance: EffectInstance; effect: Effect; pack:
   active: T[],
   roots: (c: T) => Record<string, unknown>,
   changed?: Set<T>,
+  start: Record<string, number> = {},
 ): TallyLog[] {
   const scope = ctx.ruleset.packs.find((p) => p.id === frame.pack)?.scope ?? [frame.pack];
   const out: TallyLog[] = [];
@@ -2602,7 +2715,7 @@ function rollTallies<T extends { instance: EffectInstance; effect: Effect; pack:
       if (def.pack !== pid || seen.has(def.name)) continue;
       seen.add(def.name);
       const mine = active.filter((c) => targets(c.effect)?.tally === qid);
-      const log: TallyLog = { name: def.name, value: 0, sources: [] };
+      const log: TallyLog = { name: def.name, value: start[def.name] ?? 0, sources: [] };
       const amount = (c: T) => {
         const v = ctx.sheet.evaluate(c.effect.value as Formula, c.pack, roots(c));
         return v.kind === 'int' || v.kind === 'decimal' ? Math.trunc(v.value) : 0;

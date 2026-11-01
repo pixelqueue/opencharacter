@@ -349,6 +349,34 @@ describe('field tag and held-change shapes', () => {
     ).toBe(true);
   });
 
+  const bandSetValid = (set: object) => valid('rules.schema.json', { resultBands: { power: set } });
+  const rollBoundValid = (target: object, op = 'atLeast') =>
+    valid('effect.schema.json', { target: { rolls: ['test'], ...target }, op, value: 2 });
+
+  it('lets a band set give an effective total, with a value, bands or both', () => {
+    const bands = [{ id: 'any', when: true }];
+    const set = bandSetValid;
+    expect(set({ total: 'roll.total + 2', bands })).toBe(true);
+    expect(set({ total: 'roll.total + 2', value: 'roll.total', bands })).toBe(true);
+    expect(set({ bands })).toBe(false);
+  });
+
+  it("bounds a band set's value with atLeast or atMost only, without a tally or parts", () => {
+    const effect = rollBoundValid;
+    expect(effect({ band: 'value' })).toBe(true);
+    expect(effect({ band: 'value' }, 'atMost')).toBe(true);
+    expect(effect({ band: 'value' }, 'add')).toBe(false);
+    expect(effect({ band: 'total' })).toBe(false);
+    expect(effect({ band: 'value', tally: 'edges' })).toBe(false);
+    expect(effect({ band: 'value', parts: ['weapon'] })).toBe(false);
+  });
+
+  it('lets a roll step that classifies an earlier roll again carry tags, not better', () => {
+    const again = { id: 'tier', kind: 'roll', of: 'roll', bands: 'power' };
+    expect(step({ ...again, tags: ['target'] })).toBe(true);
+    expect(step({ ...again, better: 'low' })).toBe(false);
+  });
+
   it('lets an action step hold, but not a handoff', () => {
     expect(step({ id: 'a', kind: 'action', use: 'strike', hold: true })).toBe(true);
     expect(

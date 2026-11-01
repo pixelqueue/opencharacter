@@ -91,7 +91,7 @@ One-line definitions of OCF terms, consistent with the [specification](../../pac
 - **Proposed change:** a change an action returns for the app to apply, to the acting character, a target or a linked character.
 - **Proposed sheet:** the character with the changes an action has proposed so far `to: self` applied, which a step with `sheet: proposed` reads; built afresh in each call, never stored.
 - **Query:** a link to a set of things written as a rule: a content type plus a `where` condition.
-- **Result band:** a named range of roll results (6− / 7–9 / 10+), declared in a game's rules data. A band set may work out a `value` once, which its bands read (`roll.value`).
+- **Result band:** a named range of roll results (6− / 7–9 / 10+), declared in a game's rules data. A band set may work out a `value` once, which its bands read (`roll.value`), and an effective `total` the roll reports.
 - **Roll item:** one structured piece of an itemized roll (dice or flat), with exactly one source and tags.
 - **Roll modifier:** a kind of `rollModifier` effect value (advantage, disadvantage, reroll, multiplyDice, multiply, …).
 - **Rules document:** a file in a pack's `rules/` folder holding fields, content types, settings and other rules data.

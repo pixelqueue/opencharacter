@@ -264,7 +264,7 @@
         {
           "required": ["of", "bands"],
           "type": "object",
-          "not": { "anyOf": [{ "required": ["better"] }, { "required": ["tags"] }] }
+          "not": { "required": ["better"] }
         }
       ],
       "properties": {
@@ -286,7 +286,7 @@
           "$ref": "common.schema.json#/$defs/name"
         },
         "tags": {
-          "description": "Tags of the roll; entries may be formulas.",
+          "description": "Tags of the roll; entries may be formulas. With `of`, the step's own tags: the roll effects matching them (tallies, and `atLeast` and `atMost` on the total or the band value) apply on top of the earlier roll's, in the step's context, `participant` bound with `each`.",
           "$ref": "common.schema.json#/$defs/tagList"
         },
         "parts": {
@@ -297,7 +297,7 @@
           "minItems": 1
         },
         "of": {
-          "description": "Classify an earlier roll again instead of rolling: the path of a roll step of this action as the log names it, relative to the action (`check/roll`, the roll of the nested action step `check`). The step's result is that roll's (total, faces, kept, items, tallies, bounds), with the band its own `bands` gives in its own context: its flags, and with `each` the current participant and that participant's flags. In an `each` step, a path whose first step is an `each` step over the same role names that step's run for the current participant. A roll that didn't run leaves the step without a result. Not a checkpoint: nothing is asked or recorded.",
+          "description": "Classify an earlier roll again instead of rolling: the path of a roll step of this action as the log names it, relative to the action (`check/roll`, the roll of the nested action step `check`). The step's result is that roll's (total before its band set's `total`, faces, kept, items, tallies, bounds), with its own `tags`' tallies and bounds added, and the band its own `bands` gives in its own context: its flags, and with `each` the current participant and that participant's flags. In an `each` step, a path whose first step is an `each` step over the same role names that step's run for the current participant. A roll that didn't run leaves the step without a result. Not a checkpoint: nothing is asked or recorded.",
           "type": "string",
           "pattern": "^[a-z][a-zA-Z0-9_]*(\\[[0-9]+\\])?(/[a-z][a-zA-Z0-9_]*(\\[[0-9]+\\])?)*$"
         },

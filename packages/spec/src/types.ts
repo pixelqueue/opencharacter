@@ -67,10 +67,10 @@ export type RollStep = {
   sheet?: StepSheet;
   /** Run the step once per participant of this declared role, in input order, with `participant` bound and `when` evaluated per participant. With none, the step doesn't run. Its result is a list in participant order (null where `when` skipped one); inside a later `each` step over the same role, it is the current participant's. Log paths gain the index (`saves[1]`). */
   each?: Name;
-  /** Tags of the roll; entries may be formulas. */
+  /** Tags of the roll; entries may be formulas. With `of`, the step's own tags: the roll effects matching them (tallies, and `atLeast` and `atMost` on the total or the band value) apply on top of the earlier roll's, in the step's context, `participant` bound with `each`. */
   tags?: TagList;
   parts?: RollPart[];
-  /** Classify an earlier roll again instead of rolling: the path of a roll step of this action as the log names it, relative to the action (`check/roll`, the roll of the nested action step `check`). The step's result is that roll's (total, faces, kept, items, tallies, bounds), with the band its own `bands` gives in its own context: its flags, and with `each` the current participant and that participant's flags. In an `each` step, a path whose first step is an `each` step over the same role names that step's run for the current participant. A roll that didn't run leaves the step without a result. Not a checkpoint: nothing is asked or recorded. */
+  /** Classify an earlier roll again instead of rolling: the path of a roll step of this action as the log names it, relative to the action (`check/roll`, the roll of the nested action step `check`). The step's result is that roll's (total before its band set's `total`, faces, kept, items, tallies, bounds), with its own `tags`' tallies and bounds added, and the band its own `bands` gives in its own context: its flags, and with `each` the current participant and that participant's flags. In an `each` step, a path whose first step is an `each` step over the same role names that step's run for the current participant. A roll that didn't run leaves the step without a result. Not a checkpoint: nothing is asked or recorded. */
   of?: string;
   /** Which results are better, for advantage/disadvantage: `high` (default) or `low` (roll-under games). */
   better?: 'high' | 'low';
@@ -1556,6 +1556,8 @@ export type RollTarget = {
   from?: 'self' | 'any';
   /** A declared roll tally (`rollTallies`) the effect adds to instead of the roll's total. Ops: `add`, `atLeast`, `atMost`, with an integer value. Without it, `atLeast` and `atMost` bound the roll's total once it is rolled. */
   tally?: Name;
+  /** `value`: the effect bounds the value of the band set the roll step classifies by (`atLeast` or `atMost`, an integer), once the set's `value` is worked out and before its bands read it as `roll.value`; a minimum tier. Only on a set whose `value` gives a number. */
+  band?: 'value';
   /** The roll's own parts, by tag: the effect reaches the items built from the action's parts (not those effects add) whose tags match. Only op `set` (replace the part) and the roll modifiers `stepDie`, `setFaces`, and `advantage` and `disadvantage` with `of: roll` (roll the matching parts again as a group, keeping the better or worse subtotal). Not with `tally`. */
   parts?: Tags;
 };
@@ -1714,7 +1716,7 @@ export type LogEntry = {
   action: DefiningAction;
   kind: 'dice' | 'choice' | 'allocate' | 'handoff';
   by: 'engine' | 'app';
-  /** A roll step with `of`: the full path of the earlier roll it classified again (`check/roll`). It rolled nothing, so the entry has no `faces`; `items` and `total` are that roll's, `band` its own. */
+  /** A roll step with `of`: the full path of the earlier roll it classified again (`check/roll`). It rolled nothing, so the entry has no `faces`; `items` are that roll's, `total` that roll's with the step's own bounds and band set `total`, `band` its own. With `tags`, `tallies` and `bounds` list what the step's own effects contributed. */
   of?: string;
   /** The faces the step used. A roll step with no dice items is not a checkpoint and has none. */
   faces?: number[];
@@ -1743,8 +1745,16 @@ export type LogEntry = {
   band?: string;
   /** Roll steps with a band: the qualified ID of the band set the step classified by, so an app names the band `bands.<set>.<band>.name` in the set's pack. */
   bandSet?: string;
-  /** Roll steps classified by a band set with a `value`: that value, as data (orc-2e's degree of success as a rank). */
+  /** Roll steps classified by a band set with a `value`: that value, as data (orc-2e's degree of success as a rank), after `bandBounds`. */
   bandValue?: unknown;
+  /** Roll steps: each `atLeast` or `atMost` effect on the band set's value (`target: { rolls, band: value }`) that changed it, in the order applied. */
+  bandBounds?: {
+    source: Source;
+    op: 'atLeast' | 'atMost';
+    value: number;
+  }[];
+  /** Roll steps whose band set's `total` changed the total: the total before it, after bounds. `total` is the effective total. */
+  bounded?: number;
   /** Roll steps, a dice-less roll step's entry included: the roll's summary, worked out before the roll, so it matches what a pause for it showed. */
   summary?: RollSummary;
   /** Roll steps: each `atLeast` or `atMost` roll effect that changed the total, in the order applied (the highest `atLeast`, then the lowest `atMost`). `total` is the bounded total; `items` and `faces` are unchanged. */
@@ -1759,7 +1769,7 @@ export type LogEntry = {
     kept: boolean;
     items: RollItem[];
   }[];
-  /** Roll steps: each roll tally with a non-zero value, with what contributed to it. */
+  /** Roll steps: each roll tally with a non-zero value, with what contributed to it. On a step with `of`, each tally its own effects reached, `value` the final one and `sources` its own. */
   tallies?: {
     name: Name;
     value: number;
@@ -2988,13 +2998,15 @@ export type RulesDocument = {
   situational?: SituationalChoice[];
   /** Roll tallies: named integer counters on a roll that effects add to without changing its total. Roll steps expose them as `steps.<id>.tallies.<name>`, result bands as `roll.tallies.<name>`. Text: `tallies.<name>.name` (optional). */
   rollTallies?: Name[];
-  /** Named sets of result bands, e.g. FitD's 1–3 / 4–5 / 6 / critical. Bands are checked in order; the first whose `when` is true wins. Formulas see the roll as `roll` (`roll.total`, `roll.faces`, `roll.kept`) and the running action's `flags`, `params` and `steps` (provisional). A set is a list of bands, or `{ value, bands }`: `value` is evaluated once per classification, before the bands, which read it as `roll.value`. */
+  /** Named sets of result bands, e.g. FitD's 1–3 / 4–5 / 6 / critical. Bands are checked in order; the first whose `when` is true wins. Formulas see the roll as `roll` (`roll.total`, `roll.faces`, `roll.kept`) and the running action's `flags`, `params` and `steps` (provisional). A set is a list of bands, or `{ total?, value?, bands }`: `total` gives the roll's effective total, evaluated first; `value` is evaluated once per classification, before the bands, which read it as `roll.value`. */
   resultBands?: Record<
     string,
     | BandList
     | {
+        /** An integer formula in the band context giving the roll's effective total, evaluated first with `roll` bound to the result (`roll.total` the total after bounds). It becomes the step's `total`, which `value` and the bands read as `roll.total`; the total before it stays `bounded`. Draw Steel's edges and banes: `roll.total + [0, -2, 0, 2, 0][2 + min(2, roll.tallies.edges) - min(2, roll.tallies.banes)]`. */
+        total?: Formula;
         /** A formula in the band context, evaluated once each time the set classifies a roll; its bands read it as `roll.value`, and the roll step's result keeps it as `bandValue`. */
-        value: Formula;
+        value?: Formula;
         bands: BandList;
       }
   >;

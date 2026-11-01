@@ -1,0 +1,53 @@
+# 8 + 5 + 2 = 15 with the roll's bane: 13, tier 2. a: the same. b: an edge cancels the bane,
+# 15. c: two edges and a bane, net one edge, 17, tier 3. d: two banes, a double bane: 15, one
+# tier down, tier 1.
+status: finished
+outcome:
+  result: tier2
+  data:
+    total: 13
+    targets: [a, b, c, d]
+    totals: [13, 15, 17, 15]
+    tiers: [2, 2, 3, 1]
+    edges: [0, 1, 2, 0]
+    banes: [1, 1, 1, 2]
+log:
+  - { step: roll, kind: dice, by: engine, faces: [8, 5], total: 13, bounded: 15, band: tier2 }
+  - { step: 'tier[0]', kind: dice, by: engine, of: roll, total: 13, bounded: 15, band: tier2 }
+  - step: 'tier[1]'
+    kind: dice
+    by: engine
+    of: roll
+    total: 15
+    band: tier2
+    tallies:
+      - name: edges
+        value: 1
+        sources: [{ source: { type: rules, id: test-power-rolls:rules }, op: add, value: 1 }]
+  - step: 'tier[2]'
+    kind: dice
+    by: engine
+    of: roll
+    total: 17
+    bounded: 15
+    band: tier3
+    tallies:
+      - name: edges
+        value: 2
+        sources:
+          - { source: { type: rules, id: test-power-rolls:rules }, op: add, value: 1 }
+          - {
+              source: { type: item, id: test-power-rolls:features.blade, entry: blade },
+              op: add,
+              value: 1,
+            }
+  - step: 'tier[3]'
+    kind: dice
+    by: engine
+    of: roll
+    total: 15
+    band: tier1
+    tallies:
+      - name: banes
+        value: 2
+        sources: [{ source: { type: rules, id: test-power-rolls:rules }, op: add, value: 1 }]

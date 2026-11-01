@@ -222,7 +222,7 @@
           "enum": ["engine", "app"]
         },
         "of": {
-          "description": "A roll step with `of`: the full path of the earlier roll it classified again (`check/roll`). It rolled nothing, so the entry has no `faces`; `items` and `total` are that roll's, `band` its own.",
+          "description": "A roll step with `of`: the full path of the earlier roll it classified again (`check/roll`). It rolled nothing, so the entry has no `faces`; `items` are that roll's, `total` that roll's with the step's own bounds and band set `total`, `band` its own. With `tags`, `tallies` and `bounds` list what the step's own effects contributed.",
           "type": "string"
         },
         "faces": {
@@ -290,7 +290,31 @@
           "type": "string"
         },
         "bandValue": {
-          "description": "Roll steps classified by a band set with a `value`: that value, as data (orc-2e's degree of success as a rank)."
+          "description": "Roll steps classified by a band set with a `value`: that value, as data (orc-2e's degree of success as a rank), after `bandBounds`."
+        },
+        "bandBounds": {
+          "description": "Roll steps: each `atLeast` or `atMost` effect on the band set's value (`target: { rolls, band: value }`) that changed it, in the order applied.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["source", "op", "value"],
+            "properties": {
+              "source": {
+                "$ref": "../common.schema.json#/$defs/source"
+              },
+              "op": {
+                "enum": ["atLeast", "atMost"]
+              },
+              "value": {
+                "type": "integer"
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "bounded": {
+          "description": "Roll steps whose band set's `total` changed the total: the total before it, after bounds. `total` is the effective total.",
+          "type": "number"
         },
         "summary": {
           "description": "Roll steps, a dice-less roll step's entry included: the roll's summary, worked out before the roll, so it matches what a pause for it showed.",
@@ -341,7 +365,7 @@
           }
         },
         "tallies": {
-          "description": "Roll steps: each roll tally with a non-zero value, with what contributed to it.",
+          "description": "Roll steps: each roll tally with a non-zero value, with what contributed to it. On a step with `of`, each tally its own effects reached, `value` the final one and `sources` its own.",
           "type": "array",
           "items": {
             "type": "object",
