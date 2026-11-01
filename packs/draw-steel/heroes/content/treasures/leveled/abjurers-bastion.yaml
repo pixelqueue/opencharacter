@@ -1,0 +1,28 @@
+id: treasures.leveled.abjurers-bastion
+type: leveledTreasure
+tags:
+  - kw.implement
+  - kw.magic
+fields:
+  category: implement
+effects:
+  - target:
+      rolls:
+        - damage
+    op: add
+    value: 'level >= 9 ? 3 : level >= 5 ? 2 : 1'
+    stackKey: treasure-damage
+    when: self.equipped && ('kw.magic' in action.item.tags || 'kw.psionic' in action.item.tags)
+    tags:
+      - formula: "action.item.damageType == 'untyped' ? [] : ['damage.' + action.item.damageType]"
+  - target:
+      steps:
+        - ability.hit
+    op: changes
+    when: self.equipped && ('kw.magic' in action.item.tags || 'kw.psionic' in action.item.tags) && flags.tier > 0 && has(action.item.t1Damage)
+    value:
+      to: self
+      changes:
+        - type: set
+          field: stamina.temp
+          value: max(stamina.temp, characteristics.highest)

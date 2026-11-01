@@ -1,0 +1,12 @@
+id: complications.wrathful-spirit
+type: complication
+effects:
+  - target:
+      rolls:
+        - kw.strike
+      tally: edges
+    op: add
+    value: 1
+    when: |-
+      conditions.taunted && size(participants.target) == 1
+        && participants.target[0].id in conditions.tauntedBy

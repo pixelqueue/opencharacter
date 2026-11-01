@@ -1,0 +1,19 @@
+id: titles.echelon-1.brawler
+type: title
+fields:
+  echelon: 1
+choices:
+  - id: benefit
+    from:
+      options:
+        - { id: duck }
+        - { id: furniture-fighter }
+        # Free strikes ignore the bane restrained imposes (an edge cancels it).
+        - id: headbutt
+          effects:
+            - target: { rolls: [power-roll.ability], tally: edges }
+              op: add
+              value: 1
+              when: "conditions.restrained && action.item.kind == 'free-strike'"
+        - { id: if-i-wanted-you-dead-youd-be-dead }
+    recommend: "'headbutt'"

@@ -1,0 +1,15 @@
+id: treasures.leveled.kings-roar
+type: leveledTreasure
+tags:
+  - kw.magic
+  - armor.shield
+fields:
+  category: armor
+grants:
+  - item: abilities.treasure.kings-roar.roar
+    when: self.equipped
+effects:
+  - target: stamina.bonus
+    op: add
+    value: 'level >= 9 ? 9 : level >= 5 ? 6 : 3'
+    when: self.equipped

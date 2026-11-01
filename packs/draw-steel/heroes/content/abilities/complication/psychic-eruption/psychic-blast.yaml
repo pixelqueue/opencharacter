@@ -1,0 +1,47 @@
+id: abilities.complication.psychic-eruption.psychic-blast
+type: ability
+tags:
+  - kw.area
+  - kw.psionic
+fields:
+  usage: main-action
+  kind: complication
+  distanceKind: burst
+  distance: 3
+  rollChars:
+    - might
+    - agility
+    - reason
+    - intuition
+    - presence
+  damageType: psychic
+  t1Damage: 0
+  t2Damage: 0
+  t3Damage: 0
+  t1AddsChar: false
+  t2AddsChar: false
+  t3AddsChar: false
+effects:
+  - target:
+      steps:
+        - ability.pay
+      from: self
+    op: changes
+    when: action.item.id == item.id && combat.active && heroic.current > 0
+    value:
+      changes:
+        - type: set
+          field: heroic.current
+          value: 0
+  - target:
+      rolls:
+        - damage
+      from: self
+    op: add
+    value: |-
+      [min(max(0, heroic.current), level),
+        min(max(0, heroic.current), level + characteristics.highest),
+        max(0, heroic.current)][max(0, flags.tier - 1)]
+    tags:
+      - damage.psychic
+    when: action.item.id == item.id

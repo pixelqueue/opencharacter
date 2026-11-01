@@ -1,0 +1,19 @@
+id: abilities.title.ratcatcher.come-out-to-play
+type: ability
+tags: [kw.area, kw.magic]
+fields:
+  usage: maneuver
+  kind: title
+  cost: 1
+  distanceKind: burst
+  distance: 5
+# Each target with P < average is taunted by you until the end of their next turn.
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    when: action.item.id == item.id && participant.characteristics.presence.score < potency.average
+    value:
+      changes:
+        - type: applyEffect
+          source: '@conditions.taunted'
+          state: { duration: "'eot'", by: character.id }

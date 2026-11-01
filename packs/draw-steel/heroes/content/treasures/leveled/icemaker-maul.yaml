@@ -1,0 +1,17 @@
+id: treasures.leveled.icemaker-maul
+type: leveledTreasure
+tags:
+  - weapon.heavy
+  - kw.magic
+fields:
+  category: weapon
+effects:
+  - target:
+      rolls:
+        - damage
+    op: add
+    value: 'level >= 9 ? 3 : level >= 5 ? 2 : 1'
+    stackKey: treasure-damage
+    when: self.equipped && 'kw.weapon' in action.item.tags
+    tags:
+      - damage.cold

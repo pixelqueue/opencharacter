@@ -1,0 +1,23 @@
+id: titles.echelon-4.unchained
+type: title
+fields:
+  echelon: 4
+prerequisites:
+  - id: heist-hero
+    when: countCopies(copy.item == @titles.echelon-2.heist-hero) > 0
+choices:
+  - id: characteristic
+    from: { values: [might, agility] }
+    recommend: "characteristics.might.score >= characteristics.agility.score ? 'might' : 'agility'"
+    effects:
+      - { target: { formula: "'characteristics.' + pick.value + '.score'" }, op: add, value: 1 }
+      - { target: { formula: "'characteristics.' + pick.value + '.score'" }, op: atMost, value: 6 }
+  - id: benefit
+    from:
+      options:
+        - { id: bye-bye }
+        - { id: laughs-at-locks }
+        - { id: slippery }
+    recommend: "'slippery'"
+immuneTo:
+  - { id: slippery, items: [conditions.grabbed], when: "'slippery' in picksOf('benefit')" }

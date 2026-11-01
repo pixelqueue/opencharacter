@@ -1,0 +1,16 @@
+id: complications.vow-of-honesty
+type: complication
+state:
+  stained:
+    type: boolean
+    default: false
+effects:
+  - target:
+      rolls:
+        - power-roll.test
+      tally: banes
+    op: add
+    value: 1
+    when: |-
+      self.stained && has(params.skill)
+        && itemField(params.skill, 'group', '') == 'interpersonal'

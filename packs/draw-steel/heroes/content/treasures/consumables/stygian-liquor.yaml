@@ -1,0 +1,53 @@
+# For 24 hours; the later death threshold is the book's.
+id: treasures.consumables.stygian-liquor
+type: consumable
+tags:
+  - kw.magic
+  - kw.potion
+fields:
+  echelon: 3
+state:
+  duration:
+    type: enum
+    values:
+      - eot
+      - save
+      - encounter
+      - until
+    default: until
+grants:
+  - item: abilities.treasure.stygian-liquor
+    when: self.quantity > 0
+effects:
+  - target:
+      steps:
+        - ability.after
+    op: changes
+    when: action.item.id == @abilities.treasure.stygian-liquor
+    value:
+      changes:
+        - type: adjustQuantity
+          entry: self
+          by: -1
+        - type: applyEffect
+          source: item.id
+          state:
+            duration: "'until'"
+  - target:
+      rolls:
+        - power-roll
+      tally: edges
+    op: add
+    value: 1
+    when: stamina.dying
+    scope: applied
+  - target:
+      incoming:
+        fields:
+          - stamina.current
+        tags:
+          - stamina-loss
+    op: multiply
+    value: 0.5
+    when: stamina.dying && conditions.bleeding && incoming.amount < 0
+    scope: applied

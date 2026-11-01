@@ -1,0 +1,24 @@
+id: titles.echelon-3.dragon-blooded
+type: title
+fields:
+  echelon: 3
+choices:
+  - id: benefit
+    from:
+      options:
+        - id: dragon-scaled
+          grants:
+            - { item: ancestry-traits.dragon-knight.wyrmplate }
+        # 3 ancestry points of purchased dragon knight traits.
+        - id: dragon-touched
+          choices:
+            - id: traits
+              pick: { min: 1, max: 3 }
+              from:
+                type: ancestryTrait
+                where: 'item.ancestry == @ancestries.dragon-knight && !item.signature'
+              eligible: >-
+                item.id in choice.picks
+                  || item.cost + sumList(choice.picks, itemField(x, 'cost')) <= 3
+              recommend: filterList([@ancestry-traits.dragon-knight.dragon-breath, @ancestry-traits.dragon-knight.prismatic-scales], !(x in choice.picks))[0]
+    recommend: "'dragon-scaled'"

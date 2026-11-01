@@ -1,0 +1,15 @@
+id: treasures.artifacts.blade-of-a-thousand-years
+type: artifact
+tags:
+  - kw.magic
+  - weapon.light
+  - weapon.medium
+  - weapon.heavy
+# Suited for Victory: +5 damage to weapon abilities, always holy (the damage type's change is
+# the book's). Rally the Righteous and Turn the Tide work on others' sheets.
+effects:
+  - target: { rolls: [damage] }
+    op: add
+    value: 5
+    when: "self.equipped && 'kw.weapon' in action.item.tags"
+    tags: [damage.holy]

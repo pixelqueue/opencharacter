@@ -1,0 +1,26 @@
+id: abilities.complication.war-dog-collar.posthumous-retirement
+type: ability
+tags:
+  - kw.area
+  - kw.magic
+fields:
+  usage: maneuver
+  kind: complication
+  distanceKind: burst
+  distance: 1
+  rollChars: []
+effects:
+  - target:
+      steps:
+        - ability.hit
+      from: self
+    op: changes
+    when: action.item.id == item.id
+    value:
+      changes:
+        - type: adjust
+          field: stamina.current
+          by: -(5 + level)
+          tags:
+            - damage
+            - damage.fire

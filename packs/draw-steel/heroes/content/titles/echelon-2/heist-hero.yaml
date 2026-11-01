@@ -1,0 +1,19 @@
+id: titles.echelon-2.heist-hero
+type: title
+fields:
+  echelon: 2
+prerequisites:
+  - id: troupe-leading-player
+    when: countCopies(copy.item == @titles.echelon-1.troupe-leading-player) > 0
+choices:
+  - id: benefit
+    from:
+      options:
+        - { id: mother-hen }
+        - id: sneakers
+          effects:
+            - { target: skills.known, op: grant, value: { item: skills.sneak } }
+        - id: timely-distraction
+          grants:
+            - { item: abilities.title.heist-hero.timely-distraction }
+    recommend: "'sneakers'"

@@ -1,0 +1,23 @@
+id: treasures.consumables.breath-of-creation
+type: consumable
+tags:
+  - kw.psionic
+fields:
+  echelon: 4
+grants:
+  - item: abilities.treasure.breath-of-creation
+    when: self.quantity > 0
+effects:
+  - target:
+      steps:
+        - ability.after
+    op: changes
+    when: action.item.id == @abilities.treasure.breath-of-creation
+    value:
+      changes:
+        - type: adjustQuantity
+          entry: self
+          by: -1
+        - type: adjust
+          field: renown
+          by: 1

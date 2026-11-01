@@ -1,0 +1,10 @@
+id: treasures.artifacts.mortal-coil
+type: artifact
+tags:
+  - kw.psionic
+# The host can't regain Stamina; the extra main action and the penumbra are the book's.
+effects:
+  - target: { incoming: { fields: [stamina.current], tags: [healing] } }
+    op: multiply
+    value: 0
+    when: incoming.amount > 0

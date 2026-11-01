@@ -1,0 +1,21 @@
+id: treasures.consumables.scroll-of-resurrection
+type: consumable
+tags:
+  - kw.magic
+  - kw.scroll
+fields:
+  echelon: 2
+grants:
+  - item: abilities.treasure.scroll-of-resurrection
+    when: self.quantity > 0
+effects:
+  - target:
+      steps:
+        - ability.after
+    op: changes
+    when: action.item.id == @abilities.treasure.scroll-of-resurrection
+    value:
+      changes:
+        - type: adjustQuantity
+          entry: self
+          by: -1

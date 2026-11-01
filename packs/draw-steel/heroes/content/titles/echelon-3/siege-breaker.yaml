@@ -1,0 +1,15 @@
+id: titles.echelon-3.siege-breaker
+type: title
+fields:
+  echelon: 3
+prerequisites:
+  - id: battlefield-commander
+    when: countCopies(copy.item == @titles.echelon-2.battlefield-commander) > 0
+choices:
+  - id: benefit
+    from:
+      options:
+        - { id: death-from-above }
+        - { id: hold-the-line }
+        - { id: last-defender }
+    recommend: "'hold-the-line'"

@@ -1,0 +1,33 @@
+id: titles.echelon-4.champion-competitor
+type: title
+fields:
+  echelon: 4
+choices:
+  - id: characteristic
+    from: { values: [might, agility, reason, intuition, presence] }
+    recommend: "sortList(['might', 'agility', 'reason', 'intuition', 'presence'], -fieldOf('characteristics.{characteristic}.score', x))[0]"
+    effects:
+      - { target: { formula: "'characteristics.' + pick.value + '.score'" }, op: add, value: 1 }
+      - { target: { formula: "'characteristics.' + pick.value + '.score'" }, op: atMost, value: 6 }
+  - id: benefit
+    from:
+      options:
+        # A skill used in the competition: +4 to its tests instead of +2.
+        - id: best-of-the-best
+          choices:
+            - id: skill
+              from: { type: skill }
+              eligible: item.id in skills.known
+              recommend: skills.known[0]
+              activate: false
+              effects:
+                - target: { rolls: [power-roll.test] }
+                  op: add
+                  value: 2
+                  when: has(params.skill) && params.skill == pick.id && pick.id in skills.known
+        - id: glory-and-riches
+          effects:
+            - { target: renown, op: add, value: 2 }
+            - { target: wealth, op: add, value: 1 }
+        - { id: ill-just-take-the-prize }
+    recommend: "'glory-and-riches'"

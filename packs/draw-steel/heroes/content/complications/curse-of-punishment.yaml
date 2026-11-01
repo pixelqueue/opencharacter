@@ -1,0 +1,10 @@
+id: complications.curse-of-punishment
+type: complication
+effects:
+  - target: recoveries.max
+    op: add
+    value: 1
+  - target: stamina.dying
+    op: set
+    value: '!stamina.dead'
+    when: recoveries.current == 0

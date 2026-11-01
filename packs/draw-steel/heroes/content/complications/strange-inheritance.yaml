@@ -1,0 +1,30 @@
+id: complications.strange-inheritance
+type: complication
+state:
+  treasureTaken:
+    type: boolean
+    default: false
+actions:
+  - id: take-trinket
+    available: '!self.treasureTaken'
+    results:
+      - taken
+    steps:
+      - id: trinket
+        kind: choice
+        options:
+          content:
+            type: trinket
+            where: item.echelon == 2
+        recommend: options[0]
+        changes:
+          - type: addItem
+            entry:
+              item: picked.id
+          - type: setState
+            entry: self
+            key: treasureTaken
+            value: 'true'
+      - id: done
+        kind: outcome
+        result: "'taken'"

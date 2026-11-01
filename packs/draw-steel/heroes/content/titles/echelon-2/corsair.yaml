@@ -1,0 +1,18 @@
+id: titles.echelon-2.corsair
+type: title
+fields:
+  echelon: 2
+prerequisites:
+  - id: ship-captain
+    when: countCopies(copy.item == @titles.echelon-1.ship-captain) > 0
+choices:
+  - id: benefit
+    from:
+      options:
+        - { id: artillerist }
+        - { id: black-flag }
+        - id: fearsome-reputation
+          effects:
+            - { target: renown, op: add, value: 1 }
+        - { id: scoundrel-tactics }
+    recommend: "'fearsome-reputation'"

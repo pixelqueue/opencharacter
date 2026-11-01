@@ -1,0 +1,13 @@
+id: complications.dragon-dreams
+type: complication
+choices:
+  - id: traits
+    pick:
+      min: 1
+      max: 2
+    from:
+      type: ancestryTrait
+      where: item.ancestry == @ancestries.dragon-knight && !item.signature
+    eligible: item.cost + sumList(filterList(choice.picks, x != item.id), itemField(x, 'cost')) <= 2
+    recommend: '@ancestry-traits.dragon-knight.wings'
+    activate: false

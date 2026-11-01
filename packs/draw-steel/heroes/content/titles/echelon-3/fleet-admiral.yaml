@@ -1,0 +1,20 @@
+id: titles.echelon-3.fleet-admiral
+type: title
+fields:
+  echelon: 3
+prerequisites:
+  - id: corsair
+    when: countCopies(copy.item == @titles.echelon-2.corsair) > 0
+choices:
+  - id: benefit
+    from:
+      options:
+        - { id: first-mate }
+        - id: swashbuckler
+          effects:
+            - { target: movement.types, op: grant, value: { tag: move.climb } }
+        - id: treasure-keeper
+          effects:
+            - { target: wealth, op: add, value: 1 }
+        - { id: weather-wizard }
+    recommend: "'swashbuckler'"

@@ -1,0 +1,18 @@
+id: titles.echelon-4.enlightened
+type: title
+fields:
+  echelon: 4
+choices:
+  - id: characteristic
+    from: { values: [reason, intuition] }
+    recommend: "characteristics.reason.score >= characteristics.intuition.score ? 'reason' : 'intuition'"
+    effects:
+      - { target: { formula: "'characteristics.' + pick.value + '.score'" }, op: add, value: 1 }
+      - { target: { formula: "'characteristics.' + pick.value + '.score'" }, op: atMost, value: 6 }
+  - id: benefit
+    from:
+      options:
+        - { id: cosmic-revelation }
+        - { id: mind-over-matter }
+        - { id: rearrange-the-game-pieces }
+    recommend: "'mind-over-matter'"

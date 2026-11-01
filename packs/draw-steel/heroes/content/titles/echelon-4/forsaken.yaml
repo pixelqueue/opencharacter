@@ -1,0 +1,30 @@
+id: titles.echelon-4.forsaken
+type: title
+fields:
+  echelon: 4
+choices:
+  - id: characteristic
+    from: { values: [might, agility, reason, intuition, presence] }
+    recommend: "sortList(['might', 'agility', 'reason', 'intuition', 'presence'], -fieldOf('characteristics.{characteristic}.score', x))[0]"
+    effects:
+      - { target: { formula: "'characteristics.' + pick.value + '.score'" }, op: add, value: 1 }
+      - { target: { formula: "'characteristics.' + pick.value + '.score'" }, op: atMost, value: 6 }
+  - id: benefit
+    from:
+      options:
+        - { id: brief-reunion }
+        - { id: perfect-protection }
+        - { id: poor-compensation }
+    recommend: "'perfect-protection'"
+  # Perfect Protection: immunity all to a damage type the Director picks.
+  - id: damage-type
+    when: "'perfect-protection' in picksOf('benefit')"
+    from: { values: [acid, cold, corruption, fire, holy, lightning, poison, psychic, sonic] }
+    recommend: "'holy'"
+effects:
+  - target: { incoming: { fields: [stamina.current], tags: [damage] } }
+    op: multiply
+    value: 0
+    when: >-
+      incoming.amount < 0 && size(picksOf('damage-type')) > 0
+        && 'damage.' + picksOf('damage-type')[0] in incoming.tags

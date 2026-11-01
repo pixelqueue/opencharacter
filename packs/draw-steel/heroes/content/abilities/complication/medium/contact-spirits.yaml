@@ -1,0 +1,26 @@
+id: abilities.complication.medium.contact-spirits
+type: ability
+tags:
+  - kw.magic
+fields:
+  usage: main-action
+  kind: complication
+  distanceKind: self
+  rollChars:
+    - intuition
+    - presence
+effects:
+  - target:
+      steps:
+        - ability.after
+      from: self
+    op: changes
+    when: action.item.id == item.id && has(steps.roll) && steps.roll.bandValue == 1
+    value:
+      changes:
+        - type: adjust
+          field: stamina.current
+          by: -(5 + level)
+          tags:
+            - damage
+            - damage.corruption

@@ -1,0 +1,17 @@
+id: titles.echelon-1.wanted-dead-or-alive
+type: title
+fields:
+  echelon: 1
+choices:
+  - id: benefit
+    from:
+      options:
+        - { id: honor-among-thieves }
+        - { id: minion-mower }
+        - id: no-youre-under-arrest
+          effects:
+            - target: { rolls: [power-roll], tally: edges }
+              op: add
+              value: 1
+              when: action.item.id == @abilities.common.escape-grab
+    recommend: "'no-youre-under-arrest'"

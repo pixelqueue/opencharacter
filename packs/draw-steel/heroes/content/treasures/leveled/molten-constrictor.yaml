@@ -1,0 +1,17 @@
+id: treasures.leveled.molten-constrictor
+type: leveledTreasure
+tags:
+  - kw.magic
+  - kw.net
+fields:
+  category: weapon
+effects:
+  - target:
+      rolls:
+        - damage
+    op: add
+    value: 'level >= 9 ? 3 : level >= 5 ? 2 : 1'
+    stackKey: treasure-damage
+    when: self.equipped && 'kw.weapon' in action.item.tags
+    tags:
+      - damage.fire

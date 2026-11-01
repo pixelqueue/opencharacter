@@ -1,0 +1,10 @@
+# You and each ally within 2 squares of the target gain 1 surge (allies on their own sheets).
+id: abilities.treasure.evilest-eye.evilest-eye
+type: ability
+tags: [kw.psionic, kw.ranged]
+fields: { usage: maneuver, kind: treasure, distanceKind: ranged, distance: 10 }
+effects:
+  - target: { steps: [ability.after], from: self }
+    op: changes
+    when: action.item.id == item.id
+    value: { changes: [{ type: adjust, field: surges.current, by: 1 }] }

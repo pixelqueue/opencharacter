@@ -1,0 +1,38 @@
+# Open (its action): at 9th level a heroic ability costs 1 less (to at least 1). The distance bonus is the book's.
+id: treasures.leveled.words-become-wonders-at-next-breath
+type: leveledTreasure
+tags:
+  - kw.implement
+  - kw.magic
+fields:
+  category: implement
+state:
+  open:
+    type: boolean
+    default: false
+effects:
+  - target:
+      steps:
+        - ability.pay
+    op: changes
+    when: self.equipped && self.open && level >= 9 && combat.active && action.item.cost > 1
+    value:
+      changes:
+        - type: adjust
+          field: heroic.current
+          by: 1
+actions:
+  - id: open-or-close
+    results:
+      - done
+    steps:
+      - id: toggle
+        kind: changes
+        changes:
+          - type: setState
+            entry: self
+            key: open
+            value: '!self.open'
+      - id: done
+        kind: outcome
+        result: "'done'"

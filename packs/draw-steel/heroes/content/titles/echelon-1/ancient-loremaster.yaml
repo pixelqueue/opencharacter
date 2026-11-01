@@ -1,0 +1,16 @@
+id: titles.echelon-1.ancient-loremaster
+type: title
+fields:
+  echelon: 1
+choices:
+  - id: benefit
+    from:
+      options:
+        - { id: leverage }
+        - { id: rare-books }
+        # While you follow the book's advice.
+        - id: susurrus-codex
+          effects:
+            - { target: { rolls: [test.reason], tally: edges }, op: add, value: 1 }
+            - { target: { rolls: [test.presence], tally: banes }, op: add, value: 1 }
+    recommend: "'rare-books'"

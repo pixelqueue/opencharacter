@@ -1,0 +1,34 @@
+id: abilities.treasure.timesplitter
+type: ability
+tags:
+  - kw.psionic
+  - kw.ranged
+  - kw.strike
+  - kw.weapon
+fields:
+  usage: maneuver
+  kind: treasure
+  distanceKind: ranged
+  distance: 5
+  rollChars:
+    - might
+    - agility
+  t1Damage: 2
+  t2Damage: 4
+  t3Damage: 6
+  t1Condition: conditions.slowed
+  t1Duration: save
+  t2Condition: conditions.slowed
+  t2Duration: save
+  t3Condition: conditions.slowed
+  t3Duration: save
+effects:
+  - target:
+      rolls:
+        - damage
+      from: self
+    op: add
+    value: 1d6
+    tags:
+      - damage.psychic
+    when: action.item.id == item.id

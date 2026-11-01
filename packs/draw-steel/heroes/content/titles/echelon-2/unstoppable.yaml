@@ -1,0 +1,26 @@
+id: titles.echelon-2.unstoppable
+type: title
+fields:
+  echelon: 2
+choices:
+  - id: benefit
+    from:
+      options:
+        - id: from-hells-heart
+          effects:
+            - target: { rolls: [damage] }
+              op: add
+              value: 3
+              when: >-
+                stamina.isWinded && 'kw.melee' in action.item.tags && 'kw.strike' in action.item.tags
+                  && flags.mode == 'melee'
+        # A fury signature ability; ferocity only with the Ferocity feature.
+        - id: furious-attack
+          choices:
+            - id: ability
+              from:
+                type: ability
+                where: "item.class == @classes.fury && item.kind == 'signature' && !has(item.subclass)"
+              recommend: '@abilities.fury.brutal-slam'
+        - { id: furious-charge }
+    recommend: "'from-hells-heart'"

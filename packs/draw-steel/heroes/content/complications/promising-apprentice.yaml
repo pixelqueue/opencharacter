@@ -1,0 +1,37 @@
+id: complications.promising-apprentice
+type: complication
+choices:
+  - id: skill
+    from:
+      type: skill
+      where: item.group == 'crafting'
+    eligible: '!(item.id in skills.known) || item.id in choice.picks'
+    recommend: filterList([@skills.alchemy, @skills.architecture, @skills.blacksmithing, @skills.carpentry, @skills.cooking, @skills.fletching, @skills.forgery, @skills.jewelry, @skills.mechanics, @skills.tailoring], !(x in skills.known))[0]
+    activate: false
+    effects:
+      - target: skills.known
+        op: grant
+        value:
+          formula: pick.id
+  - id: edge
+    from:
+      type: skill
+      where: item.group == 'crafting'
+    eligible: item.id in skills.known
+    recommend: picksOf('skill')[0]
+    activate: false
+effects:
+  - target:
+      rolls:
+        - power-roll.test
+      tally: edges
+    op: add
+    value: 1
+    when: has(params.skill) && params.skill in picksOf('edge')
+  - target:
+      rolls:
+        - power-roll.test
+      tally: banes
+    op: add
+    value: 1
+    when: '!(has(params.skill) && params.skill in skills.known)'

@@ -1,0 +1,23 @@
+id: titles.echelon-2.battlefield-commander
+type: title
+fields:
+  echelon: 2
+choices:
+  - id: benefit
+    from:
+      options:
+        - id: charge
+          grants:
+            - { item: abilities.title.battlefield-commander.charge }
+        - id: renowned-warrior
+          effects:
+            - { target: renown, op: add, value: 1 }
+        # A tactician doctrine's 1st-level feature.
+        - id: student-of-war
+          choices:
+            - id: feature
+              from:
+                type: feature
+                where: item.class == @classes.tactician && has(item.subclass) && item.level == 1
+              recommend: '@features.tactician.commanding-presence'
+    recommend: "'charge'"

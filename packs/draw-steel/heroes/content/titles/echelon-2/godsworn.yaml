@@ -1,0 +1,19 @@
+id: titles.echelon-2.godsworn
+type: title
+fields:
+  echelon: 2
+choices:
+  - id: benefit
+    from:
+      options:
+        - { id: healing-gift }
+        - { id: last-ditch-prayer }
+        # A conduit domain's 1st-level feature, from a god's or saint's domains.
+        - id: touched-by-the-divine
+          choices:
+            - id: feature
+              from:
+                type: feature
+                where: item.class == @classes.conduit && has(item.subclass) && item.level == 1
+              recommend: '@features.conduit.sanctified-weapon'
+    recommend: "'touched-by-the-divine'"

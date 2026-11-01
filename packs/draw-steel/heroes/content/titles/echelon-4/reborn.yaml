@@ -1,0 +1,27 @@
+id: titles.echelon-4.reborn
+type: title
+fields:
+  echelon: 4
+choices:
+  - id: characteristic
+    from: { values: [intuition, presence] }
+    recommend: "characteristics.intuition.score >= characteristics.presence.score ? 'intuition' : 'presence'"
+    effects:
+      - { target: { formula: "'characteristics.' + pick.value + '.score'" }, op: add, value: 1 }
+      - { target: { formula: "'characteristics.' + pick.value + '.score'" }, op: atMost, value: 6 }
+  - id: benefit
+    from:
+      options:
+        - { id: holy-weapon }
+        - { id: kill-me-once-shame-on-you }
+        - id: memories-of-the-beyond
+          choices:
+            - id: skills
+              pick: 2
+              from: { type: skill }
+              eligible: '!(item.id in skills.known) || item.id in choice.picks'
+              recommend: filterList([@skills.alertness, @skills.empathize, @skills.persuade, @skills.history, @skills.lie, @skills.sneak, @skills.climb, @skills.read-person, @skills.intimidate, @skills.search], !(x in skills.known) && !(x in choice.picks))[0]
+              activate: false
+              effects:
+                - { target: skills.known, op: grant, value: { formula: pick.id } }
+    recommend: "'memories-of-the-beyond'"

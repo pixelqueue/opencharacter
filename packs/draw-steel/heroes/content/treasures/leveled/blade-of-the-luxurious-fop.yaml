@@ -1,0 +1,28 @@
+id: treasures.leveled.blade-of-the-luxurious-fop
+type: leveledTreasure
+tags:
+  - weapon.light
+  - kw.magic
+fields:
+  category: weapon
+effects:
+  - target:
+      rolls:
+        - damage
+    op: add
+    value: 'level >= 9 ? 3 : level >= 5 ? 2 : 1'
+    stackKey: treasure-damage
+    when: self.equipped && 'kw.weapon' in action.item.tags
+    tags:
+      - formula: "action.item.damageType == 'untyped' ? [] : ['damage.' + action.item.damageType]"
+  - target: renown
+    op: add
+    value: 1
+    when: level >= 5
+  - target:
+      rolls:
+        - power-roll.test
+      tally: edges
+    op: add
+    value: 2
+    when: level >= 9 && has(params.skill) && params.skill in skills.known && itemField(params.skill, 'group') == 'interpersonal'

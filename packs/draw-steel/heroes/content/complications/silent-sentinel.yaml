@@ -1,0 +1,27 @@
+id: complications.silent-sentinel
+type: complication
+effects:
+  - target: skills.known
+    op: grant
+    value:
+      item: skills.eavesdrop
+  - target: skills.known
+    op: grant
+    value:
+      item: skills.sneak
+  - target: weakness.sonic
+    op: add
+    value: 5
+choices:
+  - id: skill
+    from:
+      type: skill
+      where: item.group == 'lore'
+    eligible: '!(item.id in skills.known) || item.id in choice.picks'
+    recommend: filterList([@skills.criminal-underworld, @skills.culture, @skills.history, @skills.magic, @skills.monsters, @skills.nature, @skills.psionics, @skills.religion, @skills.rumors, @skills.society, @skills.strategy, @skills.timescape], !(x in skills.known))[0]
+    activate: false
+    effects:
+      - target: skills.known
+        op: grant
+        value:
+          formula: pick.id

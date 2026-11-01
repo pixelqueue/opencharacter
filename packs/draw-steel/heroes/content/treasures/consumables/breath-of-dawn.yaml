@@ -1,0 +1,40 @@
+id: treasures.consumables.breath-of-dawn
+type: consumable
+tags:
+  - kw.psionic
+fields:
+  echelon: 2
+state:
+  duration:
+    type: enum
+    values:
+      - eot
+      - save
+      - encounter
+      - until
+    default: until
+grants:
+  - item: abilities.treasure.breath-of-dawn
+    when: self.quantity > 0
+effects:
+  - target:
+      steps:
+        - ability.after
+    op: changes
+    when: action.item.id == @abilities.treasure.breath-of-dawn
+    value:
+      changes:
+        - type: adjustQuantity
+          entry: self
+          by: -1
+        - type: removeEffect
+          applied:
+            where: item.id in [@conditions.frightened, @conditions.slowed, @conditions.taunted]
+        - type: applyEffect
+          source: item.id
+          state:
+            duration: "'encounter'"
+  - target: stability
+    op: add
+    value: 8
+    scope: applied

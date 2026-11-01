@@ -1,0 +1,30 @@
+id: titles.echelon-2.arena-fighter
+type: title
+fields:
+  echelon: 2
+choices:
+  - id: benefit
+    from:
+      options:
+        # +3 to melee strikes against prone creatures while standing; prone imposes no bane on
+        # your strikes (an edge cancels it).
+        - id: dirty-fighting
+          effects:
+            - target: { rolls: [damage] }
+              op: add
+              value: 3
+              when: >-
+                !conditions.prone && 'kw.melee' in action.item.tags && 'kw.strike' in action.item.tags
+                  && flags.mode == 'melee' && participant.conditions.prone
+            - target: { rolls: [power-roll.ability], tally: edges }
+              op: add
+              value: 1
+              when: "conditions.prone && 'kw.strike' in action.item.tags"
+        - { id: foes-as-weapons }
+        - id: instant-celebrity
+          effects:
+            - { target: renown, op: add, value: 1 }
+        - id: showstopper
+          grants:
+            - { item: abilities.title.arena-fighter.showstopper }
+    recommend: "'showstopper'"

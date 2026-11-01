@@ -1,0 +1,21 @@
+id: treasures.consumables.bottled-paradox
+type: consumable
+tags:
+  - kw.magic
+  - kw.potion
+fields:
+  echelon: 3
+grants:
+  - item: abilities.treasure.bottled-paradox
+    when: self.quantity > 0
+effects:
+  - target:
+      steps:
+        - ability.after
+    op: changes
+    when: action.item.id == @abilities.treasure.bottled-paradox
+    value:
+      changes:
+        - type: adjustQuantity
+          entry: self
+          by: -1

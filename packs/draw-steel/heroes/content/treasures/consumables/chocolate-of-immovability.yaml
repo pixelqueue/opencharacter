@@ -1,0 +1,40 @@
+id: treasures.consumables.chocolate-of-immovability
+type: consumable
+tags:
+  - kw.magic
+fields:
+  echelon: 2
+state:
+  duration:
+    type: enum
+    values:
+      - eot
+      - save
+      - encounter
+      - until
+    default: until
+grants:
+  - item: abilities.treasure.chocolate-of-immovability
+    when: self.quantity > 0
+effects:
+  - target:
+      steps:
+        - ability.after
+    op: changes
+    when: action.item.id == @abilities.treasure.chocolate-of-immovability
+    value:
+      changes:
+        - type: adjustQuantity
+          entry: self
+          by: -1
+        - type: set
+          field: stamina.temp
+          value: max(stamina.temp, 15)
+        - type: applyEffect
+          source: item.id
+          state:
+            duration: "'encounter'"
+  - target: stability
+    op: add
+    value: 10
+    scope: applied

@@ -1,0 +1,20 @@
+id: treasures.consumables.black-ash-dart
+type: consumable
+tags:
+  - kw.magic
+fields:
+  echelon: 1
+grants:
+  - item: abilities.treasure.black-ash-dart
+    when: self.quantity > 0
+effects:
+  - target:
+      steps:
+        - ability.after
+    op: changes
+    when: action.item.id == @abilities.treasure.black-ash-dart
+    value:
+      changes:
+        - type: adjustQuantity
+          entry: self
+          by: -1

@@ -1,0 +1,33 @@
+id: treasures.leveled.blade-of-quintessence
+type: leveledTreasure
+tags:
+  - kw.magic
+  - weapon.medium
+fields:
+  category: weapon
+effects:
+  - target:
+      rolls:
+        - damage
+    op: add
+    value: 'level >= 9 ? 3 : level >= 5 ? 2 : 1'
+    stackKey: treasure-damage
+    when: self.equipped && 'kw.weapon' in action.item.tags
+    tags:
+      - formula: "action.item.damageType == 'untyped' ? [] : ['damage.' + action.item.damageType]"
+  - target: immunity.cold
+    op: add
+    value: 10
+    when: level >= 9
+  - target: immunity.fire
+    op: add
+    value: 10
+    when: level >= 9
+  - target: immunity.lightning
+    op: add
+    value: 10
+    when: level >= 9
+  - target: immunity.sonic
+    op: add
+    value: 10
+    when: level >= 9

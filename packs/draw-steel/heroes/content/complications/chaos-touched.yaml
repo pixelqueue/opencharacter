@@ -1,0 +1,19 @@
+id: complications.chaos-touched
+type: complication
+effects:
+  - target:
+      rolls:
+        - power-roll.ability
+      tally: edges
+    op: add
+    value: 1
+    when: |-
+      action.item.id in [@abilities.common.escape-grab, @abilities.common.grab,
+        @abilities.common.knockback]
+  - target:
+      rolls:
+        - power-roll
+      tally: banes
+    op: add
+    value: 1
+    when: stamina.dying

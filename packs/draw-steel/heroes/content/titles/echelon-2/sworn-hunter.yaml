@@ -1,0 +1,23 @@
+id: titles.echelon-2.sworn-hunter
+type: title
+fields:
+  echelon: 2
+prerequisites:
+  - id: marshal
+    when: countCopies(copy.item == @titles.echelon-1.marshal) > 0
+choices:
+  - id: benefit
+    from:
+      options:
+        - { id: hunters-oath }
+        - id: particular-set-of-skills
+          choices:
+            - id: skill
+              from: { type: skill, where: "item.group == 'intrigue'" }
+              eligible: '!(item.id in skills.known) || item.id in choice.picks'
+              recommend: filterList([@skills.alertness, @skills.conceal-object, @skills.disguise, @skills.eavesdrop, @skills.escape-artist, @skills.hide, @skills.pick-lock, @skills.pick-pocket, @skills.sabotage, @skills.search, @skills.sneak, @skills.track], !(x in skills.known))[0]
+              activate: false
+              effects:
+                - { target: skills.known, op: grant, value: { formula: pick.id } }
+        - { id: were-in-this-together }
+    recommend: "'hunters-oath'"

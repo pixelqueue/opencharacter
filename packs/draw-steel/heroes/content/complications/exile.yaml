@@ -1,0 +1,15 @@
+id: complications.exile
+type: complication
+choices:
+  - id: language
+    from:
+      type: language
+      where: item.kind != 'dead'
+    eligible: '!(item.id in languages.known) || item.id in choice.picks'
+    recommend: filterList([@languages.anjali, @languages.axiomatic, @languages.filliaric, @languages.high-kuric, @languages.hyrallic, @languages.illyvric, @languages.kalliak, @languages.kethaic, @languages.khelt, @languages.khoursirian, @languages.low-kuric, @languages.mindspeech, @languages.proto-ctholl, @languages.szetch, @languages.the-first-language, @languages.tholl, @languages.urollialic, @languages.variac, @languages.vastariax, @languages.vhoric, @languages.voll, @languages.yllyric, @languages.zahariax, @languages.zaliac, @languages.higaran, @languages.khemharic, @languages.oaxuatl, @languages.phaedran, @languages.riojan, @languages.uvalic, @languages.vaniric, @languages.vaslorian], !(x in languages.known))[0]
+    activate: false
+    effects:
+      - target: languages.known
+        op: grant
+        value:
+          formula: pick.id

@@ -1,0 +1,15 @@
+id: complications.runaway
+type: complication
+choices:
+  - id: skill
+    from:
+      type: skill
+      where: item.group == 'crafting'
+    eligible: '!(item.id in skills.known) || item.id in choice.picks'
+    recommend: filterList([@skills.alchemy, @skills.architecture, @skills.blacksmithing, @skills.carpentry, @skills.cooking, @skills.fletching, @skills.forgery, @skills.jewelry, @skills.mechanics, @skills.tailoring], !(x in skills.known))[0]
+    activate: false
+    effects:
+      - target: skills.known
+        op: grant
+        value:
+          formula: pick.id

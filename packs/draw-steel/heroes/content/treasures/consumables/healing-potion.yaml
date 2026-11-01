@@ -1,0 +1,26 @@
+id: treasures.consumables.healing-potion
+type: consumable
+tags:
+  - kw.magic
+  - kw.potion
+fields:
+  echelon: 1
+grants:
+  - item: abilities.treasure.healing-potion
+    when: self.quantity > 0
+effects:
+  - target:
+      steps:
+        - ability.after
+    op: changes
+    when: action.item.id == @abilities.treasure.healing-potion
+    value:
+      changes:
+        - type: adjustQuantity
+          entry: self
+          by: -1
+        - type: adjust
+          field: stamina.current
+          by: recoveries.value
+          tags:
+            - healing

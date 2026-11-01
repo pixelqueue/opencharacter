@@ -1,0 +1,19 @@
+id: titles.echelon-4.peace-bringer
+type: title
+fields:
+  echelon: 4
+choices:
+  - id: characteristic
+    from: { values: [reason, presence] }
+    recommend: "characteristics.presence.score >= characteristics.reason.score ? 'presence' : 'reason'"
+    effects:
+      - { target: { formula: "'characteristics.' + pick.value + '.score'" }, op: add, value: 1 }
+      - { target: { formula: "'characteristics.' + pick.value + '.score'" }, op: atMost, value: 6 }
+  - id: benefit
+    from:
+      options:
+        - { id: calm-heads-prevail }
+        - { id: drop-your-sword }
+        - { id: hear-me-out }
+        - { id: many-paths-to-peace }
+    recommend: "'hear-me-out'"

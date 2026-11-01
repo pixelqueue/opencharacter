@@ -1,0 +1,27 @@
+id: complications.ivory-tower
+type: complication
+choices:
+  - id: skills
+    pick: 3
+    from:
+      type: skill
+    eligible: '!(item.id in skills.known) || item.id in choice.picks'
+    recommend: filterList([@skills.criminal-underworld, @skills.culture, @skills.history, @skills.magic, @skills.monsters, @skills.nature, @skills.psionics, @skills.religion, @skills.rumors, @skills.society, @skills.strategy, @skills.timescape, @skills.alchemy, @skills.architecture, @skills.blacksmithing, @skills.carpentry, @skills.cooking, @skills.fletching, @skills.forgery, @skills.jewelry, @skills.mechanics, @skills.tailoring, @skills.climb, @skills.drive, @skills.endurance, @skills.gymnastics, @skills.heal, @skills.jump, @skills.lift, @skills.navigate, @skills.ride, @skills.swim, @skills.brag, @skills.empathize, @skills.flirt, @skills.gamble, @skills.handle-animals, @skills.interrogate, @skills.intimidate, @skills.lead, @skills.lie, @skills.music, @skills.perform, @skills.persuade, @skills.read-person, @skills.alertness, @skills.conceal-object, @skills.disguise, @skills.eavesdrop, @skills.escape-artist, @skills.hide, @skills.pick-lock, @skills.pick-pocket, @skills.sabotage, @skills.search, @skills.sneak, @skills.track], !(x in skills.known))[0]
+    activate: false
+    effects:
+      - target: skills.known
+        op: grant
+        value:
+          formula: pick.id
+  - id: language
+    from:
+      type: language
+      where: item.kind == 'dead'
+    eligible: '!(item.id in languages.known) || item.id in choice.picks'
+    recommend: filterList([@languages.ananjali, @languages.high-rhyvian, @languages.khamish, @languages.kheltivari, @languages.low-rhyvian, @languages.old-variac, @languages.phorialtic, @languages.rallarian, @languages.ullorvic], !(x in languages.known))[0]
+    activate: false
+    effects:
+      - target: languages.known
+        op: grant
+        value:
+          formula: pick.id

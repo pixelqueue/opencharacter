@@ -1,0 +1,28 @@
+id: treasures.leveled.brittlebreaker
+type: leveledTreasure
+tags:
+  - kw.psionic
+  - kw.wand
+fields:
+  category: implement
+effects:
+  - target:
+      rolls:
+        - damage
+    op: add
+    value: 'level >= 9 ? 4 : level >= 5 ? 3 : 2'
+    stackKey: treasure-damage
+    when: self.equipped && ('kw.magic' in action.item.tags || 'kw.psionic' in action.item.tags)
+    tags:
+      - damage.psychic
+  - target: weakness.all
+    op: add
+    value: 3
+    when: self.equipped
+  - target:
+      rolls:
+        - power-roll.ability
+      tally: edges
+    op: add
+    value: 'stamina.isWinded ? 2 : 1'
+    when: self.equipped && ('kw.magic' in action.item.tags || 'kw.psionic' in action.item.tags) && stamina.current < stamina.max

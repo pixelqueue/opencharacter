@@ -1,0 +1,13 @@
+id: treasures.leveled.thief-of-joy
+type: leveledTreasure
+tags:
+  - kw.neck
+  - kw.psionic
+fields:
+  category: other
+effects:
+  - target: stamina.bonus
+    op: add
+    value: 'level >= 9 ? 5 * characteristics.highest : level >= 5 ? 3 * characteristics.highest : 2 * characteristics.highest'
+    stackKey: treasure-stamina
+    when: self.equipped

@@ -1,0 +1,33 @@
+# You and each ally within 5 squares regain 1d6 Recoveries: each ally rolls on their own sheet.
+id: treasures.consumables.restorative-of-the-bright-court
+type: consumable
+tags:
+  - kw.magic
+fields:
+  echelon: 4
+actions:
+  - id: open
+    tags:
+      - recovery
+    available: self.quantity > 0
+    results:
+      - opened
+    steps:
+      - id: regain
+        kind: roll
+        parts:
+          - dice: 1d6
+      - id: open
+        kind: changes
+        changes:
+          - type: adjustQuantity
+            entry: self
+            by: -1
+          - type: adjust
+            field: recoveries.spent
+            by: -steps.regain.total
+      - id: done
+        kind: outcome
+        result: "'opened'"
+        data:
+          regained: steps.regain.total

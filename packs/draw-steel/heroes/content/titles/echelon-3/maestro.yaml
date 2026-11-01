@@ -1,0 +1,23 @@
+id: titles.echelon-3.maestro
+type: title
+fields:
+  echelon: 3
+choices:
+  - id: benefit
+    from:
+      options:
+        # A troubadour class act triggered action; drama paid with your own resource.
+        - id: angelic-chorus
+          choices:
+            - id: ability
+              from:
+                type: ability
+                where: >-
+                  item.class == @classes.troubadour && item.level == 1
+                    && item.usage in ['triggered', 'free-triggered']
+              recommend: '@abilities.troubadour.harmonize'
+        - id: devils-opera
+          grants:
+            - { item: abilities.title.maestro.the-devils-chord }
+        - { id: music-of-the-spheres }
+    recommend: "'devils-opera'"

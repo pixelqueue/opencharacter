@@ -1,0 +1,17 @@
+id: treasures.leveled.ether-fueled-vessel
+type: leveledTreasure
+tags:
+  - kw.implement
+  - kw.psionic
+fields:
+  category: implement
+effects:
+  - target:
+      rolls:
+        - damage
+    op: add
+    value: 'level >= 9 ? 3 : level >= 5 ? 2 : 1'
+    stackKey: treasure-damage
+    when: self.equipped && ('kw.magic' in action.item.tags || 'kw.psionic' in action.item.tags)
+    tags:
+      - formula: "action.item.damageType == 'untyped' ? [] : ['damage.' + action.item.damageType]"

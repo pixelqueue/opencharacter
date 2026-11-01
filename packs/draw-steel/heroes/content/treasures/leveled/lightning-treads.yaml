@@ -1,0 +1,22 @@
+# Unarmed strikes: melee weapon abilities while worn; the extra damage for squares moved is the book's.
+id: treasures.leveled.lightning-treads
+type: leveledTreasure
+tags:
+  - kw.feet
+  - kw.magic
+fields:
+  category: other
+effects:
+  - target:
+      rolls:
+        - damage
+    op: add
+    value: 'level >= 9 ? 3 : level >= 5 ? 2 : 1'
+    stackKey: treasure-damage
+    when: self.equipped && 'kw.weapon' in action.item.tags && 'kw.melee' in action.item.tags
+    tags:
+      - damage.lightning
+  - target: speed
+    op: add
+    value: 2
+    when: self.equipped

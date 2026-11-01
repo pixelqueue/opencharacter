@@ -1,0 +1,24 @@
+# Royal Authority and Royal Majesty, and one more benefit.
+id: titles.echelon-4.monarch
+type: title
+fields:
+  echelon: 4
+choices:
+  - id: characteristic
+    from: { values: [might, presence] }
+    recommend: "characteristics.might.score >= characteristics.presence.score ? 'might' : 'presence'"
+    effects:
+      - { target: { formula: "'characteristics.' + pick.value + '.score'" }, op: add, value: 1 }
+      - { target: { formula: "'characteristics.' + pick.value + '.score'" }, op: atMost, value: 6 }
+  - id: benefit
+    from:
+      options:
+        - { id: crown-jewels }
+        - id: royal-fame
+          effects:
+            - { target: renown, op: add, value: 2 }
+        - { id: royal-retinue }
+        - id: royal-wealth
+          effects:
+            - { target: wealth, op: add, value: 2 }
+    recommend: "'royal-fame'"

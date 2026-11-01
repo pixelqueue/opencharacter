@@ -1,0 +1,21 @@
+id: treasures.consumables.blood-essence-vial
+type: consumable
+tags:
+  - kw.potion
+  - kw.psionic
+fields:
+  echelon: 1
+grants:
+  - item: abilities.treasure.blood-essence-vial
+    when: self.quantity > 0
+effects:
+  - target:
+      steps:
+        - ability.after
+    op: changes
+    when: action.item.id == @abilities.treasure.blood-essence-vial
+    value:
+      changes:
+        - type: adjustQuantity
+          entry: self
+          by: -1

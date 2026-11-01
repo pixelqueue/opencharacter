@@ -1,0 +1,20 @@
+id: titles.echelon-3.demon-slayer
+type: title
+fields:
+  echelon: 3
+choices:
+  - id: benefit
+    from:
+      options:
+        - id: demonic-lore
+          effects:
+            - { target: languages.known, op: grant, value: { item: languages.proto-ctholl } }
+        - id: lethe
+          effects:
+            - target: { rolls: [damage] }
+              op: add
+              value: 5
+              when: "stamina.isWinded && 'kw.strike' in action.item.tags"
+        - { id: made-of-teeth }
+        - { id: soulsight }
+    recommend: "'lethe'"

@@ -1,0 +1,18 @@
+# Unarmed strikes: melee weapon abilities while worn.
+id: treasures.leveled.bloody-hand-wraps
+type: leveledTreasure
+tags:
+  - kw.hands
+  - kw.psionic
+fields:
+  category: other
+effects:
+  - target:
+      rolls:
+        - damage
+    op: add
+    value: 'level >= 9 ? 3 : level >= 5 ? 2 : 1'
+    stackKey: treasure-damage
+    when: self.equipped && 'kw.weapon' in action.item.tags && 'kw.melee' in action.item.tags
+    tags:
+      - formula: "action.item.damageType == 'untyped' ? [] : ['damage.' + action.item.damageType]"

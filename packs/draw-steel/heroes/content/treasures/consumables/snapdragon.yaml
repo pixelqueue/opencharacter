@@ -1,0 +1,45 @@
+# Ends after the next damage-dealing ability.
+id: treasures.consumables.snapdragon
+type: consumable
+tags:
+  - kw.magic
+fields:
+  echelon: 1
+state:
+  duration:
+    type: enum
+    values:
+      - eot
+      - save
+      - encounter
+      - until
+    default: until
+grants:
+  - item: abilities.treasure.snapdragon
+    when: self.quantity > 0
+effects:
+  - target:
+      steps:
+        - ability.after
+    op: changes
+    when: action.item.id == @abilities.treasure.snapdragon
+    value:
+      changes:
+        - type: adjustQuantity
+          entry: self
+          by: -1
+        - type: applyEffect
+          source: item.id
+          state:
+            duration: "'until'"
+  - target:
+      rolls:
+        - damage
+    op: add
+    value: 5
+    tags:
+      - formula: "action.item.damageType == 'untyped' ? [] : ['damage.' + action.item.damageType]"
+    then:
+      - type: removeEffect
+        entry: self
+    scope: applied

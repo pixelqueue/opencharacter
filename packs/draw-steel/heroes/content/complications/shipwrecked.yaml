@@ -1,0 +1,16 @@
+id: complications.shipwrecked
+type: complication
+choices:
+  - id: skills
+    pick: 2
+    from:
+      type: skill
+      where: item.group == 'exploration'
+    eligible: '!(item.id in skills.known) || item.id in choice.picks'
+    recommend: filterList([@skills.climb, @skills.drive, @skills.endurance, @skills.gymnastics, @skills.heal, @skills.jump, @skills.lift, @skills.navigate, @skills.ride, @skills.swim], !(x in skills.known))[0]
+    activate: false
+    effects:
+      - target: skills.known
+        op: grant
+        value:
+          formula: pick.id

@@ -1,0 +1,30 @@
+id: titles.echelon-3.diabolist
+type: title
+fields:
+  echelon: 3
+choices:
+  - id: benefit
+    from:
+      options:
+        - id: devil-lore
+          effects:
+            - { target: languages.known, op: grant, value: { item: languages.anjali } }
+        # 3 ancestry points of purchased devil traits.
+        - id: infernal-legacy
+          choices:
+            - id: traits
+              pick: { min: 1, max: 3 }
+              from:
+                {
+                  type: ancestryTrait,
+                  where: 'item.ancestry == @ancestries.devil && !item.signature',
+                }
+              eligible: >-
+                item.id in choice.picks
+                  || item.cost + sumList(choice.picks, itemField(x, 'cost')) <= 3
+              recommend: filterList([@ancestry-traits.devil.beast-legs, @ancestry-traits.devil.impressive-horns], !(x in choice.picks))[0]
+        - id: sly-devil
+          grants:
+            - { item: ancestry-traits.devil.silver-tongue }
+        - { id: untouched-by-corruption }
+    recommend: "'infernal-legacy'"

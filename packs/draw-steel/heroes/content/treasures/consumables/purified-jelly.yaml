@@ -1,0 +1,21 @@
+id: treasures.consumables.purified-jelly
+type: consumable
+tags:
+  - kw.potion
+  - kw.psionic
+fields:
+  echelon: 2
+grants:
+  - item: abilities.treasure.purified-jelly
+    when: self.quantity > 0
+effects:
+  - target:
+      steps:
+        - ability.after
+    op: changes
+    when: action.item.id == @abilities.treasure.purified-jelly
+    value:
+      changes:
+        - type: adjustQuantity
+          entry: self
+          by: -1

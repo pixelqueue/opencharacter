@@ -1,0 +1,21 @@
+id: treasures.consumables.wellness-tonic
+type: consumable
+tags:
+  - kw.potion
+  - kw.psionic
+fields:
+  echelon: 3
+grants:
+  - item: abilities.treasure.wellness-tonic
+    when: self.quantity > 0
+effects:
+  - target:
+      steps:
+        - ability.after
+    op: changes
+    when: action.item.id == @abilities.treasure.wellness-tonic
+    value:
+      changes:
+        - type: adjustQuantity
+          entry: self
+          by: -1

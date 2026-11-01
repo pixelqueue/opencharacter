@@ -1,0 +1,19 @@
+id: titles.echelon-1.ratcatcher
+type: title
+fields:
+  echelon: 1
+choices:
+  - id: benefit
+    from:
+      options:
+        - id: come-out-to-play
+          grants:
+            - { item: abilities.title.ratcatcher.come-out-to-play }
+        - id: deadly-and-big
+          effects:
+            - target: { rolls: [damage] }
+              op: add
+              value: 3
+              when: "'kw.strike' in action.item.tags && participant.size.rank < size.rank"
+        - { id: everybody-move }
+    recommend: "'deadly-and-big'"

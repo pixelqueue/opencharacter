@@ -1,0 +1,25 @@
+id: titles.echelon-1.elemental-dabbler
+type: title
+fields:
+  echelon: 1
+choices:
+  # A damage type the defeated creature was immune to.
+  - id: damage-type
+    from: { values: [acid, cold, corruption, fire, holy, lightning, poison, psychic, sonic] }
+    recommend: "'fire'"
+  - id: benefit
+    from:
+      options:
+        - id: elemental-blaster
+          grants:
+            - { item: features.elementalist.hurl-element }
+        - id: elemental-immunity
+        - { id: elemental-weapons }
+    recommend: "'elemental-immunity'"
+effects:
+  - target:
+      formula: >-
+        size(picksOf('damage-type')) > 0 && 'elemental-immunity' in picksOf('benefit')
+          ? 'immunity.' + picksOf('damage-type')[0] : ''
+    op: add
+    value: characteristics.highest

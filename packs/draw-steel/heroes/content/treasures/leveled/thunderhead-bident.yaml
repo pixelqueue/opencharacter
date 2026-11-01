@@ -1,0 +1,17 @@
+id: treasures.leveled.thunderhead-bident
+type: leveledTreasure
+tags:
+  - kw.magic
+  - weapon.medium
+fields:
+  category: weapon
+effects:
+  - target:
+      rolls:
+        - damage
+    op: add
+    value: 'level >= 9 ? 3 : level >= 5 ? 2 : 1'
+    stackKey: treasure-damage
+    when: self.equipped && 'kw.weapon' in action.item.tags
+    tags:
+      - damage.sonic

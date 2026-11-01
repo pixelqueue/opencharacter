@@ -1,0 +1,10 @@
+id: treasures.artifacts.encepter
+type: artifact
+tags:
+  - kw.magic
+# Shining Presence: power rolls with Presence obtain tier 3 (a natural 19 or 20 still crits).
+effects:
+  - target: { rolls: [power-roll], tally: autoTier3 }
+    op: add
+    value: 1
+    when: "self.equipped && (has(flags.char) ? flags.char == 'presence' : 'test.presence' in roll.tags)"

@@ -1,0 +1,40 @@
+id: abilities.title.maestro.the-devils-chord
+type: ability
+tags: [kw.area, kw.magic]
+fields:
+  usage: main-action
+  kind: title
+  cost: 9
+  distanceKind: burst
+  distance: 5
+  rollChars: [presence]
+  damageType: sonic
+  t1Damage: 0
+  t1AddsChar: false
+  t2Damage: 6
+  t3Damage: 10
+  t2PotencyChar: might
+  t2Potency: average
+  t2Condition: conditions.weakened
+  t2Duration: save
+  t3PotencyChar: might
+  t3Potency: strong
+  t3Condition: conditions.weakened
+  t3Duration: save
+effects:
+  # Tier 3: bleeding too, behind the same potency.
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    when: action.item.id == item.id && flags.tier == 3 && flags.landed
+    value:
+      changes:
+        - type: applyEffect
+          source: '@conditions.bleeding'
+          state: { duration: "'save'", by: character.id }
+  # Tier 1: you take 4 sonic damage unless you have the Performance skill.
+  - target: { steps: [ability.after], from: self }
+    op: changes
+    when: action.item.id == item.id && has(steps.roll) && steps.roll.bandValue == 1 && !(@skills.perform in skills.known)
+    value:
+      changes:
+        - { type: adjust, field: stamina.current, by: -4, tags: [damage, damage.sonic] }

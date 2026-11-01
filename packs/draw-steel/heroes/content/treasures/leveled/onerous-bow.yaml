@@ -1,0 +1,41 @@
+id: treasures.leveled.onerous-bow
+type: leveledTreasure
+tags:
+  - weapon.bow
+  - kw.magic
+fields:
+  category: weapon
+effects:
+  - target:
+      rolls:
+        - damage
+    op: add
+    value: 'level >= 9 ? 3 : level >= 5 ? 2 : 1'
+    stackKey: treasure-damage
+    when: self.equipped && 'kw.weapon' in action.item.tags
+    tags:
+      - damage.poison
+  - target:
+      steps:
+        - ability.hit
+    op: changes
+    when: self.equipped && 'kw.weapon' in action.item.tags && action.item.kind == 'signature' && flags.tier == 3
+    value:
+      changes:
+        - type: applyEffect
+          source: '@conditions.weakened'
+          state:
+            duration: "'eot'"
+            by: character.id
+  - target:
+      steps:
+        - ability.hit
+    op: changes
+    when: self.equipped && 'kw.weapon' in action.item.tags && action.item.kind == 'signature' && flags.tier == 3 && level >= 5
+    value:
+      changes:
+        - type: applyEffect
+          source: '@conditions.slowed'
+          state:
+            duration: "'eot'"
+            by: character.id

@@ -1,0 +1,21 @@
+id: titles.echelon-2.awakened
+type: title
+fields:
+  echelon: 2
+choices:
+  - id: benefit
+    from:
+      options:
+        - { id: foresight }
+        # A talent triggered action of 1st level; clarity only with the Clarity feature.
+        - id: rogue-talent
+          choices:
+            - id: ability
+              from:
+                type: ability
+                where: >-
+                  item.class == @classes.talent && item.level == 1
+                    && item.usage in ['triggered', 'free-triggered']
+              recommend: '@abilities.talent.repel'
+        - { id: telepathy }
+    recommend: "'rogue-talent'"

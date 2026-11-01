@@ -1,0 +1,44 @@
+# Coating your weapon: until it is extinguished.
+id: treasures.consumables.giants-blood-flame
+type: consumable
+tags:
+  - kw.magic
+  - kw.oil
+fields:
+  echelon: 1
+state:
+  duration:
+    type: enum
+    values:
+      - eot
+      - save
+      - encounter
+      - until
+    default: until
+grants:
+  - item: abilities.treasure.giants-blood-flame
+    when: self.quantity > 0
+effects:
+  - target:
+      steps:
+        - ability.after
+    op: changes
+    when: action.item.id == @abilities.treasure.giants-blood-flame
+    value:
+      changes:
+        - type: adjustQuantity
+          entry: self
+          by: -1
+        - type: applyEffect
+          source: item.id
+          state:
+            duration: "'until'"
+  - target:
+      rolls:
+        - damage
+    op: add
+    value: 2
+    tags:
+      - damage.fire
+    when: "'kw.weapon' in action.item.tags"
+    scope: applied

@@ -1,0 +1,48 @@
+# For 1 hour: remove the effect when it ends.
+id: treasures.consumables.float-powder
+type: consumable
+tags:
+  - kw.magic
+fields:
+  echelon: 2
+state:
+  duration:
+    type: enum
+    values:
+      - eot
+      - save
+      - encounter
+      - until
+    default: until
+grants:
+  - item: abilities.treasure.float-powder
+    when: self.quantity > 0
+effects:
+  - target:
+      steps:
+        - ability.after
+    op: changes
+    when: action.item.id == @abilities.treasure.float-powder
+    value:
+      changes:
+        - type: adjustQuantity
+          entry: self
+          by: -1
+        - type: applyEffect
+          source: item.id
+          state:
+            duration: "'until'"
+  - target: stability
+    op: atMost
+    value: 0
+    scope: applied
+  - target: movement.types
+    op: grant
+    value:
+      tag: move.fly
+    scope: applied
+  - target: movement.types
+    op: grant
+    value:
+      tag: move.hover
+    scope: applied

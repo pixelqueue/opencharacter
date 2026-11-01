@@ -1,0 +1,22 @@
+id: complications.lightning-soul
+type: complication
+state:
+  wet:
+    type: boolean
+    default: false
+effects:
+  - target: weakness.all
+    op: add
+    value: 5
+    when: self.wet
+followUps:
+  - id: surge-from-healing
+    on:
+      field: stamina.current
+      tags:
+        - healing
+    when: combat.active && change.taken > 0
+    changes:
+      - type: adjust
+        field: surges.current
+        by: 1

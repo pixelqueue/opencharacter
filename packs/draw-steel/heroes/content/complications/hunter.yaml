@@ -1,0 +1,25 @@
+id: complications.hunter
+type: complication
+choices:
+  - id: skill
+    from:
+      items:
+        - skills.interrogate
+        - skills.alertness
+        - skills.eavesdrop
+        - skills.search
+        - skills.track
+        - skills.criminal-underworld
+        - skills.rumors
+        - skills.society
+    eligible: '!(item.id in skills.known) || item.id in choice.picks'
+    recommend: |-
+      filterList([@skills.track, @skills.search, @skills.alertness, @skills.eavesdrop,
+        @skills.interrogate, @skills.rumors, @skills.criminal-underworld, @skills.society],
+        !(x in skills.known))[0]
+    activate: false
+    effects:
+      - target: skills.known
+        op: grant
+        value:
+          formula: pick.id

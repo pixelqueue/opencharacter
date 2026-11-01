@@ -1,0 +1,34 @@
+id: complications.cursed-weapon
+type: complication
+state:
+  treasureTaken:
+    type: boolean
+    default: false
+actions:
+  - id: take-weapon
+    available: '!self.treasureTaken'
+    results:
+      - taken
+    steps:
+      - id: weapon
+        kind: choice
+        options:
+          content:
+            type: leveledTreasure
+            where: item.category == 'weapon'
+        recommend: options[0]
+        changes:
+          - type: addItem
+            entry:
+              item: picked.id
+          - type: setState
+            entry: self
+            key: treasureTaken
+            value: 'true'
+      - id: done
+        kind: outcome
+        result: "'taken'"
+effects:
+  - target: weakness.all
+    op: add
+    value: 2

@@ -1,0 +1,31 @@
+id: abilities.title.zombie-slayer.holy-terror
+type: ability
+tags: [kw.area, kw.magic]
+fields:
+  usage: maneuver
+  kind: title
+  cost: 3
+  distanceKind: burst
+  distance: 3
+# Holy damage equal to your Reason, Intuition or Presence (the best); P < strong, frightened
+# (save ends).
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    when: action.item.id == item.id
+    value:
+      changes:
+        - type: adjust
+          field: stamina.current
+          by: >-
+            -max(characteristics.reason.score, characteristics.intuition.score,
+              characteristics.presence.score)
+          tags: [damage, damage.holy]
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    when: action.item.id == item.id && participant.characteristics.presence.score < potency.strong
+    value:
+      changes:
+        - type: applyEffect
+          source: '@conditions.frightened'
+          state: { duration: "'save'", by: character.id }

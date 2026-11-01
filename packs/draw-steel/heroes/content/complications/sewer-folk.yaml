@@ -1,0 +1,18 @@
+id: complications.sewer-folk
+type: complication
+choices:
+  - id: movement
+    from:
+      values:
+        - move.climb
+        - move.swim
+    recommend: "'move.climb'"
+    effects:
+      - target: movement.types
+        op: grant
+        value:
+          formula: pick.value
+effects:
+  - target: weakness.poison
+    op: add
+    value: 5

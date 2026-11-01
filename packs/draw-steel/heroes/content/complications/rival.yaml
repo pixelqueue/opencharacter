@@ -1,0 +1,16 @@
+id: complications.rival
+type: complication
+choices:
+  - id: skill
+    from:
+      type: skill
+    eligible: item.id in skills.known
+    recommend: sortList(skills.known)[0]
+    activate: false
+effects:
+  - target:
+      rolls:
+        - power-roll.test
+    op: add
+    value: 1
+    when: has(params.skill) && params.skill in picksOf('skill') && params.skill in skills.known

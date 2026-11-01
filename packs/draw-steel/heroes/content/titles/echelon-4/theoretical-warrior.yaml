@@ -1,0 +1,19 @@
+# A heroic ability of any class, paid with your own Heroic Resource; one that needs a class
+# feature you don't have can't be used.
+id: titles.echelon-4.theoretical-warrior
+type: title
+fields:
+  echelon: 4
+prerequisites:
+  - id: master-librarian
+    when: countCopies(copy.item == @titles.echelon-2.master-librarian) > 0
+choices:
+  - id: characteristic
+    from: { values: [reason, intuition] }
+    recommend: "characteristics.reason.score >= characteristics.intuition.score ? 'reason' : 'intuition'"
+    effects:
+      - { target: { formula: "'characteristics.' + pick.value + '.score'" }, op: add, value: 1 }
+      - { target: { formula: "'characteristics.' + pick.value + '.score'" }, op: atMost, value: 6 }
+  - id: ability
+    from: { type: ability, where: "item.kind == 'heroic'" }
+    recommend: '@abilities.fury.avalanche-impact'

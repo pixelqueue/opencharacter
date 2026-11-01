@@ -1,0 +1,66 @@
+id: complications.corrupted-mentor
+type: complication
+state:
+  holyWeakness:
+    type: integer
+    default: 1
+    min: 1
+  spirit:
+    type: boolean
+    default: false
+grants:
+  - item: abilities.complication.corrupted-mentor.corrupt-spirit
+effects:
+  - target: weakness.holy
+    op: add
+    value: max(1, min(self.holyWeakness, recoveries.value))
+  - target:
+      steps:
+        - ability.after
+    op: changes
+    when: action.item.id == @abilities.complication.corrupted-mentor.corrupt-spirit
+    value:
+      changes:
+        - type: setState
+          entry: self
+          key: holyWeakness
+          value: max(1, min(self.holyWeakness + 1, recoveries.value))
+        - type: setState
+          entry: self
+          key: spirit
+          value: 'true'
+  - target:
+      steps:
+        - turn.end
+    op: changes
+    when: self.spirit
+    value:
+      changes:
+        - type: setState
+          entry: self
+          key: spirit
+          value: 'false'
+  - target:
+      incoming:
+        fields:
+          - stamina.current
+        tags:
+          - damage.holy
+    op: add
+    value: 0
+    when: incoming.amount < 0 && self.holyWeakness > 1
+    then:
+      - type: setState
+        entry: self
+        key: holyWeakness
+        value: 1
+  - target:
+      rolls:
+        - damage
+    op: add
+    value: characteristics.highest
+    tags:
+      - damage.corruption
+    when: |-
+      self.spirit && has(action.item.kind) && action.item.kind == 'heroic'
+        && size(participants.target) == 1

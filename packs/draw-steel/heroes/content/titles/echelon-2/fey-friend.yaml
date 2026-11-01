@@ -1,0 +1,27 @@
+id: titles.echelon-2.fey-friend
+type: title
+fields:
+  echelon: 2
+effects:
+  - { target: languages.known, op: grant, value: { item: languages.khelt } }
+choices:
+  - id: benefit
+    from:
+      options:
+        - id: gift-of-charm
+          choices:
+            - id: skill
+              from: { type: skill, where: "item.group == 'interpersonal'" }
+              eligible: '!(item.id in skills.known) || item.id in choice.picks'
+              recommend: filterList([@skills.brag, @skills.empathize, @skills.gamble, @skills.flirt, @skills.intimidate, @skills.handle-animals, @skills.lie, @skills.music, @skills.interrogate, @skills.persuade, @skills.lead, @skills.perform, @skills.read-person], !(x in skills.known))[0]
+              activate: false
+              effects:
+                - { target: skills.known, op: grant, value: { formula: pick.id } }
+        - { id: gift-of-foresight }
+        - id: gift-of-knowledge
+          effects:
+            - target: { rolls: [power-roll.test], tally: edges }
+              op: add
+              value: 1
+              when: "has(params.skill) && itemField(params.skill, 'group') == 'lore'"
+    recommend: "'gift-of-charm'"

@@ -1,0 +1,59 @@
+# Drunk: 3 rounds (kept to the end of the encounter); the size increase is the book's.
+id: treasures.consumables.growth-potion
+type: consumable
+tags:
+  - kw.magic
+  - kw.potion
+fields:
+  echelon: 1
+state:
+  duration:
+    type: enum
+    values:
+      - eot
+      - save
+      - encounter
+      - until
+    default: until
+grants:
+  - item: abilities.treasure.growth-potion
+    when: self.quantity > 0
+effects:
+  - target:
+      steps:
+        - ability.after
+    op: changes
+    when: action.item.id == @abilities.treasure.growth-potion
+    value:
+      changes:
+        - type: adjustQuantity
+          entry: self
+          by: -1
+        - type: applyEffect
+          source: item.id
+          state:
+            duration: "'encounter'"
+  - target: stamina.max
+    op: multiply
+    value: 2
+    scope: applied
+  - target: stability
+    op: multiply
+    value: 2
+    scope: applied
+  - target:
+      rolls:
+        - test.might
+      tally: edges
+    op: add
+    value: 1
+    scope: applied
+  - target:
+      rolls:
+        - damage
+    op: add
+    value: characteristics.highest
+    when: "'kw.weapon' in action.item.tags"
+    tags:
+      - formula: "action.item.damageType == 'untyped' ? [] : ['damage.' + action.item.damageType]"
+    scope: applied

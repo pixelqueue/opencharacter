@@ -1,0 +1,19 @@
+id: complications.advanced-studies
+type: complication
+actions:
+  - id: study
+    results:
+      bands: power
+    steps:
+      - id: roll
+        kind: roll
+        tags:
+          - power-roll
+          - power-roll.test
+        bands: power
+        parts:
+          - dice: 2d10
+          - field: "'characteristics.highest'"
+      - id: result
+        kind: outcome
+        result: steps.roll.band

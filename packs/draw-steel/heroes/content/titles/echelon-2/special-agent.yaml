@@ -1,0 +1,17 @@
+id: titles.echelon-2.special-agent
+type: title
+fields:
+  echelon: 2
+choices:
+  - id: benefit
+    from:
+      options:
+        - { id: boffin }
+        # The shadow's Coat the Blade or Smoke Bomb; insight only with the Insight feature.
+        - id: caustic-alchemy
+          choices:
+            - id: feature
+              from: { items: [features.shadow.coat-the-blade, features.shadow.smoke-bomb] }
+              recommend: '@features.shadow.coat-the-blade'
+        - { id: spy-ring }
+    recommend: "'caustic-alchemy'"

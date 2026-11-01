@@ -1,0 +1,14 @@
+id: complications.vow-of-duty
+type: complication
+state:
+  doubting:
+    type: boolean
+    default: false
+effects:
+  - target: stability
+    op: add
+    value: 1
+  - target: stability
+    op: atMost
+    value: 0
+    when: self.doubting

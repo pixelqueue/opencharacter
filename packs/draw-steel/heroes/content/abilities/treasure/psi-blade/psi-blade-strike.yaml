@@ -1,0 +1,19 @@
+# A melee weapon free strike with the blade, once per turn as a maneuver: 3 psychic damage more.
+id: abilities.treasure.psi-blade.psi-blade-strike
+type: ability
+tags: [kw.melee, kw.psionic, kw.strike, kw.weapon]
+fields:
+  usage: maneuver
+  kind: treasure
+  distanceKind: melee
+  distance: 1
+  rollChars: [might, agility]
+  t1Damage: 2
+  t2Damage: 5
+  t3Damage: 7
+effects:
+  - target: { rolls: [damage], from: self }
+    op: add
+    value: 3
+    when: action.item.id == item.id
+    tags: [damage.psychic]

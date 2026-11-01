@@ -1,0 +1,33 @@
+id: titles.echelon-4.tireless
+type: title
+fields:
+  echelon: 4
+prerequisites:
+  - id: unstoppable
+    when: countCopies(copy.item == @titles.echelon-2.unstoppable) > 0
+choices:
+  - id: characteristic
+    from: { values: [might, agility] }
+    recommend: "characteristics.might.score >= characteristics.agility.score ? 'might' : 'agility'"
+    effects:
+      - { target: { formula: "'characteristics.' + pick.value + '.score'" }, op: add, value: 1 }
+      - { target: { formula: "'characteristics.' + pick.value + '.score'" }, op: atMost, value: 6 }
+  - id: benefit
+    from:
+      options:
+        - { id: bounce-back-fast }
+        # Recovery value: half the Stamina maximum instead of a third.
+        - id: reserves-of-strength
+          effects:
+            - {
+                target: recoveries.bonus,
+                op: add,
+                value: floor(stamina.max / 2) - floor(stamina.max / 3),
+              }
+        # Undying: no bleeding, even while dying (the immunity below).
+        - id: undying
+          effects:
+            - { target: stamina.dyingBleeds, op: set, value: 'false' }
+    recommend: "'reserves-of-strength'"
+immuneTo:
+  - { id: undying, items: [conditions.bleeding], when: "'undying' in picksOf('benefit')" }

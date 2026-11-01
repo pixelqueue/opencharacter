@@ -1,0 +1,27 @@
+id: titles.echelon-3.planar-voyager
+type: title
+fields:
+  echelon: 3
+choices:
+  - id: benefit
+    from:
+      options:
+        - id: prismacore-eyes
+          effects:
+            - { target: immunity.psychic, op: add, value: 10 }
+        - id: stellar-knowledge
+          effects:
+            - { target: skills.known, op: grant, value: { item: skills.mechanics } }
+        # 2 ancestry points of purchased time raider traits.
+        - id: time-raider-training
+          choices:
+            - id: traits
+              pick: { min: 1, max: 2 }
+              from:
+                type: ancestryTrait
+                where: 'item.ancestry == @ancestries.time-raider && !item.signature'
+              eligible: >-
+                item.id in choice.picks
+                  || item.cost + sumList(choice.picks, itemField(x, 'cost')) <= 2
+              recommend: filterList([@ancestry-traits.time-raider.psionic-gift], !(x in choice.picks))[0]
+    recommend: "'prismacore-eyes'"

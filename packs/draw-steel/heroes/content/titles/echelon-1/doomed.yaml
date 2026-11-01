@@ -1,0 +1,27 @@
+# Becoming doomed is the hero's choice at 0 Stamina: the title's `become-doomed` action. While
+# doomed, tests and power rolls obtain tier 3 and the hero can't regain Stamina; they die at
+# the end of the encounter (the later death threshold is the book's).
+id: titles.echelon-1.doomed
+type: title
+fields:
+  echelon: 1
+state:
+  doomed: { type: boolean, default: false }
+prerequisites:
+  - { id: not-hakaan, when: '!(ancestry.current == @ancestries.hakaan)' }
+effects:
+  - { target: { rolls: [power-roll], tally: autoTier3 }, op: add, value: 1, when: self.doomed }
+  - target: { incoming: { fields: [stamina.current], tags: [healing] } }
+    op: multiply
+    value: 0
+    when: self.doomed && incoming.amount > 0
+actions:
+  - id: become-doomed
+    available: '!self.doomed && stamina.current <= 0 && !stamina.dead'
+    results: [doomed]
+    steps:
+      - id: doom
+        kind: changes
+        changes:
+          - { type: setState, entry: self, key: doomed, value: 'true' }
+      - { id: done, kind: outcome, result: "'doomed'" }

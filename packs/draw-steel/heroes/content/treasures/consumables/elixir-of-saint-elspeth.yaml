@@ -1,0 +1,21 @@
+id: treasures.consumables.elixir-of-saint-elspeth
+type: consumable
+tags:
+  - kw.magic
+  - kw.potion
+fields:
+  echelon: 4
+grants:
+  - item: abilities.treasure.elixir-of-saint-elspeth
+    when: self.quantity > 0
+effects:
+  - target:
+      steps:
+        - ability.after
+    op: changes
+    when: action.item.id == @abilities.treasure.elixir-of-saint-elspeth
+    value:
+      changes:
+        - type: adjustQuantity
+          entry: self
+          by: -1

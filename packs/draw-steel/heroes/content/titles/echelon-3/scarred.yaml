@@ -1,0 +1,9 @@
+# Only the first Scarred title raises the Stamina maximum.
+id: titles.echelon-3.scarred
+type: title
+fields:
+  echelon: 3
+effects:
+  - target: stamina.bonus
+    op: add
+    value: 'filterList(character.features, x.item == item.id)[0].id == self.id ? 20 : 0'

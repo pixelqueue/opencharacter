@@ -1,0 +1,19 @@
+id: treasures.trinkets.bracers-of-strife
+type: trinket
+tags:
+  - kw.arms
+  - kw.magic
+fields:
+  echelon: 3
+# The +1 to push distance is the book's.
+effects:
+  - target: { rolls: [damage] }
+    op: add
+    value: 2
+    when: "self.equipped && combat.active && 'kw.weapon' in action.item.tags"
+    tags:
+      [
+        {
+          formula: "action.item.damageType == 'untyped' ? [] : ['damage.' + action.item.damageType]",
+        },
+      ]

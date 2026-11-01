@@ -1,0 +1,24 @@
+# Immortal Excellence, Longevity and Worshippers, and one more benefit.
+id: titles.echelon-4.demigod
+type: title
+fields:
+  echelon: 4
+prerequisites:
+  - id: godsworn
+    when: countCopies(copy.item == @titles.echelon-2.godsworn) > 0
+choices:
+  - id: characteristic
+    from: { values: [might, agility, reason, intuition, presence] }
+    recommend: "sortList(['might', 'agility', 'reason', 'intuition', 'presence'], -fieldOf('characteristics.{characteristic}.score', x))[0]"
+    effects:
+      - { target: { formula: "'characteristics.' + pick.value + '.score'" }, op: add, value: 1 }
+      - { target: { formula: "'characteristics.' + pick.value + '.score'" }, op: atMost, value: 6 }
+  - id: benefit
+    from:
+      options:
+        - { id: acolytes }
+        - { id: divine-weapons }
+        - id: missionaries
+          effects:
+            - { target: renown, op: add, value: 2 }
+    recommend: "'missionaries'"
