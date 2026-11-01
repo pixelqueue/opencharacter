@@ -1,0 +1,131 @@
+# The combat round. Each action has a tagged `changes` step that content adds to: a class's
+# per-turn flags reset on `turn.start`, the Talent's strain on `turn.end`, and so on.
+fields:
+  combat.active: { type: boolean, input: true, default: false }
+  combat.round: { type: integer, input: true, default: 0, min: 0 }
+  # Heroic abilities used outside combat, which can't be used again until a respite.
+  abilities.usedOutside: { type: set, of: ability, input: true, default: [] }
+
+actions:
+  - id: start-combat
+    tags: [combat]
+    available: '!combat.active'
+    results: [started]
+    steps:
+      - id: start
+        kind: changes
+        tags: [combat.start]
+        changes:
+          - { type: set, field: combat.active, value: 'true' }
+          - { type: set, field: combat.round, value: 1 }
+          # A hero starts combat with heroic resource equal to their Victories.
+          - { type: set, field: heroic.current, value: 'sheet.hero ? victories : 0' }
+          - { type: set, field: surges.current, value: 0 }
+      - { id: done, kind: outcome, result: "'started'" }
+
+  - id: start-round
+    tags: [combat]
+    available: combat.active
+    results: [started]
+    steps:
+      - id: start
+        kind: changes
+        tags: [round.start]
+        changes:
+          - { type: adjust, field: combat.round, by: 1 }
+      - { id: done, kind: outcome, result: "'started'" }
+
+  # The start of the hero's turn: the class's heroic resource gain.
+  - id: start-turn
+    tags: [combat]
+    available: combat.active
+    results: [started]
+    steps:
+      - id: gain
+        kind: roll
+        when: heroic.kind != 'none'
+        tags: [heroic-gain]
+        parts:
+          - dice: heroic.turnGain
+          - value: heroic.turnBonus
+      - id: start
+        kind: changes
+        tags: [turn.start]
+        changes:
+          - { type: adjust, when: has(steps.gain), field: heroic.current, by: steps.gain.total }
+          # Effects on yourself "until the start of your next turn" end; those "until the end of
+          # your next turn" now end with this turn.
+          - type: removeEffect
+            applied: { where: "has(self.duration) && self.duration == 'next-start'" }
+          - type: setState
+            applied: { where: "has(self.duration) && self.duration == 'next-end'" }
+            key: duration
+            value: "'eot'"
+      - {
+          id: done,
+          kind: outcome,
+          result: "'started'",
+          data: { gained: 'has(steps.gain) ? steps.gain.total : 0' },
+        }
+
+  # The end of the turn: saving throws against save-ends effects are each their own action
+  # (the condition's `save`); EoT effects end here.
+  - id: end-turn
+    tags: [combat]
+    available: combat.active
+    results: [ended]
+    steps:
+      - id: end
+        kind: changes
+        tags: [turn.end]
+        changes:
+          - type: removeEffect
+            applied: { where: "has(self.duration) && self.duration == 'eot'" }
+      - { id: done, kind: outcome, result: "'ended'" }
+
+  - id: end-combat
+    tags: [combat]
+    available: combat.active
+    results: [ended]
+    steps:
+      - id: end
+        kind: changes
+        tags: [combat.end]
+        changes:
+          - { type: set, field: combat.active, value: 'false' }
+          - { type: set, field: combat.round, value: 0 }
+          - { type: set, field: heroic.current, value: 0 }
+          - { type: set, field: surges.current, value: 0 }
+          - { type: set, field: stamina.temp, value: 0 }
+          - type: removeEffect
+            applied:
+              {
+                where: "has(self.duration) && self.duration in ['eot', 'save', 'encounter', 'next-start', 'next-end']",
+              }
+      - { id: done, kind: outcome, result: "'ended'" }
+
+  # A respite: Stamina and Recoveries back, Victories turned into experience.
+  - id: respite
+    tags: [respite]
+    available: '!combat.active'
+    results: [rested]
+    steps:
+      - id: rest
+        kind: changes
+        tags: [respite]
+        changes:
+          - { type: set, field: recoveries.spent, value: 0 }
+          - { type: set, field: stamina.current, value: stamina.max }
+          - { type: set, field: stamina.temp, value: 0 }
+          - { type: adjust, field: xp.current, by: victories }
+          - { type: set, field: victories, value: 0 }
+          - { type: set, field: abilities.usedOutside, value: '[]' }
+      - { id: done, kind: outcome, result: "'rested'" }
+
+followUps:
+  # Earning Victories lets abilities used outside combat be used again.
+  - id: victory-refresh
+    on: { field: victories, once: true }
+    when: change.by > 0 && size(abilities.usedOutside) > 0
+    changes:
+      - { type: set, field: abilities.usedOutside, value: '[]' }

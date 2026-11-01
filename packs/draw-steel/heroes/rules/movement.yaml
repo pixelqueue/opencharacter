@@ -1,0 +1,27 @@
+fields:
+  # Size: 1T, 1S, 1M, 1L, then 2 to 5 (values in lower case). The rank orders them (1T is 1, 5 is 8).
+  # The ancestry sets the base size; a temporary form (a stormwight's) sets `size.form` over it.
+  size.base:
+    type: enum
+    values: [1t, 1s, 1m, 1l, '2', '3', '4', '5']
+    formula: "'1m'"
+  size.form:
+    type: enum
+    values: [none, 1t, 1s, 1m, 1l, '2', '3', '4', '5']
+    formula: "'none'"
+  size.value:
+    type: enum
+    values: [1t, 1s, 1m, 1l, '2', '3', '4', '5']
+    formula: "size.form != 'none' ? size.form : size.base"
+  size.rank:
+    type: integer
+    formula: "indexOf(['1t', '1s', '1m', '1l', '2', '3', '4', '5'], size.value) + 1"
+  speed.base: { type: integer, formula: 5 }
+  speed: { type: integer, formula: speed.base + kit.speed, min: 0 }
+  # A slowed creature's speed is at most this (Perseverance raises it to 3).
+  speed.slowedMax: { type: integer, formula: 2 }
+  stability: { type: integer, formula: kit.stability, min: 0 }
+  # Disengage shifts 1 square, more with a kit.
+  disengage: { type: integer, formula: 1 + kit.disengage, min: 0 }
+  # Movement types beyond walking.
+  movement.types: { type: set, of: tag, members: { under: [move] } }

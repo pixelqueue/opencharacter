@@ -1,0 +1,9 @@
+id: conditions.prone
+type: condition
+effects:
+  # A prone creature's strikes take a bane.
+  - target: { rolls: [power-roll.ability], tally: banes }
+    op: add
+    value: 1
+    when: "'kw.strike' in action.item.tags"
+    scope: applied

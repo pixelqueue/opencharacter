@@ -1,0 +1,242 @@
+display:
+  groups:
+    - { id: summary, priority: 0, visibility: primary }
+    - id: characteristics
+      priority: 0
+      members: { type: field, where: "'characteristic' in item.tags" }
+    - { id: stamina, priority: 0 }
+    - { id: resources, priority: 1, showWhen: sheet.hero }
+    - { id: movement, priority: 1 }
+    - { id: potency, priority: 2, showWhen: sheet.hero }
+    - { id: defenses, priority: 2 }
+    - id: conditions
+      kind: content
+      priority: 0
+      members: { type: condition, from: applied }
+    - id: effects
+      kind: content
+      priority: 1
+      members: { type: effect, from: applied }
+    - id: abilities
+      kind: content
+      priority: 1
+      members: { type: ability }
+      sectionBy: item.usage
+    - id: ability-actions
+      kind: actions
+      priority: 1
+      members: { type: action, where: "'ability' in item.tags" }
+    - id: combat
+      kind: actions
+      priority: 2
+      members:
+        {
+          type: action,
+          where: "'combat' in item.tags || 'recovery' in item.tags || 'saving-throw' in item.tags",
+        }
+    - { id: skills, priority: 3, showWhen: sheet.hero }
+    - id: tests
+      kind: actions
+      priority: 2
+      members: { type: action, where: "'power-roll.test' in item.tags" }
+    - id: downtime
+      kind: actions
+      priority: 3
+      showWhen: sheet.hero
+      members:
+        {
+          type: action,
+          where: "'respite' in item.tags || 'resource' in item.tags || 'level-up' in item.tags",
+        }
+    - id: class
+      kind: content
+      priority: 1
+      showWhen: sheet.hero
+      members: { type: class }
+    - id: subclass
+      kind: content
+      priority: 1
+      showWhen: hasChoice('subclass')
+      members: { type: subclass }
+    - id: features
+      kind: content
+      priority: 2
+      showWhen: sheet.hero
+      members: { type: feature }
+      sortBy: item.level
+    - id: kits
+      kind: content
+      priority: 2
+      showWhen: hasChoice('kit')
+      members: { type: kit }
+    - id: ancestry
+      kind: content
+      priority: 2
+      showWhen: sheet.hero
+      members: { type: ancestry }
+    - id: ancestry-traits
+      kind: content
+      priority: 2
+      showWhen: sheet.hero
+      members: { type: ancestryTrait }
+    - id: background
+      kind: content
+      priority: 3
+      showWhen: sheet.hero
+      members: { type: culture }
+    - id: culture-aspects
+      kind: content
+      priority: 3
+      showWhen: sheet.hero
+      members: { type: cultureAspect }
+    - id: career
+      kind: content
+      priority: 3
+      showWhen: sheet.hero
+      members: { type: career }
+    - id: perks
+      kind: content
+      priority: 3
+      showWhen: sheet.hero
+      members: { type: perk }
+    - id: complication
+      kind: content
+      priority: 3
+      showWhen: sheet.hero
+      members: { type: complication }
+    - id: titles
+      kind: content
+      priority: 3
+      showWhen: sheet.hero
+      members: { type: title }
+    - id: treasures
+      kind: content
+      priority: 2
+      members: { type: consumable }
+    - id: trinkets
+      kind: content
+      priority: 2
+      members: { type: trinket }
+    - id: leveled-treasures
+      kind: content
+      priority: 2
+      members: { type: leveledTreasure }
+    - id: artifacts
+      kind: content
+      priority: 2
+      members: { type: artifact }
+
+  fields:
+    level: { groups: [summary], priority: 0, visibility: primary, showWhen: sheet.hero }
+    echelon: { groups: [summary], priority: 1, showWhen: sheet.hero }
+    sheet.hero: { hidden: true }
+
+    'characteristics.{characteristic}.score':
+      format: signed
+      rolls: [{ action: test, params: { characteristic: '{characteristic}' } }]
+    'characteristics.{characteristic}.base':
+      { groups: [characteristics], priority: 2, visibility: background, format: signed }
+    'characteristics.{characteristic}.primary': { hidden: true }
+    'characteristics.{characteristic}.extra4': { hidden: true }
+    'characteristics.{characteristic}.extra10': { hidden: true }
+    'characteristics.{characteristic}.level4': { hidden: true }
+    'characteristics.{characteristic}.level7': { hidden: true }
+    characteristics.highest: { hidden: true }
+
+    potency.char: { hidden: true }
+    potency.bonus: { hidden: true }
+    potency.strong: { groups: [potency], priority: 0, format: signed }
+    potency.average: { groups: [potency], priority: 1, format: signed }
+    potency.weak: { groups: [potency], priority: 2, format: signed }
+
+    stamina.current:
+      groups: [summary, stamina]
+      priority: 0
+      visibility: primary
+      with: [{ field: stamina.max, as: max }, { field: stamina.temp, as: detail }]
+      rolls: [{ action: spend-recovery }]
+    stamina.max: { groups: [stamina], priority: 1 }
+    stamina.temp: { groups: [stamina], priority: 1 }
+    stamina.winded: { groups: [stamina], priority: 2 }
+    stamina.isWinded: { groups: [summary, stamina], priority: 2, showWhen: stamina.isWinded }
+    stamina.dying: { groups: [summary, stamina], priority: 2, showWhen: stamina.dying }
+    stamina.dead: { groups: [summary, stamina], priority: 2, showWhen: stamina.dead }
+    stamina.base: { groups: [stamina], priority: 3, visibility: background }
+    stamina.perLevel: { groups: [stamina], priority: 3, visibility: background }
+    stamina.bonus: { groups: [stamina], priority: 3, visibility: background }
+    recoveries.current:
+      groups: [summary, stamina]
+      priority: 1
+      showWhen: sheet.hero
+      with: [{ field: recoveries.max, as: max }]
+    recoveries.max: { groups: [stamina], priority: 3, visibility: background, showWhen: sheet.hero }
+    recoveries.spent:
+      { groups: [stamina], priority: 3, visibility: background, showWhen: sheet.hero }
+    recoveries.value: { groups: [stamina], priority: 2, showWhen: sheet.hero }
+    recoveries.bonus: { hidden: true }
+
+    'immunity.{damageType}':
+      { groups: [defenses], priority: 1, showWhen: 'immunity.{damageType} > 0' }
+    'immunity.{damageType}All':
+      { groups: [defenses], priority: 0, showWhen: 'immunity.{damageType}All' }
+    immunity.all: { groups: [defenses], priority: 0, showWhen: immunity.all > 0 }
+    'weakness.{damageType}':
+      { groups: [defenses], priority: 3, showWhen: 'weakness.{damageType} > 0' }
+    weakness.all: { groups: [defenses], priority: 2, showWhen: weakness.all > 0 }
+
+    heroic.current:
+      groups: [summary, resources]
+      priority: 0
+      visibility: primary
+      showWhen: heroic.kind != 'none'
+      label: fields.heroic.current.name
+      with: [{ field: heroic.kind, as: detail }]
+    heroic.kind: { groups: [resources], priority: 4, visibility: background }
+    heroic.min: { hidden: true }
+    heroic.turnGain:
+      { groups: [resources], priority: 3, format: dice, showWhen: heroic.kind != 'none' }
+    heroic.turnBonus: { hidden: true }
+    surges.current: { groups: [summary, resources], priority: 1 }
+    victories: { groups: [summary, resources], priority: 1 }
+    xp.current: { groups: [resources], priority: 2, with: [{ field: xp.nextLevel, as: max }] }
+    xp.nextLevel: { groups: [resources], priority: 4, visibility: background, showWhen: sheet.hero }
+    xp.levelUp: { hidden: true }
+    renown: { groups: [resources], priority: 3 }
+    wealth: { groups: [resources], priority: 3 }
+    projectPoints: { groups: [resources], priority: 3 }
+
+    size.value: { groups: [movement], priority: 0 }
+    size.base: { groups: [movement], priority: 3, visibility: background }
+    size.form: { hidden: true }
+    speed.slowedMax: { hidden: true }
+    'potency.resistBonus.{characteristic}': { hidden: true }
+    size.rank: { hidden: true }
+    speed: { groups: [summary, movement], priority: 0, unit: squares }
+    speed.base: { groups: [movement], priority: 2, visibility: background, unit: squares }
+    stability: { groups: [summary, movement], priority: 1 }
+    disengage: { groups: [movement], priority: 1, unit: squares }
+    movement.types: { groups: [movement], priority: 1 }
+
+    kit.stamina: { hidden: true }
+    kit.speed: { hidden: true }
+    kit.stability: { hidden: true }
+    kit.disengage: { hidden: true }
+    'kit.melee{tier}': { hidden: true }
+    'kit.ranged{tier}': { hidden: true }
+    kit.meleeDistance: { hidden: true }
+    kit.rangedDistance: { hidden: true }
+    kit.recommended: { hidden: true }
+
+    'conditions.{condition}': { hidden: true }
+    conditions.active: { hidden: true }
+    stamina.dyingBleeds: { hidden: true }
+    conditions.frightenedBy: { hidden: true }
+    conditions.grabbedBy: { hidden: true }
+    conditions.tauntedBy: { hidden: true }
+
+    combat.active: { groups: [summary], priority: 3, input: { widget: checkbox } }
+    combat.round: { groups: [summary], priority: 3, showWhen: combat.active }
+    abilities.usedOutside: { visibility: background }
+    ancestry.current: { hidden: true }
+    skills.known: { groups: [skills], priority: 0 }
+    languages.known: { groups: [skills], priority: 1 }

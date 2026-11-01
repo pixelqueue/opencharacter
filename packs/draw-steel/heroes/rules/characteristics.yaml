@@ -1,0 +1,64 @@
+fields:
+  # The score chosen at creation: 2 for each primary characteristic, the array for the rest.
+  'characteristics.{characteristic}.base':
+    {
+      type: integer,
+      input: true,
+      default: 0,
+      min: -5,
+      max: 5,
+      tags: [characteristic-base, 'characteristic-base.{characteristic}'],
+    }
+  # Set by the class's primary characteristics.
+  'characteristics.{characteristic}.primary': { type: boolean, formula: 'false' }
+  # The extra +1 a one-primary class gives at 4th and 10th level, set by the class's choice.
+  'characteristics.{characteristic}.extra4': { type: boolean, formula: 'false' }
+  'characteristics.{characteristic}.extra10': { type: boolean, formula: 'false' }
+  # The score at the character's level:
+  # 4th: a primary rises to 3, an extra +1 goes to at most 3;
+  # 7th: every score +1, to at most 4;
+  # 10th: a primary rises to 5, an extra +1 goes to at most 5.
+  # A creature without a class (level 0 or set by its pack) keeps its base.
+  'characteristics.{characteristic}.level4':
+    type: integer
+    formula: >-
+      !sheet.hero || level < 4 ? characteristics.{characteristic}.base
+        : characteristics.{characteristic}.primary ? max(characteristics.{characteristic}.base, 3)
+        : characteristics.{characteristic}.extra4
+          ? max(characteristics.{characteristic}.base, min(3, characteristics.{characteristic}.base + 1))
+        : characteristics.{characteristic}.base
+  'characteristics.{characteristic}.level7':
+    type: integer
+    formula: >-
+      !sheet.hero || level < 7 ? characteristics.{characteristic}.level4
+        : max(characteristics.{characteristic}.level4, min(4, characteristics.{characteristic}.level4 + 1))
+  'characteristics.{characteristic}.score':
+    type: integer
+    tags: [characteristic]
+    formula: >-
+      !sheet.hero || level < 10 ? characteristics.{characteristic}.level7
+        : characteristics.{characteristic}.primary ? max(characteristics.{characteristic}.level7, 5)
+        : characteristics.{characteristic}.extra10
+          ? max(characteristics.{characteristic}.level7, min(5, characteristics.{characteristic}.level7 + 1))
+        : characteristics.{characteristic}.level7
+  characteristics.highest:
+    type: integer
+    formula: >-
+      max(characteristics.might.score, characteristics.agility.score, characteristics.reason.score,
+        characteristics.intuition.score, characteristics.presence.score)
+
+  # Potency: the class's potency characteristic is strong, one less average, two less weak.
+  potency.char:
+    type: enum
+    values: [none, might, agility, reason, intuition, presence]
+    formula: "'none'"
+  potency.bonus: { type: integer, formula: 0 }
+  # A bonus to a characteristic when resisting another creature's potency (Stand Tough).
+  'potency.resistBonus.{characteristic}': { type: integer, formula: 0 }
+  potency.strong:
+    type: integer
+    formula: >-
+      (potency.char == 'none' ? 0 : fieldOf('characteristics.{characteristic}.score', potency.char))
+        + potency.bonus
+  potency.average: { type: integer, formula: potency.strong - 1 }
+  potency.weak: { type: integer, formula: potency.strong - 2 }

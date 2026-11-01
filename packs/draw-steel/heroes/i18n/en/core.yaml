@@ -1,0 +1,718 @@
+pack.name: Draw Steel Heroes
+headline: >-
+  {has_type_class, select,
+    true {Level {field_level} {has_type_ancestry, select, true {{type_ancestry} } other {}}{type_class}{has_type_subclass, select, true { ({type_subclass})} other {}}}
+    other {{has_type_ancestry, select, true {{type_ancestry}} other {}}}}
+creation.guided.name: Guided
+creation.guided.description: Make a hero step by step, with the book's Quick Build picks recommended.
+creation.random.name: Random
+creation.random.description: Make a hero with every pick drawn at random.
+actions.create-hero.name: Create a hero
+actions.create-hero.params.random.name: Random picks
+actions.create-hero.params.level.name: Starting level
+actions.create-hero.params.complication.name: Take a complication
+actions.create-hero.steps.ancestry.prompt: Choose your ancestry
+actions.create-hero.steps.culture.prompt: Choose your culture
+actions.create-hero.steps.career.prompt: Choose your career
+actions.create-hero.steps.class.prompt: Choose your class
+actions.create-hero.steps.array.prompt: Choose an array for your other characteristics
+actions.create-hero.steps.complication.prompt: Choose a complication
+actions.create-hero.options.two-a.name: 2, −1, −1
+actions.create-hero.options.two-b.name: 1, 1, −1
+actions.create-hero.options.two-c.name: 1, 0, 0
+actions.create-hero.options.one-a.name: 2, 2, −1, −1
+actions.create-hero.options.one-b.name: 2, 1, 1, −1
+actions.create-hero.options.one-c.name: 2, 1, 0, 0
+actions.create-hero.options.one-d.name: 1, 1, 1, 0
+actions.create-hero.results.created.name: Hero created
+actions.level-up.name: Level up
+actions.level-up.params.random.name: Random picks
+actions.level-up.results.levelled.name: Levelled up
+types.class.followUps.level-up.name: Level up
+types.class.followUps.level-up.description: You have enough experience for your next level.
+actions.test.name: Test
+actions.test.params.characteristic.name: Characteristic
+actions.test.params.characteristic.values.might.name: Might
+actions.test.params.characteristic.values.agility.name: Agility
+actions.test.params.characteristic.values.reason.name: Reason
+actions.test.params.characteristic.values.intuition.name: Intuition
+actions.test.params.characteristic.values.presence.name: Presence
+actions.test.params.skill.name: Skill
+actions.test.params.skill.description: A skill that applies; +2 if you have it.
+actions.test.params.difficulty.name: Difficulty
+actions.test.params.difficulty.values.easy.name: Easy
+actions.test.params.difficulty.values.medium.name: Medium
+actions.test.params.difficulty.values.hard.name: Hard
+actions.test.steps.roll.name: Test
+actions.saving-throw.name: Saving throw
+actions.saving-throw.params.entry.name: Effect
+actions.saving-throw.steps.roll.name: Saving throw
+bands.power.tier1.name: Tier 1 (11 or lower)
+bands.power.tier2.name: Tier 2 (12–16)
+bands.power.tier3.name: Tier 3 (17 or higher)
+bands.test.success-reward.name: Success with a reward
+bands.test.success.name: Success
+bands.test.success-consequence.name: Success with a consequence
+bands.test.failure.name: Failure
+bands.test.failure-consequence.name: Failure with a consequence
+bands.save.success.name: Success (6 or higher)
+bands.save.failure.name: Failure
+situational.edges.name: Edges
+situational.banes.name: Banes
+situational.bonus.name: Bonus or penalty
+tallies.edges.name: Edges
+tallies.banes.name: Banes
+tallies.autoTier1.name: Automatic tier 1
+tallies.autoTier2.name: Automatic tier 2
+tallies.autoTier3.name: Automatic tier 3
+tallies.tierShift.name: Tier change
+types.ability.name: Ability
+types.ability.block: '{has_tags, select, true {**{tags_name}** · } other
+  {}}{usage_name}{has_texts_distance, select, true { · 📏 {texts_distance}} other
+  {}}{has_texts_target, select, true { · 🎯 {texts_target}} other {}}'
+actions.use-ability.name: Use
+actions.use-ability.params.characteristic.name: Characteristic
+actions.use-ability.params.characteristic.values.might.name: Might
+actions.use-ability.params.characteristic.values.agility.name: Agility
+actions.use-ability.params.characteristic.values.reason.name: Reason
+actions.use-ability.params.characteristic.values.intuition.name: Intuition
+actions.use-ability.params.characteristic.values.presence.name: Presence
+actions.use-ability.params.mode.name: Melee or ranged
+actions.use-ability.params.mode.values.melee.name: Melee
+actions.use-ability.params.mode.values.ranged.name: Ranged
+actions.use-ability.params.spend.name: Extra resource spent
+actions.use-ability.params.spend.description: Heroic resource spent on the ability's "Spend" effect.
+actions.use-ability.params.surges.name: Surges
+actions.use-ability.params.surges.description: Each surge adds damage equal to your highest characteristic to one target.
+actions.use-ability.params.downgrade.name: Ask to downgrade
+actions.use-ability.steps.downgrade.prompt: Downgrade this target's outcome?
+actions.use-ability.steps.roll.name: Power roll
+actions.use-ability.steps.damage.name: Damage
+actions.use-ability.steps.preview.name: Damage
+actions.use-ability.steps.bleed.name: Bleeding
+actions.use-ability.options.keep.name: Keep the outcome
+actions.use-ability.options.tier2.name: Tier 2
+actions.use-ability.options.tier1.name: Tier 1
+actions.use-ability.results.used.name: Used
+actions.use-ability.results.tier1.name: Tier 1
+actions.use-ability.results.tier2.name: Tier 2
+actions.use-ability.results.tier3.name: Tier 3
+actions.use-ability.participants.target.name: Targets
+types.ability.fields.usage.name: Usage
+types.ability.fields.usage.values.main-action.name: Main action
+types.ability.fields.usage.values.maneuver.name: Maneuver
+types.ability.fields.usage.values.move-action.name: Move action
+types.ability.fields.usage.values.triggered.name: Triggered action
+types.ability.fields.usage.values.free-triggered.name: Free triggered action
+types.ability.fields.usage.values.free-maneuver.name: Free maneuver
+types.ability.fields.usage.values.no-action.name: No action
+types.ability.fields.kind.name: Kind
+types.ability.fields.kind.values.signature.name: Signature
+types.ability.fields.kind.values.heroic.name: Heroic
+types.ability.fields.kind.values.feature.name: Feature
+types.ability.fields.kind.values.free-strike.name: Free strike
+types.ability.fields.kind.values.common.name: Common
+types.ability.fields.kind.values.kit.name: Kit
+types.ability.fields.kind.values.ancestry.name: Ancestry
+types.ability.fields.kind.values.perk.name: Perk
+types.ability.fields.kind.values.title.name: Title
+types.ability.fields.kind.values.treasure.name: Treasure
+types.ability.fields.kind.values.complication.name: Complication
+types.ability.fields.class.name: Class
+types.ability.fields.subclass.name: Subclass
+types.ability.fields.level.name: Level
+types.ability.fields.resource.name: Heroic resource
+types.ability.fields.cost.name: Cost
+types.ability.fields.spendCost.name: Spend cost
+types.ability.fields.spendCost.description: The extra resource its "Spend" effect costs.
+types.ability.fields.spendPlus.name: Spend more
+types.ability.fields.spendPlus.description: The "Spend" effect takes more than its cost ("Spend 1+").
+types.ability.fields.distanceKind.name: Distance
+types.ability.fields.distanceKind.values.melee.name: Melee
+types.ability.fields.distanceKind.values.ranged.name: Ranged
+types.ability.fields.distanceKind.values.melee-or-ranged.name: Melee or ranged
+types.ability.fields.distanceKind.values.self.name: Self
+types.ability.fields.distanceKind.values.burst.name: Burst
+types.ability.fields.distanceKind.values.cube.name: Cube
+types.ability.fields.distanceKind.values.line.name: Line
+types.ability.fields.distanceKind.values.wall.name: Wall
+types.ability.fields.distanceKind.values.aura.name: Aura
+types.ability.fields.distanceKind.values.special.name: Special
+types.ability.fields.distance.name: Distance or size
+types.ability.fields.rangedDistance.name: Ranged distance
+types.ability.fields.areaWidth.name: Line width
+types.ability.fields.within.name: Within
+types.ability.fields.areaCount.name: Number of areas
+types.ability.fields.rollChars.name: Power roll characteristics
+types.ability.fields.rollBonus.name: Power roll bonus
+types.ability.fields.damageType.name: Damage type
+types.ability.fields.damageType.values.untyped.name: Untyped
+fields.potency.char.values.none.name: None
+fields.potency.strong.name: Strong potency
+fields.potency.average.name: Average potency
+fields.potency.weak.name: Weak potency
+tags.characteristic.name: Characteristic
+tags.characteristic-base.name: Starting characteristic
+fields.stamina.base.name: Starting Stamina
+fields.stamina.perLevel.name: Stamina per level
+fields.stamina.bonus.name: Stamina bonus
+fields.stamina.max.name: Maximum Stamina
+fields.stamina.current.name: Stamina
+fields.stamina.temp.name: Temporary Stamina
+fields.stamina.winded.name: Winded value
+fields.stamina.isWinded.name: Winded
+fields.stamina.dying.name: Dying
+fields.stamina.dead.name: Dead
+fields.recoveries.max.name: Maximum Recoveries
+fields.recoveries.spent.name: Recoveries spent
+fields.recoveries.current.name: Recoveries
+fields.recoveries.value.name: Recovery value
+fields.immunity.all.name: Damage immunity
+fields.weakness.all.name: Damage weakness
+actions.spend-recovery.name: Spend a Recovery
+actions.spend-recovery.results.spent.name: Recovery spent
+actions.gain-temporary-stamina.name: Gain temporary Stamina
+actions.gain-temporary-stamina.params.amount.name: Temporary Stamina
+actions.gain-temporary-stamina.results.gained.name: Gained
+fields.heroic.kind.name: Heroic resource
+fields.heroic.kind.values.none.name: None
+fields.heroic.kind.values.ferocity.name: Ferocity
+fields.heroic.kind.values.wrath.name: Wrath
+fields.heroic.kind.values.piety.name: Piety
+fields.heroic.kind.values.essence.name: Essence
+fields.heroic.kind.values.discipline.name: Discipline
+fields.heroic.kind.values.insight.name: Insight
+fields.heroic.kind.values.focus.name: Focus
+fields.heroic.kind.values.clarity.name: Clarity
+fields.heroic.kind.values.drama.name: Drama
+fields.heroic.current.name: Heroic resource
+fields.heroic.turnGain.name: Gain each turn
+fields.surges.current.name: Surges
+fields.victories.name: Victories
+fields.xp.current.name: Experience
+fields.xp.nextLevel.name: Experience for next level
+fields.renown.name: Renown
+fields.wealth.name: Wealth
+fields.projectPoints.name: Project points
+actions.gain-resource.name: Gain
+actions.gain-resource.params.resource.name: Resource
+actions.gain-resource.params.resource.values.heroic.name: Heroic resource
+actions.gain-resource.params.resource.values.surges.name: Surges
+actions.gain-resource.params.resource.values.victories.name: Victories
+actions.gain-resource.params.resource.values.renown.name: Renown
+actions.gain-resource.params.resource.values.wealth.name: Wealth
+actions.gain-resource.params.resource.values.xp.name: Experience
+actions.gain-resource.params.amount.name: Amount
+actions.gain-resource.results.done.name: Gained
+actions.spend-resource.name: Spend
+actions.spend-resource.params.resource.name: Resource
+actions.spend-resource.params.resource.values.heroic.name: Heroic resource
+actions.spend-resource.params.resource.values.surges.name: Surges
+actions.spend-resource.params.resource.values.victories.name: Victories
+actions.spend-resource.params.resource.values.renown.name: Renown
+actions.spend-resource.params.resource.values.wealth.name: Wealth
+actions.spend-resource.params.amount.name: Amount
+actions.spend-resource.results.done.name: Spent
+fields.combat.active.name: In combat
+fields.combat.round.name: Round
+fields.abilities.usedOutside.name: Heroic abilities used outside combat
+actions.start-combat.name: Start combat
+actions.start-combat.results.started.name: Combat started
+actions.start-round.name: Start a round
+actions.start-round.results.started.name: Round started
+actions.start-turn.name: Start your turn
+actions.start-turn.steps.gain.name: Heroic resource
+actions.start-turn.results.started.name: Turn started
+actions.end-turn.name: End your turn
+actions.end-turn.results.ended.name: Turn ended
+actions.end-combat.name: End combat
+actions.end-combat.results.ended.name: Combat ended
+actions.respite.name: Respite
+actions.respite.results.rested.name: Rested
+fields.size.value.name: Size
+fields.size.value.values.1t.name: 1T
+fields.size.value.values.1s.name: 1S
+fields.size.value.values.1m.name: 1M
+fields.size.value.values.1l.name: 1L
+fields.size.value.values.2.name: '2'
+fields.size.value.values.3.name: '3'
+fields.size.value.values.4.name: '4'
+fields.size.value.values.5.name: '5'
+fields.speed.base.name: Base speed
+fields.speed.name: Speed
+fields.stability.name: Stability
+fields.disengage.name: Disengage
+fields.movement.types.name: Movement
+units.squares.name: squares
+units.squares.short: sq
+types.condition.name: Condition
+types.condition.state.duration.name: Duration
+types.condition.state.duration.values.eot.name: End of turn
+types.condition.state.duration.values.save.name: Save ends
+types.condition.state.duration.values.encounter.name: End of encounter
+types.condition.state.duration.values.until.name: Until removed
+types.condition.state.by.name: Imposed by
+types.condition.save.name: Saving throw
+types.condition.save.results.success.name: Saved
+types.condition.save.results.failure.name: Not saved
+fields.level.name: Level
+fields.echelon.name: Echelon
+types.class.name: Class
+types.class.state.level.name: Level
+types.class.headline: '{name}'
+types.class.fields.primaries.name: Primary characteristics
+types.class.fields.potency.name: Potency characteristic
+types.class.fields.potency.values.might.name: Might
+types.class.fields.potency.values.agility.name: Agility
+types.class.fields.potency.values.reason.name: Reason
+types.class.fields.potency.values.intuition.name: Intuition
+types.class.fields.potency.values.presence.name: Presence
+types.class.fields.arrayPriority.name: Array order
+types.class.fields.arrayPriority.description: The characteristics the default array fills, highest first.
+types.class.fields.startingStamina.name: Starting Stamina
+types.class.fields.staminaPerLevel.name: Stamina per level
+types.class.fields.recoveries.name: Recoveries
+types.class.fields.resource.name: Heroic resource
+types.class.fields.turnGain.name: Resource gained each turn
+types.subclass.name: Subclass
+types.subclass.fields.class.name: Class
+types.feature.name: Feature
+types.feature.fields.class.name: Class
+types.feature.fields.subclass.name: Subclass
+types.feature.fields.level.name: Level
+types.kit.name: Kit
+types.kit.fields.stamina.name: Stamina bonus per echelon
+types.kit.fields.speed.name: Speed bonus
+types.kit.fields.stability.name: Stability bonus
+types.kit.fields.disengage.name: Disengage bonus
+types.kit.fields.meleeDistance.name: Melee distance bonus
+types.kit.fields.rangedDistance.name: Ranged distance bonus
+types.kit.fields.armor.name: Armor
+types.kit.fields.weapons.name: Weapons
+types.kit.fields.signature.name: Signature ability
+types.ancestry.name: Ancestry
+types.ancestry.fields.points.name: Ancestry points
+types.ancestry.fields.size.name: Size
+types.ancestry.fields.size.values.1t.name: 1T
+types.ancestry.fields.size.values.1s.name: 1S
+types.ancestry.fields.size.values.1m.name: 1M
+types.ancestry.fields.size.values.1l.name: 1L
+types.ancestry.fields.speed.name: Speed
+types.ancestryTrait.name: Ancestry trait
+types.ancestryTrait.fields.ancestry.name: Ancestry
+types.ancestryTrait.fields.cost.name: Cost (points)
+types.ancestryTrait.fields.signature.name: Signature trait
+fields.skills.known.name: Skills
+fields.languages.known.name: Languages
+types.skill.name: Skill
+types.skill.fields.group.name: Skill group
+types.skill.fields.group.values.crafting.name: Crafting
+types.skill.fields.group.values.exploration.name: Exploration
+types.skill.fields.group.values.interpersonal.name: Interpersonal
+types.skill.fields.group.values.intrigue.name: Intrigue
+types.skill.fields.group.values.lore.name: Lore
+types.language.name: Language
+types.language.fields.kind.name: Kind
+types.language.fields.kind.values.ancestry.name: Language of an ancestry
+types.language.fields.kind.values.human.name: Regional human language
+types.language.fields.kind.values.dead.name: Dead language
+types.culture.name: Culture
+types.cultureAspect.name: Culture aspect
+types.cultureAspect.fields.aspect.name: Aspect
+types.cultureAspect.fields.aspect.values.environment.name: Environment
+types.cultureAspect.fields.aspect.values.organization.name: Organization
+types.cultureAspect.fields.aspect.values.upbringing.name: Upbringing
+types.cultureAspect.fields.skillGroups.name: Skill groups
+types.cultureAspect.fields.skills.name: Skills
+types.career.name: Career
+types.career.fields.skills.name: Skills
+types.career.fields.languages.name: Languages
+types.career.fields.renown.name: Renown
+types.career.fields.wealth.name: Wealth
+types.career.fields.projectPoints.name: Project points
+types.perk.name: Perk
+types.perk.fields.group.name: Perk group
+types.perk.fields.group.values.crafting.name: Crafting
+types.perk.fields.group.values.exploration.name: Exploration
+types.perk.fields.group.values.interpersonal.name: Interpersonal
+types.perk.fields.group.values.intrigue.name: Intrigue
+types.perk.fields.group.values.lore.name: Lore
+types.perk.fields.group.values.supernatural.name: Supernatural
+types.complication.name: Complication
+types.title.name: Title
+types.title.fields.echelon.name: Echelon
+types.consumable.name: Consumable
+types.consumable.fields.echelon.name: Echelon
+types.trinket.name: Trinket
+types.trinket.fields.echelon.name: Echelon
+types.leveledTreasure.name: Leveled treasure
+types.leveledTreasure.fields.category.name: Category
+types.leveledTreasure.fields.category.values.armor.name: Armor
+types.leveledTreasure.fields.category.values.implement.name: Implement
+types.leveledTreasure.fields.category.values.weapon.name: Weapon
+types.leveledTreasure.fields.category.values.other.name: Other
+types.artifact.name: Artifact
+constraints.leveled-treasures: at most three leveled treasures carried safely
+groups.summary.label: Summary
+groups.characteristics.label: Characteristics
+groups.stamina.label: Stamina
+groups.resources.label: Resources
+groups.movement.label: Movement
+groups.potency.label: Potency
+groups.defenses.label: Immunities and weaknesses
+groups.conditions.label: Conditions
+groups.abilities.label: Abilities
+groups.abilities.sections.main-action.name: Main actions
+groups.abilities.sections.maneuver.name: Maneuvers
+groups.abilities.sections.move-action.name: Move actions
+groups.abilities.sections.triggered.name: Triggered actions
+groups.abilities.sections.free-triggered.name: Free triggered actions
+groups.abilities.sections.free-maneuver.name: Free maneuvers
+groups.abilities.sections.no-action.name: No action
+groups.ability-actions.label: Use an ability
+groups.combat.label: Combat
+groups.tests.label: Tests
+groups.skills.label: Skills and languages
+groups.effects.label: Effects
+groups.downtime.label: Between fights
+groups.class.label: Class
+groups.subclass.label: Subclass
+groups.features.label: Features
+groups.kits.label: Kit
+groups.ancestry.label: Ancestry
+groups.ancestry-traits.label: Ancestry traits
+groups.background.label: Culture
+groups.culture-aspects.label: Culture aspects
+groups.career.label: Career
+groups.perks.label: Perks
+groups.complication.label: Complication
+groups.titles.label: Titles
+groups.treasures.label: Consumables
+groups.trinkets.label: Trinkets
+groups.leveled-treasures.label: Leveled treasures
+groups.artifacts.label: Artifacts
+tags.kw.name: Keyword
+tags.kw.animal.name: Animal
+tags.kw.animapathy.name: Animapathy
+tags.kw.area.name: Area
+tags.kw.charge.name: Charge
+tags.kw.chronopathy.name: Chronopathy
+tags.kw.cryokinesis.name: Cryokinesis
+tags.kw.earth.name: Earth
+tags.kw.fire.name: Fire
+tags.kw.green.name: Green
+tags.kw.magic.name: Magic
+tags.kw.melee.name: Melee
+tags.kw.metamorphosis.name: Metamorphosis
+tags.kw.performance.name: Performance
+tags.kw.psionic.name: Psionic
+tags.kw.pyrokinesis.name: Pyrokinesis
+tags.kw.ranged.name: Ranged
+tags.kw.resopathy.name: Resopathy
+tags.kw.rot.name: Rot
+tags.kw.strike.name: Strike
+tags.kw.telekinesis.name: Telekinesis
+tags.kw.telepathy.name: Telepathy
+tags.kw.void.name: Void
+tags.kw.weapon.name: Weapon
+tags.kw.potion.name: Potion
+tags.kw.oil.name: Oil
+tags.kw.scroll.name: Scroll
+tags.kw.wand.name: Wand
+tags.kw.implement.name: Implement
+tags.kw.net.name: Net
+tags.kw.arms.name: Arms
+tags.kw.feet.name: Feet
+tags.kw.hands.name: Hands
+tags.kw.head.name: Head
+tags.kw.neck.name: Neck
+tags.kw.ring.name: Ring
+tags.kw.waist.name: Waist
+tags.armor.name: Armor
+tags.armor.none.name: No armor
+tags.armor.light.name: Light armor
+tags.armor.medium.name: Medium armor
+tags.armor.heavy.name: Heavy armor
+tags.armor.shield.name: Shield
+tags.weapon.name: Weapon
+tags.weapon.bow.name: Bow
+tags.weapon.ensnaring.name: Ensnaring weapon
+tags.weapon.heavy.name: Heavy weapon
+tags.weapon.light.name: Light weapon
+tags.weapon.medium.name: Medium weapon
+tags.weapon.polearm.name: Polearm
+tags.weapon.unarmed.name: Unarmed strikes
+tags.weapon.whip.name: Whip
+tags.common.name: Common ability
+tags.stormwight.name: Stormwight
+tags.power-roll.name: Power roll
+tags.power-roll.ability.name: Ability roll
+tags.power-roll.test.name: Test
+tags.test.name: Test
+tags.saving-throw.name: Saving throw
+tags.heroic-gain.name: Heroic resource gain
+tags.damage.name: Damage
+tags.damage.kit-melee.name: Kit melee damage
+tags.damage.kit-ranged.name: Kit ranged damage
+tags.stamina-loss.name: Stamina loss
+tags.healing.name: Healing
+tags.ability.name: Ability
+tags.ability.pay.name: Ability cost
+tags.ability.spend.name: Ability spend
+tags.ability.hit.name: Ability hit
+tags.ability.after.name: After an ability
+tags.usage.name: Usage
+tags.usage.main-action.name: Main action
+tags.usage.maneuver.name: Maneuver
+tags.usage.move-action.name: Move action
+tags.usage.triggered.name: Triggered action
+tags.usage.free-triggered.name: Free triggered action
+tags.usage.free-maneuver.name: Free maneuver
+tags.usage.no-action.name: No action
+tags.combat.name: Combat
+tags.combat.start.name: Start of combat
+tags.combat.end.name: End of combat
+tags.round.name: Round
+tags.round.start.name: Start of a round
+tags.turn.name: Turn
+tags.turn.start.name: Start of turn
+tags.turn.end.name: End of turn
+tags.respite.name: Respite
+tags.recovery.name: Recovery
+tags.level-up.name: Level up
+tags.creation.name: Creation
+tags.resource.name: Resource
+tags.move.name: Movement
+tags.move.burrow.name: Burrow
+tags.move.climb.name: Climb
+tags.move.fly.name: Fly
+tags.move.hover.name: Hover
+tags.move.swim.name: Swim
+tags.move.teleport.name: Teleport
+fields.characteristics.might.score.name: Might
+fields.characteristics.might.score.short: M
+fields.characteristics.might.base.name: Might (starting)
+fields.potency.char.values.might.name: Might
+tags.test.might.name: Might test
+tags.characteristic-base.might.name: Starting might
+fields.characteristics.agility.score.name: Agility
+fields.characteristics.agility.score.short: A
+fields.characteristics.agility.base.name: Agility (starting)
+fields.potency.char.values.agility.name: Agility
+tags.test.agility.name: Agility test
+tags.characteristic-base.agility.name: Starting agility
+fields.characteristics.reason.score.name: Reason
+fields.characteristics.reason.score.short: R
+fields.characteristics.reason.base.name: Reason (starting)
+fields.potency.char.values.reason.name: Reason
+tags.test.reason.name: Reason test
+tags.characteristic-base.reason.name: Starting reason
+fields.characteristics.intuition.score.name: Intuition
+fields.characteristics.intuition.score.short: I
+fields.characteristics.intuition.base.name: Intuition (starting)
+fields.potency.char.values.intuition.name: Intuition
+tags.test.intuition.name: Intuition test
+tags.characteristic-base.intuition.name: Starting intuition
+fields.characteristics.presence.score.name: Presence
+fields.characteristics.presence.score.short: P
+fields.characteristics.presence.base.name: Presence (starting)
+fields.potency.char.values.presence.name: Presence
+tags.test.presence.name: Presence test
+tags.characteristic-base.presence.name: Starting presence
+fields.immunity.acid.name: Acid immunity
+fields.weakness.acid.name: Acid weakness
+tags.damage.acid.name: Acid damage
+types.ability.fields.damageType.values.acid.name: Acid
+fields.immunity.cold.name: Cold immunity
+fields.weakness.cold.name: Cold weakness
+tags.damage.cold.name: Cold damage
+types.ability.fields.damageType.values.cold.name: Cold
+fields.immunity.corruption.name: Corruption immunity
+fields.weakness.corruption.name: Corruption weakness
+tags.damage.corruption.name: Corruption damage
+types.ability.fields.damageType.values.corruption.name: Corruption
+fields.immunity.fire.name: Fire immunity
+fields.weakness.fire.name: Fire weakness
+tags.damage.fire.name: Fire damage
+types.ability.fields.damageType.values.fire.name: Fire
+fields.immunity.holy.name: Holy immunity
+fields.weakness.holy.name: Holy weakness
+tags.damage.holy.name: Holy damage
+types.ability.fields.damageType.values.holy.name: Holy
+fields.immunity.lightning.name: Lightning immunity
+fields.weakness.lightning.name: Lightning weakness
+tags.damage.lightning.name: Lightning damage
+types.ability.fields.damageType.values.lightning.name: Lightning
+fields.immunity.poison.name: Poison immunity
+fields.weakness.poison.name: Poison weakness
+tags.damage.poison.name: Poison damage
+types.ability.fields.damageType.values.poison.name: Poison
+fields.immunity.psychic.name: Psychic immunity
+fields.weakness.psychic.name: Psychic weakness
+tags.damage.psychic.name: Psychic damage
+types.ability.fields.damageType.values.psychic.name: Psychic
+fields.immunity.sonic.name: Sonic immunity
+fields.weakness.sonic.name: Sonic weakness
+tags.damage.sonic.name: Sonic damage
+types.ability.fields.damageType.values.sonic.name: Sonic
+types.kit.fields.melee1.name: Melee damage bonus (tier 1)
+types.kit.fields.ranged1.name: Ranged damage bonus (tier 1)
+types.ability.fields.t1Damage.name: Tier 1 damage
+types.ability.fields.t1Damage.description: The damage before the characteristic; leave it out for none.
+types.ability.fields.t1AddsChar.name: Tier 1 damage adds the characteristic
+types.ability.fields.t1PotencyChar.name: Tier 1 potency characteristic
+types.ability.fields.t1PotencyChar.description: The target's characteristic tested against the potency.
+types.ability.fields.t1Potency.name: Tier 1 potency
+types.ability.fields.t1Potency.description: "Weak, average or strong: the user's potency."
+types.ability.fields.t1PotencyValue.name: Tier 1 potency value
+types.ability.fields.t1PotencyValue.description: A fixed potency, in place of the user's.
+types.ability.fields.t1Condition.name: Tier 1 condition
+types.ability.fields.t1Duration.name: Tier 1 condition duration
+types.ability.fields.t1Move.name: Tier 1 forced movement
+types.ability.fields.t1MoveVertical.name: Tier 1 forced movement is vertical
+types.ability.fields.t1MoveDistance.name: Tier 1 forced movement distance
+types.ability.fields.t1PotencyChar.values.might.name: Might
+types.ability.fields.t1PotencyChar.values.agility.name: Agility
+types.ability.fields.t1PotencyChar.values.reason.name: Reason
+types.ability.fields.t1PotencyChar.values.intuition.name: Intuition
+types.ability.fields.t1PotencyChar.values.presence.name: Presence
+types.ability.fields.t1Potency.values.weak.name: Weak
+types.ability.fields.t1Potency.values.average.name: Average
+types.ability.fields.t1Potency.values.strong.name: Strong
+types.ability.fields.t1Duration.values.eot.name: End of turn
+types.ability.fields.t1Duration.values.save.name: Save ends
+types.ability.fields.t1Duration.values.encounter.name: End of encounter
+types.ability.fields.t1Duration.values.until.name: Until removed
+types.ability.fields.t1Move.values.push.name: Push
+types.ability.fields.t1Move.values.pull.name: Pull
+types.ability.fields.t1Move.values.slide.name: Slide
+types.kit.fields.melee2.name: Melee damage bonus (tier 2)
+types.kit.fields.ranged2.name: Ranged damage bonus (tier 2)
+types.ability.fields.t2Damage.name: Tier 2 damage
+types.ability.fields.t2Damage.description: The damage before the characteristic; leave it out for none.
+types.ability.fields.t2AddsChar.name: Tier 2 damage adds the characteristic
+types.ability.fields.t2PotencyChar.name: Tier 2 potency characteristic
+types.ability.fields.t2PotencyChar.description: The target's characteristic tested against the potency.
+types.ability.fields.t2Potency.name: Tier 2 potency
+types.ability.fields.t2Potency.description: "Weak, average or strong: the user's potency."
+types.ability.fields.t2PotencyValue.name: Tier 2 potency value
+types.ability.fields.t2PotencyValue.description: A fixed potency, in place of the user's.
+types.ability.fields.t2Condition.name: Tier 2 condition
+types.ability.fields.t2Duration.name: Tier 2 condition duration
+types.ability.fields.t2Move.name: Tier 2 forced movement
+types.ability.fields.t2MoveVertical.name: Tier 2 forced movement is vertical
+types.ability.fields.t2MoveDistance.name: Tier 2 forced movement distance
+types.ability.fields.t2PotencyChar.values.might.name: Might
+types.ability.fields.t2PotencyChar.values.agility.name: Agility
+types.ability.fields.t2PotencyChar.values.reason.name: Reason
+types.ability.fields.t2PotencyChar.values.intuition.name: Intuition
+types.ability.fields.t2PotencyChar.values.presence.name: Presence
+types.ability.fields.t2Potency.values.weak.name: Weak
+types.ability.fields.t2Potency.values.average.name: Average
+types.ability.fields.t2Potency.values.strong.name: Strong
+types.ability.fields.t2Duration.values.eot.name: End of turn
+types.ability.fields.t2Duration.values.save.name: Save ends
+types.ability.fields.t2Duration.values.encounter.name: End of encounter
+types.ability.fields.t2Duration.values.until.name: Until removed
+types.ability.fields.t2Move.values.push.name: Push
+types.ability.fields.t2Move.values.pull.name: Pull
+types.ability.fields.t2Move.values.slide.name: Slide
+types.kit.fields.melee3.name: Melee damage bonus (tier 3)
+types.kit.fields.ranged3.name: Ranged damage bonus (tier 3)
+types.ability.fields.t3Damage.name: Tier 3 damage
+types.ability.fields.t3Damage.description: The damage before the characteristic; leave it out for none.
+types.ability.fields.t3AddsChar.name: Tier 3 damage adds the characteristic
+types.ability.fields.t3PotencyChar.name: Tier 3 potency characteristic
+types.ability.fields.t3PotencyChar.description: The target's characteristic tested against the potency.
+types.ability.fields.t3Potency.name: Tier 3 potency
+types.ability.fields.t3Potency.description: "Weak, average or strong: the user's potency."
+types.ability.fields.t3PotencyValue.name: Tier 3 potency value
+types.ability.fields.t3PotencyValue.description: A fixed potency, in place of the user's.
+types.ability.fields.t3Condition.name: Tier 3 condition
+types.ability.fields.t3Duration.name: Tier 3 condition duration
+types.ability.fields.t3Move.name: Tier 3 forced movement
+types.ability.fields.t3MoveVertical.name: Tier 3 forced movement is vertical
+types.ability.fields.t3MoveDistance.name: Tier 3 forced movement distance
+types.ability.fields.t3PotencyChar.values.might.name: Might
+types.ability.fields.t3PotencyChar.values.agility.name: Agility
+types.ability.fields.t3PotencyChar.values.reason.name: Reason
+types.ability.fields.t3PotencyChar.values.intuition.name: Intuition
+types.ability.fields.t3PotencyChar.values.presence.name: Presence
+types.ability.fields.t3Potency.values.weak.name: Weak
+types.ability.fields.t3Potency.values.average.name: Average
+types.ability.fields.t3Potency.values.strong.name: Strong
+types.ability.fields.t3Duration.values.eot.name: End of turn
+types.ability.fields.t3Duration.values.save.name: Save ends
+types.ability.fields.t3Duration.values.encounter.name: End of encounter
+types.ability.fields.t3Duration.values.until.name: Until removed
+types.ability.fields.t3Move.values.push.name: Push
+types.ability.fields.t3Move.values.pull.name: Pull
+types.ability.fields.t3Move.values.slide.name: Slide
+actions.create-hero.steps.restMightAgility.prompt: Assign the array to your other characteristics
+actions.create-hero.steps.restMightReason.prompt: Assign the array to your other characteristics
+actions.create-hero.steps.restMightIntuition.prompt: Assign the array to your other characteristics
+actions.create-hero.steps.restMightPresence.prompt: Assign the array to your other characteristics
+actions.create-hero.steps.restAgilityReason.prompt: Assign the array to your other characteristics
+actions.create-hero.steps.restAgilityIntuition.prompt: Assign the array to your other characteristics
+actions.create-hero.steps.restAgilityPresence.prompt: Assign the array to your other characteristics
+actions.create-hero.steps.restReasonIntuition.prompt: Assign the array to your other characteristics
+actions.create-hero.steps.restReasonPresence.prompt: Assign the array to your other characteristics
+actions.create-hero.steps.restIntuitionPresence.prompt: Assign the array to your other characteristics
+actions.create-hero.steps.restMight.prompt: Assign the array to your other characteristics
+actions.create-hero.steps.restAgility.prompt: Assign the array to your other characteristics
+actions.create-hero.steps.restReason.prompt: Assign the array to your other characteristics
+actions.create-hero.steps.restIntuition.prompt: Assign the array to your other characteristics
+actions.create-hero.steps.restPresence.prompt: Assign the array to your other characteristics
+fields.size.base.name: Base size
+fields.size.base.values.1t.name: 1T
+fields.size.base.values.1s.name: 1S
+fields.size.base.values.1m.name: 1M
+fields.size.base.values.1l.name: 1L
+fields.size.base.values.2.name: '2'
+fields.size.base.values.3.name: '3'
+fields.size.base.values.4.name: '4'
+fields.size.base.values.5.name: '5'
+fields.size.form.values.none.name: None
+fields.size.form.values.1t.name: 1T
+fields.size.form.values.1s.name: 1S
+fields.size.form.values.1m.name: 1M
+fields.size.form.values.1l.name: 1L
+fields.size.form.values.2.name: '2'
+fields.size.form.values.3.name: '3'
+fields.size.form.values.4.name: '4'
+fields.size.form.values.5.name: '5'
+fields.immunity.acidAll.name: Acid immunity all
+fields.immunity.coldAll.name: Cold immunity all
+fields.immunity.corruptionAll.name: Corruption immunity all
+fields.immunity.fireAll.name: Fire immunity all
+fields.immunity.holyAll.name: Holy immunity all
+fields.immunity.lightningAll.name: Lightning immunity all
+fields.immunity.poisonAll.name: Poison immunity all
+fields.immunity.psychicAll.name: Psychic immunity all
+fields.immunity.sonicAll.name: Sonic immunity all
+tags.damage.unreducible.name: Damage that can't be reduced
+followUps.granted-recovery.name: Spend the granted Recovery
+tags.recovery.granted.name: Lets a creature spend a Recovery
+types.ability.fields.t1Effect.name: Tier 1 effect
+types.ability.fields.t1MoveAddsChar.name: Tier 1 forced movement adds the characteristic
+types.ability.fields.t1MovePotency.name: Tier 1 forced movement behind the potency
+types.ability.fields.t2Effect.name: Tier 2 effect
+types.ability.fields.t2MoveAddsChar.name: Tier 2 forced movement adds the characteristic
+types.ability.fields.t2MovePotency.name: Tier 2 forced movement behind the potency
+types.ability.fields.t3Effect.name: Tier 3 effect
+types.ability.fields.t3MoveAddsChar.name: Tier 3 forced movement adds the characteristic
+types.ability.fields.t3MovePotency.name: Tier 3 forced movement behind the potency
+types.condition.state.duration.values.next-start.name: Start of your next turn
+types.condition.state.duration.values.next-end.name: End of your next turn
+types.effect.name: Effect
+types.effect.state.duration.name: Duration
+types.effect.state.by.name: Imposed by
+types.effect.state.duration.values.eot.name: End of turn
+types.effect.state.duration.values.save.name: Save ends
+types.effect.state.duration.values.encounter.name: End of encounter
+types.effect.state.duration.values.until.name: Until removed
+types.effect.state.duration.values.next-start.name: Start of your next turn
+types.effect.state.duration.values.next-end.name: End of your next turn
+types.effect.save.name: Saving throw
+types.effect.save.results.success.name: Saved
+types.effect.save.results.failure.name: Not saved

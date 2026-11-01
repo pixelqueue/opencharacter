@@ -1,0 +1,54 @@
+families:
+  characteristic: [might, agility, reason, intuition, presence]
+  tier: [1, 2, 3]
+  damageType: [acid, cold, corruption, fire, holy, lightning, poison, psychic, sonic]
+  condition: [bleeding, dazed, frightened, grabbed, prone, restrained, slowed, taunted, weakened]
+
+settings:
+  # "Always round down"; halving 11 damage takes 5 off it.
+  rounding: floor
+  roundIncoming: magnitude
+  # Field Arsenal: of two kits' bonuses, only one counts, the higher recommended.
+  stacking:
+    keys:
+      kit-stamina: playerChooses
+      kit-speed: playerChooses
+      kit-stability: playerChooses
+      kit-disengage: playerChooses
+      kit-melee: playerChooses
+      kit-ranged: playerChooses
+      kit-melee-distance: playerChooses
+      kit-ranged-distance: playerChooses
+      # Only the best of these counts: saving throw thresholds, a treasure's damage or Stamina bonus.
+      save-threshold: highestOnly
+      treasure-damage: highestOnly
+      treasure-stamina: highestOnly
+  competing:
+    recommend: highest
+
+fields:
+  # The sum of the class copies' levels; a creature without a class sets it with an effect.
+  level: { type: integer, formula: "sumCopies(copy.state.level, copy.type == 'class')" }
+  echelon:
+    type: integer
+    formula: 'level >= 10 ? 4 : level >= 7 ? 3 : level >= 4 ? 2 : 1'
+  # True for heroes; a pack whose creatures aren't heroes sets it false, which hides the hero-only
+  # parts of the sheet.
+  sheet.hero: { type: boolean, formula: 'true' }
+
+# What every creature shows other characters: participants of abilities read these.
+viewFields:
+  creature:
+    level: { type: integer, default: 1 }
+    'characteristics.{characteristic}.score': { type: integer, default: 0 }
+    size.value: { type: enum, values: [1t, 1s, 1m, 1l, '2', '3', '4', '5'], default: 1m }
+    size.rank: { type: integer, default: 3 }
+    stability: { type: integer, default: 0 }
+    stamina.current: { type: integer, default: 0 }
+    stamina.isWinded: { type: boolean, default: false }
+    'conditions.{condition}': { type: boolean, default: false }
+    conditions.frightenedBy: { type: set, of: string, default: [] }
+    # A bonus to a characteristic when resisting a potency (Stand Tough).
+    'potency.resistBonus.{characteristic}': { type: integer, default: 0 }
+    # The tacticians who marked this creature: power rolls against it gain an edge.
+    tactician.markedBy: { type: set, of: string, default: [] }

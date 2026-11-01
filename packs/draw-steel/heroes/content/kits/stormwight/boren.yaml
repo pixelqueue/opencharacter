@@ -1,0 +1,52 @@
+id: kits.stormwight.boren
+type: kit
+tags: [stormwight]
+fields:
+  stamina: 9
+  stability: 2
+  melee3: 4
+  armor: [armor.none]
+  weapons: [weapon.unarmed]
+  signature: abilities.fury.bear-claws
+effects:
+  # Bear form and hybrid form: size 2.
+  - { target: size.form, op: set, value: "'2'", when: "fury.form != 'true-form'" }
+  # Primordial storm: cold damage. Elemental Form (7th level) and Chaos Incarnate (10th): immunity
+  # equal to twice, then three times, the Might score.
+  - { target: fury.primordialType, op: set, value: "'cold'" }
+  - target: immunity.cold
+    op: add
+    value: '(level >= 10 ? 3 : 2) * characteristics.might.score'
+    when: level >= 7
+  # Bear form and hybrid form: +1 distance with melee weapon abilities.
+  - { target: kit.meleeDistance, op: add, value: 1, when: "fury.form != 'true-form'" }
+  # Growing Ferocity. 2: two creatures grabbed at once, and a surge for a strike against one (text).
+  # 4 and 8: the first time on a turn you grab a creature, 1 surge (2 at 4th level).
+  - target: { steps: [ability.after] }
+    op: changes
+    when: >-
+      combat.active && fury.growing >= 4 && !fury.surgedThisTurn
+        && has(steps.roll) && size(participants.target) > 0
+        && ((action.item.id == @abilities.common.grab && countList(flags.tier, x >= 2) > 0)
+          || (countList(flags.cond, x == @conditions.grabbed) > 0 && countList(flags.landed, x) > 0))
+    value:
+      changes:
+        - { type: adjust, field: surges.current, by: 'fury.growing >= 8 && level >= 4 ? 2 : 1' }
+        - { type: set, field: fury.surgedThisTurn, value: 'true' }
+  # 6 and 10: an edge (a double edge at 7th level) on the Grab and Knockback maneuvers.
+  - target: { rolls: [power-roll.ability], tally: edges }
+    op: add
+    value: 'fury.growing >= 10 && level >= 7 ? 2 : 1'
+    when: fury.growing >= 6 && roll.item.id in [@abilities.common.grab, @abilities.common.knockback]
+  # 12 (10th level): 10 temporary Stamina for each heroic ability used, and the Might score added
+  # to the potency of ability rolls against a creature you have grabbed (every target grabbed).
+  - target: { rolls: [power-roll.ability], tally: potencyBonus }
+    op: add
+    value: characteristics.might.score
+    when: >-
+      level >= 10 && fury.growing >= 12 && has(participants.target) && size(participants.target) > 0
+        && countList(participants.target, x.conditions.grabbed) == size(participants.target)
+  - target: { steps: [ability.after] }
+    op: changes
+    when: "combat.active && level >= 10 && fury.growing >= 12 && action.item.kind == 'heroic'"
+    value: { changes: [{ type: set, field: stamina.temp, value: 'max(stamina.temp, 10)' }] }

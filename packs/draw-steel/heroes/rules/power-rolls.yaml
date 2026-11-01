@@ -1,0 +1,151 @@
+# Power rolls: 2d10 plus a characteristic. Edges and banes are tallies on the roll, not items:
+# one edge is +2 and one bane −2, a double edge or bane moves the tier instead, and they cancel
+# as the book says (min(2, edges) − min(2, banes)). A per-target edge or bane (a prone target)
+# comes from the action's flags `tEdges` and `tBanes`, set per participant. A natural 19 or 20
+# is always tier 3, and one kind of automatic tier outcome overrides everything (two kinds
+# cancel). `tierShift` moves the tier for effects that say so.
+# An ability roll also carries bonuses content adds to what the ability does: `moveBonus` to its
+# forced movement distance, `potencyBonus` to its potencies, `distanceBonus` to its distance.
+rollTallies:
+  [edges, banes, autoTier1, autoTier2, autoTier3, tierShift, moveBonus, potencyBonus, distanceBonus]
+
+situational:
+  - id: edges
+    type: integer
+    default: 0
+    rolls: [power-roll]
+    effects:
+      - { target: { rolls: [power-roll], tally: edges }, op: add, value: situational.edges }
+  - id: banes
+    type: integer
+    default: 0
+    rolls: [power-roll]
+    effects:
+      - { target: { rolls: [power-roll], tally: banes }, op: add, value: situational.banes }
+  # A numeric bonus or penalty the Director gives, added before edges and banes.
+  - id: bonus
+    type: integer
+    default: 0
+    rolls: [power-roll]
+    effects:
+      - { target: { rolls: [power-roll] }, op: add, value: situational.bonus }
+
+resultBands:
+  power:
+    value: >-
+      countList([roll.tallies.autoTier1, roll.tallies.autoTier2, roll.tallies.autoTier3], x > 0) == 1
+        ? (roll.tallies.autoTier3 > 0 ? 3 : roll.tallies.autoTier2 > 0 ? 2 : 1)
+      : size(roll.kept) >= 2 && roll.kept[0] + roll.kept[1] >= 19 ? 3
+      : max(1, min(3,
+          (roll.total + [0, -2, 0, 2, 0][2
+              + min(2, roll.tallies.edges + (has(flags.tEdges) ? flags.tEdges : 0))
+              - min(2, roll.tallies.banes + (has(flags.tBanes) ? flags.tBanes : 0))] >= 17 ? 3
+            : roll.total + [0, -2, 0, 2, 0][2
+              + min(2, roll.tallies.edges + (has(flags.tEdges) ? flags.tEdges : 0))
+              - min(2, roll.tallies.banes + (has(flags.tBanes) ? flags.tBanes : 0))] >= 12 ? 2 : 1)
+          + [-1, 0, 0, 0, 1][2
+              + min(2, roll.tallies.edges + (has(flags.tEdges) ? flags.tEdges : 0))
+              - min(2, roll.tallies.banes + (has(flags.tBanes) ? flags.tBanes : 0))]
+          + roll.tallies.tierShift))
+    bands:
+      - { id: tier3, when: roll.value == 3 }
+      - { id: tier2, when: roll.value == 2 }
+      - { id: tier1, when: true }
+  # A test: the tier as for any power roll (4 for a natural 19 or 20, always a success with a
+  # reward), read against the difficulty the action sets as `flags.difficulty`.
+  test:
+    value: >-
+      size(roll.kept) >= 2 && roll.kept[0] + roll.kept[1] >= 19 ? 4
+      : countList([roll.tallies.autoTier1, roll.tallies.autoTier2, roll.tallies.autoTier3], x > 0) == 1
+        ? (roll.tallies.autoTier3 > 0 ? 3 : roll.tallies.autoTier2 > 0 ? 2 : 1)
+      : max(1, min(3,
+          (roll.total + [0, -2, 0, 2, 0][2 + min(2, roll.tallies.edges) - min(2, roll.tallies.banes)] >= 17 ? 3
+            : roll.total + [0, -2, 0, 2, 0][2 + min(2, roll.tallies.edges) - min(2, roll.tallies.banes)] >= 12 ? 2 : 1)
+          + [-1, 0, 0, 0, 1][2 + min(2, roll.tallies.edges) - min(2, roll.tallies.banes)]
+          + roll.tallies.tierShift))
+    bands:
+      - id: success-reward
+        when: "roll.value == 4 || (roll.value == 3 && flags.difficulty == 'easy')"
+      - id: success
+        when: "roll.value == 3 || (roll.value == 2 && flags.difficulty == 'easy')"
+      - id: success-consequence
+        success: true
+        when: "(roll.value == 2 && flags.difficulty == 'medium') || (roll.value == 1 && flags.difficulty == 'easy')"
+      - id: failure
+        when: "(roll.value == 2 && flags.difficulty == 'hard') || (roll.value == 1 && flags.difficulty == 'medium')"
+      - id: failure-consequence
+        when: 'true'
+  # A saving throw: 6 or higher on a d10.
+  save:
+    - { id: success, success: true, when: roll.total >= 6 }
+    - { id: failure, when: 'true' }
+
+actions:
+  # A test: a power roll with a characteristic, +2 with a skill the hero has.
+  - id: test
+    tags: [power-roll.test]
+    params:
+      characteristic: { type: enum, values: [might, agility, reason, intuition, presence] }
+      skill: { type: id, of: skill, optional: true }
+      difficulty: { type: enum, values: [easy, medium, hard], default: medium }
+    results: { bands: test }
+    steps:
+      - id: setup
+        kind: branch
+        cases:
+          - when: 'true'
+            flags: { difficulty: params.difficulty }
+      - id: roll
+        kind: roll
+        tags:
+          - power-roll
+          - power-roll.test
+          - { formula: "'test.' + params.characteristic" }
+        bands: test
+        parts:
+          - dice: 2d10
+          - field: "'characteristics.' + params.characteristic + '.score'"
+          - value: 2
+            when: has(params.skill) && params.skill in skills.known
+      - id: bleed
+        kind: roll
+        when: "conditions.bleeding && params.characteristic in ['might', 'agility']"
+        tags: [stamina-loss]
+        parts:
+          - dice: 1d6
+          - field: "'level'"
+      - id: loseStamina
+        kind: changes
+        when: has(steps.bleed)
+        changes:
+          - { type: adjust, field: stamina.current, by: -steps.bleed.total, tags: [stamina-loss] }
+      - id: result
+        kind: outcome
+        result: steps.roll.band
+        data:
+          total: steps.roll.total
+          natural: 'size(steps.roll.kept) >= 2 ? steps.roll.kept[0] + steps.roll.kept[1] : 0'
+          tier: steps.roll.bandValue
+
+  # A saving throw against a save-ends effect; a success ends the applied entry `entry` names.
+  - id: saving-throw
+    tags: [saving-throw]
+    params:
+      entry: { type: string, optional: true }
+    results: { bands: save }
+    steps:
+      - id: roll
+        kind: roll
+        tags: [saving-throw]
+        bands: save
+        parts:
+          - dice: 1d10
+      - id: end
+        kind: changes
+        when: "steps.roll.band == 'success' && has(params.entry)"
+        changes:
+          - type: removeEffect
+            applied: { where: self.id == params.entry }
+      - id: result
+        kind: outcome
+        result: steps.roll.band

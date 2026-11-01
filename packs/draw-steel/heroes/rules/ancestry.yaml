@@ -1,0 +1,26 @@
+fields:
+  # The hero's ancestry, set by its copy, so culture and creation steps can read it.
+  ancestry.current: { type: id, of: ancestry }
+
+contentTypes:
+  # An ancestry: one copy. It grants its signature traits and spends `points` on purchased
+  # traits in its slotted `trait` choice (a slot is asked while its point is still unspent).
+  ancestry:
+    copies: { max: 1 }
+    fields:
+      points: { type: integer, default: 3, min: 0 }
+      # Absent: the base size isn't set by the ancestry (a revenant's comes from their former life).
+      size: { type: enum, values: [1t, 1s, 1m, 1l, '2', '3', '4', '5'] }
+      speed: { type: integer, default: 5 }
+    effects:
+      - { id: size, target: size.base, op: set, value: item.size, when: has(item.size) }
+      - { id: speed, target: speed.base, op: set, value: item.speed }
+      - { id: current, target: ancestry.current, op: set, value: item.id }
+
+  # An ancestry trait: a signature trait every member has, or a purchased one costing points.
+  ancestryTrait:
+    grantOnly: true
+    fields:
+      ancestry: { type: id, of: ancestry, required: true }
+      cost: { type: integer, default: 1, min: 0 }
+      signature: { type: boolean, default: false }

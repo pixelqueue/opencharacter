@@ -1,0 +1,82 @@
+id: kits.stormwight.raden
+type: kit
+tags: [stormwight]
+fields:
+  stamina: 3
+  speed: 3
+  disengage: 1
+  melee1: 2
+  melee2: 2
+  melee3: 2
+  armor: [armor.none]
+  weapons: [weapon.unarmed]
+  signature: abilities.fury.driving-pounce
+effects:
+  # Rat form: size 1T (the hybrid form's 1S or 1M is the player's).
+  - { target: size.form, op: set, value: "'1t'", when: "fury.form == 'animal'" }
+  # Primordial storm: corruption damage. Elemental Form (7th level) and Chaos Incarnate (10th): immunity
+  # equal to twice, then three times, the Might score.
+  - { target: fury.primordialType, op: set, value: "'corruption'" }
+  - target: immunity.corruption
+    op: add
+    value: '(level >= 10 ? 3 : 2) * characteristics.might.score'
+    when: level >= 7
+  # Aspect benefits: an edge on tests made to hide and sneak.
+  - target: { rolls: [power-roll.test], tally: edges }
+    op: add
+    value: 1
+    when: has(params.skill) && params.skill in [@skills.hide, @skills.sneak]
+  # Rat form: climbing at full speed; hybrid form climbs from 4th level.
+  - target: movement.types
+    op: grant
+    value: { formula: "'move.climb'" }
+    when: "fury.form == 'animal' || (fury.form == 'hybrid' && level >= 4)"
+  # Growing Ferocity.
+  # 2: the Disengage shift gains the Agility score.
+  - { target: disengage, op: add, value: characteristics.agility.score, when: fury.growing >= 2 }
+  # 4 and 8: the first shift on a turn gives surges (text).
+  # 6 and 10: an edge (a double edge at 7th level) on Agility tests, the Escape Grab maneuver and the Knockback maneuver.
+  - target: { rolls: [test.agility], tally: edges }
+    op: add
+    value: 'fury.growing >= 10 && level >= 7 ? 2 : 1'
+    when: fury.growing >= 6
+  - target: { rolls: [power-roll.ability], tally: edges }
+    op: add
+    value: 'fury.growing >= 10 && level >= 7 ? 2 : 1'
+    when: fury.growing >= 6 && roll.item.id in [@abilities.common.escape-grab, @abilities.common.knockback]
+  # 12 (10th level): 10 temporary Stamina for each heroic ability used, and the potency of
+  # effects targeting you is 2 lower for you.
+  - {
+      target: potency.resistBonus.might,
+      op: add,
+      value: 2,
+      when: level >= 10 && fury.growing >= 12,
+    }
+  - {
+      target: potency.resistBonus.agility,
+      op: add,
+      value: 2,
+      when: level >= 10 && fury.growing >= 12,
+    }
+  - {
+      target: potency.resistBonus.reason,
+      op: add,
+      value: 2,
+      when: level >= 10 && fury.growing >= 12,
+    }
+  - {
+      target: potency.resistBonus.intuition,
+      op: add,
+      value: 2,
+      when: level >= 10 && fury.growing >= 12,
+    }
+  - {
+      target: potency.resistBonus.presence,
+      op: add,
+      value: 2,
+      when: level >= 10 && fury.growing >= 12,
+    }
+  - target: { steps: [ability.after] }
+    op: changes
+    when: "combat.active && level >= 10 && fury.growing >= 12 && action.item.kind == 'heroic'"
+    value: { changes: [{ type: set, field: stamina.temp, value: 'max(stamina.temp, 10)' }] }

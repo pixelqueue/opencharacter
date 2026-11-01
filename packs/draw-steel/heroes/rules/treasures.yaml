@@ -1,0 +1,29 @@
+contentTypes:
+  consumable:
+    carried: true
+    fields:
+      echelon: { type: integer, default: 1, min: 1, max: 4 }
+  trinket:
+    carried: true
+    equippable: true
+    fields:
+      echelon: { type: integer, default: 1, min: 1, max: 4 }
+  # A leveled treasure: its benefits grow at the hero's 1st, 5th and 9th level.
+  leveledTreasure:
+    carried: true
+    equippable: true
+    fields:
+      category: { type: enum, values: [armor, implement, weapon, other], required: true }
+    texts: [level1, level5, level9]
+  artifact:
+    carried: true
+    equippable: true
+
+constraints:
+  # A creature can safely carry at most three leveled treasures (a 9th-level Authority's End
+  # doesn't count).
+  - id: leveled-treasures
+    check: >-
+      countCopies(copy.type == 'leveledTreasure'
+        && !(level >= 9 && copy.item == @treasures.leveled.authoritys-end)) <= 3
+    data: { limit: 3 }

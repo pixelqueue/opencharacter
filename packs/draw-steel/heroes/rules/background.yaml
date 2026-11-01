@@ -1,0 +1,67 @@
+fields:
+  # Skills and languages known: the player's own entries plus what content grants.
+  skills.known: { type: set, of: skill, input: true, default: [] }
+  languages.known: { type: set, of: language, input: true, default: [] }
+
+effects:
+  # Every hero knows Caelian.
+  - {
+      id: caelian,
+      target: languages.known,
+      op: grant,
+      value: { item: languages.caelian },
+      when: sheet.hero,
+    }
+
+contentTypes:
+  skill:
+    grantOnly: true
+    copies: { max: 0 }
+    fields:
+      group:
+        {
+          type: enum,
+          values: [crafting, exploration, interpersonal, intrigue, lore],
+          required: true,
+        }
+  language:
+    grantOnly: true
+    copies: { max: 0 }
+    fields:
+      # A living language of an ancestry, a regional human language, or a dead language.
+      kind: { type: enum, values: [ancestry, human, dead], default: ancestry }
+
+  # The hero's culture: one copy, whose choices pick its language and its environment,
+  # organization and upbringing aspects.
+  culture:
+    copies: { max: 1 }
+  cultureAspect:
+    grantOnly: true
+    fields:
+      aspect: { type: enum, values: [environment, organization, upbringing], required: true }
+      # Skill groups (keys of the skill `group` field) a skill may come from, and skills offered
+      # outside them.
+      skillGroups: { type: list, of: string, unique: true, default: [] }
+      skills: { type: list, of: skill, unique: true, default: [] }
+
+  # A career: one copy. Its fields are its fixed benefits; its items' choices pick the rest.
+  career:
+    copies: { max: 1 }
+    fields:
+      skills: { type: list, of: skill, unique: true, default: [] }
+      languages: { type: integer, default: 0, min: 0 }
+      renown: { type: integer, default: 0 }
+      wealth: { type: integer, default: 0 }
+      projectPoints: { type: integer, default: 0, min: 0 }
+    effects:
+      - { id: renown, target: renown, op: add, value: item.renown }
+      - { id: wealth, target: wealth, op: add, value: item.wealth }
+      - { id: project-points, target: projectPoints, op: add, value: item.projectPoints }
+
+  perk:
+    grantOnly: true
+    fields:
+      group:
+        type: enum
+        values: [crafting, exploration, interpersonal, intrigue, lore, supernatural]
+        required: true

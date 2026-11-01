@@ -1,0 +1,59 @@
+fields:
+  # The heroic resource: its kind and per-turn gain come from the class.
+  heroic.kind:
+    type: enum
+    values: [none, ferocity, wrath, piety, essence, discipline, insight, focus, clarity, drama]
+    open: true
+    formula: "'none'"
+  # The lowest the resource goes: 0, below it for the Talent's clarity.
+  heroic.min: { type: integer, formula: 0 }
+  heroic.current: { type: integer, input: true, default: 0, min: heroic.min }
+  heroic.turnGain: { type: dice, formula: '0' }
+  heroic.turnBonus: { type: integer, formula: 0 }
+  surges.current: { type: integer, input: true, default: 0, min: 0 }
+  victories: { type: integer, input: true, default: 0, min: 0 }
+  xp.current: { type: integer, input: true, default: 0, min: 0 }
+  # Experience a level needs: 16 per level after 1st.
+  xp.nextLevel: { type: integer, formula: 'level >= 10 ? 0 : 16 * level' }
+  xp.levelUp:
+    { type: boolean, formula: sheet.hero && level >= 1 && level < 10 && xp.current >= xp.nextLevel }
+  renown: { type: integer, input: true, default: 0, min: 0 }
+  wealth: { type: integer, input: true, default: 1 }
+  projectPoints: { type: integer, input: true, default: 0, min: 0 }
+
+actions:
+  # Resources gained or spent by what happens on other sheets (an ally's trigger, the Director).
+  - id: gain-resource
+    tags: [resource]
+    params:
+      resource: { type: enum, values: [heroic, surges, victories, renown, wealth, xp] }
+      amount: { type: integer, default: 1, min: 1 }
+    results: [done]
+    steps:
+      - id: gain
+        kind: changes
+        changes:
+          - type: adjust
+            field:
+              {
+                formula: "params.resource == 'heroic' ? 'heroic.current' : params.resource == 'xp' ? 'xp.current' : params.resource == 'surges' ? 'surges.current' : params.resource",
+              }
+            by: params.amount
+      - { id: done, kind: outcome, result: "'done'" }
+  - id: spend-resource
+    tags: [resource]
+    params:
+      resource: { type: enum, values: [heroic, surges, victories, renown, wealth] }
+      amount: { type: integer, default: 1, min: 1 }
+    results: [done]
+    steps:
+      - id: spend
+        kind: changes
+        changes:
+          - type: adjust
+            field:
+              {
+                formula: "params.resource == 'heroic' ? 'heroic.current' : params.resource == 'surges' ? 'surges.current' : params.resource",
+              }
+            by: -params.amount
+      - { id: done, kind: outcome, result: "'done'" }

@@ -1,0 +1,58 @@
+# A kit's bonuses add to these fields. Each has its stack key, so a hero with two kits (the
+# Tactician's Field Arsenal) counts one kit's bonus of each kind, the higher recommended.
+fields:
+  kit.stamina: { type: integer, formula: 0 }
+  kit.speed: { type: integer, formula: 0 }
+  kit.stability: { type: integer, formula: 0 }
+  kit.disengage: { type: integer, formula: 0 }
+  'kit.melee{tier}': { type: integer, formula: 0 }
+  'kit.ranged{tier}': { type: integer, formula: 0 }
+  kit.meleeDistance: { type: integer, formula: 0 }
+  kit.rangedDistance: { type: integer, formula: 0 }
+  # The kit the class's Quick Build recommends, set by the class; the kit choice reads it.
+  kit.recommended: { type: id, of: kit, formula: "''" }
+
+contentTypes:
+  # A kit, picked in a class's kit choice (never held as a copy). Its signature ability is
+  # granted with it; the ability's damage is written without the kit's bonus, which the shared
+  # kit damage effect adds back. Stormwight kits are tagged `stormwight`.
+  kit:
+    grantOnly: true
+    copies: { max: 0 }
+    fields:
+      stamina: { type: integer, default: 0 }
+      speed: { type: integer, default: 0 }
+      stability: { type: integer, default: 0 }
+      disengage: { type: integer, default: 0 }
+      'melee{tier}': { type: integer, default: 0 }
+      'ranged{tier}': { type: integer, default: 0 }
+      meleeDistance: { type: integer, default: 0 }
+      rangedDistance: { type: integer, default: 0 }
+      armor: { type: set, of: tag, members: { under: [armor] }, default: [] }
+      weapons: { type: set, of: tag, members: { under: [weapon] }, default: [] }
+      signature: { type: id, of: ability }
+    grants:
+      - { item: { formula: "has(item.signature) ? item.signature : ''" } }
+    effects:
+      - { target: kit.stamina, op: add, value: item.stamina, stackKey: kit-stamina }
+      - { target: kit.speed, op: add, value: item.speed, stackKey: kit-speed }
+      - { target: kit.stability, op: add, value: item.stability, stackKey: kit-stability }
+      - { target: kit.disengage, op: add, value: item.disengage, stackKey: kit-disengage }
+      - { target: kit.melee1, op: add, value: item.melee1, stackKey: kit-melee }
+      - { target: kit.melee2, op: add, value: item.melee2, stackKey: kit-melee }
+      - { target: kit.melee3, op: add, value: item.melee3, stackKey: kit-melee }
+      - { target: kit.ranged1, op: add, value: item.ranged1, stackKey: kit-ranged }
+      - { target: kit.ranged2, op: add, value: item.ranged2, stackKey: kit-ranged }
+      - { target: kit.ranged3, op: add, value: item.ranged3, stackKey: kit-ranged }
+      - {
+          target: kit.meleeDistance,
+          op: add,
+          value: item.meleeDistance,
+          stackKey: kit-melee-distance,
+        }
+      - {
+          target: kit.rangedDistance,
+          op: add,
+          value: item.rangedDistance,
+          stackKey: kit-ranged-distance,
+        }

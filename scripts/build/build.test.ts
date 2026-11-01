@@ -32,6 +32,7 @@ describe('pnpm build:packs on the repository packs', () => {
       '5e-srd-5.2',
       'awn-core',
       'cwn-srd',
+      'draw-steel-heroes',
       'fate-core',
       'fitd-crew',
       'fitd-scoundrel',

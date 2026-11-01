@@ -1,0 +1,111 @@
+fields:
+  # A hero's class gives the starting Stamina and the Stamina per level after 1st; the kit adds
+  # its bonus per echelon; content adds to `stamina.bonus`.
+  stamina.base: { type: integer, formula: 0 }
+  stamina.perLevel: { type: integer, formula: 0 }
+  stamina.bonus: { type: integer, formula: 0 }
+  stamina.max:
+    type: integer
+    min: 1
+    formula: >-
+      stamina.base + stamina.perLevel * max(0, level - 1) + kit.stamina * echelon + stamina.bonus
+  # Temporary Stamina takes damage first. A hero dies at the negative of their winded value.
+  stamina.current:
+    type: integer
+    input: true
+    default: 0
+    min: -stamina.winded
+    max: stamina.max
+    absorbedBy: [stamina.temp]
+  stamina.temp: { type: integer, input: true, default: 0, min: 0 }
+  stamina.winded: { type: integer, formula: floor(stamina.max / 2) }
+  stamina.isWinded: { type: boolean, formula: stamina.current <= stamina.winded }
+  # A hero at 0 Stamina or below is dying (and bleeding); a creature that isn't a hero dies at 0.
+  stamina.dying: { type: boolean, formula: sheet.hero && stamina.current <= 0 && !stamina.dead }
+  stamina.dead:
+    type: boolean
+    formula: 'sheet.hero ? stamina.current <= -stamina.winded : stamina.current <= 0'
+
+  # Recoveries: the class gives the number; spending one regains a third of maximum Stamina.
+  recoveries.max: { type: integer, formula: 0 }
+  recoveries.spent: { type: integer, input: true, default: 0, min: 0, max: recoveries.max }
+  recoveries.current: { type: integer, formula: 'max(0, recoveries.max - recoveries.spent)' }
+  recoveries.bonus: { type: integer, formula: 0 }
+  recoveries.value: { type: integer, formula: floor(stamina.max / 3) + recoveries.bonus }
+
+  # Damage immunity and weakness, by type and to all damage. Untyped damage meets only `all`.
+  'immunity.{damageType}': { type: integer, formula: 0, min: 0 }
+  # "Immunity all" to one damage type: none of it is taken.
+  'immunity.{damageType}All': { type: boolean, formula: 'false' }
+  immunity.all: { type: integer, formula: 0, min: 0 }
+  'weakness.{damageType}': { type: integer, formula: 0, min: 0 }
+  weakness.all: { type: integer, formula: 0, min: 0 }
+
+effects:
+  # Weakness adds, the highest applicable immunity takes off (all of it with "immunity all"), and
+  # damage never heals. Damage that can't be reduced (`damage.unreducible`) skips immunity.
+  - id: weakness
+    target: { incoming: { fields: [stamina.current], tags: [damage] } }
+    op: add
+    value: >-
+      -(weakness.all + maxList(keysOf('damageType'),
+        fieldOf('weakness.{damageType}', x), 'damage.' + x in incoming.tags))
+    when: incoming.amount < 0
+  - id: immunity
+    target: { incoming: { fields: [stamina.current], tags: [damage] } }
+    op: add
+    value: >-
+      countList(keysOf('damageType'), fieldOf('immunity.{damageType}All', x) && 'damage.' + x in incoming.tags) > 0
+        ? -incoming.amount
+        : max(immunity.all, maxList(keysOf('damageType'),
+          fieldOf('immunity.{damageType}', x), 'damage.' + x in incoming.tags))
+    when: incoming.amount < 0 && !('damage.unreducible' in incoming.tags)
+  - id: damage-never-heals
+    target: { incoming: { fields: [stamina.current], tags: [damage] } }
+    op: atMost
+    value: 0
+    when: incoming.amount < 0
+
+  # Temporary Stamina doesn't stack: an increase keeps the greater amount.
+  - id: temp-stamina-keeps-greater
+    target: { incoming: { fields: [stamina.temp] } }
+    op: add
+    value: -min(stamina.temp, incoming.amount)
+    when: incoming.amount > 0
+
+followUps:
+  # Another creature's ability lets this hero spend a Recovery: the Recovery is marked spent
+  # (`recovery.granted`) and the Stamina it restores is offered here, on the hero's own sheet.
+  - id: granted-recovery
+    on: { field: recoveries.spent, tags: [recovery.granted], once: true }
+    required: true
+    when: change.by > 0 && !stamina.dead
+    changes:
+      - { type: adjust, field: stamina.current, by: recoveries.value * change.by, tags: [healing] }
+
+actions:
+  # Spend a Recovery: regain Stamina equal to the recovery value.
+  - id: spend-recovery
+    tags: [recovery]
+    available: recoveries.current > 0 && !stamina.dead
+    results: [spent]
+    steps:
+      - id: spend
+        kind: changes
+        tags: [recovery]
+        changes:
+          - { type: adjust, field: recoveries.spent, by: 1 }
+          - { type: adjust, field: stamina.current, by: recoveries.value, tags: [healing] }
+      - { id: done, kind: outcome, result: "'spent'", data: { regained: recoveries.value } }
+  # Temporary Stamina doesn't stack: the greater amount is kept.
+  - id: gain-temporary-stamina
+    tags: [recovery]
+    params:
+      amount: { type: integer, min: 1 }
+    results: [gained]
+    steps:
+      - id: gain
+        kind: changes
+        changes:
+          - { type: set, field: stamina.temp, value: 'max(stamina.temp, params.amount)' }
+      - { id: done, kind: outcome, result: "'gained'" }

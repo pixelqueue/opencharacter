@@ -1,0 +1,82 @@
+contentTypes:
+  # A class: one copy, with the hero's level as its state. Its fields set the shared fields
+  # through the type's effects; its items grant features by level and declare the choices.
+  class:
+    copies: { max: 1 }
+    state:
+      level: { type: integer, default: 1, min: 1, max: 10 }
+    fields:
+      # Keys of `characteristic`: the class's primary characteristics, its potency
+      # characteristic, and the order a random or default start puts the array in.
+      primaries: { type: list, of: string, unique: true }
+      potency: { type: enum, values: [might, agility, reason, intuition, presence], required: true }
+      arrayPriority: { type: list, of: string, unique: true }
+      startingStamina: { type: integer, default: 0 }
+      staminaPerLevel: { type: integer, default: 0 }
+      recoveries: { type: integer, default: 0 }
+      resource:
+        type: enum
+        values: [ferocity, wrath, piety, essence, discipline, insight, focus, clarity, drama]
+        open: true
+        required: true
+      turnGain: { type: dice, default: '0' }
+    effects:
+      - { id: stamina, target: stamina.base, op: add, value: item.startingStamina }
+      - { id: stamina-per-level, target: stamina.perLevel, op: add, value: item.staminaPerLevel }
+      - { id: recoveries, target: recoveries.max, op: add, value: item.recoveries }
+      - { id: resource, target: heroic.kind, op: set, value: item.resource }
+      - { id: turn-gain, target: heroic.turnGain, op: set, value: item.turnGain }
+      - { id: potency, target: potency.char, op: set, value: item.potency }
+      - { target: characteristics.might.primary, op: set, value: "'might' in item.primaries" }
+      - { target: characteristics.agility.primary, op: set, value: "'agility' in item.primaries" }
+      - { target: characteristics.reason.primary, op: set, value: "'reason' in item.primaries" }
+      - {
+          target: characteristics.intuition.primary,
+          op: set,
+          value: "'intuition' in item.primaries",
+        }
+      - { target: characteristics.presence.primary, op: set, value: "'presence' in item.primaries" }
+    followUps:
+      - id: level-up
+        while: xp.levelUp && !character.creating
+        action: level-up
+
+  # A subclass (an aspect, domain, order, college, …), picked in its class's choice.
+  subclass:
+    grantOnly: true
+    fields:
+      class: { type: id, of: class, required: true }
+
+  # A class or subclass feature, granted at its level. Shared features (the kit choice, a
+  # characteristic increase) have no class.
+  feature:
+    grantOnly: true
+    fields:
+      class: { type: id, of: class }
+      subclass: { type: id, of: subclass }
+      level: { type: integer, default: 1, min: 1, max: 10 }
+
+actions:
+  # Level up: the class copy's level rises by 1, then the new level's choices are asked.
+  - id: level-up
+    tags: [level-up]
+    available: "!character.creating && countCopies(copy.type == 'class') > 0 && level < 10"
+    params:
+      random: { type: boolean, default: false }
+    results: [levelled]
+    steps:
+      - id: gain
+        kind: changes
+        tags: [level-up]
+        changes:
+          - type: adjustState
+            copies: { type: class, where: 'true' }
+            limit: 1
+            key: level
+            by: 1
+      - id: picks
+        kind: choice
+        sheet: proposed
+        random: params.random
+        options: { pending: {} }
+      - { id: done, kind: outcome, result: "'levelled'", data: { level: level + 1 } }

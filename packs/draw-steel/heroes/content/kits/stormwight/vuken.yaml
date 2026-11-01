@@ -1,0 +1,57 @@
+id: kits.stormwight.vuken
+type: kit
+tags: [stormwight]
+fields:
+  stamina: 9
+  speed: 2
+  disengage: 1
+  melee1: 2
+  melee2: 2
+  melee3: 2
+  armor: [armor.none]
+  weapons: [weapon.unarmed]
+  signature: abilities.fury.unbalancing-attack
+effects:
+  # Wolf form and hybrid form: size 1L.
+  - { target: size.form, op: set, value: "'1l'", when: "fury.form != 'true-form'" }
+  # Primordial storm: lightning damage. Elemental Form (7th level) and Chaos Incarnate (10th): immunity
+  # equal to twice, then three times, the Might score.
+  - { target: fury.primordialType, op: set, value: "'lightning'" }
+  - target: immunity.lightning
+    op: add
+    value: '(level >= 10 ? 3 : 2) * characteristics.might.score'
+    when: level >= 7
+  # Wolf form and hybrid form: +2 speed.
+  - { target: speed, op: add, value: 2, when: "fury.form != 'true-form'" }
+  # Growing Ferocity. 2: Knockback targets one more creature (text).
+  # 4 and 8: the first time on a turn you push a creature or knock one prone, 1 surge (2 at 4th level).
+  - target: { steps: [ability.after] }
+    op: changes
+    when: >-
+      combat.active && fury.growing >= 4 && !fury.surgedThisTurn
+        && has(steps.roll) && size(participants.target) > 0
+        && (countList(flags.move, x in ['push', 'vertical-push']) > 0
+          || (countList(flags.cond, x == @conditions.prone) > 0 && countList(flags.landed, x) > 0))
+    value:
+      changes:
+        - { type: adjust, field: surges.current, by: 'fury.growing >= 8 && level >= 4 ? 2 : 1' }
+        - { type: set, field: fury.surgedThisTurn, value: 'true' }
+  # 6 and 10: an edge (a double edge at 7th level) on Agility tests and the Knockback maneuver.
+  - target: { rolls: [test.agility], tally: edges }
+    op: add
+    value: 'fury.growing >= 10 && level >= 7 ? 2 : 1'
+    when: fury.growing >= 6
+  - target: { rolls: [power-roll.ability], tally: edges }
+    op: add
+    value: 'fury.growing >= 10 && level >= 7 ? 2 : 1'
+    when: fury.growing >= 6 && roll.item.id in [@abilities.common.knockback]
+  # 12 (10th level): 10 temporary Stamina for each heroic ability used, and the Agility score
+  # added to every power roll's forced movement.
+  - target: { rolls: [power-roll.ability], tally: moveBonus }
+    op: add
+    value: characteristics.agility.score
+    when: level >= 10 && fury.growing >= 12
+  - target: { steps: [ability.after] }
+    op: changes
+    when: "combat.active && level >= 10 && fury.growing >= 12 && action.item.kind == 'heroic'"
+    value: { changes: [{ type: set, field: stamina.temp, value: 'max(stamina.temp, 10)' }] }
