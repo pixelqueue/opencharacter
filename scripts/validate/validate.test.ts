@@ -378,6 +378,12 @@ describe('pnpm validate', () => {
       expect(reporter.warnings.map((w) => w.message)).not.toContain(unused('headline.separator'));
     });
 
+    it("accepts a named text naming its state and a template's computed value", () => {
+      const text = messages.filter((m) => m.includes('"weapons.mace.texts.inscription"'));
+      expect(text).toHaveLength(1);
+      expect(text[0]).toMatch(/\{self_bogus\}/);
+    });
+
     it('accepts a block naming fields, texts and state', () => {
       const block = messages.filter((m) => m.includes('"types.weapon.block"'));
       expect(block).toHaveLength(4);

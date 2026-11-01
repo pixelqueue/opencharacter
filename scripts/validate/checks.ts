@@ -764,6 +764,24 @@ export class PackChecker {
         else this.optionalPrefixes.add(`${owner}.${of}.${name}.values.`);
   }
 
+  private readonly templateComputedOf = new Map<string, Record<string, unknown>>();
+
+  /** The computed values of every loaded template whose `appliesTo` names the content type. */
+  private templateComputed(type: string): Record<string, unknown> {
+    const known = this.templateComputedOf.get(type);
+    if (known) return known;
+    const out: Record<string, unknown> = {};
+    for (const entry of this.ruleset.content.values()) {
+      const doc = entry.item;
+      if (doc.type !== 'template' || !doc.computed) continue;
+      const scope = this.ruleset.scope(entry.pack);
+      if (appliesQueries(doc).some((q) => this.ruleset.contentType(q.type, scope)?.qid === type))
+        Object.assign(out, doc.computed);
+    }
+    this.templateComputedOf.set(type, out);
+    return out;
+  }
+
   private block(file: string, key: string, text: string, names?: Map<string, string>): void {
     const scope = this.blocks.get(key);
     if (!scope) return;
@@ -780,7 +798,12 @@ export class PackChecker {
     const { def, item } = scope;
     const fields = def.fields ?? {};
     const state = { ...def.state, ...item?.state };
-    const computed = { ...def.computed, ...item?.computed };
+    // A template applied to the type (saved on a copy, or kept on content) adds its own.
+    const computed = {
+      ...def.computed,
+      ...(scope.type === 'template' ? {} : this.templateComputed(scope.type)),
+      ...item?.computed,
+    };
     const local = scope.type.slice(scope.type.indexOf(':') + 1);
     for (const arg of parsed.args) {
       const a = blockArgument(arg, (n) => Object.hasOwn(fields, n));
