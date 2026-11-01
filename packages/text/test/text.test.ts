@@ -433,6 +433,15 @@ describe('Fate', () => {
         data: { param: 'action', action: 'fate-core:skill-roll' },
       }),
     ).toBe('The action needs "Action".');
+    expect(
+      text.error({
+        code: 'invalid-option',
+        data: { param: 'action', option: 'zzz', action: 'fate-core:skill-roll' },
+      }),
+    ).toBe('"zzz" is not an option for "Action".');
+    expect(text.error({ code: 'invalid-option', data: { option: 'zzz' } })).toBe(
+      '"zzz" is not an option for this choice.',
+    );
   });
 
   it('words Fate dice and the ladder', () => {
@@ -875,6 +884,26 @@ describe('FitD crew factions', () => {
       text.content(faction),
     ]);
     expect(text.copy({ item: faction, name: ' ' })).toBe(text.content(faction));
+  });
+
+  it("names a rules-level choice's too-many-picks issue by its prompt", () => {
+    const ravens = parse(
+      readFileSync(join(root, 'examples', 'characters', 'fitd-crew-ravens.yaml'), 'utf8'),
+    ) as CharacterDoc;
+    // Rigging's two kinds stay picked after its box is unmarked.
+    const doc = {
+      ...ravens,
+      choices: { ...ravens.choices, rigging: [{ option: 'tools' }, { option: 'weapons' }] },
+    } as CharacterDoc;
+    const issue = computeSheet(ruleset, doc).issues.find((i) => i.code === 'too-many-picks');
+    expect(issue).toMatchObject({ id: 'rules/rigging', data: { max: 0 } });
+    expect(text.issue(issue!)).toBe(
+      'Choose two kinds of item for the Rigging: too many options are picked (at most 0).',
+    );
+    // A choice without a prompt keeps the plain text.
+    expect(text.issue({ code: 'too-many-picks', id: 'rules/nothing', data: { max: 1 } })).toBe(
+      'Too many options are picked (at most 1).',
+    );
   });
 });
 

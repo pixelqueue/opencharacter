@@ -76,7 +76,11 @@ function template(en: Record<string, string>, code: string, keys: Set<string>): 
   const variant =
     code === 'out-of-range' && keys.has('min') !== keys.has('max')
       ? en[`errors.out-of-range.${bound}`]
-      : undefined;
+      : code === 'invalid-option'
+        ? ['param', 'field', 'target']
+            .filter((k) => keys.has(k))
+            .map((k) => en[`errors.${code}.${k}`])[0]
+        : undefined;
   return variant ?? en[`errors.${code}`] ?? en[`issues.${code}`] ?? '';
 }
 

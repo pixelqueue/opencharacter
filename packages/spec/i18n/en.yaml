@@ -2,7 +2,9 @@
 # spec itself reserves. Keys: errors.<code>, issues.<code>, actions.options.<option>.name,
 # compare.<code> and dice.*. ICU MessageFormat; placeholders come from the
 # error's `data`. A few codes have variants for their data: errors.out-of-range.min, .max and
-# .exact, errors.wrong-type.values, errors.safety-limit-exceeded.<limit>,
+# .exact, errors.wrong-type.values, errors.invalid-option.param, .field and .target,
+# errors.safety-limit-exceeded.<limit>, issues.too-many-picks.choice,
+# issues.choice-not-applicable.choice,
 # issues.prerequisite-not-met.owner and issues.too-many-copies.item.
 
 # A repeated choice step's `#done` option: stop picking.
@@ -39,6 +41,10 @@ errors.unknown-state-key: 'This item has no state "{key}".'
 errors.template-not-applicable: 'This template cannot be applied to that item.'
 errors.unknown-choice: 'There is no such choice.'
 errors.invalid-option: '"{option}" is not an option for this choice.'
+# `invalid-option` for a parameter, an item field or a state value: the one its data names.
+errors.invalid-option.param: '"{option}" is not an option for "{param}".'
+errors.invalid-option.field: '"{option}" is not an option for "{field}".'
+errors.invalid-option.target: '"{option}" is not an option for "{target}".'
 errors.not-picked: '"{option}" is not picked.'
 errors.not-granted: '"{grant}" is not granted there.'
 errors.preset-choice: 'This choice is made by what grants it.'
@@ -98,8 +104,11 @@ issues.prerequisite-not-met: 'A requirement is not met.'
 issues.prerequisite-not-met.owner: '{owner} requires: {requirement}'
 issues.constraint-failed: 'A rule of the game is not met.'
 issues.too-many-picks: 'Too many options are picked (at most {max}).'
+# A choice issue with its choice's prompt (`{choice}`), when the pack has one.
+issues.too-many-picks.choice: '{choice}: too many options are picked (at most {max}).'
 issues.too-few-picks: 'More options need to be picked ({min} needed).'
 issues.choice-not-applicable: 'This choice does not apply yet.'
+issues.choice-not-applicable.choice: '{choice}: this choice does not apply yet.'
 issues.no-eligible-option: 'Nothing can be picked for this choice yet.'
 issues.option-not-eligible: 'This option is no longer eligible.'
 issues.content-hidden: 'This content is hidden by a loaded pack.'

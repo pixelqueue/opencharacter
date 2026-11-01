@@ -304,7 +304,10 @@ text.error(error); // the spec's text, data filled
 - Some codes have text by their data: an `out-of-range` with only a `min` reads `"Maximum HP"
   must be at least 1.` (`errors.out-of-range.min`), one with equal bounds `"Effort" must be
   exactly 1.` (`errors.out-of-range.exact`), a `wrong-type` for an enum names its values, joined
-  as alternatives: `"For" must be The scene or The day.` (`errors.wrong-type.values`), and a
+  as alternatives: `"For" must be The scene or The day.` (`errors.wrong-type.values`), an
+  `invalid-option` for a parameter names it: `"zzz" is not an option for "Damage type".`
+  (`errors.invalid-option.param`), a `too-many-picks` or `choice-not-applicable` issue leads
+  with its choice's prompt (`issues.too-many-picks.choice`), and a
   `safety-limit-exceeded` has a sentence per limit (`errors.safety-limit-exceeded.maxOverflowChain`).
 - A parameter's error names the parameter by its label, and its values by theirs, from the
   action's text (the error's `action`).
