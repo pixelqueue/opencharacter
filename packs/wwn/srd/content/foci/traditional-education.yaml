@@ -13,3 +13,9 @@ choices:
     recommend: "'elementalist'"
     effects:
       - { target: invoker.education, op: set, value: pick.value }
+# An Elementalist education brings that tradition's two training arts too.
+grants:
+  - item: arts.elementalist.elemental-resilience
+    when: "'elementalist' in picksOf('tradition')"
+  - item: arts.elementalist.elemental-sparks
+    when: "'elementalist' in picksOf('tradition')"
