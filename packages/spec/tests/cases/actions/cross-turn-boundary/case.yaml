@@ -1,0 +1,8 @@
+description: "A `clock: turn-boundary` action, run on every character at a turn change, ends what the creature whose turn starts applied until then (`self.appliedBy == params.started`) and resets the turn's accumulator"
+specVersion: 0.3.0
+call: startAction
+packs:
+  - path: ../../../packs/test-cross
+input:
+  action: { id: test-cross:turn-boundary }
+  params: { ended: goblin, started: tactician }

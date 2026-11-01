@@ -511,6 +511,8 @@ export interface ProposedChange {
 export interface ActionDef {
   id: string;
   tags?: TagOrFormula[];
+  /** A moment of the app's clock it runs at, on every character. */
+  clock?: 'turn-boundary';
   available?: Formula;
   listed?: boolean;
   params?: Record<string, ValueDecl>;

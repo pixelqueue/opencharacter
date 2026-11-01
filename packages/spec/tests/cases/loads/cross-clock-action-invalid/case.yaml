@@ -1,0 +1,39 @@
+description: 'A clock action is a rules action that runs with no answers the app must invent: one on content, with a required parameter, a non-string `ended` or `started`, or a role with a minimum is invalid-clock-action'
+specVersion: 0.3.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        { id: test-pack, version: 1.0.0, specVersion: 0.3.0, license: CC0-1.0, defaultLanguage: en }
+      rules:
+        fields:
+          hp.current: { type: integer, input: true, default: 10 }
+        contentTypes:
+          feature: {}
+        actions:
+          - id: tick
+            clock: turn-boundary
+            params:
+              ended: { type: string, optional: true }
+              started: { type: integer, default: 0 }
+              by: { type: integer }
+            participants:
+              ally: { min: 1 }
+            steps:
+              - { id: tock, kind: changes, changes: [{ type: adjust, field: hp.current, by: 1 }] }
+          - id: fine
+            clock: turn-boundary
+            params:
+              ended: { type: string, optional: true }
+              started: { type: string, optional: true }
+              by: { type: integer, default: 1 }
+            steps:
+              - { id: tock, kind: changes, changes: [{ type: adjust, field: hp.current, by: 1 }] }
+      content:
+        - id: features.clockwork
+          type: feature
+          actions:
+            - id: wind
+              clock: turn-boundary
+              steps:
+                - { id: tock, kind: changes, changes: [{ type: adjust, field: hp.current, by: 1 }] }

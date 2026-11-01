@@ -790,8 +790,23 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
         results: Array.isArray(results) ? results : { bands: q.bands(results.bands, pack) },
       };
     },
+    /** A clock action runs on every character with nothing the app must make up. */
+    clock(def: ActionDef, pack: string, content: boolean): void {
+      if (def.clock === undefined) return;
+      const bad = (data: Record<string, unknown> = {}) =>
+        err('invalid-clock-action', { action: def.id, pack, ...data });
+      if (content) bad();
+      for (const [name, decl] of Object.entries(def.params ?? {})) {
+        if (name === 'ended' || name === 'started') {
+          if (decl.type !== 'string') bad({ param: name });
+        } else if (decl.default === undefined && !decl.optional) bad({ param: name });
+      }
+      for (const [role, decl] of Object.entries(def.participants ?? {}))
+        if ((decl.min ?? 0) > 0) bad({ role });
+    },
     actionDef(def: ActionOrUse, pack: string): ActionOrUse {
       if ('use' in def) return { ...def, use: q.actionId(def.use, pack) };
+      q.clock(def, pack, true);
       q.releases(def.steps, pack);
       return {
         ...def,
@@ -908,6 +923,7 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
     }
   }
   for (const [qid, def] of Object.entries(ruleset.rules.actions)) {
+    q.clock(def, def.pack, false);
     q.releases(def.steps, def.pack);
     ruleset.rules.actions[qid] = {
       ...def,

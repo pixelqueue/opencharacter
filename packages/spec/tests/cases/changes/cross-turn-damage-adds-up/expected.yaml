@@ -1,0 +1,14 @@
+ok: true
+followUps:
+  - id: overwhelmed-1
+    kind: ephemeral
+    followUp: 'test-cross:features.persistent#overwhelmed'
+    source: { type: item, id: test-cross:features.persistent, entry: persistent }
+    to: self
+    required: true
+    changes:
+      - { type: setState, entry: persistent, key: maintained, value: false }
+      - { type: clearFollowUp, id: overwhelmed-1 }
+character:
+  features:
+    - { id: persistent, item: test-cross:features.persistent, state: { taken: 5 } }

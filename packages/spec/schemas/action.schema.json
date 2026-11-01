@@ -17,6 +17,10 @@
       "description": "When the action is offered, e.g. `self.equipped`.",
       "$ref": "formula.schema.json#/$defs/condition"
     },
+    "clock": {
+      "description": "A moment the app runs this rules action at, on every character it applies to: `turn-boundary`, at each turn change, on every character in the encounter, with `params.ended` the `id` of the character whose turn ended and `params.started` the one whose turn starts (each left out when there is none). Its parameters other than `ended` and `started` need defaults (or `optional`), `ended` and `started` are strings, and no role has a minimum, so it runs with nothing the app must make up; content's actions can't have one (`invalid-clock-action` at load). computeSheet lists it with its `clock`. Content joins in through its tagged `changes` steps: resetting what lasts a turn, ending what the creature whose turn starts applied until then (`self.appliedBy == params.started`).",
+      "enum": ["turn-boundary"]
+    },
     "listed": {
       "description": "`false`: computeSheet doesn't list the action and apps don't show it, but an `action` step with `source` or `entry` still runs it (while `available` holds), and so does `startAction`. For an action only other actions run: a class's part of a shared rules action. Default `true`.",
       "type": "boolean"

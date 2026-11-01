@@ -17,7 +17,7 @@ Every engine, the TypeScript reference engine and community ports alike, exposes
 
 The spec leaves these to the app. Packs give the app what it needs for each: an action to run, a field to show, a constraint that names what's missing.
 
-- **The clock:** whose turn it is, rounds and initiative, the start and end of a turn, rests, dawn, and how many hours or days pass. Packs give an action for each point in time (a rest, a scene's end, a legendary-action reset, dawn); the app runs it when that time comes.
+- **The clock:** whose turn it is, rounds and initiative, the start and end of a turn, rests, dawn, and how many hours or days pass. Packs give an action for each point in time (a rest, a scene's end, a legendary-action reset, dawn); the app runs it when that time comes. A rules action with `clock: turn-boundary` is run on every character in the encounter at each turn change, with the `id`s of the characters whose turn ended and started ([dice-and-actions.md](dice-and-actions.md#turn-boundaries)).
 - **Money a pack doesn't track:** coins, prices and paying for things. A pack that tracks wealth does so with fields and actions.
 - **Space and range:** zones, maps, distance, and who is within an aura's or a spell's area. An action's participants are whoever the app passes; packs give ranges and areas as data.
 - **The GM's rulings:** who takes a consequence, and the order of rolls in an exchange. Actions take whoever the app names and an opposition as a parameter.
@@ -58,7 +58,8 @@ Besides these calls, `checkRelease` ([upgrades.md](upgrades.md#the-build-check),
 - `effects` lists active effects; effects excluded by stacking have `suppressed: true`.
 - `actions` lists the actions available now, with the entry each belongs to: an action inline on
   an item or its content type as `<item id>#<action id>`, one a `use` offers under the used rules
-  action. [describeAction](#describeaction) gives any of them with its parameters.
+  action. A rules action the app runs at a moment of its clock carries `clock`
+  (`turn-boundary`). [describeAction](#describeaction) gives any of them with its parameters.
 - `groups` lists the display groups, each with whether it is shown and its members: a fields
   group's fields, an actions group's `actions` indices, a content group's `items` (activations
   or applied entries, in section and sort order). Each entry of `activations` names its state

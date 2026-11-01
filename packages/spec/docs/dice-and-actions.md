@@ -53,6 +53,7 @@ An **action** ([`action.schema.json`](../schemas/action.schema.json)) is a casca
 | `tags`         | The action's tags; `{ formula }` entries are evaluated per listing, with its `item` and `self` (below)                                                                   |
 | `available`    | When the action is offered (`self.equipped`)                                                                                                                             |
 | `listed`       | `false`: computeSheet doesn't list it, so only other actions (and `startAction`) run it (below)                                                                          |
+| `clock`        | A rules action the app runs at a moment of its clock on every character: `turn-boundary` ([below](#turn-boundaries))                                                     |
 | `params`       | Values the app supplies (a target's AC, which stat to test), declared like state; `min`/`max` are enforced as the action starts ([engine-actions.md](engine-actions.md)) |
 | `participants` | Roles other characters fill (a target, a helper), each with `min`, `max` and declared `fields`                                                                           |
 | `steps`        | The cascade                                                                                                                                                              |
@@ -453,6 +454,66 @@ applied entry by its ID in `entry`.
   by: 1
 ```
 
+### Turn boundaries
+
+The app keeps the clock, so a rule about "one turn" that isn't the character's own turn (damage
+taken in one enemy's turn, an effect that lasts until the start of its applier's next turn)
+needs the app to say when turns change. A rules action with `clock: turn-boundary` is that
+moment: at each turn change, the app runs it on **every** character in the encounter where it is
+listed, with `params.ended` the `id` of the character whose turn ended and `params.started` the
+one whose turn starts (each left out when there is none, at the start or end of a round). It must
+run with nothing else the app makes up: `ended` and `started` are strings, every other parameter
+has a default or is `optional`, no role has a `min`, and only the rules declare one
+(`invalid-clock-action` at load). computeSheet lists it with `clock: turn-boundary`.
+
+Content joins in through the action's tagged `changes` steps, as for any shared action:
+
+- **Turn-scoped accumulators.** A count on a copy that an incoming-change effect's `then` adds
+  each hit to, and the boundary resets; a `becomes` follow-up fires once it reaches the limit,
+  whichever batch gets it there. Draw Steel's Persistent Magic ends when the elementalist takes
+  5 × Reason damage in one turn:
+
+  ```yaml
+  state:
+    taken: { type: integer, default: 0, min: 0 }
+  effects:
+    - target: { incoming: { fields: [stamina.current], tags: [damage] } }
+      op: add
+      value: 0
+      when: incoming.amount < 0
+      then:
+        - { type: adjustState, entry: self, key: taken, by: -incoming.amount }
+    - target: { steps: [turn.boundary] }
+      op: changes
+      value: { changes: [{ type: setState, entry: self, key: taken, value: 0 }] }
+  followUps:
+    - id: overwhelmed
+      becomes: self.taken >= 5 * characteristics.reason.score && size(elementalist.maintained) > 0
+      required: true
+      changes:
+        - { type: set, field: elementalist.maintained, value: '[]' }
+  ```
+
+- **Durations tied to the applier's turn.** The holder ends what the creature whose turn starts
+  applied "until the start of its next turn", whoever holds it: the entry knows its applier
+  (`self.appliedBy`), so no other sheet is involved.
+
+  ```yaml
+  - id: turn-boundary
+    clock: turn-boundary
+    params:
+      ended: { type: string, optional: true }
+      started: { type: string, optional: true }
+    steps:
+      - id: boundary
+        kind: changes
+        tags: [turn.boundary]
+        changes:
+          - type: removeEffect
+            when: has(params.started)
+            applied: { where: "self.appliedBy == params.started && self.duration == 'next-start'" }
+  ```
+
 ### Participants
 
 An action may involve other characters: a target, a helper. It declares
@@ -571,7 +632,8 @@ before. The changes name the actor's own fields, as `to: target` changes do.
 **Who applied it.** Every `applyEffect` an action proposes, to any character, carries the actor's
 `id` as `appliedBy`, and applyChanges saves it on the entry
 ([characters.md](characters.md#entries)). The entry's formulas read it as `self.appliedBy`, so
-the holder's rules can tell whose mark it is, or end only what one creature applied.
+the holder's rules can tell whose mark it is, or end what one creature applied at that creature's
+turn ([below](#turn-boundaries)).
 
 **Changes for whoever holds what the actor applied.** `to: applied` sends a step's changes to
 every character holding an entry the actor applied, wherever the actor put it: the earlier marks

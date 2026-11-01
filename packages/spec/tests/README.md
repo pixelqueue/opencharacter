@@ -158,7 +158,7 @@ input: # any other call inputs (action, params, situational, policy, strict, lin
     - `pendingSlots`: the exact list of the pending choices' `slot` (`{ choice, number }`), in
       order, `null` for a choice without slots.
     - `issues`: the exact list of `{ code, id }`, in order.
-    - `actions`: the exact list of `{ action, entry, source }`.
+    - `actions`: the exact list of `{ action, entry, source, clock }`.
     - `situational`: the exact list of offered situational choice IDs, in order.
     - `competing`: for each listed field, every entry for that field, in order, comparing `op`,
       `stackKey`, `fields`, `options` (option IDs, or `{ id, value }` to compare values too, or

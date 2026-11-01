@@ -184,6 +184,7 @@ export interface ListedAction {
   action: string;
   entry?: string;
   source?: string;
+  clock?: 'turn-boundary';
 }
 
 export interface ListedChoice {
@@ -3455,7 +3456,7 @@ export class Sheet {
       }
       if (available)
         out.push({
-          listed: { action: qid },
+          listed: { action: qid, ...(def.clock ? { clock: def.clock } : {}) },
           tags: this.actionTags(def, def.pack, this.rulesRoots()),
         });
     }

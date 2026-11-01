@@ -1,0 +1,10 @@
+status: finished
+proposedChanges:
+  - to: self
+    step: boundary
+    change:
+      type: removeEffect
+      applied: { where: "self.appliedBy == 'tactician' && self.until == 'start'" }
+  - to: self
+    step: boundary
+    change: { type: setState, entry: persistent, key: taken, value: 0 }

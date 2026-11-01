@@ -214,6 +214,11 @@
       "description": "A follow-up with `create` isn't a derived offer: it has no `while`, or has `on` or `becomes`, `action` or `changes`, or `to`. Data: `followUp`, `pack`."
     },
     {
+      "id": "invalid-clock-action",
+      "kind": "load",
+      "description": "An action with `clock` can't run unattended at that moment: it is content's (only rules actions have a clock), a parameter other than `ended` and `started` has no default and isn't `optional`, `ended` or `started` isn't a string, or a role has a `min` above 0. Data: `action`, `pack`, and `param` or `role` when one is the cause."
+    },
+    {
       "id": "invalid-applied-change",
       "kind": "load",
       "description": "A change sent `to: applied` (by a step, an option, added changes, a roll effect's `then` or a follow-up) isn't a removeEffect, toggleEffect, setState or adjustState naming applied entries by query (`applied`). Data: `type`, `pack`."

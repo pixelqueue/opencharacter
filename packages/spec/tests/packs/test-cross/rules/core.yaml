@@ -1,3 +1,5 @@
+tags: [damage, turn.boundary]
+
 fields:
   hp.current: { type: integer, input: true, default: 10, min: 0 }
   # Each active mark on the character adds one.
@@ -11,6 +13,8 @@ contentTypes:
       until: { type: enum, values: [start, encounter], default: encounter }
     # A mark by someone else takes the mark over.
     reapply: { state: { until: replace } }
+  feature:
+    carried: false
 
 actions:
   # Marks the target, ending the actor's earlier marks wherever they are.
@@ -33,6 +37,21 @@ actions:
           - type: applyEffect
             source: "'conditions.marked'"
             state: { until: params.until }
+  # Run on every character at each turn change: what the creature whose turn starts applied until
+  # then ends; content resets what lasts a turn (the step's tag).
+  - id: turn-boundary
+    clock: turn-boundary
+    params:
+      ended: { type: string, optional: true }
+      started: { type: string, optional: true }
+    steps:
+      - id: boundary
+        kind: changes
+        tags: [turn.boundary]
+        changes:
+          - type: removeEffect
+            when: has(params.started)
+            applied: { where: "self.appliedBy == params.started && self.until == 'start'" }
   # Ends the actor's own marks on the target only.
   - id: release
     participants:

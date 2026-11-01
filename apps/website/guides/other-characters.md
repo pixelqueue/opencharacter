@@ -192,6 +192,41 @@ A follow-up can go there too: an offer with `to: 'applied'` (the tactician is dy
 marks end) is stored on the character whose change fired it. Apply its `changes` the same way,
 then clear it on that character with `{ type: 'clearFollowUp', id }`.
 
+## Turns
+
+Your app keeps the clock, but some rules count another creature's turn: damage taken "in one
+turn" (usually an enemy's), an effect that lasts "until the start of your next turn" on someone
+else. A pack that has them declares a rules action with `clock: turn-boundary`, listed in
+computeSheet's `actions` with that `clock`. At each turn change, run it on every character in the
+encounter that lists it, naming whose turn ended and whose starts:
+
+```ts
+function turnChange(everyone, ended, started) {
+  for (const c of everyone) {
+    const sheet = computeSheet(rulesetFor(c), c);
+    for (const a of sheet.actions.filter((a) => a.clock === 'turn-boundary')) {
+      const run = startAction(rulesetFor(c), c, {
+        action: { id: a.action },
+        params: {
+          ...(ended ? { ended: ended.id } : {}),
+          ...(started ? { started: started.id } : {}),
+        },
+      });
+      if ('status' in run && run.status === 'finished')
+        applyChanges(
+          rulesetFor(c),
+          c,
+          run.proposedChanges.filter((p) => p.to === 'self').map((p) => p.change),
+        );
+    }
+  }
+}
+```
+
+It needs nothing else from you: no parameters without defaults and no required roles. The pack
+uses it to reset what lasts a turn and to end what the creature whose turn starts applied until
+then (its entries record it in `appliedBy`).
+
 ## Monsters and NPCs
 
 Monsters and NPCs are character files like any other: a stat block is a character with mostly

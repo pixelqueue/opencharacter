@@ -1953,13 +1953,31 @@ export class PackChecker {
       }
       return;
     }
+    if (action.clock !== undefined)
+      this.report.error(file, `${keyPrefix}.${action.id}: only a rules action has a clock`);
     this.action(action, file, `${keyPrefix}.${action.id}`);
   }
 
   private action(action: ActionDef, file: string, key: string): void {
     this.params(action, file, key);
     this.roles(action, file, key);
+    this.clock(action, file, key);
     this.actionBody(action, file, key);
+  }
+
+  /** A clock action runs on every character with nothing the app must make up. */
+  private clock(action: ActionDef, file: string, key: string): void {
+    if (action.clock === undefined) return;
+    for (const [name, decl] of Object.entries(action.params ?? {})) {
+      if (name === 'ended' || name === 'started') {
+        if (decl.type !== 'string')
+          this.report.error(file, `${key}: a clock action's ${name} is a string (a character ID)`);
+      } else if (decl.default === undefined && !decl.optional)
+        this.report.error(file, `${key}: a clock action's parameter ${name} needs a default`);
+    }
+    for (const [role, def] of Object.entries(action.participants ?? {}))
+      if ((def.min ?? 0) > 0)
+        this.report.error(file, `${key}: a clock action's role ${role} can't have a minimum`);
   }
 
   private roles(action: ActionDef, file: string, key: string): void {

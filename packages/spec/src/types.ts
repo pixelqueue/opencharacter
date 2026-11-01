@@ -8,6 +8,8 @@ export type Action = {
   tags?: TagList;
   /** When the action is offered, e.g. `self.equipped`. */
   available?: Condition;
+  /** A moment the app runs this rules action at, on every character it applies to: `turn-boundary`, at each turn change, on every character in the encounter, with `params.ended` the `id` of the character whose turn ended and `params.started` the one whose turn starts (each left out when there is none). Its parameters other than `ended` and `started` need defaults (or `optional`), `ended` and `started` are strings, and no role has a minimum, so it runs with nothing the app must make up; content's actions can't have one (`invalid-clock-action` at load). computeSheet lists it with its `clock`. Content joins in through its tagged `changes` steps: resetting what lasts a turn, ending what the creature whose turn starts applied until then (`self.appliedBy == params.started`). */
+  clock?: 'turn-boundary';
   /** `false`: computeSheet doesn't list the action and apps don't show it, but an `action` step with `source` or `entry` still runs it (while `available` holds), and so does `startAction`. For an action only other actions run: a class's part of a shared rules action. Default `true`. */
   listed?: boolean;
   /** Values the app supplies when starting the action (a target's AC, which stat to test). */
@@ -2074,6 +2076,8 @@ export type ComputeSheetOutput = {
     entry?: InstanceId;
     /** For an action of content picked in a choice or granted to the entry (not the entry's own item), or of content with no entry at all (picked in a rules-level choice): the qualified ID of that content. Several picked items can then use the same shared action. */
     source?: QualifiedId;
+    /** For a rules action the app runs at a moment of its clock: the action's `clock` (`turn-boundary`). */
+    clock?: 'turn-boundary';
   }[];
   /** Computed values on copies, by instance ID: for each copy that has any, `{ <name>: value }`. A value whose formula fails is left out, with a `formula-error` in `errors`. */
   copies?: Record<string, Record<string, Literal>>;
@@ -3193,6 +3197,7 @@ export type ErrorCode =
   | 'template-without-copy'
   | 'link-field-mismatch'
   | 'invalid-create-offer'
+  | 'invalid-clock-action'
   | 'invalid-applied-change'
   | 'invalid-family'
   | 'invalid-extension'

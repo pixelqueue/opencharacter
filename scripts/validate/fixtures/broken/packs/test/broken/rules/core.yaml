@@ -88,6 +88,13 @@ actions:
     results: [done]
     steps:
       - { id: done, kind: outcome, result: "'done'" }
+  # A clock action with a parameter the app can't fill.
+  - id: tick
+    clock: turn-boundary
+    params:
+      by: { type: integer }
+    steps:
+      - { id: tock, kind: changes, changes: [{ type: adjust, field: abilities.str.score, by: 1 }] }
   - id: heist
     # Roles: a declared field the pack lacks, an undeclared role in `each` and
     # in `to`.

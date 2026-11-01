@@ -1,0 +1,25 @@
+# Damage taken in one turn adds up on the copy (whoever's turn it is); 5 or more ends what it
+# maintains. The turn boundary starts the count again.
+id: features.persistent
+type: feature
+state:
+  taken: { type: integer, default: 0, min: 0 }
+  maintained: { type: boolean, default: true }
+effects:
+  - target: { incoming: { fields: [hp.current], tags: [damage] } }
+    op: add
+    value: 0
+    when: incoming.amount < 0
+    then:
+      - { type: adjustState, entry: self, key: taken, by: -incoming.amount }
+  - target: { steps: [turn.boundary] }
+    op: changes
+    value:
+      changes:
+        - { type: setState, entry: self, key: taken, value: 0 }
+followUps:
+  - id: overwhelmed
+    becomes: self.taken >= 5 && self.maintained
+    required: true
+    changes:
+      - { type: setState, entry: self, key: maintained, value: 'false' }
