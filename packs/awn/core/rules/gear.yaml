@@ -156,7 +156,8 @@ constraints:
     check: "countCopies(copy.type == 'armor' && copy.equipped && !('shield' in copy.tags)) <= 1"
 
 situational:
-  # Burst fire: three rounds for +2 to hit and damage.
+  # Burst fire: three rounds for +2 to hit and damage. `attack` sets `flags.burst` only when the
+  # weapon can burst and has three rounds left; with fewer, it fires one for no bonus.
   - id: burst
     type: boolean
     default: false
@@ -165,7 +166,7 @@ situational:
       - target: { rolls: [attack.ranged, damage] }
         op: add
         value: 2
-        when: "'burst' in action.item.tags"
+        when: has(flags.burst) && flags.burst
 
 resultBands:
   attack:
