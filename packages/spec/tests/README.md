@@ -144,7 +144,8 @@ input: # any other call inputs (action, params, situational, policy, strict, lin
   allocations recommended per field, `test-span-stacking`, stack keys spanning fields (one kit's
   bonus on every tier), `test-content-values`, computed values on picked and granted content,
   and `test-cross`, effects that cross between characters (who
-  applied an entry, changes `to: applied`).
+  applied an entry, changes `to: applied`, clock actions, auras, a pool spent through a link),
+  with `test-party`, the shared party sheet it links.
 - **How outputs compare.** Only what `expected.yaml` lists is compared. A key the call doesn't
   define, in `case.yaml` or `expected.yaml`, is a mistake in the case: runners fail it rather
   than ignore it, so a case never seems to test something it doesn't.

@@ -11,6 +11,13 @@ fields:
   aura.extra: { type: integer, input: true, default: 0, min: 0 }
   aura.effect: { type: string, input: true, default: none }
 
+# The party sheet every hero links: its pool of hero tokens.
+links:
+  party:
+    pack: test-party
+    fields:
+      tokens: { type: integer, default: 0 }
+
 contentTypes:
   condition:
     carried: false
@@ -58,6 +65,19 @@ actions:
           - type: removeEffect
             when: has(params.started)
             applied: { where: "self.appliedBy == params.started && self.until == 'start'" }
+  # Spends one of the party's hero tokens to regain 2 hit points.
+  - id: spend-token
+    available: has(links.party) && links.party.tokens > 0
+    steps:
+      - id: spend
+        kind: changes
+        to: { link: party }
+        changes:
+          - { type: adjust, field: 'test-party:tokens', by: -1 }
+      - id: regain
+        kind: changes
+        changes:
+          - { type: adjust, field: hp.current, by: 2 }
   # Moves at the character's speed (an aura may slow it).
   - id: stride
     steps:

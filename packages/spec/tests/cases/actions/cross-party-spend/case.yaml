@@ -1,0 +1,9 @@
+description: 'A hero spends from the party pool through its link slot: the change goes to the linked party sheet'
+specVersion: 0.3.0
+call: startAction
+packs:
+  - path: ../../../packs/test-cross
+input:
+  action: { id: test-cross:spend-token }
+  links:
+    test-cross:party: { id: party-1, values: { test-party:tokens: 2 } }

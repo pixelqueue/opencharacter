@@ -102,6 +102,7 @@ One-line definitions of OCF terms, consistent with the [specification](../../pac
 - **Safety limit:** a spec-defined cap (exploding dice, nesting depth, action steps) protecting engines from untrusted packs.
 - **Shape change:** a difference between two pack releases that changes what saved state means (removed content, field, state key, choice or option; a new required choice); it needs a breaking bump and an upgrade script that covers it.
 - **Shape error:** input that doesn't match the spec's JSON Schema, rejected before running.
+- **Shared sheet:** a character file holding a pool several characters spend from (hero tokens, the Director's Malice, a crew), linked from each through one slot; the app applies each one's spend in turn.
 - **Situational choice:** a roll-time choice declared in game data (advantage, cover, push yourself), or a choice the receiving player makes on one incoming change (Uncanny Dodge).
 - **Source:** where a value, roll item or issue came from (field, item, entry, template, effect, situational, rules, step, app).
 - **Spec upgrade:** data shipped with the spec that moves a character file across a spec version that changed the file's shape; `upgrade` runs the ones between the character's `specVersion` and the engine's, then writes the engine's version.

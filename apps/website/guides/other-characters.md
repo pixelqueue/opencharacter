@@ -355,6 +355,37 @@ if ('status' in used && used.status === 'finished') {
   action on that character's own sheet, then clear it here with
   `{ type: 'clearFollowUp', id }` ([changing characters](changing-characters.md#what-the-rules-call-for-next)).
 
+## A pool the party shares
+
+Hero tokens, the Director's Malice, a crew's coin: a pool several characters spend from is its own
+character file, a **shared sheet**, linked from each of them through one slot
+([shared sheets](../../../packages/spec/docs/rules-and-fields.md#shared-sheets)). Make it once,
+save its `id` in every member's slot, and pass its view to each member's calls, as for a crew.
+
+Spends are the one thing to get right: each member's view is a copy of the pool, so apply each
+member's changes for the pool as soon as their action finishes, then recompute the pool before the
+next member acts:
+
+```ts
+function spend(hero, actionId) {
+  const pool = computeSheet(partyRuleset, party);
+  const links = { 'draw-steel-heroes:party': view(party, pool) };
+  const run = startAction(rulesetFor(hero), hero, { action: { id: actionId }, links });
+  if (!('status' in run) || run.status !== 'finished') return;
+  const forParty = run.proposedChanges.filter((p) => p.character === party.id).map((p) => p.change);
+  party = applyChanges(partyRuleset, party, forParty).character; // before anyone else spends
+  hero = applyChanges(
+    rulesetFor(hero),
+    hero,
+    run.proposedChanges.filter((p) => p.to === 'self').map((p) => p.change),
+  ).character;
+}
+```
+
+Run one spend at a time (a queue, or a lock on the shared sheet in a multiplayer app). A spend a
+stale view let through meets the pool's bounds and takes nothing; the next view shows the pool
+empty, so the action is no longer listed.
+
 ## Damage dealt to a target
 
 The target's damage reaches it through its own `applyChanges`, so the target's rules decide what

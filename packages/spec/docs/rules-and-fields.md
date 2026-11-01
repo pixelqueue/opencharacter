@@ -519,6 +519,51 @@ links:
   doesn't warn about it.
 - Text: `links.<slot>.name` (optional).
 
+### Shared sheets
+
+A pool several characters spend from, owned by none of them (Draw Steel's hero tokens, the
+Director's Malice, Fate's GM fate points, a FitD crew's coin and heat), is a **shared sheet**: a
+character file of its own, with the pool's fields, that every character using it links through
+one slot. The format has no other kind of shared state.
+
+- **Which pack declares it.** The pool's fields belong to a pack the shared sheet uses: the
+  game's own (a `party` or `director` creation start that makes nothing but the pool) or a
+  separate one (`fitd-crew`). The characters' pack declares a link slot for it, naming that
+  pack, with the pool fields it reads, and spends with changes `to: { link: <slot> }`.
+- **One sheet, every slot.** The app makes the shared sheet once (a derived offer with `create`
+  can ask for it) and saves its `id` in the slot of every character that uses it, so they all
+  name the same file: the whole party links the same party sheet.
+- **One spend at a time.** The pool lives in one file, and each character's view of it is a copy
+  of its values. The app applies each character's changes for the shared sheet as their own batch,
+  in the order the actions finish, then recomputes the shared sheet and passes the new view to
+  the next action, so two spends never both read the old value. A change that a stale view
+  allowed meets the field's bounds there (`min: 0` clamps it), and the action's `available` reads
+  the fresh view.
+- **Whose follow-ups.** A follow-up the pool's fields call for is the shared sheet's own; one a
+  character's change to it calls for may name the slot (`to: { link }`).
+
+```yaml
+# The heroes' pack: the party's hero tokens, spent to regain Stamina.
+links:
+  party:
+    pack: draw-steel-party
+    fields:
+      heroTokens: { type: integer, default: 0 }
+actions:
+  - id: spend-hero-token
+    available: has(links.party) && links.party.heroTokens > 0
+    steps:
+      - id: spend
+        kind: changes
+        to: { link: party }
+        changes:
+          - { type: adjust, field: draw-steel-party:heroTokens, by: -1 }
+      - id: regain
+        kind: changes
+        changes:
+          - { type: adjust, field: stamina.current, by: recoveries.value }
+```
+
 ## Follow-ups
 
 `followUps` say what the rules call for on the character

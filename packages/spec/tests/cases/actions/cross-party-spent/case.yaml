@@ -1,0 +1,9 @@
+description: 'Once an earlier spend is applied to the party sheet and the view passed again, a second hero sees the pool empty: the spend is not available'
+specVersion: 0.3.0
+call: startAction
+packs:
+  - path: ../../../packs/test-cross
+input:
+  action: { id: test-cross:spend-token }
+  links:
+    test-cross:party: { id: party-1, values: { test-party:tokens: 0 } }
