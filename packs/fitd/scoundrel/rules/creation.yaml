@@ -44,6 +44,9 @@ actions:
         recommend: options[0]
         changes:
           - { type: choose, path: { choice: [vice] }, option: picked.id }
+      # The guided start recommends each dot to the first action with room, in an order that
+      # alternates the attributes (Hunt, Finesse, Attune, Study, Prowl, Command, …), so an
+      # automatic run finishes.
       - id: startingDots
         kind: allocate
         when: '!has(steps.playbook)'
@@ -52,6 +55,19 @@ actions:
         budget: 3
         limit: max(0, 2 - field.value)
         random: params.random
+        recommend:
+          ratings.hunt: min(max(0, 2 - ratings.hunt), 3)
+          ratings.finesse: min(max(0, 2 - ratings.finesse), max(0, 3 - max(0, 2 - ratings.hunt)))
+          ratings.attune: min(max(0, 2 - ratings.attune), max(0, 3 - max(0, 2 - ratings.hunt) - max(0, 2 - ratings.finesse)))
+          ratings.study: min(max(0, 2 - ratings.study), max(0, 3 - max(0, 2 - ratings.hunt) - max(0, 2 - ratings.finesse) - max(0, 2 - ratings.attune)))
+          ratings.prowl: min(max(0, 2 - ratings.prowl), max(0, 3 - max(0, 2 - ratings.hunt) - max(0, 2 - ratings.finesse) - max(0, 2 - ratings.attune) - max(0, 2 - ratings.study)))
+          ratings.command: min(max(0, 2 - ratings.command), max(0, 3 - max(0, 2 - ratings.hunt) - max(0, 2 - ratings.finesse) - max(0, 2 - ratings.attune) - max(0, 2 - ratings.study) - max(0, 2 - ratings.prowl)))
+          ratings.survey: min(max(0, 2 - ratings.survey), max(0, 3 - max(0, 2 - ratings.hunt) - max(0, 2 - ratings.finesse) - max(0, 2 - ratings.attune) - max(0, 2 - ratings.study) - max(0, 2 - ratings.prowl) - max(0, 2 - ratings.command)))
+          ratings.skirmish: min(max(0, 2 - ratings.skirmish), max(0, 3 - max(0, 2 - ratings.hunt) - max(0, 2 - ratings.finesse) - max(0, 2 - ratings.attune) - max(0, 2 - ratings.study) - max(0, 2 - ratings.prowl) - max(0, 2 - ratings.command) - max(0, 2 - ratings.survey)))
+          ratings.consort: min(max(0, 2 - ratings.consort), max(0, 3 - max(0, 2 - ratings.hunt) - max(0, 2 - ratings.finesse) - max(0, 2 - ratings.attune) - max(0, 2 - ratings.study) - max(0, 2 - ratings.prowl) - max(0, 2 - ratings.command) - max(0, 2 - ratings.survey) - max(0, 2 - ratings.skirmish)))
+          ratings.tinker: min(max(0, 2 - ratings.tinker), max(0, 3 - max(0, 2 - ratings.hunt) - max(0, 2 - ratings.finesse) - max(0, 2 - ratings.attune) - max(0, 2 - ratings.study) - max(0, 2 - ratings.prowl) - max(0, 2 - ratings.command) - max(0, 2 - ratings.survey) - max(0, 2 - ratings.skirmish) - max(0, 2 - ratings.consort)))
+          ratings.wreck: min(max(0, 2 - ratings.wreck), max(0, 3 - max(0, 2 - ratings.hunt) - max(0, 2 - ratings.finesse) - max(0, 2 - ratings.attune) - max(0, 2 - ratings.study) - max(0, 2 - ratings.prowl) - max(0, 2 - ratings.command) - max(0, 2 - ratings.survey) - max(0, 2 - ratings.skirmish) - max(0, 2 - ratings.consort) - max(0, 2 - ratings.tinker)))
+          ratings.sway: min(max(0, 2 - ratings.sway), max(0, 3 - max(0, 2 - ratings.hunt) - max(0, 2 - ratings.finesse) - max(0, 2 - ratings.attune) - max(0, 2 - ratings.study) - max(0, 2 - ratings.prowl) - max(0, 2 - ratings.command) - max(0, 2 - ratings.survey) - max(0, 2 - ratings.skirmish) - max(0, 2 - ratings.consort) - max(0, 2 - ratings.tinker) - max(0, 2 - ratings.wreck)))
       - id: heritageDot
         kind: allocate
         sheet: proposed
@@ -59,6 +75,19 @@ actions:
         budget: 1
         limit: max(0, 2 - field.value)
         random: params.random
+        recommend:
+          ratings.hunt: min(max(0, 2 - ratings.hunt), 1)
+          ratings.finesse: min(max(0, 2 - ratings.finesse), max(0, 1 - max(0, 2 - ratings.hunt)))
+          ratings.attune: min(max(0, 2 - ratings.attune), max(0, 1 - max(0, 2 - ratings.hunt) - max(0, 2 - ratings.finesse)))
+          ratings.study: min(max(0, 2 - ratings.study), max(0, 1 - max(0, 2 - ratings.hunt) - max(0, 2 - ratings.finesse) - max(0, 2 - ratings.attune)))
+          ratings.prowl: min(max(0, 2 - ratings.prowl), max(0, 1 - max(0, 2 - ratings.hunt) - max(0, 2 - ratings.finesse) - max(0, 2 - ratings.attune) - max(0, 2 - ratings.study)))
+          ratings.command: min(max(0, 2 - ratings.command), max(0, 1 - max(0, 2 - ratings.hunt) - max(0, 2 - ratings.finesse) - max(0, 2 - ratings.attune) - max(0, 2 - ratings.study) - max(0, 2 - ratings.prowl)))
+          ratings.survey: min(max(0, 2 - ratings.survey), max(0, 1 - max(0, 2 - ratings.hunt) - max(0, 2 - ratings.finesse) - max(0, 2 - ratings.attune) - max(0, 2 - ratings.study) - max(0, 2 - ratings.prowl) - max(0, 2 - ratings.command)))
+          ratings.skirmish: min(max(0, 2 - ratings.skirmish), max(0, 1 - max(0, 2 - ratings.hunt) - max(0, 2 - ratings.finesse) - max(0, 2 - ratings.attune) - max(0, 2 - ratings.study) - max(0, 2 - ratings.prowl) - max(0, 2 - ratings.command) - max(0, 2 - ratings.survey)))
+          ratings.consort: min(max(0, 2 - ratings.consort), max(0, 1 - max(0, 2 - ratings.hunt) - max(0, 2 - ratings.finesse) - max(0, 2 - ratings.attune) - max(0, 2 - ratings.study) - max(0, 2 - ratings.prowl) - max(0, 2 - ratings.command) - max(0, 2 - ratings.survey) - max(0, 2 - ratings.skirmish)))
+          ratings.tinker: min(max(0, 2 - ratings.tinker), max(0, 1 - max(0, 2 - ratings.hunt) - max(0, 2 - ratings.finesse) - max(0, 2 - ratings.attune) - max(0, 2 - ratings.study) - max(0, 2 - ratings.prowl) - max(0, 2 - ratings.command) - max(0, 2 - ratings.survey) - max(0, 2 - ratings.skirmish) - max(0, 2 - ratings.consort)))
+          ratings.wreck: min(max(0, 2 - ratings.wreck), max(0, 1 - max(0, 2 - ratings.hunt) - max(0, 2 - ratings.finesse) - max(0, 2 - ratings.attune) - max(0, 2 - ratings.study) - max(0, 2 - ratings.prowl) - max(0, 2 - ratings.command) - max(0, 2 - ratings.survey) - max(0, 2 - ratings.skirmish) - max(0, 2 - ratings.consort) - max(0, 2 - ratings.tinker)))
+          ratings.sway: min(max(0, 2 - ratings.sway), max(0, 1 - max(0, 2 - ratings.hunt) - max(0, 2 - ratings.finesse) - max(0, 2 - ratings.attune) - max(0, 2 - ratings.study) - max(0, 2 - ratings.prowl) - max(0, 2 - ratings.command) - max(0, 2 - ratings.survey) - max(0, 2 - ratings.skirmish) - max(0, 2 - ratings.consort) - max(0, 2 - ratings.tinker) - max(0, 2 - ratings.wreck)))
       - id: backgroundDot
         kind: allocate
         sheet: proposed
@@ -66,6 +95,19 @@ actions:
         budget: 1
         limit: max(0, 2 - field.value)
         random: params.random
+        recommend:
+          ratings.hunt: min(max(0, 2 - ratings.hunt), 1)
+          ratings.finesse: min(max(0, 2 - ratings.finesse), max(0, 1 - max(0, 2 - ratings.hunt)))
+          ratings.attune: min(max(0, 2 - ratings.attune), max(0, 1 - max(0, 2 - ratings.hunt) - max(0, 2 - ratings.finesse)))
+          ratings.study: min(max(0, 2 - ratings.study), max(0, 1 - max(0, 2 - ratings.hunt) - max(0, 2 - ratings.finesse) - max(0, 2 - ratings.attune)))
+          ratings.prowl: min(max(0, 2 - ratings.prowl), max(0, 1 - max(0, 2 - ratings.hunt) - max(0, 2 - ratings.finesse) - max(0, 2 - ratings.attune) - max(0, 2 - ratings.study)))
+          ratings.command: min(max(0, 2 - ratings.command), max(0, 1 - max(0, 2 - ratings.hunt) - max(0, 2 - ratings.finesse) - max(0, 2 - ratings.attune) - max(0, 2 - ratings.study) - max(0, 2 - ratings.prowl)))
+          ratings.survey: min(max(0, 2 - ratings.survey), max(0, 1 - max(0, 2 - ratings.hunt) - max(0, 2 - ratings.finesse) - max(0, 2 - ratings.attune) - max(0, 2 - ratings.study) - max(0, 2 - ratings.prowl) - max(0, 2 - ratings.command)))
+          ratings.skirmish: min(max(0, 2 - ratings.skirmish), max(0, 1 - max(0, 2 - ratings.hunt) - max(0, 2 - ratings.finesse) - max(0, 2 - ratings.attune) - max(0, 2 - ratings.study) - max(0, 2 - ratings.prowl) - max(0, 2 - ratings.command) - max(0, 2 - ratings.survey)))
+          ratings.consort: min(max(0, 2 - ratings.consort), max(0, 1 - max(0, 2 - ratings.hunt) - max(0, 2 - ratings.finesse) - max(0, 2 - ratings.attune) - max(0, 2 - ratings.study) - max(0, 2 - ratings.prowl) - max(0, 2 - ratings.command) - max(0, 2 - ratings.survey) - max(0, 2 - ratings.skirmish)))
+          ratings.tinker: min(max(0, 2 - ratings.tinker), max(0, 1 - max(0, 2 - ratings.hunt) - max(0, 2 - ratings.finesse) - max(0, 2 - ratings.attune) - max(0, 2 - ratings.study) - max(0, 2 - ratings.prowl) - max(0, 2 - ratings.command) - max(0, 2 - ratings.survey) - max(0, 2 - ratings.skirmish) - max(0, 2 - ratings.consort)))
+          ratings.wreck: min(max(0, 2 - ratings.wreck), max(0, 1 - max(0, 2 - ratings.hunt) - max(0, 2 - ratings.finesse) - max(0, 2 - ratings.attune) - max(0, 2 - ratings.study) - max(0, 2 - ratings.prowl) - max(0, 2 - ratings.command) - max(0, 2 - ratings.survey) - max(0, 2 - ratings.skirmish) - max(0, 2 - ratings.consort) - max(0, 2 - ratings.tinker)))
+          ratings.sway: min(max(0, 2 - ratings.sway), max(0, 1 - max(0, 2 - ratings.hunt) - max(0, 2 - ratings.finesse) - max(0, 2 - ratings.attune) - max(0, 2 - ratings.study) - max(0, 2 - ratings.prowl) - max(0, 2 - ratings.command) - max(0, 2 - ratings.survey) - max(0, 2 - ratings.skirmish) - max(0, 2 - ratings.consort) - max(0, 2 - ratings.tinker) - max(0, 2 - ratings.wreck)))
       - id: dots
         kind: allocate
         sheet: proposed
@@ -73,11 +115,25 @@ actions:
         budget: 2
         limit: max(0, 2 - field.value)
         random: params.random
+        recommend:
+          ratings.hunt: min(max(0, 2 - ratings.hunt), 2)
+          ratings.finesse: min(max(0, 2 - ratings.finesse), max(0, 2 - max(0, 2 - ratings.hunt)))
+          ratings.attune: min(max(0, 2 - ratings.attune), max(0, 2 - max(0, 2 - ratings.hunt) - max(0, 2 - ratings.finesse)))
+          ratings.study: min(max(0, 2 - ratings.study), max(0, 2 - max(0, 2 - ratings.hunt) - max(0, 2 - ratings.finesse) - max(0, 2 - ratings.attune)))
+          ratings.prowl: min(max(0, 2 - ratings.prowl), max(0, 2 - max(0, 2 - ratings.hunt) - max(0, 2 - ratings.finesse) - max(0, 2 - ratings.attune) - max(0, 2 - ratings.study)))
+          ratings.command: min(max(0, 2 - ratings.command), max(0, 2 - max(0, 2 - ratings.hunt) - max(0, 2 - ratings.finesse) - max(0, 2 - ratings.attune) - max(0, 2 - ratings.study) - max(0, 2 - ratings.prowl)))
+          ratings.survey: min(max(0, 2 - ratings.survey), max(0, 2 - max(0, 2 - ratings.hunt) - max(0, 2 - ratings.finesse) - max(0, 2 - ratings.attune) - max(0, 2 - ratings.study) - max(0, 2 - ratings.prowl) - max(0, 2 - ratings.command)))
+          ratings.skirmish: min(max(0, 2 - ratings.skirmish), max(0, 2 - max(0, 2 - ratings.hunt) - max(0, 2 - ratings.finesse) - max(0, 2 - ratings.attune) - max(0, 2 - ratings.study) - max(0, 2 - ratings.prowl) - max(0, 2 - ratings.command) - max(0, 2 - ratings.survey)))
+          ratings.consort: min(max(0, 2 - ratings.consort), max(0, 2 - max(0, 2 - ratings.hunt) - max(0, 2 - ratings.finesse) - max(0, 2 - ratings.attune) - max(0, 2 - ratings.study) - max(0, 2 - ratings.prowl) - max(0, 2 - ratings.command) - max(0, 2 - ratings.survey) - max(0, 2 - ratings.skirmish)))
+          ratings.tinker: min(max(0, 2 - ratings.tinker), max(0, 2 - max(0, 2 - ratings.hunt) - max(0, 2 - ratings.finesse) - max(0, 2 - ratings.attune) - max(0, 2 - ratings.study) - max(0, 2 - ratings.prowl) - max(0, 2 - ratings.command) - max(0, 2 - ratings.survey) - max(0, 2 - ratings.skirmish) - max(0, 2 - ratings.consort)))
+          ratings.wreck: min(max(0, 2 - ratings.wreck), max(0, 2 - max(0, 2 - ratings.hunt) - max(0, 2 - ratings.finesse) - max(0, 2 - ratings.attune) - max(0, 2 - ratings.study) - max(0, 2 - ratings.prowl) - max(0, 2 - ratings.command) - max(0, 2 - ratings.survey) - max(0, 2 - ratings.skirmish) - max(0, 2 - ratings.consort) - max(0, 2 - ratings.tinker)))
+          ratings.sway: min(max(0, 2 - ratings.sway), max(0, 2 - max(0, 2 - ratings.hunt) - max(0, 2 - ratings.finesse) - max(0, 2 - ratings.attune) - max(0, 2 - ratings.study) - max(0, 2 - ratings.prowl) - max(0, 2 - ratings.command) - max(0, 2 - ratings.survey) - max(0, 2 - ratings.skirmish) - max(0, 2 - ratings.consort) - max(0, 2 - ratings.tinker) - max(0, 2 - ratings.wreck)))
       - id: picks
         kind: choice
         tags: [creation.picks]
         options: { pending: {} }
         random: params.random
+        recommend: options[0]
       - id: heritage
         kind: changes
         when: params.heritage != ''

@@ -1,0 +1,61 @@
+# No playbook: the first special ability and the first vice, then each dot to the first action
+# with room in the recommended order (Hunt, Finesse, Attune, Study, ...), and finishCreation.
+status: finished
+outcome: {}
+proposedChanges:
+  - to: self
+    step: poolAbility
+    change:
+      type: choose
+      path:
+        choice:
+          - special-abilities
+      option: fitd-scoundrel:special-abilities.a-little-something-on-the-side
+  - to: self
+    step: vice
+    change:
+      type: choose
+      path:
+        choice:
+          - vice
+      option: fitd-scoundrel:vices.faith
+  - to: self
+    step: startingDots
+    change:
+      type: adjust
+      field: fitd-scoundrel:ratings.hunt
+      by: 2
+  - to: self
+    step: startingDots
+    change:
+      type: adjust
+      field: fitd-scoundrel:ratings.finesse
+      by: 1
+  - to: self
+    step: heritageDot
+    change:
+      type: adjust
+      field: fitd-scoundrel:ratings.finesse
+      by: 1
+  - to: self
+    step: backgroundDot
+    change:
+      type: adjust
+      field: fitd-scoundrel:ratings.attune
+      by: 1
+  - to: self
+    step: dots
+    change:
+      type: adjust
+      field: fitd-scoundrel:ratings.study
+      by: 1
+  - to: self
+    step: dots
+    change:
+      type: adjust
+      field: fitd-scoundrel:ratings.attune
+      by: 1
+  - to: self
+    step: finish
+    change:
+      type: finishCreation

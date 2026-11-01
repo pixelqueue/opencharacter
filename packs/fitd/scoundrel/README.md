@@ -83,7 +83,9 @@ start `random`):
 A sheet filled in by hand is checked by `creation-dots` (seven dots) and `creation-rating-limit`
 (none above 2) while it is being created. The SRD creates scoundrels by choice, so the random
 start's odds are the pack's: every pick uniform over what the guided start offers, the dots one
-at a time to an action that can still take one.
+at a time to an action that can still take one. The guided start recommends every pick: the first
+ability, vice and pending option, and each dot to the first action with room in an order that
+alternates the attributes (Hunt, Finesse, Attune, Study, …), so run automatically it finishes.
 
 **A table's own playbook** is a homebrew item of the `playbook` type: its `twoDots` and `oneDot`
 fields place its starting dots, and its own `special-ability`
