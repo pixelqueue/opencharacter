@@ -17,7 +17,7 @@ One-line definitions of OCF terms, consistent with the [specification](../../pac
 - **Character file:** the standard interchange file holding a character's base state and pinned pack versions; its `id` is a UUID or a URL, up to 2048 characters.
 - **Checkpoint:** a roll, choice or allocate step in an action, where the engine either continues by itself or pauses. A roll with no dice isn't one.
 - **Checkpoint policy:** the app's rules for which checkpoints continue automatically and which pause.
-- **Choice:** a decision declared in content or rules: options, how many to pick, and when it applies. A value choice's options may come from a formula and be filtered by `where` (`value`); a content choice with `activate: false` picks references, not active content.
+- **Choice:** a decision declared in content or rules: options, how many to pick, and when it applies. A value choice's options may come from a formula and be filtered by `where` (`value`); a content choice with `activate: false` picks references, not active content; one with `activeWhen` keeps its picks inactive while the condition fails; one with `addAs: copy` holds each pick as a copy added and removed with it.
 - **Choice path:** the address of a choice: an optional entry, then alternating choice IDs and picked options.
 - **Competing options:** several active `set` effects on one field, or the effects of a `playerChooses` stacking group; the engine reports them and the recommended one, and the app picks.
 - **Computed value:** a value worked out for each copy of an item from the character (a FitD cohort's quality), declared by its content type, item or templates, never saved; computeSheet returns it in `copies` and the copy's actions and follow-ups read it as `self.<name>`.

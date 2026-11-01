@@ -139,8 +139,9 @@ input: # any other call inputs (action, params, situational, policy, strict, lin
   `test-part-rolls`, advantage and disadvantage on a roll's parts (`of: roll`), and
   `test-roll-then`, roll effects that end themselves or spend a use once a roll used them
   (`then`), `test-describe`, actions as `describeAction` reads them, and `test-choice-activation`, a
-  choice recommending among its eligible options, an inline option's immunity and allocations
-  recommended per field.
+  choice recommending among its eligible options, picks active only while a condition holds
+  (`activeWhen`), picks held as copies (`addAs: copy`), an inline option's immunity and
+  allocations recommended per field.
 - **How outputs compare.** Only what `expected.yaml` lists is compared. A key the call doesn't
   define, in `case.yaml` or `expected.yaml`, is a mistake in the case: runners fail it rather
   than ignore it, so a case never seems to test something it doesn't.
@@ -165,7 +166,7 @@ input: # any other call inputs (action, params, situational, policy, strict, lin
     - `copies`: the exact map of computed values per copy.
     - `standardCopies`: the exact list of `{ entry, item, saved }`.
     - `activations`: the exact list.
-    - `choices`: the exact list of `{ path, owner, id, slot, min, max, picks, open }`.
+    - `choices`: the exact list of `{ path, owner, id, slot, min, max, picks, open, inactive }`.
     - `copyLimits`: the exact list of `{ type, max, perItem, count, entries }`.
     - `groups`: the exact list of `{ id, shown, fields, actions, items }`.
     - `offers`: the exact list.

@@ -182,6 +182,13 @@ that applies, in the same order as `pending`, answered or not:
 - **`preset: true`** marks a choice the content granting it answers (a feat granted for a named
   skill). Its `picks` are the grant's and it is never open. Show it as answered, but don't offer
   to change it: `choose` and `unchoose` on it fail with `preset-choice`.
+- **`inactive: true`** marks a choice whose picks are kept but asleep until a condition holds
+  (Dragon Dreams' traits, usable with 5 Victories). Ask it as usual; show its picks as not in
+  effect yet.
+- A pick of a choice that adds its pick as a copy ("a trinket of your choice") brings that copy
+  into `inventory` or `features`: `choose` adds it and saves its instance ID as the pick's
+  `entry`, and `unchoose` removes it. `removeItem` of that copy fails with `picked-copy`, so
+  offer to change the pick instead.
 
 Show each entry as a step. To change an answer, `unchoose` and `choose` in one batch; the next
 sheet lists the new answer's own choices where the old answer's were (after the choices of the

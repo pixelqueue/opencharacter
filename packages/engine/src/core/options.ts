@@ -168,7 +168,19 @@ export function optionsOn(
       if (holder) {
         const key = String(path.choice.at(-1));
         holder[key] = holder[key] ?? [];
-        if (!holder[key].some((p) => p.option === option)) holder[key].push({ option });
+        if (!holder[key].some((p) => p.option === option)) {
+          holder[key].push({ option });
+          // A pick held as a copy is checked as that copy.
+          if (choice.addAs === 'copy') {
+            const item = ruleset.content[String(option)];
+            const list =
+              item && ruleset.contentTypes[item.type]?.carried ? 'inventory' : 'features';
+            trial[list] = [
+              ...(trial[list] ?? []),
+              { id: 'listoptions-trial-copy', item: String(option) },
+            ];
+          }
+        }
       }
       const after = new Sheet(ruleset, trial, [], links);
       reasons.push(...after.prerequisiteIssues(sourceId ?? String(option)));

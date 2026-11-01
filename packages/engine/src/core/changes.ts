@@ -20,7 +20,14 @@ import type {
   ValueDecl,
 } from './pack-types.ts';
 import { appliesQueries, thenRule } from './pack-types.ts';
-import { admitsTag, declaredTags, type LoadedItem, localPart, type Ruleset } from './ruleset.ts';
+import {
+  admitsTag,
+  declaredTags,
+  type LoadedItem,
+  localPart,
+  type Ruleset,
+  standardId,
+} from './ruleset.ts';
 import { homebrewIdsInUse, withHomebrew, withoutHomebrew } from './homebrew.ts';
 import {
   type Activation,
@@ -35,7 +42,7 @@ import {
   Sheet,
   type Source,
 } from './sheet.ts';
-import { samePath, treeFor } from './tree.ts';
+import { pickedCopies, samePath, treeFor } from './tree.ts';
 import {
   pickState,
   appliedView,
@@ -193,7 +200,9 @@ export function applyBatch(
       continue;
     }
     try {
+      const held = pickedCopies(next);
       const patch = applyOne(ruleset, next, change as AnyChange, adjustments, links, dice, sheets);
+      if (held.size > 0) dropUnpickedCopies(next, held);
       // An adjust comes back with the faces it used, an applyEffect with its computed state.
       applied.push(patch ? ({ ...change, ...patch } as Change) : change);
     } catch (error) {
@@ -258,6 +267,21 @@ function setHomebrew(
       };
   }
   return { ok: true, ruleset: layered.ruleset };
+}
+
+/**
+ * Removes the copies picks held before a change whose picks it removed (`addAs: copy`), and the
+ * copies those copies' own picks held.
+ */
+function dropUnpickedCopies(c: CharacterDoc, held: ReadonlyMap<string, ChoicePath>): void {
+  let gone = [...held.keys()].filter((id) => !pickedCopies(c).has(id));
+  while (gone.length > 0) {
+    const before = pickedCopies(c);
+    c.features = (c.features ?? []).filter((e) => !gone.includes(e.id));
+    c.inventory = (c.inventory ?? []).filter((e) => !gone.includes(e.id));
+    const after = pickedCopies(c);
+    gone = [...before.keys()].filter((id) => !after.has(id));
+  }
 }
 
 function allEntries(c: CharacterDoc): Entry[] {
@@ -875,6 +899,9 @@ function applyOne(
       // Every character has a standard copy: it can't be removed.
       if (sheet.standard.some((s) => s.entry === id))
         throw new ChangeError('standard-copy', { entry: id });
+      // A pick's copy goes with its pick.
+      const pickedBy = pickedCopies(c).get(id);
+      if (pickedBy) throw new ChangeError('picked-copy', { entry: id, path: pickedBy });
       entryOf(id);
       c.features = (c.features ?? []).filter((e) => e.id !== id);
       c.inventory = (c.inventory ?? []).filter((e) => e.id !== id);
@@ -1108,6 +1135,16 @@ function applyOne(
         throw new ChangeError('invalid-option', { option });
       if (picks.some((p) => p.option === option))
         throw new ChangeError('duplicate-id', { id: option });
+      if (record.choice.addAs === 'copy' && typeof option === 'string') {
+        // The pick holds a copy of its own, added as addItem adds one, under a free derived ID.
+        const used = usedIds(c, sheet);
+        const base = standardId(option);
+        let id = base;
+        for (let n = 2; used.has(id); n++) id = `${base}-${n}`;
+        applyOne(ruleset, c, { type: 'addItem', entry: { id, item: option } }, adjustments, links);
+        tree[key] = [...picks, { option, entry: id }];
+        return;
+      }
       tree[key] = [...picks, { option }];
       return;
     }

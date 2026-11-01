@@ -786,6 +786,7 @@ class FormulaChecker<L> {
     const key = `${owner}.choices.${choice.id}`;
     const where = `choice ${key}`;
     this.activation(() => this.formula(choice.when, at, where, BOOL));
+    this.activation(() => this.formula(choice.activeWhen, at, `${where} activeWhen`, BOOL));
     // `options`: the options offered and eligible apart from prerequisites, in order.
     this.ownChoice(() =>
       this.typed({ options: { list: optionType(choice.from) } }, () =>

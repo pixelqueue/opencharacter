@@ -194,6 +194,7 @@ export interface ListedChoice {
   picks: (string | number)[];
   open: boolean;
   preset?: true;
+  inactive?: true;
 }
 
 function isOpen(record: ChoiceRecord, min: number): boolean {
@@ -228,6 +229,8 @@ export interface ChoiceRecord {
   slot?: { choice: string; number: number };
   /** A grant presets the choice: `picks` are the grant's, and it is never pending. */
   preset?: boolean;
+  /** Its `activeWhen` fails: the picks are kept, but neither activated nor applied. */
+  inactive?: boolean;
 }
 
 /** A choice, or with `slots` one choice per slot in list order, keyed `<id>-<slot>`. */
@@ -1989,6 +1992,14 @@ export class Sheet {
       };
       this.choices.push(record);
       if (!applicable) continue;
+      // Picks kept but not active while `activeWhen` fails.
+      if (
+        choice.activeWhen !== undefined &&
+        !this.condition(choice.activeWhen, pack, roots, `${owner.sourceId} choice ${choice.id}`)
+      ) {
+        record.inactive = true;
+        continue;
+      }
       for (const [at, pick] of picks.entries()) {
         const nestedPresets = preset?.[at]?.nested;
         const own = {
@@ -2042,6 +2053,7 @@ export class Sheet {
           );
         } else if (
           choice.activate !== false &&
+          choice.addAs === undefined &&
           typeof pick.option === 'string' &&
           this.ruleset.content[pick.option]
         ) {
@@ -2655,6 +2667,7 @@ export class Sheet {
           picks: record.picks.map((pick) => pick.option),
           open: isOpen(record, min),
           ...(record.preset ? { preset: true as const } : {}),
+          ...(record.inactive ? { inactive: true as const } : {}),
         };
       });
   }
@@ -2747,7 +2760,11 @@ export class Sheet {
           else if (!this.valueEligible(record, pick.option)) notEligible(pick.option);
         }
       }
-      if (choice.activate === false && !('values' in from) && !('options' in from)) {
+      if (
+        (choice.activate === false || record.inactive === true) &&
+        !('values' in from) &&
+        !('options' in from)
+      ) {
         // Picks that aren't activated are still reported when hidden.
         for (const pick of picks) {
           const item =

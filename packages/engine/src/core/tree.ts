@@ -41,3 +41,20 @@ export function samePath(a: ChoicePath, b: ChoicePath): boolean {
     a.choice.every((s, i) => s === b.choice[i])
   );
 }
+
+/** The copies picks hold (`addAs: copy`), by instance ID, with each pick's choice path. */
+export function pickedCopies(character: CharacterDoc): Map<string, ChoicePath> {
+  const out = new Map<string, ChoicePath>();
+  const walk = (tree: ChoiceTree | undefined, at: ChoicePath): void => {
+    for (const [key, picks] of Object.entries(tree ?? {}))
+      for (const pick of picks ?? []) {
+        if (pick.entry !== undefined && !out.has(pick.entry))
+          out.set(pick.entry, { ...at, choice: [...at.choice, key] });
+        walk(pick.choices, { ...at, choice: [...at.choice, key, pick.option] });
+      }
+  };
+  walk(character.choices, { choice: [] });
+  for (const entry of [...(character.features ?? []), ...(character.inventory ?? [])])
+    walk(entry.choices, { entry: entry.id, choice: [] });
+  return out;
+}

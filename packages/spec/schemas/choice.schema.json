@@ -50,6 +50,14 @@
       "description": "When the choice applies, e.g. `self.level >= 3`. Until then it is neither pending nor active.",
       "$ref": "formula.schema.json#/$defs/condition"
     },
+    "activeWhen": {
+      "description": "When the picks are active, an activation condition like `when`. While the choice applies and this is false, it is asked and its picks are saved and counted as usual, but they aren't active: picked content and inline options don't activate, and the choice's `effects` don't run. So a rule usable only while an input holds (5 Victories) keeps its picks without leaving the choice pending.",
+      "$ref": "formula.schema.json#/$defs/condition"
+    },
+    "addAs": {
+      "description": "Content choices (a query or `items`): `copy` holds each pick as a copy of the picked item instead of activating it in place. `choose` adds the copy (in `inventory` for carried types, else `features`) as `addItem` would and saves its instance ID on the pick (`entry`); removing the pick removes the copy, and `removeItem` of the copy is `picked-copy`. A trinket of your choice. Not with `activate` or `activeWhen`.",
+      "enum": ["copy"]
+    },
     "required": {
       "description": "A required choice with too few picks is reported as pending. Default true.",
       "type": "boolean"
@@ -221,6 +229,25 @@
     }
   },
   "allOf": [
+    {
+      "if": {
+        "required": ["addAs"],
+        "type": "object"
+      },
+      "then": {
+        "not": {
+          "anyOf": [
+            {
+              "required": ["activate"]
+            },
+            {
+              "required": ["activeWhen"]
+            }
+          ]
+        },
+        "type": "object"
+      }
+    },
     {
       "if": {
         "properties": {

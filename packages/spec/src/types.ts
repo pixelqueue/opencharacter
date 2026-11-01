@@ -772,6 +772,8 @@ export type ChoiceTree = Record<string, ChoicePick[]>;
 export type ChoicePick = {
   /** A qualified content ID, an inline option ID, or a value. */
   option: string | number;
+  /** A pick of an `addAs: copy` choice: the instance ID of the copy it holds, which `choose` added and removing the pick removes. */
+  entry?: InstanceId;
   choices?: ChoiceTree;
   /** Values for state keys the picked content declares (its content type's or its own), as a copy's state. The picked content sees them as `self.<key>`; a key at its default is left out. */
   state?: Record<string, Literal>;
@@ -833,6 +835,10 @@ export type Choice = {
   eligible?: Condition;
   /** When the choice applies, e.g. `self.level >= 3`. Until then it is neither pending nor active. */
   when?: Condition;
+  /** When the picks are active, an activation condition like `when`. While the choice applies and this is false, it is asked and its picks are saved and counted as usual, but they aren't active: picked content and inline options don't activate, and the choice's `effects` don't run. So a rule usable only while an input holds (5 Victories) keeps its picks without leaving the choice pending. */
+  activeWhen?: Condition;
+  /** Content choices (a query or `items`): `copy` holds each pick as a copy of the picked item instead of activating it in place. `choose` adds the copy (in `inventory` for carried types, else `features`) as `addItem` would and saves its instance ID on the pick (`entry`); removing the pick removes the copy, and `removeItem` of the copy is `picked-copy`. A trinket of your choice. Not with `activate` or `activeWhen`. */
+  addAs?: 'copy';
   /** A required choice with too few picks is reported as pending. Default true. */
   required?: boolean;
   /** Optional formula naming the option the rules recommend (an option ID or value). It sees `options`: the options the choice offers that are eligible apart from prerequisites (in `from` and its `where`, passing `eligible`, not taken in another choice of its `unique` group), in the order offered, so a choice whose options depend on the character can recommend one (`options[0]`). */
@@ -2177,6 +2183,8 @@ export type ListedChoice = {
   open: boolean;
   /** `true` when a grant presets the choice (its `choices`): `picks` are the grant's, the choice is never open, and `choose` and `unchoose` on it are `preset-choice`. */
   preset?: true;
+  /** `true` while the choice's `activeWhen` fails: its picks are kept and counted, but neither activated nor applied. */
+  inactive?: true;
 };
 
 export type CompetingOptions = {
@@ -3089,6 +3097,7 @@ export type ErrorCode =
   | 'not-owned'
   | 'duplicate-id'
   | 'standard-copy'
+  | 'picked-copy'
   | 'not-per-copy'
   | 'not-addable'
   | 'not-equippable'

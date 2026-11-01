@@ -147,6 +147,9 @@ choices:
 A pick may also keep `state`, for state keys its picked content declares: a
 once-a-day feat's `used`, as a copy's state would. A key at its default is left out. It may keep
 `grants`, the saved state of content its option grants ([below](#granted-contents-state)).
+A pick of an `addAs: copy` choice keeps `entry`, the instance ID of the copy it holds: an
+entry of `inventory` or `features` that `choose` added and that goes when the pick does
+([content.md](content.md#picks-held-as-copies)).
 
 Choices declared on an item are stored on that item's entry. Choices declared in the rules are stored in the top-level `choices`. Picked content is never also listed in `features`.
 

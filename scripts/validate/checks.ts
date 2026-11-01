@@ -1802,6 +1802,8 @@ export class PackChecker {
       const from = choice.from;
       if (choice.activate !== undefined && ('values' in from || 'options' in from))
         this.report.error(file, `${where}: activate applies only to a query or items`);
+      if (choice.addAs !== undefined && ('values' in from || 'options' in from))
+        this.report.error(file, `${where}: addAs applies only to a query or items`);
       // A computed list's values aren't known here.
       if ('values' in from) this.optionalPrefixes.add(`${key}.options.`);
       if ('items' in from) {

@@ -1,8 +1,10 @@
-# A hero with a level, three characteristics, and a ward. Being grabbed is applied content.
+# A hero with a level and Victories, three characteristics, and a ward that traits and trinkets
+# raise. Being grabbed is applied content.
 tags: [characteristic]
 
 fields:
   level: { type: integer, input: true, default: 1 }
+  victories: { type: integer, input: true, default: 0 }
   might: { type: integer, input: true, default: 0, tags: [characteristic] }
   agility: { type: integer, input: true, default: 0, tags: [characteristic] }
   reason: { type: integer, input: true, default: 0, tags: [characteristic] }
@@ -13,6 +15,8 @@ contentTypes:
     fields:
       level: { type: integer, default: 1 }
   feature: {}
+  trait: {}
+  trinket: { carried: true, equippable: true }
   condition: {}
 
 actions:
