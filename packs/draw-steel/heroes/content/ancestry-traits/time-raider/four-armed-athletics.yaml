@@ -1,0 +1,11 @@
+id: ancestry-traits.time-raider.four-armed-athletics
+type: ancestryTrait
+fields:
+  ancestry: ancestries.time-raider
+  cost: 1
+effects:
+  # An edge on Climb, Gymnastics and Swim tests (all arms in use).
+  - target: { rolls: [power-roll.test], tally: edges }
+    op: add
+    value: 1
+    when: has(params.skill) && params.skill in [@skills.climb, @skills.gymnastics, @skills.swim]

@@ -1,0 +1,15 @@
+id: perks.exploration.wood-wise
+type: perk
+fields:
+  group: exploration
+effects:
+  - target:
+      rolls:
+        - power-roll.test
+    op: rollModifier
+    value:
+      kind: reroll
+      below: 1
+      once: true
+      count: 1
+    when: has(params.skill) && itemField(params.skill, 'group') == 'exploration'

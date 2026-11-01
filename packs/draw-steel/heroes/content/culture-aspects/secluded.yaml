@@ -1,0 +1,20 @@
+id: culture-aspects.secluded
+type: cultureAspect
+fields:
+  aspect: environment
+  skillGroups:
+    - interpersonal
+    - lore
+choices:
+  - id: skill
+    from:
+      type: skill
+      where: item.group in ['interpersonal', 'lore']
+    eligible: '!(item.id in skills.known) || item.id in choice.picks'
+    recommend: filterList([@skills.read-person, @skills.brag, @skills.empathize, @skills.flirt, @skills.gamble, @skills.handle-animals, @skills.interrogate, @skills.intimidate, @skills.lead, @skills.lie, @skills.music, @skills.perform, @skills.persuade, @skills.criminal-underworld, @skills.culture, @skills.history, @skills.magic, @skills.monsters, @skills.nature, @skills.psionics, @skills.religion, @skills.rumors, @skills.society, @skills.strategy, @skills.timescape], !(x in skills.known))[0]
+    activate: false
+    effects:
+      - target: skills.known
+        op: grant
+        value:
+          formula: pick.id

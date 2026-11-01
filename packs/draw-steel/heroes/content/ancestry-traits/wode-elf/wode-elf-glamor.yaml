@@ -1,0 +1,12 @@
+id: ancestry-traits.wode-elf.wode-elf-glamor
+type: ancestryTrait
+fields:
+  ancestry: ancestries.wode-elf
+  cost: 0
+  signature: true
+effects:
+  # An edge on tests to hide and sneak.
+  - target: { rolls: [power-roll.test], tally: edges }
+    op: add
+    value: 1
+    when: has(params.skill) && params.skill in [@skills.hide, @skills.sneak]

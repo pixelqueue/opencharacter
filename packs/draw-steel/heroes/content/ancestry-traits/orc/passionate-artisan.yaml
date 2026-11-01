@@ -1,0 +1,12 @@
+id: ancestry-traits.orc.passionate-artisan
+type: ancestryTrait
+fields:
+  ancestry: ancestries.orc
+  cost: 1
+choices:
+  # Two crafting skills, known or not, for +2 on crafting project rolls that use them.
+  - id: skills
+    pick: 2
+    from: { type: skill, where: "item.group == 'crafting'" }
+    recommend: 'filterList([@skills.blacksmithing, @skills.carpentry], !(x in choice.picks))[0]'
+    activate: false

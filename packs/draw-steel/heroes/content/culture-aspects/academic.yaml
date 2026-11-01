@@ -1,0 +1,19 @@
+id: culture-aspects.academic
+type: cultureAspect
+fields:
+  aspect: upbringing
+  skillGroups:
+    - lore
+choices:
+  - id: skill
+    from:
+      type: skill
+      where: item.group in ['lore']
+    eligible: '!(item.id in skills.known) || item.id in choice.picks'
+    recommend: filterList([@skills.history, @skills.criminal-underworld, @skills.culture, @skills.magic, @skills.monsters, @skills.nature, @skills.psionics, @skills.religion, @skills.rumors, @skills.society, @skills.strategy, @skills.timescape], !(x in skills.known))[0]
+    activate: false
+    effects:
+      - target: skills.known
+        op: grant
+        value:
+          formula: pick.id

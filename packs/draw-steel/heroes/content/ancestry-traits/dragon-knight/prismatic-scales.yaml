@@ -1,0 +1,14 @@
+id: ancestry-traits.dragon-knight.prismatic-scales
+type: ancestryTrait
+fields:
+  ancestry: ancestries.dragon-knight
+  cost: 1
+choices:
+  # One of Wyrmplate's types, kept when Wyrmplate changes.
+  - id: type
+    from: { values: [acid, cold, corruption, fire, lightning, poison] }
+    recommend: >-
+      size(picksOf('ancestry-traits.dragon-knight.wyrmplate', 'type')) > 0
+        ? picksOf('ancestry-traits.dragon-knight.wyrmplate', 'type')[0] : 'fire'
+    effects:
+      - { target: { formula: "'immunity.' + pick.value" }, op: atLeast, value: level }

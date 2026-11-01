@@ -1,0 +1,10 @@
+id: ancestry-traits.revenant.bloodless
+type: ancestryTrait
+fields:
+  ancestry: ancestries.revenant
+  cost: 2
+immuneTo:
+  - { id: bleeding, items: [conditions.bleeding] }
+effects:
+  # Not bleeding even while dying.
+  - { target: stamina.dyingBleeds, op: set, value: 'false' }

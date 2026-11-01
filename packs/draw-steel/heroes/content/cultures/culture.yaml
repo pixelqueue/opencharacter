@@ -1,0 +1,78 @@
+id: cultures.culture
+type: culture
+choices:
+  - id: language
+    from:
+      type: language
+      where: item.kind != 'dead'
+    eligible: '!(item.id in languages.known) || item.id in choice.picks'
+    recommend: |-
+      filterList([ancestry.current == @ancestries.devil ? @languages.anjali
+        : ancestry.current == @ancestries.dragon-knight ? @languages.vastariax
+        : ancestry.current == @ancestries.dwarf ? @languages.zaliac
+        : ancestry.current == @ancestries.wode-elf ? @languages.yllyric
+        : ancestry.current == @ancestries.high-elf ? @languages.hyrallic
+        : ancestry.current == @ancestries.hakaan ? @languages.vhoric
+        : ancestry.current == @ancestries.human ? @languages.vaslorian
+        : ancestry.current == @ancestries.memonek ? @languages.axiomatic
+        : ancestry.current == @ancestries.orc ? @languages.kalliak
+        : ancestry.current == @ancestries.polder ? @languages.khoursirian
+        : ancestry.current == @ancestries.time-raider ? @languages.voll
+        : @languages.vaslorian, @languages.vaslorian, @languages.anjali, @languages.zaliac, @languages.yllyric, @languages.hyrallic, @languages.khoursirian, @languages.kalliak, @languages.vhoric, @languages.vastariax, @languages.axiomatic, @languages.voll, @languages.higaran, @languages.khemharic, @languages.oaxuatl, @languages.phaedran, @languages.riojan, @languages.uvalic, @languages.vaniric, @languages.filliaric, @languages.illyvric, @languages.kethaic, @languages.khelt, @languages.high-kuric, @languages.low-kuric, @languages.variac, @languages.zahariax, @languages.szetch, @languages.tholl, @languages.urollialic, @languages.mindspeech, @languages.proto-ctholl, @languages.the-first-language], !(x in languages.known))[0]
+    activate: false
+    effects:
+      - target: languages.known
+        op: grant
+        value:
+          formula: pick.id
+  - id: environment
+    from:
+      type: cultureAspect
+      where: item.aspect == 'environment'
+    recommend: |-
+      ancestry.current == @ancestries.devil ? @culture-aspects.urban
+        : ancestry.current == @ancestries.dragon-knight ? @culture-aspects.secluded
+        : ancestry.current == @ancestries.dwarf ? @culture-aspects.secluded
+        : ancestry.current == @ancestries.wode-elf ? @culture-aspects.wilderness
+        : ancestry.current == @ancestries.high-elf ? @culture-aspects.secluded
+        : ancestry.current == @ancestries.hakaan ? @culture-aspects.rural
+        : ancestry.current == @ancestries.human ? @culture-aspects.urban
+        : ancestry.current == @ancestries.memonek ? @culture-aspects.nomadic
+        : ancestry.current == @ancestries.orc ? @culture-aspects.wilderness
+        : ancestry.current == @ancestries.polder ? @culture-aspects.urban
+        : ancestry.current == @ancestries.time-raider ? @culture-aspects.nomadic
+        : @culture-aspects.urban
+  - id: organization
+    from:
+      type: cultureAspect
+      where: item.aspect == 'organization'
+    recommend: |-
+      ancestry.current == @ancestries.devil ? @culture-aspects.bureaucratic
+        : ancestry.current == @ancestries.dragon-knight ? @culture-aspects.bureaucratic
+        : ancestry.current == @ancestries.dwarf ? @culture-aspects.bureaucratic
+        : ancestry.current == @ancestries.wode-elf ? @culture-aspects.bureaucratic
+        : ancestry.current == @ancestries.high-elf ? @culture-aspects.bureaucratic
+        : ancestry.current == @ancestries.hakaan ? @culture-aspects.communal
+        : ancestry.current == @ancestries.human ? @culture-aspects.communal
+        : ancestry.current == @ancestries.memonek ? @culture-aspects.communal
+        : ancestry.current == @ancestries.orc ? @culture-aspects.communal
+        : ancestry.current == @ancestries.polder ? @culture-aspects.communal
+        : ancestry.current == @ancestries.time-raider ? @culture-aspects.communal
+        : @culture-aspects.communal
+  - id: upbringing
+    from:
+      type: cultureAspect
+      where: item.aspect == 'upbringing'
+    recommend: |-
+      ancestry.current == @ancestries.devil ? @culture-aspects.academic
+        : ancestry.current == @ancestries.dragon-knight ? @culture-aspects.martial
+        : ancestry.current == @ancestries.dwarf ? @culture-aspects.creative
+        : ancestry.current == @ancestries.wode-elf ? @culture-aspects.martial
+        : ancestry.current == @ancestries.high-elf ? @culture-aspects.martial
+        : ancestry.current == @ancestries.hakaan ? @culture-aspects.labor
+        : ancestry.current == @ancestries.human ? @culture-aspects.labor
+        : ancestry.current == @ancestries.memonek ? @culture-aspects.academic
+        : ancestry.current == @ancestries.orc ? @culture-aspects.creative
+        : ancestry.current == @ancestries.polder ? @culture-aspects.creative
+        : ancestry.current == @ancestries.time-raider ? @culture-aspects.martial
+        : @culture-aspects.labor

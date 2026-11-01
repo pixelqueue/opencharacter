@@ -1,0 +1,22 @@
+id: perks.lore.specialist
+type: perk
+fields:
+  group: lore
+prerequisites:
+  - id: lore-skill
+    when: countList(skills.known, itemField(x, 'group') == 'lore') > 0
+choices:
+  - id: skill
+    from:
+      type: skill
+      where: item.group == 'lore'
+    eligible: item.id in skills.known
+    recommend: filterList(skills.known, itemField(x, 'group') == 'lore')[0]
+effects:
+  - target:
+      rolls:
+        - power-roll.test
+      tally: edges
+    op: add
+    value: 2
+    when: has(params.skill) && params.skill in picksOf('skill')

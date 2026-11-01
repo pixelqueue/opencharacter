@@ -1,0 +1,27 @@
+id: ancestries.memonek
+type: ancestry
+fields:
+  points: 4
+grants:
+  - item: ancestry-traits.memonek.fall-lightly
+  - item: ancestry-traits.memonek.lightweight
+choices:
+  - id: trait
+    slots:
+      - 1
+      - 2
+      - 3
+      - 4
+    unique: ancestry-traits
+    uniqueScope: owner
+    when: |-
+      (slot > 1 ? sumList(picksOf('trait-1'), itemField(x, 'cost')) : 0)
+          + (slot > 2 ? sumList(picksOf('trait-2'), itemField(x, 'cost')) : 0)
+          + (slot > 3 ? sumList(picksOf('trait-3'), itemField(x, 'cost')) : 0) == slot - 1
+    from:
+      type: ancestryTrait
+      where: item.ancestry == @ancestries.memonek && !item.signature
+    eligible: item.cost <= 4 - (slot - 1)
+    recommend: filterList([@ancestry-traits.memonek.lightning-nimbleness,
+      @ancestry-traits.memonek.nonstop], itemField(x, 'cost') <= 4 - (slot - 1) && !(x in
+      picksOf('trait-1')) && !(x in picksOf('trait-2')) && !(x in picksOf('trait-3')))[0]

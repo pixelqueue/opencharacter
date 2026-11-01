@@ -1,0 +1,39 @@
+id: perks.supernatural.thingspeaker
+type: perk
+fields:
+  group: supernatural
+state:
+  overwhelmed:
+    type: boolean
+    default: false
+effects:
+  - target:
+      rolls:
+        - test.intuition
+        - test.presence
+      tally: banes
+    op: add
+    value: 1
+    when: self.overwhelmed
+  - target:
+      steps:
+        - respite
+    op: changes
+    when: self.overwhelmed
+    value:
+      changes:
+        - type: setState
+          pick: owner
+          key: overwhelmed
+          value: false
+actions:
+  - id: delve-deeper
+    available: '!self.overwhelmed'
+    steps:
+      - id: overwhelm
+        kind: changes
+        changes:
+          - type: setState
+            pick: self
+            key: overwhelmed
+            value: true

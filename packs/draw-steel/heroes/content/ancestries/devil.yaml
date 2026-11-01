@@ -1,0 +1,25 @@
+id: ancestries.devil
+type: ancestry
+fields:
+  points: 3
+grants:
+  - item: ancestry-traits.devil.silver-tongue
+choices:
+  - id: trait
+    slots:
+      - 1
+      - 2
+      - 3
+    unique: ancestry-traits
+    uniqueScope: owner
+    when: |-
+      (slot > 1 ? sumList(picksOf('trait-1'), itemField(x, 'cost')) : 0)
+          + (slot > 2 ? sumList(picksOf('trait-2'), itemField(x, 'cost')) : 0) == slot - 1
+    from:
+      type: ancestryTrait
+      where: item.ancestry == @ancestries.devil && !item.signature
+    eligible: item.cost <= 3 - (slot - 1)
+    recommend:
+      filterList([@ancestry-traits.devil.beast-legs, @ancestry-traits.devil.impressive-horns],
+      itemField(x, 'cost') <= 3 - (slot - 1) && !(x in picksOf('trait-1')) && !(x in
+      picksOf('trait-2')))[0]

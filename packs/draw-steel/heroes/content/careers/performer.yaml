@@ -1,0 +1,51 @@
+id: careers.performer
+type: career
+fields:
+  renown: 2
+choices:
+  # Music or Perform; with both known already, another interpersonal skill.
+  - id: art
+    from: { type: skill, where: "item.group == 'interpersonal'" }
+    eligible: >-
+      (item.id in [@skills.music, @skills.perform]
+          || countList([@skills.music, @skills.perform], !(x in skills.known)) == 0)
+        && (!(item.id in skills.known) || item.id in choice.picks)
+    recommend: >-
+      filterList([@skills.music, @skills.perform, @skills.brag, @skills.flirt, @skills.lead,
+        @skills.persuade, @skills.empathize, @skills.read-person, @skills.lie],
+        !(x in skills.known) || x in choice.picks)[0]
+    activate: false
+    effects:
+      - target: skills.known
+        op: grant
+        value:
+          formula: pick.id
+  - id: skills
+    pick: 2
+    from:
+      type: skill
+      where: item.group in ['interpersonal']
+    eligible: '!(item.id in skills.known) || item.id in choice.picks'
+    recommend: filterList([@skills.perform, @skills.flirt, @skills.brag, @skills.empathize, @skills.gamble, @skills.handle-animals, @skills.interrogate, @skills.intimidate, @skills.lead, @skills.lie, @skills.music, @skills.persuade, @skills.read-person], !(x in skills.known))[0]
+    activate: false
+    effects:
+      - target: skills.known
+        op: grant
+        value:
+          formula: pick.id
+  - id: perk
+    unique: perks
+    from:
+      type: perk
+      where: item.group == 'interpersonal'
+    recommend: '@perks.interpersonal.harmonizer'
+  - id: incident
+    from:
+      options:
+        - id: cursed-audience
+        - id: false-accolades
+        - id: fame-and-fortune
+        - id: songs-to-the-dead
+        - id: speechless
+        - id: tragic-lesson
+    recommend: "'cursed-audience'"

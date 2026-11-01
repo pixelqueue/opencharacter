@@ -1,0 +1,33 @@
+id: abilities.ancestry.human.determination
+type: ability
+fields:
+  usage: maneuver
+  kind: ancestry
+  distanceKind: self
+actions:
+  # End one of frightened, slowed or weakened.
+  - id: end-condition
+    tags: [ability]
+    available: conditions.frightened || conditions.slowed || conditions.weakened
+    results: [ended]
+    steps:
+      - id: condition
+        kind: choice
+        options:
+          - id: frightened
+            when: conditions.frightened
+            changes:
+              - type: removeEffect
+                applied: { where: item.id == @conditions.frightened }
+          - id: slowed
+            when: conditions.slowed
+            changes:
+              - type: removeEffect
+                applied: { where: item.id == @conditions.slowed }
+          - id: weakened
+            when: conditions.weakened
+            changes:
+              - type: removeEffect
+                applied: { where: item.id == @conditions.weakened }
+        recommend: "conditions.weakened ? 'weakened' : conditions.slowed ? 'slowed' : 'frightened'"
+      - { id: done, kind: outcome, result: "'ended'" }

@@ -1,0 +1,17 @@
+id: perks.lore.traveling-sage
+type: perk
+fields:
+  group: lore
+actions:
+  - id: work-on-the-road
+    steps:
+      - id: points
+        kind: roll
+        parts:
+          - dice: 1d10
+      - id: gain
+        kind: changes
+        changes:
+          - type: adjust
+            field: projectPoints
+            by: steps.points.total

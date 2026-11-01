@@ -1,0 +1,17 @@
+id: perks.lore.linguist
+type: perk
+fields:
+  group: lore
+choices:
+  - id: languages
+    pick: 2
+    from:
+      type: language
+    eligible: '!(item.id in languages.known) || item.id in choice.picks'
+    recommend: filterList([@languages.vaslorian, @languages.anjali, @languages.zaliac, @languages.yllyric, @languages.hyrallic, @languages.khoursirian, @languages.kalliak, @languages.vhoric, @languages.vastariax, @languages.axiomatic, @languages.voll, @languages.higaran, @languages.khemharic, @languages.phaedran], !(x in languages.known))[0]
+    activate: false
+    effects:
+      - target: languages.known
+        op: grant
+        value:
+          formula: pick.id

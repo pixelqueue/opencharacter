@@ -1,0 +1,10 @@
+id: ancestry-traits.memonek.useful-emotion
+type: ancestryTrait
+fields:
+  ancestry: ancestries.memonek
+  cost: 1
+effects:
+  # 1 surge at the start of any combat.
+  - target: { steps: [combat.start] }
+    op: changes
+    value: { changes: [{ type: adjust, field: surges.current, by: 1 }] }

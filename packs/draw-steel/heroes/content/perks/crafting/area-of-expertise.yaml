@@ -1,0 +1,21 @@
+id: perks.crafting.area-of-expertise
+type: perk
+fields:
+  group: crafting
+prerequisites:
+  - id: crafting-skill
+    when: countList(skills.known, itemField(x, 'group') == 'crafting') > 0
+choices:
+  - id: skill
+    from:
+      type: skill
+      where: item.group == 'crafting'
+    eligible: item.id in skills.known
+    recommend: filterList(skills.known, itemField(x, 'group') == 'crafting')[0]
+effects:
+  - target:
+      rolls:
+        - power-roll.test
+    op: atLeast
+    value: 12
+    when: has(params.skill) && params.skill in picksOf('skill') && params.difficulty != 'hard'

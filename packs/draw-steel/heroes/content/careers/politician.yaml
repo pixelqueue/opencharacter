@@ -1,0 +1,49 @@
+id: careers.politician
+type: career
+fields:
+  languages: 1
+  renown: 1
+  wealth: 1
+choices:
+  - id: skills
+    pick: 2
+    from:
+      type: skill
+      where: item.group in ['interpersonal']
+    eligible: '!(item.id in skills.known) || item.id in choice.picks'
+    recommend: filterList([@skills.lead, @skills.lie, @skills.brag, @skills.empathize, @skills.flirt, @skills.gamble, @skills.handle-animals, @skills.interrogate, @skills.intimidate, @skills.music, @skills.perform, @skills.persuade, @skills.read-person], !(x in skills.known))[0]
+    activate: false
+    effects:
+      - target: skills.known
+        op: grant
+        value:
+          formula: pick.id
+  - id: languages
+    pick: 1
+    from:
+      type: language
+      where: item.kind != 'dead'
+    eligible: '!(item.id in languages.known) || item.id in choice.picks'
+    recommend: filterList([@languages.vaslorian, @languages.anjali, @languages.zaliac, @languages.yllyric, @languages.hyrallic, @languages.khoursirian, @languages.kalliak, @languages.vhoric, @languages.vastariax, @languages.axiomatic, @languages.voll, @languages.higaran, @languages.khemharic, @languages.oaxuatl, @languages.phaedran, @languages.riojan, @languages.uvalic, @languages.vaniric, @languages.filliaric, @languages.illyvric, @languages.kethaic, @languages.khelt, @languages.high-kuric, @languages.low-kuric, @languages.variac, @languages.zahariax, @languages.szetch, @languages.tholl, @languages.urollialic, @languages.mindspeech, @languages.proto-ctholl, @languages.the-first-language], !(x in languages.known))[0]
+    activate: false
+    effects:
+      - target: languages.known
+        op: grant
+        value:
+          formula: pick.id
+  - id: perk
+    unique: perks
+    from:
+      type: perk
+      where: item.group == 'interpersonal'
+    recommend: '@perks.interpersonal.engrossing-monologue'
+  - id: incident
+    from:
+      options:
+        - id: diplomatic-immunity
+        - id: insurrectionist
+        - id: respected-consul
+        - id: right-side-of-history
+        - id: self-serving
+        - id: unbound
+    recommend: "'diplomatic-immunity'"

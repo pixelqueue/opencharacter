@@ -1,0 +1,13 @@
+id: ancestry-traits.human.perseverance
+type: ancestryTrait
+fields:
+  ancestry: ancestries.human
+  cost: 1
+effects:
+  # An edge on tests using Endurance.
+  - target: { rolls: [power-roll.test], tally: edges }
+    op: add
+    value: 1
+    when: has(params.skill) && params.skill == @skills.endurance
+  # Slowed: speed 3 instead of 2.
+  - { target: speed.slowedMax, op: atLeast, value: 3 }

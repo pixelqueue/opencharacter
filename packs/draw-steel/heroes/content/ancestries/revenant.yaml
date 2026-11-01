@@ -1,0 +1,36 @@
+id: ancestries.revenant
+type: ancestry
+fields:
+  points: 2
+grants:
+  - item: ancestry-traits.revenant.former-life
+  - item: ancestry-traits.revenant.tough-but-withered
+choices:
+  # Former Life: the ancestry before death, for its size and its purchased traits (Previous Life).
+  - id: former-life
+    from: { type: ancestry, where: item.id != @ancestries.revenant }
+    recommend: '@ancestries.human'
+    activate: false
+    effects:
+      - { target: size.base, op: set, value: "itemField(pick.id, 'size', '1m')" }
+  # 2 points, 3 if the former size is 1S. Previous Life: a purchased trait of the former
+  # ancestry at its cost (several 1-point ones, each different).
+  - id: trait
+    slots: [1, 2, 3]
+    unique: ancestry-traits
+    uniqueScope: owner
+    when: >-
+      (slot > 1 ? sumList(picksOf('trait-1'), itemField(x, 'cost')) : 0)
+        + (slot > 2 ? sumList(picksOf('trait-2'), itemField(x, 'cost')) : 0) == slot - 1
+        && slot <= 2 + (size(picksOf('former-life')) > 0
+          && itemField(picksOf('former-life')[0], 'size', '1m') == '1s' ? 1 : 0)
+    from: { type: ancestryTrait, where: '!item.signature' }
+    eligible: >-
+      (item.ancestry == @ancestries.revenant || item.ancestry in picksOf('former-life'))
+        && item.cost <= 2 + (size(picksOf('former-life')) > 0
+          && itemField(picksOf('former-life')[0], 'size', '1m') == '1s' ? 1 : 0) - (slot - 1)
+    recommend: >-
+      filterList([@ancestry-traits.revenant.bloodless, @ancestry-traits.revenant.undead-influence],
+        itemField(x, 'cost') <= 2 + (size(picksOf('former-life')) > 0
+          && itemField(picksOf('former-life')[0], 'size', '1m') == '1s' ? 1 : 0) - (slot - 1)
+        && !(x in picksOf('trait-1')) && !(x in picksOf('trait-2')))[0]

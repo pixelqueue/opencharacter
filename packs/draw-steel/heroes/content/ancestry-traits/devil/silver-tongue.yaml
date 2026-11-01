@@ -1,0 +1,16 @@
+id: ancestry-traits.devil.silver-tongue
+type: ancestryTrait
+fields:
+  ancestry: ancestries.devil
+  cost: 0
+  signature: true
+choices:
+  - id: skill
+    from: { type: skill, where: "item.group == 'interpersonal'" }
+    eligible: '!(item.id in skills.known) || item.id in choice.picks'
+    recommend: >-
+      filterList([@skills.persuade, @skills.lie, @skills.read-person, @skills.flirt],
+        !(x in skills.known) || x in choice.picks)[0]
+    activate: false
+    effects:
+      - { target: skills.known, op: grant, value: { formula: pick.id } }

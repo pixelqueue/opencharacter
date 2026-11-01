@@ -1,0 +1,59 @@
+id: careers.soldier
+type: career
+fields:
+  languages: 2
+  renown: 1
+choices:
+  - id: exploration
+    from:
+      type: skill
+      where: item.group in ['exploration']
+    eligible: '!(item.id in skills.known) || item.id in choice.picks'
+    recommend: filterList([@skills.endurance, @skills.climb, @skills.drive, @skills.gymnastics, @skills.heal, @skills.jump, @skills.lift, @skills.navigate, @skills.ride, @skills.swim], !(x in skills.known))[0]
+    activate: false
+    effects:
+      - target: skills.known
+        op: grant
+        value:
+          formula: pick.id
+  - id: intrigue
+    from:
+      type: skill
+      where: item.group in ['intrigue']
+    eligible: '!(item.id in skills.known) || item.id in choice.picks'
+    recommend: filterList([@skills.alertness, @skills.conceal-object, @skills.disguise, @skills.eavesdrop, @skills.escape-artist, @skills.hide, @skills.pick-lock, @skills.pick-pocket, @skills.sabotage, @skills.search, @skills.sneak, @skills.track], !(x in skills.known))[0]
+    activate: false
+    effects:
+      - target: skills.known
+        op: grant
+        value:
+          formula: pick.id
+  - id: languages
+    pick: 2
+    from:
+      type: language
+      where: item.kind != 'dead'
+    eligible: '!(item.id in languages.known) || item.id in choice.picks'
+    recommend: filterList([@languages.vaslorian, @languages.anjali, @languages.zaliac, @languages.yllyric, @languages.hyrallic, @languages.khoursirian, @languages.kalliak, @languages.vhoric, @languages.vastariax, @languages.axiomatic, @languages.voll, @languages.higaran, @languages.khemharic, @languages.oaxuatl, @languages.phaedran, @languages.riojan, @languages.uvalic, @languages.vaniric, @languages.filliaric, @languages.illyvric, @languages.kethaic, @languages.khelt, @languages.high-kuric, @languages.low-kuric, @languages.variac, @languages.zahariax, @languages.szetch, @languages.tholl, @languages.urollialic, @languages.mindspeech, @languages.proto-ctholl, @languages.the-first-language], !(x in languages.known))[0]
+    activate: false
+    effects:
+      - target: languages.known
+        op: grant
+        value:
+          formula: pick.id
+  - id: perk
+    unique: perks
+    from:
+      type: perk
+      where: item.group == 'exploration'
+    recommend: '@perks.exploration.teamwork'
+  - id: incident
+    from:
+      options:
+        - id: dishonorable-discharge
+        - id: out-of-retirement
+        - id: peace-through-healing
+        - id: sole-survivor
+        - id: stolen-valor
+        - id: vow-of-sacrifice
+    recommend: "'dishonorable-discharge'"

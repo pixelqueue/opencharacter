@@ -1,0 +1,34 @@
+# Ancestry traits: the state a few traits keep, and the triggered actions that answer incoming
+# damage, offered when the damage arrives.
+fields:
+  # The traits that offer a choice on incoming damage; each grants itself here.
+  ancestry.traits: { type: set, of: ancestryTrait }
+  # Remember Your Oath: recited, until the start of the next turn.
+  dragonKnight.oath: { type: boolean, input: true, default: false }
+  # Bloodfire Rush: damage taken this round.
+  orc.bloodfireRush: { type: boolean, input: true, default: false }
+  # Doomsight: doomed, until the end of the encounter.
+  hakaan.doomed: { type: boolean, input: true, default: false }
+
+situational:
+  # Draconian Guard: a triggered action that reduces a strike's damage by the level.
+  - id: draconianGuard
+    type: boolean
+    default: false
+    incoming: { fields: [stamina.current], tags: [damage] }
+    available: '@ancestry-traits.dragon-knight.draconian-guard in ancestry.traits'
+    effects:
+      - target: { incoming: { fields: [stamina.current], tags: [damage] } }
+        op: add
+        value: level
+  # Resist the Unnatural: a triggered action that halves damage that isn't untyped.
+  - id: resistTheUnnatural
+    type: boolean
+    default: false
+    incoming: { fields: [stamina.current], tags: [damage] }
+    available: '@ancestry-traits.human.resist-the-unnatural in ancestry.traits'
+    effects:
+      - target: { incoming: { fields: [stamina.current], tags: [damage] } }
+        op: multiply
+        value: 0.5
+        when: "countList(keysOf('damageType'), 'damage.' + x in incoming.tags) > 0"

@@ -1,0 +1,13 @@
+id: ancestry-traits.dragon-knight.wyrmplate
+type: ancestryTrait
+fields:
+  ancestry: ancestries.dragon-knight
+  cost: 0
+  signature: true
+choices:
+  # Changed when you finish a respite.
+  - id: type
+    from: { values: [acid, cold, corruption, fire, lightning, poison] }
+    recommend: "'fire'"
+    effects:
+      - { target: { formula: "'immunity.' + pick.value" }, op: atLeast, value: level }

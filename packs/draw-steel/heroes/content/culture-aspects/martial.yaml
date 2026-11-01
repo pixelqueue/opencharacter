@@ -1,0 +1,38 @@
+id: culture-aspects.martial
+type: cultureAspect
+fields:
+  aspect: upbringing
+  skillGroups: []
+  skills:
+    - skills.blacksmithing
+    - skills.fletching
+    - skills.climb
+    - skills.endurance
+    - skills.ride
+    - skills.intimidate
+    - skills.alertness
+    - skills.track
+    - skills.monsters
+    - skills.strategy
+choices:
+  - id: skill
+    from:
+      items:
+        - skills.blacksmithing
+        - skills.fletching
+        - skills.climb
+        - skills.endurance
+        - skills.ride
+        - skills.intimidate
+        - skills.alertness
+        - skills.track
+        - skills.monsters
+        - skills.strategy
+    eligible: '!(item.id in skills.known) || item.id in choice.picks'
+    recommend: filterList([@skills.intimidate, @skills.blacksmithing, @skills.fletching, @skills.climb, @skills.endurance, @skills.ride, @skills.alertness, @skills.track, @skills.monsters, @skills.strategy], !(x in skills.known))[0]
+    activate: false
+    effects:
+      - target: skills.known
+        op: grant
+        value:
+          formula: pick.id

@@ -1,0 +1,17 @@
+id: perks.crafting.traveling-artisan
+type: perk
+fields:
+  group: crafting
+actions:
+  - id: work-on-the-road
+    steps:
+      - id: points
+        kind: roll
+        parts:
+          - dice: 1d10
+      - id: gain
+        kind: changes
+        changes:
+          - type: adjust
+            field: projectPoints
+            by: steps.points.total

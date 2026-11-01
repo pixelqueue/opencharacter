@@ -1,0 +1,24 @@
+id: perks.exploration.brawny
+type: perk
+fields:
+  group: exploration
+actions:
+  - id: push-through
+    tags:
+      - stamina-loss
+    steps:
+      - id: cost
+        kind: roll
+        tags:
+          - stamina-loss
+        parts:
+          - dice: 1d6
+          - field: "'level'"
+      - id: lose
+        kind: changes
+        changes:
+          - type: adjust
+            field: stamina.current
+            by: -steps.cost.total
+            tags:
+              - stamina-loss

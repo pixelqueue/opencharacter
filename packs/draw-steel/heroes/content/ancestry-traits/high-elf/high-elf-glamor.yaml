@@ -1,0 +1,12 @@
+id: ancestry-traits.high-elf.high-elf-glamor
+type: ancestryTrait
+fields:
+  ancestry: ancestries.high-elf
+  cost: 0
+  signature: true
+effects:
+  # An edge on Presence tests using Flirt or Persuade.
+  - target: { rolls: [test.presence], tally: edges }
+    op: add
+    value: 1
+    when: has(params.skill) && params.skill in [@skills.flirt, @skills.persuade]

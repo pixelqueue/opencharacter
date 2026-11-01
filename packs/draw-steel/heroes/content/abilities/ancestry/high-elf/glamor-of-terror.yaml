@@ -1,0 +1,17 @@
+id: abilities.ancestry.high-elf.glamor-of-terror
+type: ability
+tags: [kw.magic]
+fields:
+  usage: triggered
+  kind: ancestry
+  distanceKind: special
+effects:
+  # The creature that damaged you is frightened of you until the end of their next turn.
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    when: action.item.id == item.id
+    value:
+      changes:
+        - type: applyEffect
+          source: "'conditions.frightened'"
+          state: { duration: "'eot'", by: character.id }

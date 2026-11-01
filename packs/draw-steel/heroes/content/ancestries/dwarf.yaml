@@ -1,0 +1,25 @@
+id: ancestries.dwarf
+type: ancestry
+fields:
+  points: 3
+grants:
+  - item: ancestry-traits.dwarf.runic-carving
+choices:
+  - id: trait
+    slots:
+      - 1
+      - 2
+      - 3
+    unique: ancestry-traits
+    uniqueScope: owner
+    when: |-
+      (slot > 1 ? sumList(picksOf('trait-1'), itemField(x, 'cost')) : 0)
+          + (slot > 2 ? sumList(picksOf('trait-2'), itemField(x, 'cost')) : 0) == slot - 1
+    from:
+      type: ancestryTrait
+      where: item.ancestry == @ancestries.dwarf && !item.signature
+    eligible: item.cost <= 3 - (slot - 1)
+    recommend:
+      filterList([@ancestry-traits.dwarf.grounded, @ancestry-traits.dwarf.spark-off-your-skin],
+      itemField(x, 'cost') <= 3 - (slot - 1) && !(x in picksOf('trait-1')) && !(x in
+      picksOf('trait-2')))[0]

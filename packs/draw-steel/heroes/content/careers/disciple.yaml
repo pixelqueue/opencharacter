@@ -1,0 +1,41 @@
+id: careers.disciple
+type: career
+fields:
+  skills:
+    - skills.religion
+  projectPoints: 240
+effects:
+  - target: skills.known
+    op: grant
+    value:
+      item: skills.religion
+choices:
+  - id: skills
+    pick: 2
+    from:
+      type: skill
+      where: item.group in ['lore']
+    eligible: '!(item.id in skills.known) || item.id in choice.picks'
+    recommend: filterList([@skills.culture, @skills.magic, @skills.criminal-underworld, @skills.history, @skills.monsters, @skills.nature, @skills.psionics, @skills.religion, @skills.rumors, @skills.society, @skills.strategy, @skills.timescape], !(x in skills.known))[0]
+    activate: false
+    effects:
+      - target: skills.known
+        op: grant
+        value:
+          formula: pick.id
+  - id: perk
+    unique: perks
+    from:
+      type: perk
+      where: item.group == 'supernatural'
+    recommend: '@perks.supernatural.ritualist'
+  - id: incident
+    from:
+      options:
+        - id: angels-advocate
+        - id: dogma
+        - id: freedom-to-worship
+        - id: lost-faith
+        - id: near-death-experience
+        - id: taxing-times
+    recommend: "'angels-advocate'"

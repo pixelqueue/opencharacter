@@ -1,0 +1,20 @@
+id: abilities.ancestry.dragon-knight.remember-your-oath
+type: ability
+fields:
+  usage: maneuver
+  kind: ancestry
+  distanceKind: self
+effects:
+  - target: { steps: [ability.after], from: self }
+    op: changes
+    when: action.item.id == item.id
+    value: { changes: [{ type: set, field: dragonKnight.oath, value: 'true' }] }
+  # Until the start of your next turn, a saving throw succeeds on 4 or higher.
+  - target: { rolls: [saving-throw] }
+    op: add
+    value: 2
+    when: dragonKnight.oath
+    stackKey: save-threshold
+  - target: { steps: [turn.start, combat.end] }
+    op: changes
+    value: { changes: [{ type: set, field: dragonKnight.oath, value: 'false' }] }

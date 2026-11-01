@@ -1,0 +1,65 @@
+id: careers.beggar
+type: career
+fields:
+  skills:
+    - skills.rumors
+  languages: 2
+effects:
+  - target: skills.known
+    op: grant
+    value:
+      item: skills.rumors
+choices:
+  - id: exploration
+    from:
+      type: skill
+      where: item.group in ['exploration']
+    eligible: '!(item.id in skills.known) || item.id in choice.picks'
+    recommend: filterList([@skills.endurance, @skills.climb, @skills.drive, @skills.gymnastics, @skills.heal, @skills.jump, @skills.lift, @skills.navigate, @skills.ride, @skills.swim], !(x in skills.known))[0]
+    activate: false
+    effects:
+      - target: skills.known
+        op: grant
+        value:
+          formula: pick.id
+  - id: interpersonal
+    from:
+      type: skill
+      where: item.group in ['interpersonal']
+    eligible: '!(item.id in skills.known) || item.id in choice.picks'
+    recommend: filterList([@skills.empathize, @skills.brag, @skills.flirt, @skills.gamble, @skills.handle-animals, @skills.interrogate, @skills.intimidate, @skills.lead, @skills.lie, @skills.music, @skills.perform, @skills.persuade, @skills.read-person], !(x in skills.known))[0]
+    activate: false
+    effects:
+      - target: skills.known
+        op: grant
+        value:
+          formula: pick.id
+  - id: languages
+    pick: 2
+    from:
+      type: language
+      where: item.kind != 'dead'
+    eligible: '!(item.id in languages.known) || item.id in choice.picks'
+    recommend: filterList([@languages.vaslorian, @languages.anjali, @languages.zaliac, @languages.yllyric, @languages.hyrallic, @languages.khoursirian, @languages.kalliak, @languages.vhoric, @languages.vastariax, @languages.axiomatic, @languages.voll, @languages.higaran, @languages.khemharic, @languages.oaxuatl, @languages.phaedran, @languages.riojan, @languages.uvalic, @languages.vaniric, @languages.filliaric, @languages.illyvric, @languages.kethaic, @languages.khelt, @languages.high-kuric, @languages.low-kuric, @languages.variac, @languages.zahariax, @languages.szetch, @languages.tholl, @languages.urollialic, @languages.mindspeech, @languages.proto-ctholl, @languages.the-first-language], !(x in languages.known))[0]
+    activate: false
+    effects:
+      - target: languages.known
+        op: grant
+        value:
+          formula: pick.id
+  - id: perk
+    unique: perks
+    from:
+      type: perk
+      where: item.group == 'interpersonal'
+    recommend: '@perks.interpersonal.spot-the-tell'
+  - id: incident
+    from:
+      options:
+        - id: champion
+        - id: night-terrors
+        - id: one-good-deed
+        - id: precious
+        - id: strange-charity
+        - id: witness
+    recommend: "'champion'"

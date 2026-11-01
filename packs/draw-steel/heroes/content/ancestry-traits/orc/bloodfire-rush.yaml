@@ -1,0 +1,17 @@
+id: ancestry-traits.orc.bloodfire-rush
+type: ancestryTrait
+fields:
+  ancestry: ancestries.orc
+  cost: 1
+followUps:
+  # The first damage in a combat round: +2 speed until the end of the round.
+  - id: rush
+    on: { field: stamina.current, tags: [damage], once: true }
+    when: combat.active && !orc.bloodfireRush && change.taken < 0
+    changes:
+      - { type: set, field: orc.bloodfireRush, value: 'true' }
+effects:
+  - { target: speed, op: add, value: 2, when: orc.bloodfireRush }
+  - target: { steps: [round.start, combat.end] }
+    op: changes
+    value: { changes: [{ type: set, field: orc.bloodfireRush, value: 'false' }] }

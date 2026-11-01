@@ -1,0 +1,31 @@
+id: abilities.ancestry.devil.glowing-eyes
+type: ability
+fields:
+  usage: triggered
+  kind: ancestry
+  distanceKind: special
+actions:
+  # Psychic damage equal to 1d10 + your level to the creature that damaged you.
+  - id: retaliate
+    tags: [ability]
+    available: '!stamina.dead'
+    participants:
+      target: { min: 1, max: 1 }
+    results: [done]
+    steps:
+      - id: damage
+        kind: roll
+        tags: [damage, damage.psychic]
+        parts:
+          - { dice: 1d10, tags: [damage.psychic] }
+          - { field: "'level'", tags: [damage.psychic] }
+      - id: hit
+        kind: changes
+        each: target
+        to: target
+        changes:
+          - type: adjust
+            field: stamina.current
+            by: -steps.damage.total
+            tags: [damage, damage.psychic]
+      - { id: done, kind: outcome, result: "'done'", data: { damage: steps.damage.total } }

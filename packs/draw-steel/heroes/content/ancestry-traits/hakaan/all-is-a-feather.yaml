@@ -1,0 +1,11 @@
+id: ancestry-traits.hakaan.all-is-a-feather
+type: ancestryTrait
+fields:
+  ancestry: ancestries.hakaan
+  cost: 1
+effects:
+  # An edge on tests to lift and haul heavy objects (the Lift skill).
+  - target: { rolls: [power-roll.test], tally: edges }
+    op: add
+    value: 1
+    when: has(params.skill) && params.skill == @skills.lift
