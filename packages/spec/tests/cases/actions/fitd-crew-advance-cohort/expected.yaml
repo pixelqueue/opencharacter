@@ -1,0 +1,30 @@
+# The new gang costs the advance's two boxes: no allocation.
+status: finished
+outcome:
+  result: upgrades
+  data:
+    stash: 2
+proposedChanges:
+  - to: self
+    step: advance
+    change: { type: adjust, field: fitd-crew:advances.upgrades, by: 1 }
+  - to: self
+    step: cohort
+    change:
+      type: addItem
+      entry: { id: cohorts-gang-1, item: fitd-crew:cohorts.gang, state: { gangType: rooks } }
+  - to: self
+    step: newEdge
+    change:
+      type: choose
+      path: { entry: cohorts-gang-1, choice: [edges] }
+      option: fitd-crew:cohort-traits.loyal
+  - to: self
+    step: newFlaw
+    change:
+      type: choose
+      path: { entry: cohorts-gang-1, choice: [flaws] }
+      option: fitd-crew:cohort-traits.wild
+  - to: self
+    step: clear
+    change: { type: set, field: fitd-crew:xp.current, value: 0 }

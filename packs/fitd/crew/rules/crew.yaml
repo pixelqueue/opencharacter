@@ -87,15 +87,65 @@ actions:
           pending:
             path: { choice: "['crew-type', picksOf('crew-type')[0], 'special-ability']" }
         recommend: options[0]
+      # The two boxes buy upgrades or a new cohort (a cohort costs two).
+      - id: spend
+        kind: choice
+        when: "steps.advance.picked == 'upgrades'"
+        options:
+          - id: boxes
+          - id: gang
+          - id: expert
+        recommend: "'boxes'"
       - id: upgrades
         kind: allocate
-        when: "steps.advance.picked == 'upgrades'"
+        when: "steps.advance.picked == 'upgrades' && steps.spend.picked == 'boxes'"
         fields:
           type: field
           where: >-
             'upgrade' in item.tags || (size(picksOf('rules', 'crew-type')) == 0 ? 'upgrade.special' in item.tags
               : item.id in itemField(picksOf('rules', 'crew-type')[0], 'upgrades'))
         budget: 2
+      - id: gangType
+        kind: choice
+        when: "has(steps.spend) && steps.spend.picked == 'gang'"
+        options: { values: { formula: "keysOf('gang')" } }
+        recommend: options[0]
+      - id: cohort
+        kind: changes
+        when: "has(steps.spend) && steps.spend.picked != 'boxes'"
+        changes:
+          - type: addItem
+            when: "steps.spend.picked == 'gang'"
+            entry:
+              item: "'cohorts.gang'"
+              state: { gangType: steps.gangType.picked }
+          - type: addItem
+            when: "steps.spend.picked == 'expert'"
+            entry: { item: "'cohorts.expert'" }
+      - id: newEdge
+        kind: choice
+        when: "has(steps.spend) && steps.spend.picked != 'boxes'"
+        options:
+          content: { type: cohortTrait, where: "'edge' in item.tags && 'cohort' in item.tags" }
+        recommend: options[0]
+        changes:
+          - {
+              type: choose,
+              path: { entry: { formula: 'steps.cohort.added[0]' }, choice: [edges] },
+              option: picked.id,
+            }
+      - id: newFlaw
+        kind: choice
+        when: "has(steps.spend) && steps.spend.picked != 'boxes'"
+        options:
+          content: { type: cohortTrait, where: "'flaw' in item.tags && 'cohort' in item.tags" }
+        recommend: options[0]
+        changes:
+          - {
+              type: choose,
+              path: { entry: { formula: 'steps.cohort.added[0]' }, choice: [flaws] },
+              option: picked.id,
+            }
       - id: clear
         kind: changes
         changes:
