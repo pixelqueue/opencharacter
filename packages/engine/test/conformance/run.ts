@@ -79,6 +79,7 @@ const expectedKeys: Record<string, string[]> = {
     'competing',
     'valueErrors',
     'copies',
+    'activationValues',
     'copyNames',
     'templated',
     'standardCopies',
@@ -278,6 +279,8 @@ function run(dir: string): void {
     if (expected.actions) expect(sheet.actions).toEqual(expected.actions);
     if (expected.situational) expect(sheet.situational).toEqual(expected.situational);
     if (expected.copies) expect(sheet.copies).toEqual(expected.copies);
+    if (expected.activationValues)
+      expect(sheet.activationValues).toEqual(expected.activationValues);
     if (expected.copyNames) expect(sheet.copyNames).toEqual(expected.copyNames);
     if (expected.templated) expect(sheet.templated).toEqual(expected.templated);
     if (expected.standardCopies) expect(sheet.standardCopies).toEqual(expected.standardCopies);
@@ -295,10 +298,10 @@ function run(dir: string): void {
       ).toEqual(expected.valueErrors);
     type Competing = {
       field: string;
+      fields?: string[];
       op?: string;
       stackKey?: string;
       options?: unknown[];
-      fields?: string[];
       recommended?: string;
       applied?: string;
     };
@@ -310,10 +313,10 @@ function run(dir: string): void {
       want.forEach((w, i) => {
         checkKeys(`competing ${field}`, w, [
           'field',
+          'fields',
           'op',
           'stackKey',
           'options',
-          'fields',
           'recommended',
           'applied',
         ]);

@@ -344,6 +344,10 @@ describe('pnpm validate', () => {
       ],
       ['a block that does not parse', /"weapons.mace.block": the block doesn't parse as ICU/],
       [
+        "a named text's argument its type doesn't give",
+        /"weapons.mace.texts.inscription": the text's argument \{self_bogus\} is nothing its type gives/,
+      ],
+      [
         'a tag test naming no declared tag',
         /"types.weapon.block": the block's argument \{tag_nope\} is nothing its type gives/,
       ],

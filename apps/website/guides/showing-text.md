@@ -95,7 +95,13 @@ text.value('5e-srd-5.1:spell', 'school', 'evocation'); // 'Evocation'
   known that content keeps templates on (a longer range) has a `templated` entry with its
   `activation` (its index in `activations`) instead of `entry`: pass its
   `{ templates, tags, fields }` the same way. The same spell known twice (through two classes) is
-  two activations, each listed with its own templates.
+  two activations, each listed with its own templates. Picked or granted content with computed
+  values (an ability's damage for this hero) passes `computed` from its `activationValues`
+  entry.
+- **Descriptions and named texts take a block's arguments**, so `{self_damage}` in an ability's
+  description prints this hero's damage and `{self_char_name}` names the holder's
+  characteristic. `contentCard` fills the description; `contentText(item, text?, copy?)` gives
+  the description, or a named text, alone and filled.
 - **Give the bundle `contentTypes`** (`ruleset.contentTypes`), or pass the item's type as the
   third argument: a field the item leaves out then reads as its declared default (a Fate stunt's
   `action: any`), as the rules read it.

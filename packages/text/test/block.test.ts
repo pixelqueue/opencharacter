@@ -290,3 +290,51 @@ describe('Forged in the Dark, Fate, MÖRK BORG and Mothership', () => {
     );
   });
 });
+
+describe('item text with computed values', () => {
+  const text = createText({
+    languages: ['en'],
+    spec: { en: {} },
+    packs: {
+      en: {
+        p: {
+          'fields.presence.name': 'Presence',
+          'fields.intuition.name': 'Intuition',
+          'abilities.strike.name': 'Strike',
+          'abilities.strike.description': '{self_damage} damage; potency {self_potency}.',
+          'abilities.strike.texts.effect': 'Push {self_push}.',
+          'features.grace.name': 'Grace',
+          'features.grace.description':
+            'Add your {self_char_name} score.{has_self_char, select, true {} other { (Your characteristic.)}}',
+          'features.odd.name': 'Odd',
+          'features.odd.description': 'Literal {braces',
+        },
+      },
+    },
+  });
+  const strike = { id: 'p:abilities.strike', type: 'p:ability', fields: { damage: 6 } };
+  const grace = { id: 'p:features.grace', type: 'p:feature' };
+
+  it("fills a description and a named text from the content's computed values", () => {
+    const values = { damage: 11, potency: 2, push: 3 };
+    expect(text.contentText(strike, undefined, { computed: values })).toBe('11 damage; potency 2.');
+    expect(text.contentText(strike, 'effect', { computed: values })).toBe('Push 3.');
+    expect(text.contentCard(strike, { computed: values })).toBe('11 damage; potency 2.');
+  });
+
+  it("names the holder's characteristic, a field ID, by its name", () => {
+    expect(text.contentText(grace, undefined, { computed: { char: 'p:presence' } })).toBe(
+      'Add your Presence score.',
+    );
+    expect(text.contentText(grace, undefined, { computed: { char: 'p:intuition' } })).toBe(
+      'Add your Intuition score.',
+    );
+    // Without values an argument is empty, and a `has_` test words it otherwise.
+    expect(text.contentText(grace)).toBe('Add your  score. (Your characteristic.)');
+  });
+
+  it('shows a description that does not format as written', () => {
+    expect(text.contentText({ id: 'p:features.odd', type: 'p:feature' })).toBe('Literal {braces');
+    expect(text.contentText({ id: 'p:features.none', type: 'p:feature' })).toBeUndefined();
+  });
+});

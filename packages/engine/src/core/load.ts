@@ -67,7 +67,6 @@ const MAX_EXTENDS = 16;
 /** What a template gives only on a copy, so it can't be kept on content without one. */
 const COPY_ONLY = [
   'state',
-  'computed',
   'effects',
   'followUps',
   'actions',
@@ -272,8 +271,8 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
   };
 
   // 2. Merge the rules. Names first, so references can resolve across packs.
-  const spanPacks = new Map<string, string>();
   const tags = new Set<string>();
+  const spanPacks = new Map<string, string>();
   for (const pack of byId.values()) {
     const pid = pack.manifest.id;
     const r = pack.rules;
@@ -303,9 +302,9 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
     for (const name of r.rollTallies ?? [])
       ruleset.rules.tallies[`${pid}:${name}`] = { name, pack: pid };
     for (const [id, set] of Object.entries(r.resultBands ?? {}))
+      ruleset.rules.bands[`${pid}:${id}`] = { ...bandSet(set), pack: pid };
     // A spanning key's score field resolves in the pack that declared the key.
     for (const key of Object.keys(r.settings?.stacking?.keys ?? {})) spanPacks.set(key, pid);
-      ruleset.rules.bands[`${pid}:${id}`] = { ...bandSet(set), pack: pid };
     for (const [key, value] of Object.entries(r.settings ?? {})) {
       const settings = ruleset.rules.settings as Record<string, unknown>;
       if (key in settings)
@@ -807,6 +806,7 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
         ? { overflow: def.overflow.map((o) => ({ ...o, into: q.field(o.into, def.pack) })) }
         : {}),
     };
+  }
   const stacking = ruleset.rules.settings.stacking;
   if (stacking?.keys)
     stacking.keys = Object.fromEntries(
@@ -817,7 +817,6 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
           : decl,
       ]),
     );
-  }
   // A link slot's fields are checked against its pack only when that pack is loaded too.
   for (const [qid, link] of Object.entries(ruleset.rules.links)) {
     if (link.expects === undefined || !byId.has(link.expects)) continue;

@@ -749,7 +749,12 @@ export class PackChecker {
     this.blocks.set(`${owner}.block`, { type, def, own, ...(item ? { item } : {}) });
     this.optionalKeys.add(`${owner}.headline`);
     this.blocks.set(`${owner}.headline`, { type, def, own, ...(item ? { item } : {}) });
-    if (item) return;
+    if (item) {
+      // An item's description and named texts take a block's arguments.
+      for (const key of ['description', ...(def.texts ?? []).map((t) => `texts.${t}`)])
+        this.blocks.set(`${owner}.${key}`, { type, def, own, item });
+      return;
+    }
     for (const of of ['fields', 'state'] as const)
       for (const [name, decl] of Object.entries(def[of] ?? {}))
         if (decl.type === 'enum')
@@ -762,7 +767,11 @@ export class PackChecker {
   private block(file: string, key: string, text: string, names?: Map<string, string>): void {
     const scope = this.blocks.get(key);
     if (!scope) return;
-    const what = key.endsWith('.headline') ? 'headline piece' : 'block';
+    const what = key.endsWith('.headline')
+      ? 'headline piece'
+      : key.endsWith('.block')
+        ? 'block'
+        : 'text';
     const parsed = messageArguments(text);
     if (!parsed.ok) {
       this.report.error(file, `"${key}": the ${what} doesn't parse as ICU (${parsed.error})`);
@@ -867,7 +876,13 @@ export class PackChecker {
       for (const [name, value] of Object.entries(item.fields ?? {}))
         if (typeof value === 'number' || typeof value === 'boolean')
           fields[name] = { type: typeof value === 'number' ? 'decimal' : 'boolean' };
-      this.blockKeys(item.id, 'template', { fields }, false, {});
+      this.blockKeys(
+        item.id,
+        'template',
+        { fields },
+        false,
+        item.computed ? { computed: item.computed } : {},
+      );
     }
     if (typeName && !BUILT_IN_TYPES.has(typeName)) {
       const type = this.ruleset.contentType(typeName, this.scope);

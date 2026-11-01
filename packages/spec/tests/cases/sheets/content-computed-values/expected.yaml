@@ -1,0 +1,13 @@
+# The blessing (granted, activation 1) names the censor's characteristic (the copy's computed
+# char) and doubles its level 3; its broken value divides by zero. Strike (picked, activation 2):
+# 6 + Might 3 + the derived kit bonus 2 = 11, and the kept template's sharp reads it: 12.
+values:
+  test-content-values:kit.melee: { value: 2 }
+copies:
+  censor: { char: 'test-content-values:presence' }
+activationValues:
+  - activation: 1
+    values: { holder: 'test-content-values:presence', bonus: 6 }
+  - activation: 2
+    values: { damage: 11, sharp: 12 }
+errors: [formula-error]

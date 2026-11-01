@@ -97,6 +97,14 @@ describe('a synthetic pack', () => {
   it("takes the last pack's headline, joins lists by its separator and collapses spaces", () => {
     expect(text.headline(sheet, doc)).toBe('2 1/2 ft · Lamp (2) + a rock · spaced out');
   });
+  it('words picked content by its own computed values (activationValues)', () => {
+    const picked: HeadlineSheet = {
+      ...sheet,
+      activations: [{ item: 'p:things.lamp', entry: 'x', via: 'pick' }],
+      activationValues: [{ activation: 0, values: { size: 7 } }],
+    };
+    expect(text.headline(picked, doc)).toBe('2 1/2 ft · Lamp (7) · spaced out');
+  });
   it('is undefined without a headline, or with nothing to word', () => {
     expect(text.headline(sheet, { packs: [{ id: 'r' }] })).toBeUndefined();
     const blank = createText({

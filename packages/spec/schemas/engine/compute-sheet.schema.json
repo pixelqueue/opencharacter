@@ -145,6 +145,30 @@
             }
           }
         },
+        "activationValues": {
+          "description": "Computed values of content without a copy: each holder activation of picked or granted content whose item, content type or kept templates declare any, in activation order, as `{ activation, values }` (`activation` its index in `activations`, `values` `{ <name>: value }`). A value whose formula fails is left out, with a `formula-error` in `errors`.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["activation", "values"],
+            "properties": {
+              "activation": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "values": {
+                "type": "object",
+                "propertyNames": {
+                  "$ref": "../common.schema.json#/$defs/name"
+                },
+                "additionalProperties": {
+                  "$ref": "../common.schema.json#/$defs/literal"
+                }
+              }
+            },
+            "additionalProperties": false
+          }
+        },
         "copyNames": {
           "description": "Copies named by their state, by instance ID: for each copy whose item or content type has `nameFrom`, the value of that state key when it is a non-empty string. Apps show it as the copy's name in place of the item's (a choice's copy options included).",
           "type": "object",
@@ -423,7 +447,15 @@
                 "type": "string"
               },
               "value": {
+                "description": "The option's value; for a group spanning fields, the source's score.",
                 "$ref": "../common.schema.json#/$defs/literal"
+              },
+              "values": {
+                "description": "For a group spanning fields: the source's value on each field it reaches, by field ID.",
+                "type": "object",
+                "additionalProperties": {
+                  "$ref": "../common.schema.json#/$defs/literal"
+                }
               },
               "source": {
                 "$ref": "../common.schema.json#/$defs/source"
@@ -447,16 +479,8 @@
           "type": "boolean"
         },
         "error": {
-                "description": "The option's value; for a group spanning fields, the source's score.",
           "description": "Set instead of `value` when this field could not be computed (a loop). Everything else still calculates.",
           "$ref": "error.schema.json"
-              "values": {
-                "description": "For a group spanning fields: the source's value on each field it reaches, by field ID.",
-                "type": "object",
-                "additionalProperties": {
-                  "$ref": "../common.schema.json#/$defs/literal"
-                }
-              },
         }
       },
       "additionalProperties": false
@@ -588,7 +612,15 @@
       "required": ["field", "op", "options", "recommended"],
       "properties": {
         "field": {
+          "description": "The field the group is on; for a group spanning fields, the first of `fields`.",
           "type": "string"
+        },
+        "fields": {
+          "description": "For a group of a stack key spanning fields: every field it reaches, in ruleset order. Absent otherwise.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
         },
         "op": {
           "description": "The group's op: `set` for competing `set` effects, or the op of a `playerChooses` stacking group.",
@@ -608,20 +640,20 @@
                 "type": "string"
               },
               "value": {
+                "description": "The option's value; for a group spanning fields, the source's score.",
                 "$ref": "../common.schema.json#/$defs/literal"
+              },
+              "values": {
+                "description": "For a group spanning fields: the source's value on each field it reaches, by field ID.",
+                "type": "object",
+                "additionalProperties": {
+                  "$ref": "../common.schema.json#/$defs/literal"
+                }
               },
               "source": {
                 "$ref": "../common.schema.json#/$defs/source"
-          "description": "The field the group is on; for a group spanning fields, the first of `fields`.",
               }
             }
-        "fields": {
-          "description": "For a group of a stack key spanning fields: every field it reaches, in ruleset order. Absent otherwise.",
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
           }
         },
         "recommended": {
@@ -634,11 +666,3 @@
     }
   }
 }
-                "description": "The option's value; for a group spanning fields, the source's score.",
-              "values": {
-                "description": "For a group spanning fields: the source's value on each field it reaches, by field ID.",
-                "type": "object",
-                "additionalProperties": {
-                  "$ref": "../common.schema.json#/$defs/literal"
-                }
-              },

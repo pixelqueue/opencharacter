@@ -93,6 +93,7 @@ export interface HeadlineSheet {
   values: Readonly<Record<string, { value?: unknown }>>;
   activations?: readonly { item: string; entry?: string; via: string; scope?: string }[];
   copies?: Readonly<Record<string, Readonly<Record<string, unknown>>>>;
+  activationValues?: readonly { activation: number; values: Readonly<Record<string, unknown>> }[];
 }
 
 export interface CharacterCopy {
@@ -137,7 +138,10 @@ export interface BlockItem {
   appliesTo?: { type?: string } | readonly { type?: string }[];
 }
 
-/** A copy of the item; `computed` is computeSheet's `copies[<entry>]`. */
+/**
+ * A copy of the item, or picked or granted content: `computed` is computeSheet's
+ * `copies[<entry>]`, or the content's `activationValues` entry's `values`.
+ */
 export interface BlockCopy {
   templates?: readonly string[];
   /** The merged item's tags (computeSheet's `templated`), in place of the item's. */
@@ -252,8 +256,21 @@ export interface Text {
    * type's field defaults. A template has only its own block. `undefined` when none formats.
    */
   contentBlock(item: BlockItem, copy?: BlockCopy, type?: BlockType): string | undefined;
-  /** Markdown: the block and the description, either alone; `undefined` when neither. */
+  /**
+   * Markdown: the block and the description, either alone; `undefined` when neither. The
+   * description takes a block's arguments.
+   */
   contentCard(item: BlockItem, copy?: BlockCopy, type?: BlockType): string | undefined;
+  /**
+   * The item's description, or with `text` its named text (`<item>.texts.<text>`), filled with a
+   * block's arguments (`{self_<name>}` from `copy`); `undefined` when it has none.
+   */
+  contentText(
+    item: BlockItem,
+    text?: string,
+    copy?: BlockCopy,
+    type?: BlockType,
+  ): string | undefined;
   /**
    * One line of plain text from the last of the character's packs with a `headline` (homebrew
    * last). `undefined` when none has one, it doesn't format, or it words nothing yet.
@@ -411,6 +428,7 @@ export function createText(options: TextOptions): Text {
     typeId: string,
     copy: BlockCopy | undefined,
     typeDef: BlockType | undefined,
+    nested = false,
   ): Args | undefined => {
     const parsed = messageArguments(template);
     if (!parsed.ok) return undefined;
@@ -458,7 +476,10 @@ export function createText(options: TextOptions): Text {
         case 'tags':
           return a.names ? itemTags.map((t) => tag(t, pack)) : itemTags;
         case 'text':
-          return lookup(contentKey(qid, `texts.${a.text}`));
+          // A named text takes the same arguments, but not another named text's.
+          return nested
+            ? lookup(contentKey(qid, `texts.${a.text}`))
+            : itemText(item, `texts.${a.text}`, copy, typeDef, true);
         case 'self': {
           const v = copy?.computed?.[a.key] ?? copy?.state?.[a.key];
           return a.names ? names(v, 'state', a.key) : v;
@@ -498,6 +519,27 @@ export function createText(options: TextOptions): Text {
     const out = args && format(found, args, true)?.trim();
     return out || undefined;
   };
+
+  /**
+   * An item's description or named text (`key` under the item), with a block's arguments. One
+   * that doesn't format shows as written.
+   */
+  function itemText(
+    item: BlockItem,
+    key: string,
+    copy: BlockCopy | undefined,
+    typeDef: BlockType | undefined,
+    nested = false,
+  ): string | undefined {
+    const qid = item.id.includes(':') || !item.pack ? item.id : `${item.pack}:${item.id}`;
+    const typeId = item.type.includes(':') || !item.pack ? item.type : `${item.pack}:${item.type}`;
+    const ref = contentKey(qid, key);
+    const found = ref.pack ? findPack(ref.pack, ref.key) : undefined;
+    if (!found) return undefined;
+    const decl = typeDef ?? options.contentTypes?.[typeId];
+    const args = blockArgs(found.message, item, qid, typeId, copy, decl, nested);
+    return format(found, args ?? {});
+  }
 
   const valueNames = (v: unknown, fieldPack: string): unknown =>
     Array.isArray(v)
@@ -582,12 +624,19 @@ export function createText(options: TextOptions): Text {
         (typeId ? findPack(split(typeId)[0], `types.${split(typeId)[1]}.headline`) : undefined);
       if (!item || !typeId || !piece) return memberName(a);
       const own = a.via === 'copy' && a.entry !== undefined ? copies.get(a.entry) : undefined;
-      const copy: BlockCopy | undefined = own && {
-        ...(own.templates ? { templates: own.templates } : {}),
-        ...(own.fields ? { fields: own.fields } : {}),
-        ...(own.state ? { state: own.state } : {}),
-        ...(sheet.copies?.[own.id] ? { computed: sheet.copies[own.id] } : {}),
-      };
+      // Picked or granted content: its own computed values, by its index in `activations`.
+      const index = (sheet.activations ?? []).indexOf(a as never);
+      const values = own
+        ? undefined
+        : sheet.activationValues?.find((v) => v.activation === index)?.values;
+      const copy: BlockCopy | undefined = own
+        ? {
+            ...(own.templates ? { templates: own.templates } : {}),
+            ...(own.fields ? { fields: own.fields } : {}),
+            ...(own.state ? { state: own.state } : {}),
+            ...(sheet.copies?.[own.id] ? { computed: sheet.copies[own.id] } : {}),
+          }
+        : values && { computed: values };
       const blockItem: BlockItem = {
         id: a.item,
         type: typeId,
@@ -850,10 +899,11 @@ export function createText(options: TextOptions): Text {
     headline,
     contentCard(item, copy, typeDef) {
       const block = contentBlock(item, copy, typeDef);
-      const qid = item.id.includes(':') || !item.pack ? item.id : `${item.pack}:${item.id}`;
-      const description = lookup(contentKey(qid, 'description'))?.trim() || undefined;
+      const description = itemText(item, 'description', copy, typeDef)?.trim() || undefined;
       return block && description ? `${block}\n\n${description}` : (block ?? description);
     },
+    contentText: (item, name, copy, typeDef) =>
+      itemText(item, name === undefined ? 'description' : `texts.${name}`, copy, typeDef),
     issue(issue) {
       const data = { ...issue.data };
       const own = issueKey(issue);

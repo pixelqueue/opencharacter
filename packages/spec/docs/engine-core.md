@@ -170,8 +170,8 @@ A state key with no saved value and no default is absent (`has(self.key)` is fal
 In the copy's own actions (their `available` and steps, for actions defined on its content type
 or item and the rules actions they `use`) and in its follow-ups, `self` also has the copy's
 [computed values](#computed-values) as `self.<name>`. Content picked or granted
-on the copy sees the copy's computed values there too, since its `self` is that copy. A roll
-effect's `roll.self` doesn't have them.
+on the copy sees the copy's computed values there too, since its `self` is that copy, and its
+own computed values over them by name. A roll effect's `roll.self` doesn't have them.
 
 The copy's picks aren't on `self`: a formula reads its owner's choices with
 [`picksOf`](formulas.md#picks-of-the-owners-choices), a copy's item reading the entry's bare
@@ -703,9 +703,21 @@ later declaration replacing an earlier one with the same name in its place.
   `formula-error` (data: `entry`, the copy's instance ID; `name`; `cause`, the formula error
   code or `type-mismatch`).
 
-`copies` maps each copy that has any computed values to `{ <name>: value }`. The same values
-are `self.<name>` in the copy's actions and follow-ups ([Copies and `self`](#copies-and-self));
-an engine may compute them on demand, with the same result.
+Then each holder activation of picked or granted content ([The activation list](#the-activation-list),
+`via: pick` or `grant`, not `scope: applied`) has its computed values worked out the same way,
+in activation order: its content type's, then its item's and each template content keeps on it,
+in the order they apply. A formula sees the activation's roots as its actions do: `item` merged
+with the kept templates, `self` the owning copy with the pick's or grant's state keys over it,
+then the copy's computed values, then the content's own declared before this one;
+`picksOf` reads the content's own choices. A failure is `formula-error` with `activation`, its
+index in `activations`, in place of `entry`.
+
+`copies` maps each copy that has any computed values to `{ <name>: value }`, and
+`activationValues` lists each such activation that has any as `{ activation, values }`, in
+activation order. The same values are `self.<name>` in the copy's (or the content's) actions and
+follow-ups ([Copies and `self`](#copies-and-self)); picked or granted content's actions see its
+owning copy's values with its own over them by name. An engine may compute them on demand, with
+the same result.
 
 `copyNames` maps each copy whose item or content type has `nameFrom`
 ([content.md](content.md#per-copy-state)) to the value of that state key, when it is a

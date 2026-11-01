@@ -52,6 +52,7 @@ import {
   characterQueries,
   computedDecls,
   computedRoot,
+  type ComputedSource,
   copyFieldProblem,
   copyFields,
   copyRoots,
@@ -2626,7 +2627,6 @@ export class Sheet {
     return out.toSorted((a, b) => a.order - b.order);
   }
 
-  // --- Output -------------------------------------------------------------------------------
   private readonly spans = new Map<string, string | undefined>();
   private readonly spanning = new Set<string>();
 
@@ -2709,6 +2709,7 @@ export class Sheet {
     }
   }
 
+  // --- Output -------------------------------------------------------------------------------
 
   values(): Record<string, FieldValue> {
     const out: Record<string, FieldValue> = {};
@@ -3466,9 +3467,10 @@ export class Sheet {
     return out;
   }
 
-  // --- Computed values on copies -------------------------------------------------------------
+  // --- Computed values on copies and content -------------------------------------------------
 
   private readonly computedCache = new Map<string, Record<string, f.Value>>();
+  private readonly contentComputed = new Map<Activation, Record<string, f.Value>>();
 
   /**
    * Each declared formula sees the copy's `item`, `self` (with the values declared before it),
@@ -3487,18 +3489,64 @@ export class Sheet {
       .filter((t): t is LoadedItem => t?.type === 'template');
     const out: Record<string, f.Value> = {};
     this.computedCache.set(entryId, out);
-    for (const { name, decl, pack } of computedDecls(this.ruleset, a.item, templates)) {
+    this.evaluateComputed(
+      out,
+      computedDecls(this.ruleset, a.item, templates),
+      {
+        item: a.roots.item,
+        self: a.roots.self,
+        [f.OWNER_PICKS]: a.roots[f.OWNER_PICKS],
+        [f.OWNER_GRANTED]: a.roots[f.OWNER_GRANTED],
+      },
+      { entry: entryId },
+    );
+    return out;
+  }
+
+  /** Whether the activation is picked or granted content held without a copy of its own. */
+  private isHeldContent(a: Activation): boolean {
+    return (a.kind === 'pick' || a.kind === 'grant') && a.scope === 'holder' && !!a.item;
+  }
+
+  /**
+   * Computed values of picked or granted content: its type's, its item's and its kept templates',
+   * each seeing the activation's roots, whose `self` is the owning copy (with the copy's computed
+   * values) and the values declared before it. Empty for any other activation.
+   */
+  contentComputedOf(a: Activation): Record<string, f.Value> {
+    const cached = this.contentComputed.get(a);
+    if (cached) return cached;
+    const out: Record<string, f.Value> = {};
+    this.contentComputed.set(a, out);
+    if (!this.isHeldContent(a)) return out;
+    const item = a.item as LoadedItem;
+    const templates = a.key === undefined ? [] : this.contentTemplates(a.key, item);
+    const decls = computedDecls(this.ruleset, item, templates);
+    if (decls.length === 0) return out;
+    const owner = a.entry ? (this.computedOf(a.entry.id) ?? {}) : {};
+    this.evaluateComputed(
+      out,
+      decls,
+      { ...a.roots, self: { ...(a.roots.self as object), ...computedRoots(owner) } },
+      { activation: this.listedActivations().indexOf(a) },
+    );
+    return out;
+  }
+
+  /** Fills `out` in declaration order; `self` gains each value as it is worked out. */
+  private evaluateComputed(
+    out: Record<string, f.Value>,
+    decls: ComputedSource[],
+    roots: Record<string, unknown>,
+    data: Record<string, unknown>,
+  ): void {
+    for (const { name, decl, pack } of decls) {
       const fail = (cause: string, message: string) =>
-        this.errors.push({ code: 'formula-error', data: { entry: entryId, name, cause, message } });
+        this.errors.push({ code: 'formula-error', data: { ...data, name, cause, message } });
       try {
-        const earlier = Object.fromEntries(
-          Object.entries(out).map(([n, v]) => [n, computedRoot(v)]),
-        );
         const value = this.evaluate(decl.formula, pack, {
-          item: a.roots.item,
-          self: { ...(a.roots.self as Record<string, unknown>), ...earlier },
-          [f.OWNER_PICKS]: a.roots[f.OWNER_PICKS],
-          [f.OWNER_GRANTED]: a.roots[f.OWNER_GRANTED],
+          ...roots,
+          self: { ...(roots.self as object), ...computedRoots(out) },
         });
         const typed = computedValue(decl.type, value);
         if (typed) out[name] = typed;
@@ -3508,7 +3556,6 @@ export class Sheet {
         fail(error.error.code, error.error.message);
       }
     }
-    return out;
   }
 
   /** The activations `activationList` lists, in its order. */
@@ -3582,6 +3629,20 @@ export class Sheet {
       out[a.entry.id] = Object.fromEntries(
         Object.entries(values).map(([name, v]) => [name, literal(v)]),
       );
+    }
+    return out;
+  }
+
+  /** Computed values of picked and granted content, by index in `activations`. */
+  activationValues(): { activation: number; values: Record<string, Literal> }[] {
+    const out: { activation: number; values: Record<string, Literal> }[] = [];
+    for (const [activation, a] of this.listedActivations().entries()) {
+      const values = this.contentComputedOf(a);
+      if (Object.keys(values).length === 0) continue;
+      out.push({
+        activation,
+        values: Object.fromEntries(Object.entries(values).map(([name, v]) => [name, literal(v)])),
+      });
     }
     return out;
   }
@@ -3723,17 +3784,22 @@ export class Sheet {
     return (this.activations[0] as Activation).roots;
   }
 
-  /** A holder activation's roots, with `self` also holding its copy's computed values. */
+  /**
+   * A holder activation's roots, with `self` also holding its copy's computed values, then, for
+   * picked or granted content, its own.
+   */
   actionRoots(a: Activation): Record<string, unknown> {
     const self = a.roots.self as Record<string, unknown> | undefined;
-    if (!self || !a.entry) return a.roots;
-    const computed = this.computedOf(a.entry.id) ?? {};
-    if (Object.keys(computed).length === 0) return a.roots;
-    const extra = Object.fromEntries(
-      Object.entries(computed).map(([name, v]) => [name, computedRoot(v)]),
-    );
-    return { ...a.roots, self: { ...self, ...extra } };
+    const copy = self && a.entry ? (this.computedOf(a.entry.id) ?? {}) : {};
+    const own = this.contentComputedOf(a);
+    if (Object.keys(copy).length === 0 && Object.keys(own).length === 0) return a.roots;
+    return { ...a.roots, self: { ...self, ...computedRoots(copy), ...computedRoots(own) } };
   }
+}
+
+/** A source of a spanning group: the content and where it was reached (two copies are two). */
+function spanSource(i: EffectInstance): string {
+  return `${i.sourceId}\u0000${JSON.stringify(i.source)}`;
 }
 
 export function entryOf(a: Activation): string | undefined {
@@ -3743,6 +3809,10 @@ export function entryOf(a: Activation): string | undefined {
 /** Whether the activation is its entry's own item: a copy's, or an applied entry's source. */
 export function ownsEntry(a: Activation): boolean {
   return a.kind === 'feature' || a.kind === 'inventory' || a.kind === 'applied';
+}
+
+function computedRoots(values: Record<string, f.Value>): Record<string, unknown> {
+  return Object.fromEntries(Object.entries(values).map(([name, v]) => [name, computedRoot(v)]));
 }
 
 function computedValue(type: string, value: f.Value): f.Value | undefined {
@@ -3797,11 +3867,6 @@ function compareValues(a: f.Value, b: f.Value): number {
 function addValues(a: f.Value, b: f.Value): f.Value {
   if (a.kind === 'int' && b.kind === 'int') return { kind: 'int', value: a.value + b.value };
   if (isNumber(a) && isNumber(b))
-/** A source of a spanning group: the content and where it was reached (two copies are two). */
-function spanSource(i: EffectInstance): string {
-  return `${i.sourceId}\u0000${JSON.stringify(i.source)}`;
-}
-
     return { kind: 'decimal', value: f.roundDecimal(a.value + b.value) };
   if (a.kind === 'dice' || b.kind === 'dice') {
     const da = a.kind === 'dice' ? a.value : { terms: [], flat: isNumber(a) ? a.value : 0 };

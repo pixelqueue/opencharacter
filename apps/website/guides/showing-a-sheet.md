@@ -11,25 +11,26 @@ const sheet = computeSheet(ruleset, character);
 `computeSheet` **never fails**. Problems in the character file go in `sheet.errors`, and the
 sheet is computed without the broken part.
 
-| Output           | What it is                                                                | Typical UI                                     |
-| ---------------- | ------------------------------------------------------------------------- | ---------------------------------------------- |
-| `values`         | Every field's value, with its base, a breakdown and whether it's shown    | The sheet itself                               |
-| `groups`         | Each display group: whether it's shown, and its members, sorted           | Sections of the sheet                          |
-| `effects`        | Every active effect, with its source; stacked-out ones `suppressed: true` | "Active effects" panel, tooltips               |
-| `actions`        | Actions available now, with the entry each belongs to                     | Roll buttons ([Rolling dice](rolling-dice.md)) |
-| `situational`    | Situational choices offered now (advantage, cover)                        | Toggles next to roll buttons                   |
-| `pending`        | Choices that apply and still need picks                                   | "Choose your fighting style" prompts           |
-| `offers`         | What the rules offer now: derived (level-up) and stored ephemeral offers  | "Level up", "Concentration check (12 damage)"  |
-| `choices`        | Every choice that applies, answered or not, in order                      | A creation wizard's steps                      |
-| `competing`      | Fields where several effects compete to set the value                     | A picker on the field                          |
-| `issues`         | Rules issues: valid, but the rules object                                 | Warnings                                       |
-| `copies`         | Each copy's computed values (an item's quality), by instance ID           | Next to the item in the inventory              |
-| `copyNames`      | Copies the player named (`nameFrom`), by instance ID                      | In place of the item's name                    |
-| `templated`      | Every item with templates, as merged (a Longsword +1, a longer cantrip)   | Item cards                                     |
-| `standardCopies` | The copies every character holds, and whether the file saves each         | The inventory, unsaved items greyed out        |
-| `activations`    | Every piece of active content and how it was reached                      | Content groups                                 |
-| `copyLimits`     | Per content type, how many copies the character may hold and holds        | Replace instead of Add                         |
-| `errors`         | Problems with the file itself (unknown items, wrong types)                | An import warning                              |
+| Output             | What it is                                                                       | Typical UI                                     |
+| ------------------ | -------------------------------------------------------------------------------- | ---------------------------------------------- |
+| `values`           | Every field's value, with its base, a breakdown and whether it's shown           | The sheet itself                               |
+| `groups`           | Each display group: whether it's shown, and its members, sorted                  | Sections of the sheet                          |
+| `effects`          | Every active effect, with its source; stacked-out ones `suppressed: true`        | "Active effects" panel, tooltips               |
+| `actions`          | Actions available now, with the entry each belongs to                            | Roll buttons ([Rolling dice](rolling-dice.md)) |
+| `situational`      | Situational choices offered now (advantage, cover)                               | Toggles next to roll buttons                   |
+| `pending`          | Choices that apply and still need picks                                          | "Choose your fighting style" prompts           |
+| `offers`           | What the rules offer now: derived (level-up) and stored ephemeral offers         | "Level up", "Concentration check (12 damage)"  |
+| `choices`          | Every choice that applies, answered or not, in order                             | A creation wizard's steps                      |
+| `competing`        | Fields where several effects compete to set the value                            | A picker on the field                          |
+| `issues`           | Rules issues: valid, but the rules object                                        | Warnings                                       |
+| `copies`           | Each copy's computed values (an item's quality), by instance ID                  | Next to the item in the inventory              |
+| `activationValues` | Picked or granted content's computed values (an ability's damage), by activation | On the ability's card                          |
+| `copyNames`        | Copies the player named (`nameFrom`), by instance ID                             | In place of the item's name                    |
+| `templated`        | Every item with templates, as merged (a Longsword +1, a longer cantrip)          | Item cards                                     |
+| `standardCopies`   | The copies every character holds, and whether the file saves each                | The inventory, unsaved items greyed out        |
+| `activations`      | Every piece of active content and how it was reached                             | Content groups                                 |
+| `copyLimits`       | Per content type, how many copies the character may hold and holds               | Replace instead of Add                         |
+| `errors`           | Problems with the file itself (unknown items, wrong types)                       | An import warning                              |
 
 The full shape is in
 [compute-sheet.schema.json](../../../packages/spec/schemas/engine/compute-sheet.schema.json).
@@ -263,7 +264,6 @@ const sheet = computeSheet(ruleset, character, ['5e-srd-5.1:features.unarmored-d
 Each group applies the first of its options (in instance order) that the list names, else its
 recommendation.
 
-These picks aren't part of the character file. Store them yourself (in `extensions` if they
 A stack key can **span fields**: a Draw Steel kit's melee damage bonus is one bonus across three
 tiers, so with two kits the player takes one kit's bonus on all three. Its entry is one group for
 every field: `fields` lists them (`field` is the first), and each option is a source, with its
@@ -272,6 +272,7 @@ score as `value` and its value on each field as `values`
 Artist +2/+2/+2 or Mountain +0/+0/+4"), not one per field; picking an option applies that source
 on every field.
 
+These picks aren't part of the character file. Store them yourself (in `extensions` if they
 should travel with the character), and pass them on every `computeSheet` call. A pick that no
 longer names an option falls back to the recommendation.
 
@@ -292,11 +293,15 @@ called for it ends: a concentration check, a death save), or a linked character 
 characters](changing-characters.md#what-the-rules-call-for-next) covers running and dismissing
 them.
 
-## Computed values on copies
+## Computed values
 
 `sheet.copies` maps a copy's instance ID to its computed values: a FitD item's quality, a
 cohort's quality and scale (`{ "c-thugs": { "quality": 2, "scale": 2 } }`). Show them with the
-copy, as you show its state. They are never saved, and a value whose formula failed is missing,
+copy, as you show its state. Picked and granted content has its own in `sheet.activationValues`,
+each `{ activation, values }` by its index in `sheet.activations`: a Draw Steel ability's damage
+with this hero's characteristic and kit (`{ "activation": 4, "values": { "damage1": 8 } }`).
+Show them on that content's card; its text reads them too
+([Showing text](showing-text.md#content-cards)). They are never saved, and a value whose formula failed is missing,
 with a `formula-error` in `sheet.errors`. Name each one by
 `types.<type>.computed.<name>.name` (`types.cohort.computed.quality.name`), or by
 `<item>.computed.<name>.name` when the item declares it; a state key likewise by

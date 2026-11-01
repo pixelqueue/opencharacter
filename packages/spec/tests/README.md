@@ -138,10 +138,11 @@ input: # any other call inputs (action, params, situational, policy, strict, lin
   `test-target-formula`, effects whose target is a formula (`target: { formula }`),
   `test-part-rolls`, advantage and disadvantage on a roll's parts (`of: roll`), and
   `test-roll-then`, roll effects that end themselves or spend a use once a roll used them
-  (`then`), `test-describe`, actions as `describeAction` reads them, and `test-choice-activation`, a
+  (`then`), `test-describe`, actions as `describeAction` reads them, `test-choice-activation`, a
   choice recommending among its eligible options, picks active only while a condition holds
   (`activeWhen`), picks held as copies (`addAs: copy`), an inline option's immunity and
-  allocations recommended per field.
+  allocations recommended per field, `test-span-stacking`, stack keys spanning fields (one kit's
+  bonus on every tier), and `test-content-values`, computed values on picked and granted content.
 - **How outputs compare.** Only what `expected.yaml` lists is compared. A key the call doesn't
   define, in `case.yaml` or `expected.yaml`, is a mistake in the case: runners fail it rather
   than ignore it, so a case never seems to test something it doesn't.
@@ -165,6 +166,7 @@ input: # any other call inputs (action, params, situational, policy, strict, lin
     - `valueErrors`: the exact list of fields whose value is an error, in order (`[]` for a
       character that computes cleanly, such as a blank one).
     - `copies`: the exact map of computed values per copy.
+    - `activationValues`: the exact list of `{ activation, values }`.
     - `standardCopies`: the exact list of `{ entry, item, saved }`.
     - `activations`: the exact list.
     - `choices`: the exact list of `{ path, owner, id, slot, min, max, picks, open, inactive }`.

@@ -606,8 +606,9 @@ The build and `loadRuleset` check all three like any other formula (`formula-err
 ### Computed values
 
 A content type, an item or a template may declare **computed values**: numbers,
-flags or strings worked out for each copy from the character, never saved. A FitD cohort's
-quality and scale, or a fine pistol's quality, are computed values.
+flags or strings worked out for each copy, and for each activation of picked or granted content,
+from the character, never saved. A FitD cohort's quality and scale, a fine pistol's quality, or a
+Draw Steel ability's damage with this hero's characteristic and kit, are computed values.
 
 ```yaml
 contentTypes:
@@ -628,20 +629,47 @@ contentTypes:
   computed values declared before it), every field, `character`, `links` and the
   character functions, `picksOf` reading the copy's item's choices (a CWN spirit's Effort is
   `max(1, size(picksOf('powers')) - 1)`). It resolves names in the pack that declared it.
-- **Reading:** `self.<name>`, in the copy's own actions (including those it reaches through
-  `use`, and their `available`) and its follow-ups, and in the copy's later computed values:
-  a computed value reads those declared **before** it, in declaration order (the
+- **On picked and granted content:** each holder activation of content picked or granted
+  ([Activation](#when-content-is-active)) has its own computed values too: its type's, its
+  item's and those of the templates content keeps on it ([On content without a
+  copy](#on-content-without-a-copy)). Each formula sees what that content's actions see: its
+  `item` (merged with its kept templates), `self` (the owning copy, with the pick's or grant's
+  state keys over it, the copy's computed values, and the content's own declared before this
+  one), every field, derived ones included, `character`, `links` and the character functions,
+  `picksOf` reading the content's own choices. So an ability card shows this hero's numbers:
+
+  ```yaml
+  # An ability picked under a class: 6 + Might, plus the kit's melee bonus (a derived field).
+  contentTypes:
+    ability:
+      fields:
+        damage: { type: integer, default: 0 }
+      computed:
+        damage: { type: integer, formula: 'item.damage + characteristics.might + kit.melee1' }
+  ```
+
+  Applied content (`scope: applied`) and inline options have none.
+
+- **Reading:** `self.<name>`, in the copy's (or the content's) own actions (including those it
+  reaches through `use`, and their `available`) and its follow-ups, and in its later computed
+  values: a computed value reads those declared **before** it, in declaration order (the
   type's, then the item's and each template's, a replacement keeping the replaced name's place).
-  Later names, and its own, are `unknown-name` there. Field formulas, effects (roll effects
-  included), constraints, activation conditions, state formulas and a choice step's candidate
-  copies can't read them: there they are `unknown-name` at load, though `self` is open. Since
-  they are computed after everything they could feed, and each reads only earlier ones, they
-  can't loop. An earlier value that failed is absent (`has(self.<name>)` is false), so a later
-  value reading it fails too, with its own `formula-error`.
+  Later names, and its own, are `unknown-name` there. Picked or granted content's actions read
+  the owning copy's computed values too, its own over them by name. Field formulas, effects
+  (roll effects included), constraints, activation conditions, state formulas and a choice
+  step's candidate copies can't read them: there they are `unknown-name` at load, though `self`
+  is open. Since they are computed after everything they could feed, and each reads only
+  earlier ones, they can't loop. An earlier value that failed is absent (`has(self.<name>)` is
+  false), so a later value reading it fails too, with its own `formula-error`.
   The copy aggregates (`countCopies`, `sumCopies`, `maxCopies`, `minCopies`) don't see them.
-- **Output:** computeSheet's `copies` maps each copy's instance ID to its computed values. A
-  formula that fails, or gives a value of another type, gives no value for that name and a
-  `formula-error` in `errors` (data: `entry`, `name`, `cause`).
+- **Text:** an item's description, named texts and block read them as `{self_<name>}`
+  ([i18n.md](i18n.md#blocks)), so one item's text can name each holder's value: a domain feature
+  two classes share reads "your {self_char_name} score", the holder's characteristic.
+- **Output:** computeSheet's `copies` maps each copy's instance ID to its computed values, and
+  `activationValues` lists each activation of picked or granted content that has any, as
+  `{ activation, values }` by its index in `activations`. A formula that fails, or gives a value
+  of another type, gives no value for that name and a `formula-error` in `errors` (data:
+  `entry` for a copy, `activation` for content without one; `name`, `cause`).
 
 ## Templates
 
@@ -803,9 +831,10 @@ fields: { range: 'prior.range + 300' }
   and steps, a roll's `roll.item`) and follow-ups. The keeper's `keepsFields` apply too. The
   template isn't an activation of its own, so it is not in `activations`. Queries over items
   (a choice's `from`, a grant's `{ query }`, listOptions' options) still see the base item.
-- **Fields and tags only.** With no copy there is no state to hold, nothing for actions or
-  choices to belong to. A template kept by `content` may give fields, tags and `removeTags`
-  (with `appliesTo`); giving state, computed values, effects, actions, follow-ups, choices,
+- **Fields, tags and computed values only.** With no copy there is no state to hold, nothing for
+  actions or choices to belong to. A template kept by `content` may give fields, tags,
+  `removeTags` and computed values (with `appliesTo`), the last added to the content's own
+  ([Computed values](#computed-values)); giving state, effects, actions, follow-ups, choices,
   grants, immunities, prerequisites or the other copy properties is the load error
   `template-without-copy`.
 - **Shown.** computeSheet's `templated` lists each such activation's item as merged, by its

@@ -87,6 +87,7 @@ export function computeSheet(
     return {
       values: {} as ReturnType<Sheet['values']>,
       copies: {},
+      activationValues: [] as ReturnType<Sheet['activationValues']>,
       copyNames: {} as Record<string, string>,
       templated: [] as TemplatedItem[],
       standardCopies: [] as Sheet['standard'],
@@ -106,8 +107,9 @@ export function computeSheet(
   }
   const sheet = new Sheet(layered.ruleset, character, competing, links);
   const values = sheet.values();
-  // Computed values on copies come after every field.
+  // Computed values on copies and content come after every field.
   const copies = sheet.copies();
+  const activationValues = sheet.activationValues();
   const { pending } = sheet.pending();
   const actions = sheet.actionList();
   const shown = display(sheet, actions);
@@ -120,6 +122,7 @@ export function computeSheet(
   return {
     values,
     copies,
+    activationValues,
     copyNames: sheet.copyNames(),
     templated: sheet.templated(),
     standardCopies: sheet.standard,

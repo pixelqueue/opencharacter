@@ -1,0 +1,30 @@
+# A hero picks an ability and is granted a feature. The ability card shows this hero's damage,
+# read from a characteristic and a derived kit bonus; the feature names the holder's
+# characteristic, read off the hero's own computed value.
+fields:
+  might: { type: integer, input: true, default: 2 }
+  presence: { type: integer, input: true, default: 1 }
+  intuition: { type: integer, input: true, default: 1 }
+  kit.melee: { type: integer, formula: 0 }
+
+contentTypes:
+  hero:
+    fields:
+      char: { type: id, of: field }
+    state:
+      level: { type: integer, default: 1 }
+    computed:
+      char: { type: string, formula: item.char }
+  ability:
+    fields:
+      damage: { type: integer, default: 0 }
+    computed:
+      damage: { type: integer, formula: 'item.damage + might + kit.melee' }
+    actions:
+      - id: strike
+        steps:
+          - { id: done, kind: outcome, data: { damage: self.damage } }
+  feature:
+    computed:
+      holder: { type: string, formula: self.char }
+      bonus: { type: integer, formula: 'self.level * 2' }

@@ -1,0 +1,15 @@
+# Presence is the censor's characteristic; its kit adds 2 to melee damage. It picks an ability,
+# is granted a feature, and keeps a template on its abilities.
+id: heroes.censor
+type: hero
+fields: { char: presence }
+effects:
+  - { target: kit.melee, op: add, value: 2 }
+choices:
+  - id: ability
+    from: { type: ability }
+grants:
+  - { item: features.blessing }
+keepsTemplates:
+  - template: templates.sharpened
+    content: { type: ability }
