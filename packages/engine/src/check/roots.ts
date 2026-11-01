@@ -114,6 +114,7 @@ export const ALL_ROOTS = new Set([
   'amount',
   'f',
   'x',
+  'i',
 ]);
 
 export function rootsFor(place: Place): string[] {

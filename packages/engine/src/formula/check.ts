@@ -1,6 +1,7 @@
 import { familyPattern, isRulesId, patternIds } from './evaluate.ts';
 import {
   AGGREGATE_ROOT,
+  LIST_INDEX,
   aggregateArgs,
   aggregateOver,
   type Over,
@@ -545,8 +546,12 @@ function checkAggregate(fn: string, over: Over, args: Node[], ctx: CheckContext)
   const root = AGGREGATE_ROOT[over];
   const bound: CheckContext = {
     ...inner,
-    roots: new Set([...ctx.roots, root]),
-    rootTypes: { ...ctx.rootTypes, [root]: rootType },
+    roots: new Set([...ctx.roots, root, ...(over === 'list' ? [LIST_INDEX] : [])]),
+    rootTypes: {
+      ...ctx.rootTypes,
+      [root]: rootType,
+      ...(over === 'list' ? { [LIST_INDEX]: 'int' as const } : {}),
+    },
   };
   if (parts.cond) {
     let t: FType;

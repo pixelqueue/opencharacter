@@ -34,6 +34,9 @@ export const AGGREGATE_ROOT: Readonly<Record<Over, string>> = {
   list: 'x',
 };
 
+/** In the list functions, the element's position in the list, skipped null elements counted. */
+export const LIST_INDEX = 'i';
+
 export function aggregateOver(fn: string): Over | undefined {
   return Object.hasOwn(OVER, fn) ? OVER[fn] : undefined;
 }

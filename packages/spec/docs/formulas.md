@@ -372,6 +372,7 @@ see the content's own roots (`item`, `self`) with the action context (`steps`, `
 | `entry`                    | an immunity query's `where`                                                                                                                                                        | The candidate applied entry: `id` and its state keys, as its `self`                                                                                                               |
 | `f`                        | the arguments of `countFields`, `sumFields`, `maxFields` and `minFields`                                                                                                           | The field the argument is being evaluated for                                                                                                                                     |
 | `x`                        | the arguments of the list functions (`countList` … `sortList`), after the list; a proposed change or a grant with `forEach`                                                        | The list element the argument, the change or the grant is being evaluated for                                                                                                     |
+| `i`                        | the arguments of the list functions, after the list                                                                                                                                | The element's position in the list (an int from 0), skipped null elements counted                                                                                                 |
 
 **Formulas a change passes on.** In a proposed change aimed at copies, `copies.where` and a `by` or
 `value` that reads `self` or `item` are evaluated per copy by applyChanges. There `item` and `self`
@@ -803,8 +804,12 @@ declaration order), so a field a later pack adds is counted by an earlier pack's
 
 - **`x`** is the element, typed as the list's element type (`dyn` for a `dyn` list). `list`
   must be a list (`type-mismatch`).
+- **`i`** is the element's position in the list, an int from 0. It pairs lists that line up:
+  an `each` step's per-participant results and flags with `participants.<role>`
+  (`mapList(steps.tier, participants.target[i].id)`).
 - **Null elements are skipped.** An `each` step's list holds null for a participant its `when`
-  skipped; those elements aren't evaluated or counted.
+  skipped; those elements aren't evaluated or counted, but they keep their place: `i` counts
+  them.
 - **`cond` may read anything**, `x` included: a list is already a value, so there is no set to
   fix at load and no dependency of its own. Names inside the arguments are dependencies as
   anywhere.

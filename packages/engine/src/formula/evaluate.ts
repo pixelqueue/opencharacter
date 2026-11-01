@@ -1,5 +1,6 @@
 import {
   AGGREGATE_ROOT,
+  LIST_INDEX,
   aggregateArgs,
   aggregateOver,
   type FieldView,
@@ -721,6 +722,8 @@ function aggregate(fn: string, over: Over, args: Node[], ctx: EvalContext): Valu
     : { ...ctx, inAggregate: true };
   const character = ctx.character as CharacterQueries;
   let elements: unknown[];
+  // A list element's position, skipped null elements counted; none over the character.
+  let indexes: number[] | undefined;
   let cond = parts.cond;
   if (over === 'copies') elements = [...character.copies()];
   else if (over === 'picks') elements = [...character.picks()];
@@ -738,20 +741,23 @@ function aggregate(fn: string, over: Over, args: Node[], ctx: EvalContext): Valu
     // aggregate: `sortList(filterList(l, x > 0))`.
     const list = evaluateTree(parts.list as Node, ctx);
     if (list.kind !== 'list') return fail('type-mismatch', `${fn}() needs a list`);
-    // Null elements (an `each` step's skipped participants) are skipped.
-    const elementsKept = list.value.filter((v) => v.kind !== 'null');
+    // Null elements (an `each` step's skipped participants) are skipped; `i` keeps counting them.
+    const listed = list.value.flatMap((v, i) => (v.kind === 'null' ? [] : [{ v, i }]));
     const reduce = reduceOf(fn);
     if (reduce === 'filter' || reduce === 'map' || reduce === 'sort')
-      return listFunction(fn, reduce, elementsKept, parts, inner, ctx);
-    elements = elementsKept.map(rootData);
+      return listFunction(fn, reduce, listed, parts, inner, ctx);
+    elements = listed.map((k) => rootData(k.v));
+    indexes = listed.map((k) => k.i);
   }
   const root = AGGREGATE_ROOT[over];
   const reduce = reduceOf(fn);
   let count = 0;
   let result: number | undefined;
   let decimalResult = false;
-  for (const element of elements) {
-    const bound: EvalContext = { ...inner, roots: { ...ctx.roots, [root]: element } };
+  for (const [n, element] of elements.entries()) {
+    const roots = { ...ctx.roots, [root]: element };
+    if (indexes) roots[LIST_INDEX] = indexes[n];
+    const bound: EvalContext = { ...inner, roots };
     if (cond) {
       const holds = evaluateTree(cond, bound);
       if (holds.kind !== 'bool') return fail('type-mismatch', `${fn}() needs a bool condition`);
@@ -779,19 +785,19 @@ function aggregate(fn: string, over: Over, args: Node[], ctx: EvalContext): Valu
 function listFunction(
   fn: string,
   reduce: 'filter' | 'map' | 'sort',
-  elements: Value[],
+  elements: { v: Value; i: number }[],
   parts: { cond?: Node; value?: Node },
   inner: EvalContext,
   ctx: EvalContext,
 ): Value {
-  const at = (element: Value): EvalContext => ({
+  const at = (element: Value, i: number): EvalContext => ({
     ...inner,
-    roots: { ...ctx.roots, x: rootData(element) },
+    roots: { ...ctx.roots, x: rootData(element), [LIST_INDEX]: i },
   });
   if (reduce === 'filter') {
     const out: Value[] = [];
-    for (const element of elements) {
-      const holds = evaluateTree(parts.cond as Node, at(element));
+    for (const { v: element, i } of elements) {
+      const holds = evaluateTree(parts.cond as Node, at(element, i));
       if (holds.kind !== 'bool') return fail('type-mismatch', `${fn}() needs a bool condition`);
       if (holds.value) out.push(element);
     }
@@ -800,10 +806,10 @@ function listFunction(
   if (reduce === 'map')
     return {
       kind: 'list',
-      value: elements.map((element) => evaluateTree(parts.value as Node, at(element))),
+      value: elements.map(({ v: element, i }) => evaluateTree(parts.value as Node, at(element, i))),
     };
-  const keyed = elements.map((element, index) => {
-    const key = parts.value ? evaluateTree(parts.value, at(element)) : element;
+  const keyed = elements.map(({ v: element, i }, index) => {
+    const key = parts.value ? evaluateTree(parts.value, at(element, i)) : element;
     if (key.kind !== 'int' && key.kind !== 'decimal' && key.kind !== 'string')
       return fail('type-mismatch', `${fn}() sorts by numbers or strings, not ${key.kind}`);
     return { element, key, index };

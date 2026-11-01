@@ -1,0 +1,50 @@
+description: "The list functions bind `i`, the element's position in the list, so two lists can be paired"
+specVersion: 0.1.0
+cases:
+  - name: mapList pairs a list with another by position
+    evaluate: mapList(participants.target, x.id + ':' + string(flags.edges[i]))
+    roots:
+      participants:
+        target: [{ id: a }, { id: b }, { id: c }]
+      flags:
+        edges: [0, 2, 1]
+    value: ['a:0', 'b:2', 'c:1']
+  - name: a skipped null element still counts toward the position
+    evaluate: mapList(steps.tier, participants.target[i].id)
+    roots:
+      steps:
+        tier: [{ band: hit }, null, { band: miss }]
+      participants:
+        target: [{ id: a }, { id: b }, { id: c }]
+    value: [a, c]
+  - name: countList reads the position
+    evaluate: countList(steps.tier, x.edges > 0 && i > 0)
+    roots:
+      steps:
+        tier: [{ edges: 1 }, { edges: 0 }, { edges: 2 }]
+    value: 1
+    valueType: int
+  - name: sumList weights by position
+    evaluate: sumList([5, 6, 7], x * i)
+    value: 20
+    valueType: int
+  - name: filterList keeps the elements at even positions
+    evaluate: filterList(['a', 'b', 'c', 'd'], i % 2 == 0)
+    value: [a, c]
+  - name: sortList's key reads the position
+    evaluate: sortList(['a', 'b', 'c'], -i)
+    value: [c, b, a]
+  - name: in a list argument, i is not bound
+    evaluate: mapList([i], x)
+    error: unknown-name
+  # Type checking.
+  - name: i is an int
+    check: mapList(item.kept, i)
+    roots: [item]
+    rootTypes:
+      item: { object: { kept: list<string> } }
+    type: list<int>
+  - name: i is not bound outside a list function
+    check: i + 1
+    roots: [item]
+    error: unknown-name

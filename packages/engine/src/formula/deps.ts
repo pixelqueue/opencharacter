@@ -1,4 +1,10 @@
-import { AGGREGATE_ROOT, aggregateArgs, aggregateOver, type FieldView } from './aggregates.ts';
+import {
+  AGGREGATE_ROOT,
+  LIST_INDEX,
+  aggregateArgs,
+  aggregateOver,
+  type FieldView,
+} from './aggregates.ts';
 import type { Node } from './ast.ts';
 import { capture, fail } from './errors.ts';
 import { keptFields } from './evaluate.ts';
@@ -11,7 +17,11 @@ export function references(node: Node, roots: ReadonlySet<string>): Set<string> 
     if (n.type === 'name' && !bound.has(n.path[0] as string)) found.add(n.path.join('.'));
     const over = n.type === 'call' ? aggregateOver(n.fn) : undefined;
     if (n.type === 'call' && over) {
-      const inner = new Set([...bound, AGGREGATE_ROOT[over]]);
+      const inner = new Set([
+        ...bound,
+        AGGREGATE_ROOT[over],
+        ...(over === 'list' ? [LIST_INDEX] : []),
+      ]);
       n.args.forEach((arg, i) => visit(arg, over === 'list' && i === 0 ? bound : inner));
       return;
     }
