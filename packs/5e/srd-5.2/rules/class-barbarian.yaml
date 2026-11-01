@@ -8,6 +8,16 @@ fields:
   barbarian.recklessAttack: { type: boolean, formula: false }
   barbarian.brutalStrike: { type: integer, formula: 0 }
   barbarian.frenzy: { type: boolean, formula: false }
+  barbarian.retaliation: { type: boolean, formula: false }
+
+# Retaliation with an Unarmed Strike (each melee weapon offers its own attack: the weapon type's
+# follow-up). Once per batch of damage; whether it came from within 5 feet, and whether the
+# Reaction is spent, are the player's.
+followUps:
+  - id: retaliation-unarmed
+    on: { field: hp.current, tags: [damage], once: true }
+    when: barbarian.retaliation && change.taken < 0 && hp.current > 0
+    action: unarmed-strike
 
 situational:
   - id: recklessAttack
@@ -72,3 +82,4 @@ display:
     barbarian.brutalStrike:
       { groups: [class-features], priority: 2, showWhen: barbarian.brutalStrike > 0 }
     barbarian.frenzy: { hidden: true }
+    barbarian.retaliation: { hidden: true }

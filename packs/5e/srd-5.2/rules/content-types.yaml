@@ -44,6 +44,16 @@ contentTypes:
       usedToday: { type: set, of: string, default: [] }
     actions:
       - use: weapon-attack
+    # Retaliation: a melee attack with the weapon when its wielder takes damage. Once per batch of
+    # damage; whether it came from within 5 feet, and whether the Reaction is spent, are the
+    # player's.
+    followUps:
+      - id: retaliation
+        on: { field: hp.current, tags: [damage], once: true }
+        when: >-
+          barbarian.retaliation && self.equipped && item.range == 'melee'
+            && change.taken < 0 && hp.current > 0
+        action: weapon-attack
     effects:
       # An attuned item for other classes than the character's (attunementClasses).
       - target: attunement.classUnmet
