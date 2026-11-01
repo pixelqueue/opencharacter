@@ -12,5 +12,47 @@ fields:
   material: true
   durationUnit: hour
   durationAmount: 1
+  applied: true
+  castOptions:
+    [bears-endurance, bulls-strength, cats-grace, eagles-splendor, foxs-cunning, owls-wisdom]
 actions:
   - use: cast-spell
+# Each effect's advantage on its ability's checks; Bear's Endurance's temporary hit points, Bull's
+# Strength's carrying capacity and Cat's Grace's falls are text.
+effects:
+  - target: { rolls: [check.con] }
+    op: rollModifier
+    value: { kind: advantage }
+    when: self.option == 'bears-endurance'
+    scope: applied
+    duration: { amount: 1, unit: hour, concentration: true }
+  - target: { rolls: [check.str] }
+    op: rollModifier
+    value: { kind: advantage }
+    when: self.option == 'bulls-strength'
+    scope: applied
+    duration: { amount: 1, unit: hour, concentration: true }
+  - target: { rolls: [check.dex] }
+    op: rollModifier
+    value: { kind: advantage }
+    when: self.option == 'cats-grace'
+    scope: applied
+    duration: { amount: 1, unit: hour, concentration: true }
+  - target: { rolls: [check.cha] }
+    op: rollModifier
+    value: { kind: advantage }
+    when: self.option == 'eagles-splendor'
+    scope: applied
+    duration: { amount: 1, unit: hour, concentration: true }
+  - target: { rolls: [check.int] }
+    op: rollModifier
+    value: { kind: advantage }
+    when: self.option == 'foxs-cunning'
+    scope: applied
+    duration: { amount: 1, unit: hour, concentration: true }
+  - target: { rolls: [check.wis] }
+    op: rollModifier
+    value: { kind: advantage }
+    when: self.option == 'owls-wisdom'
+    scope: applied
+    duration: { amount: 1, unit: hour, concentration: true }

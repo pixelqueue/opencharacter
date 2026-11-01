@@ -395,6 +395,15 @@ actions:
             split: { roll: damage, by: damage }
             by: -max(0, part.total)
             tags: [damage, attack, spell, magical, { formula: item.attack }]
+      - id: spellOption
+        kind: choice
+        each: target
+        when: has(item.castOptions)
+        options: { values: { formula: item.castOptions } }
+      - id: spellOptionSelf
+        kind: choice
+        when: has(item.castOptions) && size(participants.target) == 0
+        options: { values: { formula: item.castOptions } }
       - id: sculpt
         kind: choice
         each: target
@@ -454,7 +463,9 @@ actions:
         changes:
           - type: applyEffect
             source: item.id
-            state: { castSlot: flags.slot }
+            state:
+              castSlot: flags.slot
+              option: "has(steps.spellOption) ? steps.spellOption.value : ''"
           - type: adjust
             when: has(item.maxHp)
             field: hp.current
@@ -469,7 +480,9 @@ actions:
         changes:
           - type: applyEffect
             source: item.id
-            state: { castSlot: flags.slot }
+            state:
+              castSlot: flags.slot
+              option: "has(steps.spellOptionSelf) ? steps.spellOptionSelf.value : ''"
           - type: adjust
             when: has(item.maxHp)
             field: hp.current

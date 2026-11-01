@@ -14,5 +14,10 @@ fields:
   durationAmount: 1
   save: con
   saveEffect: none
+  applied: true
+  castOptions: [blinded, deafened]
 actions:
   - use: cast-spell
+grants:
+  - { item: conditions.blinded, scope: applied, when: "self.option == 'blinded'" }
+  - { item: conditions.deafened, scope: applied, when: "self.option == 'deafened'" }

@@ -12,5 +12,38 @@ fields:
   material: false
   durationUnit: hour
   durationAmount: 1
+  applied: true
+  castOptions: [acid, cold, fire, lightning, thunder]
 actions:
   - use: cast-spell
+effects:
+  - target: { incoming: { fields: [hp.current], tags: [damage.acid] } }
+    op: multiply
+    value: 0.5
+    when: self.option == 'acid'
+    scope: applied
+    duration: { amount: 1, unit: hour, concentration: true }
+  - target: { incoming: { fields: [hp.current], tags: [damage.cold] } }
+    op: multiply
+    value: 0.5
+    when: self.option == 'cold'
+    scope: applied
+    duration: { amount: 1, unit: hour, concentration: true }
+  - target: { incoming: { fields: [hp.current], tags: [damage.fire] } }
+    op: multiply
+    value: 0.5
+    when: self.option == 'fire'
+    scope: applied
+    duration: { amount: 1, unit: hour, concentration: true }
+  - target: { incoming: { fields: [hp.current], tags: [damage.lightning] } }
+    op: multiply
+    value: 0.5
+    when: self.option == 'lightning'
+    scope: applied
+    duration: { amount: 1, unit: hour, concentration: true }
+  - target: { incoming: { fields: [hp.current], tags: [damage.thunder] } }
+    op: multiply
+    value: 0.5
+    when: self.option == 'thunder'
+    scope: applied
+    duration: { amount: 1, unit: hour, concentration: true }

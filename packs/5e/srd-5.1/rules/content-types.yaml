@@ -186,9 +186,11 @@ contentTypes:
 
   spell:
     texts: [material, trigger]
-    # The slot the spell was cast with: 0 when unknown, read as the spell's own level.
+    # The slot the spell was cast with: 0 when unknown, read as the spell's own level; the
+    # option picked when it was cast (its `castOptions`), '' for none.
     state:
       castSlot: { type: integer, default: 0, min: 0, max: 9 }
+      option: { type: string, default: '' }
     fields:
       level: { type: integer, required: true, min: 0, max: 9 }
       school:
@@ -242,6 +244,9 @@ contentTypes:
       saveEffect: { type: enum, values: [half, none] }
       condition: { type: id, of: condition }
       applied: { type: boolean }
+      # The options the caster picks from per cast (a damage type, a shield, an ability), each
+      # named by the spell's `options.<id>.name` text; the applied spell reads `self.option`.
+      castOptions: { type: list, of: string, unique: true }
       maxHp: { type: integer }
       upcastMaxHp: { type: integer }
       damageType:
