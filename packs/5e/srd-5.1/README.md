@@ -325,8 +325,12 @@ fixed sets.
 
 ## Limitations
 
-Of the 152 class and subclass features, 8 have no mechanics, and 63 of the 318 magic items are
-text. Of the 319 spells, 200 do nothing on the sheet beyond spending the slot: what they do is
+Of the 152 class and subclass features, 8 have no mechanics, nor do 16 other options and traits:
+six Hunter's tactics (Escape the Horde, Giant Killer, Horde Breaker, Multiattack Defense, Stand
+Against the Tide, Steel Will), two invocations (Eyes of the Rune Keeper, Gaze of Two Minds), the
+Protection and Two-Weapon Fighting styles, Pact of the Blade, four traits (Halfling Nimbleness,
+Naturally Stealthy, Trance, Nimble Escape) and Shelter of the Faithful: 24 files in all. 63 of
+the 318 magic items are text. Of the 319 spells, 200 do nothing on the sheet beyond spending the slot: what they do is
 their SRD text, for the app and the table (detection, illusions, summoning, movement, utility).
 
 - **The app's:** turns and action economy (Cunning Action, Fast Hands, Vanish, Persistent Rage,
