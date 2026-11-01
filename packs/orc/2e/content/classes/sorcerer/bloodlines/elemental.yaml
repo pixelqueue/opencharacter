@@ -115,7 +115,10 @@ effects:
         - type: adjust
           field: hp.current
           by: -flags.rank
-          tags: [damage, { formula: "'damage.' + sorcerer.elementDamage" }]
+          # No element yet (influence unanswered): untyped damage, not the undeclared `damage.none`.
+          tags:
+            - damage
+            - formula: "sorcerer.elementDamage == 'none' ? [] : ['damage.' + sorcerer.elementDamage]"
 grants:
   - { item: spells.unfettered-movement, when: level >= 7 }
   - { item: spells.elemental-form, when: level >= 9 }
