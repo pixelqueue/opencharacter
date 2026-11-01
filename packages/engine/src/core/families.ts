@@ -19,7 +19,8 @@ type ViewFields = Map<string, Record<string, unknown>>;
  *   is replaced, in its place, by one entry per value (per combination, the first placeholder
  *   outermost), with `{<name>}` replaced in every string of the entry, keys included.
  * - `viewFields: { <name>: { <field>: decl } }` names sets of declared fields; a `fields` given
- *   as a string (a link slot's, a participant role's, in rules or content) is that set.
+ *   as a string (a link slot's, a participant role's, in rules or content) is that set, its family
+ *   keys expanded.
  */
 export function expandFamilies(
   rules: readonly RulesDoc[],
@@ -30,6 +31,7 @@ export function expandFamilies(
   const problems: FamilyProblem[] = [];
   const families: Families = new Map(visible ?? []);
   const views: ViewFields = new Map();
+  const viewDoc = new Map<string, number>();
   rules.forEach((doc, i) => {
     for (const [name, values] of Object.entries(doc.families ?? {})) {
       // A qualified name adds to another pack's family; `visible` has the sum.
@@ -42,8 +44,17 @@ export function expandFamilies(
       if (views.has(name))
         problems.push({ where: { rules: i }, message: `view fields "${name}" are declared twice` });
       views.set(name, set as Record<string, unknown>);
+      viewDoc.set(name, i);
     }
   });
+  // A set's family keys expand where it is declared, so content naming it gets them too.
+  for (const [name, set] of views)
+    views.set(
+      name,
+      walk(set, families, new Map(), (message) =>
+        problems.push({ where: { rules: viewDoc.get(name) ?? 0 }, message }),
+      ) as Record<string, unknown>,
+    );
   const expand = (value: unknown, keys: boolean, report: (message: string) => void) =>
     walk(value, keys ? families : new Map(), views, report);
   return {

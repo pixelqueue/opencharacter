@@ -1,0 +1,42 @@
+description: "A content action's role `fields` naming a view-field set gets the set's family keys expanded, as a rules action's role does"
+specVersion: 0.3.0
+call: startAction
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.3.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        families:
+          trait: [might, agility]
+        fields:
+          level: { type: integer, input: true, default: 1 }
+          'traits.{trait}.score': { type: integer, input: true, default: 0 }
+        viewFields:
+          creature:
+            level: { type: integer, default: 1 }
+            'traits.{trait}.score': { type: integer, default: 0 }
+        contentTypes:
+          feature: {}
+      content:
+        - id: features.poke
+          type: feature
+          actions:
+            - id: poke
+              participants:
+                target: { max: 1, fields: creature }
+              steps:
+                - id: done
+                  kind: outcome
+                  data:
+                    might: participants.target[0].traits.might.score
+                    agility: participants.target[0].traits.agility.score
+                    level: participants.target[0].level
+input:
+  action: { id: 'test-pack:features.poke#poke', entry: poke }
+  participants:
+    target:
+      - { id: goblin, values: { 'test-pack:traits.might.score': 2, 'test-pack:level': 3 } }
