@@ -25,6 +25,7 @@ effects:
     value: { kind: advantage }
     when: self.option == 'enlarge'
     scope: applied
+    duration: { amount: 1, unit: minute, concentration: true }
   - target: { rolls: [damage.weapon] }
     op: add
     value: 1d4
@@ -36,11 +37,13 @@ effects:
       ]
     when: self.option == 'enlarge'
     scope: applied
+    duration: { amount: 1, unit: minute, concentration: true }
   - target: { rolls: [check.str, save.str] }
     op: rollModifier
     value: { kind: disadvantage }
     when: self.option == 'reduce'
     scope: applied
+    duration: { amount: 1, unit: minute, concentration: true }
   - target: { rolls: [damage.weapon] }
     op: add
     value: -1d4
@@ -52,8 +55,10 @@ effects:
       ]
     when: self.option == 'reduce'
     scope: applied
+    duration: { amount: 1, unit: minute, concentration: true }
   - target: { rolls: [damage.weapon] }
     op: atLeast
     value: 1
     when: self.option == 'reduce'
     scope: applied
+    duration: { amount: 1, unit: minute, concentration: true }
