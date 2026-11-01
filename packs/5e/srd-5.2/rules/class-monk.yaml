@@ -3,6 +3,36 @@ fields:
   focus.saveDc: { type: integer, formula: 0 }
   slowFall.reduction: { type: integer, formula: 0 }
   superiorDefense.active: { type: boolean, input: true, default: false }
+  # Deflect Attacks: the flat part of its reduction (Dexterity modifier plus Monk level), and
+  # whether it works on any damage type (Deflect Energy) or Bludgeoning, Piercing and Slashing only.
+  deflectAttacks.known: { type: boolean, formula: false }
+  deflectAttacks.bonus: { type: integer, formula: 0 }
+  deflectAttacks.anyType: { type: boolean, formula: false }
+
+situational:
+  # Deflect Attacks on an attack that hits: its damage is reduced by 1d10 plus the bonus, never
+  # below 0. It applies to each damage change of the attack it matches (one per damage type), and
+  # the Reaction is the player's; redirecting the force is the `deflect-attacks` action's.
+  - id: deflectAttacks
+    type: boolean
+    default: false
+    available: deflectAttacks.known
+    incoming: { fields: [hp.current], tags: [attack] }
+    effects:
+      - target: { incoming: { fields: [hp.current], tags: [damage] } }
+        op: add
+        value: 1d10 + deflectAttacks.bonus
+        when: >-
+          incoming.amount < 0
+            && (deflectAttacks.anyType || countList(['damage.bludgeoning', 'damage.piercing',
+              'damage.slashing'], x in incoming.tags) > 0)
+      - target: { incoming: { fields: [hp.current], tags: [damage] } }
+        op: atMost
+        value: 0
+        when: >-
+          incoming.amount < 0
+            && (deflectAttacks.anyType || countList(['damage.bludgeoning', 'damage.piercing',
+              'damage.slashing'], x in incoming.tags) > 0)
 
 display:
   fields:
@@ -10,3 +40,6 @@ display:
     focus.saveDc: { groups: [class-features], priority: 1, showWhen: focus.points > 0 }
     slowFall.reduction: { groups: [class-features], priority: 2, showWhen: slowFall.reduction > 0 }
     superiorDefense.active: { groups: [class-features], priority: 1, showWhen: focus.points >= 18 }
+    deflectAttacks.known: { hidden: true }
+    deflectAttacks.bonus: { hidden: true }
+    deflectAttacks.anyType: { hidden: true }

@@ -267,7 +267,11 @@ Where the SRD is unclear or silent, the pack reads it this way:
   Stonecunning, the lineage spells, Giant Ancestry, Large Form, Adrenaline Rush, Relentless
   Endurance); Stone's Endurance spends a Giant Ancestry use from its incoming-damage effect's
   `then`, and is offered while one is left. Retaliation offers each melee weapon's attack, and
-  an Unarmed Strike, as follow-ups when the barbarian takes damage and stays up.
+  an Unarmed Strike, as follow-ups when the barbarian takes damage and stays up. Deflect Attacks
+  is a situational choice on an incoming attack (`deflectAttacks`): its Bludgeoning, Piercing or
+  Slashing damage (any type with Deflect Energy) is reduced by 1d10 plus the Dexterity modifier
+  and Monk level, never below 0, on each damage change of the attack it matches; the
+  `deflect-attacks` action still redirects the force.
 - **Spellcasting:** each class's cantrips and prepared spells (the table's counts), always-
   prepared subclass spells, the Multiclass Spellcaster slots, Pact Magic, the wizard's spellbook
   and Ritual Adept, Magic Initiate and species spells with their own ability, `cast-spell` with

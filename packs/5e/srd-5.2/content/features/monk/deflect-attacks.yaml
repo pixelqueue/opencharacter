@@ -1,5 +1,8 @@
 id: features.monk.deflect-attacks
 type: feature
+effects:
+  - { target: deflectAttacks.known, op: set, value: true }
+  - { target: deflectAttacks.bonus, op: set, value: abilities.dex.mod + self.level }
 actions:
   - id: deflect-attacks
     tags: [feature]
