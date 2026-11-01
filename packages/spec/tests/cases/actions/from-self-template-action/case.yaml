@@ -1,0 +1,49 @@
+description: "A template's own action is its copy's: `from: self` effects of the copy's content type, its item and its other templates reach the template's action, by entry"
+specVersion: 0.3.0
+call: startAction
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.3.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        tags: [attack]
+        contentTypes:
+          blade:
+            carried: true
+            # Every blade's own attacks: +1.
+            effects:
+              - { target: { rolls: [attack], from: self }, op: add, value: 1 }
+      content:
+        # The sword's own attacks: +10.
+        - id: blades.sword
+          type: blade
+          effects:
+            - { target: { rolls: [attack], from: self }, op: add, value: 10 }
+        # Keen's own action: an attack of 2.
+        - id: keen
+          type: template
+          appliesTo: { type: blade }
+          actions:
+            - id: slash
+              results: [done]
+              steps:
+                - id: attack
+                  kind: roll
+                  tags: [attack]
+                  parts: [{ value: 2 }]
+                - id: done
+                  kind: outcome
+                  result: "'done'"
+                  data: { total: steps.attack.total }
+        # Another template on the copy: +100 to its attacks.
+        - id: honed
+          type: template
+          appliesTo: { type: blade }
+          effects:
+            - { target: { rolls: [attack], from: self }, op: add, value: 100 }
+input:
+  action: { id: 'test-pack:keen#slash', entry: sword, source: test-pack:keen }

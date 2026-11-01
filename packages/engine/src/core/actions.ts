@@ -2739,12 +2739,15 @@ function addsToSteps(instance: EffectInstance, frame: Frame, from: string | unde
 
 /**
  * Whether `from: self` matches: the effect's copy is the action's entry, and for an action run
- * for content on it (a pick or grant, named by `source`) the content carrying the effect is that
- * content, so granted abilities sharing their type's action each reach only their own runs.
+ * for content granted or picked under the copy (named by `source`) the content carrying the
+ * effect is that content, so granted abilities sharing their type's action each reach only their
+ * own runs. A template is part of its copy: its own action matches by entry, as the copy's does.
  */
 function ownEffect(instance: EffectInstance, frame: Frame): boolean {
   if (instance.source.entry !== frame.entry) return false;
-  return frame.source === undefined || instance.source.id === frame.source;
+  const kind = frame.activation?.kind;
+  if (frame.source === undefined || (kind !== 'grant' && kind !== 'pick')) return true;
+  return instance.source.id === frame.source;
 }
 
 /** Of instances sharing a `stackKey` or an ID, only the first is offered. */
