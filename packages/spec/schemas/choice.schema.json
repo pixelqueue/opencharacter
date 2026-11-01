@@ -55,7 +55,7 @@
       "type": "boolean"
     },
     "recommend": {
-      "description": "Optional formula naming the option the rules recommend (an option ID or value).",
+      "description": "Optional formula naming the option the rules recommend (an option ID or value). It sees `options`: the options the choice offers that are eligible apart from prerequisites (in `from` and its `where`, passing `eligible`, not taken in another choice of its `unique` group), in the order offered, so a choice whose options depend on the character can recommend one (`options[0]`).",
       "$ref": "formula.schema.json"
     },
     "effects": {
@@ -175,7 +175,7 @@
       ]
     },
     "inlineOption": {
-      "description": "An option defined inside the choice. Translation keys: `<owner>.choices.<choice>.options.<id>.name`.",
+      "description": "An option defined inside the choice. Translation keys: `<owner>.choices.<choice>.options.<id>.name`, and an optional `<owner>.choices.<choice>.options.<id>.description` (Markdown), as content items have.",
       "type": "object",
       "required": ["id"],
       "properties": {
@@ -207,6 +207,13 @@
           "type": "array",
           "items": {
             "$ref": "#"
+          }
+        },
+        "immuneTo": {
+          "description": "Applied content the character can't be affected by while the option is picked and active, as a content item's `immuneTo`. The `immune` issue's `id` is the option's source ID plus the immunity's (`<owner>/<choice>/<option>/<id>`).",
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/immunity"
           }
         }
       },

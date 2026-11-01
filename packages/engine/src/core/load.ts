@@ -584,6 +584,7 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
         ...option,
         ...(option.effects ? { effects: option.effects.map((e) => q.effect(e, pack)) } : {}),
         ...(option.grants ? { grants: option.grants.map((g) => q.grant(g, pack)) } : {}),
+        ...(option.immuneTo ? { immuneTo: option.immuneTo.map((i) => q.immunity(i, pack)) } : {}),
         ...(option.choices
           ? { choices: q.choices(option.choices, pack, `option ${option.id}`) }
           : {}),

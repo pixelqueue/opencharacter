@@ -1084,3 +1084,30 @@ describe("values an add-on adds to parameters, items' state and families", () =>
     expect(text.option('gale', { action: 'core:pick-ward' })).toBe('gale');
   });
 });
+
+describe('option descriptions', () => {
+  const text = createText({
+    languages: ['en'],
+    packs: {
+      en: {
+        core: {
+          'careers.agent.choices.incident.options.betrayed.name': 'Betrayed',
+          'careers.agent.choices.incident.options.betrayed.description':
+            'Your handler sold you out.',
+        },
+        addon: {
+          'careers.agent.choices.incident.options.framed.description': 'You took the fall.',
+        },
+      },
+    },
+    spec: {},
+    optionOrigins: { 'core:careers.agent/incident': { framed: 'addon' } },
+  });
+  const incident = { owner: 'core:careers.agent', id: 'incident' };
+
+  it("reads an inline option's description, from the adding pack for an added option", () => {
+    expect(text.optionDescription(incident, 'betrayed')).toBe('Your handler sold you out.');
+    expect(text.optionDescription(incident, 'framed')).toBe('You took the fall.');
+    expect(text.optionDescription(incident, 'lost')).toBeUndefined();
+  });
+});

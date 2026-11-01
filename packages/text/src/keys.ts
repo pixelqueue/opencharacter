@@ -120,11 +120,15 @@ export function choicePromptKey(choice: ChoiceRef): MessageRef {
   return { pack, key: `${owner}.choices.${choice.slot?.choice ?? choice.id}.prompt` };
 }
 
-export function inlineOptionKey(choice: ChoiceRef, option: string | number): MessageRef {
+export function inlineOptionKey(
+  choice: ChoiceRef,
+  option: string | number,
+  suffix: 'name' | 'description' = 'name',
+): MessageRef {
   const [pack, owner] = split(choice.owner);
   return {
     pack,
-    key: `${owner}.choices.${choice.slot?.choice ?? choice.id}.options.${option}.name`,
+    key: `${owner}.choices.${choice.slot?.choice ?? choice.id}.options.${option}.${suffix}`,
   };
 }
 

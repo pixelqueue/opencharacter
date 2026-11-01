@@ -192,8 +192,8 @@ export type AllocateStep = {
   values?: Formula[];
   /** Boolean formula: when it holds, the engine recommends a random answer instead of `recommend`. With `values`, each value in order goes to a field drawn uniformly among the offered fields not given one yet. With a budget, one unit at a time goes to a field drawn uniformly among those that can take one more (within its limit, the unit's added cost positive and within what is left), until the budget is spent or no field can take more; with `spend: all`, a draw that leaves some of the budget unspent gives no recommendation. Each draw is a dice checkpoint at the step's path, as on a choice step. */
   random?: Formula;
-  /** The recommended amounts: by field ID (local or qualified), an integer formula. Fields left out get nothing. Used only when it is a valid answer. */
-  recommend?: Record<string, Formula>;
+  /** The recommended amounts: by field ID (local or qualified), an integer formula, or one formula evaluated for each offered field with `field` bound (`{ id, value }`, as for `limit`), giving its amount or `null` for none. Fields left out get nothing, and entries for fields the step doesn't offer are ignored, so one step recommends for whichever fields it offers. Used only when it is a valid answer. */
+  recommend?: Record<string, Formula> | Formula;
   /** The question. Default key: `<actionKey>.steps.<id>.prompt`. */
   prompt?: I18nKey;
 };
@@ -835,7 +835,7 @@ export type Choice = {
   when?: Condition;
   /** A required choice with too few picks is reported as pending. Default true. */
   required?: boolean;
-  /** Optional formula naming the option the rules recommend (an option ID or value). */
+  /** Optional formula naming the option the rules recommend (an option ID or value). It sees `options`: the options the choice offers that are eligible apart from prerequisites (in `from` and its `where`, passing `eligible`, not taken in another choice of its `unique` group), in the order offered, so a choice whose options depend on the character can recommend one (`options[0]`). */
   recommend?: Formula;
   /** Effects applied once per pick, with the picked option visible as `pick` (its `id` or `value`). Used when options are values or fields rather than content (choose two skills), or picks that aren't activated (`activate: false`). */
   effects?: Effect[];
@@ -872,7 +872,7 @@ export type Options =
       options: InlineOption[];
     };
 
-/** An option defined inside the choice. Translation keys: `<owner>.choices.<choice>.options.<id>.name`. */
+/** An option defined inside the choice. Translation keys: `<owner>.choices.<choice>.options.<id>.name`, and an optional `<owner>.choices.<choice>.options.<id>.description` (Markdown), as content items have. */
 export type InlineOption = {
   id: Slug;
   tags?: Tags;
@@ -880,6 +880,8 @@ export type InlineOption = {
   effects?: Effect[];
   grants?: Grant[];
   choices?: Choice[];
+  /** Applied content the character can't be affected by while the option is picked and active, as a content item's `immuneTo`. The `immune` issue's `id` is the option's source ID plus the immunity's (`<owner>/<choice>/<option>/<id>`). */
+  immuneTo?: Immunity[];
 };
 
 /** A pack ID: lowercase words joined by hyphens, with dots allowed between them, e.g. `5e-srd-5.1`. By convention `<game>-<pack folder>`. */

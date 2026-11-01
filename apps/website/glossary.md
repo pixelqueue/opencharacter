@@ -60,7 +60,7 @@ One-line definitions of OCF terms, consistent with the [specification](../../pac
 - **I18n key:** the permanent key under which player-facing text is looked up in translation files.
 - **Immunity:** applied content a character can't be affected by, declared by content or the rules (`immuneTo`); a matching `applied` entry is blocked and reported as the rules issue `immune`. A query can read the candidate entry as `entry`, and any activation condition the raw `character.applied` list.
 - **Incoming change:** a change about to be applied to a character (damage), which effects can modify first (resistance).
-- **Inline option:** an option defined inside a choice rather than as separate content.
+- **Inline option:** an option defined inside a choice rather than as separate content, with a name and an optional description in the pack's text.
 - **Input field:** a field whose value the player supplies and the character file saves.
 - **Interface change:** a difference between two pack releases that can break a character's homebrew (a removed derived field, content type, item field, enum value, tag or rules action); it needs a breaking bump but no upgrade script.
 - **Item field:** a typed property declared by a content type and set on each item (damage, weight).

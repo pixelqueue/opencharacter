@@ -898,8 +898,11 @@ An allocate step is one checkpoint that hands amounts to several fields.
      the budget (`spend: all`, the default) or is at most it (`spend: upTo`);
    - **values:** the amounts, as a list, are the values in some order: each value used exactly
      once, so no field gets two and none is left over.
-4. **Recommending.** `recommend` maps field IDs (qualified at load) to integer formulas. The
-   amounts it gives are the recommendation when they fit; otherwise there is none.
+4. **Recommending.** `recommend` maps field IDs (qualified at load) to integer formulas, or is
+   one formula evaluated for each offered field in field order, with `field` bound as for
+   `limit`, giving the field's amount or `null` for none. A map's entries for fields the step
+   doesn't offer are left out unevaluated. The amounts it gives are the recommendation when they
+   fit; otherwise there is none.
    **Random amounts**: when `random`, a condition in the action's context,
    holds, the recommendation is drawn instead, each draw a die over the fields it may go to, as
    a choice step's draw is (a dice checkpoint at the step's path; a pause gives `draw.among`,

@@ -1,0 +1,39 @@
+# A hero with a level, three characteristics, and a ward. Being grabbed is applied content.
+tags: [characteristic]
+
+fields:
+  level: { type: integer, input: true, default: 1 }
+  might: { type: integer, input: true, default: 0, tags: [characteristic] }
+  agility: { type: integer, input: true, default: 0, tags: [characteristic] }
+  reason: { type: integer, input: true, default: 0, tags: [characteristic] }
+  ward: { type: integer, formula: 0 }
+
+contentTypes:
+  ability:
+    fields:
+      level: { type: integer, default: 1 }
+  feature: {}
+  condition: {}
+
+actions:
+  # Might is primary: 2 and -1 go to the other two, reason first, by one formula per field.
+  - id: allocate-rest
+    steps:
+      - id: rest
+        kind: allocate
+        fields: { type: field, where: "'characteristic' in item.tags" }
+        values: [2, -1]
+        recommend: >-
+          field.id == 'test-choice-activation:might'
+            ? null
+            : (field.id == 'test-choice-activation:reason' ? 2 : -1)
+  # A map naming every characteristic, though the step offers two: the others are ignored.
+  - id: allocate-map
+    steps:
+      - id: rest
+        kind: allocate
+        fields:
+          type: field
+          where: "'characteristic' in item.tags && item.id != 'test-choice-activation:might'"
+        values: [2, -1]
+        recommend: { might: 5, agility: -1, reason: 2 }

@@ -1,0 +1,19 @@
+# Might isn't offered, so its 5 is ignored.
+status: finished
+proposedChanges:
+  - {
+      to: self,
+      step: rest,
+      change: { type: set, field: 'test-choice-activation:agility', value: -1 },
+    }
+  - {
+      to: self,
+      step: rest,
+      change: { type: set, field: 'test-choice-activation:reason', value: 2 },
+    }
+log:
+  - step: rest
+    action: test-choice-activation:allocate-map
+    kind: allocate
+    by: engine
+    amounts: { 'test-choice-activation:agility': -1, 'test-choice-activation:reason': 2 }

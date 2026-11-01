@@ -786,7 +786,12 @@ class FormulaChecker<L> {
     const key = `${owner}.choices.${choice.id}`;
     const where = `choice ${key}`;
     this.activation(() => this.formula(choice.when, at, where, BOOL));
-    this.ownChoice(() => this.formula(choice.recommend, at, where, ['string']));
+    // `options`: the options offered and eligible apart from prerequisites, in order.
+    this.ownChoice(() =>
+      this.typed({ options: { list: optionType(choice.from) } }, () =>
+        this.withRoots(['options'], () => this.formula(choice.recommend, at, where, ['string'])),
+      ),
+    );
     if (typeof choice.pick === 'object') {
       this.formula(choice.pick.min, at, where, ['int']);
       this.formula(choice.pick.max, at, where, ['int']);
@@ -885,6 +890,7 @@ class FormulaChecker<L> {
       this.owned(choiceKeys(option.choices), () => {
         for (const effect of option.effects ?? []) this.effect(effect, at, owner);
         for (const grant of option.grants ?? []) this.grant(grant, at, owner);
+        for (const immunity of option.immuneTo ?? []) this.immunity(immunity, at, owner);
         for (const prerequisite of option.prerequisites ?? [])
           this.formula(prerequisite.when, at, owner, BOOL);
         this.choices(option.choices ?? [], at, owner);
@@ -1166,6 +1172,10 @@ class FormulaChecker<L> {
       for (const value of Object.values(step.recommend)) this.formula(value, at, where, ['int']);
     this.typed({ field: ALLOCATED_FIELD, amount: 'int' }, () => {
       this.withRoots(['field'], () => this.formula(step.limit, at, where, ['int']));
+      if (step.recommend !== undefined && typeof step.recommend !== 'object')
+        this.withRoots(['field'], () =>
+          this.formula(step.recommend as Formula, at, where, ['int', 'null'], true),
+        );
       this.withRoots(['field', 'amount'], () => this.formula(step.cost, at, where, ['int']));
     });
   }
@@ -1920,4 +1930,10 @@ function writtenType(values: readonly (string | number)[]): FType {
   if (values.every((v) => Number.isInteger(v))) return 'int';
   if (values.every((v) => typeof v === 'number')) return 'decimal';
   return 'dyn';
+}
+
+/** The element type of a choice's `options` list: IDs, or its values. */
+function optionType(from: Choice['from']): FType {
+  if (!('values' in from)) return 'string';
+  return Array.isArray(from.values) ? writtenType(from.values) : 'dyn';
 }

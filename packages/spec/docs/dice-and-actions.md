@@ -1026,7 +1026,10 @@ as `action.item` and `action.self`. It works in one of two ways:
 - **Values** (`values`, a list of integer formulas): each value goes to a different field, and
   every value is used exactly once. The step proposes one `set` per field given a value.
 
-`recommend` maps field IDs to integer formulas; it is used only when it is a valid answer.
+`recommend` maps field IDs to integer formulas, or is one formula evaluated per offered field
+with `field` bound (`{ id, value }`), giving its amount or `null` for none. Entries for fields
+the step doesn't offer are ignored, so one step recommends for whichever fields its query
+offers. It is used only when it is a valid answer.
 `random` (a condition) recommends a random answer instead: each value, or each
 unit of the budget, goes to a field drawn uniformly among those that can still take it, with a
 die per draw ([engine-actions.md](engine-actions.md#allocate-steps)). Fate's random pyramid hands
@@ -1069,6 +1072,22 @@ the proposed sheet shows), and 5E's point buy and standard array:
   kind: allocate
   fields: { type: field, where: "'ability-base' in item.tags" }
   values: [15, 14, 13, 12, 10, 8]
+```
+
+One step serves every class when its recommendation is a formula per field: the array goes to
+the characteristics the class doesn't make primary, highest first in the class's priority order
+(`priority`, a list of field IDs), whichever fields the query offers:
+
+```yaml
+- id: rest
+  kind: allocate
+  fields:
+    type: field
+    where: "'characteristic' in item.tags && !(item.id in steps.class.item.primaries)"
+  values: [2, -1, -1]
+  recommend: >-
+    [2, -1, -1][indexOf(filterList(steps.class.item.priority,
+      !(x in steps.class.item.primaries)), field.id)]
 ```
 
 ### Roll modifiers

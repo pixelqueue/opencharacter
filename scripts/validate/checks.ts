@@ -1825,9 +1825,11 @@ export class PackChecker {
       seen.add(option.id);
       const owner = `${key}.options.${option.id}`;
       this.requiredKeys.add(`${owner}.name`);
+      this.optionalKeys.add(`${owner}.description`);
       this.tagList(option.tags, file, owner);
       for (const effect of option.effects ?? []) this.effect(effect, file, owner);
       this.grants(option.grants, file, `${owner}: `);
+      this.immunities(option.immuneTo ?? [], file, owner);
       for (const prerequisite of option.prerequisites ?? [])
         this.prerequisite(owner, prerequisite.id);
       this.choices(option.choices ?? [], file, owner);

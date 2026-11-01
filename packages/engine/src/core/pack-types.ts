@@ -205,6 +205,7 @@ export interface InlineOption {
   effects?: Effect[];
   grants?: Grant[];
   choices?: Choice[];
+  immuneTo?: Immunity[];
   /** Loaded: the pack an option another pack's choice gained comes from (`extendChoices`). */
   pack?: string;
 }

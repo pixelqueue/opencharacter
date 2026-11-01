@@ -3335,10 +3335,21 @@ function allocateStep(ctx: Ctx, frame: Frame, step: Step, path: string): void {
   if (randomHolds(ctx, frame, step)) {
     const amounts = randomAmounts(ctx, frame, path, tags, offered, values, budget, costOf);
     if (amounts && misfit(amounts) === undefined) recommended = normalize(amounts);
-  } else if (step.recommend !== undefined && typeof step.recommend === 'object') {
+  } else if (step.recommend !== undefined) {
+    // By field ID, entries for fields not offered left out; or one formula per offered field,
+    // with `field` bound, `null` giving it nothing.
     const amounts: Amounts = {};
-    for (const [id, formula] of Object.entries(step.recommend))
-      amounts[id] = integer(evaluate(ctx, frame, formula), 'a recommended amount');
+    if (typeof step.recommend === 'object') {
+      for (const [id, formula] of Object.entries(step.recommend))
+        if (ids.has(id))
+          amounts[id] = integer(evaluate(ctx, frame, formula), 'a recommended amount');
+    } else
+      for (const field of offered) {
+        const value = evaluate(ctx, frame, step.recommend, {
+          field: { id: field.id, value: field.value },
+        });
+        if (value.kind !== 'null') amounts[field.id] = integer(value, 'a recommended amount');
+      }
     if (misfit(amounts) === undefined) recommended = normalize(amounts);
   }
 

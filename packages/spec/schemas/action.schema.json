@@ -673,14 +673,21 @@
           "$ref": "formula.schema.json"
         },
         "recommend": {
-          "description": "The recommended amounts: by field ID (local or qualified), an integer formula. Fields left out get nothing. Used only when it is a valid answer.",
-          "type": "object",
-          "propertyNames": {
-            "$ref": "common.schema.json#/$defs/fieldRef"
-          },
-          "additionalProperties": {
-            "$ref": "formula.schema.json"
-          }
+          "description": "The recommended amounts: by field ID (local or qualified), an integer formula, or one formula evaluated for each offered field with `field` bound (`{ id, value }`, as for `limit`), giving its amount or `null` for none. Fields left out get nothing, and entries for fields the step doesn't offer are ignored, so one step recommends for whichever fields it offers. Used only when it is a valid answer.",
+          "anyOf": [
+            {
+              "type": "object",
+              "propertyNames": {
+                "$ref": "common.schema.json#/$defs/fieldRef"
+              },
+              "additionalProperties": {
+                "$ref": "formula.schema.json"
+              }
+            },
+            {
+              "$ref": "formula.schema.json"
+            }
+          ]
         },
         "prompt": {
           "description": "The question. Default key: `<actionKey>.steps.<id>.prompt`.",

@@ -987,7 +987,7 @@ A **choice** ([`choice.schema.json`](../schemas/choice.schema.json)) is declared
 | `pick`      | Count (formula) or `{ min, max }`. Default 1.                                                                                                             |
 | `when`      | When it applies (`self.level >= 1`). Before that it is neither pending nor active.                                                                        |
 | `required`  | Default true. A required choice with too few picks is pending.                                                                                            |
-| `recommend` | Formula naming the recommended option                                                                                                                     |
+| `recommend` | Formula naming the recommended option; `options` is bound ([below](#eligibility-and-own-picks))                                                           |
 | `effects`   | Applied once per pick, with the option bound to `pick`. Used for value options ("grant proficiency in `pick.value`").                                     |
 | `activate`  | Content choices: `false` keeps the picks inactive (below). Default true.                                                                                  |
 | `prompt`    | Override for the default key `<owner>.choices.<id>.prompt`                                                                                                |
@@ -997,7 +997,18 @@ Picked **content** becomes active: its effects, grants and its own choices apply
 declares state (its type's or its own) keeps it on the pick: it reads
 `self.<key>` from the pick's `state` (else the declared default) over the owner's copy, and
 `setState` and `adjustState` change it by the pick's `path` and `option`, or `pick: self` in its
-own action ([engine-core.md](engine-core.md#applychanges)). An **inline option** (`id`, `tags`, `prerequisites`, `effects`, `grants`, `choices`) behaves the same way. Text: `<owner>.choices.<choice>.options.<id>.name`.
+own action ([engine-core.md](engine-core.md#applychanges)). An **inline option** (`id`, `tags`, `prerequisites`, `effects`, `grants`, `choices`, `immuneTo`) behaves the same way. Text: `<owner>.choices.<choice>.options.<id>.name`, and an optional `<owner>.choices.<choice>.options.<id>.description` (Markdown), so a random table of named paragraphs (a d6 of inciting incidents) is a choice of inline options. Its `immuneTo` holds while it is picked and active, as an item's does ([above](#when-content-is-active)); the `immune` issue's `id` is the option's source ID plus the immunity's (`<owner>/<choice>/<option>/<id>`):
+
+```yaml
+# A title's benefit: Slippery can't be grabbed against your will.
+- id: benefit
+  from:
+    options:
+      - id: slippery
+        immuneTo: [{ id: grab, items: [conditions.grabbed] }]
+      - id: quick
+        effects: [{ target: speed, op: add, value: 1 }]
+```
 
 computeSheet lists a character's applicable choices, answered or not, as `choices`, and the
 ones still needing picks as `pending` ([engine-core.md](engine-core.md#the-choice-list)).
@@ -1161,6 +1172,21 @@ condition on the computed sheet. A `where` that reads the character is checked b
 `listOptions` with the option picked, a trial sheet per candidate: cheap for a few dozen options, slow for hundreds (orc-2e's class feats). A
 pack with long lists keeps `where` on the item (its level, its traits) and puts the
 character's part in `eligible`.
+
+**Recommending among the eligible.** A choice's `recommend` also sees `options`: the options it
+offers that are eligible apart from prerequisites, in the order offered (content IDs, inline
+option IDs or values). An option is left out when it fails `from` (a query's `where`, a value
+choice's `where`, a value a formula no longer lists), fails `eligible`, or is taken in another
+choice of its `unique` group; prerequisites, which need a trial sheet per option, aren't checked.
+So a choice whose options depend on the character still recommends one, and a guided or random
+start over pending choices doesn't stop there:
+
+```yaml
+# A heroic ability of the hero's class above their level, the first one recommended.
+- id: footsteps
+  from: { type: ability, where: 'item.class in classes && item.level > level' }
+  recommend: options[0]
+```
 
 A choice of inline options has no `eligible` (a schema error): its options have prerequisites.
 A pick another source also gives (an acolyte cleric's class skill Insight) passes such a

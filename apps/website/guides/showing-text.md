@@ -214,6 +214,10 @@ const bonus = sheet.choices[0];
 text.option(bonus.picks[0], { choice: bonus }); // 'Two Trained skills'
 ```
 
+An inline option or value may also have a description, Markdown, such as one paragraph of a
+random table: `text.optionDescription(choice, id)` gives
+`<owner>.choices.<choice>.options.<id>.description`, or `undefined` when the pack has none.
+
 ## A paused action
 
 `describeNeed` words a whole pause in one call:

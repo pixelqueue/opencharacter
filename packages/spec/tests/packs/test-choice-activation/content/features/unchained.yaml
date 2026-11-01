@@ -1,0 +1,13 @@
+# A benefit: slippery can't be grabbed; quick raises the ward.
+id: features.unchained
+type: feature
+choices:
+  - id: benefit
+    from:
+      options:
+        - id: slippery
+          immuneTo:
+            - { id: grab, items: [conditions.grabbed] }
+        - id: quick
+          effects:
+            - { target: ward, op: add, value: 1 }

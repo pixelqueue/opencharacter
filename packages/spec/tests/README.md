@@ -138,7 +138,9 @@ input: # any other call inputs (action, params, situational, policy, strict, lin
   `test-target-formula`, effects whose target is a formula (`target: { formula }`),
   `test-part-rolls`, advantage and disadvantage on a roll's parts (`of: roll`), and
   `test-roll-then`, roll effects that end themselves or spend a use once a roll used them
-  (`then`), and `test-describe`, actions as `describeAction` reads them.
+  (`then`), `test-describe`, actions as `describeAction` reads them, and `test-choice-activation`, a
+  choice recommending among its eligible options, an inline option's immunity and allocations
+  recommended per field.
 - **How outputs compare.** Only what `expected.yaml` lists is compared. A key the call doesn't
   define, in `case.yaml` or `expected.yaml`, is a mistake in the case: runners fail it rather
   than ignore it, so a case never seems to test something it doesn't.

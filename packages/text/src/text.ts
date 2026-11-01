@@ -219,6 +219,11 @@ export interface Text {
    * `context.action`. A value or written option without its own text is named as `setMember`.
    */
   option(id: string | number, context?: OptionContext): string;
+  /**
+   * An inline option's or a value's optional description (Markdown):
+   * `<owner>.choices.<choice>.options.<id>.description`, in the pack that names the option.
+   */
+  optionDescription(choice: ChoiceRef, id: string | number): string | undefined;
   band(bandSet: string, band: string): string;
   /** The bands a roll summary can still reach. */
   rollTargets(summary: RollSummary): RollTarget[];
@@ -786,6 +791,17 @@ export function createText(options: TextOptions): Text {
         );
       }
       return option;
+    },
+    optionDescription(choice, id) {
+      const ref = inlineOptionKey(choice, id, 'description');
+      const origin =
+        options.optionOrigins?.[`${choice.owner}/${choice.slot?.choice ?? choice.id}`]?.[
+          String(id)
+        ];
+      return (
+        (lookup(ref) ?? (origin === undefined ? undefined : message(origin, ref.key)))?.trim() ||
+        undefined
+      );
     },
     band: (bandSet, band) => lookup(bandKey(bandSet, band)) ?? band,
     rollTargets(summary) {

@@ -1706,6 +1706,16 @@ export class Sheet {
       }
       return out;
     }
+    // An inline option's are named under its source ID (`<owner>/<choice>/<option>`).
+    if (a.kind === 'inline') {
+      for (const def of a.inline?.immuneTo ?? []) {
+        if ((def.scope ?? 'holder') !== a.scope) continue;
+        const id = `${a.sourceId}/${def.id}`;
+        if (this.condition(def.when, a.pack, a.roots, `${id} immunity`))
+          out.push({ def, pack: a.pack, owner: a, id, source: a.source });
+      }
+      return out;
+    }
     const item = a.item;
     if (!item) return out;
     const pack = item.scopes?.immuneTo ?? item.pack;
