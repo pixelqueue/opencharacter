@@ -317,16 +317,16 @@ describe('item text with computed values', () => {
 
   it("fills a description and a named text from the content's computed values", () => {
     const values = { damage: 11, potency: 2, push: 3 };
-    expect(text.contentText(strike, undefined, { computed: values })).toBe('11 damage; potency 2.');
-    expect(text.contentText(strike, 'effect', { computed: values })).toBe('Push 3.');
+    expect(text.contentText(strike, { computed: values })).toBe('11 damage; potency 2.');
+    expect(text.contentText(strike, { computed: values }, undefined, 'effect')).toBe('Push 3.');
     expect(text.contentCard(strike, { computed: values })).toBe('11 damage; potency 2.');
   });
 
   it("names the holder's characteristic, a field ID, by its name", () => {
-    expect(text.contentText(grace, undefined, { computed: { char: 'p:presence' } })).toBe(
+    expect(text.contentText(grace, { computed: { char: 'p:presence' } })).toBe(
       'Add your Presence score.',
     );
-    expect(text.contentText(grace, undefined, { computed: { char: 'p:intuition' } })).toBe(
+    expect(text.contentText(grace, { computed: { char: 'p:intuition' } })).toBe(
       'Add your Intuition score.',
     );
     // Without values an argument is empty, and a `has_` test words it otherwise.

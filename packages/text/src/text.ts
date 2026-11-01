@@ -267,9 +267,9 @@ export interface Text {
    */
   contentText(
     item: BlockItem,
-    text?: string,
     copy?: BlockCopy,
     type?: BlockType,
+    text?: string,
   ): string | undefined;
   /**
    * One line of plain text from the last of the character's packs with a `headline` (homebrew
@@ -902,7 +902,7 @@ export function createText(options: TextOptions): Text {
       const description = itemText(item, 'description', copy, typeDef)?.trim() || undefined;
       return block && description ? `${block}\n\n${description}` : (block ?? description);
     },
-    contentText: (item, name, copy, typeDef) =>
+    contentText: (item, copy, typeDef, name) =>
       itemText(item, name === undefined ? 'description' : `texts.${name}`, copy, typeDef),
     issue(issue) {
       const data = { ...issue.data };

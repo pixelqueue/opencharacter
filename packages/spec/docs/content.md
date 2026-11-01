@@ -650,6 +650,13 @@ contentTypes:
 
   Applied content (`scope: applied`) and inline options have none.
 
+  **A content type's `computed` runs for both.** Its values are worked out for each copy of the
+  type and for each pick or grant of it, and there `self` is the owning copy, not the content.
+  A formula that reads the content's own copy state (`self.charges`, declared by the type) works
+  on a copy but fails on a pick or grant whose owner has no such key: `formula-error`, the value
+  left out. Declare such values on the items held as copies, test `has(self.<key>)`, or keep a
+  type's `computed` to what both read (`item`, fields, picks).
+
 - **Reading:** `self.<name>`, in the copy's (or the content's) own actions (including those it
   reaches through `use`, and their `available`) and its follow-ups, and in its later computed
   values: a computed value reads those declared **before** it, in declaration order (the
