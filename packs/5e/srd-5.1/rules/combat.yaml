@@ -419,7 +419,7 @@ actions:
         kind: choice
         tags: [weapon-hit]
         when: >-
-          combat.hitOptions > 0
+          (combat.hitOptions > 0 || (item.range == 'melee' && combat.meleeHitOptions > 0))
             && (flags.hit || (has(steps.confirm) && steps.confirm.picked == 'hit')
               || (has(steps.luck) && steps.luck.picked != 'miss'))
         options: [{ id: none }]
