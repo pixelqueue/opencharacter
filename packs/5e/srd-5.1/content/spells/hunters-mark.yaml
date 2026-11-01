@@ -29,6 +29,10 @@ effects:
           formula: "'damage.' + (has(roll.item.damageType) ? roll.item.damageType : 'bludgeoning')",
         },
       ]
+    # On a hit: rolled, confirmed by the player, or turned by luck (the same test as the damage
+    # step's).
     when: >-
-      has(participants.target) && size(participants.target) > 0
+      (has(flags.hit) && flags.hit || has(steps.confirm) && steps.confirm.picked == 'hit'
+        || has(steps.luck) && steps.luck.picked != 'miss')
+        && has(participants.target) && size(participants.target) > 0
         && character.id in participants.target[0].huntersMark.markedBy
