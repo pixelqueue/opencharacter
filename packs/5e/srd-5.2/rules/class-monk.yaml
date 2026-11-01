@@ -10,9 +10,10 @@ fields:
   deflectAttacks.anyType: { type: boolean, formula: false }
 
 situational:
-  # Deflect Attacks on an attack that hits: its damage is reduced by 1d10 plus the bonus, never
-  # below 0. It applies to each damage change of the attack it matches (one per damage type), and
-  # the Reaction is the player's; redirecting the force is the `deflect-attacks` action's.
+  # Deflect Attacks on an attack that hits: the change it is selected on is reduced by 1d10 plus
+  # the bonus, never below 0. The SRD reduces the attack's total once; a situational choice
+  # reaches only its own change, so the app selects it on one damage change (README,
+  # Limitations). The Reaction is the player's; redirecting is the `deflect-attacks` action's.
   - id: deflectAttacks
     type: boolean
     default: false

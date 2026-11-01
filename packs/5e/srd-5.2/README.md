@@ -268,10 +268,10 @@ Where the SRD is unclear or silent, the pack reads it this way:
   Endurance); Stone's Endurance spends a Giant Ancestry use from its incoming-damage effect's
   `then`, and is offered while one is left. Retaliation offers each melee weapon's attack, and
   an Unarmed Strike, as follow-ups when the barbarian takes damage and stays up. Deflect Attacks
-  is a situational choice on an incoming attack (`deflectAttacks`): its Bludgeoning, Piercing or
-  Slashing damage (any type with Deflect Energy) is reduced by 1d10 plus the Dexterity modifier
-  and Monk level, never below 0, on each damage change of the attack it matches; the
-  `deflect-attacks` action still redirects the force.
+  is a situational choice on an incoming attack (`deflectAttacks`): the damage change it is
+  selected on, if Bludgeoning, Piercing or Slashing (any type with Deflect Energy), is reduced by
+  1d10 plus the Dexterity modifier and Monk level, never below 0; the `deflect-attacks` action
+  still redirects the force.
 - **Spellcasting:** each class's cantrips and prepared spells (the table's counts), always-
   prepared subclass spells, the Multiclass Spellcaster slots, Pact Magic, the wizard's spellbook
   and Ritual Adept, Magic Initiate and species spells with their own ability, `cast-spell` with
@@ -365,6 +365,11 @@ as text are listed below.
   from higher slots, Enlarge/Reduce's size change, Chill Touch's no-regain, Beacon of Hope's
   maximum healing, Heroism's temporary hit points each turn, a second damage type for Transmuted
   Spell.
+- **Deflect Attacks per change, not per attack:** a situational choice reaches only the adjust
+  it is selected on, and its rolled reduction can't carry to the batch's other changes. So an
+  attack of several damage types is reduced on each change the app selects it on, not once on
+  the total; select it on one change (the Bludgeoning, Piercing or Slashing one) to apply it
+  once, and the other types' damage isn't reduced.
 - **Metamagic:** Distant, Quickened and Subtle Spell are recorded in the cast's `data.metamagic`
   for the app.
 - **Monsters:** movement and sense traits, revival traits, reactions that change a roll (Parry),
