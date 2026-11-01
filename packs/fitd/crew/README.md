@@ -117,8 +117,9 @@ It names no factions, people or places: the GM defines the factions.
     `replace-cohort` replaces a dead one for the tier + 2 coin.
 - **Advancement:** crew xp (8). A full track offers `crew-advance`: a new special ability (with a
   crew type, asked in its own `special-ability` choice only) or two upgrade boxes, marked on
-  upgrades or spent on a new gang or expert cohort (with its edge and flaw); xp clears, and
-  the outcome's `stash` (tier + 2) is for each member's sheet.
+  upgrades or spent on a new gang or expert cohort (with its edge and flaw); xp clears, and each
+  member passed in the `member` role gains stash (tier + 2) on their own sheet, which the
+  outcome's `stash` also reports.
   `develop` on a full rep track: weak hold becomes strong, or strong hold pays the new tier × 8
   coin (half with Patron, 2 less with Hardcase) to raise the tier and drops to weak; rep clears.
 - `tier-roll`: a fortune roll of the tier (a Secure lair against an intruder).
@@ -259,8 +260,9 @@ no crew types, so a crew-type pack's are the ones offered).
 ## Limitations
 
 - A crew can't read its members (a link slot holds one character), so nothing on the crew sheet
-  can count or sum over them, and an advance's stash is outcome data for the app. Crew actions
-  take members as participants where one member matters (the prisoner, a cohort's commander).
+  can count or sum over them. Crew actions take members as participants instead: the prisoner,
+  a cohort's commander, and every member of a `crew-advance`, whose sheets each gain the
+  advance's stash.
 
 ## License
 

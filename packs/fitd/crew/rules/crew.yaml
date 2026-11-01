@@ -59,6 +59,11 @@ actions:
   # own sheets.
   - id: crew-advance
     available: xp.current >= xp.max
+    # The members, who each gain stash (tier + 2) on their own sheets: the change names the
+    # scoundrel pack's field, which this pack doesn't load.
+    participants:
+      member:
+        pack: fitd-scoundrel
     results: [ability, upgrades]
     steps:
       - id: advance
@@ -150,6 +155,12 @@ actions:
         kind: changes
         changes:
           - { type: set, field: xp.current, value: 0 }
+      - id: stash
+        kind: changes
+        each: member
+        to: member
+        changes:
+          - { type: adjust, field: 'fitd-scoundrel:stash', by: tier + 2 }
       - id: result
         kind: outcome
         result: steps.advance.picked
