@@ -103,7 +103,8 @@ the player's choices and other characters.
 - **Cyberware:** all 80 systems with their System Strain (eye and ear mods halved by
   cybereyes and cyberears), effects, cyberware mods and implant complications as templates,
   skillplugs, and the optional alienation rules with the chrome syndromes. System Strain
-  counts implants, lifestyle and the drugs, first aid and cyber that add to it.
+  counts implants, lifestyle and the drugs, first aid and cyber that add to it. A Neural
+  Buffer's phantom hit points refresh by its hourly action and on a night's rest.
 - **Hacking:** Access, Memory, CPU and Shielding from the best deck, the program elements in
   Memory, the programs a hacker can write and keep, and an action to run a program.
 - **Magic:** Mage and Summoner Effort, cyber's cost to them, prepared spells, casting and

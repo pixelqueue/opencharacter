@@ -25,3 +25,21 @@ effects:
         entry: self
         key: bufferUsed
         by: 'min(3 * level - self.bufferUsed, -incoming.amount)'
+  # The phantom hit points refresh completely each hour: by the hour's action, and on a night's
+  # rest.
+  - target: { steps: [rest.night] }
+    op: changes
+    when: self.bufferUsed > 0
+    value:
+      changes: [{ type: setState, entry: self, key: bufferUsed, value: 0 }]
+actions:
+  - id: refresh
+    tags: [rest]
+    available: self.bufferUsed > 0
+    results: [refreshed]
+    steps:
+      - id: refresh
+        kind: changes
+        changes:
+          - { type: setState, entry: self, key: bufferUsed, value: 0 }
+      - { id: result, kind: outcome, result: "'refreshed'" }
