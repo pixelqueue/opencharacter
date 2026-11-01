@@ -191,4 +191,55 @@ describe('pnpm validate on content reaching shared definitions', () => {
       'characters/veyra.yaml: features[censor].choices.test-reach:features.sanctified/nope: no such choice here',
     ]);
   });
+
+  it('accepts saved picks of content a computed grant under a static grant gives', () => {
+    const errors = validate({
+      [`${pack}/rules/core.yaml`]: [
+        'contentTypes:',
+        '  class: {}',
+        '  domain: {}',
+        '  feature: {}',
+        '  skill: {}',
+      ].join('\n'),
+      [`${pack}/content/classes/censor.yaml`]: [
+        'id: classes.censor',
+        'type: class',
+        'choices:',
+        '  - { id: domain, from: { type: domain } }',
+        'grants:',
+        '  - item: features.domains',
+      ].join('\n'),
+      // The class grants this feature, and the feature grants by formula.
+      [`${pack}/content/features/domains.yaml`]: [
+        'id: features.domains',
+        'type: feature',
+        'grants:',
+        `  - item: { formula: "'features.sanctified'" }`,
+      ].join('\n'),
+      [`${pack}/content/domains/war.yaml`]: 'id: domains.war\ntype: domain',
+      [`${pack}/content/features/sanctified.yaml`]: [
+        'id: features.sanctified',
+        'type: feature',
+        'choices:',
+        '  - { id: skill, from: { type: skill } }',
+      ].join('\n'),
+      [`${pack}/content/skills/alertness.yaml`]: 'id: skills.alertness\ntype: skill',
+      'characters/veyra.yaml': [
+        'specVersion: 0.3.0',
+        'id: veyra',
+        'packs:',
+        '  - { id: test-reach, version: 0.1.0 }',
+        'features:',
+        '  - id: censor',
+        '    item: test-reach:classes.censor',
+        '    choices:',
+        '      domain: [{ option: test-reach:domains.war }]',
+        "      'test-reach:features.sanctified/skill': [{ option: test-reach:skills.alertness }]",
+        "      'test-reach:features.sanctified/nope': [{ option: test-reach:skills.alertness }]",
+      ].join('\n'),
+    });
+    expect(errors).toEqual([
+      'characters/veyra.yaml: features[censor].choices.test-reach:features.sanctified/nope: no such choice here',
+    ]);
+  });
 });
