@@ -256,7 +256,7 @@ export function localPart(qid: string): string {
 const declaredTagSets = new WeakMap<Ruleset, Set<string>>();
 
 /** Every tag the ruleset's packs declare, with the tags above each (`damage` for `damage.fire`). */
-function declaredTags(ruleset: Ruleset): Set<string> {
+export function declaredTags(ruleset: Ruleset): Set<string> {
   let set = declaredTagSets.get(ruleset);
   if (set) return set;
   set = new Set();

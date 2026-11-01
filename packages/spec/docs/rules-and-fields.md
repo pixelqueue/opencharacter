@@ -301,7 +301,7 @@ tags:
 
 - Declaring `damage.fire` also declares `damage`.
 - A pack may use its dependencies' tags.
-- The build rejects undeclared static tags (`unknown-tag`). A tag computed by a formula is checked when the action runs.
+- The build rejects undeclared static tags (`unknown-tag`). A tag computed by a formula is checked when the action runs. A tag on a change an app gives applyChanges is checked there: an undeclared one rejects the batch (`unknown-tag`), so a misspelled or qualified tag (`5e-srd-5.1:damage.fire`; tags are never qualified) isn't applied silently, matching no effect or follow-up.
 - Tags are data, not text. Apps may show labels from the optional translation key `tags.<tag>.name`.
 
 ### Which tags a field takes

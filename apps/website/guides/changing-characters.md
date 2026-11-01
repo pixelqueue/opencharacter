@@ -136,7 +136,8 @@ level-ups strictly on a server.
 ## Damage, healing and resistance
 
 `adjust` is how you change counters: hit points, stress, ammunition fields, luck. Give it `tags`
-when it's damage, so the character's own effects can modify it:
+when it's damage, so the character's own effects can modify it. Tags are never qualified with a
+pack ID, and one the ruleset doesn't declare rejects the batch (`unknown-tag`):
 
 ```ts
 const result = applyChanges(ruleset, tamsin, [

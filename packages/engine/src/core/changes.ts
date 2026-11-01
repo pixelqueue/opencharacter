@@ -20,7 +20,7 @@ import type {
   ValueDecl,
 } from './pack-types.ts';
 import { appliesQueries, thenRule } from './pack-types.ts';
-import { admitsTag, type LoadedItem, localPart, type Ruleset } from './ruleset.ts';
+import { admitsTag, declaredTags, type LoadedItem, localPart, type Ruleset } from './ruleset.ts';
 import { homebrewIdsInUse, withHomebrew, withoutHomebrew } from './homebrew.ts';
 import {
   type Activation,
@@ -807,6 +807,8 @@ function applyOne(
       const supplied = (change.faces as number[] | undefined) ?? [];
       const rolling: Rolling = { supplied, next: 0, dice, used: [] };
       const tags = (change.tags as string[] | undefined) ?? [];
+      const declared = declaredTags(ruleset);
+      for (const tag of tags) if (!declared.has(tag)) throw new ChangeError('unknown-tag', { tag });
       const given = (change.situational ?? {}) as Record<string, unknown>;
       const chosen = situationalOn(ruleset, sheet, qid, tags, given);
       const counted = route(
