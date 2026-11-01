@@ -2,3 +2,11 @@ id: features.ranger.precise-hunter
 type: feature
 effects:
   - { target: ranger.preciseHunter, op: set, value: true }
+  # Advantage on attacks against a target whose view shows this character's Hunter's Mark; the
+  # `preciseHunter` situational choice stays for an attack without the target's view.
+  - target: { rolls: [attack] }
+    op: rollModifier
+    value: { kind: advantage }
+    when: >-
+      has(participants.target) && size(participants.target) > 0
+        && character.id in participants.target[0].huntersMark.markedBy

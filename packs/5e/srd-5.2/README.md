@@ -187,8 +187,9 @@ Where the SRD is unclear or silent, the pack reads it this way:
   - A smite is an option on a hit with a melee weapon or an Unarmed Strike: picking it casts the
     spell (the slot level asked on the attack) and adds its damage to the attack's, doubled on a
     Critical Hit. Hex's and Hunter's Mark's extra damage joins the caster's attack damage when the
-    target's view names the caster (`hex.cursedBy`, `huntersMark.markedBy`). Divine Favor doesn't
-    add to Unarmed Strikes.
+    target's view names the caster (`hex.cursedBy`, `huntersMark.markedBy`), and Precise Hunter's
+    Advantage applies against a target so marked (its `preciseHunter` situational choice stays for
+    an attack without the target's view). Divine Favor doesn't add to Unarmed Strikes.
   - Power Word Kill and Power Word Stun read the target's current Hit Points from its view
     (without them, the outcome is the table's); a killed creature drops to 0 Hit Points with three
     failed Death Saving Throws.
