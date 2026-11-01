@@ -130,11 +130,27 @@ export class PackChecker {
   readonly prerequisiteKeys = new Set<string>();
   private readonly blocks = new Map<string, BlockScope>();
   private contentOwner: string | undefined;
-  private offerable: FollowUp[] | undefined;
+  /**
+   * Where an offered follow-up is looked for, as the engine looks: `own`, the content's (or its
+   * type's) by local ID; then the rules of the action's pack, a local ID qualified against it. An
+   * action of this pack's rules is this pack's; content may add to any visible pack's action.
+   */
+  private offerable: { own: FollowUp[]; actionPacks: readonly string[] } | undefined;
 
-  /** The pack's rules follow-ups: the last place an offered follow-up is looked for. */
-  private rulesFollowUps(): FollowUp[] {
-    return (this.ruleset.rules.get(this.packId)?.followUps ?? []).map(({ def }) => def);
+  private offered(ref: string): FollowUp | undefined {
+    const o = this.offerable;
+    if (!o) return undefined;
+    const rules = (pack: string, id: string) =>
+      this.ruleset.rules.get(pack)?.followUps.find(({ def }) => def.id === id)?.def;
+    const colon = ref.indexOf(':');
+    if (colon >= 0) {
+      const pack = ref.slice(0, colon);
+      return this.scope.includes(pack) ? rules(pack, ref.slice(colon + 1)) : undefined;
+    }
+    return (
+      o.own.find((fu) => fu.id === ref) ??
+      o.actionPacks.map((pack) => rules(pack, ref)).find((def) => def !== undefined)
+    );
   }
 
   constructor(
@@ -343,7 +359,7 @@ export class PackChecker {
           this.report.error(file, `${where}: duplicate effect id "${effect.id}"`);
         if (effect.id !== undefined) ids.add(effect.id);
       }
-      this.offerable = [...(def.followUps ?? []), ...this.rulesFollowUps()];
+      this.offerable = { own: def.followUps ?? [], actionPacks: this.scope };
       this.contentOwner = `types.${name}`;
       for (const effect of def.effects ?? []) this.effect(effect, file, where);
       this.contentOwner = undefined;
@@ -388,7 +404,7 @@ export class PackChecker {
       }
     }
 
-    this.offerable = rules.followUps.map(({ def }) => def);
+    this.offerable = { own: [], actionPacks: [this.packId] };
     for (const [, { def, at: file }] of rules.actions) this.action(def, file, `actions.${def.id}`);
     this.offerable = undefined;
     this.creation(rules.creation);
@@ -953,11 +969,10 @@ export class PackChecker {
       typeName && !BUILT_IN_TYPES.has(typeName)
         ? this.ruleset.contentType(typeName, this.scope)
         : undefined;
-    this.offerable = [
-      ...(item.followUps ?? []),
-      ...(itemType?.def.followUps ?? []),
-      ...this.rulesFollowUps(),
-    ];
+    this.offerable = {
+      own: [...(item.followUps ?? []), ...(itemType?.def.followUps ?? [])],
+      actionPacks: this.scope,
+    };
     for (const effect of item.effects ?? []) this.effect(effect, file, owner);
     this.followUps(
       (item.followUps ?? []).map((fu) => ({ def: fu, file })),
@@ -2086,11 +2101,7 @@ export class PackChecker {
     };
     if (change.type === 'offerFollowUp') {
       const ref = change.followUp ?? '';
-      const local =
-        ref.includes(':') && ref.startsWith(`${this.packId}:`)
-          ? ref.slice(ref.indexOf(':') + 1)
-          : ref;
-      const def = this.offerable?.find((fu) => fu.id === local);
+      const def = this.offered(ref);
       if (!def) this.report.error(file, `${where}: offers unknown follow-up "${ref}"`);
       else if (def.while !== undefined)
         this.report.error(file, `${where}: follow-up "${ref}" is derived (while), never offered`);

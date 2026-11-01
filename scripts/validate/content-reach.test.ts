@@ -41,6 +41,27 @@ function validate(files: Record<string, string>) {
   }
 }
 
+/** Rules with a `swing` action whose step content adds to, and a `recover` follow-up. */
+const swingRules = [
+  'tags: [swing]',
+  'fields:',
+  '  swings: { type: integer, input: true, default: 0 }',
+  'contentTypes:',
+  '  charm: { carried: true }',
+  'actions:',
+  '  - id: steady',
+  '    results: [steady]',
+  `    steps: [{ id: result, kind: outcome, result: "'steady'" }]`,
+  '  - id: swing',
+  '    steps:',
+  '      - id: hit',
+  '        kind: changes',
+  '        tags: [swing]',
+  '        changes: [{ type: adjust, field: swings, by: 1 }]',
+  'followUps:',
+  '  - { id: recover, action: steady }',
+].join('\n');
+
 describe('pnpm validate on content reaching shared definitions', () => {
   it("expands the family keys of a view-field set a content action's role names", () => {
     const errors = validate({
@@ -74,25 +95,7 @@ describe('pnpm validate on content reaching shared definitions', () => {
 
   it("accepts content's added changes offering the rules' follow-up", () => {
     const errors = validate({
-      [`${pack}/rules/core.yaml`]: [
-        'tags: [swing]',
-        'fields:',
-        '  swings: { type: integer, input: true, default: 0 }',
-        'contentTypes:',
-        '  charm: { carried: true }',
-        'actions:',
-        '  - id: steady',
-        '    results: [steady]',
-        `    steps: [{ id: result, kind: outcome, result: "'steady'" }]`,
-        '  - id: swing',
-        '    steps:',
-        '      - id: hit',
-        '        kind: changes',
-        '        tags: [swing]',
-        '        changes: [{ type: adjust, field: swings, by: 1 }]',
-        'followUps:',
-        '  - { id: recover, action: steady }',
-      ].join('\n'),
+      [`${pack}/rules/core.yaml`]: swingRules,
       [`${pack}/content/charms/ember.yaml`]: [
         'id: charms.ember',
         'type: charm',
@@ -107,6 +110,37 @@ describe('pnpm validate on content reaching shared definitions', () => {
     });
     expect(errors).toEqual([
       `${pack}/content/charms/ember.yaml: charms.ember effect: offers unknown follow-up "nowhere"`,
+    ]);
+  });
+
+  it("resolves an add-on's offered follow-ups against the action's pack, or the pack it names", () => {
+    const addon = 'packs/test/addon';
+    const errors = validate({
+      [`${pack}/rules/core.yaml`]: swingRules,
+      [`${addon}/pack.yaml`]: [
+        'id: test-addon',
+        'version: 0.1.0',
+        'specVersion: 0.3.0',
+        'license: CC0-1.0',
+        'defaultLanguage: en',
+        'dependencies: { test-reach: ^0.1.0 }',
+      ].join('\n'),
+      [`${addon}/i18n/en.yaml`]: '{}',
+      [`${addon}/content/charms/spark.yaml`]: [
+        'id: charms.spark',
+        'type: charm',
+        'effects:',
+        '  - target: { steps: [swing] }',
+        '    op: changes',
+        '    value:',
+        '      changes:',
+        '        - { type: offerFollowUp, followUp: recover }',
+        "        - { type: offerFollowUp, followUp: 'test-reach:recover' }",
+        "        - { type: offerFollowUp, followUp: 'test-addon:recover' }",
+      ].join('\n'),
+    });
+    expect(errors).toEqual([
+      `${addon}/content/charms/spark.yaml: charms.spark effect: offers unknown follow-up "test-addon:recover"`,
     ]);
   });
 
