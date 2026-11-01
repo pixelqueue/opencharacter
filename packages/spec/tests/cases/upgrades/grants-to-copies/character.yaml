@@ -1,0 +1,18 @@
+specVersion: 0.1.0
+id: test
+packs:
+  - id: test-pack
+    version: 1.0.0
+features:
+  - id: ogre
+    item: test-pack:monsters.ogre
+    choices:
+      test-pack:actions.club/grip: [{ option: two-handed }]
+    grants:
+      test-pack:actions.club: { state: { used: 1 } }
+      test-pack:actions.smash: { state: { used: 1 } }
+      test-pack:actions.stomp: { state: { used: 1 } }
+  # Takes the first club's instance ID.
+  - id: actions-club-1
+    item: test-pack:actions.club
+    choices: { grip: [{ option: one-handed }] }

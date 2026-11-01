@@ -3702,6 +3702,35 @@ export class Sheet {
     }
   }
 
+  /**
+   * Content a copy's item and type grant it directly (holder grants, in walk order): each with
+   * its grant's `state` values and the content it grants in turn on the copy's node.
+   */
+  directGrants(
+    entryId: string,
+  ): { item: string; defaults: Record<string, Literal>; nested: string[] }[] {
+    const copy = this.activations.find(
+      (a) => (a.kind === 'feature' || a.kind === 'inventory') && a.entry?.id === entryId,
+    );
+    if (!copy) return [];
+    const under = (a: Activation, top: Activation) => {
+      for (let p = this.parentOf.get(a); p; p = this.parentOf.get(p)) if (p === top) return true;
+      return false;
+    };
+    return this.activations
+      .filter(
+        (a) =>
+          a.kind === 'grant' && a.scope === 'holder' && a.item && this.parentOf.get(a) === copy,
+      )
+      .map((a) => ({
+        item: (a.item as LoadedItem).qid,
+        defaults: a.grantDefaults ?? {},
+        nested: this.activations
+          .filter((n) => n.kind === 'grant' && n.node === copy.node && n.item && under(n, a))
+          .map((n) => (n.item as LoadedItem).qid),
+      }));
+  }
+
   /** The activations `activationList` lists, in its order. */
   listedActivations(): Activation[] {
     return this.activations.filter((a) => a.kind !== 'rules' && a.kind !== 'inline');

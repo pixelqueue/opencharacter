@@ -1,0 +1,53 @@
+description: changeContentType moves copies to the list the new type keeps them in, drops `equipped` where the new type isn't equippable, and keeps only the state keys the item declares now
+specVersion: 0.1.0
+call: upgrade
+from:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        contentTypes:
+          gear:
+            carried: true
+            equippable: true
+            state:
+              fuel: { type: integer, default: 0, min: 0 }
+          boon: {}
+      content:
+        - id: gear.lantern
+          type: gear
+          state:
+            lit: { type: boolean, default: false }
+        - { id: gear.rope, type: gear }
+to:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 2.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        contentTypes:
+          gear:
+            carried: true
+            equippable: true
+            state:
+              fuel: { type: integer, default: 0, min: 0 }
+          boon: {}
+      content:
+        - id: gear.lantern
+          type: boon
+          state:
+            lit: { type: boolean, default: false }
+        - { id: gear.rope, type: gear }
+      upgrades:
+        - pack: test-pack
+          from: 1.0.0
+          to: 2.0.0
+          steps:
+            - { op: changeContentType, id: gear.lantern, from: gear, to: boon }

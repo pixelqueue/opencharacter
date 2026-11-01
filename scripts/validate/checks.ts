@@ -590,6 +590,7 @@ export class PackChecker {
       for (const raw of doc.steps) {
         const step = raw as {
           op: string;
+          id?: string;
           to?: string;
           field?: string;
           owner?: string;
@@ -617,6 +618,12 @@ export class PackChecker {
         const own = [this.packId];
         if (step.op === 'renameContentType' && step.to && !this.ruleset.contentType(step.to, own))
           this.report.error(file, `${where}: "${step.to}" is not a content type of this pack`);
+        if (step.op === 'changeContentType' && step.id) {
+          const hit = this.ruleset.item(step.id, own);
+          if (!hit) this.report.error(file, `${where}: "${step.id}" is not content of this pack`);
+          else if (this.ruleset.typeOf(hit) !== step.to)
+            this.report.error(file, `${where}: "${step.id}" is not of type ${step.to}`);
+        }
         if (step.op === 'renameAction' && step.to && !this.ruleset.action(step.to, own))
           this.report.error(file, `${where}: "${step.to}" is not a rules action of this pack`);
         if (step.op === 'renameTag' && step.to && !this.ruleset.declaredTags(own).has(step.to))
@@ -632,6 +639,7 @@ export class PackChecker {
           'removeState',
           'moveState',
           'stateToField',
+          'grantsToCopies',
         ];
         if (itemSteps.includes(step.op) && step.item && !this.ruleset.item(step.item, own))
           this.report.error(file, `${where}: "${step.item}" is not content of this pack`);

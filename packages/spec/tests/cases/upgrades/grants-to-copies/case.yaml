@@ -1,0 +1,75 @@
+description: grantsToCopies turns content a copy's item granted, and no longer grants, into copies of their own after it, with the grants' saved state, `state` values, picks and nested grants' state
+specVersion: 0.1.0
+call: upgrade
+from:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        contentTypes:
+          monster: {}
+          action:
+            state:
+              used: { type: integer, default: 0, min: 0 }
+          gift: {}
+      content:
+        - id: monsters.ogre
+          type: monster
+          grants:
+            - item: actions.club
+            - item: actions.roar
+              state: { used: 2 }
+            - item: actions.stomp
+            - item: gifts.blessing
+        - id: actions.club
+          type: action
+          choices:
+            - id: grip
+              from: { options: [{ id: one-handed }, { id: two-handed }] }
+          grants:
+            - item: actions.smash
+        - { id: actions.smash, type: action }
+        - { id: actions.roar, type: action }
+        - { id: actions.stomp, type: action }
+        - { id: gifts.blessing, type: gift }
+to:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 2.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        contentTypes:
+          monster: {}
+          action:
+            state:
+              used: { type: integer, default: 0, min: 0 }
+          gift: { grantOnly: true }
+      content:
+        - id: monsters.ogre
+          type: monster
+          grants:
+            - item: actions.stomp
+        - id: actions.club
+          type: action
+          choices:
+            - id: grip
+              from: { options: [{ id: one-handed }, { id: two-handed }] }
+          grants:
+            - item: actions.smash
+        - { id: actions.smash, type: action }
+        - { id: actions.roar, type: action }
+        - { id: actions.stomp, type: action }
+        - { id: gifts.blessing, type: gift }
+      upgrades:
+        - pack: test-pack
+          from: 1.0.0
+          to: 2.0.0
+          steps:
+            - { op: grantsToCopies, type: monster }

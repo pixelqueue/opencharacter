@@ -379,6 +379,51 @@ function renameGrant(c: CharacterDoc, from: string, to?: string): boolean {
 }
 
 /**
+ * grantsToCopies: a copy of content its holder granted. Its state is the grant's saved state over
+ * the grant's `state` values (keys the item declares on the new ruleset), its picks those saved
+ * under `<id>/` in the holder's tree, and it takes the saved state and picks of the content it
+ * grants in turn. Its instance ID is `<local id with dots as hyphens>-<n>`, the smallest unused n.
+ */
+function grantToCopy(
+  c: CharacterDoc,
+  to: Ruleset,
+  holder: Entry,
+  granted: { item: string; defaults: Record<string, Literal>; nested: string[] },
+  item: NonNullable<Ruleset['content'][string]>,
+): Entry {
+  const used = new Set([...allEntries(c).map((e) => e.id), ...(c.applied ?? []).map((a) => a.id)]);
+  const stem = granted.item.slice(granted.item.indexOf(':') + 1).replaceAll('.', '-');
+  let n = 1;
+  while (used.has(`${stem}-${n}`)) n++;
+  const copy: Entry = { id: `${stem}-${n}`, item: granted.item };
+  const decls = stateDecls(to, item, []);
+  const state: Record<string, Literal> = {};
+  for (const [key, value] of Object.entries({
+    ...granted.defaults,
+    ...(holder.grants?.[granted.item]?.state as Record<string, Literal> | undefined),
+  }))
+    if (Object.hasOwn(decls, key)) state[key] = value;
+  if (Object.keys(state).length > 0) copy.state = state;
+  if (holder.grants) delete holder.grants[granted.item];
+  for (const nested of granted.nested) {
+    const saved = holder.grants?.[nested];
+    if (!saved || !holder.grants) continue;
+    copy.grants = { ...copy.grants, [nested]: saved };
+    delete holder.grants[nested];
+  }
+  const own = `${granted.item}/`;
+  for (const key of Object.keys(holder.choices ?? {})) {
+    const tree = holder.choices as ChoiceTree;
+    const bare = key.startsWith(own) ? key.slice(own.length) : undefined;
+    if (bare === undefined && !granted.nested.some((id) => key.startsWith(`${id}/`))) continue;
+    copy.choices = { ...copy.choices, [bare ?? key]: tree[key] as Pick[] };
+    delete tree[key];
+  }
+  if (holder.choices && Object.keys(holder.choices).length === 0) delete holder.choices;
+  return copy;
+}
+
+/**
  * Where moveState puts a copy's value, on the new ruleset: the pick of `option` in the copy's
  * own trees (the rules tree for a rules-level choice), or the saved state of content the copy
  * holds by a holder grant. `decl` gives a key's declared default (undefined: not declared);
@@ -640,6 +685,62 @@ function applyStep(
       if (changed) prune(c);
       return changed;
     }
+    case 'grantsToCopies': {
+      for (const list of ['features', 'inventory'] as const)
+        for (const holder of c[list] ?? []) {
+          if (!holds(holder.item)) continue;
+          const still = heldGrants(to, holder);
+          const made: Record<'features' | 'inventory', Entry[]> = { features: [], inventory: [] };
+          for (const granted of old.directGrants(holder.id)) {
+            if (still.has(granted.item)) continue;
+            const item = to.content[granted.item];
+            if (!item || item.grantOnly) continue;
+            const copy = grantToCopy(c, to, holder, granted, item);
+            made[to.contentTypes[item.type]?.carried ? 'inventory' : 'features'].push(copy);
+            changed = true;
+          }
+          for (const into of ['features', 'inventory'] as const) {
+            if (made[into].length === 0) continue;
+            const entries = c[into] ?? [];
+            const at = into === list ? entries.indexOf(holder) + 1 : entries.length;
+            c[into] = [...entries.slice(0, at), ...made[into], ...entries.slice(at)];
+          }
+        }
+      if (changed) prune(c);
+      return changed;
+    }
+    case 'changeContentType': {
+      // Copies follow the new type: carried or not, equippable or not, and keep only the state
+      // keys the item declares on it.
+      const id = q(step.id as string);
+      const item = to.content[id];
+      if (!item) return false;
+      const type = to.contentTypes[item.type];
+      const decls = stateDecls(to, item, []);
+      for (const { holder, content } of stateHolders(c)) {
+        if (content !== id || !holder.state) continue;
+        for (const key of Object.keys(holder.state))
+          if (!Object.hasOwn(decls, key)) {
+            delete holder.state[key];
+            changed = true;
+          }
+      }
+      const into = type?.carried ? 'inventory' : 'features';
+      const away = type?.carried ? 'features' : 'inventory';
+      const moving = (c[away] ?? []).filter((e) => e.item === id);
+      if (moving.length > 0) {
+        c[away] = (c[away] ?? []).filter((e) => e.item !== id);
+        c[into] = [...(c[into] ?? []), ...moving];
+        changed = true;
+      }
+      for (const e of allEntries(c))
+        if (e.item === id && e.equipped !== undefined && !type?.equippable) {
+          delete e.equipped;
+          changed = true;
+        }
+      if (changed) prune(c);
+      return changed;
+    }
     case 'renameChoice':
     case 'renameOption':
     case 'removeChoice': {
@@ -740,6 +841,9 @@ export interface ShapeChange {
     // An existing choice gains or loses `addAs`: its saved picks' copy links no longer fit.
     | 'choice-copies-changed';
   id: string;
+  /** content-type-changed: the item's content type on each release. */
+  from?: string;
+  to?: string;
 }
 
 export interface CheckReleaseResult {
@@ -848,7 +952,13 @@ export function checkRelease(
   for (const [id, item] of prevItems) {
     const now = nextItems.get(id);
     if (!now) changes.push({ kind: 'content-removed', id });
-    else if (now.type !== item.type) changes.push({ kind: 'content-type-changed', id });
+    else if (now.type !== item.type)
+      changes.push({
+        kind: 'content-type-changed',
+        id,
+        ...(item.type === undefined ? {} : { from: item.type }),
+        ...(now.type === undefined ? {} : { to: now.type }),
+      });
   }
   const prevFields = previous.rules.fields ?? {};
   const nextFields = next.rules.fields ?? {};
@@ -1074,7 +1184,14 @@ function covered(
           (s.op === 'removeContent' && s.id === change.id),
       );
     case 'content-type-changed':
-      return has((s) => s.op === 'removeContent' && s.id === change.id);
+      return has(
+        (s) =>
+          (s.op === 'removeContent' && s.id === change.id) ||
+          (s.op === 'changeContentType' &&
+            s.id === change.id &&
+            s.from === change.from &&
+            s.to === change.to),
+      );
     case 'field-removed':
       return has(
         (s) =>
