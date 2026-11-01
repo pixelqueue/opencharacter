@@ -1,0 +1,36 @@
+id: features.fury.elemental-form
+type: feature
+fields:
+  class: classes.fury
+  level: 7
+effects:
+  # A berserker or reaver: immunity to the seven elemental types equal to the Might score (twice
+  # it at 10th level, Chaos Incarnate). A stormwight's immunity comes with the stormwight kit.
+  - target: immunity.acid
+    op: add
+    value: '(level >= 10 ? 2 : 1) * characteristics.might.score'
+    when: '!fury.stormwight'
+  - target: immunity.cold
+    op: add
+    value: '(level >= 10 ? 2 : 1) * characteristics.might.score'
+    when: '!fury.stormwight'
+  - target: immunity.corruption
+    op: add
+    value: '(level >= 10 ? 2 : 1) * characteristics.might.score'
+    when: '!fury.stormwight'
+  - target: immunity.fire
+    op: add
+    value: '(level >= 10 ? 2 : 1) * characteristics.might.score'
+    when: '!fury.stormwight'
+  - target: immunity.lightning
+    op: add
+    value: '(level >= 10 ? 2 : 1) * characteristics.might.score'
+    when: '!fury.stormwight'
+  - target: immunity.poison
+    op: add
+    value: '(level >= 10 ? 2 : 1) * characteristics.might.score'
+    when: '!fury.stormwight'
+  - target: immunity.sonic
+    op: add
+    value: '(level >= 10 ? 2 : 1) * characteristics.might.score'
+    when: '!fury.stormwight'

@@ -1,0 +1,31 @@
+id: features.troubadour.applause
+type: feature
+fields:
+  class: classes.troubadour
+  level: 10
+effects:
+  # Applause equal to the experience a respite gives (the Victories turned in).
+  - target: { steps: [respite] }
+    op: changes
+    value:
+      changes:
+        - { type: adjust, field: troubadour.applause, by: victories }
+actions:
+  # Applause spent as drama on an ability.
+  - id: spend-applause
+    tags: [resource]
+    available: troubadour.applause > 0
+    params:
+      amount: { type: integer, default: 1, min: 1 }
+    results: [spent]
+    steps:
+      - id: spend
+        kind: changes
+        changes:
+          - {
+              type: adjust,
+              field: troubadour.applause,
+              by: '-min(params.amount, troubadour.applause)',
+            }
+          - { type: adjust, field: heroic.current, by: 'min(params.amount, troubadour.applause)' }
+      - { id: done, kind: outcome, result: "'spent'" }

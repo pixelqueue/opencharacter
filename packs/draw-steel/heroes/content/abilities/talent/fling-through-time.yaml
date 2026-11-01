@@ -1,0 +1,65 @@
+id: abilities.talent.fling-through-time
+type: ability
+tags:
+  - kw.chronopathy
+  - kw.psionic
+  - kw.ranged
+  - kw.strike
+fields:
+  usage: main-action
+  kind: heroic
+  class: classes.talent
+  level: 3
+  resource: clarity
+  cost: 7
+  distanceKind: ranged
+  distance: 10
+  rollChars:
+    - presence
+  damageType: corruption
+  t1Damage: 3
+  t1PotencyChar: presence
+  t1Potency: weak
+  t1Condition: conditions.weakened
+  t1Duration: save
+  t2Damage: 5
+  t3Damage: 8
+  t2PotencyChar: presence
+  t2Potency: average
+  t2Condition: conditions.weakened
+  t2Duration: save
+  t3PotencyChar: presence
+  t3Potency: strong
+  t3Condition: conditions.weakened
+  t3Duration: save
+effects:
+  - target:
+      steps:
+        - ability.after
+      from: self
+    op: changes
+    when:
+      action.item.id == item.id && ((combat.active && heroic.current - item.cost - params.spend < 0)
+      || situational.talentStrain)
+    value:
+      changes:
+        - type: offerFollowUp
+          followUp: strain-damage
+          params:
+            count: 2
+  - target:
+      steps:
+        - ability.hit
+      from: self
+    op: changes
+    when:
+      action.item.id == item.id && (((combat.active && heroic.current - item.cost - params.spend <
+      0) || situational.talentStrain) && flags.tier == 3)
+    value:
+      changes:
+        - type: adjust
+          field: heroic.current
+          by: 2
+      to: self
+followUps:
+  - { id: strain-damage, action: talent-strain-damage }

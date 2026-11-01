@@ -1,0 +1,17 @@
+# You gain 6 surges.
+id: abilities.tactician.counterstrategy
+type: ability
+fields:
+  usage: main-action
+  kind: heroic
+  class: classes.tactician
+  subclass: subclasses.tactician.mastermind
+  level: 9
+  resource: focus
+  cost: 11
+  distanceKind: self
+effects:
+  - target: { steps: [ability.after], from: self }
+    op: changes
+    when: action.item.id == item.id
+    value: { changes: [{ type: adjust, field: surges.current, by: 6 }] }

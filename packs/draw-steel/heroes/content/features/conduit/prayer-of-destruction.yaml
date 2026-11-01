@@ -1,0 +1,13 @@
+id: features.conduit.prayer-of-destruction
+type: feature
+fields:
+  class: classes.conduit
+  level: 1
+effects:
+  # +1 to rolled damage with magic abilities.
+  - target: { rolls: [damage] }
+    op: add
+    value: 1
+    when: "has(action.item.tags) && 'kw.magic' in action.item.tags"
+    tags:
+      - formula: "action.item.damageType == 'untyped' ? [] : ['damage.' + action.item.damageType]"

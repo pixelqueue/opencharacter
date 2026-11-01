@@ -1,0 +1,17 @@
+id: features.censor.ride-the-lightning
+type: feature
+fields:
+  class: classes.censor
+  level: 7
+  subclass: subclasses.conduit.storm
+effects:
+  # Forced movement your abilities impose gains the Presence score.
+  - target: { rolls: [power-roll.ability], tally: moveBonus }
+    op: add
+    value: characteristics.presence.score
+  # Rolled damage to another creature: extra lightning damage equal to your Presence score.
+  - target: { rolls: [damage] }
+    op: add
+    value: characteristics.presence.score
+    tags: [damage.lightning]
+    when: has(participant)

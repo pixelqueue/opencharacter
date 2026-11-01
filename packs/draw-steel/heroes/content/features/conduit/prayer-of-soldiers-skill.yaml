@@ -1,0 +1,15 @@
+id: features.conduit.prayer-of-soldiers-skill
+type: feature
+fields:
+  class: classes.conduit
+  level: 1
+# Light armor and a light weapon, assumed worn and wielded: +3 Stamina per echelon, +1 damage
+# with weapon abilities.
+effects:
+  - { target: stamina.bonus, op: add, value: 3 * echelon }
+  - target: { rolls: [damage] }
+    op: add
+    value: 1
+    when: "has(action.item.tags) && 'kw.weapon' in action.item.tags"
+    tags:
+      - formula: "action.item.damageType == 'untyped' ? [] : ['damage.' + action.item.damageType]"

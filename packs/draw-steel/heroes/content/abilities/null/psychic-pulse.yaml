@@ -1,0 +1,32 @@
+id: abilities.null.psychic-pulse
+type: ability
+tags:
+  - kw.area
+  - kw.psionic
+fields:
+  usage: maneuver
+  kind: heroic
+  class: classes.null
+  level: 1
+  resource: discipline
+  cost: 3
+  distanceKind: burst
+  distance: 2
+effects:
+  # Psychic damage equal to twice Intuition to each target; the Null Field 1 larger until the start
+  # of the null's next turn. The damage at the end of the turn is the player's to deal.
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    when: action.item.id == item.id
+    value:
+      changes:
+        - type: adjust
+          field: stamina.current
+          by: -2 * characteristics.intuition.score
+          tags: [damage, damage.psychic]
+  - target: { steps: [ability.after], from: self }
+    op: changes
+    when: action.item.id == item.id
+    value:
+      changes:
+        - { type: adjust, field: nullClass.fieldTurn, by: 1 }

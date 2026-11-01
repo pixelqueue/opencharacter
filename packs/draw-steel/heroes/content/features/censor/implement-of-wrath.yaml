@@ -1,0 +1,19 @@
+id: features.censor.implement-of-wrath
+type: feature
+fields:
+  class: classes.censor
+  level: 6
+# Your own weapon chosen as the implement (`censor.implement`, set at a respite): strikes with it
+# deal extra holy damage equal to your highest characteristic, and you can't be made frightened.
+effects:
+  - target: { rolls: [damage] }
+    op: add
+    value: characteristics.highest
+    tags: [damage.holy]
+    when: >-
+      censor.implement && 'kw.weapon' in roll.item.tags && 'kw.strike' in roll.item.tags
+  - target: { steps: [respite] }
+    op: changes
+    value: { changes: [{ type: set, field: censor.implement, value: 'false' }] }
+immuneTo:
+  - { id: frightened, items: [conditions.frightened], when: censor.implement }

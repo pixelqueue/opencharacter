@@ -1,0 +1,32 @@
+id: abilities.fury.blood-for-blood
+type: ability
+tags:
+  - kw.melee
+  - kw.strike
+  - kw.weapon
+fields:
+  usage: main-action
+  kind: heroic
+  class: classes.fury
+  level: 1
+  resource: ferocity
+  cost: 5
+  distanceKind: melee
+  distance: 1
+  rollChars:
+    - might
+  damageType: untyped
+  t1Damage: 4
+  t2Damage: 6
+  t3Damage: 10
+effects:
+  # The second condition, behind the same potency.
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    when: >-
+      action.item.id == item.id && (flags.landed)
+    value:
+      changes:
+        - type: applyEffect
+          source: "'conditions.weakened'"
+          state: { duration: "'save'", by: character.id }

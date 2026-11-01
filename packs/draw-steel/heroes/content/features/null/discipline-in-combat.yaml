@@ -1,0 +1,56 @@
+# Discipline at the start of combat, each turn and at the end of the encounter is the shared
+# combat rules'. The class adds the field's bookkeeping and the discipline other creatures give:
+# an enemy's main action in the Null Field and the Director's Malice, once each per round.
+id: features.null.discipline-in-combat
+type: feature
+fields:
+  class: classes.null
+  level: 1
+effects:
+  - target: { steps: [combat.start, round.start] }
+    op: changes
+    value:
+      changes:
+        - { type: set, field: nullClass.fieldGained, value: 'false' }
+        - { type: set, field: nullClass.maliceGained, value: 'false' }
+        - { type: set, field: nullClass.masterySurge, value: 'false' }
+  - target: { steps: [turn.start] }
+    op: changes
+    value:
+      changes:
+        - { type: set, field: nullClass.fieldTurn, value: 0 }
+        - { type: set, field: nullClass.fieldEffect, value: "'none'" }
+  - target: { steps: [combat.end] }
+    op: changes
+    value:
+      changes:
+        - { type: set, field: nullClass.fieldEncounter, value: 0 }
+        - { type: set, field: nullClass.fieldTurn, value: 0 }
+        - { type: set, field: nullClass.fieldEffect, value: "'none'" }
+        - { type: set, field: nullClass.masteryPeak, value: 0 }
+        - { type: set, field: nullClass.absoluteZero, value: 'false' }
+        - { type: set, field: nullClass.ironBody, value: 'false' }
+actions:
+  # An enemy in the Null Field uses a main action: 1 discipline, 2 from 4th level (Regenerative
+  # Field).
+  - id: enemy-acts
+    available: combat.active && nullClass.fieldActive && !nullClass.fieldGained
+    results: [gained]
+    steps:
+      - id: gain
+        kind: changes
+        changes:
+          - { type: adjust, field: heroic.current, by: 'level >= 4 ? 2 : 1' }
+          - { type: set, field: nullClass.fieldGained, value: 'true' }
+      - { id: done, kind: outcome, result: "'gained'" }
+  # The Director uses an ability that costs Malice.
+  - id: malice
+    available: combat.active && !nullClass.maliceGained
+    results: [gained]
+    steps:
+      - id: gain
+        kind: changes
+        changes:
+          - { type: adjust, field: heroic.current, by: 1 }
+          - { type: set, field: nullClass.maliceGained, value: 'true' }
+      - { id: done, kind: outcome, result: "'gained'" }

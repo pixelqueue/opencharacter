@@ -1,0 +1,173 @@
+# The Talent: clarity that goes below 0, strain, and the psi boosts.
+#
+# An ability's strained effects apply when the hero is strained as they use it: in combat, when
+# the clarity left after paying the cost and any Spend is below 0; or, by the hero's choice,
+# through the `talentStrain` situational choice (outside combat, where using a second clarity
+# ability within a minute strains, and with Psion at 10th level). Each ability tests
+#   (combat.active && heroic.current - item.cost - params.spend < 0) || situational.talentStrain
+# in its own effects, since the action's steps read the sheet before the cost is paid.
+fields:
+  talent.strained: { type: boolean, formula: "heroic.kind == 'clarity' && heroic.current < 0" }
+  # Set by Psion (10th level) and Psi Boost (6th level).
+  talent.psion: { type: boolean, formula: 'false' }
+  talent.psiBoost: { type: boolean, formula: 'false' }
+  # Kinetic Amplifier (telekinesis, 5th level): surges spent on forced movement.
+  talent.kineticAmplifier: { type: boolean, formula: 'false' }
+  # Clarity from the first forced movement each round: 1, 2 with Mind Recovery, 3 with Clear Mind.
+  talent.forceMoveGain: { type: integer, formula: 1 }
+  talent.forceMoved: { type: boolean, input: true, default: false }
+  # Vision, the 10th-level epic resource.
+  talent.vision: { type: integer, input: true, default: 0, min: 0 }
+  # Steel Ward's immunity: 2 when damage lands, 1 once the hero's next turn starts, 0 at its end.
+  talent.steelWard: { type: integer, input: true, default: 0, min: 0, max: 2 }
+  # Force Orbs left (each one is damage immunity 1).
+  talent.forceOrbs: { type: integer, input: true, default: 0, min: 0, max: 5 }
+
+tags:
+  # Augmentation and ward features, picked in the class's choices.
+  - talent.augmentation
+  - talent.ward
+  # Damage from negative clarity at the end of the turn, and from a strained effect.
+  - talent.negative-clarity
+  - talent.strain
+
+situational:
+  # Take on an ability's strained effect though not strained (outside combat, or with Psion).
+  - id: talentStrain
+    type: boolean
+    default: false
+    rolls: [kw.psionic]
+    available: "heroic.kind == 'clarity' && (!combat.active || talent.psion)"
+  # Psion: no damage from negative clarity.
+  - id: psionNoStrainDamage
+    type: boolean
+    default: false
+    incoming: { fields: [stamina.current], tags: [talent.negative-clarity] }
+    available: talent.psion
+    effects:
+      - target: { incoming: { fields: [stamina.current], tags: [talent.negative-clarity] } }
+        op: multiply
+        value: 0
+  # Kinetic Amplifier: surges spent (up to 2) for the Reason score each on forced movement.
+  - id: kineticAmplifier
+    type: integer
+    default: 0
+    rolls: [power-roll.ability]
+    available: talent.kineticAmplifier && surges.current > 0
+  # Psi boosts (a talent's at 6th level, a null's at 7th), on a psionic main action or maneuver,
+  # with the hero's potency characteristic (Reason, or a null's Intuition). The Psi Boost feature
+  # pays for them. Expanded and Shared change the ability's area or targets (the app's).
+  - id: psiDynamic
+    type: boolean
+    default: false
+    rolls: [kw.psionic]
+    available: talent.psiBoost
+    effects:
+      - target: { rolls: [power-roll.ability], tally: moveBonus }
+        op: add
+        value: "potency.char == 'none' ? 0 : fieldOf('characteristics.{characteristic}.score', potency.char)"
+        when: "'kw.psionic' in action.item.tags"
+  - id: psiExpanded
+    type: boolean
+    default: false
+    rolls: [kw.psionic]
+    available: talent.psiBoost
+  - id: psiExtended
+    type: boolean
+    default: false
+    rolls: [kw.psionic]
+    available: talent.psiBoost
+    effects:
+      - target: { rolls: [power-roll.ability], tally: distanceBonus }
+        op: add
+        value: "flags.mode == 'ranged' ? (potency.char == 'none' ? 0 : fieldOf('characteristics.{characteristic}.score', potency.char)) : 2"
+        when: "'kw.psionic' in action.item.tags"
+  - id: psiHeightened
+    type: boolean
+    default: false
+    rolls: [kw.psionic]
+    available: talent.psiBoost
+    effects:
+      - target: { rolls: [damage] }
+        op: add
+        value: "potency.char == 'none' ? 0 : fieldOf('characteristics.{characteristic}.score', potency.char)"
+        when: "'kw.psionic' in action.item.tags"
+        tags:
+          - {
+              formula: "action.item.damageType == 'untyped' ? [] : ['damage.' + action.item.damageType]",
+            }
+  - id: psiMagnified
+    type: boolean
+    default: false
+    rolls: [kw.psionic]
+    available: talent.psiBoost
+    effects:
+      - target: { rolls: [power-roll.ability], tally: potencyBonus }
+        op: add
+        value: "potency.char == 'none' ? 0 : fieldOf('characteristics.{characteristic}.score', potency.char)"
+        when: "'kw.psionic' in action.item.tags"
+  - id: psiShared
+    type: boolean
+    default: false
+    rolls: [kw.psionic]
+    available: talent.psiBoost
+  - id: psiSharpened
+    type: boolean
+    default: false
+    rolls: [kw.psionic]
+    available: talent.psiBoost
+    effects:
+      - target: { rolls: [power-roll.ability], tally: edges }
+        op: add
+        value: 1
+        when: "'kw.psionic' in action.item.tags"
+
+actions:
+  # Damage from a strained effect: `count` d6, which can't be reduced when `reducible` is false.
+  - id: talent-strain-damage
+    listed: false
+    params:
+      count: { type: integer, default: 1, min: 1, max: 3 }
+      reducible: { type: boolean, default: true }
+    results: [taken]
+    steps:
+      - id: roll
+        kind: roll
+        tags: [talent.strain]
+        parts:
+          - dice: (params.count)d6
+      - id: take
+        kind: changes
+        changes:
+          - type: adjust
+            field: stamina.current
+            by: -steps.roll.total
+            tags:
+              [
+                {
+                  formula: "params.reducible ? ['damage', 'talent.strain'] : ['damage', 'damage.unreducible', 'talent.strain']",
+                },
+              ]
+      - { id: done, kind: outcome, result: "'taken'", data: { damage: steps.roll.total } }
+
+display:
+  fields:
+    talent.strained:
+      {
+        groups: [summary, resources],
+        priority: 1,
+        showWhen: "heroic.kind == 'clarity' && talent.strained",
+      }
+    talent.vision:
+      { groups: [resources], priority: 1, showWhen: "heroic.kind == 'clarity' && level >= 10" }
+    talent.steelWard: { groups: [defenses], priority: 1, showWhen: talent.steelWard > 0 }
+    talent.forceOrbs: { groups: [resources], priority: 2, showWhen: talent.forceOrbs > 0 }
+    talent.forceMoved:
+      groups: [resources]
+      priority: 3
+      showWhen: "heroic.kind == 'clarity' && combat.active"
+      input: { widget: checkbox }
+    talent.psion: { hidden: true }
+    talent.psiBoost: { hidden: true }
+    talent.kineticAmplifier: { hidden: true }
+    talent.forceMoveGain: { hidden: true }

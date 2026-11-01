@@ -1,0 +1,24 @@
+id: features.null.i-am-the-weapon
+type: feature
+fields:
+  class: classes.null
+  level: 9
+# No bleeding, even while dying.
+immuneTo:
+  - { id: bleeding, items: [conditions.bleeding] }
+effects:
+  - { target: stamina.bonus, op: add, value: 21 }
+  - { target: stamina.dyingBleeds, op: set, value: 'false' }
+  # Intuition instead of another characteristic when resisting potencies.
+  - target: potency.resistBonus.might
+    op: add
+    value: max(0, characteristics.intuition.score - characteristics.might.score)
+  - target: potency.resistBonus.agility
+    op: add
+    value: max(0, characteristics.intuition.score - characteristics.agility.score)
+  - target: potency.resistBonus.reason
+    op: add
+    value: max(0, characteristics.intuition.score - characteristics.reason.score)
+  - target: potency.resistBonus.presence
+    op: add
+    value: max(0, characteristics.intuition.score - characteristics.presence.score)

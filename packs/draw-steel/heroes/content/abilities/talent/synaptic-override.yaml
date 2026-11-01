@@ -1,0 +1,40 @@
+id: abilities.talent.synaptic-override
+type: ability
+tags:
+  - kw.psionic
+  - kw.ranged
+  - kw.telepathy
+fields:
+  usage: main-action
+  kind: heroic
+  class: classes.talent
+  subclass: subclasses.talent.telepathy
+  level: 2
+  resource: clarity
+  cost: 5
+  distanceKind: ranged
+  distance: 10
+  rollChars:
+    - reason
+effects:
+  - target:
+      steps:
+        - ability.after
+      from: self
+    op: changes
+    when:
+      action.item.id == item.id && ((combat.active && heroic.current - item.cost - params.spend < 0)
+      || situational.talentStrain)
+    value:
+      changes:
+        - type: offerFollowUp
+          followUp: strain-damage
+          params:
+            count: 1
+        - type: applyEffect
+          source: "'conditions.weakened'"
+          state:
+            duration: "'eot'"
+            by: character.id
+followUps:
+  - { id: strain-damage, action: talent-strain-damage }

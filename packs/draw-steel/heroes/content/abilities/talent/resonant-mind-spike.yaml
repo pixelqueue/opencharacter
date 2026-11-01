@@ -1,0 +1,43 @@
+id: abilities.talent.resonant-mind-spike
+type: ability
+tags:
+  - kw.psionic
+  - kw.ranged
+  - kw.strike
+  - kw.telepathy
+fields:
+  usage: main-action
+  kind: heroic
+  class: classes.talent
+  subclass: subclasses.talent.telepathy
+  level: 9
+  resource: clarity
+  cost: 11
+  distanceKind: ranged
+  distance: 10
+  rollChars:
+    - reason
+  damageType: psychic
+  t1Damage: 15
+  t2Damage: 24
+  t3Damage: 28
+effects:
+  - target:
+      steps:
+        - ability.hit
+      from: self
+    op: changes
+    when:
+      action.item.id == item.id && (((combat.active && heroic.current - item.cost - params.spend <
+      0) || situational.talentStrain) && has(steps.damage))
+    value:
+      changes:
+        - type: adjust
+          field: stamina.current
+          by: -floor(steps.damage.total / 2)
+          tags:
+            - damage
+            - damage.psychic
+            - damage.unreducible
+            - talent.strain
+      to: self

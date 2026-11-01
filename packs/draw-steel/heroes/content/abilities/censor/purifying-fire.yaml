@@ -1,0 +1,52 @@
+id: abilities.censor.purifying-fire
+type: ability
+tags:
+  - kw.magic
+  - kw.melee
+  - kw.ranged
+  - kw.strike
+  - kw.weapon
+fields:
+  usage: main-action
+  kind: heroic
+  class: classes.censor
+  level: 1
+  resource: wrath
+  cost: 5
+  distanceKind: melee-or-ranged
+  distance: 1
+  rangedDistance: 5
+  rollChars:
+    - might
+  damageType: holy
+  t1Damage: 5
+  t2Damage: 9
+  t3Damage: 12
+# The fire weakness is this ability applied to the target (save ends), its value the tier's.
+state:
+  duration: { type: string, default: save }
+  by: { type: string, default: '' }
+  value: { type: integer, default: 3, min: 0 }
+reapply: { state: { duration: replace, by: replace, value: highest } }
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    when: >-
+      action.item.id == item.id && (flags.tier > 0
+        && participant.characteristics.might.score
+          < [potency.weak, potency.average, potency.strong][flags.tier - 1])
+    value:
+      changes:
+        - type: applyEffect
+          source: "'abilities.censor.purifying-fire'"
+          state: { duration: "'save'", by: character.id, value: '[3, 5, 7][flags.tier - 1]' }
+  - { target: weakness.fire, op: add, value: self.value, scope: applied }
+actions:
+  - id: save
+    scope: applied
+    tags: [saving-throw]
+    available: "self.duration == 'save'"
+    results: [success, failure]
+    steps:
+      - { id: save, kind: action, use: saving-throw, params: { entry: self.id } }
+      - { id: done, kind: outcome, result: steps.save.result }

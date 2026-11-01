@@ -1,0 +1,92 @@
+id: features.troubadour.drama-in-combat
+type: feature
+fields:
+  class: classes.troubadour
+  level: 1
+actions:
+  # An event that grants drama, seen on the battlefield (another hero's turn, an enemy's roll).
+  # The troubadour's own natural 19 or 20, winding, death and last Recovery are counted already.
+  - id: drama-event
+    tags: [resource]
+    available: combat.active
+    params:
+      event:
+        type: enum
+        values:
+          [
+            three-heroes,
+            first-winded,
+            natural-19,
+            hero-died,
+            natural-2,
+            villain-damage,
+            fall,
+            three-surges,
+            last-recovery,
+          ]
+    results: [gained, none]
+    steps:
+      - id: setup
+        kind: branch
+        cases:
+          - when: 'true'
+            flags:
+              key: >-
+                keysOf('troubadourEvent')[indexOf(['three-heroes', 'first-winded', 'natural-19',
+                  'hero-died', 'natural-2', 'villain-damage', 'fall', 'three-surges', 'last-recovery'],
+                  params.event)]
+      - id: amount
+        kind: branch
+        cases:
+          - when: 'true'
+            flags:
+              once: "flags.key in ['threeHeroes', 'firstWinded', 'villainDamage', 'fall', 'threeSurges']"
+              gain: >-
+                flags.key in ['threeHeroes', 'firstWinded', 'villainDamage', 'fall', 'threeSurges']
+                  && flags.key in troubadour.events ? 0
+                  : fieldOf('troubadour.drama.{troubadourEvent}', flags.key)
+      - id: gain
+        kind: changes
+        when: flags.gain > 0
+        changes:
+          - { type: adjust, field: heroic.current, by: flags.gain }
+          - type: set
+            when: flags.once
+            field: troubadour.events
+            value: troubadour.events + [flags.key]
+      - {
+          id: done,
+          kind: outcome,
+          result: "flags.gain > 0 ? 'gained' : 'none'",
+          data: { gained: flags.gain },
+        }
+  # Curtain call: dead, with 30 drama in that encounter, you come back with 1 Stamina and 0 drama.
+  - id: curtain-call
+    available: stamina.dead && combat.active && heroic.current >= 30
+    results: [revived]
+    steps:
+      - id: revive
+        kind: changes
+        changes:
+          - { type: set, field: stamina.current, value: 1 }
+          - { type: set, field: heroic.current, value: 0 }
+      - { id: done, kind: outcome, result: "'revived'" }
+followUps:
+  # The first hero made winded in the encounter, when it's you.
+  - id: winded
+    becomes: combat.active && stamina.isWinded
+    when: "!('firstWinded' in troubadour.events)"
+    changes:
+      - { type: adjust, field: heroic.current, by: troubadour.drama.firstWinded }
+      - { type: set, field: troubadour.events, value: "troubadour.events + ['firstWinded']" }
+  # Your own death: 10 drama (you keep gaining drama while your body is intact).
+  - id: died
+    becomes: combat.active && stamina.dead
+    changes:
+      - { type: adjust, field: heroic.current, by: troubadour.drama.heroDied }
+  # Melodrama: spending your last Recovery.
+  - id: last-recovery
+    on: { field: recoveries.spent }
+    when: combat.active && recoveries.current == 0 && troubadour.drama.lastRecovery > 0 && change.taken > 0
+    changes:
+      - { type: adjust, field: heroic.current, by: troubadour.drama.lastRecovery }

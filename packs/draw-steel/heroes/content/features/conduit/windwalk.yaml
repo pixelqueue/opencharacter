@@ -1,0 +1,9 @@
+id: features.conduit.windwalk
+type: feature
+fields:
+  class: classes.conduit
+  level: 4
+  subclass: subclasses.conduit.storm
+effects:
+  # With 5 or more Victories the hero can fly (a hero who already flies has +2 speed while flying).
+  - { target: movement.types, op: grant, value: { formula: "'move.fly'" }, when: victories >= 5 }

@@ -1,0 +1,11 @@
+# An edge on a kit's signature ability and on weapon free strikes.
+id: features.tactician.improved-field-arsenal
+type: feature
+fields:
+  class: classes.tactician
+  level: 4
+effects:
+  - target: { rolls: [power-roll.ability], tally: edges }
+    op: add
+    value: 1
+    when: "action.item.kind in ['kit', 'free-strike'] && 'kw.weapon' in action.item.tags"

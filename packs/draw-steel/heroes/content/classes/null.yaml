@@ -1,0 +1,96 @@
+id: classes.null
+type: class
+fields:
+  primaries: [agility, intuition]
+  potency: intuition
+  arrayPriority: [reason, presence, might]
+  startingStamina: 21
+  staminaPerLevel: 9
+  recoveries: 8
+  resource: discipline
+  turnGain: '2'
+grants:
+  - { item: features.null.discipline-in-combat }
+  - { item: features.null.discipline-outside-of-combat }
+  - { item: features.null.null-field }
+  - { item: features.null.inertial-shield }
+  - { item: features.null.discipline-mastery }
+  - { item: features.null.null-speed }
+  - { item: features.null.psionic-augmentation }
+  - { item: features.null.psionic-martial-arts }
+  - { item: features.null.psionic-leap, when: self.level >= 3 }
+  - { item: features.null.reorder, when: self.level >= 3 }
+  - { item: features.null.discipline-mastery-improvement-4, when: self.level >= 4 }
+  - { item: features.null.enhanced-null-field, when: self.level >= 4 }
+  - { item: features.null.regenerative-field, when: self.level >= 4 }
+  - { item: features.null.elemental-absorption, when: self.level >= 6 }
+  - { item: features.null.elemental-buffer, when: self.level >= 6 }
+  - { item: features.null.discipline-mastery-improvement-7, when: self.level >= 7 }
+  - { item: features.null.psi-boost, when: self.level >= 7 }
+  - { item: features.null.improved-body, when: self.level >= 7 }
+  - { item: features.null.i-am-the-weapon, when: self.level >= 9 }
+  - { item: features.null.discipline-mastery-improvement, when: self.level >= 10 }
+  - { item: features.null.manifold-body, when: self.level >= 10 }
+  - { item: features.null.manifold-resonance, when: self.level >= 10 }
+  - { item: features.null.order, when: self.level >= 10 }
+effects:
+  # Psionics, then two interpersonal or lore skills.
+  - { target: skills.known, op: grant, value: { formula: '@skills.psionics' } }
+choices:
+  - id: tradition
+    from: { type: subclass, where: item.class == @classes.null }
+    recommend: '@subclasses.null.chronokinetic'
+  - id: skills
+    pick: 2
+    from: { type: skill, where: "item.group in ['interpersonal', 'lore']" }
+    eligible: '!(item.id in skills.known) || item.id in choice.picks'
+    recommend: >-
+      filterList([@skills.read-person, @skills.timescape, @skills.empathize, @skills.history,
+        @skills.lead, @skills.persuade, @skills.culture, @skills.society, @skills.monsters,
+        @skills.nature, @skills.religion, @skills.magic, @skills.brag], !(x in choice.picks) && !(x in skills.known))[0]
+    activate: false
+    effects:
+      - { target: skills.known, op: grant, value: { formula: pick.id } }
+  - id: signature
+    pick: 2
+    from:
+      type: ability
+      where: "item.class == @classes.null && item.kind == 'signature' && !has(item.subclass)"
+    recommend: 'filterList([@abilities.null.faster-than-the-eye, @abilities.null.inertial-step], !(x in choice.picks))[0]'
+  # Heroic abilities by cost: 3 and 5 at 1st level, 7 at 3rd, 9 at 5th, 11 at 8th.
+  - id: heroic
+    slots: [3, 5, 7, 9, 11]
+    when: 'self.level >= [1, 1, 3, 5, 8][indexOf([3, 5, 7, 9, 11], slot)]'
+    from:
+      type: ability
+      where: "item.class == @classes.null && item.kind == 'heroic' && !has(item.subclass)"
+    eligible: item.cost == slot
+    recommend: >-
+      [@abilities.null.chronal-spike, @abilities.null.a-squad-unto-myself,
+        @abilities.null.absorption-field, @abilities.null.iron-grip,
+        @abilities.null.phase-hurl][indexOf([3, 5, 7, 9, 11], slot)]
+  # Perks: exploration, interpersonal or intrigue at 2nd, 6th and 10th level; any at 4th and 8th.
+  - id: perk
+    slots: [2, 4, 6, 8, 10]
+    when: self.level >= slot
+    unique: perks
+    from: { type: perk }
+    eligible: "slot in [4, 8] || item.group in ['exploration', 'interpersonal', 'intrigue']"
+    # The slot's Quick Build pick, else the first of a few that isn't taken already (a career
+    # may take the same perk).
+    recommend: >-
+      filterList([[@perks.exploration.danger-sense, @perks.lore.eidetic-memory, @perks.interpersonal.lie-detector, @perks.supernatural.psychic-whisper, @perks.intrigue.lucky-dog][indexOf([2, 4, 6, 8, 10], slot)],
+        @perks.exploration.team-leader, @perks.interpersonal.spot-the-tell, @perks.intrigue.forgettable-face, @perks.exploration.brawny, @perks.interpersonal.charming-liar, @perks.intrigue.slipped-lead],
+        x in choice.picks || countPicks(pick.item == x) == 0)[0]
+  # A skill of any group at 4th, 7th and 10th level.
+  - id: skill
+    slots: [4, 7, 10]
+    when: self.level >= slot
+    from: { type: skill }
+    eligible: '!(item.id in skills.known) || item.id in choice.picks'
+    recommend: >-
+      filterList([@skills.empathize, @skills.alertness, @skills.magic, @skills.history,
+        @skills.society, @skills.search, @skills.monsters], !(x in skills.known) || x in choice.picks)[0]
+    activate: false
+    effects:
+      - { target: skills.known, op: grant, value: { formula: pick.id } }

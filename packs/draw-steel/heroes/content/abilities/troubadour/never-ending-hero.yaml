@@ -1,0 +1,20 @@
+id: abilities.troubadour.never-ending-hero
+type: ability
+tags:
+  - kw.area
+  - kw.magic
+  - kw.performance
+fields:
+  usage: no-action
+  kind: feature
+  class: classes.troubadour
+  subclass: subclasses.troubadour.virtuoso
+  level: 3
+  distanceKind: aura
+  distance: 5
+effects:
+  # Starting your turn dying in your own aura: an edge on power rolls (bleeding ignored).
+  - target: { rolls: [power-roll], tally: edges }
+    op: add
+    value: 1
+    when: stamina.dying && (item.id == troubadour.performance || item.id == troubadour.performance2)

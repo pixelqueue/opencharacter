@@ -1,0 +1,25 @@
+id: features.fury.primordial-strike
+type: feature
+fields:
+  class: classes.fury
+  level: 4
+actions:
+  # As part of a strike: 1 ferocity for 1 surge used on that strike (up to 3 at 10th level,
+  # Chaos Incarnate). The surge's damage type is the player's choice of the seven elemental types.
+  - id: primordial-strike
+    tags: [resource]
+    available: combat.active && heroic.current >= 1
+    params:
+      amount: { type: integer, default: 1, min: 1, max: 3 }
+    results: [gained]
+    steps:
+      - id: convert
+        kind: changes
+        changes:
+          - type: adjust
+            field: heroic.current
+            by: '-min(params.amount, level >= 10 ? 3 : 1, heroic.current)'
+          - type: adjust
+            field: surges.current
+            by: 'min(params.amount, level >= 10 ? 3 : 1, heroic.current)'
+      - { id: done, kind: outcome, result: "'gained'" }

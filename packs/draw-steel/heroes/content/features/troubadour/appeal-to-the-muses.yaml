@@ -1,0 +1,16 @@
+id: features.troubadour.appeal-to-the-muses
+type: feature
+fields:
+  class: classes.troubadour
+  level: 2
+effects:
+  # The appeal: on the d3, a 1 gives 1 more drama (the Director gains 1d3 Malice), a 2 one Heroic
+  # Resource (the Director gains 1 Malice), a 3 two. What goes to allies is theirs to gain.
+  - target: { steps: [turn.start] }
+    op: changes
+    when: troubadour.appeal && has(steps.gain) && size(steps.gain.kept) > 0
+    value:
+      changes:
+        - type: adjust
+          field: heroic.current
+          by: '[1, 1, 2][max(0, min(2, steps.gain.kept[0] - 1))] + troubadour.appealBonus'

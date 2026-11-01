@@ -1,0 +1,16 @@
+id: features.elementalist.ward-of-delightful-consequences
+type: feature
+fields:
+  class: classes.elementalist
+  level: 1
+effects:
+  - target: { steps: [round.start, combat.start, combat.end] }
+    op: changes
+    value: { changes: [{ type: set, field: elementalist.wardThisRound, value: 'false' }] }
+followUps:
+  - id: surge
+    on: { field: stamina.current, tags: [damage], once: true }
+    when: combat.active && !elementalist.wardThisRound && change.taken < 0
+    changes:
+      - { type: adjust, field: surges.current, by: 1 }
+      - { type: set, field: elementalist.wardThisRound, value: 'true' }

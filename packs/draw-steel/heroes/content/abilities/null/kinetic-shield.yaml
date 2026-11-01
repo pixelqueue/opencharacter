@@ -1,0 +1,30 @@
+id: abilities.null.kinetic-shield
+type: ability
+tags:
+  - kw.psionic
+fields:
+  usage: maneuver
+  kind: heroic
+  class: classes.null
+  subclass: subclasses.null.metakinetic
+  level: 2
+  resource: discipline
+  cost: 5
+  distanceKind: self
+  rollChars:
+    - intuition
+# While the hero has temporary Stamina (from this ability, which the sheet can't tell apart):
+# no bleeding, even while dying.
+immuneTo:
+  - { id: bleeding, items: [conditions.bleeding], when: stamina.temp > 0 }
+effects:
+  - { target: stamina.dyingBleeds, op: set, value: 'false', when: stamina.temp > 0 }
+  # 10, 15 or 20 temporary Stamina by tier (temporary Stamina doesn't stack: the greater stays).
+  - target: { steps: [ability.after], from: self }
+    op: changes
+    when: action.item.id == item.id && has(steps.roll)
+    value:
+      changes:
+        - type: set
+          field: stamina.temp
+          value: 'max(stamina.temp, [10, 15, 20][steps.roll.bandValue - 1])'

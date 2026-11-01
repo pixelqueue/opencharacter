@@ -1,0 +1,25 @@
+id: features.talent.vision
+type: feature
+fields:
+  class: classes.talent
+  level: 10
+# Vision equal to the XP a respite gives (the Victories it turns into XP).
+effects:
+  - target: { steps: [respite] }
+    op: changes
+    value: { changes: [{ type: adjust, field: talent.vision, by: victories }] }
+actions:
+  # Vision spent as clarity on an ability.
+  - id: spend-vision
+    tags: [resource]
+    available: combat.active && talent.vision > 0
+    params:
+      amount: { type: integer, default: 1, min: 1 }
+    results: [spent]
+    steps:
+      - id: spend
+        kind: changes
+        changes:
+          - { type: adjust, field: talent.vision, by: '-min(params.amount, talent.vision)' }
+          - { type: adjust, field: heroic.current, by: 'min(params.amount, talent.vision)' }
+      - { id: done, kind: outcome, result: "'spent'" }

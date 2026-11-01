@@ -1,0 +1,25 @@
+id: abilities.censor.revelator
+type: ability
+tags:
+  - kw.area
+  - kw.magic
+fields:
+  usage: maneuver
+  kind: heroic
+  class: classes.censor
+  subclass: subclasses.censor.exorcist
+  level: 2
+  resource: wrath
+  cost: 5
+  distanceKind: burst
+  distance: 3
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    when: action.item.id == item.id
+    value:
+      changes:
+        - type: adjust
+          field: stamina.current
+          by: -2 * characteristics.presence.score
+          tags: [damage, damage.holy]

@@ -1,0 +1,121 @@
+id: classes.censor
+type: class
+fields:
+  primaries: [might, presence]
+  potency: presence
+  arrayPriority: [agility, intuition, reason]
+  startingStamina: 21
+  staminaPerLevel: 9
+  recoveries: 12
+  resource: wrath
+  turnGain: '2'
+grants:
+  - item: features.common.kit
+  - item: features.censor.deity-and-domains
+  - item: features.censor.wrath-in-combat
+  - item: features.censor.wrath-outside-of-combat
+  - item: abilities.censor.judgment
+  - item: features.censor.judgment-order-benefit
+  - item: features.censor.my-life-for-yours
+  - { item: features.censor.look-on-my-work-and-despair, when: self.level >= 3 }
+  - { item: features.censor.wrath-beyond-wrath, when: self.level >= 4 }
+  - { item: features.censor.implement-of-wrath, when: self.level >= 6 }
+  - { item: features.censor.focused-wrath, when: self.level >= 7 }
+  - { item: features.censor.improved-implement-of-wrath, when: self.level >= 9 }
+  - { item: features.censor.templar, when: self.level >= 10 }
+  - { item: features.censor.virtue, when: self.level >= 10 }
+  - { item: features.censor.wrath-of-the-gods, when: self.level >= 10 }
+effects:
+  - { target: kit.recommended, op: set, value: '@kits.warrior-priest' }
+followUps:
+  # The first time each round the creature you judged damages you: 1 wrath. Damage can't name its
+  # source, so the offer comes with any damage while a creature is judged; dismiss it when the
+  # damage came from someone else.
+  - id: wrath-from-judged
+    on: { field: stamina.current, tags: [damage], once: true }
+    when: combat.active && censor.judged != '' && !censor.takenWrath && change.taken < 0
+    changes:
+      - { type: adjust, field: heroic.current, by: 1 }
+      - { type: set, field: censor.takenWrath, value: 'true' }
+  # An aura or edict ends when you are dying.
+  - id: auras-end
+    becomes: stamina.dying
+    required: true
+    changes:
+      - type: removeEffect
+        applied: { where: "'censor-aura' in item.tags" }
+choices:
+  - id: order
+    from: { type: subclass, where: 'item.class == @classes.censor' }
+    recommend: '@subclasses.censor.paragon'
+  - id: skills
+    pick: 2
+    from: { type: skill, where: "item.group in ['interpersonal', 'lore']" }
+    eligible: '!(item.id in skills.known) || item.id in choice.picks'
+    recommend: >-
+      filterList([@skills.intimidate, @skills.religion, @skills.brag, @skills.empathize,
+        @skills.flirt, @skills.gamble, @skills.handle-animals, @skills.interrogate, @skills.lead,
+        @skills.lie, @skills.music, @skills.perform, @skills.persuade, @skills.read-person,
+        @skills.criminal-underworld, @skills.culture, @skills.history, @skills.magic,
+        @skills.monsters, @skills.nature, @skills.psionics, @skills.rumors, @skills.society,
+        @skills.strategy, @skills.timescape],
+        !(x in skills.known) && !(x in choice.picks))[0]
+    activate: false
+    effects:
+      - { target: skills.known, op: grant, value: { formula: pick.id } }
+  - id: signature
+    from:
+      type: ability
+      where: "item.class == @classes.censor && item.kind == 'signature' && !has(item.subclass)"
+    recommend: '@abilities.censor.your-allies-cannot-save-you'
+  - id: heroic
+    slots: [3, 5, 7, 9, 11]
+    when: 'self.level >= [1, 1, 3, 5, 8][indexOf([3, 5, 7, 9, 11], slot)]'
+    from:
+      type: ability
+      where: "item.class == @classes.censor && item.kind == 'heroic' && !has(item.subclass)"
+    eligible: item.cost == slot
+    recommend: >-
+      [@abilities.censor.the-gods-punish-and-defend, @abilities.censor.purifying-fire,
+        @abilities.censor.edict-of-purifying-pacifism, @abilities.censor.righteous-judgment,
+        @abilities.censor.pillar-of-holy-fire][indexOf([3, 5, 7, 9, 11], slot)]
+  # Perks: interpersonal, lore or supernatural at 2nd and 6th level; any at 4th and 8th;
+  # crafting, lore or supernatural at 10th.
+  - id: perk
+    slots: [2, 4, 6, 8, 10]
+    unique: perks
+    when: self.level >= slot
+    from: { type: perk }
+    eligible: >-
+      slot in [4, 8]
+        || (slot == 10 ? item.group in ['crafting', 'lore', 'supernatural']
+          : item.group in ['interpersonal', 'lore', 'supernatural'])
+    # The slot's Quick Build pick, else the first of a few that isn't taken already (a career
+    # may take the same perk).
+    recommend: >-
+      filterList([[@perks.interpersonal.lie-detector, @perks.exploration.team-leader, @perks.interpersonal.spot-the-tell, @perks.supernatural.creature-sense, @perks.lore.expert-sage][indexOf([2, 4, 6, 8, 10], slot)],
+        @perks.lore.eidetic-memory, @perks.supernatural.ritualist, @perks.lore.polymath, @perks.supernatural.arcane-trick, @perks.lore.specialist, @perks.supernatural.thingspeaker],
+        x in choice.picks || countPicks(pick.item == x) == 0)[0]
+  - id: skill
+    slots: [4, 7, 10]
+    when: self.level >= slot
+    from: { type: skill }
+    eligible: '!(item.id in skills.known) || item.id in choice.picks'
+    recommend: >-
+      filterList([@skills.history, @skills.read-person, @skills.alertness, @skills.persuade,
+        @skills.search, @skills.empathize, @skills.criminal-underworld, @skills.culture,
+        @skills.magic, @skills.monsters, @skills.nature, @skills.psionics, @skills.religion,
+        @skills.rumors, @skills.society, @skills.strategy, @skills.timescape, @skills.brag,
+        @skills.flirt, @skills.gamble, @skills.handle-animals, @skills.interrogate,
+        @skills.intimidate, @skills.lead, @skills.lie, @skills.music, @skills.perform,
+        @skills.conceal-object, @skills.disguise, @skills.eavesdrop, @skills.escape-artist,
+        @skills.hide, @skills.pick-lock, @skills.pick-pocket, @skills.sabotage, @skills.sneak,
+        @skills.track, @skills.climb, @skills.drive, @skills.endurance, @skills.gymnastics,
+        @skills.heal, @skills.jump, @skills.lift, @skills.navigate, @skills.ride, @skills.swim,
+        @skills.alchemy, @skills.architecture, @skills.blacksmithing, @skills.carpentry,
+        @skills.cooking, @skills.fletching, @skills.forgery, @skills.jewelry, @skills.mechanics,
+        @skills.tailoring],
+        !(x in skills.known) && !(x in choice.picks))[0]
+    activate: false
+    effects:
+      - { target: skills.known, op: grant, value: { formula: pick.id } }

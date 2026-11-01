@@ -1,0 +1,16 @@
+id: features.shadow.improved-umbral-form
+type: feature
+fields:
+  class: classes.shadow
+  level: 10
+actions:
+  # Ending the form at will.
+  - id: end-umbral-form
+    tags: [ability]
+    available: shadow.umbral
+    results: [ended]
+    steps:
+      - id: end
+        kind: changes
+        changes: [{ type: set, field: shadow.umbral, value: 'false' }]
+      - { id: done, kind: outcome, result: "'ended'" }

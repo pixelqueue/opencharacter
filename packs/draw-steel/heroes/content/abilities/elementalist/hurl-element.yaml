@@ -1,0 +1,33 @@
+# The damage type is the `hurlElementType` situational choice, so the damage (2/4/6 + Reason)
+# is added by the effect below with that type's tag; the tier fields hold 0.
+id: abilities.elementalist.hurl-element
+type: ability
+tags:
+  - kw.magic
+  - kw.ranged
+  - kw.strike
+fields:
+  usage: main-action
+  kind: free-strike
+  class: classes.elementalist
+  level: 1
+  distanceKind: ranged
+  distance: 10
+  rollChars:
+    - reason
+  damageType: untyped
+  t1Damage: 0
+  t1AddsChar: false
+  t2Damage: 0
+  t2AddsChar: false
+  t3Damage: 0
+  t3AddsChar: false
+effects:
+  - { target: elementalist.hurlElement, op: set, value: 'true' }
+  - target: { rolls: [damage], from: self }
+    op: add
+    when: action.item.id == item.id
+    value: >-
+      [2, 4, 6][(flags.tier > 0 ? flags.tier : steps.roll.bandValue) - 1]
+        + (flags.char == 'none' ? 0 : fieldOf('characteristics.{characteristic}.score', flags.char))
+    tags: [{ formula: "'damage.' + situational.hurlElementType" }]

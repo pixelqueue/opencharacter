@@ -1,0 +1,102 @@
+# The troubadour: drama from the battle's events, performances kept up round to round.
+families:
+  # Events that grant drama in combat: the four of Drama in Combat, then Melodrama's five.
+  troubadourEvent:
+    [
+      threeHeroes,
+      firstWinded,
+      natural19,
+      heroDied,
+      natural2,
+      villainDamage,
+      fall,
+      threeSurges,
+      lastRecovery,
+    ]
+
+fields:
+  # Drama each event grants: 0 for a Melodrama event not chosen; Melodrama's picks add to it.
+  'troubadour.drama.{troubadourEvent}':
+    type: integer
+    formula: >-
+      '{troubadourEvent}' == 'heroDied' ? 10
+        : '{troubadourEvent}' == 'natural19' ? 3
+        : '{troubadourEvent}' in ['threeHeroes', 'firstWinded'] ? 2 : 0
+  # Events that grant drama only the first time in an encounter, already used this encounter.
+  troubadour.events: { type: set, of: string, input: true, default: [] }
+  # The active performance (Routines), the one before it while Medley keeps two up, and how
+  # many can be kept up at once.
+  troubadour.performance: { type: string, input: true, default: '' }
+  troubadour.performance2: { type: string, input: true, default: '' }
+  troubadour.maxPerformances: { type: integer, formula: 1 }
+  # Appeal to the Muses: make the appeal when rolling for drama at the start of the turn.
+  troubadour.appeal: { type: boolean, input: true, default: false }
+  troubadour.appealBonus: { type: integer, formula: 0 }
+  # Scene Partner bonds active (at most your level).
+  troubadour.bonds: { type: integer, input: true, default: 0, min: 0, max: level }
+  # Applause, the 10th-level epic resource.
+  troubadour.applause: { type: integer, input: true, default: 0, min: 0 }
+  # Legendary Drum Fill used this encounter: a surge at the start of each round.
+  troubadour.drumFill: { type: boolean, input: true, default: false }
+
+effects:
+  # Using a performance starts it (no action, at the start of a round); past the limit (one, two
+  # with Medley), the oldest ends.
+  - id: perform
+    target: { steps: [ability.after] }
+    op: changes
+    when: >-
+      'kw.performance' in action.item.tags
+        && action.item.id != troubadour.performance && action.item.id != troubadour.performance2
+    value:
+      changes:
+        - type: set
+          field: troubadour.performance2
+          value: "troubadour.maxPerformances > 1 ? troubadour.performance : ''"
+        - { type: set, field: troubadour.performance, value: action.item.id }
+  # A natural 19 or 20 (or, with Melodrama, a 2) on the troubadour's own power roll.
+  - id: drama-natural
+    target: { steps: [ability.after] }
+    op: changes
+    when: >-
+      heroic.kind == 'drama' && combat.active && has(steps.roll) && size(steps.roll.kept) >= 2
+        && (steps.roll.kept[0] + steps.roll.kept[1] >= 19
+          || (steps.roll.kept[0] + steps.roll.kept[1] == 2 && troubadour.drama.natural2 > 0))
+    value:
+      changes:
+        - type: adjust
+          field: heroic.current
+          by: >-
+            steps.roll.kept[0] + steps.roll.kept[1] >= 19 ? troubadour.drama.natural19
+              : troubadour.drama.natural2
+  # The encounter's performances and once-per-encounter events end with it.
+  - id: end-encounter
+    target: { steps: [combat.end] }
+    op: changes
+    when: heroic.kind == 'drama'
+    value:
+      changes:
+        - { type: set, field: troubadour.performance, value: "''" }
+        - { type: set, field: troubadour.performance2, value: "''" }
+        - { type: set, field: troubadour.events, value: '[]' }
+        - { type: set, field: troubadour.drumFill, value: 'false' }
+
+display:
+  fields:
+    troubadour.performance:
+      { groups: [resources], priority: 1, showWhen: "troubadour.performance != ''" }
+    troubadour.performance2:
+      { groups: [resources], priority: 2, showWhen: "troubadour.performance2 != ''" }
+    troubadour.bonds: { groups: [resources], priority: 2, showWhen: "heroic.kind == 'drama'" }
+    troubadour.applause:
+      { groups: [resources], priority: 1, showWhen: "heroic.kind == 'drama' && level >= 10" }
+    troubadour.appeal:
+      groups: [resources]
+      priority: 3
+      showWhen: "heroic.kind == 'drama' && combat.active"
+      input: { widget: checkbox }
+    'troubadour.drama.{troubadourEvent}': { hidden: true }
+    troubadour.events: { hidden: true }
+    troubadour.maxPerformances: { hidden: true }
+    troubadour.appealBonus: { hidden: true }
+    troubadour.drumFill: { hidden: true }

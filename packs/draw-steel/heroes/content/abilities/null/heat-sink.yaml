@@ -1,0 +1,20 @@
+id: abilities.null.heat-sink
+type: ability
+tags:
+  - kw.psionic
+fields:
+  usage: maneuver
+  kind: heroic
+  class: classes.null
+  subclass: subclasses.null.cryokinetic
+  level: 2
+  resource: discipline
+  cost: 5
+  distanceKind: self
+effects:
+  - target: { steps: [ability.after], from: self }
+    op: changes
+    when: action.item.id == item.id
+    value:
+      changes:
+        - { type: adjust, field: nullClass.fieldTurn, by: 1 }

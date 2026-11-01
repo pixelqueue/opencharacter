@@ -1,0 +1,100 @@
+# The Elementalist's own rules: persistent abilities, the per-round essence and ward triggers,
+# Hurl Element's damage type, animal forms and breath.
+tags:
+  # A persistent ability and its persistent value (Persistent Magic).
+  - persistent
+  - persistent.1
+  - persistent.2
+
+fields:
+  # Persistent abilities being maintained. Their persistent values come off the essence gained
+  # at the start of each turn, which can't go below 0.
+  elementalist.maintained: { type: set, of: ability, input: true, default: [] }
+  elementalist.upkeep:
+    type: integer
+    formula: "sumList(elementalist.maintained, 'persistent.2' in itemTags(x) ? 2 : 1)"
+  # Essence from damage that isn't untyped or holy, once a round: 1, 2 with Font of Essence.
+  elementalist.damageEssence: { type: integer, formula: 1 }
+  elementalist.essenceThisRound: { type: boolean, input: true, default: false }
+  # Ward of Delightful Consequences: a surge the first time each round the hero takes damage.
+  elementalist.wardThisRound: { type: boolean, input: true, default: false }
+  # Acolyte of Earth: stability gained from earth magic until the start of the hero's turn.
+  elementalist.earthStability: { type: integer, input: true, default: 0, min: 0 }
+  # Disciple of the Green: the animal form the hero is in.
+  elementalist.form:
+    type: enum
+    values:
+      [
+        none,
+        canine,
+        fish,
+        rodent,
+        bird,
+        great-cat,
+        giant-frog,
+        horse,
+        mohler,
+        bear,
+        giant-bird,
+        giant-salamander,
+        giant-spider,
+        giant-snake,
+        kangaroo,
+        spiny-armadillo,
+        ostrich,
+        shark,
+        giant-octopus,
+        rhinoceros,
+        king-terror-lizard,
+      ]
+    input: true
+    default: none
+  # Hide of Tenfold Shields: more temporary Stamina on entering a form in combat.
+  elementalist.tenfoldShields: { type: boolean, formula: 'false' }
+  # Breath, the 10th-level epic resource: 1 breath becomes 3 essence.
+  elementalist.breath: { type: integer, input: true, default: 0, min: 0 }
+  # Set by the abilities that offer the situational choices below.
+  elementalist.hurlElement: { type: boolean, formula: 'false' }
+  elementalist.castleWalls: { type: boolean, formula: 'false' }
+
+constraints:
+  # Persistent Magic: maintained abilities can't make the turn's essence negative.
+  - id: elementalist-upkeep
+    check: 'elementalist.upkeep <= 2 + (level >= 7 ? 1 : 0) + (level >= 10 ? 1 : 0)'
+    data: { upkeep: elementalist.upkeep }
+
+situational:
+  # Hurl Element: the damage type, chosen as the strike is made.
+  - id: hurlElementType
+    type: enum
+    values: [acid, cold, corruption, fire, lightning, poison, sonic]
+    default: fire
+    rolls: [power-roll.ability]
+    available: elementalist.hurlElement
+  # Skin Like Castle Walls on the hero themself: the hero takes half the damage.
+  - id: skinLikeCastleWalls
+    type: boolean
+    default: false
+    incoming: { fields: [stamina.current], tags: [damage] }
+    available: elementalist.castleWalls
+    effects:
+      - target: { incoming: { fields: [stamina.current], tags: [damage] } }
+        op: multiply
+        value: 0.5
+
+display:
+  fields:
+    elementalist.maintained:
+      { groups: [resources], priority: 1, showWhen: size(elementalist.maintained) > 0 }
+    elementalist.upkeep: { groups: [resources], priority: 2, showWhen: elementalist.upkeep > 0 }
+    elementalist.form: { groups: [resources], priority: 2, showWhen: "elementalist.form != 'none'" }
+    elementalist.earthStability:
+      { groups: [movement], priority: 2, showWhen: elementalist.earthStability > 0 }
+    elementalist.breath:
+      { groups: [resources], priority: 1, showWhen: "heroic.kind == 'essence' && level >= 10" }
+    elementalist.damageEssence: { hidden: true }
+    elementalist.essenceThisRound: { hidden: true }
+    elementalist.wardThisRound: { hidden: true }
+    elementalist.tenfoldShields: { hidden: true }
+    elementalist.hurlElement: { hidden: true }
+    elementalist.castleWalls: { hidden: true }

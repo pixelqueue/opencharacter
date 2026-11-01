@@ -1,0 +1,42 @@
+# Marks the target.
+id: abilities.tactician.no-escape
+type: ability
+tags:
+  - kw.charge
+  - kw.melee
+  - kw.strike
+  - kw.weapon
+fields:
+  usage: main-action
+  kind: heroic
+  class: classes.tactician
+  subclass: subclasses.tactician.vanguard
+  level: 9
+  resource: focus
+  cost: 11
+  distanceKind: melee
+  distance: 1
+  rollChars:
+    - might
+  damageType: untyped
+  t1Damage: 11
+  t2Damage: 16
+  t3Damage: 21
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    when: action.item.id == item.id
+    value:
+      changes:
+        - type: applyEffect
+          source: "'features.tactician.marked'"
+          state: { duration: "'encounter'", by: character.id }
+  - target: { steps: [ability.after], from: self }
+    op: changes
+    when: action.item.id == item.id
+    value:
+      changes:
+        - type: set
+          field: tactician.marked
+          value: >-
+            tactician.marked + filterList(mapList(participants.target, x.id), !(x in tactician.marked))

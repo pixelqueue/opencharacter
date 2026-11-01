@@ -1,0 +1,14 @@
+id: features.conduit.word-of-death-deferred
+type: feature
+fields:
+  class: classes.conduit
+  level: 7
+  subclass: subclasses.conduit.death
+effects:
+  # The hero's abilities deal an extra 5 damage to winded creatures.
+  - target: { rolls: [damage] }
+    op: add
+    value: 5
+    when: has(participant) && participant.stamina.isWinded
+    tags:
+      - formula: "action.item.damageType == 'untyped' ? [] : ['damage.' + action.item.damageType]"

@@ -1,0 +1,21 @@
+# The table's surges: 1 at 4 discipline, 2 at 8 from 4th level, when the trigger happens.
+id: features.null.chronokinetic-mastery
+type: feature
+fields:
+  class: classes.null
+  subclass: subclasses.null.chronokinetic
+  level: 1
+actions:
+  - id: surge
+    available: combat.active && nullClass.mastery >= 4
+    results: [gained]
+    steps:
+      - id: gain
+        kind: changes
+        changes:
+          - {
+              type: adjust,
+              field: surges.current,
+              by: 'level >= 4 && nullClass.mastery >= 8 ? 2 : 1',
+            }
+      - { id: done, kind: outcome, result: "'gained'" }

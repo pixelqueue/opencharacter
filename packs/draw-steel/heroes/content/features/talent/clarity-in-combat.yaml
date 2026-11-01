@@ -1,0 +1,32 @@
+id: features.talent.clarity-in-combat
+type: feature
+fields:
+  class: classes.talent
+  level: 1
+# The first forced movement each round gains clarity (an action: the movement is usually on
+# another creature's sheet); negative clarity deals its damage at the end of the turn.
+actions:
+  - id: force-moved
+    tags: [resource]
+    available: combat.active && !talent.forceMoved
+    results: [gained]
+    steps:
+      - id: gain
+        kind: changes
+        changes:
+          - { type: adjust, field: heroic.current, by: talent.forceMoveGain }
+          - { type: set, field: talent.forceMoved, value: 'true' }
+      - { id: done, kind: outcome, result: "'gained'" }
+effects:
+  - target: { steps: [combat.start, round.start, combat.end] }
+    op: changes
+    value: { changes: [{ type: set, field: talent.forceMoved, value: 'false' }] }
+  - target: { steps: [turn.end] }
+    op: changes
+    when: heroic.current < 0
+    value:
+      changes:
+        - type: adjust
+          field: stamina.current
+          by: heroic.current
+          tags: [damage, talent.negative-clarity]

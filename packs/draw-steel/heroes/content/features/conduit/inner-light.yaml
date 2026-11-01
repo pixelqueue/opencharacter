@@ -1,0 +1,22 @@
+id: features.conduit.inner-light
+type: feature
+fields:
+  class: classes.conduit
+  level: 1
+  subclass: subclasses.conduit.sun
+choices:
+  # The domain's skill, from the lore group: one the hero doesn't have, or any of the group when
+  # they have them all (Gods' Library gives every lore skill).
+  - id: skill
+    from: { type: skill, where: "item.group == 'lore'" }
+    eligible: >-
+      !(item.id in skills.known) || item.id in choice.picks
+        || countList([@skills.criminal-underworld, @skills.culture, @skills.history, @skills.magic, @skills.monsters, @skills.nature, @skills.psionics, @skills.religion, @skills.rumors, @skills.society, @skills.strategy, @skills.timescape], !(x in skills.known)) == 0
+    recommend: >-
+      (filterList([@skills.religion, @skills.history, @skills.culture, @skills.society,
+        @skills.criminal-underworld, @skills.magic, @skills.monsters, @skills.nature,
+        @skills.psionics, @skills.rumors, @skills.strategy, @skills.timescape],
+        !(x in skills.known) || x in choice.picks) + [@skills.religion])[0]
+    activate: false
+    effects:
+      - { target: skills.known, op: grant, value: { formula: pick.id } }

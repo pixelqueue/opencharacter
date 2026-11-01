@@ -1,0 +1,10 @@
+id: features.fury.a-step-ahead
+type: feature
+fields:
+  class: classes.fury
+  level: 8
+  subclass: subclasses.fury.reaver
+effects:
+  # Agility tests: three dice, keep two; the Disengage shift gains the Agility score.
+  - { target: { rolls: [test.agility] }, op: rollModifier, value: { kind: advantage } }
+  - { target: disengage, op: add, value: characteristics.agility.score }

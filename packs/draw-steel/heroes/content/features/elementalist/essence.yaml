@@ -1,0 +1,43 @@
+# Essence: 2 a turn (the class's gain), and 1 the first time each combat round the hero, or a
+# creature the hero's ability damages, takes damage that isn't untyped or holy. Damage to a
+# creature near the hero from someone else's ability is the `gain-resource` action.
+id: features.elementalist.essence
+type: feature
+fields:
+  class: classes.elementalist
+  level: 1
+effects:
+  - target: { steps: [round.start, combat.start, combat.end] }
+    op: changes
+    value: { changes: [{ type: set, field: elementalist.essenceThisRound, value: 'false' }] }
+  - target: { steps: [ability.after] }
+    op: changes
+    when: >-
+      combat.active && !elementalist.essenceThisRound && size(participants.target) > 0
+        && has(action.item.t1Damage)
+        && (action.item.id == @abilities.elementalist.hurl-element
+          || action.item.damageType in ['acid', 'cold', 'corruption', 'fire', 'lightning', 'poison', 'psychic', 'sonic'])
+    value:
+      changes:
+        - { type: adjust, field: heroic.current, by: elementalist.damageEssence }
+        - { type: set, field: elementalist.essenceThisRound, value: 'true' }
+followUps:
+  - id: typed-damage
+    on:
+      field: stamina.current
+      tags:
+        [
+          damage.acid,
+          damage.cold,
+          damage.corruption,
+          damage.fire,
+          damage.lightning,
+          damage.poison,
+          damage.psychic,
+          damage.sonic,
+        ]
+      once: true
+    when: combat.active && !elementalist.essenceThisRound && change.taken < 0
+    changes:
+      - { type: adjust, field: heroic.current, by: elementalist.damageEssence }
+      - { type: set, field: elementalist.essenceThisRound, value: 'true' }

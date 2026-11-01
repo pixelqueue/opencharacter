@@ -1,0 +1,30 @@
+id: subclasses.censor.exorcist
+type: subclass
+fields:
+  class: classes.censor
+grants:
+  - { item: features.censor.a-sense-for-truth, when: self.level >= 2 }
+  - { item: features.censor.saints-vigilance, when: self.level >= 2 }
+  - { item: features.censor.evil-revealed, when: self.level >= 5 }
+  - { item: features.censor.demonologist, when: self.level >= 8 }
+effects:
+  - { target: skills.known, op: grant, value: { item: skills.read-person } }
+choices:
+  - id: ability-2
+    when: self.level >= 2
+    from:
+      type: ability
+      where: 'item.subclass == @subclasses.censor.exorcist && item.level == 2'
+    recommend: '@abilities.censor.it-is-justice-you-fear'
+  - id: ability-6
+    when: self.level >= 6
+    from:
+      type: ability
+      where: 'item.subclass == @subclasses.censor.exorcist && item.level == 6'
+    recommend: '@abilities.censor.begone'
+  - id: ability-9
+    when: self.level >= 9
+    from:
+      type: ability
+      where: 'item.subclass == @subclasses.censor.exorcist && item.level == 9'
+    recommend: '@abilities.censor.terror-manifest'

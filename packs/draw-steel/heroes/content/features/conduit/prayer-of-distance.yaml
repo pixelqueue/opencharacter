@@ -1,0 +1,11 @@
+id: features.conduit.prayer-of-distance
+type: feature
+fields:
+  class: classes.conduit
+  level: 1
+effects:
+  # +2 distance for ranged magic abilities.
+  - target: { rolls: [power-roll.ability], tally: distanceBonus }
+    op: add
+    value: 2
+    when: "'kw.ranged' in roll.item.tags && 'kw.magic' in roll.item.tags"

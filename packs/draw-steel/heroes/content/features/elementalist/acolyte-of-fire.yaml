@@ -1,0 +1,21 @@
+# +1 rolled damage with Fire and Magic abilities, and with Hurl Element dealing fire damage
+# (Master of Fire raises it at 10th level).
+id: features.elementalist.acolyte-of-fire
+type: feature
+fields:
+  class: classes.elementalist
+  subclass: subclasses.elementalist.fire
+  level: 1
+effects:
+  - target: { rolls: [damage] }
+    op: add
+    value: 1
+    when: >-
+      level < 10 && (('kw.fire' in action.item.tags && 'kw.magic' in action.item.tags)
+        || (action.item.id == @abilities.elementalist.hurl-element && situational.hurlElementType == 'fire'))
+    tags:
+      [
+        {
+          formula: "action.item.id == @abilities.elementalist.hurl-element ? ['damage.' + situational.hurlElementType] : action.item.damageType == 'untyped' ? [] : ['damage.' + action.item.damageType]",
+        },
+      ]

@@ -1,0 +1,52 @@
+# The Tactician: marks, focus gained from other creatures' acts, and the epic resource command.
+fields:
+  # The creatures this tactician has marked (character IDs). The Mark ability replaces them;
+  # other abilities that mark add to them. Ended with the encounter, or when dying.
+  tactician.marked: { type: set, of: string, input: true, default: [] }
+  # How many creatures the Mark ability marks at once (Anticipation: 2).
+  tactician.markLimit: { type: integer, formula: 1 }
+  # The tacticians who marked this creature (character IDs), from the applied marks. Power rolls
+  # against a marked creature gain an edge (`use-ability` reads it through the `creature` view).
+  tactician.markedBy: { type: set, of: string }
+  # Focus gained the first time each round a marked creature is damaged (Focus on Their
+  # Weaknesses: 2).
+  tactician.markFocus: { type: integer, formula: 1 }
+  # Focus already gained this combat round from a marked creature being damaged, and from an
+  # ally's heroic ability; cleared at the start of each round.
+  tactician.markFocusGained: { type: boolean, input: true, default: false }
+  tactician.allyFocusGained: { type: boolean, input: true, default: false }
+  # Command, the 10th-level epic resource: gained after a respite, kept until spent.
+  tactician.command: { type: integer, input: true, default: 0, min: 0 }
+  # Set by the Parry ability: the hero can halve damage dealt to them.
+  tactician.parry: { type: boolean, formula: 'false' }
+
+situational:
+  # Mark: on your ability's damage roll against a creature marked by you, spend 1 focus for extra
+  # damage equal to twice your Reason score (to the first target). The Mark feature applies it.
+  - id: markDamage
+    type: boolean
+    default: false
+    rolls: [damage]
+    available: combat.active && size(tactician.marked) > 0 && heroic.current - 1 >= heroic.min
+  # Parry, when you are the target: you take half the damage.
+  - id: parry
+    type: boolean
+    default: false
+    incoming: { fields: [stamina.current], tags: [damage] }
+    available: tactician.parry
+    effects:
+      - target: { incoming: { fields: [stamina.current], tags: [damage] } }
+        op: multiply
+        value: 0.5
+
+display:
+  fields:
+    tactician.marked: { groups: [resources], priority: 1, showWhen: size(tactician.marked) > 0 }
+    tactician.markedBy: { groups: [summary], priority: 2, showWhen: size(tactician.markedBy) > 0 }
+    tactician.command:
+      { groups: [resources], priority: 1, showWhen: "heroic.kind == 'focus' && level >= 10" }
+    tactician.markLimit: { hidden: true }
+    tactician.markFocus: { hidden: true }
+    tactician.markFocusGained: { hidden: true }
+    tactician.allyFocusGained: { hidden: true }
+    tactician.parry: { hidden: true }

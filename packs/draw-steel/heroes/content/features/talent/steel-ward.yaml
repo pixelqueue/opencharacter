@@ -1,0 +1,31 @@
+id: features.talent.steel-ward
+type: feature
+fields:
+  class: classes.talent
+  level: 1
+tags: [talent.ward]
+# Immunity equal to Reason once damage resolves, until the end of the hero's next turn:
+# `talent.steelWard` is 2 after the damage, 1 once that next turn starts, and 0 when it ends.
+followUps:
+  - id: steel-ward
+    on: { field: stamina.current, tags: [damage], once: true }
+    when: change.taken < 0
+    changes: [{ type: set, field: talent.steelWard, value: 2 }]
+effects:
+  - {
+      target: immunity.all,
+      op: add,
+      value: characteristics.reason.score,
+      when: talent.steelWard > 0,
+    }
+  - target: { steps: [turn.start] }
+    op: changes
+    when: talent.steelWard == 2
+    value: { changes: [{ type: set, field: talent.steelWard, value: 1 }] }
+  - target: { steps: [turn.end] }
+    op: changes
+    when: talent.steelWard == 1
+    value: { changes: [{ type: set, field: talent.steelWard, value: 0 }] }
+  - target: { steps: [combat.end] }
+    op: changes
+    value: { changes: [{ type: set, field: talent.steelWard, value: 0 }] }

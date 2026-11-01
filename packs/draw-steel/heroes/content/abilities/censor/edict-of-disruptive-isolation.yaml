@@ -1,0 +1,61 @@
+id: abilities.censor.edict-of-disruptive-isolation
+type: ability
+tags:
+  - censor-aura
+  - kw.area
+  - kw.magic
+fields:
+  usage: maneuver
+  kind: heroic
+  class: classes.censor
+  level: 3
+  resource: wrath
+  cost: 7
+  distanceKind: aura
+  distance: 2
+# The aura is this ability applied to you until the end of the encounter or until you are dying.
+state:
+  duration: { type: string, default: encounter }
+reapply: { state: { duration: replace } }
+effects:
+  - target: { steps: [ability.after], from: self }
+    op: changes
+    when: action.item.id == item.id
+    value:
+      changes:
+        - {
+            type: applyEffect,
+            source: "'abilities.censor.edict-of-disruptive-isolation'",
+            state: { duration: "'encounter'" },
+          }
+actions:
+  # At the end of each of your turns: holy damage equal to your Presence score to each target,
+  # 2d6 more to the judged creature and to targets adjacent to any enemy (`extra`).
+  - id: punish
+    scope: applied
+    tags: [ability]
+    params:
+      extra: { type: boolean, default: false }
+    participants:
+      target: { min: 1 }
+    results: [used]
+    steps:
+      - id: extra
+        kind: roll
+        each: target
+        tags: [damage]
+        parts:
+          - value: 0
+          - dice: 2d6
+            when: params.extra || (censor.judged != '' && participant.id == censor.judged)
+      - id: hit
+        kind: changes
+        each: target
+        to: target
+        changes:
+          - type: adjust
+            field: stamina.current
+            by: >-
+              -(characteristics.presence.score + steps.extra.total)
+            tags: [damage, damage.holy]
+      - { id: done, kind: outcome, result: "'used'" }

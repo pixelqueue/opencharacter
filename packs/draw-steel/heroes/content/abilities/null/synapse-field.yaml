@@ -1,0 +1,20 @@
+id: abilities.null.synapse-field
+type: ability
+tags:
+  - kw.psionic
+fields:
+  usage: maneuver
+  kind: heroic
+  class: classes.null
+  level: 3
+  resource: discipline
+  cost: 7
+  distanceKind: self
+effects:
+  # The Null Field 1 larger until the end of the encounter.
+  - target: { steps: [ability.after], from: self }
+    op: changes
+    when: action.item.id == item.id
+    value:
+      changes:
+        - { type: adjust, field: nullClass.fieldEncounter, by: 1 }

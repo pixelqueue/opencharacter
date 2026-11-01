@@ -1,0 +1,48 @@
+id: abilities.talent.doubt
+type: ability
+tags:
+  - kw.animapathy
+  - kw.psionic
+  - kw.ranged
+  - kw.strike
+fields:
+  usage: main-action
+  kind: heroic
+  class: classes.talent
+  level: 8
+  resource: clarity
+  cost: 11
+  distanceKind: ranged
+  distance: 10
+  rollChars:
+    - presence
+  damageType: untyped
+  t1Damage: 10
+  t1PotencyChar: presence
+  t1Potency: weak
+  t1Condition: conditions.weakened
+  t1Duration: save
+  t2Damage: 14
+  t2PotencyChar: presence
+  t2Potency: average
+  t2Condition: conditions.weakened
+  t2Duration: save
+  t3Damage: 20
+  t3PotencyChar: presence
+  t3Potency: strong
+  t3Condition: conditions.weakened
+  t3Duration: save
+effects:
+  - target:
+      steps:
+        - ability.hit
+      from: self
+    op: changes
+    when: action.item.id == item.id && (flags.tier == 3 && flags.landed)
+    value:
+      changes:
+        - type: applyEffect
+          source: "'conditions.slowed'"
+          state:
+            duration: "'save'"
+            by: character.id

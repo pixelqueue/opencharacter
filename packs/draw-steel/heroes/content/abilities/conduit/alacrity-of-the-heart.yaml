@@ -1,0 +1,23 @@
+id: abilities.conduit.alacrity-of-the-heart
+type: ability
+tags:
+  - kw.magic
+  - kw.ranged
+fields:
+  usage: maneuver
+  kind: heroic
+  class: classes.conduit
+  subclass: subclasses.conduit.love
+  level: 9
+  resource: piety
+  cost: 11
+  distanceKind: ranged
+  distance: 10
+effects:
+  # 3 of the target's Heroic Resource (the extra main action is the target's to take).
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    when: action.item.id == item.id
+    value:
+      changes:
+        - { type: adjust, field: heroic.current, by: 3 }

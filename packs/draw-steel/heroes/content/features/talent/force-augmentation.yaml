@@ -1,0 +1,17 @@
+id: features.talent.force-augmentation
+type: feature
+fields:
+  class: classes.talent
+  level: 1
+tags: [talent.augmentation]
+effects:
+  - target: { rolls: [damage] }
+    op: add
+    value: 1
+    when: "'kw.psionic' in action.item.tags"
+    tags:
+      [
+        {
+          formula: "action.item.damageType == 'untyped' ? [] : ['damage.' + action.item.damageType]",
+        },
+      ]

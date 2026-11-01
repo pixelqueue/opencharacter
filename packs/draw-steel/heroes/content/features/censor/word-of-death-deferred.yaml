@@ -1,0 +1,12 @@
+id: features.censor.word-of-death-deferred
+type: feature
+fields:
+  class: classes.censor
+  level: 7
+  subclass: subclasses.conduit.death
+# Your abilities deal an extra 5 damage to winded creatures.
+effects:
+  - target: { rolls: [damage] }
+    op: add
+    value: 5
+    when: has(participant) && participant.stamina.isWinded

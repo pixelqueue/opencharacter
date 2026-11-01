@@ -1,0 +1,31 @@
+id: subclasses.shadow.harlequin-mask
+type: subclass
+fields:
+  class: classes.shadow
+effects:
+  - { target: skills.known, op: grant, value: { item: skills.lie } }
+grants:
+  - { item: features.shadow.im-no-threat }
+  - { item: abilities.shadow.clever-trick }
+  - { item: features.shadow.friend, when: self.level >= 2 }
+  - { item: features.shadow.harlequin-gambit, when: self.level >= 5 }
+  - { item: features.shadow.parkour, when: self.level >= 8 }
+choices:
+  - id: ability2
+    when: self.level >= 2
+    from:
+      type: ability
+      where: item.subclass == @subclasses.shadow.harlequin-mask && item.level == 2
+    recommend: '@abilities.shadow.machinations-of-sound'
+  - id: ability6
+    when: self.level >= 6
+    from:
+      type: ability
+      where: item.subclass == @subclasses.shadow.harlequin-mask && item.level == 6
+    recommend: '@abilities.shadow.look'
+  - id: ability9
+    when: self.level >= 9
+    from:
+      type: ability
+      where: item.subclass == @subclasses.shadow.harlequin-mask && item.level == 9
+    recommend: '@abilities.shadow.i-am-you'

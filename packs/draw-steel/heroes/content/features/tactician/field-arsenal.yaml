@@ -1,0 +1,13 @@
+# The second kit. Each kind of bonus counts from one kit only (the kit stack keys), the higher
+# recommended.
+id: features.tactician.field-arsenal
+type: feature
+fields:
+  class: classes.tactician
+  level: 1
+choices:
+  - id: kit
+    from: { type: kit, where: "!('stormwight' in item.tags)" }
+    eligible: >-
+      !(item.id in picksOf('features.common.kit', 'kit')) || item.id in choice.picks
+    recommend: '@kits.sniper'

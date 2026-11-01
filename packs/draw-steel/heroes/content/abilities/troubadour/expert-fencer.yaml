@@ -1,0 +1,37 @@
+id: abilities.troubadour.expert-fencer
+type: ability
+tags:
+  - kw.charge
+  - kw.melee
+  - kw.strike
+  - kw.weapon
+fields:
+  usage: main-action
+  kind: heroic
+  class: classes.troubadour
+  subclass: subclasses.troubadour.duelist
+  level: 9
+  resource: drama
+  cost: 11
+  distanceKind: melee
+  distance: 3
+  rollChars:
+    - agility
+  damageType: untyped
+  t1Damage: 15
+  t2Damage: 21
+  t3Damage: 28
+  t3PotencyChar: might
+  t3Potency: strong
+  t3Condition: conditions.bleeding
+  t3Duration: save
+effects:
+  # A tier 3 outcome on a natural 17 or higher: 3 surges to use at once.
+  - target: { steps: [ability.after], from: self }
+    op: changes
+    when: >-
+      action.item.id == item.id && has(steps.roll) && steps.roll.bandValue == 3 && size(steps.roll.kept) >= 2
+        && steps.roll.kept[0] + steps.roll.kept[1] >= 17
+    value:
+      changes:
+        - { type: adjust, field: surges.current, by: 3 }

@@ -1,0 +1,12 @@
+id: features.elementalist.disciple-of-fire
+type: feature
+fields:
+  class: classes.elementalist
+  subclass: subclasses.elementalist.fire
+  level: 2
+effects:
+  - { target: immunity.fire, op: add, value: 5 + level }
+  # Surges equal to Victories at the start of combat (after the core sets them to 0).
+  - target: { steps: [combat.start] }
+    op: changes
+    value: { changes: [{ type: set, field: surges.current, value: victories }] }

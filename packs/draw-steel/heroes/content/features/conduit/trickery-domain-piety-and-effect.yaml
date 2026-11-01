@@ -1,0 +1,38 @@
+id: features.conduit.trickery-domain-piety-and-effect
+type: feature
+fields:
+  class: classes.conduit
+  level: 1
+effects:
+  - {
+      target: conduit.domainEffects,
+      op: grant,
+      value: { item: features.conduit.trickery-domain-piety-and-effect },
+    }
+actions:
+  # The domain's piety: the first time in an encounter its event happens.
+  - id: piety
+    available: "combat.active && heroic.kind == 'piety' && !(item.id in conduit.domainPietyUsed)"
+    results: [gained]
+    steps:
+      - id: gain
+        kind: changes
+        changes:
+          - { type: adjust, field: heroic.current, by: 2 + conduit.domainPietyBonus }
+          - {
+              type: set,
+              field: conduit.domainPietyUsed,
+              value: 'conduit.domainPietyUsed + [item.id]',
+            }
+      - {
+          id: done,
+          kind: outcome,
+          result: "'gained'",
+          data: { gained: 2 + conduit.domainPietyBonus },
+        }
+  # The domain's prayer effect.
+  - id: prayer-effect
+    available: combat.active && conduit.canUseDomainEffects
+    results: [activated]
+    steps:
+      - { id: done, kind: outcome, result: "'activated'", data: { slide: 5 + level } }

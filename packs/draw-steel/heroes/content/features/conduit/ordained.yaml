@@ -1,0 +1,8 @@
+id: features.conduit.ordained
+type: feature
+fields:
+  class: classes.conduit
+  level: 9
+effects:
+  # While the hero has 5 or more Victories: a double edge on Presence tests to influence others.
+  - { target: { rolls: [test.presence], tally: edges }, op: add, value: 2, when: victories >= 5 }

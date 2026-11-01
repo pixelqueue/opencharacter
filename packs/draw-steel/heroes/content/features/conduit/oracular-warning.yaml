@@ -1,0 +1,11 @@
+id: features.conduit.oracular-warning
+type: feature
+fields:
+  class: classes.conduit
+  level: 4
+  subclass: subclasses.conduit.fate
+effects:
+  # Each respite: temporary Stamina equal to 10 + level (the hero's allies who rested gain it too).
+  - target: { steps: [respite] }
+    op: changes
+    value: { changes: [{ type: adjust, field: stamina.temp, by: 10 + level }] }

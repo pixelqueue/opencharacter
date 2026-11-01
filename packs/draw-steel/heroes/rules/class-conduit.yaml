@@ -1,0 +1,45 @@
+# The Conduit: piety from prayer and from the two domains, domain prayer effects, divine power.
+fields:
+  # The domain piety features of the hero's domains, each granted by its domain. Their prayer
+  # effects are what "activate a domain effect" offers.
+  conduit.domainEffects: { type: set, of: feature }
+  # The domains whose piety was gained this encounter (once per encounter each).
+  conduit.domainPietyUsed: { type: set, of: feature, input: true, default: [] }
+  # Extra piety from a domain's piety (Blessed Domain) and from praying (Most Pious).
+  conduit.domainPietyBonus: { type: integer, formula: 0 }
+  conduit.prayerBonus: { type: integer, formula: 0 }
+  # Whether the hero may pray before rolling for piety at the start of their turn.
+  conduit.canPray: { type: boolean, formula: 'false' }
+  # Whether the hero can activate domain effects (a Conduit; a 10th-level Censor sets it), and
+  # the score they use: Intuition (a Censor sets Presence).
+  conduit.canUseDomainEffects: { type: boolean, formula: 'false' }
+  conduit.domainScore: { type: integer, formula: characteristics.intuition.score }
+  # Oracular Visions: fate points, earned with Victories and lost at a respite.
+  conduit.fatePoints: { type: integer, input: true, default: 0, min: 0 }
+  # How many prayers the hero is affected by at once (Avatar: three).
+  conduit.prayers: { type: integer, formula: 1 }
+  # Divine power: the 10th-level epic resource, spent as piety.
+  conduit.divinePower: { type: integer, input: true, default: 0, min: 0 }
+
+situational:
+  # Praying before the piety roll at the start of the turn (Piety in Combat).
+  - id: conduitPray
+    type: boolean
+    default: false
+    rolls: [heroic-gain]
+    available: conduit.canPray && combat.active
+
+display:
+  fields:
+    conduit.domainPietyUsed:
+      { groups: [resources], priority: 3, showWhen: 'combat.active && conduit.canUseDomainEffects' }
+    conduit.fatePoints: { groups: [resources], priority: 2, showWhen: conduit.fatePoints > 0 }
+    conduit.divinePower:
+      { groups: [resources], priority: 1, showWhen: "heroic.kind == 'piety' && level >= 10" }
+    conduit.domainEffects: { hidden: true }
+    conduit.domainPietyBonus: { hidden: true }
+    conduit.prayerBonus: { hidden: true }
+    conduit.canPray: { hidden: true }
+    conduit.canUseDomainEffects: { hidden: true }
+    conduit.domainScore: { hidden: true }
+    conduit.prayers: { hidden: true }

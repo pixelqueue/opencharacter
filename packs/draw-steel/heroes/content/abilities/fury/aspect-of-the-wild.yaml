@@ -1,0 +1,25 @@
+id: abilities.fury.aspect-of-the-wild
+type: ability
+tags: [kw.magic]
+fields:
+  usage: maneuver
+  kind: feature
+  class: classes.fury
+  subclass: subclasses.fury.stormwight
+  level: 1
+  distanceKind: self
+  resource: ferocity
+  spendCost: 1
+actions:
+  # Shapeshift: the form the fury takes (animal, hybrid or true form).
+  - id: shapeshift
+    tags: [ability]
+    params:
+      form: { type: enum, values: [true-form, animal, hybrid] }
+    results: [shifted]
+    steps:
+      - id: shift
+        kind: changes
+        changes:
+          - { type: set, field: fury.form, value: params.form }
+      - { id: done, kind: outcome, result: "'shifted'" }

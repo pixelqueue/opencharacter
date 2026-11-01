@@ -1,0 +1,19 @@
+id: abilities.fury.make-peace-with-your-god
+type: ability
+fields:
+  usage: free-maneuver
+  kind: heroic
+  class: classes.fury
+  level: 1
+  resource: ferocity
+  cost: 5
+  distanceKind: self
+effects:
+  # 1 surge, and the next ability roll this turn is a tier 3 outcome.
+  - target: { steps: [ability.after], from: self }
+    op: changes
+    when: action.item.id == item.id
+    value:
+      changes:
+        - { type: adjust, field: surges.current, by: 1 }
+        - { type: set, field: fury.autoTier3, value: 'true' }

@@ -1,0 +1,14 @@
+id: features.conduit.the-lists-of-heaven
+type: feature
+fields:
+  class: classes.conduit
+  level: 2
+# Whenever the hero lets another creature spend a Recovery, they can spend one too: offered after
+# each ability that lets a creature spend a Recovery.
+followUps:
+  - { id: spend-recovery, action: spend-recovery }
+effects:
+  - target: { steps: [ability.after] }
+    op: changes
+    when: "'recovery.granted' in action.item.tags && recoveries.current > 0"
+    value: { changes: [{ type: offerFollowUp, followUp: spend-recovery }] }

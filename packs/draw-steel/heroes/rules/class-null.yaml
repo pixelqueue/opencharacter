@@ -1,0 +1,104 @@
+# The null: the Null Field aura, discipline from enemies acting in it, Discipline Mastery and the
+# reactions that halve incoming damage. The field's effects on other creatures (their potencies,
+# their shifts) are theirs to apply; this sheet tracks whether it is up, its size and its extra effect.
+fields:
+  # Null Field: up once the maneuver is used, until the null is dying or ends it.
+  nullClass.fieldActive: { type: boolean, input: true, default: false }
+  # Enlargements until the end of the encounter (the 7-discipline fields, Order) and until the
+  # start of the null's next turn (Psychic Pulse, Heat Sink).
+  nullClass.fieldEncounter: { type: integer, input: true, default: 0, min: 0 }
+  nullClass.fieldTurn: { type: integer, input: true, default: 0, min: 0 }
+  nullClass.fieldSize:
+    { type: integer, formula: 1 + nullClass.fieldEncounter + nullClass.fieldTurn }
+  # The extra effect bought with 1 discipline, until the start of the null's next turn.
+  nullClass.fieldEffect:
+    type: enum
+    values: [none, gravitic-disruption, inertial-anchor, synaptic-break]
+    input: true
+    default: none
+  # Discipline already gained this round from an enemy's main action in the field, and from Malice.
+  nullClass.fieldGained: { type: boolean, input: true, default: false }
+  nullClass.maliceGained: { type: boolean, input: true, default: false }
+  # Discipline Mastery reads the most discipline the null had this turn: a benefit lasts until the
+  # end of the turn though the discipline is spent.
+  nullClass.masteryPeak: { type: integer, input: true, default: 0, min: 0 }
+  nullClass.mastery:
+    type: integer
+    formula: 'combat.active ? max(heroic.current, nullClass.masteryPeak) : 0'
+  # The metakinetic's once-a-round surges from taking damage or being force moved.
+  nullClass.masterySurge: { type: boolean, input: true, default: false }
+  # Until the end of the encounter: Absolute Zero's avatar of cold, Iron Body's stability.
+  nullClass.absoluteZero: { type: boolean, input: true, default: false }
+  nullClass.ironBody: { type: boolean, input: true, default: false }
+  # The 10th-level epic resource.
+  nullClass.order: { type: integer, input: true, default: 0, min: 0 }
+  # The reactions the null has, offered on incoming damage.
+  nullClass.inertialShield: { type: boolean, formula: 'false' }
+  nullClass.inertialAbsorption: { type: boolean, formula: 'false' }
+  nullClass.synapticAnchor: { type: boolean, formula: 'false' }
+
+# The triggered abilities that halve damage, chosen on the damage as it arrives. Inertial Shield
+# also gives Elemental Absorption's immunity from 6th level. Paying for the heroic ones is their
+# ability's use.
+situational:
+  - id: inertialShield
+    type: boolean
+    default: false
+    incoming: { fields: [stamina.current], tags: [damage] }
+    available: nullClass.inertialShield
+    effects:
+      - target: { incoming: { fields: [stamina.current], tags: [damage] } }
+        op: multiply
+        value: 0.5
+      - target: { incoming: { fields: [stamina.current], tags: [damage] } }
+        op: add
+        value: >-
+          max(0, characteristics.intuition.score - max(immunity.all, maxList(keysOf('damageType'),
+            fieldOf('immunity.{damageType}', x), 'damage.' + x in incoming.tags)))
+        when: >-
+          level >= 6 && incoming.amount < 0
+            && countList(['acid', 'cold', 'corruption', 'fire', 'lightning', 'poison', 'sonic'],
+              'damage.' + x in incoming.tags) > 0
+  - id: inertialAbsorption
+    type: boolean
+    default: false
+    incoming: { fields: [stamina.current], tags: [damage] }
+    available: nullClass.inertialAbsorption
+    effects:
+      - target: { incoming: { fields: [stamina.current], tags: [damage] } }
+        op: multiply
+        value: 0.5
+  - id: synapticAnchor
+    type: boolean
+    default: false
+    incoming: { fields: [stamina.current], tags: [damage] }
+    available: nullClass.synapticAnchor
+    effects:
+      - target: { incoming: { fields: [stamina.current], tags: [damage] } }
+        op: multiply
+        value: 0.5
+
+display:
+  fields:
+    nullClass.fieldActive:
+      groups: [resources]
+      priority: 1
+      showWhen: "heroic.kind == 'discipline'"
+      input: { widget: checkbox }
+    nullClass.fieldSize: { groups: [resources], priority: 2, showWhen: nullClass.fieldActive }
+    nullClass.fieldEffect: { groups: [resources], priority: 2, showWhen: nullClass.fieldActive }
+    nullClass.mastery:
+      { groups: [resources], priority: 2, showWhen: "heroic.kind == 'discipline' && combat.active" }
+    nullClass.order:
+      { groups: [resources], priority: 1, showWhen: "heroic.kind == 'discipline' && level >= 10" }
+    nullClass.absoluteZero: { groups: [resources], priority: 3, showWhen: nullClass.absoluteZero }
+    nullClass.ironBody: { groups: [resources], priority: 3, showWhen: nullClass.ironBody }
+    nullClass.fieldEncounter: { hidden: true }
+    nullClass.fieldTurn: { hidden: true }
+    nullClass.fieldGained: { hidden: true }
+    nullClass.maliceGained: { hidden: true }
+    nullClass.masteryPeak: { hidden: true }
+    nullClass.masterySurge: { hidden: true }
+    nullClass.inertialShield: { hidden: true }
+    nullClass.inertialAbsorption: { hidden: true }
+    nullClass.synapticAnchor: { hidden: true }

@@ -1,0 +1,30 @@
+id: features.troubadour.melodrama
+type: feature
+fields:
+  class: classes.troubadour
+  level: 4
+choices:
+  # Two picks: a new event (its 2 drama), or one you already have (1 more drama when it happens).
+  # A Melodrama event picked twice is gained and then improved.
+  - id: event
+    slots: [1, 2]
+    from:
+      values:
+        [
+          natural2,
+          villainDamage,
+          fall,
+          threeSurges,
+          lastRecovery,
+          threeHeroes,
+          firstWinded,
+          natural19,
+          heroDied,
+        ]
+    recommend: "slot == 1 ? 'natural2' : 'lastRecovery'"
+    effects:
+      - target: { formula: "'troubadour.drama.' + pick.value" }
+        op: add
+        value: >-
+          pick.value in ['threeHeroes', 'firstWinded', 'natural19', 'heroDied']
+            || (slot == 2 && pick.value in picksOf('event-1')) ? 1 : 2

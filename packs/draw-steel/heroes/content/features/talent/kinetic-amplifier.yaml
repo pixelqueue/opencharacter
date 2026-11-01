@@ -1,0 +1,24 @@
+# Spend up to 2 surges as you force move a creature (the `kineticAmplifier` situational choice on
+# the roll): each adds the Reason score to the forced movement distance.
+id: features.talent.kinetic-amplifier
+type: feature
+fields:
+  class: classes.talent
+  level: 5
+  subclass: subclasses.talent.telekinesis
+effects:
+  - { target: talent.kineticAmplifier, op: set, value: 'true' }
+  - target: { rolls: [power-roll.ability], tally: moveBonus }
+    op: add
+    value: min(2, situational.kineticAmplifier) * characteristics.reason.score
+    when: situational.kineticAmplifier > 0
+  - target: { steps: [ability.pay] }
+    op: changes
+    when: situational.kineticAmplifier > 0
+    value:
+      changes:
+        - {
+            type: adjust,
+            field: surges.current,
+            by: '-min(surges.current, situational.kineticAmplifier, 2)',
+          }

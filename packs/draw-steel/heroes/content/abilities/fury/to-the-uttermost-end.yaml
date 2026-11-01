@@ -1,0 +1,31 @@
+id: abilities.fury.to-the-uttermost-end
+type: ability
+tags:
+  - kw.melee
+  - kw.strike
+  - kw.weapon
+fields:
+  usage: main-action
+  kind: heroic
+  class: classes.fury
+  level: 1
+  resource: ferocity
+  cost: 5
+  distanceKind: melee
+  distance: 1
+  rollChars:
+    - might
+  damageType: untyped
+  t1Damage: 7
+  t2Damage: 11
+  t3Damage: 16
+  spendCost: 1
+  spendPlus: true
+effects:
+  # Spend 1+ Ferocity: 1d6 extra damage for each while winded, 1d10 while dying. The 1d6 Stamina
+  # lost after the strike is the player's to roll.
+  - target: { rolls: [damage], from: self }
+    op: add
+    value: 'stamina.dying ? (params.spend)d10 : (params.spend)d6'
+    when: >-
+      roll.item.id == item.id && (params.spend > 0 && stamina.isWinded)

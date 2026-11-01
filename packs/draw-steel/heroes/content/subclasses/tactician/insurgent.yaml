@@ -1,0 +1,32 @@
+id: subclasses.tactician.insurgent
+type: subclass
+fields:
+  class: classes.tactician
+grants:
+  - { item: abilities.tactician.advanced-tactics }
+  - { item: features.tactician.covert-operations }
+  - { item: features.tactician.infiltration-tactics, when: self.level >= 2 }
+  - { item: features.tactician.distracted, when: self.level >= 5 }
+  - { item: features.tactician.leave-no-trace, when: self.level >= 5 }
+  - { item: features.tactician.asymmetric-warfare, when: self.level >= 7 }
+  - { item: features.tactician.bait-and-ambush, when: self.level >= 8 }
+choices:
+  # The doctrine's skill, from the intrigue group.
+  - id: skill
+    from: { type: skill, where: "item.group == 'intrigue'" }
+    eligible: '!(item.id in skills.known) || item.id in choice.picks'
+    recommend: >-
+      filterList([@skills.sneak, @skills.hide, @skills.eavesdrop, @skills.disguise, @skills.sabotage, @skills.pick-lock],
+        !(x in skills.known) || x in choice.picks)[0]
+    activate: false
+    effects:
+      - { target: skills.known, op: grant, value: { formula: pick.id } }
+  # Doctrine abilities: one of two at 2nd (5 focus), 6th (9) and 9th (11) level.
+  - id: ability
+    slots: [2, 6, 9]
+    when: self.level >= slot
+    from:
+      type: ability
+      where: "item.subclass == @subclasses.tactician.insurgent && item.kind == 'heroic'"
+    eligible: item.level == slot
+    recommend: '[@abilities.tactician.fog-of-war, @abilities.tactician.panic-in-their-lines, @abilities.tactician.squad-hit-and-run][indexOf([2, 6, 9], slot)]'

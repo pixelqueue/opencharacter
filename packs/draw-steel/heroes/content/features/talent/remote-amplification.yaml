@@ -1,0 +1,12 @@
+id: features.talent.remote-amplification
+type: feature
+fields:
+  class: classes.talent
+  level: 5
+  subclass: subclasses.talent.telepathy
+effects:
+  # +5 distance for ranged psionic abilities.
+  - target: { rolls: [power-roll.ability], tally: distanceBonus }
+    op: add
+    value: 5
+    when: "'kw.ranged' in roll.item.tags && 'kw.psionic' in roll.item.tags"

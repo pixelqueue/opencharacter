@@ -1,0 +1,30 @@
+id: features.conduit.divine-power
+type: feature
+fields:
+  class: classes.conduit
+  level: 10
+effects:
+  # Each respite: divine power equal to the XP gained (the Victories turned into experience).
+  - target: { steps: [respite] }
+    op: changes
+    value: { changes: [{ type: adjust, field: conduit.divinePower, by: victories }] }
+actions:
+  # Spend divine power as if it were piety.
+  - id: channel
+    available: conduit.divinePower > 0
+    params:
+      amount: { type: integer, default: 1, min: 1 }
+    results: [channeled]
+    steps:
+      - id: channel
+        kind: changes
+        changes:
+          - {
+              type: adjust,
+              field: conduit.divinePower,
+              by: '-min(params.amount, conduit.divinePower)',
+            }
+          - type: adjust
+            field: heroic.current
+            by: min(params.amount, conduit.divinePower)
+      - { id: done, kind: outcome, result: "'channeled'" }

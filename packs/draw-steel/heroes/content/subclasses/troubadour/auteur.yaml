@@ -1,0 +1,40 @@
+id: subclasses.troubadour.auteur
+type: subclass
+fields:
+  class: classes.troubadour
+effects:
+  - { target: skills.known, op: grant, value: { item: skills.brag } }
+grants:
+  - item: features.troubadour.blocking
+  - item: features.troubadour.dramatic-monologue
+  - item: abilities.troubadour.turnabout-is-fair-play
+  - item: features.troubadour.missed-cue
+    when: self.level >= 3
+  - item: features.troubadour.deleted-scene
+    when: self.level >= 8
+choices:
+  # Class act abilities at 2nd, 6th and 9th level, and the 5th-level class act feature.
+  - id: ability-2
+    when: self.level >= 2
+    from:
+      type: ability
+      where: item.subclass == @subclasses.troubadour.auteur && item.level == 2
+    recommend: '@abilities.troubadour.guest-star'
+  - id: feature-5
+    when: self.level >= 5
+    from:
+      type: feature
+      where: item.subclass == @subclasses.troubadour.auteur && item.level == 5
+    recommend: '@features.troubadour.take-two'
+  - id: ability-6
+    when: self.level >= 6
+    from:
+      type: ability
+      where: item.subclass == @subclasses.troubadour.auteur && item.level == 6
+    recommend: '@abilities.troubadour.heres-how-your-story-ends'
+  - id: ability-9
+    when: self.level >= 9
+    from:
+      type: ability
+      where: item.subclass == @subclasses.troubadour.auteur && item.level == 9
+    recommend: '@abilities.troubadour.epic'

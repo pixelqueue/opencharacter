@@ -1,0 +1,19 @@
+# Damage from a Green and Magic ability that costs essence: temporary Stamina equal to Reason
+# (for the hero; giving it to a creature within 10 squares instead is the app's).
+id: features.elementalist.acolyte-of-the-green
+type: feature
+fields:
+  class: classes.elementalist
+  subclass: subclasses.elementalist.green
+  level: 1
+effects:
+  - target: { steps: [ability.after] }
+    op: changes
+    when: >-
+      'kw.green' in action.item.tags && 'kw.magic' in action.item.tags && action.item.cost > 0
+        && size(participants.target) > 0 && has(action.item.t1Damage)
+    value:
+      changes:
+        - type: set
+          field: stamina.temp
+          value: max(stamina.temp, characteristics.reason.score)

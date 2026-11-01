@@ -1,0 +1,21 @@
+id: features.conduit.burgeoning-saint
+type: feature
+fields:
+  class: classes.conduit
+  level: 6
+effects:
+  # An edge on Presence tests made to interact with other creatures.
+  - { target: { rolls: [test.presence], tally: edges }, op: add, value: 1 }
+  # Dealing damage to an enemy: the hero can spend a Recovery.
+  - target: { steps: [ability.after] }
+    op: changes
+    when: has(action.item.t1Damage) && size(participants.target) > 0 && recoveries.current > 0
+    value: { changes: [{ type: offerFollowUp, followUp: spend-recovery }] }
+followUps:
+  - { id: spend-recovery, action: spend-recovery }
+choices:
+  - id: immunity
+    from: { values: [corruption, holy] }
+    recommend: "'holy'"
+    effects:
+      - { target: { formula: "'immunity.' + pick.value" }, op: add, value: 10 }

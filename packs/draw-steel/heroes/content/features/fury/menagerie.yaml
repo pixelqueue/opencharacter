@@ -1,0 +1,12 @@
+id: features.fury.menagerie
+type: feature
+fields:
+  class: classes.fury
+  level: 8
+  subclass: subclasses.fury.stormwight
+effects:
+  # Tests to track: three dice, keep two.
+  - target: { rolls: [power-roll.test] }
+    op: rollModifier
+    value: { kind: advantage }
+    when: has(params.skill) && params.skill == @skills.track

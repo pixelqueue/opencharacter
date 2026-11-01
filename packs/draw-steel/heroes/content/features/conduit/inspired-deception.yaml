@@ -1,0 +1,23 @@
+id: features.conduit.inspired-deception
+type: feature
+fields:
+  class: classes.conduit
+  level: 1
+  subclass: subclasses.conduit.trickery
+choices:
+  # The domain's skill, from the intrigue group: one the hero doesn't have, or any of the group when
+  # they have them all (Gods' Library gives every lore skill).
+  - id: skill
+    from: { type: skill, where: "item.group == 'intrigue'" }
+    eligible: >-
+      !(item.id in skills.known) || item.id in choice.picks
+        || countList([@skills.alertness, @skills.conceal-object, @skills.disguise, @skills.eavesdrop, @skills.escape-artist, @skills.hide, @skills.pick-pocket, @skills.pick-lock, @skills.sneak, @skills.search, @skills.sabotage, @skills.track], !(x in skills.known)) == 0
+    recommend: >-
+      (filterList([@skills.sneak, @skills.hide, @skills.alertness, @skills.disguise,
+        @skills.conceal-object, @skills.eavesdrop, @skills.escape-artist,
+        @skills.pick-pocket, @skills.pick-lock, @skills.search, @skills.sabotage,
+        @skills.track],
+        !(x in skills.known) || x in choice.picks) + [@skills.sneak])[0]
+    activate: false
+    effects:
+      - { target: skills.known, op: grant, value: { formula: pick.id } }

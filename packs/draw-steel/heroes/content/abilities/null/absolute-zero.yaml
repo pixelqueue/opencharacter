@@ -1,0 +1,32 @@
+id: abilities.null.absolute-zero
+type: ability
+tags:
+  - kw.psionic
+fields:
+  usage: maneuver
+  kind: heroic
+  class: classes.null
+  subclass: subclasses.null.cryokinetic
+  level: 9
+  resource: discipline
+  cost: 11
+  distanceKind: self
+  rollChars:
+    - intuition
+effects:
+  # 20, 30 or 40 temporary Stamina by tier, then until the end of the encounter immunity to all
+  # damage equal to Entropic Adaptability's (twice Intuition) and +2 to potencies.
+  - target: { steps: [ability.after], from: self }
+    op: changes
+    when: action.item.id == item.id && has(steps.roll)
+    value:
+      changes:
+        - type: set
+          field: stamina.temp
+          value: 'max(stamina.temp, [20, 30, 40][steps.roll.bandValue - 1])'
+        - { type: set, field: nullClass.absoluteZero, value: 'true' }
+  - target: immunity.all
+    op: atLeast
+    value: 2 * characteristics.intuition.score
+    when: nullClass.absoluteZero
+  - { target: potency.bonus, op: add, value: 2, when: nullClass.absoluteZero }

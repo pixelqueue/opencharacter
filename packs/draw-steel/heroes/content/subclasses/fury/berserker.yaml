@@ -1,0 +1,56 @@
+id: subclasses.fury.berserker
+type: subclass
+fields:
+  class: classes.fury
+grants:
+  - { item: features.common.kit }
+  - { item: features.fury.primordial-strength }
+  - { item: features.fury.unstoppable-force, when: self.level >= 2 }
+  - { item: features.fury.immovable-object, when: self.level >= 3 }
+  - { item: features.fury.bounder, when: self.level >= 5 }
+  - { item: features.fury.strongest-there-is, when: self.level >= 8 }
+  - { item: abilities.fury.lines-of-force }
+effects:
+  - { target: skills.known, op: grant, value: { item: skills.lift } }
+  # Berserker Growing Ferocity. 2: Knockback's forced movement gains the Might score; 12 (10th
+  # level): every power roll's forced movement does.
+  - target: { rolls: [power-roll.ability], tally: moveBonus }
+    op: add
+    value: characteristics.might.score
+    when: >-
+      fury.growing >= 2 && (roll.item.id == @abilities.common.knockback
+        || (level >= 10 && fury.growing >= 12))
+  # 4 and 8: the first time on a turn an ability pushes a creature, 1 surge (2 at 4th level).
+  - target: { steps: [ability.after] }
+    op: changes
+    when: >-
+      combat.active && fury.growing >= 4 && !fury.surgedThisTurn
+        && has(steps.roll) && size(participants.target) > 0 && countList(flags.move, x in ['push', 'vertical-push']) > 0
+    value:
+      changes:
+        - { type: adjust, field: surges.current, by: 'fury.growing >= 8 && level >= 4 ? 2 : 1' }
+        - { type: set, field: fury.surgedThisTurn, value: 'true' }
+  # 6 and 10: an edge (a double edge at 7th level) on Might tests and the Knockback maneuver.
+  - target: { rolls: [test.might], tally: edges }
+    op: add
+    value: 'fury.growing >= 10 && level >= 7 ? 2 : 1'
+    when: fury.growing >= 6
+  - target: { rolls: [power-roll.ability], tally: edges }
+    op: add
+    value: 'fury.growing >= 10 && level >= 7 ? 2 : 1'
+    when: fury.growing >= 6 && roll.item.id == @abilities.common.knockback
+  # 12 (10th level): 10 temporary Stamina for each heroic ability used.
+  - target: { steps: [ability.after] }
+    op: changes
+    when: "combat.active && level >= 10 && fury.growing >= 12 && action.item.kind == 'heroic'"
+    value: { changes: [{ type: set, field: stamina.temp, value: 'max(stamina.temp, 10)' }] }
+choices:
+  - id: ability
+    slots: [2, 6, 9]
+    when: self.level >= slot
+    from:
+      type: ability
+      where: 'item.class == @classes.fury && has(item.subclass) && item.subclass == @subclasses.fury.berserker'
+    eligible: item.level == slot
+    recommend: >-
+      [@abilities.fury.wrecking-ball, @abilities.fury.force-of-storms, @abilities.fury.death-comes-for-you-all][indexOf([2, 6, 9], slot)]

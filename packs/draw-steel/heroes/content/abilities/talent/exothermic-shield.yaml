@@ -1,0 +1,62 @@
+id: abilities.talent.exothermic-shield
+type: ability
+tags:
+  - kw.pyrokinesis
+  - kw.psionic
+  - kw.ranged
+fields:
+  usage: maneuver
+  kind: heroic
+  class: classes.talent
+  level: 5
+  resource: clarity
+  cost: 9
+  distanceKind: ranged
+  distance: 10
+effects:
+  - target:
+      steps:
+        - ability.hit
+      from: self
+    op: changes
+    when:
+      action.item.id == item.id && ((combat.active && heroic.current - item.cost - params.spend < 0)
+      || situational.talentStrain)
+    value:
+      changes:
+        - type: adjust
+          field: surges.current
+          by: 2
+  - target:
+      steps:
+        - ability.after
+      from: self
+    op: changes
+    when:
+      action.item.id == item.id && (((combat.active && heroic.current - item.cost - params.spend <
+      0) || situational.talentStrain) && size(participants.target) == 0)
+    value:
+      changes:
+        - type: adjust
+          field: surges.current
+          by: 2
+  - target:
+      steps:
+        - ability.after
+      from: self
+    op: changes
+    when:
+      action.item.id == item.id && ((combat.active && heroic.current - item.cost - params.spend < 0)
+      || situational.talentStrain)
+    value:
+      changes:
+        - type: applyEffect
+          source: "'conditions.weakened'"
+          state:
+            duration: "'save'"
+            by: character.id
+        - type: applyEffect
+          source: "'conditions.slowed'"
+          state:
+            duration: "'save'"
+            by: character.id

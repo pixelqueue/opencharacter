@@ -1,0 +1,47 @@
+id: abilities.talent.entropic-bolt
+type: ability
+tags:
+  - kw.chronopathy
+  - kw.psionic
+  - kw.ranged
+  - kw.strike
+fields:
+  usage: main-action
+  kind: signature
+  class: classes.talent
+  level: 1
+  distanceKind: ranged
+  distance: 10
+  rollChars:
+    - presence
+  damageType: corruption
+  t1Damage: 2
+  t1PotencyChar: presence
+  t1Potency: weak
+  t1Condition: conditions.slowed
+  t1Duration: save
+  t2Damage: 3
+  t2PotencyChar: presence
+  t2Potency: average
+  t2Condition: conditions.slowed
+  t2Duration: save
+  t3Damage: 5
+  t3PotencyChar: presence
+  t3Potency: strong
+  t3Condition: conditions.slowed
+  t3Duration: save
+effects:
+  - target:
+      steps:
+        - ability.hit
+      from: self
+    op: changes
+    when:
+      action.item.id == item.id && (((combat.active && heroic.current - item.cost - params.spend <
+      0) || situational.talentStrain) && flags.tier >= 2)
+    value:
+      changes:
+        - type: adjust
+          field: heroic.current
+          by: 1
+      to: self

@@ -1,0 +1,10 @@
+id: features.censor.virtue
+type: feature
+fields:
+  class: classes.censor
+  level: 10
+# Each respite: virtue equal to the experience gained (the Victories turned into XP).
+effects:
+  - target: { steps: [respite] }
+    op: changes
+    value: { changes: [{ type: adjust, field: censor.virtue, by: victories }] }

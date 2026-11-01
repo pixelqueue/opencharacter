@@ -1,0 +1,18 @@
+# Acolyte of Fire's bonus becomes +5 and applies to every magic ability.
+id: features.elementalist.master-of-fire
+type: feature
+fields:
+  class: classes.elementalist
+  subclass: subclasses.elementalist.fire
+  level: 10
+effects:
+  - target: { rolls: [damage] }
+    op: add
+    value: 5
+    when: "'kw.magic' in action.item.tags"
+    tags:
+      [
+        {
+          formula: "action.item.id == @abilities.elementalist.hurl-element ? ['damage.' + situational.hurlElementType] : action.item.damageType == 'untyped' ? [] : ['damage.' + action.item.damageType]",
+        },
+      ]

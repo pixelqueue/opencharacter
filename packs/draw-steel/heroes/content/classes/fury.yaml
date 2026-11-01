@@ -1,0 +1,154 @@
+id: classes.fury
+type: class
+fields:
+  primaries: [might, agility]
+  potency: might
+  arrayPriority: [reason, presence, intuition]
+  startingStamina: 21
+  staminaPerLevel: 9
+  recoveries: 10
+  resource: ferocity
+  turnGain: 1d3
+grants:
+  - item: features.fury.ferocity-in-combat
+  - item: features.fury.ferocity-outside-of-combat
+  - item: features.fury.growing-ferocity
+  - item: features.fury.mighty-leaps
+  - { item: features.fury.damaging-ferocity, when: self.level >= 4 }
+  - { item: features.fury.growing-ferocity-improvement-4, when: self.level >= 4 }
+  - { item: features.fury.primordial-attunement, when: self.level >= 4 }
+  - { item: features.fury.primordial-strike, when: self.level >= 4 }
+  - { item: features.fury.marauder-of-the-primordial-chaos, when: self.level >= 6 }
+  - { item: features.fury.primordial-portal, when: self.level >= 6 }
+  - { item: features.fury.elemental-form, when: self.level >= 7 }
+  - { item: features.fury.greater-ferocity, when: self.level >= 7 }
+  - { item: features.fury.growing-ferocity-improvement-7, when: self.level >= 7 }
+  - { item: features.fury.harbinger-of-the-primordial-chaos, when: self.level >= 9 }
+  - { item: features.fury.chaos-incarnate, when: self.level >= 10 }
+  - { item: features.fury.growing-ferocity-improvement, when: self.level >= 10 }
+  - { item: features.fury.primordial-ferocity, when: self.level >= 10 }
+  - { item: features.fury.primordial-power, when: self.level >= 10 }
+effects:
+  - { target: kit.recommended, op: set, value: '@kits.panther' }
+  - { target: skills.known, op: grant, value: { item: skills.nature } }
+  # Greater Ferocity: 1d3 + 1 at the start of each turn.
+  - { target: heroic.turnBonus, op: add, value: 1, when: level >= 7 }
+  # The flags that last a round, a turn or an encounter.
+  - target: { steps: [combat.start, combat.end] }
+    op: changes
+    value:
+      changes:
+        - { type: set, field: fury.damagedThisRound, value: 'false' }
+        - { type: set, field: fury.windedGained, value: 'false' }
+        - { type: set, field: fury.ferocityThisTurn, value: 0 }
+        - { type: set, field: fury.surgedThisTurn, value: 'false' }
+        - { type: set, field: fury.autoTier3, value: 'false' }
+  - target: { steps: [round.start] }
+    op: changes
+    value: { changes: [{ type: set, field: fury.damagedThisRound, value: 'false' }] }
+  - target: { steps: [turn.start] }
+    op: changes
+    value: { changes: [{ type: set, field: fury.surgedThisTurn, value: 'false' }] }
+  - target: { steps: [turn.end] }
+    op: changes
+    value:
+      changes:
+        - { type: set, field: fury.ferocityThisTurn, value: 0 }
+        - { type: set, field: fury.surgedThisTurn, value: 'false' }
+        - { type: set, field: fury.autoTier3, value: 'false' }
+  # Growing Ferocity: what an ability pays doesn't end this turn's benefits.
+  - target: { steps: [ability.pay] }
+    op: changes
+    when: combat.active
+    value:
+      changes:
+        - type: set
+          field: fury.ferocityThisTurn
+          value: max(fury.ferocityThisTurn, heroic.current)
+  # Make Peace With Your God!: the next ability roll is a tier 3 outcome, then it's used up.
+  - target: { rolls: [power-roll.ability], tally: autoTier3 }
+    op: add
+    value: 1
+    when: fury.autoTier3
+  - target: { steps: [ability.after] }
+    op: changes
+    when: fury.autoTier3 && has(steps.roll)
+    value: { changes: [{ type: set, field: fury.autoTier3, value: 'false' }] }
+followUps:
+  # The first damage each combat round: 1 ferocity (2 at 4th level, 3 at 10th).
+  - id: ferocity-from-damage
+    on: { field: stamina.current, tags: [damage], once: true }
+    when: combat.active && !fury.damagedThisRound && change.taken < 0
+    changes:
+      - { type: adjust, field: heroic.current, by: 'level >= 10 ? 3 : level >= 4 ? 2 : 1' }
+      - { type: set, field: fury.damagedThisRound, value: 'true' }
+  # The first time each encounter the fury is winded or dying: 1d3 ferocity.
+  - id: ferocity-from-winded
+    becomes: combat.active && stamina.isWinded
+    when: '!fury.windedGained'
+    action: winded-ferocity
+actions:
+  - id: winded-ferocity
+    tags: [resource]
+    available: combat.active && !fury.windedGained
+    results: [gained]
+    steps:
+      - { id: gain, kind: roll, tags: [heroic-gain], parts: [{ dice: 1d3 }] }
+      - id: apply
+        kind: changes
+        changes:
+          - { type: adjust, field: heroic.current, by: steps.gain.total }
+          - { type: set, field: fury.windedGained, value: 'true' }
+      - { id: done, kind: outcome, result: "'gained'", data: { gained: steps.gain.total } }
+choices:
+  - id: aspect
+    from: { type: subclass, where: 'item.class == @classes.fury' }
+    recommend: '@subclasses.fury.berserker'
+  - id: skills
+    pick: 2
+    from: { type: skill, where: "item.group in ['exploration', 'intrigue']" }
+    eligible: '!(item.id in skills.known) || item.id in choice.picks'
+    recommend: >-
+      filterList([@skills.alertness, @skills.jump, @skills.track, @skills.hide, @skills.climb,
+        @skills.swim, @skills.navigate, @skills.sneak, @skills.search, @skills.eavesdrop,
+        @skills.gymnastics, @skills.endurance, @skills.lift, @skills.ride], !(x in skills.known) && !(x in choice.picks))[0]
+    activate: false
+    effects:
+      - { target: skills.known, op: grant, value: { formula: pick.id } }
+  - id: signature
+    from:
+      type: ability
+      where: "item.class == @classes.fury && item.kind == 'signature' && !has(item.subclass)"
+    recommend: '@abilities.fury.to-the-death'
+  - id: heroic
+    slots: [3, 5, 7, 9, 11]
+    when: 'self.level >= [1, 1, 3, 5, 8][indexOf([3, 5, 7, 9, 11], slot)]'
+    from:
+      type: ability
+      where: "item.class == @classes.fury && item.kind == 'heroic' && !has(item.subclass)"
+    eligible: item.cost == slot
+    recommend: >-
+      [@abilities.fury.back, @abilities.fury.blood-for-blood, @abilities.fury.steelbreaker,
+        @abilities.fury.debilitating-strike, @abilities.fury.overkill][indexOf([3, 5, 7, 9, 11], slot)]
+  # Perks: crafting, exploration or intrigue at 2nd, 6th and 10th level; any at 4th and 8th.
+  - id: perk
+    slots: [2, 4, 6, 8, 10]
+    unique: perks
+    when: self.level >= slot
+    from: { type: perk }
+    eligible: "slot in [4, 8] || item.group in ['crafting', 'exploration', 'intrigue']"
+    # The slot's Quick Build pick, else the first of a few that isn't taken already (a career
+    # may take the same perk).
+    recommend: >-
+      filterList([[@perks.exploration.put-your-back-into-it, @perks.exploration.danger-sense, @perks.exploration.brawny, @perks.intrigue.lucky-dog, @perks.exploration.ive-got-you][indexOf([2, 4, 6, 8, 10], slot)],
+        @perks.exploration.team-leader, @perks.intrigue.forgettable-face, @perks.crafting.handy, @perks.exploration.wood-wise, @perks.intrigue.slipped-lead, @perks.crafting.expert-artisan],
+        x in choice.picks || countPicks(pick.item == x) == 0)[0]
+  - id: skill
+    slots: [4, 7, 10]
+    when: self.level >= slot
+    from: { type: skill }
+    eligible: '!(item.id in skills.known) || item.id in choice.picks'
+    recommend: 'filterList([@skills.climb, @skills.endurance, @skills.intimidate, @skills.swim, @skills.navigate, @skills.gymnastics], !(x in skills.known) && !(x in choice.picks))[0]'
+    activate: false
+    effects:
+      - { target: skills.known, op: grant, value: { formula: pick.id } }

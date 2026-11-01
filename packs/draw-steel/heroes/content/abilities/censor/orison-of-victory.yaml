@@ -1,0 +1,25 @@
+id: abilities.censor.orison-of-victory
+type: ability
+tags:
+  - kw.area
+fields:
+  usage: maneuver
+  kind: heroic
+  class: classes.censor
+  level: 5
+  resource: wrath
+  cost: 9
+  distanceKind: burst
+  distance: 1
+  rollChars:
+    - presence
+effects:
+  # Each target, you included, gains 1, 2 or 3 surges by the tier.
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    when: 'action.item.id == item.id && (flags.tier > 0)'
+    value: { changes: [{ type: adjust, field: surges.current, by: flags.tier }] }
+  - target: { steps: [ability.after], from: self }
+    op: changes
+    when: 'action.item.id == item.id && (has(steps.roll))'
+    value: { changes: [{ type: adjust, field: surges.current, by: steps.roll.bandValue }] }

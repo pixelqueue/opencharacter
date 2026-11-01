@@ -1,0 +1,122 @@
+# Animal forms: the form's speed, stability, movement and melee damage bonus apply while the hero
+# is in it (`elementalist.form`); its temporary Stamina comes on entering it and goes on leaving.
+# Size, Reason for melee free strikes and the forms' specials are the app's.
+id: features.elementalist.disciple-of-the-green
+type: feature
+fields:
+  class: classes.elementalist
+  subclass: subclasses.elementalist.green
+  level: 2
+effects:
+  - target: speed
+    op: set
+    when: elementalist.form != 'none'
+    value: >-
+      [7, 5, 5, 5, 6, 5, 8, 7, 5, 7, 5, 5, 5, 7, 5, 10, 8, 5, 8, 5][indexOf(['canine', 'fish',
+        'rodent', 'bird', 'great-cat', 'giant-frog', 'horse', 'mohler', 'bear', 'giant-bird',
+        'giant-salamander', 'giant-spider', 'giant-snake', 'kangaroo', 'spiny-armadillo',
+        'ostrich', 'shark', 'giant-octopus', 'rhinoceros', 'king-terror-lizard'], elementalist.form)]
+  - target: stability
+    op: add
+    when: elementalist.form != 'none'
+    value: >-
+      [0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 3, 0, 0, 1, 2, 0, 0, 2, 5, 3][indexOf(['canine', 'fish',
+        'rodent', 'bird', 'great-cat', 'giant-frog', 'horse', 'mohler', 'bear', 'giant-bird',
+        'giant-salamander', 'giant-spider', 'giant-snake', 'kangaroo', 'spiny-armadillo',
+        'ostrich', 'shark', 'giant-octopus', 'rhinoceros', 'king-terror-lizard'], elementalist.form)]
+  - target: movement.types
+    op: grant
+    when: "elementalist.form in ['rodent', 'great-cat', 'bear', 'giant-spider']"
+    value: { tag: move.climb }
+  - target: movement.types
+    op: grant
+    when: "elementalist.form in ['fish', 'giant-frog', 'shark', 'giant-octopus']"
+    value: { tag: move.swim }
+  - target: movement.types
+    op: grant
+    when: "elementalist.form in ['bird', 'giant-bird']"
+    value: { tag: move.fly }
+  - target: movement.types
+    op: grant
+    when: elementalist.form == 'mohler'
+    value: { tag: move.burrow }
+  - { target: immunity.fire, op: add, value: 3, when: "elementalist.form == 'giant-salamander'" }
+  # The form's melee damage bonus, on melee weapon damage (free strikes).
+  - target: { rolls: [damage.kit-melee] }
+    op: add
+    when: elementalist.form != 'none' && flags.tier > 0
+    value: >-
+      [[1, 1, 1], [0, 0, 0], [0, 0, 0], [0, 0, 0], [1, 1, 1], [0, 0, 0], [0, 0, 0], [0, 0, 0],
+        [2, 2, 2], [1, 1, 1], [2, 2, 2], [0, 1, 2], [0, 1, 2], [0, 0, 4], [0, 0, 0], [1, 1, 1],
+        [2, 2, 2], [0, 0, 0], [2, 2, 2], [2, 2, 2]][indexOf(['canine', 'fish', 'rodent', 'bird',
+        'great-cat', 'giant-frog', 'horse', 'mohler', 'bear', 'giant-bird', 'giant-salamander',
+        'giant-spider', 'giant-snake', 'kangaroo', 'spiny-armadillo', 'ostrich', 'shark',
+        'giant-octopus', 'rhinoceros', 'king-terror-lizard'], elementalist.form)][flags.tier - 1]
+followUps:
+  # A dying hero reverts to their true form.
+  - id: revert-dying
+    becomes: stamina.dying && elementalist.form != 'none'
+    required: true
+    changes:
+      - { type: set, field: elementalist.form, value: "'none'" }
+      - { type: set, field: stamina.temp, value: 0 }
+actions:
+  - id: shapeshift
+    available: elementalist.form == 'none' && !stamina.dying
+    results: [shifted]
+    steps:
+      - id: form
+        kind: choice
+        options:
+          values:
+            [
+              canine,
+              fish,
+              rodent,
+              bird,
+              great-cat,
+              giant-frog,
+              horse,
+              mohler,
+              bear,
+              giant-bird,
+              giant-salamander,
+              giant-spider,
+              giant-snake,
+              kangaroo,
+              spiny-armadillo,
+              ostrich,
+              shark,
+              giant-octopus,
+              rhinoceros,
+              king-terror-lizard,
+            ]
+          where: >-
+            level >= [2, 2, 2, 3, 3, 4, 4, 4, 5, 5, 6, 6, 7, 7, 7, 8, 8, 9, 9, 10][indexOf(['canine',
+              'fish', 'rodent', 'bird', 'great-cat', 'giant-frog', 'horse', 'mohler', 'bear',
+              'giant-bird', 'giant-salamander', 'giant-spider', 'giant-snake', 'kangaroo',
+              'spiny-armadillo', 'ostrich', 'shark', 'giant-octopus', 'rhinoceros',
+              'king-terror-lizard'], value)]
+        recommend: "'canine'"
+        changes:
+          - { type: set, field: elementalist.form, value: picked.value }
+          - type: set
+            field: stamina.temp
+            value: >-
+              max(stamina.temp, [5, 0, 0, 0, 5, 5, 5, 0, 10, 0, 5, 0, 5, 0, 10, 0, 0, 5, 10, 20][indexOf(['canine',
+                'fish', 'rodent', 'bird', 'great-cat', 'giant-frog', 'horse', 'mohler', 'bear',
+                'giant-bird', 'giant-salamander', 'giant-spider', 'giant-snake', 'kangaroo',
+                'spiny-armadillo', 'ostrich', 'shark', 'giant-octopus', 'rhinoceros',
+                'king-terror-lizard'], picked.value)]
+                + (elementalist.tenfoldShields && combat.active ? level : 0))
+      - { id: done, kind: outcome, result: "'shifted'" }
+  - id: revert
+    available: elementalist.form != 'none'
+    results: [reverted]
+    steps:
+      - id: revert
+        kind: changes
+        changes:
+          - { type: set, field: elementalist.form, value: "'none'" }
+          - { type: set, field: stamina.temp, value: 0 }
+      - { id: done, kind: outcome, result: "'reverted'" }

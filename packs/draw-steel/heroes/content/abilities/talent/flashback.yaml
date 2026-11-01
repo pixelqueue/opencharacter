@@ -1,0 +1,37 @@
+id: abilities.talent.flashback
+type: ability
+tags:
+  - kw.chronopathy
+  - kw.psionic
+  - kw.ranged
+fields:
+  usage: maneuver
+  kind: heroic
+  class: classes.talent
+  level: 1
+  resource: clarity
+  cost: 5
+  distanceKind: ranged
+  distance: 10
+effects:
+  - target:
+      steps:
+        - ability.after
+      from: self
+    op: changes
+    when:
+      action.item.id == item.id && ((combat.active && heroic.current - item.cost - params.spend < 0)
+      || situational.talentStrain)
+    value:
+      changes:
+        - type: offerFollowUp
+          followUp: strain-damage
+          params:
+            count: 1
+        - type: applyEffect
+          source: "'conditions.slowed'"
+          state:
+            duration: "'save'"
+            by: character.id
+followUps:
+  - { id: strain-damage, action: talent-strain-damage }

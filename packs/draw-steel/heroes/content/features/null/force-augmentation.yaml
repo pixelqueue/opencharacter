@@ -1,0 +1,12 @@
+id: features.null.force-augmentation
+type: feature
+fields:
+  class: classes.null
+  level: 1
+effects:
+  - target: { rolls: [damage] }
+    op: add
+    value: 1
+    when: "'kw.psionic' in action.item.tags"
+    tags:
+      - formula: "action.item.damageType == 'untyped' ? [] : ['damage.' + action.item.damageType]"

@@ -1,0 +1,18 @@
+id: features.conduit.thunderstruck
+type: feature
+fields:
+  class: classes.conduit
+  level: 7
+  subclass: subclasses.conduit.storm
+effects:
+  # Forced movement your abilities impose gains the Intuition score.
+  - target: { rolls: [power-roll.ability], tally: moveBonus }
+    op: add
+    value: characteristics.intuition.score
+  # Dealing lightning or sonic damage with an ability: 1 surge.
+  - target: { steps: [ability.after] }
+    op: changes
+    when: >-
+      has(action.item.t1Damage) && size(participants.target) > 0
+        && (action.item.damageType in ['lightning', 'sonic'] || action.item.id == @abilities.conduit.godstorm)
+    value: { changes: [{ type: adjust, field: surges.current, by: 1 }] }

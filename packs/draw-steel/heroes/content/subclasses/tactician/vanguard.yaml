@@ -1,0 +1,32 @@
+id: subclasses.tactician.vanguard
+type: subclass
+fields:
+  class: classes.tactician
+grants:
+  - { item: abilities.tactician.parry }
+  - { item: features.tactician.commanding-presence }
+  - { item: features.tactician.melee-superiority, when: self.level >= 2 }
+  - { item: features.tactician.shake-it-off, when: self.level >= 5 }
+  - { item: features.tactician.tactical-offensive, when: self.level >= 5 }
+  - { item: features.tactician.shock-and-awe, when: self.level >= 7 }
+  - { item: features.tactician.see-your-enemies-driven-before-you, when: self.level >= 8 }
+choices:
+  # The doctrine's skill, from the interpersonal group.
+  - id: skill
+    from: { type: skill, where: "item.group == 'interpersonal'" }
+    eligible: '!(item.id in skills.known) || item.id in choice.picks'
+    recommend: >-
+      filterList([@skills.intimidate, @skills.persuade, @skills.brag, @skills.interrogate, @skills.read-person, @skills.empathize],
+        !(x in skills.known) || x in choice.picks)[0]
+    activate: false
+    effects:
+      - { target: skills.known, op: grant, value: { formula: pick.id } }
+  # Doctrine abilities: one of two at 2nd (5 focus), 6th (9) and 9th (11) level.
+  - id: ability
+    slots: [2, 6, 9]
+    when: self.level >= slot
+    from:
+      type: ability
+      where: "item.subclass == @subclasses.tactician.vanguard && item.kind == 'heroic'"
+    eligible: item.level == slot
+    recommend: '[@abilities.tactician.no-dying-on-my-watch, @abilities.tactician.to-me-squad, @abilities.tactician.that-one-is-mine][indexOf([2, 6, 9], slot)]'

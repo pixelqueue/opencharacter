@@ -1,0 +1,19 @@
+# The target gains 2 surges.
+id: abilities.tactician.advanced-tactics
+type: ability
+tags:
+  - kw.ranged
+fields:
+  usage: triggered
+  kind: feature
+  class: classes.tactician
+  subclass: subclasses.tactician.insurgent
+  level: 1
+  distanceKind: ranged
+  distance: 10
+  spendCost: 1
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    when: action.item.id == item.id
+    value: { changes: [{ type: adjust, field: surges.current, by: 2 }] }

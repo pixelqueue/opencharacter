@@ -1,0 +1,31 @@
+id: subclasses.talent.telekinesis
+type: subclass
+fields:
+  class: classes.talent
+grants:
+  - item: features.talent.minor-telekinesis
+  - item: features.talent.repel
+  - { item: features.talent.ease-their-fall, when: self.level >= 2 }
+  - { item: features.talent.kinetic-amplifier, when: self.level >= 5 }
+  - { item: features.talent.triangulate, when: self.level >= 5 }
+  - { item: features.talent.levitation-field, when: self.level >= 8 }
+  - { item: features.talent.low-gravity, when: self.level >= 8 }
+choices:
+  - id: ability2
+    when: self.level >= 2
+    from:
+      type: ability
+      where: "has(item.subclass) && item.subclass == @subclasses.talent.telekinesis && item.kind == 'heroic' && item.level == 2"
+    recommend: '@abilities.talent.gravitic-burst'
+  - id: ability6
+    when: self.level >= 6
+    from:
+      type: ability
+      where: "has(item.subclass) && item.subclass == @subclasses.talent.telekinesis && item.kind == 'heroic' && item.level == 6"
+    recommend: '@abilities.talent.gravitic-well'
+  - id: ability9
+    when: self.level >= 9
+    from:
+      type: ability
+      where: "has(item.subclass) && item.subclass == @subclasses.talent.telekinesis && item.kind == 'heroic' && item.level == 9"
+    recommend: '@abilities.talent.gravitic-nova'

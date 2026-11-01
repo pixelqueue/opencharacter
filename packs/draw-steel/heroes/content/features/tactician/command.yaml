@@ -1,0 +1,28 @@
+# Command: the XP a respite gives (the Victories it turns into XP), spent as focus. Raising or
+# lowering a power roll's tier with it is the table's.
+id: features.tactician.command
+type: feature
+fields:
+  class: classes.tactician
+  level: 10
+effects:
+  - target: { steps: [respite] }
+    op: changes
+    value:
+      changes:
+        - { type: adjust, field: tactician.command, by: victories }
+actions:
+  # Spend command as focus: the focus is gained to pay for the ability or effect.
+  - id: spend-command
+    tags: [resource]
+    available: tactician.command > 0
+    params:
+      amount: { type: integer, default: 1, min: 1 }
+    results: [spent]
+    steps:
+      - id: spend
+        kind: changes
+        changes:
+          - { type: adjust, field: tactician.command, by: '-min(params.amount, tactician.command)' }
+          - { type: adjust, field: heroic.current, by: 'min(params.amount, tactician.command)' }
+      - { id: done, kind: outcome, result: "'spent'" }

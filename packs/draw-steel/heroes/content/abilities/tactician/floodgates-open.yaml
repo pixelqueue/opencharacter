@@ -1,0 +1,19 @@
+# Each target gains 1 surge.
+id: abilities.tactician.floodgates-open
+type: ability
+tags:
+  - kw.ranged
+fields:
+  usage: main-action
+  kind: heroic
+  class: classes.tactician
+  level: 8
+  resource: focus
+  cost: 11
+  distanceKind: ranged
+  distance: 10
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    when: action.item.id == item.id
+    value: { changes: [{ type: adjust, field: surges.current, by: 1 }] }

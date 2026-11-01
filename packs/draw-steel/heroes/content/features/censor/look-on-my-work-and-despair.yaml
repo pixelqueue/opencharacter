@@ -1,0 +1,31 @@
+id: features.censor.look-on-my-work-and-despair
+type: feature
+fields:
+  class: classes.censor
+  level: 3
+# Judgment with 1 wrath spent (`spend`): P < AVERAGE, frightened of you (save ends); a target
+# already frightened of you takes holy damage equal to twice your Presence score instead. The
+# free judgment after a kill (P < STRONG, no wrath) is the book's text.
+effects:
+  - target: { steps: [ability.hit] }
+    op: changes
+    when: >-
+      action.item.id == @abilities.censor.judgment && params.spend >= 1
+        && !(character.id in participant.conditions.frightenedBy)
+        && participant.characteristics.presence.score < potency.average
+    value:
+      changes:
+        - type: applyEffect
+          source: "'conditions.frightened'"
+          state: { duration: "'save'", by: character.id }
+  - target: { steps: [ability.hit] }
+    op: changes
+    when: >-
+      action.item.id == @abilities.censor.judgment && params.spend >= 1
+        && character.id in participant.conditions.frightenedBy
+    value:
+      changes:
+        - type: adjust
+          field: stamina.current
+          by: -2 * characteristics.presence.score
+          tags: [damage, damage.holy]

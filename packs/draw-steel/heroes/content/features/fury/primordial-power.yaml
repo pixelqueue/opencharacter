@@ -1,0 +1,32 @@
+id: features.fury.primordial-power
+type: feature
+fields:
+  class: classes.fury
+  level: 10
+effects:
+  # Each respite: primordial power equal to the XP gained (the Victories turned into XP).
+  - target: { steps: [respite] }
+    op: changes
+    value: { changes: [{ type: adjust, field: fury.primordialPower, by: victories }] }
+actions:
+  # Spend primordial power: as ferocity (added to it for the ability about to be used), as a
+  # free maneuver ending one effect on you per point, or 3 for a portal to Quintessence.
+  - id: spend-primordial-power
+    tags: [resource]
+    available: fury.primordialPower > 0
+    params:
+      use: { type: enum, values: [ferocity, end-effects, portal], default: ferocity }
+      amount: { type: integer, default: 1, min: 1 }
+    results: [spent]
+    steps:
+      - id: spend
+        kind: changes
+        changes:
+          - type: adjust
+            field: fury.primordialPower
+            by: "-(params.use == 'portal' ? 3 : min(params.amount, fury.primordialPower))"
+          - type: adjust
+            when: "params.use == 'ferocity' && combat.active"
+            field: heroic.current
+            by: min(params.amount, fury.primordialPower)
+      - { id: done, kind: outcome, result: "'spent'" }

@@ -1,0 +1,32 @@
+id: subclasses.tactician.mastermind
+type: subclass
+fields:
+  class: classes.tactician
+grants:
+  - { item: abilities.tactician.overwatch }
+  - { item: features.tactician.studied-commander }
+  - { item: features.tactician.goaded, when: self.level >= 2 }
+  - { item: features.tactician.anticipation, when: self.level >= 5 }
+  - { item: features.tactician.i-predicted-that, when: self.level >= 5 }
+  - { item: features.tactician.grand-strategy, when: self.level >= 7 }
+  - { item: features.tactician.pincer-movement, when: self.level >= 8 }
+choices:
+  # The doctrine's skill, from the lore group.
+  - id: skill
+    from: { type: skill, where: "item.group == 'lore'" }
+    eligible: '!(item.id in skills.known) || item.id in choice.picks'
+    recommend: >-
+      filterList([@skills.strategy, @skills.history, @skills.monsters, @skills.society, @skills.rumors, @skills.nature],
+        !(x in skills.known) || x in choice.picks)[0]
+    activate: false
+    effects:
+      - { target: skills.known, op: grant, value: { formula: pick.id } }
+  # Doctrine abilities: one of two at 2nd (5 focus), 6th (9) and 9th (11) level.
+  - id: ability
+    slots: [2, 6, 9]
+    when: self.level >= slot
+    from:
+      type: ability
+      where: "item.subclass == @subclasses.tactician.mastermind && item.kind == 'heroic'"
+    eligible: item.level == slot
+    recommend: '[@abilities.tactician.targets-of-opportunity, @abilities.tactician.battle-plan, @abilities.tactician.blot-out-the-sun][indexOf([2, 6, 9], slot)]'

@@ -1,0 +1,21 @@
+# Each target gains surges equal to the tier.
+id: abilities.tactician.battle-cry
+type: ability
+tags:
+  - kw.ranged
+fields:
+  usage: maneuver
+  kind: heroic
+  class: classes.tactician
+  level: 1
+  resource: focus
+  cost: 3
+  distanceKind: ranged
+  distance: 10
+  rollChars:
+    - reason
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    when: action.item.id == item.id
+    value: { changes: [{ type: adjust, field: surges.current, by: flags.tier }] }

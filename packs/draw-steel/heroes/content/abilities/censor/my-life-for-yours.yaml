@@ -1,0 +1,77 @@
+id: abilities.censor.my-life-for-yours
+type: ability
+tags:
+  - kw.magic
+  - kw.ranged
+fields:
+  usage: triggered
+  kind: feature
+  class: classes.censor
+  level: 1
+  distanceKind: ranged
+  distance: 10
+  spendCost: 1
+actions:
+  # You spend a Recovery and the target (you, with no target given) regains Stamina equal to your
+  # recovery value. Spend 1 wrath (`cleanse`): end one effect on the target that a saving throw or
+  # the end of their turn ends (`end`: its applied entry ID; else the first), or a prone target
+  # stands up.
+  - id: mend
+    tags: [ability, recovery]
+    available: recoveries.current > 0 && !stamina.dead
+    params:
+      cleanse: { type: boolean, default: false }
+      end: { type: string, default: '' }
+    participants:
+      target: { max: 1 }
+    results: [used]
+    steps:
+      - id: spend
+        kind: changes
+        changes:
+          - { type: adjust, field: recoveries.spent, by: 1 }
+          - type: adjust
+            when: params.cleanse && combat.active && !censor.fontOfGrace
+            field: heroic.current
+            by: -1
+          - type: adjust
+            when: size(participants.target) == 0
+            field: stamina.current
+            by: recoveries.value
+            tags: [healing]
+          - type: adjust
+            when: size(participants.target) == 0 && censor.fontOfGrace
+            field: stamina.temp
+            by: 10
+          - type: removeEffect
+            when: size(participants.target) == 0 && params.cleanse
+            applied:
+              where: >-
+                params.end != '' ? self.id == params.end
+                  : (has(self.duration) && self.duration in ['save', 'eot'])
+                    || item.id == @conditions.prone
+              limit: 1
+      - id: ally
+        kind: changes
+        each: target
+        to: target
+        changes:
+          - type: adjust
+            field: stamina.current
+            by: recoveries.value + censor.mendBonus
+            tags: [healing]
+          - { type: adjust, when: censor.fontOfGrace, field: stamina.temp, by: 10 }
+          - type: removeEffect
+            when: params.cleanse
+            applied:
+              where: >-
+                params.end != '' ? self.id == params.end
+                  : (has(self.duration) && self.duration in ['save', 'eot'])
+                    || item.id == @conditions.prone
+              limit: 1
+      - id: done
+        kind: outcome
+        result: "'used'"
+        data:
+          regained: >-
+            recoveries.value + (size(participants.target) > 0 ? censor.mendBonus : 0)

@@ -1,0 +1,29 @@
+id: abilities.shadow.you-were-watching-the-wrong-one
+type: ability
+tags:
+  - kw.melee
+  - kw.strike
+  - kw.weapon
+fields:
+  usage: main-action
+  kind: signature
+  class: classes.shadow
+  level: 1
+  distanceKind: melee
+  distance: 1
+  rollChars:
+    - agility
+  damageType: untyped
+  t1Damage: 3
+  t2Damage: 5
+  t3Damage: 8
+effects:
+  - { target: shadow.conditionalSurge, op: set, value: 'true' }
+  # The surge when an ally is within 5 squares of the target.
+  - target: { steps: [ability.pay], from: self }
+    op: changes
+    when: action.item.id == item.id && situational.shadowConditionMet
+    # Set from the value before the step, so the surge can pay for this ability's own surges.
+    value:
+      changes:
+        - { type: set, field: surges.current, value: 'max(0, surges.current + 1 - params.surges)' }

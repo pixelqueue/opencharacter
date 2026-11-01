@@ -1,0 +1,52 @@
+id: abilities.censor.edict-of-peace
+type: ability
+tags:
+  - censor-aura
+  - kw.area
+  - kw.magic
+fields:
+  usage: maneuver
+  kind: heroic
+  class: classes.censor
+  subclass: subclasses.censor.oracle
+  level: 6
+  resource: wrath
+  cost: 9
+  distanceKind: aura
+  distance: 3
+# The aura is this ability applied to you until the end of the encounter or until you are dying.
+state:
+  duration: { type: string, default: encounter }
+reapply: { state: { duration: replace } }
+effects:
+  - target: { steps: [ability.after], from: self }
+    op: changes
+    when: action.item.id == item.id
+    value:
+      changes:
+        - {
+            type: applyEffect,
+            source: "'abilities.censor.edict-of-peace'",
+            state: { duration: "'encounter'" },
+          }
+actions:
+  # When a target takes a triggered or free triggered action (the action is negated): holy damage
+  # equal to your Presence score.
+  - id: punish
+    scope: applied
+    tags: [ability]
+    participants:
+      target: { min: 1 }
+    results: [used]
+    steps:
+      - id: hit
+        kind: changes
+        each: target
+        to: target
+        changes:
+          - type: adjust
+            field: stamina.current
+            by: >-
+              -(characteristics.presence.score)
+            tags: [damage, damage.holy]
+      - { id: done, kind: outcome, result: "'used'" }

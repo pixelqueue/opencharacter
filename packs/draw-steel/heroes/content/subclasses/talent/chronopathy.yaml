@@ -1,0 +1,31 @@
+id: subclasses.talent.chronopathy
+type: subclass
+fields:
+  class: classes.talent
+grants:
+  - item: features.talent.accelerate
+  - item: features.talent.again
+  - { item: features.talent.ease-the-hours, when: self.level >= 2 }
+  - { item: features.talent.distortion-temporal, when: self.level >= 5 }
+  - { item: features.talent.speed-of-thought, when: self.level >= 5 }
+  - { item: features.talent.doubling-the-hours, when: self.level >= 8 }
+  - { item: features.talent.stasis-shield, when: self.level >= 8 }
+choices:
+  - id: ability2
+    when: self.level >= 2
+    from:
+      type: ability
+      where: "has(item.subclass) && item.subclass == @subclasses.talent.chronopathy && item.kind == 'heroic' && item.level == 2"
+    recommend: '@abilities.talent.slow'
+  - id: ability6
+    when: self.level >= 6
+    from:
+      type: ability
+      where: "has(item.subclass) && item.subclass == @subclasses.talent.chronopathy && item.kind == 'heroic' && item.level == 6"
+    recommend: '@abilities.talent.stasis-field'
+  - id: ability9
+    when: self.level >= 9
+    from:
+      type: ability
+      where: "has(item.subclass) && item.subclass == @subclasses.talent.chronopathy && item.kind == 'heroic' && item.level == 9"
+    recommend: '@abilities.talent.acceleration-field'

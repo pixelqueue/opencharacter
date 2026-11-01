@@ -1,0 +1,15 @@
+# An extra 1d6 fire damage whenever the hero's ability deals fire damage.
+id: features.elementalist.the-flame-primordial
+type: feature
+fields:
+  class: classes.elementalist
+  subclass: subclasses.elementalist.fire
+  level: 8
+effects:
+  - target: { rolls: [damage] }
+    op: add
+    value: 1d6
+    when: >-
+      action.item.damageType == 'fire'
+        || (action.item.id == @abilities.elementalist.hurl-element && situational.hurlElementType == 'fire')
+    tags: [damage.fire]

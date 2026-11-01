@@ -1,0 +1,11 @@
+id: features.fury.mighty-leaps
+type: feature
+fields:
+  class: classes.fury
+  level: 1
+effects:
+  # No lower than tier 2 on a Might test to jump: the total is at least 12 (before edges and banes).
+  - target: { rolls: [test.might] }
+    op: atLeast
+    value: 12
+    when: has(params.skill) && params.skill == @skills.jump

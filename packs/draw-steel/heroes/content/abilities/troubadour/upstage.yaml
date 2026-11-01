@@ -1,0 +1,35 @@
+id: abilities.troubadour.upstage
+type: ability
+tags:
+  - kw.melee
+  - kw.strike
+  - kw.weapon
+fields:
+  usage: maneuver
+  kind: heroic
+  class: classes.troubadour
+  level: 1
+  resource: drama
+  cost: 3
+  distanceKind: self
+  rollChars:
+    - agility
+    - presence
+  t1Condition: conditions.taunted
+  t1Duration: eot
+  t2Condition: conditions.taunted
+  t2Duration: eot
+  t3Condition: conditions.taunted
+  t3Duration: eot
+effects:
+  # The second condition: A < potency, prone (tier 3: and can't stand until the end of the turn).
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    when: >-
+      action.item.id == item.id && flags.tier > 0
+        && participant.characteristics.agility.score < [potency.weak, potency.average, potency.strong][flags.tier - 1]
+    value:
+      changes:
+        - type: applyEffect
+          source: "'conditions.prone'"
+          state: { duration: "'until'", by: character.id }

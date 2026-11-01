@@ -1,0 +1,31 @@
+id: abilities.troubadour.thunder-mother
+type: ability
+tags:
+  - kw.magic
+  - kw.performance
+  - kw.ranged
+  - kw.strike
+fields:
+  usage: no-action
+  kind: feature
+  class: classes.troubadour
+  subclass: subclasses.troubadour.virtuoso
+  level: 1
+  distanceKind: ranged
+  distance: 10
+  rollChars:
+    - presence
+  # Lightning damage equal to your level, 5 + your level, 10 + your level.
+  damageType: lightning
+  t1Damage: 0
+  t1AddsChar: false
+  t2Damage: 5
+  t2AddsChar: false
+  t3Damage: 10
+  t3AddsChar: false
+effects:
+  - target: { rolls: [damage], from: self }
+    op: add
+    value: level
+    when: action.item.id == item.id
+    tags: [damage.lightning]

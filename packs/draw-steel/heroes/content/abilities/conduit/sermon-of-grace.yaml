@@ -1,0 +1,23 @@
+id: abilities.conduit.sermon-of-grace
+type: ability
+tags:
+  - recovery.granted
+  - kw.area
+  - kw.magic
+fields:
+  usage: main-action
+  kind: heroic
+  class: classes.conduit
+  level: 1
+  resource: piety
+  cost: 5
+  distanceKind: burst
+  distance: 4
+effects:
+  # Each target can spend a Recovery.
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    when: action.item.id == item.id
+    value:
+      changes:
+        - { type: adjust, field: recoveries.spent, by: 1, tags: [recovery.granted] }

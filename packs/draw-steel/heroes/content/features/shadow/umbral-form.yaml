@@ -1,0 +1,36 @@
+id: features.shadow.umbral-form
+type: feature
+fields:
+  class: classes.shadow
+  level: 6
+effects:
+  - {
+      target: immunity.corruption,
+      op: add,
+      value: 5 + level,
+      when: shadow.umbral && !stamina.dying,
+    }
+  - {
+      target: movement.types,
+      op: grant,
+      value: { formula: "'move.climb'" },
+      when: shadow.umbral && !stamina.dying,
+    }
+  - target: { steps: [turn.start] }
+    op: changes
+    when: shadow.umbral && !stamina.dying
+    value: { changes: [{ type: adjust, field: surges.current, by: 1 }] }
+  - target: { steps: [combat.end] }
+    op: changes
+    value: { changes: [{ type: set, field: shadow.umbral, value: 'false' }] }
+actions:
+  # The maneuver that starts the form.
+  - id: umbral-form
+    tags: [ability]
+    available: '!shadow.umbral && !stamina.dying'
+    results: [transformed]
+    steps:
+      - id: transform
+        kind: changes
+        changes: [{ type: set, field: shadow.umbral, value: 'true' }]
+      - { id: done, kind: outcome, result: "'transformed'" }

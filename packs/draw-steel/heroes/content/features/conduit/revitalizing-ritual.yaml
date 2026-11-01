@@ -1,0 +1,21 @@
+id: features.conduit.revitalizing-ritual
+type: feature
+fields:
+  class: classes.conduit
+  level: 1
+  subclass: subclasses.conduit.life
+choices:
+  # The domain's skill, from the exploration group: one the hero doesn't have, or any of the group when
+  # they have them all (Gods' Library gives every lore skill).
+  - id: skill
+    from: { type: skill, where: "item.group == 'exploration'" }
+    eligible: >-
+      !(item.id in skills.known) || item.id in choice.picks
+        || countList([@skills.climb, @skills.endurance, @skills.drive, @skills.gymnastics, @skills.heal, @skills.jump, @skills.lift, @skills.navigate, @skills.ride, @skills.swim], !(x in skills.known)) == 0
+    recommend: >-
+      (filterList([@skills.heal, @skills.endurance, @skills.navigate, @skills.ride, @skills.climb,
+        @skills.drive, @skills.gymnastics, @skills.jump, @skills.lift, @skills.swim],
+        !(x in skills.known) || x in choice.picks) + [@skills.heal])[0]
+    activate: false
+    effects:
+      - { target: skills.known, op: grant, value: { formula: pick.id } }

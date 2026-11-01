@@ -1,0 +1,11 @@
+# The null ignores the banes on their own power rolls that the roll counts (the Director's and the
+# roll's own; a target's banes from being taunted or grabbed come in through the target's tier).
+id: features.null.manifold-resonance
+type: feature
+fields:
+  class: classes.null
+  level: 10
+effects:
+  - target: { rolls: [power-roll], tally: banes }
+    op: atMost
+    value: 0

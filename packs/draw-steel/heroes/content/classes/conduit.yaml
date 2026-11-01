@@ -1,0 +1,215 @@
+id: classes.conduit
+type: class
+fields:
+  primaries: [intuition]
+  potency: intuition
+  arrayPriority: [presence, reason, agility, might]
+  startingStamina: 18
+  staminaPerLevel: 6
+  recoveries: 8
+  resource: piety
+  turnGain: 1d3
+grants:
+  - item: features.conduit.piety-in-combat
+  - item: features.conduit.piety-outside-of-combat
+  - item: features.conduit.healing-grace
+  - item: features.conduit.ray-of-wrath
+  - { item: features.conduit.the-lists-of-heaven, when: self.level >= 2 }
+  - { item: features.conduit.minor-miracle, when: self.level >= 3 }
+  - { item: features.conduit.blessed-domain, when: self.level >= 4 }
+  - { item: features.conduit.burgeoning-saint, when: self.level >= 6 }
+  - { item: features.conduit.faithfuls-reward, when: self.level >= 7 }
+  - { item: features.conduit.faiths-sword, when: self.level >= 9 }
+  - { item: features.conduit.ordained, when: self.level >= 9 }
+  - { item: features.conduit.avatar, when: self.level >= 10 }
+  - { item: features.conduit.divine-power, when: self.level >= 10 }
+  - { item: features.conduit.most-pious, when: self.level >= 10 }
+effects:
+  # The domains' piety is once per encounter each.
+  - target: { steps: [combat.start, combat.end] }
+    op: changes
+    value: { changes: [{ type: set, field: conduit.domainPietyUsed, value: '[]' }] }
+choices:
+  # Deity and Domains: a god or saint (Chapter 14), then two domains of their portfolio. A deity
+  # of the player's own (with the Director's permission) has any four, so any two.
+  - id: deity
+    from:
+      values:
+        [
+          adun,
+          cavall,
+          cyrvis,
+          kul,
+          nebular,
+          nikros,
+          ord,
+          ov,
+          salorna,
+          val,
+          atossa,
+          chokassa,
+          draighen,
+          eriarwen,
+          eseld,
+          gaed,
+          grole,
+          gryffyn,
+          gwenllian,
+          illwyv,
+          khorvath,
+          khravila,
+          kyruyalka,
+          magnetar,
+          llewellyn,
+          mahsiti,
+          pentalion,
+          prexaspes,
+          ripples,
+          sea-of-suns,
+          stakros,
+          taste-of-morning,
+          thellasko,
+          thyll,
+          uryal,
+          valak-koth,
+          yllin,
+          zarok,
+          custom,
+        ]
+    recommend: "'adun'"
+  - id: domains
+    pick: 2
+    from: { type: subclass, where: 'item.class == @classes.conduit' }
+    eligible: >-
+      item.id in (size(picksOf('deity')) == 0 || picksOf('deity')[0] == 'custom' ? [@subclasses.conduit.creation, @subclasses.conduit.death, @subclasses.conduit.fate, @subclasses.conduit.knowledge, @subclasses.conduit.life, @subclasses.conduit.love, @subclasses.conduit.nature, @subclasses.conduit.protection, @subclasses.conduit.storm, @subclasses.conduit.sun, @subclasses.conduit.trickery, @subclasses.conduit.war] : [[@subclasses.conduit.creation, @subclasses.conduit.life, @subclasses.conduit.love, @subclasses.conduit.protection], [@subclasses.conduit.life, @subclasses.conduit.love, @subclasses.conduit.protection, @subclasses.conduit.war], [@subclasses.conduit.death, @subclasses.conduit.fate, @subclasses.conduit.knowledge, @subclasses.conduit.trickery], [@subclasses.conduit.knowledge, @subclasses.conduit.life, @subclasses.conduit.sun, @subclasses.conduit.trickery, @subclasses.conduit.war], [@subclasses.conduit.creation, @subclasses.conduit.life, @subclasses.conduit.love, @subclasses.conduit.sun], [@subclasses.conduit.death, @subclasses.conduit.fate, @subclasses.conduit.storm, @subclasses.conduit.war], [@subclasses.conduit.creation, @subclasses.conduit.knowledge, @subclasses.conduit.protection, @subclasses.conduit.sun, @subclasses.conduit.war], [@subclasses.conduit.fate, @subclasses.conduit.knowledge, @subclasses.conduit.storm, @subclasses.conduit.sun], [@subclasses.conduit.life, @subclasses.conduit.nature, @subclasses.conduit.storm, @subclasses.conduit.sun], [@subclasses.conduit.creation, @subclasses.conduit.knowledge, @subclasses.conduit.life, @subclasses.conduit.nature, @subclasses.conduit.protection], [@subclasses.conduit.fate, @subclasses.conduit.protection, @subclasses.conduit.trickery], [@subclasses.conduit.storm, @subclasses.conduit.sun], [@subclasses.conduit.nature, @subclasses.conduit.sun], [@subclasses.conduit.nature, @subclasses.conduit.storm], [@subclasses.conduit.knowledge, @subclasses.conduit.trickery], [@subclasses.conduit.love, @subclasses.conduit.protection], [@subclasses.conduit.life, @subclasses.conduit.war], [@subclasses.conduit.creation, @subclasses.conduit.life], [@subclasses.conduit.protection, @subclasses.conduit.war], [@subclasses.conduit.nature, @subclasses.conduit.protection], [@subclasses.conduit.sun, @subclasses.conduit.war], [@subclasses.conduit.knowledge, @subclasses.conduit.trickery], [@subclasses.conduit.death, @subclasses.conduit.trickery], [@subclasses.conduit.life, @subclasses.conduit.sun], [@subclasses.conduit.life, @subclasses.conduit.protection], [@subclasses.conduit.creation, @subclasses.conduit.knowledge, @subclasses.conduit.trickery], [@subclasses.conduit.death, @subclasses.conduit.war], [@subclasses.conduit.nature, @subclasses.conduit.protection, @subclasses.conduit.sun], [@subclasses.conduit.life, @subclasses.conduit.protection], [@subclasses.conduit.creation, @subclasses.conduit.life], [@subclasses.conduit.creation, @subclasses.conduit.knowledge], [@subclasses.conduit.creation, @subclasses.conduit.knowledge], [@subclasses.conduit.knowledge, @subclasses.conduit.war], [@subclasses.conduit.life, @subclasses.conduit.nature], [@subclasses.conduit.knowledge, @subclasses.conduit.trickery], [@subclasses.conduit.knowledge, @subclasses.conduit.sun], [@subclasses.conduit.knowledge, @subclasses.conduit.nature], [@subclasses.conduit.protection, @subclasses.conduit.war]][indexOf(['adun', 'cavall', 'cyrvis', 'kul', 'nebular', 'nikros', 'ord', 'ov', 'salorna', 'val', 'atossa', 'chokassa', 'draighen', 'eriarwen', 'eseld', 'gaed', 'grole', 'gryffyn', 'gwenllian', 'illwyv', 'khorvath', 'khravila', 'kyruyalka', 'magnetar', 'llewellyn', 'mahsiti', 'pentalion', 'prexaspes', 'ripples', 'sea-of-suns', 'stakros', 'taste-of-morning', 'thellasko', 'thyll', 'uryal', 'valak-koth', 'yllin', 'zarok'], picksOf('deity')[0])])
+    recommend: >-
+      sortList(filterList((size(picksOf('deity')) == 0 || picksOf('deity')[0] == 'custom' ? [@subclasses.conduit.creation, @subclasses.conduit.death, @subclasses.conduit.fate, @subclasses.conduit.knowledge, @subclasses.conduit.life, @subclasses.conduit.love, @subclasses.conduit.nature, @subclasses.conduit.protection, @subclasses.conduit.storm, @subclasses.conduit.sun, @subclasses.conduit.trickery, @subclasses.conduit.war] : [[@subclasses.conduit.creation, @subclasses.conduit.life, @subclasses.conduit.love, @subclasses.conduit.protection], [@subclasses.conduit.life, @subclasses.conduit.love, @subclasses.conduit.protection, @subclasses.conduit.war], [@subclasses.conduit.death, @subclasses.conduit.fate, @subclasses.conduit.knowledge, @subclasses.conduit.trickery], [@subclasses.conduit.knowledge, @subclasses.conduit.life, @subclasses.conduit.sun, @subclasses.conduit.trickery, @subclasses.conduit.war], [@subclasses.conduit.creation, @subclasses.conduit.life, @subclasses.conduit.love, @subclasses.conduit.sun], [@subclasses.conduit.death, @subclasses.conduit.fate, @subclasses.conduit.storm, @subclasses.conduit.war], [@subclasses.conduit.creation, @subclasses.conduit.knowledge, @subclasses.conduit.protection, @subclasses.conduit.sun, @subclasses.conduit.war], [@subclasses.conduit.fate, @subclasses.conduit.knowledge, @subclasses.conduit.storm, @subclasses.conduit.sun], [@subclasses.conduit.life, @subclasses.conduit.nature, @subclasses.conduit.storm, @subclasses.conduit.sun], [@subclasses.conduit.creation, @subclasses.conduit.knowledge, @subclasses.conduit.life, @subclasses.conduit.nature, @subclasses.conduit.protection], [@subclasses.conduit.fate, @subclasses.conduit.protection, @subclasses.conduit.trickery], [@subclasses.conduit.storm, @subclasses.conduit.sun], [@subclasses.conduit.nature, @subclasses.conduit.sun], [@subclasses.conduit.nature, @subclasses.conduit.storm], [@subclasses.conduit.knowledge, @subclasses.conduit.trickery], [@subclasses.conduit.love, @subclasses.conduit.protection], [@subclasses.conduit.life, @subclasses.conduit.war], [@subclasses.conduit.creation, @subclasses.conduit.life], [@subclasses.conduit.protection, @subclasses.conduit.war], [@subclasses.conduit.nature, @subclasses.conduit.protection], [@subclasses.conduit.sun, @subclasses.conduit.war], [@subclasses.conduit.knowledge, @subclasses.conduit.trickery], [@subclasses.conduit.death, @subclasses.conduit.trickery], [@subclasses.conduit.life, @subclasses.conduit.sun], [@subclasses.conduit.life, @subclasses.conduit.protection], [@subclasses.conduit.creation, @subclasses.conduit.knowledge, @subclasses.conduit.trickery], [@subclasses.conduit.death, @subclasses.conduit.war], [@subclasses.conduit.nature, @subclasses.conduit.protection, @subclasses.conduit.sun], [@subclasses.conduit.life, @subclasses.conduit.protection], [@subclasses.conduit.creation, @subclasses.conduit.life], [@subclasses.conduit.creation, @subclasses.conduit.knowledge], [@subclasses.conduit.creation, @subclasses.conduit.knowledge], [@subclasses.conduit.knowledge, @subclasses.conduit.war], [@subclasses.conduit.life, @subclasses.conduit.nature], [@subclasses.conduit.knowledge, @subclasses.conduit.trickery], [@subclasses.conduit.knowledge, @subclasses.conduit.sun], [@subclasses.conduit.knowledge, @subclasses.conduit.nature], [@subclasses.conduit.protection, @subclasses.conduit.war]][indexOf(['adun', 'cavall', 'cyrvis', 'kul', 'nebular', 'nikros', 'ord', 'ov', 'salorna', 'val', 'atossa', 'chokassa', 'draighen', 'eriarwen', 'eseld', 'gaed', 'grole', 'gryffyn', 'gwenllian', 'illwyv', 'khorvath', 'khravila', 'kyruyalka', 'magnetar', 'llewellyn', 'mahsiti', 'pentalion', 'prexaspes', 'ripples', 'sea-of-suns', 'stakros', 'taste-of-morning', 'thellasko', 'thyll', 'uryal', 'valak-koth', 'yllin', 'zarok'], picksOf('deity')[0])]), !(x in choice.picks)),
+        x == @subclasses.conduit.life ? 0 : x == @subclasses.conduit.protection ? 1 : 2)[0]
+  # Domain features: one of the two domains' 1st-level feature at 1st level and the other's at
+  # 2nd; the same with the 4th-level features (4th and 5th) and the 7th-level ones (7th and 8th).
+  - id: domain-feature
+    slots: [1, 2, 4, 5, 7, 8]
+    unique: conduit-domain-feature
+    when: self.level >= slot
+    from: { type: feature, where: 'item.class == @classes.conduit && has(item.subclass)' }
+    eligible: >-
+      item.subclass in picksOf('domains') && item.level == (slot >= 7 ? 7 : slot >= 4 ? 4 : 1)
+    recommend: >-
+      filterList(slot >= 7 ? mapList(picksOf('domains'), [@features.conduit.divine-quartermaster, @features.conduit.word-of-death-deferred, @features.conduit.word-of-fate-denied, @features.conduit.gods-library, @features.conduit.font-of-grace, @features.conduit.covenant-of-the-heart, @features.conduit.natures-bounty, @features.conduit.blessing-of-iron, @features.conduit.thunderstruck, @features.conduit.light-of-the-burning-sun, @features.conduit.trinity-of-trickery, @features.conduit.your-triumphs-are-remembered][indexOf([@subclasses.conduit.creation, @subclasses.conduit.death, @subclasses.conduit.fate, @subclasses.conduit.knowledge, @subclasses.conduit.life, @subclasses.conduit.love, @subclasses.conduit.nature, @subclasses.conduit.protection, @subclasses.conduit.storm, @subclasses.conduit.sun, @subclasses.conduit.trickery, @subclasses.conduit.war], x)]) : slot >= 4 ? mapList(picksOf('domains'), [@features.conduit.improved-hands-of-the-maker, @features.conduit.seance, @features.conduit.oracular-warning, @features.conduit.saints-epiphany, @features.conduit.blessing-of-life, @features.conduit.invocation-of-the-heart, @features.conduit.wode-road, @features.conduit.impervious-touch, @features.conduit.windwalk, @features.conduit.light-of-revelation, @features.conduit.blessing-of-secrets, @features.conduit.improved-sanctified-weapon][indexOf([@subclasses.conduit.creation, @subclasses.conduit.death, @subclasses.conduit.fate, @subclasses.conduit.knowledge, @subclasses.conduit.life, @subclasses.conduit.love, @subclasses.conduit.nature, @subclasses.conduit.protection, @subclasses.conduit.storm, @subclasses.conduit.sun, @subclasses.conduit.trickery, @subclasses.conduit.war], x)]) : mapList(picksOf('domains'), [@features.conduit.hands-of-the-maker, @features.conduit.grave-speech, @features.conduit.oracular-visions, @features.conduit.blessing-of-comprehension, @features.conduit.revitalizing-ritual, @features.conduit.blessing-of-compassion, @features.conduit.faithful-friend, @features.conduit.protective-circle, @features.conduit.blessing-of-fortunate-weather, @features.conduit.inner-light, @features.conduit.inspired-deception, @features.conduit.sanctified-weapon][indexOf([@subclasses.conduit.creation, @subclasses.conduit.death, @subclasses.conduit.fate, @subclasses.conduit.knowledge, @subclasses.conduit.life, @subclasses.conduit.love, @subclasses.conduit.nature, @subclasses.conduit.protection, @subclasses.conduit.storm, @subclasses.conduit.sun, @subclasses.conduit.trickery, @subclasses.conduit.war], x)]), !(x in picksOf('domain-feature-1') + picksOf('domain-feature-2') + picksOf('domain-feature-4') + picksOf('domain-feature-5') + picksOf('domain-feature-7') + picksOf('domain-feature-8')) || x in choice.picks)[0]
+  # Domain abilities: a heroic ability of one of the domains at 2nd, 6th and 9th level.
+  - id: domain-ability
+    slots: [2, 6, 9]
+    when: self.level >= slot
+    from:
+      type: ability
+      where: "item.class == @classes.conduit && item.kind == 'heroic' && has(item.subclass)"
+    eligible: item.subclass in picksOf('domains') && item.level == slot
+    recommend: >-
+      (slot == 9 ? mapList(picksOf('domains'), [@abilities.conduit.divine-dragon, @abilities.conduit.word-of-final-redemption, @abilities.conduit.bend-fate, @abilities.conduit.word-of-weakening, @abilities.conduit.radiance-of-grace, @abilities.conduit.alacrity-of-the-heart, @abilities.conduit.thorn-cage, @abilities.conduit.blessing-of-the-fortress, @abilities.conduit.godstorm, @abilities.conduit.solar-flare, @abilities.conduit.night-falls, @abilities.conduit.righteous-phalanx][indexOf([@subclasses.conduit.creation, @subclasses.conduit.death, @subclasses.conduit.fate, @subclasses.conduit.knowledge, @subclasses.conduit.life, @subclasses.conduit.love, @subclasses.conduit.nature, @subclasses.conduit.protection, @subclasses.conduit.storm, @subclasses.conduit.sun, @subclasses.conduit.trickery, @subclasses.conduit.war], x)]) : slot == 6 ? mapList(picksOf('domains'), [@abilities.conduit.gods-machine, @abilities.conduit.aura-of-souls, @abilities.conduit.your-story-ends-here, @abilities.conduit.invocation-of-undoing, @abilities.conduit.revitalizing-grace, @abilities.conduit.lauded-by-god, @abilities.conduit.spirit-stampede, @abilities.conduit.cuirass-of-the-gods, @abilities.conduit.lightning-lord, @abilities.conduit.blessing-of-the-midday-sun, @abilities.conduit.invocation-of-mystery, @abilities.conduit.blade-of-the-heavens][indexOf([@subclasses.conduit.creation, @subclasses.conduit.death, @subclasses.conduit.fate, @subclasses.conduit.knowledge, @subclasses.conduit.life, @subclasses.conduit.love, @subclasses.conduit.nature, @subclasses.conduit.protection, @subclasses.conduit.storm, @subclasses.conduit.sun, @subclasses.conduit.trickery, @subclasses.conduit.war], x)]) : mapList(picksOf('domains'), [@abilities.conduit.statue-of-power, @abilities.conduit.reap, @abilities.conduit.blessing-of-fate-and-destiny, @abilities.conduit.the-gods-command-you-obey, @abilities.conduit.wellspring-of-grace, @abilities.conduit.our-hearts-your-strength, @abilities.conduit.nature-judges-thee, @abilities.conduit.sacred-bond, @abilities.conduit.saints-tempest, @abilities.conduit.morning-light, @abilities.conduit.divine-comedy, @abilities.conduit.blessing-of-insight][indexOf([@subclasses.conduit.creation, @subclasses.conduit.death, @subclasses.conduit.fate, @subclasses.conduit.knowledge, @subclasses.conduit.life, @subclasses.conduit.love, @subclasses.conduit.nature, @subclasses.conduit.protection, @subclasses.conduit.storm, @subclasses.conduit.sun, @subclasses.conduit.trickery, @subclasses.conduit.war], x)]))[0]
+  - id: skills
+    pick: 2
+    from: { type: skill, where: "item.group in ['interpersonal', 'lore']" }
+    eligible: '!(item.id in skills.known) || item.id in choice.picks'
+    recommend: >-
+      filterList([@skills.read-person, @skills.religion, @skills.empathize, @skills.history,
+        @skills.magic, @skills.persuade], !(x in skills.known) && !(x in choice.picks))[0]
+    activate: false
+    effects:
+      - { target: skills.known, op: grant, value: { formula: pick.id } }
+  - id: signature
+    pick: 2
+    from:
+      type: ability
+      where: "item.class == @classes.conduit && item.kind == 'signature' && !has(item.subclass)"
+    recommend: >-
+      filterList([@abilities.conduit.blessed-light, @abilities.conduit.staggering-curse],
+        !(x in choice.picks))[0]
+  - id: triggered
+    from: { items: [abilities.conduit.word-of-guidance, abilities.conduit.word-of-judgment] }
+    recommend: '@abilities.conduit.word-of-guidance'
+  - id: heroic
+    slots: [3, 5, 7, 9, 11]
+    when: 'self.level >= [1, 1, 3, 5, 8][indexOf([3, 5, 7, 9, 11], slot)]'
+    from:
+      type: ability
+      where: "item.class == @classes.conduit && item.kind == 'heroic' && !has(item.subclass)"
+    eligible: item.cost == slot
+    recommend: >-
+      [@abilities.conduit.violence-will-not-aid-thee, @abilities.conduit.curse-of-terror,
+        @abilities.conduit.words-of-wrath-and-grace, @abilities.conduit.beacon-of-grace,
+        @abilities.conduit.arise][indexOf([3, 5, 7, 9, 11], slot)]
+  # Prayer and Conduit Ward, changed together as a respite activity. An avatar (10th level) is
+  # affected by up to three prayers.
+  - id: prayer
+    pick: 'self.level >= 10 ? 3 : 1'
+    from:
+      items:
+        [
+          features.conduit.prayer-of-destruction,
+          features.conduit.prayer-of-distance,
+          features.conduit.prayer-of-soldiers-skill,
+          features.conduit.prayer-of-speed,
+          features.conduit.prayer-of-steel,
+        ]
+    recommend: >-
+      filterList([@features.conduit.prayer-of-distance, @features.conduit.prayer-of-steel,
+        @features.conduit.prayer-of-destruction], !(x in choice.picks))[0]
+  - id: ward
+    from:
+      items:
+        [
+          features.conduit.bastion-ward,
+          features.conduit.quickness-ward,
+          features.conduit.sanctuary-ward,
+          features.conduit.spirit-ward,
+        ]
+    recommend: '@features.conduit.bastion-ward'
+  # Perks: crafting, lore or supernatural at 2nd, 6th and 10th level; any at 4th and 8th.
+  - id: perk
+    slots: [2, 4, 6, 8, 10]
+    unique: perks
+    when: self.level >= slot
+    from: { type: perk }
+    eligible: "slot in [4, 8] || item.group in ['crafting', 'lore', 'supernatural']"
+    # The slot's Quick Build pick, else the first of a few that isn't taken already (a career
+    # may take the same perk).
+    recommend: >-
+      filterList([[@perks.supernatural.ritualist, @perks.interpersonal.lie-detector,
+          @perks.lore.linguist, @perks.exploration.team-leader,
+          @perks.lore.polymath][indexOf([2, 4, 6, 8, 10], slot)], @perks.lore.eidetic-memory,
+          @perks.supernatural.creature-sense, @perks.lore.expert-sage, @perks.crafting.handy,
+          @perks.supernatural.thingspeaker, @perks.lore.specialist],
+        x in choice.picks || countPicks(pick.item == x) == 0)[0]
+  - id: skill
+    slots: [4, 7, 10]
+    when: self.level >= slot
+    from: { type: skill }
+    eligible: '!(item.id in skills.known) || item.id in choice.picks'
+    recommend: >-
+      filterList([@skills.history, @skills.magic, @skills.empathize, @skills.persuade,
+        @skills.lead, @skills.society, @skills.alertness, @skills.endurance], !(x in skills.known)
+        && !(x in choice.picks))[0]
+    activate: false
+    effects:
+      - { target: skills.known, op: grant, value: { formula: pick.id } }
+  # Characteristic Increase: the extra +1 at 4th and 10th level (Intuition rises by itself).
+  - id: increase4
+    when: self.level >= 4
+    from: { values: [might, agility, reason, presence] }
+    recommend: "'presence'"
+    effects:
+      - {
+          target: { formula: "'characteristics.' + pick.value + '.extra4'" },
+          op: set,
+          value: 'true',
+        }
+  - id: increase10
+    when: self.level >= 10
+    from: { values: [might, agility, reason, presence] }
+    recommend: "'presence'"
+    effects:
+      - {
+          target: { formula: "'characteristics.' + pick.value + '.extra10'" },
+          op: set,
+          value: 'true',
+        }

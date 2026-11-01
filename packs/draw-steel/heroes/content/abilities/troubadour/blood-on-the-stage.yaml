@@ -1,0 +1,44 @@
+id: abilities.troubadour.blood-on-the-stage
+type: ability
+tags:
+  - kw.melee
+  - kw.strike
+  - kw.weapon
+fields:
+  usage: main-action
+  kind: heroic
+  class: classes.troubadour
+  subclass: subclasses.troubadour.duelist
+  level: 6
+  resource: drama
+  cost: 9
+  distanceKind: melee
+  distance: 1
+  rollChars:
+    - agility
+  damageType: untyped
+  t1Damage: 12
+  t1PotencyChar: might
+  t1Potency: weak
+  t1Condition: conditions.bleeding
+  t1Duration: save
+  t2Damage: 18
+  t2PotencyChar: might
+  t2Potency: average
+  t2Condition: conditions.bleeding
+  t2Duration: save
+  t3Damage: 24
+  t3PotencyChar: might
+  t3Potency: strong
+  t3Condition: conditions.bleeding
+  t3Duration: save
+effects:
+  # Tier 3: bleeding (EoT) when the potency doesn't land.
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    when: action.item.id == item.id && flags.tier == 3 && !flags.landed
+    value:
+      changes:
+        - type: applyEffect
+          source: "'conditions.bleeding'"
+          state: { duration: "'eot'", by: character.id }

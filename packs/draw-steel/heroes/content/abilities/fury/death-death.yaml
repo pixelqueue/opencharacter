@@ -1,0 +1,33 @@
+id: abilities.fury.death-death
+type: ability
+tags:
+  - kw.melee
+  - kw.strike
+  - kw.weapon
+fields:
+  usage: main-action
+  kind: heroic
+  class: classes.fury
+  subclass: subclasses.fury.reaver
+  level: 2
+  resource: ferocity
+  cost: 5
+  distanceKind: melee
+  distance: 1
+  rollChars:
+    - might
+  damageType: untyped
+  t1Damage: 3
+  t2Damage: 5
+  t3Damage: 8
+effects:
+  # The second condition, behind the same potency.
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    when: >-
+      action.item.id == item.id && (flags.landed)
+    value:
+      changes:
+        - type: applyEffect
+          source: "'conditions.frightened'"
+          state: { duration: "'save'", by: character.id }

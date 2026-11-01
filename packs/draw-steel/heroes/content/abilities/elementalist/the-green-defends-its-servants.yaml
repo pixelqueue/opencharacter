@@ -1,0 +1,23 @@
+id: abilities.elementalist.the-green-defends-its-servants
+type: ability
+tags:
+  - kw.green
+  - kw.magic
+  - kw.ranged
+  - persistent
+  - persistent.2
+fields:
+  usage: maneuver
+  kind: heroic
+  class: classes.elementalist
+  level: 9
+  resource: essence
+  cost: 11
+  distanceKind: ranged
+  distance: 10
+# Used on the hero themself (no target): 30 temporary Stamina.
+effects:
+  - target: { steps: [ability.after], from: self }
+    op: changes
+    when: action.item.id == item.id && size(participants.target) == 0
+    value: { changes: [{ type: set, field: stamina.temp, value: 'max(stamina.temp, 30)' }] }

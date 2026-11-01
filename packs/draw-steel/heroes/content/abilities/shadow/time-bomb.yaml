@@ -1,0 +1,22 @@
+id: abilities.shadow.time-bomb
+type: ability
+tags:
+  - kw.area
+  - kw.ranged
+fields:
+  usage: free-maneuver
+  kind: feature
+  class: classes.shadow
+  subclass: subclasses.shadow.caustic-alchemy
+  level: 8
+  distanceKind: cube
+  distance: 2
+  within: 10
+  spendCost: 2
+  spendPlus: true
+effects:
+  # A surge for every 2 insight spent.
+  - target: { steps: [ability.spend], from: self }
+    op: changes
+    when: action.item.id == item.id
+    value: { changes: [{ type: adjust, field: surges.current, by: floor(params.spend / 2) }] }

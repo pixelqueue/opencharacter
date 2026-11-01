@@ -1,0 +1,34 @@
+# The table's surges: the first time in a round the null takes damage or is force moved, 1 surge
+# at 4 discipline, 2 at 8 from 4th level. Damage offers it; forced movement is the player's to use.
+id: features.null.metakinetic-mastery
+type: feature
+fields:
+  class: classes.null
+  subclass: subclasses.null.metakinetic
+  level: 1
+actions:
+  - id: surge
+    available: combat.active && nullClass.mastery >= 4 && !nullClass.masterySurge
+    results: [gained]
+    steps:
+      - id: gain
+        kind: changes
+        changes:
+          - {
+              type: adjust,
+              field: surges.current,
+              by: 'level >= 4 && nullClass.mastery >= 8 ? 2 : 1',
+            }
+          - { type: set, field: nullClass.masterySurge, value: 'true' }
+      - { id: done, kind: outcome, result: "'gained'" }
+followUps:
+  - id: surge
+    on: { field: stamina.current, tags: [damage], once: true }
+    when: combat.active && nullClass.mastery >= 4 && !nullClass.masterySurge
+    action: surge
+effects:
+  # 2 discipline: the Knockback maneuver's forced movement gains the Intuition score.
+  - target: { rolls: [power-roll.ability], tally: moveBonus }
+    op: add
+    value: characteristics.intuition.score
+    when: nullClass.mastery >= 2 && roll.item.id == @abilities.common.knockback

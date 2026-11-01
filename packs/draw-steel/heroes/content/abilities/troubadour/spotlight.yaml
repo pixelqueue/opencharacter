@@ -1,0 +1,21 @@
+id: abilities.troubadour.spotlight
+type: ability
+tags:
+  - kw.area
+  - kw.magic
+  - kw.performance
+fields:
+  usage: no-action
+  kind: feature
+  class: classes.troubadour
+  level: 6
+  distanceKind: aura
+  distance: 5
+effects:
+  # You start your turns in your own aura: 1 drama (lost at the end of the turn if unspent).
+  - target: { steps: [turn.start] }
+    op: changes
+    when: (item.id == troubadour.performance || item.id == troubadour.performance2)
+    value:
+      changes:
+        - { type: adjust, field: heroic.current, by: 1 }

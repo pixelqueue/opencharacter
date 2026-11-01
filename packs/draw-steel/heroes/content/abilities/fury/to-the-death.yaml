@@ -1,0 +1,25 @@
+id: abilities.fury.to-the-death
+type: ability
+tags:
+  - kw.melee
+  - kw.strike
+  - kw.weapon
+fields:
+  usage: main-action
+  kind: signature
+  class: classes.fury
+  level: 1
+  distanceKind: melee
+  distance: 1
+  rollChars:
+    - might
+  damageType: untyped
+  t1Damage: 3
+  t2Damage: 6
+  t3Damage: 9
+effects:
+  # You gain 2 surges.
+  - target: { steps: [ability.after], from: self }
+    op: changes
+    when: action.item.id == item.id
+    value: { changes: [{ type: adjust, field: surges.current, by: 2 }] }

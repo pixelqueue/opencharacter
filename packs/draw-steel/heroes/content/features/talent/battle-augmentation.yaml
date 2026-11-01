@@ -1,0 +1,18 @@
+id: features.talent.battle-augmentation
+type: feature
+fields:
+  class: classes.talent
+  level: 1
+tags: [talent.augmentation]
+# Light armor and a light weapon assumed: +3 Stamina per echelon, +1 weapon damage.
+effects:
+  - { target: stamina.bonus, op: add, value: 3 * echelon }
+  - target: { rolls: [damage.kit-melee, damage.kit-ranged] }
+    op: add
+    value: 1
+    tags:
+      [
+        {
+          formula: "action.item.damageType == 'untyped' ? [] : ['damage.' + action.item.damageType]",
+        },
+      ]

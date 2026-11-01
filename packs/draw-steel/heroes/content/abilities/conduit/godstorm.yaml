@@ -1,0 +1,33 @@
+id: abilities.conduit.godstorm
+type: ability
+tags:
+  - kw.area
+  - kw.magic
+  - kw.ranged
+fields:
+  usage: main-action
+  kind: heroic
+  class: classes.conduit
+  subclass: subclasses.conduit.storm
+  level: 9
+  resource: piety
+  cost: 11
+  distanceKind: cube
+  distance: 5
+  within: 5
+  rollChars:
+    - intuition
+  damageType: lightning
+  t1Damage: 2
+  t1AddsChar: false
+  t2Damage: 3
+  t2AddsChar: false
+  t3Damage: 5
+  t3AddsChar: false
+effects:
+  # The same again as sonic damage.
+  - target: { rolls: [damage], from: self }
+    op: add
+    value: '[2, 3, 5][(has(participant) ? flags.tier : steps.roll.bandValue) - 1]'
+    when: action.item.id == item.id
+    tags: [damage.sonic]

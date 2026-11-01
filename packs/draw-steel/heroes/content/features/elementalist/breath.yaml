@@ -1,0 +1,30 @@
+# Breath: gained at each respite equal to the XP gained (the Victories turned into XP), and
+# turned into essence at 1 breath for 3 essence.
+id: features.elementalist.breath
+type: feature
+fields:
+  class: classes.elementalist
+  level: 10
+effects:
+  - target: { steps: [respite] }
+    op: changes
+    value: { changes: [{ type: adjust, field: elementalist.breath, by: victories }] }
+actions:
+  - id: convert
+    available: elementalist.breath > 0
+    params:
+      amount: { type: integer, default: 1, min: 1 }
+    results: [converted]
+    steps:
+      - id: convert
+        kind: changes
+        changes:
+          - {
+              type: adjust,
+              field: elementalist.breath,
+              by: '-min(params.amount, elementalist.breath)',
+            }
+          - type: adjust
+            field: heroic.current
+            by: 3 * min(params.amount, elementalist.breath)
+      - { id: done, kind: outcome, result: "'converted'" }

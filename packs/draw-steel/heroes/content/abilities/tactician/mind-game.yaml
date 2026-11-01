@@ -1,0 +1,54 @@
+# Marks the target.
+id: abilities.tactician.mind-game
+type: ability
+tags:
+  - kw.melee
+  - kw.ranged
+  - kw.strike
+  - kw.weapon
+fields:
+  usage: main-action
+  kind: heroic
+  class: classes.tactician
+  level: 1
+  resource: focus
+  cost: 5
+  distanceKind: melee-or-ranged
+  distance: 1
+  rangedDistance: 5
+  rollChars:
+    - might
+  damageType: untyped
+  t1Damage: 4
+  t1PotencyChar: reason
+  t1Potency: weak
+  t1Condition: conditions.weakened
+  t1Duration: save
+  t2Damage: 6
+  t2PotencyChar: reason
+  t2Potency: average
+  t2Condition: conditions.weakened
+  t2Duration: save
+  t3Damage: 10
+  t3PotencyChar: reason
+  t3Potency: strong
+  t3Condition: conditions.weakened
+  t3Duration: save
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    when: action.item.id == item.id
+    value:
+      changes:
+        - type: applyEffect
+          source: "'features.tactician.marked'"
+          state: { duration: "'encounter'", by: character.id }
+  - target: { steps: [ability.after], from: self }
+    op: changes
+    when: action.item.id == item.id
+    value:
+      changes:
+        - type: set
+          field: tactician.marked
+          value: >-
+            tactician.marked + filterList(mapList(participants.target, x.id), !(x in tactician.marked))

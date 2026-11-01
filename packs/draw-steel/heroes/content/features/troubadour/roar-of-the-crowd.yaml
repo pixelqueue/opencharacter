@@ -1,0 +1,29 @@
+id: features.troubadour.roar-of-the-crowd
+type: feature
+fields:
+  class: classes.troubadour
+  level: 9
+immuneTo:
+  - { id: frightened, items: [conditions.frightened] }
+actions:
+  # Spend a Recovery without regaining Stamina: you (and each ally within 3 squares) gain
+  # temporary Stamina of 10 + bonds + the higher of your Victories and the number of players.
+  - id: roar
+    tags: [recovery]
+    available: recoveries.current > 0 && !stamina.dead
+    params:
+      players: { type: integer, default: 0, min: 0 }
+    results: [roared]
+    steps:
+      - id: roar
+        kind: changes
+        tags: [recovery]
+        changes:
+          - { type: adjust, field: recoveries.spent, by: 1 }
+          - type: set
+            field: stamina.temp
+            value: 'max(stamina.temp, 10 + troubadour.bonds + max(victories, params.players))'
+      - id: done
+        kind: outcome
+        result: "'roared'"
+        data: { temporary: '10 + troubadour.bonds + max(victories, params.players)' }

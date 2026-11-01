@@ -1,0 +1,9 @@
+id: features.censor.improved-implement-of-wrath
+type: feature
+fields:
+  class: classes.censor
+  level: 9
+# With your own weapon as the implement: +2 to saving throws and corruption immunity 10.
+effects:
+  - { target: { rolls: [saving-throw] }, op: add, value: 2, when: censor.implement }
+  - { target: immunity.corruption, op: add, value: 10, when: censor.implement }

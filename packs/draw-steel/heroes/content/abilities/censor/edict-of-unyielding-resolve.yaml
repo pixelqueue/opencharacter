@@ -1,0 +1,53 @@
+id: abilities.censor.edict-of-unyielding-resolve
+type: ability
+tags:
+  - censor-aura
+  - kw.area
+  - kw.magic
+fields:
+  usage: maneuver
+  kind: heroic
+  class: classes.censor
+  subclass: subclasses.censor.paragon
+  level: 9
+  resource: wrath
+  cost: 11
+  distanceKind: aura
+  distance: 2
+# The aura is this ability applied to you until the end of the encounter or until you are dying.
+state:
+  duration: { type: string, default: encounter }
+reapply: { state: { duration: replace } }
+effects:
+  - target: { steps: [ability.after], from: self }
+    op: changes
+    when: action.item.id == item.id
+    value:
+      changes:
+        - {
+            type: applyEffect,
+            source: "'abilities.censor.edict-of-unyielding-resolve'",
+            state: { duration: "'encounter'" },
+          }
+  # You gain 10 temporary Stamina when you start your turn in the aura; allies by `bolster`.
+  - target: { steps: [turn.start] }
+    op: changes
+    scope: applied
+    value:
+      changes:
+        - { type: set, field: stamina.temp, value: 'max(stamina.temp, 10)' }
+actions:
+  - id: bolster
+    scope: applied
+    tags: [ability]
+    participants:
+      target: { min: 1 }
+    results: [used]
+    steps:
+      - id: shield
+        kind: changes
+        each: target
+        to: target
+        changes:
+          - { type: adjust, field: stamina.temp, by: 10 }
+      - { id: done, kind: outcome, result: "'used'" }

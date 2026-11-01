@@ -1,0 +1,83 @@
+id: abilities.censor.judgment
+type: ability
+tags:
+  - kw.magic
+  - kw.ranged
+fields:
+  usage: maneuver
+  kind: feature
+  class: classes.censor
+  level: 1
+  distanceKind: ranged
+  distance: 10
+effects:
+  # The target is judged: the censor keeps its character ID until the encounter ends or Judgment
+  # is used again.
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    when: action.item.id == item.id
+    value:
+      to: self
+      changes:
+        - { type: set, field: censor.judged, value: participant.id }
+  - target: { steps: [ability.after], from: self }
+    op: changes
+    when: 'action.item.id == item.id && (size(participants.target) > 0)'
+    value: { changes: [{ type: set, field: censor.benefitUsed, value: 'true' }] }
+actions:
+  # The free triggered action against a judged creature that uses a main action: holy damage equal
+  # to twice your Presence score.
+  - id: smite
+    tags: [ability]
+    available: "!stamina.dead && censor.judged != ''"
+    participants:
+      target: { max: 1 }
+    results: [used]
+    steps:
+      - id: hit
+        kind: changes
+        each: target
+        to: target
+        changes:
+          - type: adjust
+            field: stamina.current
+            by: -2 * characteristics.presence.score
+            tags: [damage, damage.holy]
+      - id: wrath
+        kind: changes
+        when: >-
+          combat.active && !censor.dealtWrath
+            && countList(participants.target, x.id == censor.judged) > 0
+        changes:
+          - { type: adjust, field: heroic.current, by: censor.judgedWrath }
+          - { type: set, field: censor.dealtWrath, value: 'true' }
+      - id: done
+        kind: outcome
+        result: "'used'"
+        data: { damage: 2 * characteristics.presence.score }
+  # Spend 1 wrath for one of Judgment's free triggered actions. Only the taunt changes the target's
+  # sheet; the strike is the melee free strike, and the bane and the reduced potency are on the
+  # judged creature's own roll.
+  - id: punish
+    tags: [ability]
+    available: "!stamina.dead && censor.judged != '' && (!combat.active || heroic.current >= 1)"
+    params:
+      option: { type: enum, values: [strike, bane, potency, taunt], default: bane }
+    participants:
+      target: { max: 1 }
+    results: [used]
+    steps:
+      - id: pay
+        kind: changes
+        changes:
+          - { type: adjust, when: combat.active, field: heroic.current, by: -1 }
+      - id: taunt
+        kind: changes
+        each: target
+        when: params.option == 'taunt'
+        to: target
+        changes:
+          - type: applyEffect
+            source: "'conditions.taunted'"
+            state: { duration: "'eot'", by: character.id }
+      - { id: done, kind: outcome, result: "'used'", data: { option: params.option } }

@@ -1,0 +1,50 @@
+id: abilities.fury.visceral-roar
+type: ability
+tags:
+  - kw.area
+  - kw.magic
+fields:
+  usage: main-action
+  kind: heroic
+  class: classes.fury
+  subclass: subclasses.fury.stormwight
+  level: 2
+  resource: ferocity
+  cost: 5
+  distanceKind: burst
+  distance: 2
+  rollChars:
+    - might
+  damageType: untyped
+  t1Damage: 0
+  t1AddsChar: false
+  t1PotencyChar: might
+  t1Potency: weak
+  t1Condition: conditions.dazed
+  t1Duration: save
+  t1Move: push
+  t1MoveDistance: 1
+  t2Damage: 0
+  t2AddsChar: false
+  t2PotencyChar: might
+  t2Potency: average
+  t2Condition: conditions.dazed
+  t2Duration: save
+  t2Move: push
+  t2MoveDistance: 2
+  t3Damage: 0
+  t3AddsChar: false
+  t3PotencyChar: might
+  t3Potency: strong
+  t3Condition: conditions.dazed
+  t3Duration: save
+  t3Move: push
+  t3MoveDistance: 3
+effects:
+  # The damage is the stormwight kit's primordial damage type: the tiers' damage ([2,5,7]) is
+  # added here with that type's tag, so immunity and weakness see it.
+  - target: { rolls: [damage], from: self }
+    op: add
+    when: roll.item.id == item.id
+    value: 'flags.tier > 0 ? [2,5,7][flags.tier - 1] : 0'
+    tags: [{ formula: "fury.primordialType == 'none' ? [] : ['damage.' + fury.primordialType]" }]

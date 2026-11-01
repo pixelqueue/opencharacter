@@ -1,0 +1,32 @@
+id: subclasses.shadow.caustic-alchemy
+type: subclass
+fields:
+  class: classes.shadow
+effects:
+  - { target: skills.known, op: grant, value: { item: skills.alchemy } }
+grants:
+  - { item: features.shadow.coat-the-blade }
+  - { item: features.shadow.smoke-bomb }
+  - { item: abilities.shadow.defensive-roll }
+  - { item: features.shadow.trained-assassin, when: self.level >= 2 }
+  - { item: features.shadow.volatile-reagents, when: self.level >= 5 }
+  - { item: features.shadow.time-bomb, when: self.level >= 8 }
+choices:
+  - id: ability2
+    when: self.level >= 2
+    from:
+      type: ability
+      where: item.subclass == @subclasses.shadow.caustic-alchemy && item.level == 2
+    recommend: '@abilities.shadow.sticky-bomb'
+  - id: ability6
+    when: self.level >= 6
+    from:
+      type: ability
+      where: item.subclass == @subclasses.shadow.caustic-alchemy && item.level == 6
+    recommend: '@abilities.shadow.one-vial-makes-you-better'
+  - id: ability9
+    when: self.level >= 9
+    from:
+      type: ability
+      where: item.subclass == @subclasses.shadow.caustic-alchemy && item.level == 9
+    recommend: '@abilities.shadow.chain-reaction'

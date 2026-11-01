@@ -1,0 +1,15 @@
+id: features.elementalist.grand-wyrding
+type: feature
+fields:
+  class: classes.elementalist
+  level: 9
+choices:
+  # With 5 or more Victories: immunity all to the damage type chosen.
+  - id: immunity
+    from: { values: [acid, cold, corruption, fire, lightning, poison, sonic] }
+    recommend: "'fire'"
+    effects:
+      - target: { formula: "'immunity.' + pick.value + 'All'" }
+        op: set
+        value: 'true'
+        when: victories >= 5

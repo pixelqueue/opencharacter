@@ -1,0 +1,36 @@
+# Order: the XP of each respite (the Victories it turns into XP), spent as discipline in combat
+# (moved into the discipline pool as it is spent) or on a larger Null Field at the start of combat.
+id: features.null.order
+type: feature
+fields:
+  class: classes.null
+  level: 10
+effects:
+  - target: { steps: [respite] }
+    op: changes
+    value:
+      changes:
+        - { type: adjust, field: nullClass.order, by: victories }
+actions:
+  - id: spend
+    available: combat.active && nullClass.order > 0
+    params:
+      amount: { type: integer, default: 1, min: 1 }
+    results: [spent]
+    steps:
+      - id: spend
+        kind: changes
+        changes:
+          - { type: adjust, field: nullClass.order, by: '-min(params.amount, nullClass.order)' }
+          - { type: adjust, field: heroic.current, by: 'min(params.amount, nullClass.order)' }
+      - { id: done, kind: outcome, result: "'spent'" }
+  - id: enlarge-field
+    available: combat.active && combat.round <= 1 && nullClass.order > 0
+    results: [spent]
+    steps:
+      - id: spend
+        kind: changes
+        changes:
+          - { type: adjust, field: nullClass.order, by: -1 }
+          - { type: adjust, field: nullClass.fieldEncounter, by: 1 }
+      - { id: done, kind: outcome, result: "'spent'" }

@@ -1,0 +1,61 @@
+id: features.conduit.piety-in-combat
+type: feature
+fields:
+  class: classes.conduit
+  level: 1
+effects:
+  - { target: conduit.canPray, op: set, value: 'true' }
+  - { target: conduit.canUseDomainEffects, op: set, value: 'true' }
+  # A prayer before the piety roll: 1 more piety on a 1 (and the gods' anger) or a 2, 2 more and
+  # a domain effect on a 3. The roll is the d3 (Faithful's Reward's +1 isn't part of it).
+  - target: { steps: [turn.start] }
+    op: changes
+    when: situational.conduitPray && has(steps.gain) && size(steps.gain.kept) > 0
+    value:
+      changes:
+        - type: adjust
+          field: heroic.current
+          by: '(steps.gain.kept[0] >= 3 ? 2 : 1) + conduit.prayerBonus'
+        - { type: offerFollowUp, when: 'steps.gain.kept[0] == 1', followUp: angered-gods }
+        - { type: offerFollowUp, when: 'steps.gain.kept[0] >= 3', followUp: domain-effect }
+followUps:
+  - { id: angered-gods, required: true, action: angered-gods }
+  - { id: domain-effect, action: domain-effect }
+actions:
+  # The gods' anger: psychic damage of 1d6 + level that can't be reduced in any way.
+  - id: angered-gods
+    listed: false
+    results: [damaged]
+    steps:
+      - id: damage
+        kind: roll
+        tags: [stamina-loss]
+        parts:
+          - dice: 1d6
+          - field: "'level'"
+      - id: take
+        kind: changes
+        changes:
+          - type: adjust
+            field: stamina.current
+            by: -steps.damage.total
+            tags: [damage, damage.psychic, damage.unreducible]
+      - { id: done, kind: outcome, result: "'damaged'", data: { damage: steps.damage.total } }
+  # Activate a domain effect: one of the hero's domains' prayer effects.
+  - id: domain-effect
+    listed: false
+    available: conduit.canUseDomainEffects && size(conduit.domainEffects) > 0
+    participants:
+      target: {}
+    results: [activated]
+    steps:
+      - id: domain
+        kind: choice
+        options: { values: { formula: conduit.domainEffects } }
+        recommend: options[0]
+      - id: effect
+        kind: action
+        use: prayer-effect
+        source: steps.domain.value
+        participants: { target: participants.target }
+      - { id: done, kind: outcome, result: "'activated'" }

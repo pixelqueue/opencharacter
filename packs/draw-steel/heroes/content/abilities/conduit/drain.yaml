@@ -1,0 +1,28 @@
+id: abilities.conduit.drain
+type: ability
+tags:
+  - recovery.granted
+  - kw.magic
+  - kw.melee
+  - kw.strike
+fields:
+  usage: main-action
+  kind: signature
+  class: classes.conduit
+  level: 1
+  distanceKind: melee
+  distance: 1
+  rollChars:
+    - intuition
+  damageType: corruption
+  t1Damage: 2
+  t2Damage: 5
+  t3Damage: 7
+followUps:
+  - { id: spend-recovery, action: spend-recovery }
+effects:
+  # You can be the one who spends the Recovery.
+  - target: { steps: [ability.after], from: self }
+    op: changes
+    when: action.item.id == item.id
+    value: { changes: [{ type: offerFollowUp, followUp: spend-recovery }] }

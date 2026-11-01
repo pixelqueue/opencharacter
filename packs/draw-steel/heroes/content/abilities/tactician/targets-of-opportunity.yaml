@@ -1,0 +1,37 @@
+# Marks each target; you gain 2 surges.
+id: abilities.tactician.targets-of-opportunity
+type: ability
+tags:
+  - kw.ranged
+fields:
+  usage: maneuver
+  kind: heroic
+  class: classes.tactician
+  subclass: subclasses.tactician.mastermind
+  level: 2
+  resource: focus
+  cost: 5
+  distanceKind: ranged
+  distance: 5
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    when: action.item.id == item.id
+    value:
+      changes:
+        - type: applyEffect
+          source: "'features.tactician.marked'"
+          state: { duration: "'encounter'", by: character.id }
+  - target: { steps: [ability.after], from: self }
+    op: changes
+    when: action.item.id == item.id
+    value:
+      changes:
+        - type: set
+          field: tactician.marked
+          value: >-
+            tactician.marked + filterList(mapList(participants.target, x.id), !(x in tactician.marked))
+  - target: { steps: [ability.after], from: self }
+    op: changes
+    when: action.item.id == item.id
+    value: { changes: [{ type: adjust, field: surges.current, by: 2 }] }

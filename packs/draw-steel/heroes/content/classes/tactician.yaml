@@ -1,0 +1,89 @@
+id: classes.tactician
+type: class
+fields:
+  primaries: [might, reason]
+  potency: reason
+  arrayPriority: [agility, presence, intuition]
+  startingStamina: 21
+  staminaPerLevel: 9
+  recoveries: 10
+  resource: focus
+  turnGain: '2'
+grants:
+  # Field Arsenal: this kit and the feature's second.
+  - { item: features.common.kit }
+  - { item: features.tactician.tactical-doctrine }
+  - { item: features.tactician.focus-in-combat }
+  - { item: features.tactician.focus-outside-of-combat }
+  - { item: features.tactician.field-arsenal }
+  - { item: features.tactician.mark }
+  - { item: features.tactician.strike-now }
+  - { item: features.tactician.out-of-position, when: self.level >= 3 }
+  - { item: features.tactician.focus-on-their-weaknesses, when: self.level >= 4 }
+  - { item: features.tactician.improved-field-arsenal, when: self.level >= 4 }
+  - { item: features.tactician.master-of-arms, when: self.level >= 6 }
+  - { item: features.tactician.heightened-focus, when: self.level >= 7 }
+  - { item: features.tactician.seize-the-initiative, when: self.level >= 7 }
+  - { item: features.tactician.grandmaster-of-arms, when: self.level >= 9 }
+  - { item: features.tactician.command, when: self.level >= 10 }
+  - { item: features.tactician.true-focus, when: self.level >= 10 }
+  - { item: features.tactician.warmaster, when: self.level >= 10 }
+effects:
+  - { target: kit.recommended, op: set, value: '@kits.shining-armor' }
+  - { target: skills.known, op: grant, value: { item: skills.lead } }
+choices:
+  - id: subclass
+    from: { type: subclass, where: item.class == @classes.tactician }
+    recommend: '@subclasses.tactician.vanguard'
+  - id: skills
+    pick: 2
+    from:
+      type: skill
+      where: >-
+        item.group == 'exploration' || item.id in [@skills.alertness, @skills.architecture,
+          @skills.blacksmithing, @skills.brag, @skills.culture, @skills.empathize,
+          @skills.fletching, @skills.mechanics, @skills.monsters, @skills.search, @skills.strategy]
+    eligible: '!(item.id in skills.known) || item.id in choice.picks'
+    recommend: >-
+      filterList([@skills.monsters, @skills.strategy, @skills.alertness, @skills.search,
+        @skills.culture, @skills.brag], !(x in choice.picks) && !(x in skills.known))[0]
+    activate: false
+    effects:
+      - { target: skills.known, op: grant, value: { formula: pick.id } }
+  # Heroic abilities by cost: 3 and 5 at 1st level, 7 at 3rd, 9 at 5th, 11 at 8th.
+  - id: heroic
+    slots: [3, 5, 7, 9, 11]
+    when: 'self.level >= [1, 1, 3, 5, 8][indexOf([3, 5, 7, 9, 11], slot)]'
+    from:
+      type: ability
+      where: "item.class == @classes.tactician && item.kind == 'heroic' && !has(item.subclass)"
+    eligible: item.cost == slot
+    recommend: >-
+      [@abilities.tactician.inspiring-strike, @abilities.tactician.hammer-and-anvil,
+        @abilities.tactician.hit-em-hard, @abilities.tactician.squad-gear-check,
+        @abilities.tactician.ill-open-and-youll-close][indexOf([3, 5, 7, 9, 11], slot)]
+  # Perks: exploration, interpersonal or intrigue at 2nd, 6th and 10th; any at 4th and 8th.
+  - id: perk
+    slots: [2, 4, 6, 8, 10]
+    when: self.level >= slot
+    unique: perks
+    from: { type: perk }
+    eligible: "slot in [4, 8] || item.group in ['exploration', 'interpersonal', 'intrigue']"
+    # The slot's Quick Build pick, else the first of a few that isn't taken already (a career
+    # may take the same perk).
+    recommend: >-
+      filterList([[@perks.exploration.team-leader, @perks.lore.ive-read-about-this-place, @perks.interpersonal.power-player, @perks.lore.eidetic-memory, @perks.exploration.teamwork][indexOf([2, 4, 6, 8, 10], slot)],
+        @perks.exploration.brawny, @perks.interpersonal.spot-the-tell, @perks.intrigue.forgettable-face, @perks.interpersonal.charming-liar, @perks.exploration.danger-sense, @perks.intrigue.slipped-lead],
+        x in choice.picks || countPicks(pick.item == x) == 0)[0]
+  - id: skill
+    slots: [4, 7, 10]
+    when: self.level >= slot
+    from: { type: skill }
+    eligible: '!(item.id in skills.known) || item.id in choice.picks'
+    recommend: >-
+      filterList([@skills.alertness, @skills.history, @skills.persuade, @skills.search,
+        @skills.society, @skills.track, @skills.strategy, @skills.culture, @skills.lead,
+        @skills.intimidate, @skills.endurance, @skills.navigate, @skills.sneak], !(x in choice.picks) && !(x in skills.known))[0]
+    activate: false
+    effects:
+      - { target: skills.known, op: grant, value: { formula: pick.id } }

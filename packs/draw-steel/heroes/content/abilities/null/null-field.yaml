@@ -1,0 +1,53 @@
+id: abilities.null.null-field
+type: ability
+tags:
+  - kw.area
+  - kw.psionic
+fields:
+  usage: maneuver
+  kind: feature
+  class: classes.null
+  level: 1
+  distanceKind: aura
+  distance: 1
+effects:
+  - target: { steps: [ability.after], from: self }
+    op: changes
+    when: action.item.id == item.id
+    value:
+      changes:
+        - { type: set, field: nullClass.fieldActive, value: 'true' }
+actions:
+  # Once on each of the null's turns, a free maneuver: 1 discipline for an extra effect until the
+  # start of their next turn.
+  - id: empower
+    available: >-
+      combat.active && nullClass.fieldActive && nullClass.fieldEffect == 'none'
+        && heroic.current - 1 >= heroic.min
+    params:
+      effect: { type: enum, values: [gravitic-disruption, inertial-anchor, synaptic-break] }
+    results: [empowered]
+    steps:
+      - id: pay
+        kind: changes
+        changes:
+          - { type: adjust, field: heroic.current, by: -1 }
+          - { type: set, field: nullClass.fieldEffect, value: params.effect }
+      - { id: done, kind: outcome, result: "'empowered'" }
+  # Ending the field willingly (no action).
+  - id: end
+    available: nullClass.fieldActive
+    results: [ended]
+    steps:
+      - id: end
+        kind: changes
+        changes:
+          - { type: set, field: nullClass.fieldActive, value: 'false' }
+      - { id: done, kind: outcome, result: "'ended'" }
+followUps:
+  # The field ends when the null is dying.
+  - id: dying
+    becomes: stamina.dying && nullClass.fieldActive
+    required: true
+    changes:
+      - { type: set, field: nullClass.fieldActive, value: 'false' }

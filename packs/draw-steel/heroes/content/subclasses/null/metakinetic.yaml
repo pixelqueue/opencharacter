@@ -1,0 +1,35 @@
+id: subclasses.null.metakinetic
+type: subclass
+fields:
+  class: classes.null
+grants:
+  - { item: features.null.metakinetic-mastery }
+  - { item: features.null.inertial-sink, when: self.level >= 2 }
+  - { item: features.null.inertial-fulcrum, when: self.level >= 5 }
+  - { item: features.null.inertial-dampener, when: self.level >= 8 }
+choices:
+  - id: skill
+    from: { type: skill, where: "item.group == 'exploration'" }
+    eligible: '!(item.id in skills.known) || item.id in choice.picks'
+    recommend: 'filterList([@skills.gymnastics, @skills.endurance, @skills.jump], !(x in skills.known) || x in choice.picks)[0]'
+    activate: false
+    effects:
+      - { target: skills.known, op: grant, value: { formula: pick.id } }
+  - id: ability-2
+    when: self.level >= 2
+    from:
+      type: ability
+      where: 'item.subclass == @subclasses.null.metakinetic && item.level == 2'
+    recommend: '@abilities.null.gravitic-strike'
+  - id: ability-6
+    when: self.level >= 6
+    from:
+      type: ability
+      where: 'item.subclass == @subclasses.null.metakinetic && item.level == 6'
+    recommend: '@abilities.null.iron-body'
+  - id: ability-9
+    when: self.level >= 9
+    from:
+      type: ability
+      where: 'item.subclass == @subclasses.null.metakinetic && item.level == 9'
+    recommend: '@abilities.null.realitas'

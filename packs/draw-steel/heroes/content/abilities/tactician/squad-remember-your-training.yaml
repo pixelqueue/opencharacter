@@ -1,0 +1,23 @@
+# Pass the two allies as targets: each gains 1 surge, and so do you.
+id: abilities.tactician.squad-remember-your-training
+type: ability
+tags:
+  - kw.ranged
+fields:
+  usage: main-action
+  kind: heroic
+  class: classes.tactician
+  level: 5
+  resource: focus
+  cost: 9
+  distanceKind: ranged
+  distance: 10
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    when: action.item.id == item.id
+    value: { changes: [{ type: adjust, field: surges.current, by: 1 }] }
+  - target: { steps: [ability.after], from: self }
+    op: changes
+    when: action.item.id == item.id
+    value: { changes: [{ type: adjust, field: surges.current, by: 1 }] }

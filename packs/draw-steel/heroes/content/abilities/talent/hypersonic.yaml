@@ -1,0 +1,58 @@
+id: abilities.talent.hypersonic
+type: ability
+tags:
+  - kw.area
+  - kw.charge
+  - kw.psionic
+  - kw.telekinesis
+fields:
+  usage: main-action
+  kind: heroic
+  class: classes.talent
+  level: 5
+  resource: clarity
+  cost: 9
+  distanceKind: line
+  distance: 5
+  areaWidth: 2
+  within: 1
+  rollChars:
+    - reason
+  damageType: sonic
+  t1Damage: 12
+  t1AddsChar: false
+  t2Damage: 18
+  t2AddsChar: false
+  t3Damage: 24
+  t3AddsChar: false
+effects:
+  - target:
+      steps:
+        - ability.hit
+      from: self
+    op: changes
+    when:
+      action.item.id == item.id && (((combat.active && heroic.current - item.cost - params.spend <
+      0) || situational.talentStrain) && flags.tier >= 2)
+    value:
+      changes:
+        - type: applyEffect
+          source: "'conditions.slowed'"
+          state:
+            duration: "'eot'"
+            by: character.id
+  - target:
+      steps:
+        - ability.after
+      from: self
+    op: changes
+    when:
+      action.item.id == item.id && (((combat.active && heroic.current - item.cost - params.spend <
+      0) || situational.talentStrain) && has(steps.roll) && steps.roll.bandValue >= 2)
+    value:
+      changes:
+        - type: applyEffect
+          source: "'conditions.slowed'"
+          state:
+            duration: "'eot'"
+            by: character.id

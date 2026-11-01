@@ -1,0 +1,63 @@
+id: abilities.talent.optic-blast
+type: ability
+tags:
+  - kw.metamorphosis
+  - kw.psionic
+  - kw.ranged
+  - kw.strike
+fields:
+  usage: main-action
+  kind: signature
+  class: classes.talent
+  level: 1
+  distanceKind: ranged
+  distance: 10
+  rollChars:
+    - reason
+  damageType: untyped
+  t1Damage: 2
+  t1PotencyChar: might
+  t1Potency: weak
+  t1Condition: conditions.prone
+  t1Duration: until
+  t2Damage: 4
+  t2PotencyChar: might
+  t2Potency: average
+  t2Condition: conditions.prone
+  t2Duration: until
+  t3Damage: 6
+  t3PotencyChar: might
+  t3Potency: strong
+  t3Condition: conditions.prone
+  t3Duration: until
+effects:
+  - target:
+      steps:
+        - ability.pay
+      from: self
+    op: changes
+    when:
+      action.item.id == item.id && ((combat.active && heroic.current - item.cost - params.spend < 0)
+      || situational.talentStrain)
+    value:
+      changes:
+        - type: adjust
+          field: surges.current
+          by: 1
+  - target:
+      steps:
+        - ability.after
+      from: self
+    op: changes
+    when:
+      action.item.id == item.id && ((combat.active && heroic.current - item.cost - params.spend < 0)
+      || situational.talentStrain)
+    value:
+      changes:
+        - type: adjust
+          field: stamina.current
+          by: -characteristics.reason.score
+          tags:
+            - damage
+            - damage.unreducible
+            - talent.strain

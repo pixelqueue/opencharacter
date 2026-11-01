@@ -1,0 +1,51 @@
+id: abilities.censor.blessing-of-the-faithful
+type: ability
+tags:
+  - censor-aura
+  - kw.area
+  - kw.magic
+fields:
+  usage: maneuver
+  kind: heroic
+  class: classes.censor
+  subclass: subclasses.censor.paragon
+  level: 2
+  resource: wrath
+  cost: 5
+  distanceKind: aura
+  distance: 3
+# The aura is this ability applied to you until the end of the encounter or until you are dying.
+state:
+  duration: { type: string, default: encounter }
+reapply: { state: { duration: replace } }
+effects:
+  - target: { steps: [ability.after], from: self }
+    op: changes
+    when: action.item.id == item.id
+    value:
+      changes:
+        - {
+            type: applyEffect,
+            source: "'abilities.censor.blessing-of-the-faithful'",
+            state: { duration: "'encounter'" },
+          }
+  # At the end of each of your turns, you gain 1 surge, and each ally in the aura (`inspire`).
+  - target: { steps: [turn.end] }
+    op: changes
+    scope: applied
+    value: { changes: [{ type: adjust, field: surges.current, by: 1 }] }
+actions:
+  - id: inspire
+    scope: applied
+    tags: [ability]
+    participants:
+      target: { min: 1 }
+    results: [used]
+    steps:
+      - id: surge
+        kind: changes
+        each: target
+        to: target
+        changes:
+          - { type: adjust, field: surges.current, by: 1 }
+      - { id: done, kind: outcome, result: "'used'" }

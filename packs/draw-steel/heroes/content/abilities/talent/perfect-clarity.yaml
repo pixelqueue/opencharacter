@@ -1,0 +1,32 @@
+id: abilities.talent.perfect-clarity
+type: ability
+tags:
+  - kw.psionic
+  - kw.ranged
+  - kw.telepathy
+fields:
+  usage: maneuver
+  kind: heroic
+  class: classes.talent
+  level: 1
+  resource: clarity
+  cost: 5
+  distanceKind: ranged
+  distance: 10
+effects:
+  - target:
+      steps:
+        - ability.after
+      from: self
+    op: changes
+    when:
+      action.item.id == item.id && ((combat.active && heroic.current - item.cost - params.spend < 0)
+      || situational.talentStrain)
+    value:
+      changes:
+        - type: offerFollowUp
+          followUp: strain-damage
+          params:
+            count: 1
+followUps:
+  - { id: strain-damage, action: talent-strain-damage }

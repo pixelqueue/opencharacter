@@ -1,0 +1,23 @@
+id: abilities.null.iron-body
+type: ability
+tags:
+  - kw.psionic
+fields:
+  usage: maneuver
+  kind: heroic
+  class: classes.null
+  subclass: subclasses.null.metakinetic
+  level: 6
+  resource: discipline
+  cost: 9
+  distanceKind: self
+effects:
+  # 20 temporary Stamina, and stability + Intuition until the end of the encounter.
+  - target: { steps: [ability.after], from: self }
+    op: changes
+    when: action.item.id == item.id
+    value:
+      changes:
+        - { type: set, field: stamina.temp, value: 'max(stamina.temp, 20)' }
+        - { type: set, field: nullClass.ironBody, value: 'true' }
+  - { target: stability, op: add, value: characteristics.intuition.score, when: nullClass.ironBody }

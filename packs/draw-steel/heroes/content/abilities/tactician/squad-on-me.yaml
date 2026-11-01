@@ -1,0 +1,25 @@
+# Pass the allies in the area as targets: each gains 2 surges, and so do you. The
+# stability bonus is the table's.
+id: abilities.tactician.squad-on-me
+type: ability
+tags:
+  - kw.area
+fields:
+  usage: maneuver
+  kind: heroic
+  class: classes.tactician
+  subclass: subclasses.tactician.vanguard
+  level: 2
+  resource: focus
+  cost: 5
+  distanceKind: burst
+  distance: 1
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    when: action.item.id == item.id
+    value: { changes: [{ type: adjust, field: surges.current, by: 2 }] }
+  - target: { steps: [ability.after], from: self }
+    op: changes
+    when: action.item.id == item.id
+    value: { changes: [{ type: adjust, field: surges.current, by: 2 }] }

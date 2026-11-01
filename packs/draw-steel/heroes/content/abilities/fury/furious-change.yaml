@@ -1,0 +1,30 @@
+id: abilities.fury.furious-change
+type: ability
+fields:
+  usage: triggered
+  kind: feature
+  class: classes.fury
+  subclass: subclasses.fury.stormwight
+  level: 1
+  distanceKind: self
+  resource: ferocity
+  spendCost: 1
+effects:
+  # Temporary Stamina equal to your Might score.
+  - target: { steps: [ability.after], from: self }
+    op: changes
+    when: action.item.id == item.id
+    value:
+      changes:
+        - type: set
+          field: stamina.temp
+          value: max(stamina.temp, characteristics.might.score)
+  # Spend 1 Ferocity: a Recovery, if you aren't dying.
+  - target: { steps: [ability.spend], from: self }
+    op: changes
+    when: >-
+      action.item.id == item.id && (!stamina.dying && recoveries.current > 0)
+    value:
+      changes:
+        - { type: adjust, field: recoveries.spent, by: 1 }
+        - { type: adjust, field: stamina.current, by: recoveries.value, tags: [healing] }

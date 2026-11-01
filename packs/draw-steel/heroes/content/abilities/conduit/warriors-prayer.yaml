@@ -1,0 +1,30 @@
+id: abilities.conduit.warriors-prayer
+type: ability
+tags:
+  - kw.magic
+  - kw.ranged
+  - kw.strike
+fields:
+  usage: main-action
+  kind: signature
+  class: classes.conduit
+  level: 1
+  distanceKind: ranged
+  distance: 10
+  rollChars:
+    - intuition
+  damageType: holy
+  t1Damage: 3
+  t2Damage: 6
+  t3Damage: 9
+followUps:
+  # You (or an ally) gain temporary Stamina equal to your Intuition score.
+  - id: temp-stamina
+    changes:
+      - { type: adjust, field: stamina.temp, by: characteristics.intuition.score }
+effects:
+  # Offered to you; an ally gains it on their own sheet.
+  - target: { steps: [ability.after], from: self }
+    op: changes
+    when: action.item.id == item.id
+    value: { changes: [{ type: offerFollowUp, followUp: temp-stamina }] }

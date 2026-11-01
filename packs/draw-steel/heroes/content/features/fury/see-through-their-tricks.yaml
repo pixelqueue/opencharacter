@@ -1,0 +1,12 @@
+id: features.fury.see-through-their-tricks
+type: feature
+fields:
+  class: classes.fury
+  level: 3
+  subclass: subclasses.fury.reaver
+effects:
+  # A double edge on tests to gamble (searching, motives and lies are the Director's call).
+  - target: { rolls: [power-roll.test], tally: edges }
+    op: add
+    value: 2
+    when: has(params.skill) && params.skill == @skills.gamble

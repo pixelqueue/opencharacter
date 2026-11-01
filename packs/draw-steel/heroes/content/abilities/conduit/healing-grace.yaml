@@ -1,0 +1,23 @@
+id: abilities.conduit.healing-grace
+type: ability
+tags:
+  - recovery.granted
+  - kw.magic
+  - kw.ranged
+fields:
+  usage: maneuver
+  kind: feature
+  class: classes.conduit
+  level: 1
+  distanceKind: ranged
+  distance: 10
+  spendCost: 1
+  spendPlus: true
+effects:
+  # The target can spend a Recovery (Spend: more targets, Recoveries, effects ended, standing).
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    when: action.item.id == item.id
+    value:
+      changes:
+        - { type: adjust, field: recoveries.spent, by: 1, tags: [recovery.granted] }

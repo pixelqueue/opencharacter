@@ -1,0 +1,84 @@
+# The censor: wrath from the creature they judge, Judgment's triggered actions, My Life for
+# Yours, the edicts and auras they keep on themselves, and virtue at 10th level.
+fields:
+  # The creature judged by the censor (its character ID), '' when none.
+  censor.judged: { type: string, input: true, default: '' }
+  # This combat round's wrath for damaging the judged creature, and for being damaged by it.
+  censor.dealtWrath: { type: boolean, input: true, default: false }
+  censor.takenWrath: { type: boolean, input: true, default: false }
+  # The Judgment order benefit has been used this turn.
+  censor.benefitUsed: { type: boolean, input: true, default: false }
+  # Wrath for the first damage each round to the judged creature (Wrath Beyond Wrath: 2).
+  censor.judgedWrath: { type: integer, formula: 1 }
+  # Extra Stamina an ally regains from My Life for Yours (Blessing of Life).
+  censor.mendBonus: { type: integer, formula: 0 }
+  # Font of Grace: My Life for Yours's Spend 1 is free, and its target gains 10 temporary Stamina.
+  censor.fontOfGrace: { type: boolean, formula: 'false' }
+  # Implement of Wrath on the censor's own weapon until the next respite.
+  censor.implement: { type: boolean, input: true, default: false }
+  # Virtue, the 10th-level epic resource, spent as wrath.
+  censor.virtue: { type: integer, input: true, default: 0, min: 0 }
+
+tags:
+  # A censor aura or edict kept on the censor while it lasts (until the encounter ends or the
+  # censor is dying).
+  - censor-aura
+
+actions:
+  # Spend a Recovery for yourself or one ally (The Gods Punish and Defend, Prescient Grace): the
+  # target regains Stamina equal to your recovery value.
+  - id: share-recovery
+    tags: [recovery]
+    available: recoveries.current > 0 && !stamina.dead
+    participants:
+      target: { max: 1, fields: creature }
+    results: [spent]
+    steps:
+      - id: spend
+        kind: changes
+        changes:
+          - { type: adjust, field: recoveries.spent, by: 1 }
+          - type: adjust
+            when: size(participants.target) == 0
+            field: stamina.current
+            by: recoveries.value
+            tags: [healing]
+      - id: ally
+        kind: changes
+        each: target
+        to: target
+        changes:
+          - { type: adjust, field: stamina.current, by: recoveries.value, tags: [healing] }
+      - { id: done, kind: outcome, result: "'spent'", data: { regained: recoveries.value } }
+
+  # Virtue spent on an ability as if it were wrath: it becomes wrath for that ability.
+  - id: spend-virtue
+    tags: [resource]
+    available: censor.virtue > 0
+    params:
+      amount: { type: integer, default: 1, min: 1 }
+    results: [spent]
+    steps:
+      - id: spend
+        kind: changes
+        changes:
+          - { type: adjust, field: censor.virtue, by: '-min(params.amount, censor.virtue)' }
+          - { type: adjust, field: heroic.current, by: 'min(params.amount, censor.virtue)' }
+      - { id: done, kind: outcome, result: "'spent'" }
+
+display:
+  fields:
+    censor.judged: { groups: [resources], priority: 2, showWhen: "censor.judged != ''" }
+    censor.dealtWrath: { hidden: true }
+    censor.takenWrath: { hidden: true }
+    censor.benefitUsed: { hidden: true }
+    censor.judgedWrath: { hidden: true }
+    censor.mendBonus: { hidden: true }
+    censor.fontOfGrace: { hidden: true }
+    censor.implement:
+      groups: [resources]
+      priority: 3
+      showWhen: "heroic.kind == 'wrath' && level >= 6"
+      input: { widget: checkbox }
+    censor.virtue:
+      { groups: [resources], priority: 1, showWhen: "heroic.kind == 'wrath' && level >= 10" }

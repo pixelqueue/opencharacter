@@ -1,0 +1,71 @@
+id: features.conduit.life-domain-piety-and-effect
+type: feature
+fields:
+  class: classes.conduit
+  level: 1
+effects:
+  - {
+      target: conduit.domainEffects,
+      op: grant,
+      value: { item: features.conduit.life-domain-piety-and-effect },
+    }
+followUps:
+  # The hero's own event that grants the domain's piety (others' are the player's to run).
+  - id: piety
+    on: { field: stamina.current, tags: [healing], once: true }
+    when: "combat.active && heroic.kind == 'piety' && !(item.id in conduit.domainPietyUsed) && change.taken > 0"
+    action: piety
+actions:
+  # The domain's piety: the first time in an encounter its event happens.
+  - id: piety
+    available: "combat.active && heroic.kind == 'piety' && !(item.id in conduit.domainPietyUsed)"
+    results: [gained]
+    steps:
+      - id: gain
+        kind: changes
+        changes:
+          - { type: adjust, field: heroic.current, by: 2 + conduit.domainPietyBonus }
+          - {
+              type: set,
+              field: conduit.domainPietyUsed,
+              value: 'conduit.domainPietyUsed + [item.id]',
+            }
+      - {
+          id: done,
+          kind: outcome,
+          result: "'gained'",
+          data: { gained: 2 + conduit.domainPietyBonus },
+        }
+  # The domain's prayer effect.
+  - id: prayer-effect
+    available: combat.active && conduit.canUseDomainEffects
+    participants:
+      target: { max: 1 }
+    results: [activated]
+    steps:
+      - id: benefit
+        kind: choice
+        options:
+          - id: recovery
+          - id: end-effect
+          - id: stand
+          - id: temp
+        recommend: "'recovery'"
+      - id: apply
+        kind: changes
+        each: target
+        to: target
+        changes:
+          - type: adjust
+            when: steps.benefit.picked == 'recovery'
+            field: recoveries.spent
+            by: 1
+            tags: [recovery.granted]
+          - type: removeEffect
+            when: steps.benefit.picked == 'stand'
+            applied: { where: 'self.source == @conditions.prone' }
+          - type: adjust
+            when: steps.benefit.picked == 'temp'
+            field: stamina.temp
+            by: 2 * conduit.domainScore
+      - { id: done, kind: outcome, result: "'activated'" }

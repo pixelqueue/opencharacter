@@ -1,0 +1,62 @@
+# The Mark ability, and the benefits of a mark. Power rolls against a marked creature gain an edge
+# (the shared `use-ability` reads the target's `tactician.markedBy`). Dying ends your marks.
+id: features.tactician.mark
+type: feature
+fields:
+  class: classes.tactician
+  level: 1
+grants:
+  - { item: abilities.tactician.mark }
+effects:
+  # The extra damage of the Mark situational choice, and its focus.
+  - target: { rolls: [damage] }
+    op: add
+    value: 2 * characteristics.reason.score
+    when: >-
+      situational.markDamage && (!has(participant) || size(participants.target) == 0
+        || participant.id == participants.target[0].id)
+  - target: { steps: [ability.pay] }
+    op: changes
+    when: situational.markDamage
+    value: { changes: [{ type: adjust, field: heroic.current, by: -1 }] }
+followUps:
+  - id: marks-end
+    becomes: stamina.dying && size(tactician.marked) > 0
+    changes:
+      - { type: set, field: tactician.marked, value: '[]' }
+actions:
+  # Spend 1 focus when you or an ally deals rolled damage to a creature you marked. Extra damage
+  # and the shift are the outcome's numbers; you spend the Recovery when the damage was yours;
+  # the taunt goes to the target (a melee ability of yours).
+  - id: mark-benefit
+    tags: [resource]
+    available: combat.active && size(tactician.marked) > 0 && heroic.current - 1 >= heroic.min
+    params:
+      benefit: { type: enum, values: [damage, recovery, shift, taunt], default: damage }
+      mine: { type: boolean, default: false }
+    participants:
+      target: { max: 1 }
+    results: [used]
+    steps:
+      - id: pay
+        kind: changes
+        changes:
+          - { type: adjust, field: heroic.current, by: -1 }
+      - id: recover
+        kind: action
+        when: "params.benefit == 'recovery' && params.mine && recoveries.current > 0"
+        use: spend-recovery
+      - id: taunt
+        kind: changes
+        when: "params.benefit == 'taunt'"
+        to: target
+        changes:
+          - type: applyEffect
+            source: "'conditions.taunted'"
+            state: { duration: "'eot'", by: character.id }
+      - id: done
+        kind: outcome
+        result: "'used'"
+        data:
+          extraDamage: "params.benefit == 'damage' ? 2 * characteristics.reason.score : 0"
+          shift: "params.benefit == 'shift' ? characteristics.reason.score : 0"

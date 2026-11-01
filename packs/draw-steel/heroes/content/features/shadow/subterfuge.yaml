@@ -1,0 +1,10 @@
+id: features.shadow.subterfuge
+type: feature
+fields:
+  class: classes.shadow
+  level: 10
+effects:
+  # A respite turns Victories into experience, and as much into subterfuge.
+  - target: { steps: [respite] }
+    op: changes
+    value: { changes: [{ type: adjust, field: shadow.subterfuge, by: victories }] }

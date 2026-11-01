@@ -1,0 +1,50 @@
+id: abilities.talent.gravitic-burst
+type: ability
+tags:
+  - kw.area
+  - kw.psionic
+  - kw.telekinesis
+fields:
+  usage: main-action
+  kind: heroic
+  class: classes.talent
+  subclass: subclasses.talent.telekinesis
+  level: 2
+  resource: clarity
+  cost: 5
+  distanceKind: burst
+  distance: 1
+  rollChars:
+    - reason
+  damageType: untyped
+  t1Damage: 3
+  t1AddsChar: false
+  t1Move: push
+  t1MoveVertical: true
+  t1MoveDistance: 2
+  t2Damage: 6
+  t2AddsChar: false
+  t2Move: push
+  t2MoveVertical: true
+  t2MoveDistance: 4
+  t3Damage: 9
+  t3AddsChar: false
+  t3Move: push
+  t3MoveVertical: true
+  t3MoveDistance: 6
+effects:
+  - target:
+      steps:
+        - ability.after
+      from: self
+    op: changes
+    when:
+      action.item.id == item.id && ((combat.active && heroic.current - item.cost - params.spend < 0)
+      || situational.talentStrain)
+    value:
+      changes:
+        - type: applyEffect
+          source: "'conditions.weakened'"
+          state:
+            duration: "'eot'"
+            by: character.id

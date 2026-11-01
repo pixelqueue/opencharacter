@@ -1,0 +1,50 @@
+id: abilities.talent.fate
+type: ability
+tags:
+  - kw.chronopathy
+  - kw.psionic
+  - kw.melee
+fields:
+  usage: main-action
+  kind: heroic
+  class: classes.talent
+  subclass: subclasses.talent.chronopathy
+  level: 6
+  resource: clarity
+  cost: 9
+  distanceKind: melee
+  distance: 2
+  rollChars:
+    - presence
+  damageType: psychic
+  t1Damage: 8
+  t2Damage: 13
+  t3Damage: 17
+# The power roll is only for the strained effect: unstrained, its damage parts are 0.
+effects:
+  - target:
+      rolls:
+        - damage
+      parts:
+        - damage.psychic
+      from: self
+    op: set
+    value: 0
+    when:
+      'action.item.id == item.id && (!((combat.active && heroic.current - item.cost - params.spend <
+      0) || situational.talentStrain))'
+  - target:
+      steps:
+        - ability.after
+      from: self
+    op: changes
+    when:
+      action.item.id == item.id && ((combat.active && heroic.current - item.cost - params.spend < 0)
+      || situational.talentStrain)
+    value:
+      changes:
+        - type: applyEffect
+          source: "'conditions.weakened'"
+          state:
+            duration: "'save'"
+            by: character.id

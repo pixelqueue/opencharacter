@@ -1,0 +1,24 @@
+# Spend 1 focus: the target is slowed (EoT) if its Reason is below your average potency.
+id: abilities.tactician.overwatch
+type: ability
+tags:
+  - kw.ranged
+fields:
+  usage: triggered
+  kind: feature
+  class: classes.tactician
+  subclass: subclasses.tactician.mastermind
+  level: 1
+  distanceKind: ranged
+  distance: 10
+  spendCost: 1
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    when: >-
+      action.item.id == item.id && (params.spend >= 1 && participant.characteristics.reason.score < potency.average)
+    value:
+      changes:
+        - type: applyEffect
+          source: "'conditions.slowed'"
+          state: { duration: "'eot'", by: character.id }

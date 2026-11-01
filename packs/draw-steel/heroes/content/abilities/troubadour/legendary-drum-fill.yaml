@@ -1,0 +1,30 @@
+id: abilities.troubadour.legendary-drum-fill
+type: ability
+tags:
+  - kw.area
+  - kw.magic
+fields:
+  usage: maneuver
+  kind: heroic
+  class: classes.troubadour
+  subclass: subclasses.troubadour.virtuoso
+  level: 6
+  resource: drama
+  cost: 9
+  distanceKind: burst
+  distance: 4
+effects:
+  # You are a target: 1 surge now, then 1 at the start of each combat round this encounter.
+  - target: { steps: [ability.after], from: self }
+    op: changes
+    when: action.item.id == item.id
+    value:
+      changes:
+        - { type: adjust, field: surges.current, by: 1 }
+        - { type: set, field: troubadour.drumFill, value: 'true' }
+  - target: { steps: [round.start] }
+    op: changes
+    when: troubadour.drumFill
+    value:
+      changes:
+        - { type: adjust, field: surges.current, by: 1 }

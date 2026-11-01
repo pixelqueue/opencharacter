@@ -1,0 +1,50 @@
+id: features.conduit.nature-domain-piety-and-effect
+type: feature
+fields:
+  class: classes.conduit
+  level: 1
+effects:
+  - {
+      target: conduit.domainEffects,
+      op: grant,
+      value: { item: features.conduit.nature-domain-piety-and-effect },
+    }
+followUps:
+  # The hero's own event that grants the domain's piety (others' are the player's to run).
+  - id: piety
+    on:
+      field: stamina.current
+      tags: [damage.acid, damage.cold, damage.fire, damage.lightning, damage.poison, damage.sonic]
+      once: true
+    when: "combat.active && heroic.kind == 'piety' && !(item.id in conduit.domainPietyUsed) && change.taken < 0"
+    action: piety
+actions:
+  # The domain's piety: the first time in an encounter its event happens.
+  - id: piety
+    available: "combat.active && heroic.kind == 'piety' && !(item.id in conduit.domainPietyUsed)"
+    results: [gained]
+    steps:
+      - id: gain
+        kind: changes
+        changes:
+          - { type: adjust, field: heroic.current, by: 2 + conduit.domainPietyBonus }
+          - {
+              type: set,
+              field: conduit.domainPietyUsed,
+              value: 'conduit.domainPietyUsed + [item.id]',
+            }
+      - {
+          id: done,
+          kind: outcome,
+          result: "'gained'",
+          data: { gained: 2 + conduit.domainPietyBonus },
+        }
+  # The domain's prayer effect.
+  - id: prayer-effect
+    available: combat.active && conduit.canUseDomainEffects
+    results: [activated]
+    steps:
+      - id: done
+        kind: outcome
+        result: "'activated'"
+        data: { creatures: conduit.domainScore, slide: conduit.domainScore }

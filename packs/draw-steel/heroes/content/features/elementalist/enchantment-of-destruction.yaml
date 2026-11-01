@@ -1,0 +1,16 @@
+id: features.elementalist.enchantment-of-destruction
+type: feature
+fields:
+  class: classes.elementalist
+  level: 1
+effects:
+  - target: { rolls: [damage] }
+    op: add
+    value: 1
+    when: "'kw.magic' in action.item.tags"
+    tags:
+      [
+        {
+          formula: "action.item.id == @abilities.elementalist.hurl-element ? ['damage.' + situational.hurlElementType] : action.item.damageType == 'untyped' ? [] : ['damage.' + action.item.damageType]",
+        },
+      ]

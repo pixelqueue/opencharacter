@@ -1,0 +1,25 @@
+# Pass the allies in the area as targets: each gains 2 surges, and so do you. The two
+# enemies you mark are marked at the table.
+id: abilities.tactician.hustle
+type: ability
+tags:
+  - kw.area
+fields:
+  usage: maneuver
+  kind: heroic
+  class: classes.tactician
+  subclass: subclasses.tactician.mastermind
+  level: 6
+  resource: focus
+  cost: 9
+  distanceKind: burst
+  distance: 2
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    when: action.item.id == item.id
+    value: { changes: [{ type: adjust, field: surges.current, by: 2 }] }
+  - target: { steps: [ability.after], from: self }
+    op: changes
+    when: action.item.id == item.id
+    value: { changes: [{ type: adjust, field: surges.current, by: 2 }] }

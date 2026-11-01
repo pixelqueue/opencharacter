@@ -1,0 +1,53 @@
+# The benefits every tradition shares: an edge (double edge from 7th level) on Grab and Knockback,
+# and at 10th level 10 temporary Stamina for each heroic ability. Discipline Mastery reads the most
+# discipline the null had this turn (`nullClass.mastery`).
+id: features.null.discipline-mastery
+type: feature
+fields:
+  class: classes.null
+  level: 1
+effects:
+  # 12 discipline (10th level): forced movement gains the Intuition score.
+  - target: { rolls: [power-roll.ability], tally: moveBonus }
+    op: add
+    value: characteristics.intuition.score
+    when: level >= 10 && nullClass.mastery >= 12
+  - target: { steps: [turn.start] }
+    op: changes
+    value:
+      changes:
+        - type: set
+          field: nullClass.masteryPeak
+          value: 'max(0, heroic.current + (has(steps.gain) ? steps.gain.total : 0))'
+  - target: { steps: [ability.pay] }
+    op: changes
+    when: combat.active
+    value:
+      changes:
+        - {
+            type: set,
+            field: nullClass.masteryPeak,
+            value: 'max(nullClass.masteryPeak, heroic.current)',
+          }
+  - target: { steps: [turn.end] }
+    op: changes
+    value:
+      changes:
+        - { type: set, field: nullClass.masteryPeak, value: 0 }
+  - target: { rolls: [power-roll.ability], tally: edges }
+    op: add
+    value: 'level >= 7 && nullClass.mastery >= 10 ? 2 : 1'
+    when: >-
+      nullClass.mastery >= 6 && (action.item.id == @abilities.common.grab
+        || action.item.id == @abilities.common.knockback)
+  - target: { steps: [ability.after] }
+    op: changes
+    # Abilities that give their own temporary Stamina (10 or more) keep theirs: both changes
+    # read the sheet before the ability, so the greater is theirs.
+    when: >-
+      level >= 10 && nullClass.mastery >= 12 && action.item.kind == 'heroic'
+        && !(action.item.id in [@abilities.null.kinetic-shield, @abilities.null.absolute-zero,
+          @abilities.null.iron-body])
+    value:
+      changes:
+        - { type: set, field: stamina.temp, value: 'max(stamina.temp, 10)' }

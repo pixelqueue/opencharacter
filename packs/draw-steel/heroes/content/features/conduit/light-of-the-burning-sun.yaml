@@ -1,0 +1,13 @@
+id: features.conduit.light-of-the-burning-sun
+type: feature
+fields:
+  class: classes.conduit
+  level: 7
+  subclass: subclasses.conduit.sun
+effects:
+  # Rolled damage from an ability: an extra 5 fire damage (15 to an undead creature).
+  - target: { rolls: [damage] }
+    op: add
+    value: 5
+    tags: [damage.fire]
+  - { target: immunity.fire, op: add, value: level }

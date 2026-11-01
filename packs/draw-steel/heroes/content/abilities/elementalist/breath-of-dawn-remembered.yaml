@@ -1,0 +1,28 @@
+id: abilities.elementalist.breath-of-dawn-remembered
+type: ability
+tags:
+  - kw.green
+  - kw.magic
+  - kw.ranged
+fields:
+  usage: triggered
+  kind: feature
+  class: classes.elementalist
+  subclass: subclasses.elementalist.green
+  level: 1
+  distanceKind: ranged
+  distance: 10
+  spendCost: 1
+  spendPlus: true
+# Used on the hero themself (no target): spend a Recovery, and one more per essence spent.
+effects:
+  - target: { steps: [ability.after], from: self }
+    op: changes
+    when: action.item.id == item.id && size(participants.target) == 0 && recoveries.current > 0
+    value:
+      changes:
+        - { type: adjust, field: recoveries.spent, by: 'min(1 + params.spend, recoveries.current)' }
+        - type: adjust
+          field: stamina.current
+          by: min(1 + params.spend, recoveries.current) * recoveries.value
+          tags: [healing]

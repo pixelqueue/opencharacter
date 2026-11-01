@@ -1,0 +1,53 @@
+id: abilities.talent.levity-and-gravity
+type: ability
+tags:
+  - kw.psionic
+  - kw.ranged
+  - kw.strike
+  - kw.telekinesis
+fields:
+  usage: main-action
+  kind: heroic
+  class: classes.talent
+  subclass: subclasses.talent.telekinesis
+  level: 2
+  resource: clarity
+  cost: 5
+  distanceKind: ranged
+  distance: 10
+  rollChars:
+    - reason
+  damageType: untyped
+  t1Damage: 6
+  t1PotencyChar: might
+  t1Potency: weak
+  t1Condition: conditions.prone
+  t1Duration: until
+  t2Damage: 10
+  t2PotencyChar: might
+  t2Potency: average
+  t2Condition: conditions.prone
+  t2Duration: until
+  t3Damage: 14
+  t3PotencyChar: might
+  t3Potency: strong
+  t3Condition: conditions.prone
+  t3Duration: save
+effects:
+  - target:
+      steps:
+        - ability.hit
+      from: self
+    op: changes
+    when:
+      action.item.id == item.id && (((combat.active && heroic.current - item.cost - params.spend <
+      0) || situational.talentStrain) && has(steps.damage))
+    value:
+      changes:
+        - type: adjust
+          field: stamina.current
+          by: -floor(steps.damage.total / 2)
+          tags:
+            - damage
+            - talent.strain
+      to: self

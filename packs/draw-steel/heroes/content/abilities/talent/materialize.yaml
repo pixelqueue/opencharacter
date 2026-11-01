@@ -1,0 +1,38 @@
+id: abilities.talent.materialize
+type: ability
+tags:
+  - kw.psionic
+  - kw.ranged
+  - kw.resopathy
+  - kw.strike
+fields:
+  usage: main-action
+  kind: signature
+  class: classes.talent
+  level: 1
+  distanceKind: ranged
+  distance: 10
+  rollChars:
+    - reason
+  damageType: untyped
+  t1Damage: 3
+  t2Damage: 5
+  t3Damage: 8
+effects:
+  - target:
+      steps:
+        - ability.after
+      from: self
+    op: changes
+    when:
+      action.item.id == item.id && ((combat.active && heroic.current - item.cost - params.spend < 0)
+      || situational.talentStrain)
+    value:
+      changes:
+        - type: adjust
+          field: stamina.current
+          by: -characteristics.reason.score
+          tags:
+            - damage
+            - damage.unreducible
+            - talent.strain

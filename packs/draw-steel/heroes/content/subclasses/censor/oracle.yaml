@@ -1,0 +1,41 @@
+id: subclasses.censor.oracle
+type: subclass
+fields:
+  class: classes.censor
+grants:
+  - { item: features.censor.it-was-foretold, when: self.level >= 2 }
+  - { item: features.censor.judge-of-character, when: self.level >= 2 }
+  - { item: features.censor.prophecy, when: self.level >= 5 }
+  - { item: features.censor.their-past-revealed, when: self.level >= 8 }
+choices:
+  - id: ability-2
+    when: self.level >= 2
+    from:
+      type: ability
+      where: 'item.subclass == @subclasses.censor.oracle && item.level == 2'
+    recommend: '@abilities.censor.with-my-blessing'
+  - id: ability-6
+    when: self.level >= 6
+    from:
+      type: ability
+      where: 'item.subclass == @subclasses.censor.oracle && item.level == 6'
+    recommend: '@abilities.censor.burden-of-evil'
+  - id: ability-9
+    when: self.level >= 9
+    from:
+      type: ability
+      where: 'item.subclass == @subclasses.censor.oracle && item.level == 9'
+    recommend: '@abilities.censor.blessing-and-a-curse'
+effects:
+  - { target: skills.known, op: grant, value: { item: skills.magic } }
+  # Judgment Order Benefit: the first judgment on a turn deals holy damage equal to twice your
+  # Presence score to the judged creature.
+  - target: { steps: [ability.hit] }
+    op: changes
+    when: action.item.id == @abilities.censor.judgment && !censor.benefitUsed
+    value:
+      changes:
+        - type: adjust
+          field: stamina.current
+          by: -2 * characteristics.presence.score
+          tags: [damage, damage.holy]

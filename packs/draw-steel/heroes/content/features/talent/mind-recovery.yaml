@@ -1,0 +1,20 @@
+id: features.talent.mind-recovery
+type: feature
+fields:
+  class: classes.talent
+  level: 4
+effects:
+  - { target: talent.forceMoveGain, op: atLeast, value: 2 }
+actions:
+  # Spend a Recovery while strained for 3 clarity instead of Stamina.
+  - id: mind-recovery
+    tags: [recovery]
+    available: combat.active && talent.strained && recoveries.current > 0
+    results: [gained]
+    steps:
+      - id: spend
+        kind: changes
+        changes:
+          - { type: adjust, field: recoveries.spent, by: 1 }
+          - { type: adjust, field: heroic.current, by: 3 }
+      - { id: done, kind: outcome, result: "'gained'" }

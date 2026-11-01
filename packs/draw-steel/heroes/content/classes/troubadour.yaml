@@ -1,0 +1,121 @@
+id: classes.troubadour
+type: class
+fields:
+  primaries: [agility, presence]
+  potency: presence
+  arrayPriority: [intuition, reason, might]
+  startingStamina: 18
+  staminaPerLevel: 6
+  recoveries: 8
+  resource: drama
+  turnGain: 1d3
+grants:
+  - item: features.common.kit
+  - item: features.troubadour.troubadour-class-act
+  - item: features.troubadour.drama-outside-of-combat
+  - item: features.troubadour.drama-in-combat
+  - item: features.troubadour.scene-partner
+  - item: features.troubadour.routines
+  - item: features.troubadour.appeal-to-the-muses
+    when: self.level >= 2
+  - item: features.troubadour.melodrama
+    when: self.level >= 4
+  - item: features.troubadour.zeitgeist
+    when: self.level >= 4
+  - item: features.troubadour.spotlight
+    when: self.level >= 6
+  - item: features.troubadour.a-muses-muse
+    when: self.level >= 7
+  - item: features.troubadour.equal-billing
+    when: self.level >= 7
+  - item: features.troubadour.roar-of-the-crowd
+    when: self.level >= 9
+  - item: features.troubadour.applause
+    when: self.level >= 10
+  - item: features.troubadour.dramaturgy
+    when: self.level >= 10
+  - item: features.troubadour.greatest-of-all-time
+    when: self.level >= 10
+effects:
+  - { target: kit.recommended, op: set, value: '@kits.swashbuckler' }
+  - { target: skills.known, op: grant, value: { item: skills.read-person } }
+choices:
+  # Class act (Quick Build: Virtuoso).
+  - id: subclass
+    from:
+      type: subclass
+      where: item.class == @classes.troubadour
+    recommend: '@subclasses.troubadour.virtuoso'
+  # Two interpersonal skills and one intrigue or lore skill (Quick Build: Brag, Flirt, Rumors).
+  - id: skills
+    pick: 2
+    from: { type: skill, where: "item.group == 'interpersonal'" }
+    eligible: '!(item.id in skills.known) || item.id in choice.picks'
+    recommend: >-
+      filterList([@skills.brag, @skills.flirt, @skills.lie, @skills.persuade, @skills.empathize,
+        @skills.lead, @skills.perform, @skills.intimidate, @skills.interrogate, @skills.gamble],
+        !(x in choice.picks) && !(x in skills.known))[0]
+    activate: false
+    effects:
+      - { target: skills.known, op: grant, value: { formula: pick.id } }
+  - id: skill-intrigue-lore
+    from: { type: skill, where: "item.group in ['intrigue', 'lore']" }
+    eligible: '!(item.id in skills.known) || item.id in choice.picks'
+    recommend: >-
+      filterList([@skills.rumors, @skills.culture, @skills.society, @skills.history,
+        @skills.eavesdrop, @skills.alertness], !(x in skills.known) || x in choice.picks)[0]
+    activate: false
+    effects:
+      - { target: skills.known, op: grant, value: { formula: pick.id } }
+  - id: signature
+    from:
+      type: ability
+      where: "item.class == @classes.troubadour && item.kind == 'signature' && !has(item.subclass)"
+    recommend: '@abilities.troubadour.witty-banter'
+  # Heroic abilities by drama cost: 3 and 5 at 1st level, 7 at 3rd, 9 at 5th, 11 at 8th.
+  - id: heroic
+    slots: [3, 5, 7, 9, 11]
+    when: 'self.level >= [1, 1, 3, 5, 8][indexOf([3, 5, 7, 9, 11], slot)]'
+    from:
+      type: ability
+      where: "item.class == @classes.troubadour && item.kind == 'heroic' && !has(item.subclass)"
+    eligible: item.cost == slot
+    recommend: >-
+      [@abilities.troubadour.harsh-critic, @abilities.troubadour.dramatic-reversal,
+        @abilities.troubadour.star-solo, @abilities.troubadour.action-hero,
+        @abilities.troubadour.the-show-must-go-on][indexOf([3, 5, 7, 9, 11], slot)]
+  # Invocation (2nd level): one of three features.
+  - id: invocation
+    when: self.level >= 2
+    from:
+      items:
+        - features.troubadour.allow-me-to-introduce-tonights-players
+        - features.troubadour.formal-introductions
+        - features.troubadour.my-reputation-precedes-me
+    recommend: '@features.troubadour.allow-me-to-introduce-tonights-players'
+  # Perks: interpersonal, lore or supernatural at 2nd, 6th and 10th level; any at 4th and 8th.
+  - id: perk
+    slots: [2, 4, 6, 8, 10]
+    when: self.level >= slot
+    from: { type: perk }
+    eligible: "slot in [4, 8] || item.group in ['interpersonal', 'lore', 'supernatural']"
+    unique: perks
+    # The slot's Quick Build pick, else the first of a few that isn't taken already (a career
+    # may take the same perk).
+    recommend: >-
+      filterList([[@perks.interpersonal.harmonizer, @perks.intrigue.lucky-dog, @perks.interpersonal.dazzler, @perks.exploration.teamwork, @perks.lore.polymath][indexOf([2, 4, 6, 8, 10], slot)],
+        @perks.interpersonal.charming-liar, @perks.interpersonal.spot-the-tell, @perks.lore.linguist, @perks.lore.specialist, @perks.supernatural.ritualist, @perks.interpersonal.open-book],
+        x in choice.picks || countPicks(pick.item == x) == 0)[0]
+  # A skill of your choice at 4th, 7th and 10th level.
+  - id: skill
+    slots: [4, 7, 10]
+    when: self.level >= slot
+    from: { type: skill }
+    eligible: '!(item.id in skills.known) || item.id in choice.picks'
+    recommend: >-
+      filterList([@skills.lie, @skills.persuade, @skills.perform, @skills.empathize,
+        @skills.lead, @skills.intimidate, @skills.history, @skills.society],
+        !(x in skills.known) || x in choice.picks)[0]
+    activate: false
+    effects:
+      - { target: skills.known, op: grant, value: { formula: pick.id } }

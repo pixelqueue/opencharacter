@@ -1,0 +1,23 @@
+id: abilities.conduit.saints-raiment
+type: ability
+tags:
+  - kw.magic
+  - kw.ranged
+fields:
+  usage: maneuver
+  kind: heroic
+  class: classes.conduit
+  level: 3
+  resource: piety
+  cost: 7
+  distanceKind: ranged
+  distance: 10
+effects:
+  # 20 temporary Stamina and 3 surges.
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    when: action.item.id == item.id
+    value:
+      changes:
+        - { type: adjust, field: stamina.temp, by: 20 }
+        - { type: adjust, field: surges.current, by: 3 }

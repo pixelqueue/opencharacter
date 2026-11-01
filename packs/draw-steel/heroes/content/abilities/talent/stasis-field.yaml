@@ -1,0 +1,44 @@
+id: abilities.talent.stasis-field
+type: ability
+tags:
+  - kw.area
+  - kw.chronopathy
+  - kw.psionic
+  - kw.ranged
+fields:
+  usage: main-action
+  kind: heroic
+  class: classes.talent
+  subclass: subclasses.talent.chronopathy
+  level: 6
+  resource: clarity
+  cost: 9
+  distanceKind: cube
+  distance: 4
+  within: 10
+  rollChars:
+    - presence
+  t1PotencyChar: presence
+  t1Potency: weak
+  t1Condition: conditions.slowed
+  t1Duration: until
+  t3PotencyChar: presence
+  t3Potency: strong
+  t3Condition: conditions.restrained
+  t3Duration: until
+effects:
+  - target:
+      steps:
+        - ability.after
+      from: self
+    op: changes
+    when:
+      action.item.id == item.id && ((combat.active && heroic.current - item.cost - params.spend < 0)
+      || situational.talentStrain)
+    value:
+      changes:
+        - type: applyEffect
+          source: "'conditions.restrained'"
+          state:
+            duration: "'until'"
+            by: character.id

@@ -1,0 +1,44 @@
+id: abilities.talent.iron
+type: ability
+tags:
+  - kw.metamorphosis
+  - kw.psionic
+  - kw.ranged
+fields:
+  usage: maneuver
+  kind: heroic
+  class: classes.talent
+  level: 1
+  resource: clarity
+  cost: 5
+  distanceKind: ranged
+  distance: 10
+effects:
+  - target:
+      steps:
+        - ability.hit
+      from: self
+    op: changes
+    when: 'action.item.id == item.id'
+    value:
+      changes:
+        - type: set
+          field: stamina.temp
+          value: 10
+        - type: adjust
+          field: surges.current
+          by: 2
+  - target:
+      steps:
+        - ability.after
+      from: self
+    op: changes
+    when: action.item.id == item.id && (size(participants.target) == 0)
+    value:
+      changes:
+        - type: set
+          field: stamina.temp
+          value: max(stamina.temp, 10)
+        - type: adjust
+          field: surges.current
+          by: 2

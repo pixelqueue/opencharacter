@@ -1,0 +1,106 @@
+id: classes.shadow
+type: class
+fields:
+  primaries: [agility]
+  potency: agility
+  arrayPriority: [presence, reason, intuition, might]
+  startingStamina: 18
+  staminaPerLevel: 6
+  recoveries: 8
+  resource: insight
+  turnGain: 1d3
+grants:
+  - { item: features.common.kit }
+  - { item: features.shadow.insight-in-combat }
+  - { item: features.shadow.insight-outside-of-combat }
+  - { item: features.shadow.hesitation-is-weakness }
+  - { item: features.shadow.careful-observation, when: self.level >= 3 }
+  - { item: features.shadow.keep-it-down, when: self.level >= 4 }
+  - { item: features.shadow.night-watch, when: self.level >= 4 }
+  - { item: features.shadow.surge-of-insight, when: self.level >= 4 }
+  - { item: features.shadow.umbral-form, when: self.level >= 6 }
+  - { item: features.shadow.keen-insight, when: self.level >= 7 }
+  - { item: features.shadow.careful-observation-improvement-7, when: self.level >= 7 }
+  - { item: features.shadow.ventriloquist, when: self.level >= 7 }
+  - { item: features.shadow.gloom-squad, when: self.level >= 9 }
+  - { item: features.shadow.death-pool, when: self.level >= 10 }
+  - { item: features.shadow.careful-observation-improvement, when: self.level >= 10 }
+  - { item: features.shadow.improved-umbral-form, when: self.level >= 10 }
+  - { item: features.shadow.subterfuge, when: self.level >= 10 }
+effects:
+  - { target: kit.recommended, op: set, value: '@kits.cloak-and-dagger' }
+  - { target: skills.known, op: grant, value: { item: skills.hide } }
+  - { target: skills.known, op: grant, value: { item: skills.sneak } }
+choices:
+  - id: college
+    from: { type: subclass, where: item.class == @classes.shadow }
+    recommend: '@subclasses.shadow.black-ash'
+  - id: skills
+    pick: 5
+    from:
+      type: skill
+      where: "item.id == @skills.criminal-underworld || item.group in ['exploration', 'interpersonal', 'intrigue']"
+    eligible: '!(item.id in skills.known) || item.id in choice.picks'
+    recommend: >-
+      filterList([@skills.criminal-underworld, @skills.lie, @skills.pick-lock, @skills.pick-pocket,
+        @skills.sabotage, @skills.sneak, @skills.hide, @skills.eavesdrop, @skills.alertness,
+        @skills.search, @skills.escape-artist, @skills.read-person], !(x in skills.known))[0]
+    activate: false
+    effects:
+      - { target: skills.known, op: grant, value: { formula: pick.id } }
+  - id: signature
+    from:
+      type: ability
+      where: "item.class == @classes.shadow && item.kind == 'signature' && !has(item.subclass)"
+    recommend: '@abilities.shadow.teamwork-has-its-place'
+  - id: heroic
+    slots: [3, 5, 7, 9, 11]
+    when: 'self.level >= [1, 1, 3, 5, 8][indexOf([3, 5, 7, 9, 11], slot)]'
+    from:
+      type: ability
+      where: "item.class == @classes.shadow && item.kind == 'heroic' && !has(item.subclass)"
+    eligible: item.cost == slot
+    recommend: >-
+      [@abilities.shadow.get-in-get-out, @abilities.shadow.coup-de-grace,
+        @abilities.shadow.misdirecting-strike, @abilities.shadow.you-talk-too-much,
+        @abilities.shadow.assassinate][indexOf([3, 5, 7, 9, 11], slot)]
+  # Perks: exploration, interpersonal or intrigue at 2nd level, any group after.
+  - id: perk
+    slots: [2, 4, 6, 8, 10]
+    when: self.level >= slot
+    unique: perks
+    from: { type: perk }
+    eligible: "slot != 2 || item.group in ['exploration', 'interpersonal', 'intrigue']"
+    recommend: >-
+      filterList([@perks.intrigue.forgettable-face, @perks.intrigue.slipped-lead,
+        @perks.intrigue.criminal-contacts, @perks.exploration.danger-sense,
+        @perks.interpersonal.charming-liar, @perks.intrigue.master-of-disguise],
+        countPicks(pick.item == x) == 0 || x in choice.picks)[0]
+  - id: skill
+    slots: [4, 7, 10]
+    when: self.level >= slot
+    from: { type: skill }
+    eligible: '!(item.id in skills.known) || item.id in choice.picks'
+    activate: false
+    recommend: >-
+      filterList([@skills.eavesdrop, @skills.search, @skills.disguise, @skills.climb,
+        @skills.read-person, @skills.escape-artist], !(x in skills.known) || x in choice.picks)[0]
+    effects:
+      - { target: skills.known, op: grant, value: { formula: pick.id } }
+  # Characteristic Increase at 4th and 10th: Agility rises (the shared formula), and one more.
+  - id: increase4
+    when: self.level >= 4
+    from: { values: [might, agility, reason, intuition, presence] }
+    recommend: "'presence'"
+    effects:
+      - target: { formula: "'characteristics.' + pick.value + '.extra4'" }
+        op: set
+        value: 'true'
+  - id: increase10
+    when: self.level >= 10
+    from: { values: [might, agility, reason, intuition, presence] }
+    recommend: "'presence'"
+    effects:
+      - target: { formula: "'characteristics.' + pick.value + '.extra10'" }
+        op: set
+        value: 'true'

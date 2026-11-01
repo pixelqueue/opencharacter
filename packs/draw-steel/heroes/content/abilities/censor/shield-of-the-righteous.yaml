@@ -1,0 +1,31 @@
+id: abilities.censor.shield-of-the-righteous
+type: ability
+tags:
+  - kw.melee
+  - kw.strike
+  - kw.weapon
+fields:
+  usage: main-action
+  kind: heroic
+  class: classes.censor
+  level: 5
+  resource: wrath
+  cost: 9
+  distanceKind: melee
+  distance: 1
+  rollChars:
+    - might
+  damageType: untyped
+  t1Damage: 10
+  t2Damage: 14
+  t3Damage: 20
+effects:
+  # You gain 10, 15 or 20 temporary Stamina by the tier (each adjacent ally too).
+  - target: { steps: [ability.after], from: self }
+    op: changes
+    when: 'action.item.id == item.id && (has(steps.roll))'
+    value:
+      changes:
+        - type: set
+          field: stamina.temp
+          value: 'max(stamina.temp, [10, 15, 20][steps.roll.bandValue - 1])'

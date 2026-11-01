@@ -1,0 +1,55 @@
+# The shadow: insight from surges, the edge discount on heroic abilities, the college illusions
+# and forms that stay up for a while, and subterfuge at 10th level.
+fields:
+  # Insight from the first damage each round that incorporates surges: 1, 2 with Surge of
+  # Insight, 3 with Death Pool. Features add.
+  shadow.surgeInsight: { type: integer, formula: 0, min: 0 }
+  # Whether this round's insight from surge damage has been gained.
+  shadow.surgeInsightGained: { type: boolean, input: true, default: false }
+  # I'm No Threat's illusion is up.
+  shadow.noThreat: { type: boolean, input: true, default: false }
+  # Umbral Form is on.
+  shadow.umbral: { type: boolean, input: true, default: false }
+  # Subterfuge, the 10th-level epic resource.
+  shadow.subterfuge: { type: integer, input: true, default: 0, min: 0 }
+  # Abilities that gain a surge when a condition on the battlefield holds (an ally adjacent to
+  # the target, …), and triggered actions that halve the damage that triggers them.
+  shadow.conditionalSurge: { type: boolean, formula: 'false' }
+  shadow.halfDamage: { type: boolean, formula: 'false' }
+
+situational:
+  # The ability's own condition holds ("if any ally is adjacent to the target"): its surge.
+  - id: shadowConditionMet
+    type: boolean
+    default: false
+    rolls: [power-roll.ability]
+    available: shadow.conditionalSurge
+  # Defensive Roll or In All This Confusion taken against this damage: half of it.
+  - id: shadowHalfDamage
+    type: boolean
+    default: false
+    incoming: { fields: [stamina.current], tags: [damage] }
+    available: shadow.halfDamage
+    effects:
+      - target: { incoming: { fields: [stamina.current], tags: [damage] } }
+        op: multiply
+        value: 0.5
+
+display:
+  fields:
+    shadow.surgeInsight: { hidden: true }
+    shadow.surgeInsightGained: { hidden: true }
+    shadow.conditionalSurge: { hidden: true }
+    shadow.halfDamage: { hidden: true }
+    shadow.noThreat:
+      groups: [resources]
+      priority: 2
+      showWhen: "heroic.kind == 'insight'"
+      input: { widget: checkbox }
+    shadow.umbral:
+      groups: [resources]
+      priority: 2
+      showWhen: "heroic.kind == 'insight' && level >= 6"
+      input: { widget: checkbox }
+    shadow.subterfuge:
+      { groups: [resources], priority: 1, showWhen: "heroic.kind == 'insight' && level >= 10" }

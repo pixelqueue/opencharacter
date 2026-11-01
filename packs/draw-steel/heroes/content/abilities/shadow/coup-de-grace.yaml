@@ -1,0 +1,31 @@
+id: abilities.shadow.coup-de-grace
+type: ability
+tags:
+  - kw.melee
+  - kw.ranged
+  - kw.strike
+  - kw.weapon
+fields:
+  usage: main-action
+  kind: heroic
+  class: classes.shadow
+  level: 1
+  resource: insight
+  cost: 5
+  distanceKind: melee-or-ranged
+  distance: 1
+  rangedDistance: 5
+  rollChars:
+    - agility
+  damageType: untyped
+  t1Damage: 7
+  t2Damage: 11
+  t3Damage: 16
+effects:
+  # The 2d6 of every tier.
+  - {
+      target: { rolls: [damage], from: self },
+      op: add,
+      value: 2d6,
+      when: action.item.id == item.id,
+    }

@@ -1,0 +1,37 @@
+id: features.censor.wrath-in-combat
+type: feature
+fields:
+  class: classes.censor
+  level: 1
+effects:
+  # The judgment and the round's wrath triggers end with the encounter; the triggers reset each
+  # round, the order benefit each turn.
+  - target: { steps: [combat.start, combat.end] }
+    op: changes
+    value:
+      changes:
+        - { type: set, field: censor.judged, value: "''" }
+        - { type: set, field: censor.dealtWrath, value: 'false' }
+        - { type: set, field: censor.takenWrath, value: 'false' }
+        - { type: set, field: censor.benefitUsed, value: 'false' }
+  - target: { steps: [round.start] }
+    op: changes
+    value:
+      changes:
+        - { type: set, field: censor.dealtWrath, value: 'false' }
+        - { type: set, field: censor.takenWrath, value: 'false' }
+  - target: { steps: [turn.start] }
+    op: changes
+    value: { changes: [{ type: set, field: censor.benefitUsed, value: 'false' }] }
+  # The first time each round you damage the creature you judged: 1 wrath (2 with Wrath Beyond
+  # Wrath).
+  - target: { steps: [ability.hit] }
+    op: changes
+    when: >-
+      combat.active && !censor.dealtWrath && censor.judged != ''
+        && participant.id == censor.judged && flags.tier > 0 && has(action.item.t1Damage)
+    value:
+      to: self
+      changes:
+        - { type: adjust, field: heroic.current, by: censor.judgedWrath }
+        - { type: set, field: censor.dealtWrath, value: 'true' }

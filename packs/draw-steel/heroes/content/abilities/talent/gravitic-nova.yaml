@@ -1,0 +1,47 @@
+id: abilities.talent.gravitic-nova
+type: ability
+tags:
+  - kw.area
+  - kw.psionic
+  - kw.telekinesis
+fields:
+  usage: main-action
+  kind: heroic
+  class: classes.talent
+  subclass: subclasses.talent.telekinesis
+  level: 9
+  resource: clarity
+  cost: 11
+  distanceKind: burst
+  distance: 3
+  rollChars:
+    - reason
+  damageType: untyped
+  t1Damage: 6
+  t1AddsChar: false
+  t1Move: push
+  t1MoveDistance: 7
+  t2Damage: 9
+  t2AddsChar: false
+  t2Move: push
+  t2MoveDistance: 10
+  t3Damage: 13
+  t3AddsChar: false
+  t3Move: push
+  t3MoveDistance: 15
+effects:
+  - target:
+      steps:
+        - ability.after
+      from: self
+    op: changes
+    when:
+      action.item.id == item.id && ((combat.active && heroic.current - item.cost - params.spend < 0)
+      || situational.talentStrain)
+    value:
+      changes:
+        - type: applyEffect
+          source: "'conditions.weakened'"
+          state:
+            duration: "'save'"
+            by: character.id

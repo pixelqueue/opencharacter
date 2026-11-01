@@ -1,0 +1,20 @@
+id: abilities.shadow.coat-the-blade
+type: ability
+fields:
+  usage: maneuver
+  kind: feature
+  class: classes.shadow
+  subclass: subclasses.shadow.caustic-alchemy
+  level: 1
+  distanceKind: self
+  spendCost: 1
+  spendPlus: true
+effects:
+  - target: { steps: [ability.after], from: self }
+    op: changes
+    when: action.item.id == item.id
+    value: { changes: [{ type: adjust, field: surges.current, by: 2 }] }
+  - target: { steps: [ability.spend], from: self }
+    op: changes
+    when: action.item.id == item.id
+    value: { changes: [{ type: adjust, field: surges.current, by: params.spend }] }

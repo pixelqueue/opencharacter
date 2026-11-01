@@ -1,0 +1,27 @@
+# You gain 10 temporary Stamina; allies adjacent to the target gain theirs.
+id: abilities.tactician.squad-gear-check
+type: ability
+tags:
+  - kw.melee
+  - kw.strike
+  - kw.weapon
+fields:
+  usage: main-action
+  kind: heroic
+  class: classes.tactician
+  level: 5
+  resource: focus
+  cost: 9
+  distanceKind: melee
+  distance: 1
+  rollChars:
+    - might
+  damageType: untyped
+  t1Damage: 9
+  t2Damage: 13
+  t3Damage: 18
+effects:
+  - target: { steps: [ability.after], from: self }
+    op: changes
+    when: action.item.id == item.id
+    value: { changes: [{ type: set, field: stamina.temp, value: 'max(stamina.temp, 10)' }] }

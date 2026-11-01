@@ -1,0 +1,30 @@
+id: subclasses.censor.paragon
+type: subclass
+fields:
+  class: classes.censor
+grants:
+  - { item: features.censor.lead-by-example, when: self.level >= 2 }
+  - { item: features.censor.stalwart-icon, when: self.level >= 2 }
+  - { item: features.censor.stand-fast, when: self.level >= 5 }
+  - { item: features.censor.vow, when: self.level >= 8 }
+effects:
+  - { target: skills.known, op: grant, value: { item: skills.lead } }
+choices:
+  - id: ability-2
+    when: self.level >= 2
+    from:
+      type: ability
+      where: 'item.subclass == @subclasses.censor.paragon && item.level == 2'
+    recommend: '@abilities.censor.sentenced'
+  - id: ability-6
+    when: self.level >= 6
+    from:
+      type: ability
+      where: 'item.subclass == @subclasses.censor.paragon && item.level == 6'
+    recommend: '@abilities.censor.congregation'
+  - id: ability-9
+    when: self.level >= 9
+    from:
+      type: ability
+      where: 'item.subclass == @subclasses.censor.paragon && item.level == 9'
+    recommend: '@abilities.censor.apostate'

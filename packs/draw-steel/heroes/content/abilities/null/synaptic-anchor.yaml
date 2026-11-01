@@ -1,0 +1,15 @@
+id: abilities.null.synaptic-anchor
+type: ability
+tags:
+  - kw.psionic
+fields:
+  usage: free-triggered
+  kind: heroic
+  class: classes.null
+  level: 8
+  resource: discipline
+  cost: 11
+  distanceKind: self
+effects:
+  # The null's own half damage is the `synapticAnchor` choice on the damage; an ally's is theirs.
+  - { target: nullClass.synapticAnchor, op: set, value: 'true' }

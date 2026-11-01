@@ -1,0 +1,24 @@
+id: abilities.conduit.faith-is-our-armor
+type: ability
+tags:
+  - kw.magic
+  - kw.ranged
+fields:
+  usage: maneuver
+  kind: heroic
+  class: classes.conduit
+  level: 1
+  resource: piety
+  cost: 5
+  distanceKind: ranged
+  distance: 10
+  rollChars:
+    - intuition
+effects:
+  # Temporary Stamina by tier.
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    when: action.item.id == item.id && flags.tier > 0
+    value:
+      changes:
+        - { type: adjust, field: stamina.temp, by: '[5, 10, 15][flags.tier - 1]' }

@@ -1,0 +1,27 @@
+# The psi boosts are the shared situational choices on a psionic ability's roll (declared with the
+# Talent's, which has the same boosts); this pays their discipline. From 10th level, Manifold
+# Resonance's 1 discipline pays for 1 of it.
+id: features.null.psi-boost
+type: feature
+fields:
+  class: classes.null
+  level: 7
+effects:
+  - { target: talent.psiBoost, op: set, value: 'true' }
+  - target: { steps: [ability.pay] }
+    op: changes
+    when: >-
+      combat.active && 'kw.psionic' in action.item.tags
+        && action.item.usage in ['main-action', 'maneuver']
+        && (situational.psiDynamic || situational.psiExpanded || situational.psiExtended
+          || situational.psiHeightened || situational.psiMagnified || situational.psiShared
+          || situational.psiSharpened)
+    value:
+      changes:
+        - type: adjust
+          field: heroic.current
+          by: >-
+            -max(0, (situational.psiDynamic ? 1 : 0) + (situational.psiExpanded ? 3 : 0)
+              + (situational.psiExtended ? 1 : 0) + (situational.psiHeightened ? 1 : 0)
+              + (situational.psiMagnified ? 5 : 0) + (situational.psiShared ? 5 : 0)
+              + (situational.psiSharpened ? 1 : 0) - (level >= 10 ? 1 : 0))

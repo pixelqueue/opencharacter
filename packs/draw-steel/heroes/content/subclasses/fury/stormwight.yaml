@@ -1,0 +1,25 @@
+id: subclasses.fury.stormwight
+type: subclass
+fields:
+  class: classes.fury
+grants:
+  - { item: features.fury.beast-shape }
+  - { item: features.fury.relentless-hunter }
+  - { item: features.fury.tooth-and-claw, when: self.level >= 2 }
+  - { item: features.fury.natures-knight, when: self.level >= 3 }
+  - { item: features.fury.stormborn, when: self.level >= 5 }
+  - { item: features.fury.menagerie, when: self.level >= 8 }
+  - { item: abilities.fury.furious-change }
+effects:
+  - { target: skills.known, op: grant, value: { item: skills.track } }
+  - { target: fury.stormwight, op: set, value: 'true' }
+choices:
+  - id: ability
+    slots: [2, 6, 9]
+    when: self.level >= slot
+    from:
+      type: ability
+      where: 'item.class == @classes.fury && has(item.subclass) && item.subclass == @subclasses.fury.stormwight'
+    eligible: item.level == slot
+    recommend: >-
+      [@abilities.fury.apex-predator, @abilities.fury.pounce, @abilities.fury.deluge][indexOf([2, 6, 9], slot)]

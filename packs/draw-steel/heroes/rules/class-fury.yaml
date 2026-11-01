@@ -1,0 +1,71 @@
+# The fury: ferocity from damage and from being winded, Growing Ferocity, the stormwight's animal
+# forms and primordial damage type, and primordial power at 10th level.
+fields:
+  # The first damage this combat round has given its ferocity.
+  fury.damagedThisRound: { type: boolean, input: true, default: false }
+  # The ferocity for being winded or dying has been gained this encounter.
+  fury.windedGained: { type: boolean, input: true, default: false }
+  # The most ferocity held this turn: Growing Ferocity benefits last until the end of the turn,
+  # even after the ferocity is spent. Abilities record it as they pay.
+  fury.ferocityThisTurn: { type: integer, input: true, default: 0, min: 0 }
+  # The ferocity Growing Ferocity reads.
+  fury.growing:
+    type: integer
+    formula: 'combat.active ? max(heroic.current, fury.ferocityThisTurn) : 0'
+  # A "first time on a turn" Growing Ferocity surge has been gained this turn.
+  fury.surgedThisTurn: { type: boolean, input: true, default: false }
+  # Make Peace With Your God!: the next ability roll this turn is a tier 3 outcome.
+  fury.autoTier3: { type: boolean, input: true, default: false }
+  # The stormwight aspect: its kit's primordial damage type and the form the fury is in.
+  fury.stormwight: { type: boolean, formula: 'false' }
+  fury.primordialType:
+    type: enum
+    values: [none, acid, cold, corruption, fire, lightning, poison, sonic]
+    formula: "'none'"
+  fury.form:
+    type: enum
+    values: [true-form, animal, hybrid]
+    input: true
+    default: true-form
+  # A triggered action that halves the damage that triggers it (Unearthly Reflexes).
+  fury.halfDamage: { type: boolean, formula: 'false' }
+  # Primordial power, the 10th-level epic resource.
+  fury.primordialPower: { type: integer, input: true, default: 0, min: 0 }
+
+situational:
+  # Unearthly Reflexes taken against this damage: half of it.
+  - id: furyHalfDamage
+    type: boolean
+    default: false
+    incoming: { fields: [stamina.current], tags: [damage] }
+    available: fury.halfDamage
+    effects:
+      - target: { incoming: { fields: [stamina.current], tags: [damage] } }
+        op: multiply
+        value: 0.5
+
+display:
+  fields:
+    fury.damagedThisRound: { hidden: true }
+    fury.windedGained: { hidden: true }
+    fury.ferocityThisTurn: { hidden: true }
+    fury.surgedThisTurn: { hidden: true }
+    fury.autoTier3: { hidden: true }
+    fury.stormwight: { hidden: true }
+    fury.halfDamage: { hidden: true }
+    fury.growing:
+      groups: [resources]
+      priority: 2
+      showWhen: "heroic.kind == 'ferocity' && combat.active"
+    fury.primordialType:
+      {
+        groups: [resources],
+        priority: 3,
+        showWhen: "fury.stormwight && fury.primordialType != 'none'",
+      }
+    fury.form:
+      groups: [resources]
+      priority: 2
+      showWhen: fury.stormwight
+    fury.primordialPower:
+      { groups: [resources], priority: 1, showWhen: "heroic.kind == 'ferocity' && level >= 10" }

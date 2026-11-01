@@ -1,0 +1,50 @@
+id: abilities.talent.slow
+type: ability
+tags:
+  - kw.chronopathy
+  - kw.psionic
+  - kw.ranged
+fields:
+  usage: maneuver
+  kind: heroic
+  class: classes.talent
+  subclass: subclasses.talent.chronopathy
+  level: 2
+  resource: clarity
+  cost: 5
+  distanceKind: ranged
+  distance: 10
+  rollChars:
+    - presence
+  t1PotencyChar: presence
+  t1Potency: weak
+  t1Condition: conditions.slowed
+  t1Duration: save
+  t2Condition: conditions.slowed
+  t2Duration: save
+  t3Condition: conditions.slowed
+  t3Duration: save
+effects:
+  # Strained: the potency increases by 1.
+  - target: { rolls: [power-roll.ability], from: self, tally: potencyBonus }
+    op: add
+    value: 1
+    when: >-
+      action.item.id == item.id && ((combat.active && heroic.current - item.cost - params.spend < 0)
+        || situational.talentStrain)
+  - target:
+      steps:
+        - ability.after
+      from: self
+    op: changes
+    when:
+      action.item.id == item.id && ((combat.active && heroic.current - item.cost - params.spend < 0)
+      || situational.talentStrain)
+    value:
+      changes:
+        - type: offerFollowUp
+          followUp: strain-damage
+          params:
+            count: 1
+followUps:
+  - { id: strain-damage, action: talent-strain-damage }

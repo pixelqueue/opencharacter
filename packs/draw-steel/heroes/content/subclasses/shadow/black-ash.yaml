@@ -1,0 +1,31 @@
+id: subclasses.shadow.black-ash
+type: subclass
+fields:
+  class: classes.shadow
+effects:
+  - { target: skills.known, op: grant, value: { item: skills.magic } }
+grants:
+  - { item: features.shadow.black-ash-teleport }
+  - { item: abilities.shadow.in-all-this-confusion }
+  - { item: features.shadow.burning-ash, when: self.level >= 2 }
+  - { item: features.shadow.trail-of-cinders, when: self.level >= 5 }
+  - { item: features.shadow.cinder-step, when: self.level >= 8 }
+choices:
+  - id: ability2
+    when: self.level >= 2
+    from:
+      type: ability
+      where: item.subclass == @subclasses.shadow.black-ash && item.level == 2
+    recommend: '@abilities.shadow.in-a-puff-of-ash'
+  - id: ability6
+    when: self.level >= 6
+    from:
+      type: ability
+      where: item.subclass == @subclasses.shadow.black-ash && item.level == 6
+    recommend: '@abilities.shadow.black-ash-eruption'
+  - id: ability9
+    when: self.level >= 9
+    from:
+      type: ability
+      where: item.subclass == @subclasses.shadow.black-ash && item.level == 9
+    recommend: '@abilities.shadow.demon-door'

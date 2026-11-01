@@ -1,0 +1,64 @@
+# Persistent Magic: a persistent ability used in combat offers to be maintained. Each maintained
+# ability's persistent value comes off the turn's essence; using it again while maintained costs
+# nothing. Maintained abilities end with the encounter, or when the hero takes 5 × Reason damage.
+id: features.elementalist.persistent-magic
+type: feature
+fields:
+  class: classes.elementalist
+  level: 1
+effects:
+  - { target: heroic.turnBonus, op: add, value: -elementalist.upkeep }
+  - target: { steps: [ability.after] }
+    op: changes
+    when: >-
+      combat.active && 'persistent' in action.item.tags
+        && !(action.item.id in elementalist.maintained)
+    value:
+      changes:
+        - { type: offerFollowUp, followUp: maintain, params: { ability: action.item.id } }
+  - target: { steps: [ability.pay] }
+    op: changes
+    when: combat.active && action.item.id in elementalist.maintained && action.item.cost > 0
+    value: { changes: [{ type: adjust, field: heroic.current, by: action.item.cost }] }
+  - target: { steps: [combat.end] }
+    op: changes
+    value: { changes: [{ type: set, field: elementalist.maintained, value: '[]' }] }
+followUps:
+  - id: maintain
+    action: maintain
+  # "In one turn" is approximated by one hit (one batch of changes).
+  - id: overwhelmed
+    on: { field: stamina.current, tags: [damage], once: true }
+    when: >-
+      size(elementalist.maintained) > 0
+        && -change.taken >= 5 * characteristics.reason.score
+    required: true
+    changes:
+      - { type: set, field: elementalist.maintained, value: '[]' }
+actions:
+  - id: maintain
+    available: combat.active
+    params:
+      ability: { type: id, of: ability }
+    results: [maintained]
+    steps:
+      - id: maintain
+        kind: changes
+        changes:
+          - type: set
+            field: elementalist.maintained
+            value: 'params.ability in elementalist.maintained ? elementalist.maintained : elementalist.maintained + [params.ability]'
+      - { id: done, kind: outcome, result: "'maintained'" }
+  - id: stop-maintaining
+    available: size(elementalist.maintained) > 0
+    params:
+      ability: { type: id, of: ability }
+    results: [stopped]
+    steps:
+      - id: stop
+        kind: changes
+        changes:
+          - type: set
+            field: elementalist.maintained
+            value: filterList(elementalist.maintained, x != params.ability)
+      - { id: done, kind: outcome, result: "'stopped'" }

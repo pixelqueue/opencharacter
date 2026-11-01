@@ -1,0 +1,25 @@
+id: features.talent.psi-boost
+type: feature
+fields:
+  class: classes.talent
+  level: 6
+# The psi boosts are situational choices on the ability's roll; this pays their clarity.
+effects:
+  - { target: talent.psiBoost, op: set, value: 'true' }
+  - target: { steps: [ability.pay] }
+    op: changes
+    when: >-
+      combat.active && 'kw.psionic' in action.item.tags
+        && action.item.usage in ['main-action', 'maneuver']
+        && (situational.psiDynamic || situational.psiExpanded || situational.psiExtended
+          || situational.psiHeightened || situational.psiMagnified || situational.psiShared
+          || situational.psiSharpened)
+    value:
+      changes:
+        - type: adjust
+          field: heroic.current
+          by: >-
+            -((situational.psiDynamic ? 1 : 0) + (situational.psiExpanded ? 3 : 0)
+              + (situational.psiExtended ? 1 : 0) + (situational.psiHeightened ? 1 : 0)
+              + (situational.psiMagnified ? 5 : 0) + (situational.psiShared ? 5 : 0)
+              + (situational.psiSharpened ? 1 : 0))

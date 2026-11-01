@@ -1,0 +1,16 @@
+# Each Earth and Magic ability used adds 1 stability until the start of the hero's next turn.
+id: features.elementalist.acolyte-of-earth
+type: feature
+fields:
+  class: classes.elementalist
+  subclass: subclasses.elementalist.earth
+  level: 1
+effects:
+  - { target: stability, op: add, value: elementalist.earthStability }
+  - target: { steps: [ability.after] }
+    op: changes
+    when: "'kw.earth' in action.item.tags && 'kw.magic' in action.item.tags"
+    value: { changes: [{ type: adjust, field: elementalist.earthStability, by: 1 }] }
+  - target: { steps: [turn.start, combat.end] }
+    op: changes
+    value: { changes: [{ type: set, field: elementalist.earthStability, value: 0 }] }

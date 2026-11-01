@@ -1,0 +1,14 @@
+# One augmentation, changed by a psionic meditation during a respite (picking again).
+id: features.null.psionic-augmentation
+type: feature
+fields:
+  class: classes.null
+  level: 1
+choices:
+  - id: augmentation
+    from:
+      type: feature
+      where: >-
+        item.id in [@features.null.density-augmentation, @features.null.force-augmentation,
+          @features.null.speed-augmentation]
+    recommend: '@features.null.speed-augmentation'

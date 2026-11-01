@@ -1,0 +1,53 @@
+id: abilities.talent.acceleration-field
+type: ability
+tags:
+  - kw.chronopathy
+  - kw.psionic
+  - kw.ranged
+fields:
+  usage: main-action
+  kind: heroic
+  class: classes.talent
+  subclass: subclasses.talent.chronopathy
+  level: 9
+  resource: clarity
+  cost: 11
+  distanceKind: ranged
+  distance: 5
+  rollChars:
+    - presence
+  damageType: corruption
+  t1Damage: 4
+  t1AddsChar: false
+  t2Damage: 6
+  t2AddsChar: false
+  t3Damage: 10
+  t3AddsChar: false
+# The power roll is only for the strained effect: unstrained, its damage parts are 0.
+effects:
+  - target:
+      rolls:
+        - damage
+      parts:
+        - damage.corruption
+      from: self
+    op: set
+    value: 0
+    when:
+      'action.item.id == item.id && (!((combat.active && heroic.current - item.cost - params.spend <
+      0) || situational.talentStrain))'
+  - target:
+      steps:
+        - ability.hit
+      from: self
+    op: changes
+    when:
+      action.item.id == item.id && (((combat.active && heroic.current - item.cost - params.spend <
+      0) || situational.talentStrain) && flags.tier > 0)
+    value:
+      changes:
+        - type: applyEffect
+          source: "'conditions.slowed'"
+          state:
+            duration: "'save'"
+            by: character.id

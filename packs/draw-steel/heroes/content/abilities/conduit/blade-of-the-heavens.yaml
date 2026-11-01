@@ -1,0 +1,46 @@
+id: abilities.conduit.blade-of-the-heavens
+type: ability
+tags:
+  - kw.magic
+  - kw.ranged
+  - kw.strike
+fields:
+  usage: main-action
+  kind: heroic
+  class: classes.conduit
+  subclass: subclasses.conduit.war
+  level: 6
+  resource: piety
+  cost: 9
+  distanceKind: ranged
+  distance: 5
+  rollChars:
+    - intuition
+  damageType: untyped
+  t1Damage: 8
+  t2Damage: 12
+  t3Damage: 16
+  t1PotencyChar: agility
+  t1Potency: weak
+  t1Condition: conditions.restrained
+  t1Duration: save
+  t2PotencyChar: agility
+  t2Potency: average
+  t2Condition: conditions.restrained
+  t2Duration: save
+  t3PotencyChar: agility
+  t3Potency: strong
+  t3Condition: conditions.restrained
+  t3Duration: save
+effects:
+  # Prone as well as restrained (save ends).
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    when: action.item.id == item.id && flags.landed
+    value:
+      changes:
+        - {
+            type: applyEffect,
+            source: "'conditions.prone'",
+            state: { duration: "'save'", by: character.id },
+          }

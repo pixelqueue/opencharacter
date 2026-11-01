@@ -1,0 +1,31 @@
+id: abilities.talent.inertia-soak
+type: ability
+tags:
+  - kw.psionic
+  - kw.ranged
+  - kw.telekinesis
+fields:
+  usage: maneuver
+  kind: heroic
+  class: classes.talent
+  level: 1
+  resource: clarity
+  cost: 5
+  distanceKind: ranged
+  distance: 10
+effects:
+  - target:
+      steps:
+        - ability.after
+      from: self
+    op: changes
+    when:
+      action.item.id == item.id && ((combat.active && heroic.current - item.cost - params.spend < 0)
+      || situational.talentStrain)
+    value:
+      changes:
+        - type: applyEffect
+          source: "'conditions.weakened'"
+          state:
+            duration: "'save'"
+            by: character.id

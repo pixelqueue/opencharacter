@@ -1,0 +1,134 @@
+id: classes.elementalist
+type: class
+fields:
+  primaries: [reason]
+  potency: reason
+  arrayPriority: [agility, intuition, presence, might]
+  startingStamina: 18
+  staminaPerLevel: 6
+  recoveries: 8
+  resource: essence
+  turnGain: '2'
+grants:
+  - { item: features.elementalist.essence }
+  - { item: features.elementalist.hurl-element }
+  - { item: features.elementalist.persistent-magic }
+  - { item: abilities.elementalist.practical-magic }
+  - { item: features.elementalist.font-of-essence, when: self.level >= 4 }
+  - { item: features.elementalist.mantle-of-essence, when: self.level >= 4 }
+  - { item: features.elementalist.wyrding, when: self.level >= 6 }
+  - { item: features.elementalist.mantle-of-quintessence, when: self.level >= 7 }
+  - { item: features.elementalist.surging-essence, when: self.level >= 7 }
+  - { item: features.elementalist.grand-wyrding, when: self.level >= 9 }
+  - { item: features.elementalist.breath, when: self.level >= 10 }
+  - { item: features.elementalist.essential-being, when: self.level >= 10 }
+effects:
+  # Essence: the Magic skill is the class's.
+  - { target: skills.known, op: grant, value: { item: skills.magic } }
+choices:
+  - id: subclass
+    from: { type: subclass, where: item.class == @classes.elementalist }
+    recommend: '@subclasses.elementalist.fire'
+  - id: skills
+    pick: 3
+    from: { type: skill, where: "item.group in ['crafting', 'lore']" }
+    eligible: '!(item.id in skills.known) || item.id in choice.picks'
+    recommend: >-
+      filterList([@skills.alchemy, @skills.blacksmithing, @skills.history, @skills.nature,
+        @skills.timescape], !(x in choice.picks) && !(x in skills.known))[0]
+    activate: false
+    effects:
+      - { target: skills.known, op: grant, value: { formula: pick.id } }
+  - id: enchantment
+    from:
+      items:
+        - features.elementalist.enchantment-of-battle
+        - features.elementalist.enchantment-of-celerity
+        - features.elementalist.enchantment-of-destruction
+        - features.elementalist.enchantment-of-distance
+        - features.elementalist.enchantment-of-permanence
+    recommend: '@features.elementalist.enchantment-of-destruction'
+  - id: ward
+    from:
+      items:
+        - features.elementalist.ward-of-delightful-consequences
+        - features.elementalist.ward-of-excellent-protection
+        - features.elementalist.ward-of-natures-affection
+        - features.elementalist.ward-of-surprising-reactivity
+    recommend: '@features.elementalist.ward-of-surprising-reactivity'
+  - id: signature
+    pick: 2
+    from:
+      type: ability
+      where: "item.class == @classes.elementalist && item.kind == 'signature' && !has(item.subclass)"
+    recommend: >-
+      filterList([@abilities.elementalist.bifurcated-incineration,
+        @abilities.elementalist.viscous-fire, @abilities.elementalist.unquiet-ground],
+        !(x in choice.picks))[0]
+  # Heroic abilities: one of each cost from its level's list, then a second 5, 9 and 11 from
+  # that cost's lists so far (2nd, 6th and 9th level).
+  - id: heroic
+    slots: [3, 5, 7, 9, 11]
+    unique: elementalist-heroic
+    when: 'self.level >= [1, 1, 3, 5, 8][indexOf([3, 5, 7, 9, 11], slot)]'
+    from:
+      type: ability
+      where: "item.class == @classes.elementalist && item.kind == 'heroic' && !has(item.subclass)"
+    eligible: 'item.cost == slot && item.level == [1, 1, 3, 5, 8][indexOf([3, 5, 7, 9, 11], slot)]'
+    recommend: >-
+      [@abilities.elementalist.the-flesh-a-crucible, @abilities.elementalist.conflagration,
+        @abilities.elementalist.wall-of-fire, @abilities.elementalist.combustion-deferred,
+        @abilities.elementalist.muse-of-fire][indexOf([3, 5, 7, 9, 11], slot)]
+  - id: heroic-again
+    slots: [5, 9, 11]
+    unique: elementalist-heroic
+    when: 'self.level >= [2, 6, 9][indexOf([5, 9, 11], slot)]'
+    from:
+      type: ability
+      where: "item.class == @classes.elementalist && item.kind == 'heroic' && !has(item.subclass)"
+    eligible: 'item.cost == slot'
+    recommend: >-
+      [@abilities.elementalist.translated-through-flame, @abilities.elementalist.meteor,
+        @abilities.elementalist.unquenchable-fire][indexOf([5, 9, 11], slot)]
+  # Perks: crafting, lore or supernatural at 2nd, 6th and 10th level; any at 4th and 8th.
+  - id: perk
+    slots: [2, 4, 6, 8, 10]
+    unique: perks
+    when: self.level >= slot
+    from: { type: perk }
+    eligible: "slot in [4, 8] || item.group in ['crafting', 'lore', 'supernatural']"
+    # The slot's Quick Build pick, else the first of a few that isn't taken already (a career
+    # may take the same perk).
+    recommend: >-
+      filterList([[@perks.supernatural.arcane-trick, @perks.lore.linguist, @perks.supernatural.ritualist, @perks.lore.polymath, @perks.crafting.inspired-artisan][indexOf([2, 4, 6, 8, 10], slot)],
+        @perks.lore.eidetic-memory, @perks.supernatural.creature-sense, @perks.lore.expert-sage, @perks.crafting.handy, @perks.supernatural.thingspeaker, @perks.lore.specialist],
+        x in choice.picks || countPicks(pick.item == x) == 0)[0]
+  - id: skill
+    slots: [4, 7, 10]
+    when: self.level >= slot
+    from: { type: skill }
+    eligible: '!(item.id in skills.known) || item.id in choice.picks'
+    recommend: >-
+      filterList([@skills.nature, @skills.timescape, @skills.religion, @skills.monsters,
+        @skills.culture, @skills.society, @skills.magic, @skills.history, @skills.strategy,
+        @skills.rumors, @skills.alchemy, @skills.search], !(x in skills.known) || x in choice.picks)[0]
+    activate: false
+    effects:
+      - { target: skills.known, op: grant, value: { formula: pick.id } }
+  # Reason rises with the level; one other characteristic gains 1 at 4th and 10th level.
+  - id: increase4
+    when: self.level >= 4
+    from: { values: [might, agility, intuition, presence] }
+    recommend: "'agility'"
+    effects:
+      - target: { formula: "'characteristics.' + pick.value + '.extra4'" }
+        op: set
+        value: 'true'
+  - id: increase10
+    when: self.level >= 10
+    from: { values: [might, agility, intuition, presence] }
+    recommend: "'agility'"
+    effects:
+      - target: { formula: "'characteristics.' + pick.value + '.extra10'" }
+        op: set
+        value: 'true'

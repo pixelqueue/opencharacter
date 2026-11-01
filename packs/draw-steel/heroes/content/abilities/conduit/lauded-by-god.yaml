@@ -1,0 +1,23 @@
+id: abilities.conduit.lauded-by-god
+type: ability
+tags:
+  - kw.magic
+  - kw.ranged
+fields:
+  usage: maneuver
+  kind: heroic
+  class: classes.conduit
+  subclass: subclasses.conduit.love
+  level: 6
+  resource: piety
+  cost: 9
+  distanceKind: ranged
+  distance: 10
+effects:
+  # 3 of the target's Heroic Resource.
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    when: action.item.id == item.id
+    value:
+      changes:
+        - { type: adjust, field: heroic.current, by: 3 }

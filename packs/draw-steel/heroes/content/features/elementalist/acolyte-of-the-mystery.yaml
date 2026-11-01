@@ -1,0 +1,13 @@
+id: features.elementalist.acolyte-of-the-mystery
+type: feature
+fields:
+  class: classes.elementalist
+  subclass: subclasses.elementalist.void
+  level: 1
+effects:
+  # +2 distance for abilities with the Magic, Ranged and Void keywords.
+  - target: { rolls: [power-roll.ability], tally: distanceBonus }
+    op: add
+    value: 2
+    when: >-
+      'kw.magic' in roll.item.tags && 'kw.ranged' in roll.item.tags && 'kw.void' in roll.item.tags

@@ -1,0 +1,26 @@
+id: features.conduit.faiths-sword
+type: feature
+fields:
+  class: classes.conduit
+  level: 9
+actions:
+  # Spend piety as a free maneuver: the ally gains 1 of their Heroic Resource per 2 piety.
+  - id: give-resource
+    available: combat.active && heroic.current >= 2
+    params:
+      piety: { type: integer, default: 2, min: 2 }
+    participants:
+      target: { min: 1, max: 1 }
+    results: [given]
+    steps:
+      - id: spend
+        kind: changes
+        changes:
+          - { type: adjust, field: heroic.current, by: -params.piety }
+      - id: give
+        kind: changes
+        each: target
+        to: target
+        changes:
+          - { type: adjust, field: heroic.current, by: floor(params.piety / 2) }
+      - { id: done, kind: outcome, result: "'given'", data: { gained: floor(params.piety / 2) } }

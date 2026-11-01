@@ -1,0 +1,59 @@
+# Focus at the start of combat (Victories) and each turn (2) come from the class. The rest: the
+# first time each round you or an ally damages a creature you marked (your own abilities count
+# it themselves), and the first time each round an ally within 10 squares uses a heroic ability.
+id: features.tactician.focus-in-combat
+type: feature
+fields:
+  class: classes.tactician
+  level: 1
+effects:
+  - target: { steps: [round.start] }
+    op: changes
+    value:
+      changes:
+        - { type: set, field: tactician.markFocusGained, value: 'false' }
+        - { type: set, field: tactician.allyFocusGained, value: 'false' }
+  - target: { steps: [combat.end] }
+    op: changes
+    value:
+      changes:
+        - { type: set, field: tactician.marked, value: '[]' }
+        - { type: set, field: tactician.markFocusGained, value: 'false' }
+        - { type: set, field: tactician.allyFocusGained, value: 'false' }
+  # Your own ability damaging a creature you marked (the first such target of the ability).
+  - target: { steps: [ability.hit] }
+    op: changes
+    when: >-
+      combat.active && !tactician.markFocusGained && flags.tier > 0
+        && has(action.item.t1Damage) && participant.id in tactician.marked
+        && participant.id == filterList(participants.target, x.id in tactician.marked)[0].id
+    value:
+      to: self
+      changes:
+        - { type: adjust, field: heroic.current, by: tactician.markFocus }
+        - { type: set, field: tactician.markFocusGained, value: 'true' }
+actions:
+  # An ally damaged a creature you marked.
+  - id: mark-damaged
+    tags: [resource]
+    available: combat.active && !tactician.markFocusGained
+    results: [gained]
+    steps:
+      - id: gain
+        kind: changes
+        changes:
+          - { type: adjust, field: heroic.current, by: tactician.markFocus }
+          - { type: set, field: tactician.markFocusGained, value: 'true' }
+      - { id: done, kind: outcome, result: "'gained'" }
+  # An ally within 10 squares used a heroic ability.
+  - id: ally-heroic
+    tags: [resource]
+    available: combat.active && !tactician.allyFocusGained
+    results: [gained]
+    steps:
+      - id: gain
+        kind: changes
+        changes:
+          - { type: adjust, field: heroic.current, by: 1 }
+          - { type: set, field: tactician.allyFocusGained, value: 'true' }
+      - { id: done, kind: outcome, result: "'gained'" }
