@@ -8,7 +8,7 @@ export type Action = {
   tags?: TagList;
   /** When the action is offered, e.g. `self.equipped`. */
   available?: Condition;
-  /** A moment the app runs this rules action at, on every character it applies to: `turn-boundary`, at each turn change, on every character in the encounter, with `params.ended` the `id` of the character whose turn ended and `params.started` the one whose turn starts (each left out when there is none). Its parameters other than `ended` and `started` need defaults (or `optional`), `ended` and `started` are strings, and no role has a minimum, so it runs with nothing the app must make up; content's actions can't have one (`invalid-clock-action` at load). computeSheet lists it with its `clock`. Content joins in through its tagged `changes` steps: resetting what lasts a turn, ending what the creature whose turn starts applied until then (`self.appliedBy == params.started`). */
+  /** A moment the app runs this rules action at, on every character it applies to: `turn-boundary`, at each turn change, on every character in the encounter, with `params.ended` the `id` of the character whose turn ended and `params.started` the one whose turn starts (each left out when there is none). It runs with nothing the app must make up and never pauses: every parameter has a default or is `optional` (`ended` and `started` are strings), no role has a minimum, it is listed, and neither it nor a rules action it runs has a choice, allocate or handoff step; rolls roll with the app's dice function under the default policy. Content's actions can't have one (`invalid-clock-action` at load). computeSheet lists it with its `clock`. Content joins in through its tagged `changes` steps: resetting what lasts a turn, ending what the creature whose turn starts applied until then (`self.appliedBy == params.started`). */
   clock?: 'turn-boundary';
   /** `false`: computeSheet doesn't list the action and apps don't show it, but an `action` step with `source` or `entry` still runs it (while `available` holds), and so does `startAction`. For an action only other actions run: a class's part of a shared rules action. Default `true`. */
   listed?: boolean;
@@ -1097,7 +1097,7 @@ export type ContentItem = {
   >;
   /** Templates only: values the template's item fields read as `params.<name>`, given by the content keeping it (`keepsTemplates` `params`). A param the keeper doesn't give, or on a saved template, is its `default`, else absent. */
   params?: Record<string, ValueDecl>;
-  /** Extra per-copy state keys this item (or template) adds to the character's copy, beyond those its content type declares. */
+  /** Extra per-copy state keys this item (or template) adds to the character's copy, beyond those its content type declares. `appliedBy` is reserved, as on a content type. */
   state?: Record<string, ValueDecl>;
   /** Computed values on this item's copies, added to the content type's or replacing one of them by name. A template's are added to the copies it is applied to. */
   computed?: Record<string, ComputedDecl>;
@@ -1214,7 +1214,7 @@ export type ContentType = {
   fields?: Record<string, ValueDecl>;
   /** A string state key whose value names each copy of this type, for copies the player or GM names (a faction added in play, a harm's "Broken leg"). While the copy's value of the key is a non-empty string, it is the copy's name: computeSheet gives it in `copyNames`, and apps show it in place of the item's name. An item's own `nameFrom` replaces the type's. */
   nameFrom?: Name;
-  /** Per-copy state on the character's copy (charges, shots, level). Visible in formulas as `self.<key>`. */
+  /** Per-copy state on the character's copy (charges, shots, level). Visible in formulas as `self.<key>`. `appliedBy` is reserved: an applied entry's `self.appliedBy` is its applier. */
   state?: Record<string, ValueDecl>;
   /** Computed values on each copy: per-copy values with a formula, worked out after every field and never saved. computeSheet returns them per copy (`copies`); the copy's own actions (and the actions it reaches through `use`) and its follow-ups read them as `self.<name>`, as do the copy's later computed values. Nothing else can read them. A name must not reuse a state key or a core property of the copy. */
   computed?: Record<string, ComputedDecl>;

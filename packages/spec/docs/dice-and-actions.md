@@ -462,9 +462,11 @@ needs the app to say when turns change. A rules action with `clock: turn-boundar
 moment: at each turn change, the app runs it on **every** character in the encounter where it is
 listed, with `params.ended` the `id` of the character whose turn ended and `params.started` the
 one whose turn starts (each left out when there is none, at the start or end of a round). It must
-run with nothing else the app makes up: `ended` and `started` are strings, every other parameter
-has a default or is `optional`, no role has a `min`, and only the rules declare one
-(`invalid-clock-action` at load). computeSheet lists it with `clock: turn-boundary`.
+run with nothing else the app makes up and never pause: every parameter has a default or is
+`optional` (`ended` and `started` are strings), no role has a `min`, it isn't `listed: false`,
+neither it nor a rules action its `action` steps run has a choice, allocate or handoff step, and
+only the rules declare one (`invalid-clock-action` at load). Its rolls roll with the app's dice
+function under the default policy. computeSheet lists it with `clock: turn-boundary`.
 
 Content joins in through the action's tagged `changes` steps, as for any shared action:
 
@@ -644,7 +646,10 @@ query (a removeEffect, toggleEffect, setState or adjustState with `applied`;
 `applied.appliedBy`, so on any other character it matches nothing: the app applies it to every
 character it holds that may have one (those whose `applied` names the actor in `appliedBy`).
 Inside any `to`, a query may say `appliedBy: self` to reach only the actor's entries on that
-character.
+character. The app applies an action's proposed changes in the order proposed, across
+characters, so a `to: applied` removal lands before a later step's new entry (below, the unmark
+before the mark): the query isn't limited to entries older than the action, so the order is
+what keeps the new mark.
 
 ```yaml
 # Draw Steel's Mark: the tactician's earlier marks end wherever they are, and the target is marked.

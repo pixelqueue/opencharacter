@@ -281,6 +281,12 @@ describe('pnpm validate', () => {
       ['a repeated aura ID', /weapons.mace aura dread: duplicate aura id/],
       ['an aura effect on its holder', /aura dread: an aura's effects are on whoever is inside/],
       ['a clock action with a required parameter', /actions.tick: a clock action's parameter by/],
+      ['an unlisted clock action', /actions.tick: a clock action is listed/],
+      [
+        'a clock action asking a choice',
+        /actions.tick: a clock action never pauses, but step which/,
+      ],
+      ['an aura field the pack lacks', /aura dread: "nope" is not a integer field of this pack/],
       ['a change to applied that is no query', /step shun: a change sent to applied is a remove/],
       ['an applyEffect of unknown content', /step hex: unknown content "weapons.nothing"/],
       ['an applied entry named both ways', /step hex: a change names its entries by applied or/],

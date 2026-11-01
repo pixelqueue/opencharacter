@@ -1,4 +1,4 @@
-description: 'A clock action is a rules action that runs with no answers the app must invent: one on content, with a required parameter, a non-string `ended` or `started`, or a role with a minimum is invalid-clock-action'
+description: 'A clock action is a listed rules action that runs with nothing the app must make up and never pauses: one on content, unlisted, with a parameter (ended and started included) lacking a default or `optional`, a non-string `ended` or `started`, a role with a minimum, or a choice, allocate or handoff step (its own or in a rules action it runs) is invalid-clock-action'
 specVersion: 0.3.0
 call: loadRuleset
 packs:
@@ -14,13 +14,30 @@ packs:
           - id: tick
             clock: turn-boundary
             params:
-              ended: { type: string, optional: true }
+              ended: { type: string }
               started: { type: integer, default: 0 }
               by: { type: integer }
             participants:
               ally: { min: 1 }
             steps:
               - { id: tock, kind: changes, changes: [{ type: adjust, field: hp.current, by: 1 }] }
+          - id: hidden
+            clock: turn-boundary
+            listed: false
+            steps:
+              - { id: tock, kind: changes, changes: [{ type: adjust, field: hp.current, by: 1 }] }
+          - id: asks
+            clock: turn-boundary
+            steps:
+              - id: which
+                kind: choice
+                options: [{ id: one }, { id: two }]
+              - { id: more, kind: action, use: picks }
+          - id: picks
+            steps:
+              - id: what
+                kind: choice
+                options: [{ id: one }, { id: two }]
           - id: fine
             clock: turn-boundary
             params:

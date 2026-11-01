@@ -1,0 +1,33 @@
+description: 'A role named `applied` and a follow-up `to: applied` with an action are invalid-applied-change; an aura field the pack lacks, or of another type, is link-field-mismatch'
+specVersion: 0.3.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        { id: test-pack, version: 1.0.0, specVersion: 0.3.0, license: CC0-1.0, defaultLanguage: en }
+      rules:
+        fields:
+          hp.current: { type: integer, input: true, default: 10 }
+          speed: { type: integer, formula: 30 }
+        contentTypes:
+          feature: {}
+        actions:
+          - id: rally
+            participants:
+              applied: {}
+            steps:
+              - { id: cheer, kind: changes, changes: [{ type: adjust, field: hp.current, by: 1 }] }
+        followUps:
+          - id: fade
+            becomes: hp.current == 0
+            to: applied
+            action: rally
+      content:
+        - id: features.banner
+          type: feature
+          auras:
+            - id: banner
+              fields:
+                hp.current: { type: string, default: x }
+                missing: { type: integer, default: 0 }
+              effects: [{ target: speed, op: add, value: 1 }]

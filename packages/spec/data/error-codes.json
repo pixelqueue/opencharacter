@@ -206,7 +206,7 @@
     {
       "id": "link-field-mismatch",
       "kind": "load",
-      "description": "A link slot names a `pack` that is loaded too, and one of its declared fields isn't a field of that pack's ruleset (it and its dependencies) or has another type. Data: `link`, `field`, `pack`."
+      "description": "A link slot names a `pack` that is loaded too, and one of its declared fields isn't a field of that pack's ruleset (it and its dependencies) or has another type. Data: `link`, `field`, `pack`. An aura's declared `fields` are checked the same way against the item's pack (`link` is `<item>#<aura>`)."
     },
     {
       "id": "invalid-create-offer",
@@ -216,7 +216,7 @@
     {
       "id": "invalid-clock-action",
       "kind": "load",
-      "description": "An action with `clock` can't run unattended at that moment: it is content's (only rules actions have a clock), a parameter other than `ended` and `started` has no default and isn't `optional`, `ended` or `started` isn't a string, or a role has a `min` above 0. Data: `action`, `pack`, and `param` or `role` when one is the cause."
+      "description": "An action with `clock` can't run unattended at that moment: it is content's (only rules actions have a clock) or `listed: false`, a parameter (`ended` and `started` included) has no default and isn't `optional`, `ended` or `started` isn't a string, a role has a `min` above 0, or it has a choice, allocate or handoff step, its own or in a rules action an `action` step of it runs. Data: `action`, `pack`, and `param`, `role` or `step` when one is the cause."
     },
     {
       "id": "invalid-aura",
@@ -226,7 +226,7 @@
     {
       "id": "invalid-applied-change",
       "kind": "load",
-      "description": "A change sent `to: applied` (by a step, an option, added changes, a roll effect's `then` or a follow-up) isn't a removeEffect, toggleEffect, setState or adjustState naming applied entries by query (`applied`). Data: `type`, `pack`."
+      "description": "A change sent `to: applied` (by a step, an option, added changes, a roll effect's `then` or a follow-up) isn't a removeEffect, toggleEffect, setState or adjustState naming applied entries by query (`applied`), a follow-up `to: applied` has no `changes`, or an action declares a role named `applied` (a destination, not a role). Data: `type`, `followUp` or `action` and `role`, and `pack`."
     },
     {
       "id": "invalid-family",

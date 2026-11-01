@@ -234,7 +234,6 @@ export function selfType(
       equipped: 'bool',
       quantity: 'int',
       templates: { list: 'string' },
-      appliedBy: 'string',
       ...declTypes(type?.state),
       ...Object.assign({}, ...extra.map(declTypes)),
     },

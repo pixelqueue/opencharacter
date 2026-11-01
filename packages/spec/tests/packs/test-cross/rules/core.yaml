@@ -78,6 +78,13 @@ actions:
         kind: changes
         changes:
           - { type: adjust, field: hp.current, by: 2 }
+  # Asks how to move first, then moves at the character's speed: pauses for the choice.
+  - id: stride-choose
+    steps:
+      - id: how
+        kind: choice
+        options: [{ id: walk }, { id: run }]
+      - { id: done, kind: outcome, data: { speed: speed, how: steps.how.picked } }
   # Moves at the character's speed (an aura may slow it).
   - id: stride
     steps:

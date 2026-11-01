@@ -621,6 +621,13 @@ export class Sheet {
     };
     this.readLinks(links);
     this.givenLinks = links;
+    // One view per applier: a repeated ID is `duplicate-id`, and the first is read.
+    const appliersSeen = new Set<string>();
+    appliers.forEach((v, i) => {
+      if (appliersSeen.has(v.id))
+        this.errors.push({ code: 'duplicate-id', path: `/appliers/${i}/id`, data: { id: v.id } });
+      appliersSeen.add(v.id);
+    });
     this.activate();
     for (const instance of this.instances) {
       if (typeof instance.effect.target !== 'string') continue;
@@ -702,14 +709,14 @@ export class Sheet {
 
   /** The applier's view as an aura declares it: its fields, else their defaults. */
   private applierView(aura: Aura, id: string | undefined): Record<string, unknown> {
-    const view = id === undefined ? undefined : this.appliers.find((v) => v.id === id);
+    const at = id === undefined ? -1 : this.appliers.findIndex((v) => v.id === id);
     return viewData(
       aura.fields ?? {},
-      { id: id ?? '', values: view?.values },
+      { id: id ?? '', values: this.appliers[at]?.values },
       (field, key, expected) =>
         this.errors.push({
           code: 'invalid-link-value',
-          path: `/appliers/${id ?? ''}/values/${key}`,
+          path: `/appliers/${at}/values/${key}`,
           data: { applier: id ?? '', field, expected },
         }),
     );
@@ -986,8 +993,10 @@ export class Sheet {
 
   private wanted(found: Rounds): Rounds {
     const standard = new Set(found.standard);
+    // An aura's entry brings only the aura's effects, none of its source's rules for the holder.
     for (const a of this.activations)
-      if (a.item) for (const qid of itemStandard(this.ruleset, a.item)) standard.add(qid);
+      if (a.item && !a.aura)
+        for (const qid of itemStandard(this.ruleset, a.item)) standard.add(qid);
     const kept = addKept(
       found.kept,
       this.keptWanted().map((k) => ({ id: k.entry.id, kept: k.kept })),
@@ -1060,7 +1069,7 @@ export class Sheet {
     const entries = [...(this.character.features ?? []), ...(this.character.inventory ?? [])];
     for (const a of this.activations) {
       const item = a.item;
-      if (!item?.keepsTemplates?.length) continue;
+      if (!item?.keepsTemplates?.length || a.aura) continue;
       const pack = item.scopes?.keepsTemplates ?? item.pack;
       for (const kept of item.keepsTemplates) {
         if (!kept.copies || (kept.scope ?? 'holder') !== a.scope) continue;
@@ -1091,7 +1100,7 @@ export class Sheet {
       .map((a) => ({ a, owner: this.ownerView(a) }));
     for (const a of this.activations) {
       const item = a.item;
-      if (!item?.keepsTemplates?.length) continue;
+      if (!item?.keepsTemplates?.length || a.aura) continue;
       const pack = item.scopes?.keepsTemplates ?? item.pack;
       for (const kept of item.keepsTemplates) {
         if (!kept.content || (kept.scope ?? 'holder') !== a.scope) continue;
@@ -1797,7 +1806,7 @@ export class Sheet {
       return out;
     }
     const item = a.item;
-    if (!item) return out;
+    if (!item || a.aura) return out;
     const pack = item.scopes?.immuneTo ?? item.pack;
     for (const def of item.immuneTo ?? []) {
       if ((def.scope ?? 'holder') !== a.scope) continue;
@@ -3366,6 +3375,7 @@ export class Sheet {
       }
     }
     for (const a of this.activations) {
+      if (a.aura) continue;
       for (const issue of this.unmet(a)) owned.push({ owner: a, issue });
       for (const issue of this.noOption(a)) owned.push({ owner: a, issue });
       if (a.item?.hidden)
@@ -3414,7 +3424,7 @@ export class Sheet {
   prerequisiteIssues(id: string): RulesIssue[] {
     const out: RulesIssue[] = [];
     for (const a of this.activations)
-      if (a.sourceId === id || a.sourceId.startsWith(`${id}/`))
+      if (!a.aura && (a.sourceId === id || a.sourceId.startsWith(`${id}/`)))
         out.push(...this.unmet(a), ...this.noOption(a));
     return out;
   }

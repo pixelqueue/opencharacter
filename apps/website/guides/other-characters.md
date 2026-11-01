@@ -184,8 +184,22 @@ it matches nothing:
 const holders = (actorId) =>
   everyone.filter((c) => (c.applied ?? []).some((a) => a.appliedBy === actorId));
 
-const unmark = mark.proposedChanges.filter((p) => p.to === 'applied').map((p) => p.change);
-for (const holder of holders(tactician.id)) applyChanges(rulesetFor(holder), holder, unmark);
+// Apply the run's changes in the order proposed, across characters: the unmark (an earlier
+// step) lands before the new mark, so the new mark stays. Each step's changes for one
+// character stay one batch.
+const recipients = (p) =>
+  p.to === 'applied'
+    ? holders(tactician.id)
+    : [p.character === undefined ? tactician : byId[p.character]];
+for (const step of [...new Set(mark.proposedChanges.map((p) => p.step))]) {
+  const own = mark.proposedChanges.filter((p) => p.step === step);
+  for (const c of new Set(own.flatMap(recipients)))
+    applyChanges(
+      rulesetFor(c),
+      c,
+      own.filter((p) => recipients(p).includes(c)).map((p) => p.change),
+    );
+}
 ```
 
 A follow-up can go there too: an offer with `to: 'applied'` (the tactician is dying, so their
@@ -254,7 +268,8 @@ function turnChange(everyone, ended, started) {
 }
 ```
 
-It needs nothing else from you: no parameters without defaults and no required roles. The pack
+It needs nothing else from you and never pauses: every parameter has a default, no role is
+required, no step asks a choice, and its rolls roll with your dice function. The pack
 uses it to reset what lasts a turn and to end what the creature whose turn starts applied until
 then (its entries record it in `appliedBy`).
 

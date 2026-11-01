@@ -260,8 +260,9 @@ reads them and never computes the other character.
 the characters who applied the character's aura entries ([content.md](content.md#auras)). An
 aura entry's effects read the view whose `id` is the entry's `appliedBy` as `applier`, with the
 aura's declared `fields` read as a link's are: passed value, else `default`, else absent. A value
-of the wrong type is `invalid-link-value` (data `applier`, `field`, `expected`). A paused action
-keeps them, as it keeps its links.
+of the wrong type is `invalid-link-value` (data `applier`, `field`, `expected`), and two views with
+one `id` are `duplicate-id` (the first is read). A paused action keeps them, as it keeps its
+links.
 
 ### Standard copies
 

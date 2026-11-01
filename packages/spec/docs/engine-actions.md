@@ -9,7 +9,8 @@ Action definitions are in [dice-and-actions.md](dice-and-actions.md); call shape
 
 `startAction` input: `ruleset`, `character`, `action` (`id`, `entry?`, `source?`, `followUp?`), `params`, `situational`,
 `policy`, `links` (the views filling the link slots; [engine-core.md](engine-core.md#links)),
-`participants` (the other characters taking part, by role; below), `answers` (answers to
+`appliers` (the views of the characters whose auras the character is in, read by those auras'
+effects as `applier`; [engine-core.md](engine-core.md#links)), `participants` (the other characters taking part, by role; below), `answers` (answers to
 replay, one per pause; [Replaying from answers](#replaying-from-answers)) and, outside the JSON
 shape, an optional **dice function**.
 
@@ -116,8 +117,8 @@ An action proposes changes and never applies them. A step with `sheet: proposed`
    character as given and applies to it, in order, every change proposed so far in this call
    with `to: self` and no `character`: from earlier steps, from nested actions, from a parent
    action that runs this one through an `action` step, and from earlier picks of the same choice
-   step. They are applied as one `applyChanges` batch, not strict, with the call's links; the
-   sheet is then computed with those links. Changes for a role, a target or a link are never
+   step. They are applied as one `applyChanges` batch, not strict, with the call's links and
+   appliers; the sheet is then computed with them. Changes for a role, a target or a link are never
    applied: they belong to another character. Follow-ups the batch would trigger are neither
    listed nor run; the proposed character's stored follow-ups are never read.
 2. **What reads it.** Every formula and source of the step: fields, `character`, the character
@@ -125,8 +126,8 @@ An action proposes changes and never applies them. A step with `sheet: proposed`
    on that sheet (absent if a change removed it); a choice step's content, copies, values and
    added options, and the `where`, `prefer` and `recommend` over them; an allocate step's fields,
    their values and `max`; a roll step's parts and roll effects (the effects active on that sheet).
-   `params`, `situational` (decided when the action starts), `participants`, `links`, `flags`
-   and `steps` don't change.
+   `params`, `situational` (decided when the action starts), `participants`, `links`,
+   `appliers`, `flags` and `steps` don't change.
 3. **Per pick.** A choice step with `sheet: proposed` builds the sheet again before each pick,
    since each pick proposes its changes at once. `picks` still counts the step's picks.
 4. **Errors.** A batch that fails (a `choose` on a copy that isn't there, a `finishCreation`
@@ -537,8 +538,9 @@ it in a flag before the roll.
   rest of the change, `tags` in order) are merged: the first keeps its place with `by` the sum
   (decimals kept to six places), the others go. Each released change keeps its `step`.
 
-  **Routing.** `to` is `self` (default), `target`, a declared role, or
-  `{ link: <slot> }`.
+  **Routing.** `to` is `self` (default), `target`, a declared role, `{ link: <slot> }` or
+  `applied`. Every proposed `applyEffect`, whatever its `to`, carries the actor's `id` as
+  `appliedBy`.
   - A change for a link carries `to: { link: <qualified slot id> }` and, when the slot is
     filled, `character`: the linked character's ID. An empty slot's changes are proposed
     without `character`. Fields, copy types and `addItem` items in a change sent to a link are
@@ -555,8 +557,15 @@ it in a flag before the roll.
     checks it. A local or bare ID still resolves in the actor's pack, and an unknown ID of a
     loaded pack is still `unknown-reference`. The build checks such references against the
     named pack when the repo has it.
+  - A change for `applied` carries `to: applied` and no `character`: it names applied entries by
+    query, and the engine adds the actor's ID to the query as `appliedBy`, so it reaches only the
+    entries the actor applied, on any character the app applies it to
+    ([dice-and-actions.md](dice-and-actions.md#participants)). A query with `appliedBy: self`
+    under any other `to` gets the same.
   - The app applies each change to that character with `applyChanges`, so its own
-    incoming-change effects, absorbing and overflow apply there.
+    incoming-change effects, absorbing and overflow apply there. It applies them **in the order
+    proposed**, across characters: a `to: applied` removal an earlier step proposed lands before
+    a later step's new entry, so Mark's unmark never ends the mark it then makes.
 
 - **Changes content adds**: a changes step's `tags` (computed entries
   evaluated when it runs, with the tags `action` steps running the action add after them, as for
@@ -1036,7 +1045,7 @@ Every checkpoint adds a log entry:
   `faces`, the `dice` as canonical text and the `total`, at the changes step's path.
 
 **A paused action is its inputs plus its answers so far** (`state`): the ruleset version, the
-character, the action, params, situational choices, link views, participants, and every
+character, the action, params, situational choices, link and applier views, participants, and every
 checkpoint's faces, option, amounts or handoff outcome,
 including those the dice function supplied. `continueAction` adds the new answer and **replays**
 the action from the start, using recorded answers in order, until it finishes or reaches a

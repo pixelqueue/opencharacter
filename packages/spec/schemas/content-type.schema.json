@@ -20,10 +20,13 @@
       "$ref": "common.schema.json#/$defs/name"
     },
     "state": {
-      "description": "Per-copy state on the character's copy (charges, shots, level). Visible in formulas as `self.<key>`.",
+      "description": "Per-copy state on the character's copy (charges, shots, level). Visible in formulas as `self.<key>`. `appliedBy` is reserved: an applied entry's `self.appliedBy` is its applier.",
       "type": "object",
       "propertyNames": {
-        "$ref": "common.schema.json#/$defs/name"
+        "$ref": "common.schema.json#/$defs/name",
+        "not": {
+          "const": "appliedBy"
+        }
       },
       "additionalProperties": {
         "$ref": "#/$defs/valueDecl"

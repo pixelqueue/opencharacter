@@ -70,10 +70,13 @@
       }
     },
     "state": {
-      "description": "Extra per-copy state keys this item (or template) adds to the character's copy, beyond those its content type declares.",
+      "description": "Extra per-copy state keys this item (or template) adds to the character's copy, beyond those its content type declares. `appliedBy` is reserved, as on a content type.",
       "type": "object",
       "propertyNames": {
-        "$ref": "common.schema.json#/$defs/name"
+        "$ref": "common.schema.json#/$defs/name",
+        "not": {
+          "const": "appliedBy"
+        }
       },
       "additionalProperties": {
         "$ref": "content-type.schema.json#/$defs/valueDecl"

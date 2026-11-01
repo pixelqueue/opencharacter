@@ -1,7 +1,14 @@
 # An aura: while it is up, each enemy inside has a lower potency, and a slower speed once the
 # holder anchors it (read live from the holder's view).
+# Its own rules are the holder's: an aura's entry on another creature runs none of them.
 id: features.null-field
 type: feature
+prerequisites:
+  - { id: potent, when: potency >= 5 }
+immuneTo:
+  - { id: unmarked, items: [conditions.marked], scope: applied }
+effects:
+  - { target: speed, op: add, value: -10, scope: applied }
 auras:
   - id: field
     when: aura.active

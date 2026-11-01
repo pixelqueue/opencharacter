@@ -35,7 +35,7 @@ import {
   thenToSelf,
   type EnumAddress,
 } from './pack-types.ts';
-import { bandSet, stepArms } from './pack-types.ts';
+import { bandSet, innerSteps, stepArms } from './pack-types.ts';
 import type { PackRelease } from './release.ts';
 import { expandFamilies } from './families.ts';
 import {
@@ -605,6 +605,8 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
         ...(def.on ? { on: { ...def.on, field: q.field(def.on.field, pack) } } : {}),
         ...(def.changes ? { changes: q.changes(def.changes, pack, def.to) } : {}),
       };
+      if (def.to === 'applied' && def.changes === undefined)
+        err('invalid-applied-change', { followUp: def.id, pack });
       if (def.create) {
         // The start is resolved once every start is loaded (createOffers).
         if (
@@ -792,14 +794,17 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
     },
     /** A clock action runs on every character with nothing the app must make up. */
     clock(def: ActionDef, pack: string, content: boolean): void {
+      // `applied` is a destination, never a role.
+      if (Object.hasOwn(def.participants ?? {}, 'applied'))
+        err('invalid-applied-change', { action: def.id, role: 'applied', pack });
       if (def.clock === undefined) return;
       const bad = (data: Record<string, unknown> = {}) =>
         err('invalid-clock-action', { action: def.id, pack, ...data });
-      if (content) bad();
+      if (content || def.listed === false) bad();
       for (const [name, decl] of Object.entries(def.params ?? {})) {
-        if (name === 'ended' || name === 'started') {
-          if (decl.type !== 'string') bad({ param: name });
-        } else if (decl.default === undefined && !decl.optional) bad({ param: name });
+        if ((name === 'ended' || name === 'started') && decl.type !== 'string')
+          bad({ param: name });
+        else if (decl.default === undefined && !decl.optional) bad({ param: name });
       }
       for (const [role, decl] of Object.entries(def.participants ?? {}))
         if ((decl.min ?? 0) > 0) bad({ role });
@@ -850,6 +855,12 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
         for (const e of aura.effects)
           if ((e.scope ?? 'applied') !== 'applied')
             err('invalid-aura', { item: raw.id, aura: aura.id, pack });
+        // The holder uses the item's pack, so each declared field is one of its fields.
+        for (const [field, decl] of Object.entries(aura.fields ?? {})) {
+          const found = resolveField(ruleset, field, pack);
+          if (!found || ruleset.fields[found]?.type !== decl.type)
+            err('link-field-mismatch', { link: `${raw.id}#${aura.id}`, field, pack });
+        }
         return { ...aura, effects: aura.effects.map((e) => q.effect(e, pack)) };
       });
     }
@@ -943,6 +954,30 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
       steps: q.steps(def.steps, def.pack, def.participants),
       ...q.results(def.results, def.pack),
     };
+  }
+  // A clock action never pauses for the app: no choice, allocate or handoff step, in it or in a
+  // rules action it runs.
+  for (const def of Object.values(ruleset.rules.actions)) {
+    if (def.clock === undefined) continue;
+    const seen = new Set<string>();
+    const walk = (steps: Step[]): void => {
+      for (const step of steps.flatMap((s) => [s, ...innerSteps(s)])) {
+        if (step.kind === 'choice' || step.kind === 'allocate' || step.as !== undefined)
+          err('invalid-clock-action', { action: def.id, pack: def.pack, step: step.id });
+        const used =
+          step.kind === 'action' &&
+          step.use &&
+          step.source === undefined &&
+          step.entry === undefined
+            ? ruleset.rules.actions[step.use]
+            : undefined;
+        if (used && !seen.has(step.use as string)) {
+          seen.add(step.use as string);
+          walk(used.steps);
+        }
+      }
+    };
+    walk(def.steps);
   }
   // Creation starts: a later start with the same ID replaces the earlier one in its place.
   for (const pack of byId.values()) {

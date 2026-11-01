@@ -225,12 +225,15 @@ auras:
   `applyEffect` with `source` the item, `aura` the aura's ID and `appliedBy` the holder's `id`;
   it removes the entry as the creature leaves, or when the aura drops off the holder's list. An
   `aura` the source doesn't declare is `unknown-id`; applying the source again (`reapply`) merges
-  only into an entry of the same aura.
+  only into an entry of the same aura and applier, so two nulls' fields are two entries.
 - **The entry** runs only the aura's `effects`, as `scope: applied` effects (any other scope is
-  `invalid-aura` at load, as is a repeated aura ID): not the item's own effects, grants or
-  actions. Its formulas see `item`, `self` (the entry) and `applier`: the holder's view, from the
+  `invalid-aura` at load, as is a repeated aura ID): none of the item's own rules for its holder
+  reach the creature inside (its effects, grants, actions, prerequisites, immunities, standard
+  copies and kept templates). Its formulas see `item`, `self` (the entry) and `applier`: the holder's view, from the
   `appliers` the app passes to the creature's calls (the holder's `computeSheet` values), its
-  declared `fields` only ([engine-core.md](engine-core.md#links)). The effects follow the
+  declared `fields` only ([engine-core.md](engine-core.md#links)). Each declared field must be
+  a field of the item's pack with that type (`link-field-mismatch` at load), since the holder
+  uses it. The effects follow the
   holder's state as the app passes it, with no change to the creature's file; without the view
   they read the declared defaults.
 - Text: `<contentId>.auras.<id>.name` (optional), else the item's name.
