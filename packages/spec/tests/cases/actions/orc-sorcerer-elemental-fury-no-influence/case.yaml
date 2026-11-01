@@ -1,0 +1,18 @@
+description: "orc-2e: an elemental sorcerer's Elemental Fury on a target before her influence is picked deals untyped damage: no `damage.none` tag, which isn't declared"
+specVersion: 0.3.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/orc/2e
+input:
+  action:
+    id: 'orc-2e:features.sorcerer.blood-magic#blood-magic'
+    entry: class
+    source: orc-2e:features.sorcerer.blood-magic
+  params: { rank: 2 }
+  participants:
+    target:
+      - { id: foe }
+  policy:
+    choices: pause
+answers:
+  - option: orc-2e:classes.sorcerer.bloodlines.elemental#fury-target

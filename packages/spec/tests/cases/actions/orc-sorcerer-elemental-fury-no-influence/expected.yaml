@@ -1,0 +1,16 @@
+# 2 damage to the target, tagged only `damage`: with no element there is no damage type.
+status: finished
+outcome:
+  result: applied
+  data:
+    rank: 2
+    effect: orc-2e:classes.sorcerer.bloodlines.elemental#fury-target
+proposedChanges:
+  - to: target
+    character: foe
+    step: effect
+    change:
+      type: adjust
+      field: orc-2e:hp.current
+      by: -2
+      tags: [damage]
