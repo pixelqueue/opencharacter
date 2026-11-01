@@ -1,0 +1,34 @@
+description: "A standard copy (every character holds the bone relic) doesn't show a content group its `showWhen` hides; the held spell still shows its own group"
+specVersion: 0.1.0
+call: computeSheet
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        fields:
+          magic.level: { type: integer, input: true, default: 0 }
+        contentTypes:
+          spell: { carried: false }
+          relic: { carried: true }
+        standardCopies:
+          - { type: relic }
+        display:
+          groups:
+            - id: spells
+              kind: content
+              priority: 1
+              showWhen: magic.level > 0
+              members: { type: spell }
+            - id: relics
+              kind: content
+              priority: 1
+              showWhen: magic.level > 0
+              members: { type: relic }
+      content:
+        - { id: spells.light, type: spell }
+        - { id: relics.bone, type: relic }

@@ -203,8 +203,8 @@ for (const group of sheet.groups) {
 ```
 
 - **`sheet.groups`** lists every group in ruleset order as `{ id, shown, fields?, actions?,
-  items? }`. `shown` is its `showWhen`, and always true for a content group with members, so
-  held content never disappears. The members are listed whether the group is shown or not.
+  items? }`. `shown` is its `showWhen`, and always true for a content group with a member other
+  than a standard copy, so held content never disappears. The members are listed whether the group is shown or not.
 - **`values[id].shown`** is false for a hidden field, a field whose `showWhen` is false, and a
   field whose every group is hidden. A field in no group shows in your "Other" section.
 - **Actions and content in no group** (no group's `actions` or `items` names them) go in

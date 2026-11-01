@@ -264,6 +264,16 @@ export function display(
     if (set) set.add(group);
     else memberOf.set(qid, new Set([group]));
   };
+  const standard = new Set(sheet.standard.map((c) => c.entry));
+  const isStandard = (m: ContentMember): boolean => {
+    const a = m.activation === undefined ? undefined : listed[m.activation];
+    return (
+      a !== undefined &&
+      (a.kind === 'feature' || a.kind === 'inventory') &&
+      a.entry !== undefined &&
+      standard.has(a.entry.id)
+    );
+  };
   const groups = defs.map((def) => {
     const group: ShownGroup = { id: def.id, shown: holds(sheet, def.showWhen, def.pack) };
     const kind = def.kind ?? 'fields';
@@ -277,8 +287,9 @@ export function display(
         group.actions = actionMembers(sheet, def.members?.where, def.pack, actions);
       else {
         group.items = contentMembers(sheet, def, listed);
-        // Held content never disappears: a content group with members is shown.
-        if (group.items.length > 0) group.shown = true;
+        // Held content never disappears: a content group with a member the character holds
+        // (anything but a standard copy, which every character has) is shown.
+        if (group.items.some((m) => !isStandard(m))) group.shown = true;
       }
     }
     return group;

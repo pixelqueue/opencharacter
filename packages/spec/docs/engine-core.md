@@ -798,8 +798,8 @@ After the values, computeSheet evaluates the display hints
 
 - **`groups`** lists every display group in ruleset order (a later pack's group in place of an
   earlier one with the same ID) as `{ id, shown, fields?, actions?, items? }`. `shown` is the
-  group's `showWhen`, true without one, and true for a content group with members
-  ([display-hints.md](display-hints.md#shown)). Members are listed shown or not:
+  group's `showWhen`, true without one, and true for a content group with a member other than a
+  standard copy ([display-hints.md](display-hints.md#shown)). Members are listed shown or not:
   - a fields group's `fields`, in ruleset field order: the fields whose hint names the group,
     and those its `members` query matches, `where` seeing `item` as `{ id, type, tags }` with
     the field's sheet tags;

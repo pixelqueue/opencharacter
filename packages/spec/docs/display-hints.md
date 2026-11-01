@@ -97,7 +97,8 @@ display:
   still exists: an "Other" section keeps homebrew from disappearing. A template on a copy isn't
   such an item: it shows with its copy (above).
 - **Empty groups**: `showWhen` says whether a group applies to the character; members
-  don't, except that a content group with members always shows ([Shown](#shown)). A pack gives `showWhen` to a group that applies to some characters only (a
+  don't, except that a content group holding a member other than a standard copy always shows
+  ([Shown](#shown)). A pack gives `showWhen` to a group that applies to some characters only (a
   dragonborn's ancestry), true from when the character can gain its members (before the pick is
   made). A group that applies but has no members on this character (no feats yet, nothing
   applied) may be shown empty or collapsed, or hidden, as the app likes; an app shouldn't need
@@ -160,7 +161,9 @@ display:
 - **`hidden` is separate.** `hidden: true` means never shown, not even when editing (an
   in-between helper); a hint can't have both (`visibility` with `hidden: true` is a schema
   error). A value the player edits but doesn't read in play is `background`, not `hidden`.
-- `showWhen` is independent: an irrelevant field or group isn't shown at any visibility.
+- `showWhen` is independent: an irrelevant field or group isn't shown at any visibility (a
+  content group with a held member other than a standard copy is never irrelevant:
+  [Shown](#shown)).
 
 ## Shown
 
@@ -168,9 +171,10 @@ computeSheet evaluates `hidden`, `showWhen`, `members`, `sectionBy` and `sortBy`
 ([engine-core.md](engine-core.md#display)), so every app shows the same sheet:
 
 - **A group is shown** when its `showWhen` holds, or it has none. This holds for groups of every
-  kind, with one exception: a content group with members is shown whatever its `showWhen`, so
-  content the character holds never disappears (a spell added from the catalog to a character
-  whose spells group applies to casters only).
+  kind, with one exception: a content group with a member other than a standard copy is shown
+  whatever its `showWhen`, so content the character holds never disappears (a spell added from
+  the catalog to a character whose spells group applies to casters only). A standard copy, which
+  every character has ([content.md](content.md#standard-copies)), doesn't show a group its `showWhen` hides.
 - **A fields group's members** are the fields whose hint lists it in `groups` and those its
   `members` query matches. The query's `where` sees `item` as `{ id, type, tags }`, the field's
   tags on the sheet (computed ones included), and the character's fields and copies.
