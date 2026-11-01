@@ -101,11 +101,12 @@ function actionIds(def: { actions?: ActionOrUse[] }): Set<string> {
 
 function targetKind(
   target: Effect['target'],
-): 'field' | 'fields' | 'roll' | 'incoming' | 'choice' | 'step' {
+): 'field' | 'fields' | 'roll' | 'incoming' | 'choice' | 'step' | 'action' {
   if (typeof target === 'string' || 'formula' in target) return 'field';
   if ('fields' in target) return 'fields';
   if ('choices' in target) return 'choice';
   if ('steps' in target) return 'step';
+  if ('actions' in target) return 'action';
   return 'rolls' in target ? 'roll' : 'incoming';
 }
 
@@ -1724,11 +1725,13 @@ export class PackChecker {
       this.tagList(effect.target.choices, file, label);
     } else if ('steps' in effect.target) {
       this.tagList(effect.target.steps, file, label);
+    } else if ('actions' in effect.target) {
+      this.tagList(effect.target.actions, file, label);
     }
     if (
       this.contentOwner === 'rules' &&
       typeof effect.target === 'object' &&
-      ('choices' in effect.target || 'steps' in effect.target) &&
+      ('choices' in effect.target || 'steps' in effect.target || 'actions' in effect.target) &&
       effect.target.from === 'self'
     )
       this.report.error(file, `${label}: from: self is for content's effects, not the rules'`);
@@ -1743,6 +1746,23 @@ export class PackChecker {
         );
       for (const change of value.changes ?? [])
         this.proposedChange(change, file, label, false, new Set(), value.to);
+    }
+    // A params effect adds parameters named by the content that writes it, as an option effect.
+    if (effect.op === 'params') {
+      if (this.contentOwner === undefined)
+        this.report.error(
+          file,
+          `${label}: params effects are only for the rules' effects and content items and types (their effects, choices and inline options)`,
+        );
+      else
+        for (const [name, decl] of Object.entries(effect.value as Record<string, ValueDecl>)) {
+          const key = `${this.contentOwner}.params.${name}`;
+          this.requiredKeys.add(decl.label ?? `${key}.name`);
+          this.optionalKeys.add(`${key}.description`);
+          if (decl.type === 'enum')
+            for (const value of decl.values ?? [])
+              this.requiredKeys.add(`${key}.values.${value}.name`);
+        }
     }
     // An option effect adds an option named by the content item that writes it, so it belongs on a
     // content item: its effects, or its choices' and inline options'.

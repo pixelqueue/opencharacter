@@ -68,7 +68,10 @@ const described = describeAction(ruleset, character, {
   included), and for a field, content or tag parameter the `options` startAction takes, its
   `where` applied. Offer those as the picker.
 - **A parameter the item's `use` fixes** has `fixed: true` and its `value`: don't ask for it.
-- **Label each** with `text.param(definedBy, name)`, or `text.lookup` with its own `label` key.
+- **A parameter content adds** (a `params` effect: an ability's damage type chosen on each use,
+  a feature's opt-in) comes after the action's own, with `addedBy`. Ask for it like the others.
+- **Label each** with `text.param(definedBy, name)` (an added one with
+  `text.addedParam(addedBy, name)`), or `text.lookup` with its own `label` key.
 - **`participants`** lists the action's roles with `min` and `max`
   ([Other characters](other-characters.md#an-app-with-one-sheet)).
 - An action computeSheet doesn't list for the character is `unknown-action`, as for
@@ -168,7 +171,9 @@ const next = continueAction(ruleset, paused, { faces: [17, 9, 3] }, { dice: 'pau
 ```
 
 If rolling needs more dice than that (a reroll, an exploding die), the action pauses again for
-one die at a time. A wrong number of faces, or a face that isn't on the die, is the error
+one die at a time. A pause at a `changes` step is a rolled amount (a change's `by` given as
+dice, such as `-1d6` Stamina): `needs.dice` lists its dice, and the log entry has `dice` (the
+notation) and `total`. A wrong number of faces, or a face that isn't on the die, is the error
 `answer-mismatch`.
 
 **Rolling the whole roll twice.** Some rules roll a whole roll again and keep the better or

@@ -16,6 +16,8 @@ import { diceText, type DiceLike, type Repeat } from './dice.ts';
 import {
   actionKey,
   addedOptionKey,
+  addedParamKey,
+  addedParamValueKey,
   bandKey,
   blockKey,
   choicePromptKey,
@@ -200,6 +202,10 @@ export interface Text {
   param(action: string, param: string): string;
   paramDescription(action: string, param: string): string | undefined;
   paramValue(action: string, param: string, value: string): string;
+  /** A parameter a `params` effect adds: `addedBy` as describeAction gives it. */
+  addedParam(addedBy: string, param: string): string;
+  addedParamDescription(addedBy: string, param: string): string | undefined;
+  addedParamValue(addedBy: string, param: string, value: string): string;
   type(id: string): string;
   typeField(type: string, field: string): string;
   typeFieldDescription(type: string, field: string): string | undefined;
@@ -717,12 +723,14 @@ export function createText(options: TextOptions): Text {
   // A parameter error names the parameter by its label in the action's text.
   const paramLabel = (data: Args): Args => {
     const owner = data.action;
+    const by = data.addedBy;
     if (typeof owner !== 'string') return {};
     const out: Record<string, unknown> = {};
     for (const k of ['param', 'target'] as const) {
       const name = data[k];
       if (typeof name === 'string' && !name.includes(':'))
-        out[k] = lookup(paramKey(owner, name)) ?? name;
+        out[k] =
+          lookup(typeof by === 'string' ? addedParamKey(by, name) : paramKey(owner, name)) ?? name;
     }
     return out;
   };
@@ -736,7 +744,12 @@ export function createText(options: TextOptions): Text {
     const owner = data.action;
     const name = (v: string): string =>
       (typeof owner === 'string' && !target.includes(':')
-        ? enumValue(paramValueKey(owner, target, v), v)
+        ? enumValue(
+            typeof data.addedBy === 'string'
+              ? addedParamValueKey(data.addedBy, target, v)
+              : paramValueKey(owner, target, v),
+            v,
+          )
         : target.includes(':')
           ? (enumValue(fieldValueKey(target, v), v) ?? lookup(situationalValueKey(target, v)))
           : undefined) ?? v;
@@ -785,6 +798,9 @@ export function createText(options: TextOptions): Text {
     param: (actionId, param) => lookup(paramKey(actionId, param)) ?? param,
     paramDescription: (actionId, param) => lookup(paramKey(actionId, param, 'description')),
     paramValue: (actionId, param, v) => enumValue(paramValueKey(actionId, param, v), v) ?? v,
+    addedParam: (by, param) => lookup(addedParamKey(by, param)) ?? param,
+    addedParamDescription: (by, param) => lookup(addedParamKey(by, param, 'description')),
+    addedParamValue: (by, param, v) => enumValue(addedParamValueKey(by, param, v), v) ?? v,
     state(item, key, typeId = options.content?.[item]?.type) {
       const own = lookup(contentKey(item, `state.${key}.name`));
       if (own !== undefined || typeId === undefined) return own ?? key;

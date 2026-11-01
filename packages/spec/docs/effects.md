@@ -95,6 +95,21 @@ effects:
 - **Choice steps as actions run:** `target: { choices: [push-cost], from: self }`. The effect adds an option to every choice step of the character's actions that carries a matching tag; `from: self` limits it to the actions of the item carrying the effect, as for rolls. The only op is `option`.
 - **Changes steps as actions run:** `target: { steps: [strike.hit], from: self }`. The effect adds changes to every `changes` step of the character's actions that carries a matching tag, after the step's own, each time it runs (per participant in an `each` step); `from: self` limits it to the actions of the item carrying the effect, as for rolls. The only op is `changes`, whose value is `{ changes?, to?, flags?, order? }` (one of `changes` and `flags` at least): `flags` are set as the step runs, before its own changes (per participant in an `each` step; only flags the action sets elsewhere, checked at load, as an added option's), and `changes` are proposed after the step's own, or with `order: before` before them, `to` the value's `to`, else the step's. Its `when`, flags and changes see what an added option's do, with the action's `participants` (and `participant` in an `each` step) and no `picks`. Content items, templates, content types (for each active item of the type) and the rules' effects add changes, as for options (a build error on a situational choice's or a choice's). See [engine-actions.md](engine-actions.md#other-steps).
 
+- **Actions as they are listed:** `target: { actions: [kw.psionic], from: self }`. The effect adds
+  parameters to every listed action of the character whose tags (computed ones evaluated for the
+  listing) match; `from: self` limits it to the actions listed for the copy carrying the effect.
+  The only op is `params`, whose value declares them as an action's own `params` (name to
+  declaration). While its `when` holds (evaluated as the action is listed and started: `item`
+  and `self` the content carrying the effect, the listing's as `action.item` and `action.self`,
+  and the character's fields), each is a parameter of the action after its own, checked by
+  startAction like them and listed by describeAction with `addedBy`. A name the action declares,
+  or an earlier instance added, is left out. The action's own formulas only see the parameters
+  it declares; content reads an added one as `params.<name>` in its roll, option and `changes`
+  effects. Text: `<content key>.params.<name>.name` (and `.values.<value>.name`), the content
+  key the item's, `types.<type>` for a content type's effect, `rules` for the rules'. Content
+  items, templates, content types and the rules' effects add parameters, as for options. See
+  [dice-and-actions.md](dice-and-actions.md#actions).
+
 **Another item's fields.** An effect targets the character, never a content item's fields. To
 change those (a cantrip's range, a weapon that counts as magical), content keeps a template on
 the item: on the character's copies, or on content picked or granted to them, such as a spell

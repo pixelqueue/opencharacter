@@ -165,8 +165,12 @@ the definition, wherever it lives: a rules action, one inline on an item or on i
 
 - `definedBy` is the defining action as a pause's `needs.action` names it: the used rules action,
   or `<item>#<action>`. Its text keys are built from it ([i18n.md](i18n.md#key-conventions)).
-- `params` lists the parameters in declaration order, each `{ name, type, of?, required,
-  default?, fixed?, value?, min?, max?, values?, options?, unique?, label? }`. `required` is
+- `tags` are the action's tags for this listing, computed ones evaluated.
+- `params` lists the parameters in declaration order, then those `params` effects add
+  ([effects.md](effects.md#targets)), each `{ name, type, of?, required, default?, fixed?,
+  value?, min?, max?, values?, options?, unique?, label?, addedBy? }`. An added one has
+  `addedBy`, the content whose text names it (`<content id>`, `<pack>:types.<type>` or
+  `<pack>:rules`; its key `<content key>.params.<name>.name`). `required` is
   true when the parameter is neither `optional`, defaulted nor fixed. A parameter a `use` fixes
   has `fixed: true` and its `value` as startAction evaluates it; the app's is ignored. `min` and
   `max` are evaluated as startAction evaluates them, with every situational choice at its

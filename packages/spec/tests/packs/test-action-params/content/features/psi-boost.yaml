@@ -1,0 +1,14 @@
+# Any psionic ability may be boosted, roll or no roll: a toggle on every action tagged psionic,
+# read by this feature's own changes.
+id: features.psi-boost
+type: feature
+effects:
+  - target: { actions: [kw.psionic] }
+    op: params
+    value:
+      boost: { type: boolean, default: false }
+  - target: { steps: [hit] }
+    op: changes
+    when: has(params.boost) && params.boost
+    value:
+      changes: [{ type: adjust, field: stamina, by: -1, tags: [damage] }]

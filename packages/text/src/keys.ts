@@ -74,6 +74,24 @@ export function paramValueKey(action: string, param: string, value: string): Mes
   return { pack: root.pack, key: `${root.key}.params.${param}.values.${value}.name` };
 }
 
+/**
+ * A parameter a `params` effect adds, by describeAction's `addedBy`: `<content>`,
+ * `<pack>:types.<type>` or `<pack>:rules`.
+ */
+export function addedParamKey(
+  addedBy: string,
+  param: string,
+  suffix: 'name' | 'description' = 'name',
+): MessageRef {
+  const [pack, local] = split(addedBy);
+  return { pack, key: `${local}.params.${param}.${suffix}` };
+}
+
+export function addedParamValueKey(addedBy: string, param: string, value: string): MessageRef {
+  const [pack, local] = split(addedBy);
+  return { pack, key: `${local}.params.${param}.values.${value}.name` };
+}
+
 export function actionKey(action: string): MessageRef {
   const root = actionRoot(action);
   return { pack: root.pack, key: `${root.key}.name` };

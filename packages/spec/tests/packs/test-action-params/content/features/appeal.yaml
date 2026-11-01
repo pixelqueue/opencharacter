@@ -1,0 +1,13 @@
+# An opt-in at the start of a turn: one more drama, asked as a parameter of the rules action.
+id: features.appeal
+type: feature
+effects:
+  - target: { actions: [turn] }
+    op: params
+    value:
+      appeal: { type: boolean, default: false }
+  - target: { steps: [turn] }
+    op: changes
+    when: params.appeal
+    value:
+      changes: [{ type: adjust, field: drama, by: 1 }]

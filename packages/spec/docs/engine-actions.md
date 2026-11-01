@@ -34,11 +34,13 @@ shape, an optional **dice function**.
      the stored entry in the same batch. A run that fails, pauses for good or whose changes are
      never applied clears nothing. A derived offer needs no clearing: the action's changes end
      its condition.
-2. **Parameters.** Each declared parameter takes the app's value. A `use` that fixes a parameter
-   wins over the app's value. Missing required parameters are `missing-param`; wrong types are
+2. **Parameters.** Each declared parameter takes the app's value, then each one content adds
+   through a `params` effect ([effects.md](effects.md#targets)), its IDs resolved in the
+   effect's pack. A `use` that fixes a parameter wins over the app's value. Missing required parameters are `missing-param`; wrong types are
    `wrong-type`. Every parameter error (`missing-param`, `wrong-type`, `out-of-range`,
    `invalid-option`), here or at a handoff, also carries `action` (the qualified ID of the action
-   the parameter belongs to; `<item ID>#<action ID>` for an item's inline action) and, for an
+   the parameter belongs to; `<item ID>#<action ID>` for an item's inline action), for an added
+   parameter `addedBy` (as describeAction gives it), and, for an
    action started on them, `entry` and `source`, so text names the parameter by its label
    (`actions.<action>.params.<param>.name`, or the item's `actions.<action>.params.<param>.name`).
    - A number parameter (`integer`, `decimal`) outside its `min`/`max`, once a `use`'s fixed

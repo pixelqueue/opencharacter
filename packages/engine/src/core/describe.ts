@@ -1,6 +1,7 @@
 import type { DescribeActionOutput, DescribedParam, DescribedRole } from '@opencharacter/spec';
 import {
   type ActionRef,
+  addedParams,
   contentParamTakes,
   fieldParamTakes,
   findAction,
@@ -56,12 +57,26 @@ export function describeAction(
     return v && (v.kind === 'int' || v.kind === 'decimal') ? v.value : undefined;
   };
 
-  const params = Object.entries(def.params ?? {}).map(([name, decl]): DescribedParam => {
+  const all: [string, ValueDecl, string, string | undefined][] = [
+    ...Object.entries(def.params ?? {}).map(
+      ([name, decl]): [string, ValueDecl, string, string | undefined] => [
+        name,
+        decl,
+        pack,
+        undefined,
+      ],
+    ),
+    ...addedParams(sheet, def, pack, roots, { entry, source, activation }).map(
+      (p): [string, ValueDecl, string, string | undefined] => [p.name, p.decl, p.pack, p.addedBy],
+    ),
+  ];
+  const params = all.map(([name, decl, declPack, by]): DescribedParam => {
     const out: DescribedParam = {
       name,
       type: decl.type as DescribedParam['type'],
       required: !decl.optional && decl.default === undefined && fixed[name] === undefined,
     };
+    if (by !== undefined) out.addedBy = by;
     if (decl.of !== undefined) out.of = decl.of;
     if (decl.default !== undefined) out.default = decl.default;
     if (fixed[name] !== undefined) {
@@ -74,7 +89,7 @@ export function describeAction(
     if (min !== undefined) out.min = min;
     if (max !== undefined) out.max = max;
     if (decl.values) out.values = [...decl.values];
-    const options = paramOptions(ruleset, sheet, decl, pack, roots);
+    const options = paramOptions(ruleset, sheet, decl, declPack, roots);
     if (options) out.options = options;
     if (decl.unique) out.unique = true;
     if (decl.label !== undefined) out.label = decl.label;
@@ -96,7 +111,7 @@ export function describeAction(
       ...(entry !== undefined ? { entry } : {}),
       ...(source !== undefined ? { source } : {}),
       definedBy,
-      tags: [...(def.tags ?? [])],
+      tags: sheet.actionTags(def, pack, roots),
       ...(def.results !== undefined ? { results: def.results } : {}),
       params,
       participants,

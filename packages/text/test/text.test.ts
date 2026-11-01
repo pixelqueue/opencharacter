@@ -1111,3 +1111,39 @@ describe('option descriptions', () => {
     expect(text.optionDescription(incident, 'lost')).toBeUndefined();
   });
 });
+
+describe('parameters a params effect adds', () => {
+  const text = createText({
+    languages: ['en'],
+    packs: {
+      en: {
+        core: {
+          'abilities.hurl.params.element.name': 'Element',
+          'abilities.hurl.params.element.values.fire.name': 'Fire',
+          'rules.params.rested.name': 'Rested',
+          'actions.use.name': 'Use',
+        },
+      },
+    },
+    spec: { en: load('mothership/1e').spec },
+  });
+
+  it('are named by the content that adds them, as describeAction gives it', () => {
+    expect(text.addedParam('core:abilities.hurl', 'element')).toBe('Element');
+    expect(text.addedParamValue('core:abilities.hurl', 'element', 'fire')).toBe('Fire');
+    expect(text.addedParam('core:rules', 'rested')).toBe('Rested');
+    expect(text.addedParam('core:rules', 'other')).toBe('other');
+    expect(keys.addedParamKey('core:types.ability', 'element', 'description')).toEqual({
+      pack: 'core',
+      key: 'types.ability.params.element.description',
+    });
+  });
+
+  it("name a parameter error by the adding content's text", () => {
+    const message = text.error({
+      code: 'missing-param',
+      data: { param: 'element', action: 'core:use', addedBy: 'core:abilities.hurl' },
+    } as never);
+    expect(message).toContain('Element');
+  });
+});

@@ -1,0 +1,72 @@
+tags:
+  [
+    ability,
+    usage,
+    usage.main,
+    usage.maneuver,
+    kw,
+    kw.psionic,
+    kw.magic,
+    hit,
+    damage,
+    damage.fire,
+    damage.cold,
+    turn,
+  ]
+
+fields:
+  stamina: { type: integer, input: true, default: 20 }
+  drama: { type: integer, input: true, default: 0 }
+
+contentTypes:
+  # Every ability uses `use-ability`; its listing is tagged with its usage and keywords.
+  ability:
+    fields:
+      usage: { type: enum, values: [main, maneuver], default: main }
+      damage: { type: integer, default: 0 }
+    actions:
+      - use: use-ability
+  feature: {}
+  # A condition's saving throw is offered only while the condition is "save ends".
+  condition:
+    state:
+      duration: { type: enum, values: [turn, save], default: turn }
+    actions:
+      - use: saving-throw
+        scope: applied
+        available: self.duration == 'save'
+
+actions:
+  - id: use-ability
+    tags: [ability, { formula: "'usage.' + item.usage" }, { formula: item.tags }]
+    results: [used]
+    params:
+      surges: { type: integer, default: 0, min: 0 }
+    participants:
+      target: { max: 1 }
+    steps:
+      - id: hit
+        kind: changes
+        to: target
+        tags: [hit]
+        changes:
+          - {
+              type: adjust,
+              field: stamina,
+              by: -item.damage,
+              when: item.damage > 0,
+              tags: [damage],
+            }
+      - { id: done, kind: outcome, result: "'used'" }
+  - id: saving-throw
+    results: [saved]
+    steps:
+      - { id: done, kind: outcome, result: "'saved'" }
+  - id: start-turn
+    tags: [turn]
+    steps:
+      - id: start
+        kind: changes
+        tags: [turn]
+        changes:
+          - { type: adjust, field: drama, by: 1 }

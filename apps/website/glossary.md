@@ -37,7 +37,7 @@ One-line definitions of OCF terms, consistent with the [specification](../../pac
 - **Dice modifier:** one of the fixed set of notation modifiers (keep, drop, explode, reroll, count successes, …).
 - **Display hint:** optional presentation data (groups, priority, format, unit, `showWhen`, hidden) that never affects calculations. A display group holds fields, actions or content.
 - **Effect:** a change active content makes to a field, a roll or an incoming change, with an operation, value and condition.
-- **Effect operation:** one of the fixed set: add, set, multiply, atLeast, atMost, grant, rollModifier, and, for tagged action steps, option (an extra choice option) and changes (extra proposed changes).
+- **Effect operation:** one of the fixed set: add, set, multiply, atLeast, atMost, grant, rollModifier, and, for tagged action steps, option (an extra choice option) and changes (extra proposed changes, or flags set), and, for tagged actions, params (extra parameters).
 - **Effect scope:** whether an effect applies to a character who has the content (`holder`) or one it is applied to (`applied`).
 - **Engine:** an implementation of the spec's calls; the TypeScript one is the reference engine, others are ports.
 - **Entry (copy):** the character's copy of a content item: base item, templates, equipped flag, quantity, state, picks, and the state of content it grants.
@@ -45,7 +45,7 @@ One-line definitions of OCF terms, consistent with the [specification](../../pac
 - **Exclusivity group:** choices sharing a `unique` key; an option picked in one is ineligible (`already-picked`) in the others.
 - **Export:** a file of one or more characters with every pack version they pin, each by reference (ID, version, optional URL and integrity hash) or embedded as a release; one that embeds every pack is a bundle, which opens anywhere with nothing else.
 - **Extends:** a pack author's permanent variant of an item, inheriting everything and overriding parts.
-- **Extension (pack):** what a pack adds to a dependency without overriding it: values to an open enum (`extendEnums`), options to a choice (`extendChoices`), options and changes to tagged action steps (its rules' `option` and `changes` effects); additions merge in load order.
+- **Extension (pack):** what a pack adds to a dependency without overriding it: values to an open enum (`extendEnums`), options to a choice (`extendChoices`), options and changes to tagged action steps and parameters to tagged actions (its rules' `option`, `changes` and `params` effects); additions merge in load order.
 - **Extension (character):** app-specific data in a character file under the app's own namespace, carried along untouched.
 - **Field:** one value on a character, keyed by a permanent field ID.
 - **Field parameter:** an action parameter of type `id` with `of: field`, read as `params.<name>.value` and `.id`.

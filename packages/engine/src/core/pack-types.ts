@@ -112,7 +112,8 @@ export type EffectTarget =
   | { rolls: string[]; from?: string; tally?: string; parts?: string[] }
   | { incoming: { fields?: string[]; tags?: string[] } }
   | { choices: string[]; from?: string }
-  | { steps: string[]; from?: string };
+  | { steps: string[]; from?: string }
+  | { actions: string[]; from?: string };
 
 export interface StepChanges {
   changes?: ProposedChange[];
@@ -160,7 +161,13 @@ export interface Effect {
   id?: string;
   target: EffectTarget;
   op: string;
-  value?: Formula | GrantValue | RollModifier | OptionValue | StepChanges;
+  value?:
+    | Formula
+    | GrantValue
+    | RollModifier
+    | OptionValue
+    | StepChanges
+    | Record<string, ValueDecl>;
   when?: Formula;
   stackKey?: string;
   rounding?: 'floor' | 'ceil' | 'round' | 'truncate';
@@ -503,7 +510,7 @@ export interface ProposedChange {
 
 export interface ActionDef {
   id: string;
-  tags?: string[];
+  tags?: TagOrFormula[];
   available?: Formula;
   listed?: boolean;
   params?: Record<string, ValueDecl>;
@@ -517,6 +524,8 @@ export interface ActionDef {
 export interface ActionUse {
   use: string;
   listed?: boolean;
+  /** ANDed with the used action's `available`. */
+  available?: Formula;
   params?: Record<string, Formula>;
   scope?: 'holder' | 'applied';
 }

@@ -24,11 +24,12 @@
         "grant",
         "rollModifier",
         "option",
-        "changes"
+        "changes",
+        "params"
       ]
     },
     "value": {
-      "description": "A formula for add/set/multiply/atLeast/atMost (on rolls and on incoming changes, `add` accepts dice: `1d4`; on rolls, `atLeast` and `atMost` take an integer and bound the roll's total after the dice); a grant value object for grant; a roll modifier for rollModifier; an option for option; changes for a tagged changes step for changes. On a roll's parts, `set` takes a formula (dice or a number) that replaces each matching part."
+      "description": "A formula for add/set/multiply/atLeast/atMost (on rolls and on incoming changes, `add` accepts dice: `1d4`; on rolls, `atLeast` and `atMost` take an integer and bound the roll's total after the dice); a grant value object for grant; a roll modifier for rollModifier; an option for option; changes for a tagged changes step for changes; parameter declarations for params. On a roll's parts, `set` takes a formula (dice or a number) that replaces each matching part."
     },
     "when": {
       "description": "Condition for the effect to be active. `self` is the character's copy of the item carrying it. For `option`, the added option is offered only while this holds; it also sees the action context and `action`. For `changes`, the changes are added only while this holds, with the same context and `participant` in an `each` step. On an incoming target, it also sees `incoming`.",
@@ -103,6 +104,39 @@
     },
     {
       "$ref": "#/$defs/stepOps"
+    },
+    {
+      "$ref": "#/$defs/actionOps"
+    },
+    {
+      "if": {
+        "properties": {
+          "op": {
+            "const": "params"
+          }
+        },
+        "type": "object"
+      },
+      "then": {
+        "required": ["value"],
+        "properties": {
+          "target": {
+            "$ref": "#/$defs/actionTarget"
+          },
+          "value": {
+            "description": "The parameters added, declared as an action's own `params`: name to declaration.",
+            "type": "object",
+            "propertyNames": {
+              "$ref": "common.schema.json#/$defs/name"
+            },
+            "additionalProperties": {
+              "$ref": "content-type.schema.json#/$defs/valueDecl"
+            },
+            "minProperties": 1
+          }
+        },
+        "type": "object"
+      }
     },
     {
       "if": {
@@ -562,6 +596,45 @@
         "type": "object"
       }
     },
+    "actionOps": {
+      "description": "`params` is the only op on an action target.",
+      "if": {
+        "properties": {
+          "target": {
+            "type": "object",
+            "required": ["actions"]
+          }
+        },
+        "required": ["target"],
+        "type": "object"
+      },
+      "then": {
+        "properties": {
+          "op": {
+            "const": "params"
+          }
+        },
+        "type": "object"
+      }
+    },
+    "actionTarget": {
+      "description": "Actions as they are listed and started, by their tags. Only op `params`.",
+      "type": "object",
+      "required": ["actions"],
+      "properties": {
+        "actions": {
+          "description": "Action tags; the effect adds its parameters to a listed action carrying any of them, its computed tags evaluated for the listing (a tag matches itself and every tag below it).",
+          "$ref": "common.schema.json#/$defs/tags",
+          "minItems": 1,
+          "type": "array"
+        },
+        "from": {
+          "description": "`self`: only actions listed for the copy carrying this effect (not on the rules' effects). `any` (default): every matching action of the character.",
+          "enum": ["self", "any"]
+        }
+      },
+      "additionalProperties": false
+    },
     "stepTarget": {
       "description": "Changes steps of actions as they run, by tag. Only op `changes`.",
       "type": "object",
@@ -608,7 +681,7 @@
       "additionalProperties": false
     },
     "target": {
-      "description": "A character field (by ID, or a string formula giving one), a set of fields (by a static query over their tags), rolls as they happen (by tag), incoming changes (by field and tag), an action's choice steps (by tag), or an action's changes steps (by tag).",
+      "description": "A character field (by ID, or a string formula giving one), a set of fields (by a static query over their tags), rolls as they happen (by tag), incoming changes (by field and tag), an action's choice steps (by tag), an action's changes steps (by tag), or actions (by tag).",
       "anyOf": [
         {
           "$ref": "common.schema.json#/$defs/fieldRef"
@@ -624,6 +697,9 @@
         },
         {
           "$ref": "#/$defs/stepTarget"
+        },
+        {
+          "$ref": "#/$defs/actionTarget"
         },
         {
           "$ref": "#/$defs/fieldsTarget"

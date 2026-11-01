@@ -859,10 +859,28 @@ function params(
   fixed: Record<string, Formula>,
 ): Record<string, unknown> {
   const out: Record<string, unknown> = {};
-  const at = paramAction(frame);
-  for (const [name, decl] of Object.entries(frame.def.params ?? {})) {
+  const own = paramAction(frame);
+  const all: [string, ValueDecl, string, Record<string, string>][] = [
+    ...Object.entries(frame.def.params ?? {}).map(
+      ([name, decl]): [string, ValueDecl, string, Record<string, string>] => [
+        name,
+        decl,
+        frame.pack,
+        own,
+      ],
+    ),
+    ...addedParams(ctx.sheet, frame.def, frame.pack, frame.roots, frame).map(
+      (p): [string, ValueDecl, string, Record<string, string>] => [
+        p.name,
+        p.decl,
+        p.pack,
+        { ...own, addedBy: p.addedBy },
+      ],
+    ),
+  ];
+  for (const [name, decl, pack, at] of all) {
     let value: unknown = raw[name];
-    if (fixed[name] !== undefined) {
+    if (fixed[name] !== undefined && frame.def.params?.[name]) {
       const evaluated = ctx.sheet.evaluate(fixed[name] as Formula, frame.pack, frame.roots);
       // A dice value has no plain data form, so a fixed dice parameter keeps the value itself.
       if (decl.type === 'dice' && evaluated.kind === 'dice') {
@@ -880,11 +898,11 @@ function params(
       value = fieldIdOf(value);
       if (typeof value !== 'string')
         throw new ActionError('wrong-type', { target: name, expected: 'a field ID', ...at });
-      const qid = resolveField(ctx.ruleset, value, frame.pack);
+      const qid = resolveField(ctx.ruleset, value, pack);
       const field = qid ? ctx.ruleset.fields[qid] : undefined;
       if (!qid || !field)
         throw new ActionError('invalid-option', { param: name, option: value, ...at });
-      if (!fieldParamTakes(ctx.sheet, ctx.ruleset, decl, frame.pack, qid))
+      if (!fieldParamTakes(ctx.sheet, ctx.ruleset, decl, pack, qid))
         throw new ActionError('invalid-option', { param: name, option: value, ...at });
       out[name] = {
         id: qid,
@@ -898,12 +916,12 @@ function params(
     if (typeof typed === 'string')
       throw new ActionError('wrong-type', { target: name, ...expectedData(decl, typed), ...at });
     if (decl.type === 'id' && decl.of !== undefined && decl.of !== 'tag' && decl.of !== 'string') {
-      const qid = resolveContent(ctx.ruleset, value as string, frame.pack);
+      const qid = resolveContent(ctx.ruleset, value as string, pack);
       const item = qid ? ctx.ruleset.content[qid] : undefined;
-      const type = resolveType(ctx.ruleset, decl.of, frame.pack);
+      const type = resolveType(ctx.ruleset, decl.of, pack);
       if (!qid || !item || item.type !== type)
         throw new ActionError('invalid-option', { param: name, option: value, ...at });
-      if (!contentParamTakes(ctx.sheet, ctx.ruleset, decl, frame.pack, item, frame.roots))
+      if (!contentParamTakes(ctx.sheet, ctx.ruleset, decl, pack, item, frame.roots))
         throw new ActionError('invalid-option', { param: name, option: value, ...at });
       out[name] = qid;
       continue;
@@ -915,12 +933,75 @@ function params(
           throw new ActionError('invalid-option', { param: name, option: tag, ...at });
     }
     paramRange(name, at, decl, typed, (bound) => {
-      const v = ctx.sheet.evaluate(bound, frame.pack, frame.roots);
+      const v = ctx.sheet.evaluate(bound, pack, frame.roots);
       return v.kind === 'int' || v.kind === 'decimal' ? v.value : undefined;
     });
     out[name] = rootValue(typed);
   }
   return out;
+}
+
+/** A parameter content adds to an action through a `params` effect. */
+export interface AddedParam {
+  name: string;
+  decl: ValueDecl;
+  /** The effect's pack: the parameter's IDs resolve there. */
+  pack: string;
+  /** The content whose text names it: `<content id>`, `<pack>:types.<type>` or `<pack>:rules`. */
+  addedBy: string;
+}
+
+/**
+ * The parameters `params` effects add to an action as listed with these roots: each instance
+ * whose target tags match the listing's tags, whose `from: self` (if any) names its entry and
+ * whose `when` holds, in instance order. A name the action declares, or an earlier instance
+ * added, is left out.
+ */
+export function addedParams(
+  sheet: Sheet,
+  def: ActionDef,
+  pack: string,
+  roots: Record<string, unknown>,
+  run: RunOwner,
+): AddedParam[] {
+  const out: AddedParam[] = [];
+  let tags: string[] | undefined;
+  for (const instance of sheet.instances) {
+    const effect = instance.effect;
+    const target = effect.target;
+    if (effect.op !== 'params' || typeof target !== 'object' || !('actions' in target)) continue;
+    tags ??= sheet.actionTags(def, pack, roots);
+    if (!target.actions.some((tag) => matchesTag(tag, tags as string[]))) continue;
+    if (!addsTo(instance, run, target.from)) continue;
+    if (effect.when !== undefined) {
+      const action = {
+        ...(roots.item !== undefined ? { item: roots.item } : {}),
+        ...(roots.self !== undefined ? { self: roots.self } : {}),
+      };
+      let holds = false;
+      try {
+        const v = sheet.evaluate(effect.when, instance.pack, { ...instance.roots, action });
+        holds = v.kind === 'bool' && v.value;
+      } catch (error) {
+        if (!(error instanceof Failure)) throw error;
+      }
+      if (!holds) continue;
+    }
+    for (const [name, decl] of Object.entries(effect.value as Record<string, ValueDecl>)) {
+      if (Object.hasOwn(def.params ?? {}, name) || out.some((p) => p.name === name)) continue;
+      out.push({ name, decl, pack: instance.pack, addedBy: addedBy(sheet.ruleset, instance) });
+    }
+  }
+  return out;
+}
+
+/** The content an added option or parameter is named by: a type's own effects by the type. */
+function addedBy(ruleset: Ruleset, instance: EffectInstance): string {
+  if (instance.source.type === 'rules') return `${instance.pack}:rules`;
+  const item = ruleset.content[instance.source.id ?? ''];
+  const type = item ? ruleset.contentTypes[item.type] : undefined;
+  if (type?.effects?.includes(instance.effect)) return `${type.pack}:types.${type.name}`;
+  return instance.source.id ?? '';
 }
 
 /** The action a parameter error names, and the entry and source it was started on. */
@@ -2801,10 +2882,21 @@ function optionFrame(frame: Frame, instance: EffectInstance): Frame {
  * copy's to its own actions.
  */
 function addsToSteps(instance: EffectInstance, frame: Frame, from: string | undefined): boolean {
+  return addsTo(instance, frame, from);
+}
+
+/** The run an effect adds to: its entry, the content it runs for, and that content's activation. */
+interface RunOwner {
+  entry?: string | undefined;
+  source?: string | undefined;
+  activation?: Activation | undefined;
+}
+
+function addsTo(instance: EffectInstance, run: RunOwner, from?: string): boolean {
   const { type, id } = instance.source;
   if (type === 'rules') return from !== 'self' && id !== undefined;
   if (type !== 'item' && type !== 'template') return false;
-  return id !== undefined && (from !== 'self' || ownEffect(instance, frame));
+  return id !== undefined && (from !== 'self' || ownEffect(instance, run));
 }
 
 /**
@@ -2813,11 +2905,11 @@ function addsToSteps(instance: EffectInstance, frame: Frame, from: string | unde
  * effect is that content, so granted abilities sharing their type's action each reach only their
  * own runs. A template is part of its copy: its own action matches by entry, as the copy's does.
  */
-function ownEffect(instance: EffectInstance, frame: Frame): boolean {
-  if (instance.source.entry !== frame.entry) return false;
-  const kind = frame.activation?.kind;
-  if (frame.source === undefined || (kind !== 'grant' && kind !== 'pick')) return true;
-  return instance.source.id === frame.source;
+function ownEffect(instance: EffectInstance, run: RunOwner): boolean {
+  if (instance.source.entry !== run.entry) return false;
+  const kind = run.activation?.kind;
+  if (run.source === undefined || (kind !== 'grant' && kind !== 'pick')) return true;
+  return instance.source.id === run.source;
 }
 
 /** Of instances sharing a `stackKey` or an ID, only the first is offered. */

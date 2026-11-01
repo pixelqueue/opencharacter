@@ -9,6 +9,7 @@ import type {
 import * as f from '../formula/index.ts';
 import type { EngineError } from './load.ts';
 import type {
+  ActionDef,
   ActionOrUse,
   CharacterDoc,
   Choice,
@@ -3429,15 +3430,17 @@ export class Sheet {
     // `entry`.
     for (const a of this.activations) {
       if (!a.item) continue;
-      const list: ActionOrUse[] = [
-        ...(this.ruleset.contentTypes[a.item.type]?.actions ?? []),
-        ...(a.item.actions ?? []),
+      const type = this.ruleset.contentTypes[a.item.type];
+      const own = a.item.pack;
+      const list: [ActionOrUse, string][] = [
+        ...(type?.actions ?? []).map((x): [ActionOrUse, string] => [x, type?.pack ?? own]),
+        ...(a.item.actions ?? []).map((x): [ActionOrUse, string] => [x, own]),
       ];
       // Content picked or granted on the entry is named by `source`, so several picks can share one
       // action. Content with no owning copy is named by `source` alone.
       const source = ownsEntry(a) ? undefined : a.item.qid;
       const entry = entryOf(a);
-      for (const action of list) {
+      for (const [action, written] of list) {
         if ((action.scope ?? 'holder') !== a.scope) continue;
         const id = 'use' in action ? action.use : `${a.item.qid}#${action.id}`;
         const def = 'use' in action ? this.ruleset.rules.actions[action.use] : action;
@@ -3447,9 +3450,12 @@ export class Sheet {
         if (!def || seen.has(key)) continue;
         if (!unlisted && (('use' in action ? action.listed : undefined) ?? def.listed) === false)
           continue;
+        const roots = this.actionRoots(a);
         let available = false;
         try {
-          available = this.test(def.available, pack, this.actionRoots(a));
+          available =
+            this.test(def.available, pack, roots) &&
+            (!('use' in action) || this.test(action.available, written, roots));
         } catch (error) {
           if (!(error instanceof Failure)) throw error;
         }
@@ -3461,7 +3467,7 @@ export class Sheet {
             ...(entry !== undefined ? { entry } : {}),
             ...(source ? { source } : {}),
           },
-          tags: def.tags ?? [],
+          tags: this.actionTags(def, pack, roots),
         });
       }
     }
@@ -3473,9 +3479,30 @@ export class Sheet {
       } catch (error) {
         if (!(error instanceof Failure)) throw error;
       }
-      if (available) out.push({ listed: { action: qid }, tags: def.tags ?? [] });
+      if (available)
+        out.push({
+          listed: { action: qid },
+          tags: this.actionTags(def, def.pack, this.rulesRoots()),
+        });
     }
     return out;
+  }
+
+  /**
+   * An action's tags for a listing: written tags, then those its `{ formula }` entries give with
+   * the listing's `item` and `self`; only the written ones when a formula fails.
+   */
+  actionTags(def: ActionDef, pack: string, roots: Record<string, unknown>): string[] {
+    if (!(def.tags ?? []).some((t) => typeof t !== 'string')) return writtenTags(def.tags);
+    try {
+      const result = evaluateTags(this.ruleset, def.tags, (formula) =>
+        this.evaluate(formula, pack, roots),
+      );
+      return result.ok ? result.tags : writtenTags(def.tags);
+    } catch (error) {
+      if (!(error instanceof Failure)) throw error;
+      return writtenTags(def.tags);
+    }
   }
 
   // --- Computed values on copies and content -------------------------------------------------

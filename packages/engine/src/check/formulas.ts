@@ -132,10 +132,13 @@ function readsRoot(formula: Formula, roots: string[]): boolean {
   );
 }
 
-function targetKind(target: Effect['target']): 'field' | 'roll' | 'incoming' | 'choice' | 'step' {
+function targetKind(
+  target: Effect['target'],
+): 'field' | 'roll' | 'incoming' | 'choice' | 'step' | 'action' {
   if (typeof target === 'string' || 'fields' in target || 'formula' in target) return 'field';
   if ('choices' in target) return 'choice';
   if ('steps' in target) return 'step';
+  if ('actions' in target) return 'action';
   return 'rolls' in target ? 'roll' : 'incoming';
 }
 
@@ -687,6 +690,11 @@ class FormulaChecker<L> {
         },
         () => this.withRoots(STEP_ROOTS, () => this.effectBody(effect, at, where, kind)),
       );
+    } else if (kind === 'action') {
+      // Evaluated as the action is listed: the content's `item` and `self`, the action's as `action`.
+      this.typed({ action: actionType('dyn', 'dyn') }, () =>
+        this.withRoots(['action'], () => this.effectBody(effect, at, where, kind)),
+      );
     } else if (kind === 'incoming') {
       this.typed({ incoming: INCOMING, situational: this.situationalRoot() }, () =>
         this.withRoots(['incoming', 'situational'], () => this.effectBody(effect, at, where, kind)),
@@ -711,7 +719,7 @@ class FormulaChecker<L> {
     effect: Effect,
     at: L,
     where: string,
-    kind: 'field' | 'roll' | 'incoming' | 'choice' | 'step',
+    kind: 'field' | 'roll' | 'incoming' | 'choice' | 'step' | 'action',
   ): void {
     const label = `${where} effect${effect.id ? ` ${effect.id}` : ''}`;
     if (typeof effect.target === 'string') {
@@ -728,6 +736,8 @@ class FormulaChecker<L> {
       this.tagList(effect.target.parts, at, label);
     } else if ('incoming' in effect.target) {
       this.tagList(effect.target.incoming.tags, at, label);
+    } else if ('actions' in effect.target) {
+      this.tagList(effect.target.actions, at, label);
     }
     if (effect.op === 'option') {
       // An added option's flags and changes see the pick as `picked` (`{ id }`), not `picks`.
@@ -748,6 +758,11 @@ class FormulaChecker<L> {
       for (const [name, formula] of Object.entries(value.flags ?? {}))
         this.optionFlag(tags, 'changes', name, formula, at, label);
       for (const change of value.changes ?? []) this.proposedChange(change, at, label);
+    } else if (effect.op === 'params') {
+      for (const [name, decl] of Object.entries(effect.value as Record<string, ValueDecl>)) {
+        this.formula(decl.min, at, `${label} param ${name} min`, NUMBER);
+        this.formula(decl.max, at, `${label} param ${name} max`, NUMBER);
+      }
     } else if (effect.op === 'rollModifier') {
       const modifier = effect.value as RollModifier;
       for (const value of [modifier.below, modifier.factor, modifier.value, modifier.at])
@@ -914,6 +929,7 @@ class FormulaChecker<L> {
     if ('use' in action) {
       for (const value of Object.values(action.params ?? {}))
         this.formula(value, at, `use ${action.use}`, ANY);
+      this.formula(action.available, at, `use ${action.use}`, BOOL);
       return;
     }
     this.action(action, at, `${keyPrefix}.${action.id}`, ownerType, ownComputed);

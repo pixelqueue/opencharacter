@@ -493,6 +493,8 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
             ...q.to(v.to, pack),
           };
         }
+      } else if ('actions' in effect.target) {
+        q.tags(effect.target.actions, pack);
       } else if ('choices' in effect.target) {
         q.tags(effect.target.choices, pack);
         if (effect.op === 'option' && effect.value && typeof effect.value === 'object') {

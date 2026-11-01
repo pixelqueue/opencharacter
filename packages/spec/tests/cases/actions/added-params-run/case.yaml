@@ -1,0 +1,11 @@
+description: "A `params` effect with `from: self` adds a parameter to its ability's own use of a shared action; the app gives it like the action's own, and the ability's own changes read it"
+specVersion: 0.3.0
+call: startAction
+packs:
+  - path: ../../../packs/test-action-params
+input:
+  action: { id: 'test-action-params:use-ability', entry: hurl }
+  params: { element: fire }
+  participants:
+    target:
+      - { id: orc, values: {} }

@@ -10,7 +10,8 @@
       "$ref": "common.schema.json#/$defs/slug"
     },
     "tags": {
-      "$ref": "common.schema.json#/$defs/tags"
+      "description": "The action's tags (display groups, `params` effects). Entries may be `{ formula }`, evaluated per listing with its `item`, `self` and the character's fields; a formula that fails leaves only the written tags.",
+      "$ref": "common.schema.json#/$defs/tagList"
     },
     "available": {
       "description": "When the action is offered, e.g. `self.equipped`.",
@@ -99,6 +100,10 @@
             "listed": {
               "description": "`false`: this use isn't listed by computeSheet, as an action's own `listed: false`. Default: the used action's.",
               "type": "boolean"
+            },
+            "available": {
+              "description": "When this use is offered, ANDed with the used action's own `available`: evaluated for each listing with its `item`, `self` and the character's fields, in the pack that writes the use (a condition's saving throw only while it is \"save ends\").",
+              "$ref": "formula.schema.json#/$defs/condition"
             },
             "params": {
               "type": "object",

@@ -1,0 +1,19 @@
+# The damage type is chosen on each use: a parameter the ability adds to its own use, which its
+# own changes on the hit read.
+id: abilities.hurl-element
+type: ability
+tags: [kw.magic]
+fields: { usage: main }
+effects:
+  - target: { actions: [ability], from: self }
+    op: params
+    value:
+      element: { type: enum, values: [fire, cold] }
+  - target: { steps: [hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: adjust
+          field: stamina
+          by: -3
+          tags: [damage, { formula: "'damage.' + params.element" }]

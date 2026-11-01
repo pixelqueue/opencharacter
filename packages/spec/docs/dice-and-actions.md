@@ -50,6 +50,7 @@ An **action** ([`action.schema.json`](../schemas/action.schema.json)) is a casca
 
 | Property       | Meaning                                                                                                                                                                  |
 | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `tags`         | The action's tags; `{ formula }` entries are evaluated per listing, with its `item` and `self` (below)                                                                   |
 | `available`    | When the action is offered (`self.equipped`)                                                                                                                             |
 | `listed`       | `false`: computeSheet doesn't list it, so only other actions (and `startAction`) run it (below)                                                                          |
 | `params`       | Values the app supplies (a target's AC, which stat to test), declared like state; `min`/`max` are enforced as the action starts ([engine-actions.md](engine-actions.md)) |
@@ -82,6 +83,59 @@ have no text (`pnpm validate` warns).
     - id: confirm
       kind: choice # actions.weapon-attack.steps.confirm.prompt
       options: [{ id: hit }, { id: miss }]
+```
+
+**A `use` entry** names a rules action (`use`) and may fix some of its `params` (formulas),
+leave it unlisted (`listed: false`), set its `scope`, and give its own `available`: evaluated
+for each listing with its `item` and `self`, in the pack that writes the use, and ANDed with the
+used action's. Draw Steel's conditions offer the shared saving throw only while "save ends":
+
+```yaml
+contentTypes:
+  condition:
+    actions:
+      - { use: saving-throw, scope: applied, available: "self.duration == 'save'" }
+```
+
+**The action's own tags** may hold `{ formula }` entries too, evaluated for each listing with its
+`item`, `self` and the character's fields (no `params`, `steps` or `flags`); a formula that fails
+leaves only the written tags. computeSheet's listing, display groups, describeAction and `params`
+effects see them. One shared ability action is then tagged with each ability's usage and
+keywords:
+
+```yaml
+- id: use-ability
+  tags: [ability, { formula: "'usage.' + item.usage" }, { formula: item.tags }]
+```
+
+**Parameters content adds.** A content item's, template's, content type's or the rules'
+`params` effect (`target: { actions: [<tag>], from? }`, [effects.md](effects.md#targets)) adds
+parameters to the listed actions whose tags match, while its `when` holds. Each is declared as
+the action's own and given by the app the same way; describeAction lists it after the action's
+own with `addedBy`. The action's own formulas see only the parameters it declares; the content
+reads its own as `params.<name>` in its roll, option and `changes` effects. So an ability
+chooses its damage type on each use, and a feature adds an opt-in to a rules action:
+
+```yaml
+# Hurl Element: the element is chosen on each use of the shared ability action.
+effects:
+  - target: { actions: [ability], from: self }
+    op: params
+    value:
+      element: { type: enum, values: [acid, cold, corruption, fire, lightning, poison] }
+  - target: { rolls: [damage], from: self }
+    op: add
+    value: 2
+    tags: [{ formula: "'damage.' + params.element" }]
+# Appeal to the Muses: an opt-in as the turn starts, its drama added to the turn's.
+effects:
+  - target: { actions: [turn.start] }
+    op: params
+    value: { appeal: { type: boolean, default: false } }
+  - target: { steps: [turn.start] }
+    op: changes
+    when: params.appeal
+    value: { changes: [{ type: adjust, field: drama.current, by: 1 }] }
 ```
 
 **Computed tags.** In an action, any `tags` list (on a roll step, a roll part, an action step, a roll effect's added item, or a proposed change) may contain `{ formula }` entries. These are evaluated when the step runs. A formula gives one tag (a string) or several (a list of strings), spread in the entry's place, in order; an empty list adds nothing. Each must be a declared tag (`unknown-tag` otherwise), anything else is `type-mismatch`, and a tag already in the list (from an earlier entry) isn't added again. One shared attack action can then tag a longsword's damage `damage.slashing` and a bow's `damage.piercing`:

@@ -55,7 +55,8 @@ display:
 
 - **Actions:** in `where`, `item.id` is the action's qualified ID as listed
   (`5e-srd-5.1:death-save`, `<item id>#<action id>` for an action inline on an item),
-  `item.tags` its tags, and `item.entry` and `item.source` the listing's instance ID and source
+  `item.tags` its tags (computed ones evaluated for the listing, so a shared ability action
+  can be sectioned by each ability's usage), and `item.entry` and `item.source` the listing's instance ID and source
   content, absent when it has none (`has(item.entry)`). The action's definition (parameters,
   roles) isn't visible: an app reads it from the action. Prefer tags to IDs, so homebrew actions
   join too.

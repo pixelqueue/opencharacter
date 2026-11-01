@@ -43,6 +43,10 @@
         "name": {
           "$ref": "../common.schema.json#/$defs/name"
         },
+        "addedBy": {
+          "description": "A parameter a `params` effect adds (listed after the action's own): the content whose text names it, `<content id>`, `<pack>:types.<type>` for a content type's effect, or `<pack>:rules`. Without its own `label`, its text is `<content key>.params.<name>.name` in that pack (`rules.params.<name>.name`, `types.<type>.params.<name>.name`).",
+          "type": "string"
+        },
         "type": {
           "$ref": "../common.schema.json#/$defs/declValueType"
         },
@@ -90,7 +94,7 @@
           "const": true
         },
         "label": {
-          "description": "The parameter's own label key; without it, `<actionKey>.params.<name>.name`.",
+          "description": "The parameter's own label key; without it, `<actionKey>.params.<name>.name` (an added one's, by `addedBy`).",
           "$ref": "../common.schema.json#/$defs/i18nKey"
         }
       },

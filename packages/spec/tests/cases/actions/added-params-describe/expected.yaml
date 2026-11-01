@@ -1,0 +1,13 @@
+action:
+  definedBy: test-action-params:use-ability
+  tags: [ability, usage.maneuver, kw.psionic]
+  results: [used]
+  params:
+    - { name: surges, type: integer, required: false, default: 0, min: 0 }
+    - name: boost
+      type: boolean
+      required: false
+      default: false
+      addedBy: test-action-params:features.psi-boost
+  participants:
+    - { role: target, min: 0, max: 1 }

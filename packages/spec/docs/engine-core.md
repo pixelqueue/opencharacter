@@ -658,7 +658,9 @@ in ruleset order, a type's `max` issue before its items' in the order of their f
 
 ### Actions
 
-An action is available when its `available` formula (if any) is true. An available action with
+An action is available when its `available` formula (if any) is true, and, for a `use`, the
+use's own `available` too (evaluated with the listing's `item` and `self`, in the pack that writes
+the use). An available action with
 `listed: false` (on the action, or on the `use` that names it) is left out of `actions`: only
 `startAction` and other actions' `action` steps run it. Two kinds of action are listed in
 `actions`:
@@ -686,6 +688,10 @@ An action is available when its `available` formula (if any) is true. An availab
 
 An item action written as `use` is listed under the used action's qualified ID. An action
 defined inline on an item is listed as `<item id>#<action id>`.
+
+**Tags:** each listing carries the action's tags, its `{ formula }` entries evaluated with the
+listing's `item` and `self` and the character's fields (only the written tags when one fails), so
+one shared action is tagged per item: display groups and `params` effects match these.
 
 **Order:** content actions come first, in activation order, each activation's actions in the
 order above. Rules actions follow, in definition order: packs in load order, then each pack's rules

@@ -151,7 +151,8 @@ monster starts) offer it beside the core's own:
 
 - **Action steps.** The add-on's rules' `option` and `changes` effects reach the core's tagged
   choice and changes steps (an extra option in a creation step), its options named
-  `rules.options.<id>.name`.
+  `rules.options.<id>.name`; its `params` effects add parameters to the core's tagged actions,
+  named `rules.params.<name>.name`.
 
 An add-on can't change what the core wrote out by ID: a fixed kit list, a random table over core
 IDs, a choice over a query whose `where` lists IDs. Those are for the core pack to open up, with

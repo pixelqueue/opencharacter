@@ -48,10 +48,11 @@ describe('schema forms', () => {
     expect(variantFor(reg, target, { incoming: { tags: ['damage.fire'] } })).toBe(3);
     expect(variantFor(reg, target, { choices: ['push-cost'] })).toBe(4);
     expect(variantFor(reg, target, { steps: ['strike.hit'] })).toBe(5);
-    expect(variantFor(reg, target, { fields: { where: "'save' in item.tags" } })).toBe(6);
-    expect(variantFor(reg, target, { formula: "'skills.' + pick.value" })).toBe(7);
-    // fieldRef is flattened into the list: eight choices, one dropdown.
-    expect(variants(reg, target).length).toBe(8);
+    expect(variantFor(reg, target, { actions: ['kw.psionic'] })).toBe(6);
+    expect(variantFor(reg, target, { fields: { where: "'save' in item.tags" } })).toBe(7);
+    expect(variantFor(reg, target, { formula: "'skills.' + pick.value" })).toBe(8);
+    // fieldRef is flattened into the list: nine choices, one dropdown.
+    expect(variants(reg, target).length).toBe(9);
   });
 
   it('treats an object with a oneOf constraint as an object (content items)', () => {
