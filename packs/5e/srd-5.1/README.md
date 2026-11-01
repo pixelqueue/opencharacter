@@ -242,12 +242,15 @@ Where the SRD is unclear or silent, the pack reads it this way:
   conditions tagged `disease`.
 - **Monsters:** all 322 SRD stat blocks, CR 0 to 30, plus the variants the SRD prints as a
   paragraph (the diseased giant rat, four insect swarms). A monster is a character with no
-  class. `create-monster` copies a `monster` item's numbers into the sheet's inputs; the item
-  sets AC, senses, XP and legendary actions and grants the traits and actions. `monster-attack`
-  and `monster-effect` resolve attacks and saving throws on each target's sheet. Multiattacks
-  run the attacks they name; legendary actions spend their cost; recharge and per-day actions
-  are copies with their own state; Spellcasting and Innate Spellcasting cast with the printed
-  numbers; the vampire and the lycanthropes change form. Languages only monsters speak aren't
+  class. `create-monster` copies a `monster` item's stat block into the sheet: its numbers into
+  the sheet's inputs, and each trait and action (the item's `entries`, in stat-block order) as
+  its own `monsterAction` copy with its uses or recharge, so a GM can drop or change one on a
+  single monster. The item still sets AC, senses, XP and legendary actions. `monster-attack` and
+  `monster-effect` resolve attacks and saving throws on each target's sheet. Multiattacks run
+  the attacks they name; legendary actions spend their cost; Spellcasting and Innate
+  Spellcasting are traits that cast with the printed numbers; the vampire's and the
+  lycanthropes' forms grant their form's attacks. Monsters saved with 0.3.0 or earlier, whose
+  item granted its traits and actions, get them as copies on upgrade. Languages only monsters speak aren't
   offered to players. A monster's sheet leaves out experience points, character level (at 0) and
   death saves, and shows carrying weight only once it carries something.
 - **Resting:** `death-save`, `spend-hit-die`, `short-rest` and `long-rest` (spent hit dice back

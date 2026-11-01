@@ -282,9 +282,10 @@ works for them: compute their sheet, run their attacks, apply damage to them.
 
 - Keep one file per monster **type** as a template, and give each monster in an encounter its own
   copy with its own `id`.
-- A monster's actions come from its items and the rules. In the 5E pack a stat block is a
-  `monster` item that grants its attacks, run by `monster-attack` with the stat block's own
-  numbers, and the `monster` creation start makes a monster's sheet from it.
+- A monster's actions come from its items and the rules. In the 5E packs a stat block is a
+  `monster` item, and the `monster` creation start makes a monster's sheet from it: each trait
+  and action becomes a copy of its own, which a GM can drop or change on one monster, and its
+  attacks run through `monster-attack` with the stat block's own numbers.
 
 ## Linked sheets
 

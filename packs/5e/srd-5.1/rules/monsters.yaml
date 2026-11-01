@@ -147,7 +147,8 @@ contentTypes:
       cr: { type: decimal, required: true, min: 0, max: 30 }
       xp: { type: integer, min: 0 }
       legendaryActions: { type: integer, min: 1 }
-      ownCopies: { type: list, of: monsterAction, unique: true, default: [] }
+      # The stat block's traits and actions, in its order: create-monster adds a copy of each.
+      entries: { type: list, of: monsterAction, unique: true, default: [] }
       innateOncePerDay: { type: set, of: spell, default: [] }
       innateTwicePerDay: { type: set, of: spell, default: [] }
       innateThricePerDay: { type: set, of: spell, default: [] }
@@ -223,56 +224,12 @@ contentTypes:
     actions:
       - use: change-form
 
-  monsterSpellcasting:
-    grantOnly: true
-    carried: false
-    fields:
-      ability: { type: enum, values: [str, dex, con, int, wis, cha], required: true }
-      dc: { type: integer }
-      attack: { type: integer }
-      level: { type: integer, min: 1, max: 20 }
-      innate: { type: boolean }
-      slots1: { type: integer, min: 0 }
-      slots2: { type: integer, min: 0 }
-      slots3: { type: integer, min: 0 }
-      slots4: { type: integer, min: 0 }
-      slots5: { type: integer, min: 0 }
-      slots6: { type: integer, min: 0 }
-      slots7: { type: integer, min: 0 }
-      slots8: { type: integer, min: 0 }
-      slots9: { type: integer, min: 0 }
-    effects:
-      - target: spellcasting.monster.ability
-        op: set
-        value: item.ability
-      - target: spellcasting.monster.mod
-        op: set
-        value: >-
-          item.ability == 'str' ? abilities.str.mod : item.ability == 'dex' ? abilities.dex.mod
-            : item.ability == 'con' ? abilities.con.mod : item.ability == 'int' ? abilities.int.mod
-            : item.ability == 'wis' ? abilities.wis.mod : abilities.cha.mod
-      - target: spellcasting.monster.dc
-        op: set
-        value: 'has(item.dc) ? item.dc : 8 + proficiency.bonus + spellcasting.monster.mod'
-      - target: spellcasting.monster.attack
-        op: set
-        value: 'has(item.attack) ? item.attack : proficiency.bonus + spellcasting.monster.mod'
-      - { target: spellcasting.monster.level, op: set, value: item.level, when: has(item.level) }
-      - { target: spellSlots.level1.max, op: set, value: item.slots1, when: has(item.slots1) }
-      - { target: spellSlots.level2.max, op: set, value: item.slots2, when: has(item.slots2) }
-      - { target: spellSlots.level3.max, op: set, value: item.slots3, when: has(item.slots3) }
-      - { target: spellSlots.level4.max, op: set, value: item.slots4, when: has(item.slots4) }
-      - { target: spellSlots.level5.max, op: set, value: item.slots5, when: has(item.slots5) }
-      - { target: spellSlots.level6.max, op: set, value: item.slots6, when: has(item.slots6) }
-      - { target: spellSlots.level7.max, op: set, value: item.slots7, when: has(item.slots7) }
-      - { target: spellSlots.level8.max, op: set, value: item.slots8, when: has(item.slots8) }
-      - { target: spellSlots.level9.max, op: set, value: item.slots9, when: has(item.slots9) }
-
   monsterAction:
     carried: false
     fields:
       kind:
         { type: enum, values: [action, bonus-action, reaction, legendary, trait], default: action }
+      order: { type: integer, min: 0, default: 0 } # its place in the stat block
       legendaryCost: { type: integer, min: 1 }
       attack: { type: enum, values: [melee, ranged] }
       spell: { type: boolean }
@@ -357,9 +314,116 @@ contentTypes:
       recharge: { type: integer, min: 2, max: 6 }
       perDay: { type: integer, min: 1 }
       perRest: { type: boolean }
+      # Spellcasting: the trait's ability, printed DC and attack bonus, caster level and slots.
+      spellAbility: { type: enum, values: [str, dex, con, int, wis, cha] }
+      spellDc: { type: integer }
+      spellAttack: { type: integer }
+      casterLevel: { type: integer, min: 1, max: 20 }
+      innate: { type: boolean }
+      slots1: { type: integer, min: 0 }
+      slots2: { type: integer, min: 0 }
+      slots3: { type: integer, min: 0 }
+      slots4: { type: integer, min: 0 }
+      slots5: { type: integer, min: 0 }
+      slots6: { type: integer, min: 0 }
+      slots7: { type: integer, min: 0 }
+      slots8: { type: integer, min: 0 }
+      slots9: { type: integer, min: 0 }
     state:
       recharging: { type: boolean, default: false }
       usesLeft: { type: integer, min: 0, default: 'has(item.perDay) ? item.perDay : 1' }
+    effects:
+      - id: spell-ability
+        target: spellcasting.monster.ability
+        op: set
+        value: item.spellAbility
+        when: has(item.spellAbility)
+      - id: spell-mod
+        target: spellcasting.monster.mod
+        op: set
+        value: >-
+          item.spellAbility == 'str' ? abilities.str.mod : item.spellAbility == 'dex' ? abilities.dex.mod
+            : item.spellAbility == 'con' ? abilities.con.mod : item.spellAbility == 'int' ? abilities.int.mod
+            : item.spellAbility == 'wis' ? abilities.wis.mod : abilities.cha.mod
+        when: has(item.spellAbility)
+      - id: spell-dc
+        target: spellcasting.monster.dc
+        op: set
+        value: 'has(item.spellDc) ? item.spellDc : 8 + proficiency.bonus + spellcasting.monster.mod'
+        when: has(item.spellAbility)
+      - id: spell-attack
+        target: spellcasting.monster.attack
+        op: set
+        value: 'has(item.spellAttack) ? item.spellAttack : proficiency.bonus + spellcasting.monster.mod'
+        when: has(item.spellAbility)
+      - id: caster-level
+        target: spellcasting.monster.level
+        op: set
+        value: item.casterLevel
+        when: has(item.casterLevel)
+      - {
+          id: slots1,
+          target: spellSlots.level1.max,
+          op: set,
+          value: item.slots1,
+          when: has(item.slots1),
+        }
+      - {
+          id: slots2,
+          target: spellSlots.level2.max,
+          op: set,
+          value: item.slots2,
+          when: has(item.slots2),
+        }
+      - {
+          id: slots3,
+          target: spellSlots.level3.max,
+          op: set,
+          value: item.slots3,
+          when: has(item.slots3),
+        }
+      - {
+          id: slots4,
+          target: spellSlots.level4.max,
+          op: set,
+          value: item.slots4,
+          when: has(item.slots4),
+        }
+      - {
+          id: slots5,
+          target: spellSlots.level5.max,
+          op: set,
+          value: item.slots5,
+          when: has(item.slots5),
+        }
+      - {
+          id: slots6,
+          target: spellSlots.level6.max,
+          op: set,
+          value: item.slots6,
+          when: has(item.slots6),
+        }
+      - {
+          id: slots7,
+          target: spellSlots.level7.max,
+          op: set,
+          value: item.slots7,
+          when: has(item.slots7),
+        }
+      - {
+          id: slots8,
+          target: spellSlots.level8.max,
+          op: set,
+          value: item.slots8,
+          when: has(item.slots8),
+        }
+      - {
+          id: slots9,
+          target: spellSlots.level9.max,
+          op: set,
+          value: item.slots9,
+          when: has(item.slots9),
+        }
     actions:
       - use: monster-attack
       - use: monster-effect
@@ -541,7 +605,7 @@ actions:
           - type: set
             field: hp.current
             value: "steps.hp.picked == 'roll' ? max(1, steps.roll.total) : steps.monster.item.hp"
-      - id: ownCopies
+      - id: entries
         kind: changes
         changes:
           - type: choose
@@ -549,7 +613,7 @@ actions:
             path: { entry: { formula: 'steps.monster.added[0]' }, choice: [form] }
             option: steps.monster.item.startingForm
           - type: addItem
-            forEach: steps.monster.item.ownCopies
+            forEach: steps.monster.item.entries
             entry: { item: x }
           - type: addItem
             forEach: steps.monster.item.innateOncePerDay

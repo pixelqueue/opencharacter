@@ -21,9 +21,14 @@ fields:
   darkvision: 120
   languages: [languages.abyssal, languages.common, languages.infernal, languages.primordial]
   cr: 5
-  ownCopies:
-    - monsters.night-hag.nightmare-haunting
   innateTwicePerDay: [spells.plane-shift, spells.ray-of-enfeeblement, spells.sleep]
+  entries:
+    - monsters.night-hag.innate-spellcasting
+    - monsters.night-hag.magic-resistance
+    - monsters.night-hag.claws
+    - monsters.night-hag.change-shape
+    - monsters.night-hag.etherealness
+    - monsters.night-hag.nightmare-haunting
 # The stat block's bonus differs from proficiency: the difference is added.
 effects:
   - { target: skills.deception, op: add, value: 1 }
@@ -34,9 +39,3 @@ effects:
   - { target: { rolls: [skill.perception] }, op: add, value: 1 }
   - { target: skills.stealth, op: add, value: 1 }
   - { target: { rolls: [skill.stealth] }, op: add, value: 1 }
-grants:
-  - item: monsters.night-hag.innate-spellcasting
-  - item: monsters.night-hag.magic-resistance
-  - item: monsters.night-hag.claws
-  - item: monsters.night-hag.change-shape
-  - item: monsters.night-hag.etherealness

@@ -99,13 +99,9 @@ display:
       showWhen: sheet.monster
       members: { type: monsterAction }
       sectionBy: >-
-        item.kind == 'action' ? 0 : item.kind == 'bonus-action' ? 1 : item.kind == 'reaction' ? 2
-        : 3
-    - id: monster-spellcasting
-      kind: content
-      priority: 0
-      showWhen: sheet.monster
-      members: { type: monsterSpellcasting }
+        item.id == @monster-actions.innate-spell ? 5 : item.kind == 'trait' ? 0 : item.kind == 'action' ? 1
+          : item.kind == 'bonus-action' ? 2 : item.kind == 'reaction' ? 3 : 4
+      sortBy: item.order
     - id: classes
       kind: content
       priority: 0
@@ -743,6 +739,7 @@ display:
         tremorsense: { unit: ft }
         truesight: { unit: ft }
         telepathy: { unit: ft }
+        entries: { hidden: true }
       quantity: { hidden: true }
     monsterAction:
       state:
@@ -751,6 +748,7 @@ display:
           priority: 0
           showWhen: has(item.perDay) || (has(item.perRest) && item.perRest) || has(self.perDay)
       fields:
+        order: { hidden: true }
         reach: { unit: ft }
         normalRange: { unit: ft }
         longRange: { unit: ft }

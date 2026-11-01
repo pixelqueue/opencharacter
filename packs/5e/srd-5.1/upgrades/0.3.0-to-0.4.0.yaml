@@ -1,0 +1,1617 @@
+pack: 5e-srd-5.1
+from: 0.3.0
+to: 0.4.0
+steps:
+  # A monster item granted its traits and actions; create-monster copies them now.
+  - { op: grantsToCopies, type: monster }
+  # Monster traits and spellcasting are monster actions, so one ordered list holds the stat block.
+  - { op: changeContentType, id: monsters.aboleth.amphibious, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.aboleth.mucous-cloud, from: trait, to: monsterAction }
+  - {
+      op: changeContentType,
+      id: monsters.aboleth.probing-telepathy,
+      from: trait,
+      to: monsterAction,
+    }
+  - {
+      op: changeContentType,
+      id: monsters.acolyte.spellcasting,
+      from: monsterSpellcasting,
+      to: monsterAction,
+    }
+  - {
+      op: changeContentType,
+      id: monsters.adult-black-dragon.amphibious,
+      from: trait,
+      to: monsterAction,
+    }
+  - {
+      op: changeContentType,
+      id: monsters.adult-bronze-dragon.amphibious,
+      from: trait,
+      to: monsterAction,
+    }
+  - {
+      op: changeContentType,
+      id: monsters.adult-gold-dragon.amphibious,
+      from: trait,
+      to: monsterAction,
+    }
+  - {
+      op: changeContentType,
+      id: monsters.adult-green-dragon.amphibious,
+      from: trait,
+      to: monsterAction,
+    }
+  - {
+      op: changeContentType,
+      id: monsters.adult-white-dragon.ice-walk,
+      from: trait,
+      to: monsterAction,
+    }
+  - { op: changeContentType, id: monsters.air-elemental.air-form, from: trait, to: monsterAction }
+  - {
+      op: changeContentType,
+      id: monsters.ancient-black-dragon.amphibious,
+      from: trait,
+      to: monsterAction,
+    }
+  - {
+      op: changeContentType,
+      id: monsters.ancient-bronze-dragon.amphibious,
+      from: trait,
+      to: monsterAction,
+    }
+  - {
+      op: changeContentType,
+      id: monsters.ancient-gold-dragon.amphibious,
+      from: trait,
+      to: monsterAction,
+    }
+  - {
+      op: changeContentType,
+      id: monsters.ancient-green-dragon.amphibious,
+      from: trait,
+      to: monsterAction,
+    }
+  - {
+      op: changeContentType,
+      id: monsters.ancient-white-dragon.ice-walk,
+      from: trait,
+      to: monsterAction,
+    }
+  - { op: changeContentType, id: monsters.androsphinx.inscrutable, from: trait, to: monsterAction }
+  - {
+      op: changeContentType,
+      id: monsters.androsphinx.magic-weapons,
+      from: trait,
+      to: monsterAction,
+    }
+  - {
+      op: changeContentType,
+      id: monsters.androsphinx.spellcasting,
+      from: monsterSpellcasting,
+      to: monsterAction,
+    }
+  - {
+      op: changeContentType,
+      id: monsters.animated-armor.antimagic-susceptibility,
+      from: trait,
+      to: monsterAction,
+    }
+  - {
+      op: changeContentType,
+      id: monsters.animated-armor.false-appearance,
+      from: trait,
+      to: monsterAction,
+    }
+  - {
+      op: changeContentType,
+      id: monsters.archmage.magic-resistance,
+      from: trait,
+      to: monsterAction,
+    }
+  - {
+      op: changeContentType,
+      id: monsters.archmage.spellcasting,
+      from: monsterSpellcasting,
+      to: monsterAction,
+    }
+  - { op: changeContentType, id: monsters.assassin.assassinate, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.assassin.evasion, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.assassin.sneak-attack, from: trait, to: monsterAction }
+  - {
+      op: changeContentType,
+      id: monsters.awakened-shrub.false-appearance,
+      from: trait,
+      to: monsterAction,
+    }
+  - {
+      op: changeContentType,
+      id: monsters.awakened-tree.false-appearance,
+      from: trait,
+      to: monsterAction,
+    }
+  - { op: changeContentType, id: monsters.azer.heated-body, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.azer.heated-weapons, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.azer.illumination, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.baboon.pack-tactics, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.badger.keen-smell, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.balor.death-throes, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.balor.fire-aura, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.balor.magic-resistance, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.balor.magic-weapons, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.barbed-devil.barbed-hide, from: trait, to: monsterAction }
+  - {
+      op: changeContentType,
+      id: monsters.barbed-devil.devils-sight,
+      from: trait,
+      to: monsterAction,
+    }
+  - {
+      op: changeContentType,
+      id: monsters.barbed-devil.magic-resistance,
+      from: trait,
+      to: monsterAction,
+    }
+  - { op: changeContentType, id: monsters.basilisk.petrifying-gaze, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.bat.echolocation, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.bat.keen-hearing, from: trait, to: monsterAction }
+  - {
+      op: changeContentType,
+      id: monsters.bearded-devil.devils-sight,
+      from: trait,
+      to: monsterAction,
+    }
+  - {
+      op: changeContentType,
+      id: monsters.bearded-devil.magic-resistance,
+      from: trait,
+      to: monsterAction,
+    }
+  - { op: changeContentType, id: monsters.bearded-devil.steadfast, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.berserker.reckless, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.black-bear.keen-smell, from: trait, to: monsterAction }
+  - {
+      op: changeContentType,
+      id: monsters.black-dragon-wyrmling.amphibious,
+      from: trait,
+      to: monsterAction,
+    }
+  - { op: changeContentType, id: monsters.black-pudding.amorphous, from: trait, to: monsterAction }
+  - {
+      op: changeContentType,
+      id: monsters.black-pudding.corrosive-form,
+      from: trait,
+      to: monsterAction,
+    }
+  - {
+      op: changeContentType,
+      id: monsters.black-pudding.spider-climb,
+      from: trait,
+      to: monsterAction,
+    }
+  - {
+      op: changeContentType,
+      id: monsters.blink-dog.keen-hearing-and-smell,
+      from: trait,
+      to: monsterAction,
+    }
+  - { op: changeContentType, id: monsters.blood-hawk.keen-sight, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.blood-hawk.pack-tactics, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.boar.charge, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.bone-devil.devils-sight, from: trait, to: monsterAction }
+  - {
+      op: changeContentType,
+      id: monsters.bone-devil.magic-resistance,
+      from: trait,
+      to: monsterAction,
+    }
+  - {
+      op: changeContentType,
+      id: monsters.bronze-dragon-wyrmling.amphibious,
+      from: trait,
+      to: monsterAction,
+    }
+  - { op: changeContentType, id: monsters.brown-bear.keen-smell, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.bugbear.brute, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.bugbear.surprise-attack, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.bulette.standing-leap, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.cat.keen-smell, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.centaur.charge, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.chain-devil.devils-sight, from: trait, to: monsterAction }
+  - {
+      op: changeContentType,
+      id: monsters.chain-devil.magic-resistance,
+      from: trait,
+      to: monsterAction,
+    }
+  - { op: changeContentType, id: monsters.chuul.amphibious, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.chuul.sense-magic, from: trait, to: monsterAction }
+  - {
+      op: changeContentType,
+      id: monsters.clay-golem.acid-absorption,
+      from: trait,
+      to: monsterAction,
+    }
+  - { op: changeContentType, id: monsters.clay-golem.berserk, from: trait, to: monsterAction }
+  - {
+      op: changeContentType,
+      id: monsters.clay-golem.immutable-form,
+      from: trait,
+      to: monsterAction,
+    }
+  - {
+      op: changeContentType,
+      id: monsters.clay-golem.magic-resistance,
+      from: trait,
+      to: monsterAction,
+    }
+  - { op: changeContentType, id: monsters.clay-golem.magic-weapons, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.cloaker.damage-transfer, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.cloaker.false-appearance, from: trait, to: monsterAction }
+  - {
+      op: changeContentType,
+      id: monsters.cloaker.light-sensitivity,
+      from: trait,
+      to: monsterAction,
+    }
+  - {
+      op: changeContentType,
+      id: monsters.cloud-giant.innate-spellcasting,
+      from: monsterSpellcasting,
+      to: monsterAction,
+    }
+  - { op: changeContentType, id: monsters.cloud-giant.keen-smell, from: trait, to: monsterAction }
+  - {
+      op: changeContentType,
+      id: monsters.couatl.innate-spellcasting,
+      from: monsterSpellcasting,
+      to: monsterAction,
+    }
+  - { op: changeContentType, id: monsters.couatl.magic-weapons, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.couatl.shielded-mind, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.crab.amphibious, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.crocodile.hold-breath, from: trait, to: monsterAction }
+  - {
+      op: changeContentType,
+      id: monsters.cult-fanatic.dark-devotion,
+      from: trait,
+      to: monsterAction,
+    }
+  - {
+      op: changeContentType,
+      id: monsters.cult-fanatic.spellcasting,
+      from: monsterSpellcasting,
+      to: monsterAction,
+    }
+  - { op: changeContentType, id: monsters.cultist.dark-devotion, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.darkmantle.echolocation, from: trait, to: monsterAction }
+  - {
+      op: changeContentType,
+      id: monsters.darkmantle.false-appearance,
+      from: trait,
+      to: monsterAction,
+    }
+  - { op: changeContentType, id: monsters.death-dog.two-headed, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.deep-gnome.gnome-cunning, from: trait, to: monsterAction }
+  - {
+      op: changeContentType,
+      id: monsters.deep-gnome.innate-spellcasting,
+      from: monsterSpellcasting,
+      to: monsterAction,
+    }
+  - {
+      op: changeContentType,
+      id: monsters.deep-gnome.stone-camouflage,
+      from: trait,
+      to: monsterAction,
+    }
+  - { op: changeContentType, id: monsters.deva.angelic-weapons, from: trait, to: monsterAction }
+  - {
+      op: changeContentType,
+      id: monsters.deva.innate-spellcasting,
+      from: monsterSpellcasting,
+      to: monsterAction,
+    }
+  - { op: changeContentType, id: monsters.deva.magic-resistance, from: trait, to: monsterAction }
+  - {
+      op: changeContentType,
+      id: monsters.dire-wolf.keen-hearing-and-smell,
+      from: trait,
+      to: monsterAction,
+    }
+  - { op: changeContentType, id: monsters.dire-wolf.pack-tactics, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.djinni.elemental-demise, from: trait, to: monsterAction }
+  - {
+      op: changeContentType,
+      id: monsters.djinni.innate-spellcasting,
+      from: monsterSpellcasting,
+      to: monsterAction,
+    }
+  - { op: changeContentType, id: monsters.doppelganger.ambusher, from: trait, to: monsterAction }
+  - {
+      op: changeContentType,
+      id: monsters.doppelganger.shapechanger,
+      from: trait,
+      to: monsterAction,
+    }
+  - {
+      op: changeContentType,
+      id: monsters.doppelganger.surprise-attack,
+      from: trait,
+      to: monsterAction,
+    }
+  - { op: changeContentType, id: monsters.dragon-turtle.amphibious, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.drider.fey-ancestry, from: trait, to: monsterAction }
+  - {
+      op: changeContentType,
+      id: monsters.drider.innate-spellcasting,
+      from: monsterSpellcasting,
+      to: monsterAction,
+    }
+  - { op: changeContentType, id: monsters.drider.spider-climb, from: trait, to: monsterAction }
+  - {
+      op: changeContentType,
+      id: monsters.drider.sunlight-sensitivity,
+      from: trait,
+      to: monsterAction,
+    }
+  - { op: changeContentType, id: monsters.drider.web-walker, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.drow.fey-ancestry, from: trait, to: monsterAction }
+  - {
+      op: changeContentType,
+      id: monsters.drow.innate-spellcasting,
+      from: monsterSpellcasting,
+      to: monsterAction,
+    }
+  - {
+      op: changeContentType,
+      id: monsters.drow.sunlight-sensitivity,
+      from: trait,
+      to: monsterAction,
+    }
+  - {
+      op: changeContentType,
+      id: monsters.druid.spellcasting,
+      from: monsterSpellcasting,
+      to: monsterAction,
+    }
+  - {
+      op: changeContentType,
+      id: monsters.dryad.innate-spellcasting,
+      from: monsterSpellcasting,
+      to: monsterAction,
+    }
+  - { op: changeContentType, id: monsters.dryad.magic-resistance, from: trait, to: monsterAction }
+  - {
+      op: changeContentType,
+      id: monsters.dryad.speak-with-beasts-and-plants,
+      from: trait,
+      to: monsterAction,
+    }
+  - { op: changeContentType, id: monsters.dryad.tree-stride, from: trait, to: monsterAction }
+  - {
+      op: changeContentType,
+      id: monsters.duergar.duergar-resilience,
+      from: trait,
+      to: monsterAction,
+    }
+  - {
+      op: changeContentType,
+      id: monsters.duergar.sunlight-sensitivity,
+      from: trait,
+      to: monsterAction,
+    }
+  - { op: changeContentType, id: monsters.dust-mephit.death-burst, from: trait, to: monsterAction }
+  - {
+      op: changeContentType,
+      id: monsters.dust-mephit.innate-spellcasting,
+      from: monsterSpellcasting,
+      to: monsterAction,
+    }
+  - { op: changeContentType, id: monsters.eagle.keen-sight, from: trait, to: monsterAction }
+  - {
+      op: changeContentType,
+      id: monsters.earth-elemental.earth-glide,
+      from: trait,
+      to: monsterAction,
+    }
+  - {
+      op: changeContentType,
+      id: monsters.earth-elemental.siege-monster,
+      from: trait,
+      to: monsterAction,
+    }
+  - { op: changeContentType, id: monsters.efreeti.elemental-demise, from: trait, to: monsterAction }
+  - {
+      op: changeContentType,
+      id: monsters.efreeti.innate-spellcasting,
+      from: monsterSpellcasting,
+      to: monsterAction,
+    }
+  - {
+      op: changeContentType,
+      id: monsters.elephant.trampling-charge,
+      from: trait,
+      to: monsterAction,
+    }
+  - { op: changeContentType, id: monsters.elk.charge, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.erinyes.hellish-weapons, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.erinyes.magic-resistance, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.ettercap.spider-climb, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.ettercap.web-sense, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.ettercap.web-walker, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.ettin.two-heads, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.ettin.wakeful, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.fire-elemental.fire-form, from: trait, to: monsterAction }
+  - {
+      op: changeContentType,
+      id: monsters.fire-elemental.illumination,
+      from: trait,
+      to: monsterAction,
+    }
+  - {
+      op: changeContentType,
+      id: monsters.fire-elemental.water-susceptibility,
+      from: trait,
+      to: monsterAction,
+    }
+  - {
+      op: changeContentType,
+      id: monsters.flesh-golem.aversion-of-fire,
+      from: trait,
+      to: monsterAction,
+    }
+  - { op: changeContentType, id: monsters.flesh-golem.berserk, from: trait, to: monsterAction }
+  - {
+      op: changeContentType,
+      id: monsters.flesh-golem.immutable-form,
+      from: trait,
+      to: monsterAction,
+    }
+  - {
+      op: changeContentType,
+      id: monsters.flesh-golem.lightning-absorption,
+      from: trait,
+      to: monsterAction,
+    }
+  - {
+      op: changeContentType,
+      id: monsters.flesh-golem.magic-resistance,
+      from: trait,
+      to: monsterAction,
+    }
+  - {
+      op: changeContentType,
+      id: monsters.flesh-golem.magic-weapons,
+      from: trait,
+      to: monsterAction,
+    }
+  - { op: changeContentType, id: monsters.flying-snake.flyby, from: trait, to: monsterAction }
+  - {
+      op: changeContentType,
+      id: monsters.flying-sword.antimagic-susceptibility,
+      from: trait,
+      to: monsterAction,
+    }
+  - {
+      op: changeContentType,
+      id: monsters.flying-sword.false-appearance,
+      from: trait,
+      to: monsterAction,
+    }
+  - { op: changeContentType, id: monsters.frog.amphibious, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.frog.standing-leap, from: trait, to: monsterAction }
+  - {
+      op: changeContentType,
+      id: monsters.gargoyle.false-appearance,
+      from: trait,
+      to: monsterAction,
+    }
+  - {
+      op: changeContentType,
+      id: monsters.gelatinous-cube.ooze-cube,
+      from: trait,
+      to: monsterAction,
+    }
+  - {
+      op: changeContentType,
+      id: monsters.gelatinous-cube.transparent,
+      from: trait,
+      to: monsterAction,
+    }
+  - { op: changeContentType, id: monsters.ghast.stench, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.ghast.turning-defiance, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.ghost.ethereal-sight, from: trait, to: monsterAction }
+  - {
+      op: changeContentType,
+      id: monsters.ghost.incorporeal-movement,
+      from: trait,
+      to: monsterAction,
+    }
+  - { op: changeContentType, id: monsters.giant-badger.keen-smell, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.giant-bat.echolocation, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.giant-bat.keen-hearing, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.giant-boar.charge, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.giant-crab.amphibious, from: trait, to: monsterAction }
+  - {
+      op: changeContentType,
+      id: monsters.giant-crocodile.hold-breath,
+      from: trait,
+      to: monsterAction,
+    }
+  - { op: changeContentType, id: monsters.giant-eagle.keen-sight, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.giant-elk.charge, from: trait, to: monsterAction }
+  - {
+      op: changeContentType,
+      id: monsters.giant-fire-beetle.illumination,
+      from: trait,
+      to: monsterAction,
+    }
+  - { op: changeContentType, id: monsters.giant-frog.amphibious, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.giant-frog.standing-leap, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.giant-goat.charge, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.giant-goat.sure-footed, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.giant-hyena.rampage, from: trait, to: monsterAction }
+  - {
+      op: changeContentType,
+      id: monsters.giant-octopus.hold-breath,
+      from: trait,
+      to: monsterAction,
+    }
+  - {
+      op: changeContentType,
+      id: monsters.giant-octopus.underwater-camouflage,
+      from: trait,
+      to: monsterAction,
+    }
+  - {
+      op: changeContentType,
+      id: monsters.giant-octopus.water-breathing,
+      from: trait,
+      to: monsterAction,
+    }
+  - { op: changeContentType, id: monsters.giant-owl.flyby, from: trait, to: monsterAction }
+  - {
+      op: changeContentType,
+      id: monsters.giant-owl.keen-hearing-and-sight,
+      from: trait,
+      to: monsterAction,
+    }
+  - {
+      op: changeContentType,
+      id: monsters.giant-rat-diseased.keen-smell,
+      from: trait,
+      to: monsterAction,
+    }
+  - {
+      op: changeContentType,
+      id: monsters.giant-rat-diseased.pack-tactics,
+      from: trait,
+      to: monsterAction,
+    }
+  - { op: changeContentType, id: monsters.giant-rat.keen-smell, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.giant-rat.pack-tactics, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.giant-sea-horse.charge, from: trait, to: monsterAction }
+  - {
+      op: changeContentType,
+      id: monsters.giant-sea-horse.water-breathing,
+      from: trait,
+      to: monsterAction,
+    }
+  - { op: changeContentType, id: monsters.giant-shark.blood-frenzy, from: trait, to: monsterAction }
+  - {
+      op: changeContentType,
+      id: monsters.giant-shark.water-breathing,
+      from: trait,
+      to: monsterAction,
+    }
+  - {
+      op: changeContentType,
+      id: monsters.giant-spider.spider-climb,
+      from: trait,
+      to: monsterAction,
+    }
+  - { op: changeContentType, id: monsters.giant-spider.web-sense, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.giant-spider.web-walker, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.giant-toad.amphibious, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.giant-toad.standing-leap, from: trait, to: monsterAction }
+  - {
+      op: changeContentType,
+      id: monsters.giant-vulture.keen-sight-and-smell,
+      from: trait,
+      to: monsterAction,
+    }
+  - {
+      op: changeContentType,
+      id: monsters.giant-vulture.pack-tactics,
+      from: trait,
+      to: monsterAction,
+    }
+  - {
+      op: changeContentType,
+      id: monsters.giant-weasel.keen-hearing-and-smell,
+      from: trait,
+      to: monsterAction,
+    }
+  - {
+      op: changeContentType,
+      id: monsters.giant-wolf-spider.spider-climb,
+      from: trait,
+      to: monsterAction,
+    }
+  - {
+      op: changeContentType,
+      id: monsters.giant-wolf-spider.web-sense,
+      from: trait,
+      to: monsterAction,
+    }
+  - {
+      op: changeContentType,
+      id: monsters.giant-wolf-spider.web-walker,
+      from: trait,
+      to: monsterAction,
+    }
+  - {
+      op: changeContentType,
+      id: monsters.gibbering-mouther.aberrant-ground,
+      from: trait,
+      to: monsterAction,
+    }
+  - {
+      op: changeContentType,
+      id: monsters.gibbering-mouther.gibbering,
+      from: trait,
+      to: monsterAction,
+    }
+  - {
+      op: changeContentType,
+      id: monsters.glabrezu.innate-spellcasting,
+      from: monsterSpellcasting,
+      to: monsterAction,
+    }
+  - {
+      op: changeContentType,
+      id: monsters.glabrezu.magic-resistance,
+      from: trait,
+      to: monsterAction,
+    }
+  - { op: changeContentType, id: monsters.gladiator.brave, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.gladiator.brute, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.gnoll.rampage, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.goat.charge, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.goat.sure-footed, from: trait, to: monsterAction }
+  - {
+      op: changeContentType,
+      id: monsters.gold-dragon-wyrmling.amphibious,
+      from: trait,
+      to: monsterAction,
+    }
+  - { op: changeContentType, id: monsters.gorgon.trampling-charge, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.gray-ooze.amorphous, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.gray-ooze.corrode-metal, from: trait, to: monsterAction }
+  - {
+      op: changeContentType,
+      id: monsters.gray-ooze.false-appearance,
+      from: trait,
+      to: monsterAction,
+    }
+  - {
+      op: changeContentType,
+      id: monsters.green-dragon-wyrmling.amphibious,
+      from: trait,
+      to: monsterAction,
+    }
+  - { op: changeContentType, id: monsters.green-hag.amphibious, from: trait, to: monsterAction }
+  - {
+      op: changeContentType,
+      id: monsters.green-hag.innate-spellcasting,
+      from: monsterSpellcasting,
+      to: monsterAction,
+    }
+  - { op: changeContentType, id: monsters.green-hag.mimicry, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.grick.stone-camouflage, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.griffon.keen-sight, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.grimlock.blind-senses, from: trait, to: monsterAction }
+  - {
+      op: changeContentType,
+      id: monsters.grimlock.keen-hearing-and-smell,
+      from: trait,
+      to: monsterAction,
+    }
+  - {
+      op: changeContentType,
+      id: monsters.grimlock.stone-camouflage,
+      from: trait,
+      to: monsterAction,
+    }
+  - {
+      op: changeContentType,
+      id: monsters.guardian-naga.rejuvenation,
+      from: trait,
+      to: monsterAction,
+    }
+  - {
+      op: changeContentType,
+      id: monsters.guardian-naga.spellcasting,
+      from: monsterSpellcasting,
+      to: monsterAction,
+    }
+  - { op: changeContentType, id: monsters.gynosphinx.inscrutable, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.gynosphinx.magic-weapons, from: trait, to: monsterAction }
+  - {
+      op: changeContentType,
+      id: monsters.gynosphinx.spellcasting,
+      from: monsterSpellcasting,
+      to: monsterAction,
+    }
+  - { op: changeContentType, id: monsters.hawk.keen-sight, from: trait, to: monsterAction }
+  - {
+      op: changeContentType,
+      id: monsters.hell-hound.keen-hearing-and-smell,
+      from: trait,
+      to: monsterAction,
+    }
+  - { op: changeContentType, id: monsters.hell-hound.pack-tactics, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.hezrou.magic-resistance, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.hezrou.stench, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.hippogriff.keen-sight, from: trait, to: monsterAction }
+  - {
+      op: changeContentType,
+      id: monsters.hobgoblin.martial-advantage,
+      from: trait,
+      to: monsterAction,
+    }
+  - {
+      op: changeContentType,
+      id: monsters.homunculus.telepathic-bond,
+      from: trait,
+      to: monsterAction,
+    }
+  - {
+      op: changeContentType,
+      id: monsters.horned-devil.devils-sight,
+      from: trait,
+      to: monsterAction,
+    }
+  - {
+      op: changeContentType,
+      id: monsters.horned-devil.magic-resistance,
+      from: trait,
+      to: monsterAction,
+    }
+  - {
+      op: changeContentType,
+      id: monsters.hunter-shark.blood-frenzy,
+      from: trait,
+      to: monsterAction,
+    }
+  - {
+      op: changeContentType,
+      id: monsters.hunter-shark.water-breathing,
+      from: trait,
+      to: monsterAction,
+    }
+  - { op: changeContentType, id: monsters.hydra.hold-breath, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.hydra.multiple-heads, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.hydra.reactive-heads, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.hydra.wakeful, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.hyena.pack-tactics, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.ice-devil.devils-sight, from: trait, to: monsterAction }
+  - {
+      op: changeContentType,
+      id: monsters.ice-devil.magic-resistance,
+      from: trait,
+      to: monsterAction,
+    }
+  - { op: changeContentType, id: monsters.ice-mephit.death-burst, from: trait, to: monsterAction }
+  - {
+      op: changeContentType,
+      id: monsters.ice-mephit.false-appearance,
+      from: trait,
+      to: monsterAction,
+    }
+  - {
+      op: changeContentType,
+      id: monsters.ice-mephit.innate-spellcasting,
+      from: monsterSpellcasting,
+      to: monsterAction,
+    }
+  - { op: changeContentType, id: monsters.imp.devils-sight, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.imp.magic-resistance, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.imp.shapechanger, from: trait, to: monsterAction }
+  - {
+      op: changeContentType,
+      id: monsters.invisible-stalker.faultless-tracker,
+      from: trait,
+      to: monsterAction,
+    }
+  - {
+      op: changeContentType,
+      id: monsters.invisible-stalker.invisibility,
+      from: trait,
+      to: monsterAction,
+    }
+  - {
+      op: changeContentType,
+      id: monsters.iron-golem.fire-absorption,
+      from: trait,
+      to: monsterAction,
+    }
+  - {
+      op: changeContentType,
+      id: monsters.iron-golem.immutable-form,
+      from: trait,
+      to: monsterAction,
+    }
+  - {
+      op: changeContentType,
+      id: monsters.iron-golem.magic-resistance,
+      from: trait,
+      to: monsterAction,
+    }
+  - { op: changeContentType, id: monsters.iron-golem.magic-weapons, from: trait, to: monsterAction }
+  - {
+      op: changeContentType,
+      id: monsters.jackal.keen-hearing-and-smell,
+      from: trait,
+      to: monsterAction,
+    }
+  - { op: changeContentType, id: monsters.jackal.pack-tactics, from: trait, to: monsterAction }
+  - {
+      op: changeContentType,
+      id: monsters.killer-whale.echolocation,
+      from: trait,
+      to: monsterAction,
+    }
+  - { op: changeContentType, id: monsters.killer-whale.hold-breath, from: trait, to: monsterAction }
+  - {
+      op: changeContentType,
+      id: monsters.killer-whale.keen-hearing,
+      from: trait,
+      to: monsterAction,
+    }
+  - { op: changeContentType, id: monsters.knight.brave, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.kobold.pack-tactics, from: trait, to: monsterAction }
+  - {
+      op: changeContentType,
+      id: monsters.kobold.sunlight-sensitivity,
+      from: trait,
+      to: monsterAction,
+    }
+  - { op: changeContentType, id: monsters.kraken.amphibious, from: trait, to: monsterAction }
+  - {
+      op: changeContentType,
+      id: monsters.kraken.freedom-of-movement,
+      from: trait,
+      to: monsterAction,
+    }
+  - { op: changeContentType, id: monsters.kraken.siege-monster, from: trait, to: monsterAction }
+  - {
+      op: changeContentType,
+      id: monsters.lamia.innate-spellcasting,
+      from: monsterSpellcasting,
+      to: monsterAction,
+    }
+  - { op: changeContentType, id: monsters.lemure.devils-sight, from: trait, to: monsterAction }
+  - {
+      op: changeContentType,
+      id: monsters.lemure.hellish-rejuvenation,
+      from: trait,
+      to: monsterAction,
+    }
+  - { op: changeContentType, id: monsters.lich.rejuvenation, from: trait, to: monsterAction }
+  - {
+      op: changeContentType,
+      id: monsters.lich.spellcasting,
+      from: monsterSpellcasting,
+      to: monsterAction,
+    }
+  - { op: changeContentType, id: monsters.lich.turn-resistance, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.lion.keen-smell, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.lion.pack-tactics, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.lion.pounce, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.lion.running-leap, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.lizardfolk.hold-breath, from: trait, to: monsterAction }
+  - {
+      op: changeContentType,
+      id: monsters.mage.spellcasting,
+      from: monsterSpellcasting,
+      to: monsterAction,
+    }
+  - { op: changeContentType, id: monsters.magma-mephit.death-burst, from: trait, to: monsterAction }
+  - {
+      op: changeContentType,
+      id: monsters.magma-mephit.false-appearance,
+      from: trait,
+      to: monsterAction,
+    }
+  - {
+      op: changeContentType,
+      id: monsters.magma-mephit.innate-spellcasting,
+      from: monsterSpellcasting,
+      to: monsterAction,
+    }
+  - { op: changeContentType, id: monsters.magmin.death-burst, from: trait, to: monsterAction }
+  - {
+      op: changeContentType,
+      id: monsters.magmin.ignited-illumination,
+      from: trait,
+      to: monsterAction,
+    }
+  - { op: changeContentType, id: monsters.mammoth.trampling-charge, from: trait, to: monsterAction }
+  - {
+      op: changeContentType,
+      id: monsters.manticore.tail-spike-regrowth,
+      from: trait,
+      to: monsterAction,
+    }
+  - {
+      op: changeContentType,
+      id: monsters.marilith.magic-resistance,
+      from: trait,
+      to: monsterAction,
+    }
+  - { op: changeContentType, id: monsters.marilith.magic-weapons, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.marilith.reactive, from: trait, to: monsterAction }
+  - {
+      op: changeContentType,
+      id: monsters.mastiff.keen-hearing-and-smell,
+      from: trait,
+      to: monsterAction,
+    }
+  - { op: changeContentType, id: monsters.medusa.petrifying-gaze, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.merfolk.amphibious, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.merrow.amphibious, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.mimic.adhesive, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.mimic.false-appearance, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.mimic.grappler, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.mimic.shapechanger, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.minotaur-skeleton.charge, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.minotaur.charge, from: trait, to: monsterAction }
+  - {
+      op: changeContentType,
+      id: monsters.minotaur.labyrinthine-recall,
+      from: trait,
+      to: monsterAction,
+    }
+  - { op: changeContentType, id: monsters.minotaur.reckless, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.mule.beast-of-burden, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.mule.sure-footed, from: trait, to: monsterAction }
+  - {
+      op: changeContentType,
+      id: monsters.mummy-lord.magic-resistance,
+      from: trait,
+      to: monsterAction,
+    }
+  - { op: changeContentType, id: monsters.mummy-lord.rejuvenation, from: trait, to: monsterAction }
+  - {
+      op: changeContentType,
+      id: monsters.mummy-lord.spellcasting,
+      from: monsterSpellcasting,
+      to: monsterAction,
+    }
+  - {
+      op: changeContentType,
+      id: monsters.nalfeshnee.magic-resistance,
+      from: trait,
+      to: monsterAction,
+    }
+  - {
+      op: changeContentType,
+      id: monsters.night-hag.innate-spellcasting,
+      from: monsterSpellcasting,
+      to: monsterAction,
+    }
+  - {
+      op: changeContentType,
+      id: monsters.night-hag.magic-resistance,
+      from: trait,
+      to: monsterAction,
+    }
+  - {
+      op: changeContentType,
+      id: monsters.nightmare.confer-fire-resistance,
+      from: trait,
+      to: monsterAction,
+    }
+  - { op: changeContentType, id: monsters.nightmare.illumination, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.ochre-jelly.amorphous, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.ochre-jelly.spider-climb, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.octopus.hold-breath, from: trait, to: monsterAction }
+  - {
+      op: changeContentType,
+      id: monsters.octopus.underwater-camouflage,
+      from: trait,
+      to: monsterAction,
+    }
+  - { op: changeContentType, id: monsters.octopus.water-breathing, from: trait, to: monsterAction }
+  - {
+      op: changeContentType,
+      id: monsters.ogre-zombie.undead-fortitude,
+      from: trait,
+      to: monsterAction,
+    }
+  - {
+      op: changeContentType,
+      id: monsters.oni.innate-spellcasting,
+      from: monsterSpellcasting,
+      to: monsterAction,
+    }
+  - { op: changeContentType, id: monsters.oni.magic-weapons, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.oni.regeneration, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.orc.aggressive, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.otyugh.limited-telepathy, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.owl.flyby, from: trait, to: monsterAction }
+  - {
+      op: changeContentType,
+      id: monsters.owl.keen-hearing-and-sight,
+      from: trait,
+      to: monsterAction,
+    }
+  - {
+      op: changeContentType,
+      id: monsters.owlbear.keen-sight-and-smell,
+      from: trait,
+      to: monsterAction,
+    }
+  - { op: changeContentType, id: monsters.panther.keen-smell, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.panther.pounce, from: trait, to: monsterAction }
+  - {
+      op: changeContentType,
+      id: monsters.phase-spider.ethereal-jaunt,
+      from: trait,
+      to: monsterAction,
+    }
+  - {
+      op: changeContentType,
+      id: monsters.phase-spider.spider-climb,
+      from: trait,
+      to: monsterAction,
+    }
+  - { op: changeContentType, id: monsters.phase-spider.web-walker, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.pit-fiend.fear-aura, from: trait, to: monsterAction }
+  - {
+      op: changeContentType,
+      id: monsters.pit-fiend.innate-spellcasting,
+      from: monsterSpellcasting,
+      to: monsterAction,
+    }
+  - {
+      op: changeContentType,
+      id: monsters.pit-fiend.magic-resistance,
+      from: trait,
+      to: monsterAction,
+    }
+  - { op: changeContentType, id: monsters.pit-fiend.magic-weapons, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.planetar.angelic-weapons, from: trait, to: monsterAction }
+  - {
+      op: changeContentType,
+      id: monsters.planetar.divine-awareness,
+      from: trait,
+      to: monsterAction,
+    }
+  - {
+      op: changeContentType,
+      id: monsters.planetar.innate-spellcasting,
+      from: monsterSpellcasting,
+      to: monsterAction,
+    }
+  - {
+      op: changeContentType,
+      id: monsters.planetar.magic-resistance,
+      from: trait,
+      to: monsterAction,
+    }
+  - { op: changeContentType, id: monsters.plesiosaurus.hold-breath, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.polar-bear.keen-smell, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.priest.divine-eminence, from: trait, to: monsterAction }
+  - {
+      op: changeContentType,
+      id: monsters.priest.spellcasting,
+      from: monsterSpellcasting,
+      to: monsterAction,
+    }
+  - { op: changeContentType, id: monsters.pseudodragon.keen-senses, from: trait, to: monsterAction }
+  - {
+      op: changeContentType,
+      id: monsters.pseudodragon.limited-telepathy,
+      from: trait,
+      to: monsterAction,
+    }
+  - {
+      op: changeContentType,
+      id: monsters.pseudodragon.magic-resistance,
+      from: trait,
+      to: monsterAction,
+    }
+  - { op: changeContentType, id: monsters.purple-worm.tunneler, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.quasit.magic-resistance, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.quasit.shapechanger, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.quipper.blood-frenzy, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.quipper.water-breathing, from: trait, to: monsterAction }
+  - {
+      op: changeContentType,
+      id: monsters.rakshasa.innate-spellcasting,
+      from: monsterSpellcasting,
+      to: monsterAction,
+    }
+  - {
+      op: changeContentType,
+      id: monsters.rakshasa.limited-magic-immunity,
+      from: trait,
+      to: monsterAction,
+    }
+  - { op: changeContentType, id: monsters.rat.keen-smell, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.raven.mimicry, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.reef-shark.pack-tactics, from: trait, to: monsterAction }
+  - {
+      op: changeContentType,
+      id: monsters.reef-shark.water-breathing,
+      from: trait,
+      to: monsterAction,
+    }
+  - { op: changeContentType, id: monsters.remorhaz.heated-body, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.rhinoceros.charge, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.roc.keen-sight, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.roper.false-appearance, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.roper.grasping-tendrils, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.roper.spider-climb, from: trait, to: monsterAction }
+  - {
+      op: changeContentType,
+      id: monsters.rug-of-smothering.antimagic-susceptibility,
+      from: trait,
+      to: monsterAction,
+    }
+  - {
+      op: changeContentType,
+      id: monsters.rug-of-smothering.damage-transfer,
+      from: trait,
+      to: monsterAction,
+    }
+  - {
+      op: changeContentType,
+      id: monsters.rug-of-smothering.false-appearance,
+      from: trait,
+      to: monsterAction,
+    }
+  - { op: changeContentType, id: monsters.rust-monster.iron-scent, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.rust-monster.rust-metal, from: trait, to: monsterAction }
+  - {
+      op: changeContentType,
+      id: monsters.saber-toothed-tiger.keen-smell,
+      from: trait,
+      to: monsterAction,
+    }
+  - {
+      op: changeContentType,
+      id: monsters.saber-toothed-tiger.pounce,
+      from: trait,
+      to: monsterAction,
+    }
+  - { op: changeContentType, id: monsters.sahuagin.blood-frenzy, from: trait, to: monsterAction }
+  - {
+      op: changeContentType,
+      id: monsters.sahuagin.limited-amphibiousness,
+      from: trait,
+      to: monsterAction,
+    }
+  - { op: changeContentType, id: monsters.sahuagin.shark-telepathy, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.salamander.heated-body, from: trait, to: monsterAction }
+  - {
+      op: changeContentType,
+      id: monsters.salamander.heated-weapons,
+      from: trait,
+      to: monsterAction,
+    }
+  - { op: changeContentType, id: monsters.satyr.magic-resistance, from: trait, to: monsterAction }
+  - {
+      op: changeContentType,
+      id: monsters.scout.keen-hearing-and-sight,
+      from: trait,
+      to: monsterAction,
+    }
+  - { op: changeContentType, id: monsters.sea-hag.amphibious, from: trait, to: monsterAction }
+  - {
+      op: changeContentType,
+      id: monsters.sea-hag.horrific-appearance,
+      from: trait,
+      to: monsterAction,
+    }
+  - {
+      op: changeContentType,
+      id: monsters.sea-horse.water-breathing,
+      from: trait,
+      to: monsterAction,
+    }
+  - { op: changeContentType, id: monsters.shadow.amorphous, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.shadow.shadow-stealth, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.shadow.sunlight-weakness, from: trait, to: monsterAction }
+  - {
+      op: changeContentType,
+      id: monsters.shambling-mound.lightning-absorption,
+      from: trait,
+      to: monsterAction,
+    }
+  - { op: changeContentType, id: monsters.shield-guardian.bound, from: trait, to: monsterAction }
+  - {
+      op: changeContentType,
+      id: monsters.shield-guardian.regeneration,
+      from: trait,
+      to: monsterAction,
+    }
+  - {
+      op: changeContentType,
+      id: monsters.shield-guardian.spell-storing,
+      from: trait,
+      to: monsterAction,
+    }
+  - {
+      op: changeContentType,
+      id: monsters.shrieker.false-appearance,
+      from: trait,
+      to: monsterAction,
+    }
+  - { op: changeContentType, id: monsters.solar.angelic-weapons, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.solar.divine-awareness, from: trait, to: monsterAction }
+  - {
+      op: changeContentType,
+      id: monsters.solar.innate-spellcasting,
+      from: monsterSpellcasting,
+      to: monsterAction,
+    }
+  - { op: changeContentType, id: monsters.solar.magic-resistance, from: trait, to: monsterAction }
+  - {
+      op: changeContentType,
+      id: monsters.specter.incorporeal-movement,
+      from: trait,
+      to: monsterAction,
+    }
+  - {
+      op: changeContentType,
+      id: monsters.specter.sunlight-sensitivity,
+      from: trait,
+      to: monsterAction,
+    }
+  - { op: changeContentType, id: monsters.spider.spider-climb, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.spider.web-sense, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.spider.web-walker, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.spirit-naga.rejuvenation, from: trait, to: monsterAction }
+  - {
+      op: changeContentType,
+      id: monsters.spirit-naga.spellcasting,
+      from: monsterSpellcasting,
+      to: monsterAction,
+    }
+  - { op: changeContentType, id: monsters.spy.cunning-action, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.spy.sneak-attack, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.steam-mephit.death-burst, from: trait, to: monsterAction }
+  - {
+      op: changeContentType,
+      id: monsters.steam-mephit.innate-spellcasting,
+      from: monsterSpellcasting,
+      to: monsterAction,
+    }
+  - {
+      op: changeContentType,
+      id: monsters.stone-giant.stone-camouflage,
+      from: trait,
+      to: monsterAction,
+    }
+  - {
+      op: changeContentType,
+      id: monsters.stone-golem.immutable-form,
+      from: trait,
+      to: monsterAction,
+    }
+  - {
+      op: changeContentType,
+      id: monsters.stone-golem.magic-resistance,
+      from: trait,
+      to: monsterAction,
+    }
+  - {
+      op: changeContentType,
+      id: monsters.stone-golem.magic-weapons,
+      from: trait,
+      to: monsterAction,
+    }
+  - { op: changeContentType, id: monsters.storm-giant.amphibious, from: trait, to: monsterAction }
+  - {
+      op: changeContentType,
+      id: monsters.storm-giant.innate-spellcasting,
+      from: monsterSpellcasting,
+      to: monsterAction,
+    }
+  - {
+      op: changeContentType,
+      id: monsters.succubus-incubus.shapechanger,
+      from: trait,
+      to: monsterAction,
+    }
+  - {
+      op: changeContentType,
+      id: monsters.succubus-incubus.telepathic-bond,
+      from: trait,
+      to: monsterAction,
+    }
+  - {
+      op: changeContentType,
+      id: monsters.swarm-of-bats.echolocation,
+      from: trait,
+      to: monsterAction,
+    }
+  - {
+      op: changeContentType,
+      id: monsters.swarm-of-bats.keen-hearing,
+      from: trait,
+      to: monsterAction,
+    }
+  - { op: changeContentType, id: monsters.swarm-of-bats.swarm, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.swarm-of-beetles.swarm, from: trait, to: monsterAction }
+  - {
+      op: changeContentType,
+      id: monsters.swarm-of-centipedes.swarm,
+      from: trait,
+      to: monsterAction,
+    }
+  - { op: changeContentType, id: monsters.swarm-of-insects.swarm, from: trait, to: monsterAction }
+  - {
+      op: changeContentType,
+      id: monsters.swarm-of-poisonous-snakes.swarm,
+      from: trait,
+      to: monsterAction,
+    }
+  - {
+      op: changeContentType,
+      id: monsters.swarm-of-quippers.blood-frenzy,
+      from: trait,
+      to: monsterAction,
+    }
+  - { op: changeContentType, id: monsters.swarm-of-quippers.swarm, from: trait, to: monsterAction }
+  - {
+      op: changeContentType,
+      id: monsters.swarm-of-quippers.water-breathing,
+      from: trait,
+      to: monsterAction,
+    }
+  - { op: changeContentType, id: monsters.swarm-of-rats.keen-smell, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.swarm-of-rats.swarm, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.swarm-of-ravens.swarm, from: trait, to: monsterAction }
+  - {
+      op: changeContentType,
+      id: monsters.swarm-of-spiders.spider-climb,
+      from: trait,
+      to: monsterAction,
+    }
+  - { op: changeContentType, id: monsters.swarm-of-spiders.swarm, from: trait, to: monsterAction }
+  - {
+      op: changeContentType,
+      id: monsters.swarm-of-spiders.web-sense,
+      from: trait,
+      to: monsterAction,
+    }
+  - {
+      op: changeContentType,
+      id: monsters.swarm-of-spiders.web-walker,
+      from: trait,
+      to: monsterAction,
+    }
+  - { op: changeContentType, id: monsters.swarm-of-wasps.swarm, from: trait, to: monsterAction }
+  - {
+      op: changeContentType,
+      id: monsters.tarrasque.magic-resistance,
+      from: trait,
+      to: monsterAction,
+    }
+  - {
+      op: changeContentType,
+      id: monsters.tarrasque.reflective-carapace,
+      from: trait,
+      to: monsterAction,
+    }
+  - { op: changeContentType, id: monsters.tarrasque.siege-monster, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.thug.pack-tactics, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.tiger.keen-smell, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.tiger.pounce, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.treant.false-appearance, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.treant.siege-monster, from: trait, to: monsterAction }
+  - {
+      op: changeContentType,
+      id: monsters.tribal-warrior.pack-tactics,
+      from: trait,
+      to: monsterAction,
+    }
+  - {
+      op: changeContentType,
+      id: monsters.triceratops.trampling-charge,
+      from: trait,
+      to: monsterAction,
+    }
+  - { op: changeContentType, id: monsters.troll.keen-smell, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.troll.regeneration, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.unicorn.charge, from: trait, to: monsterAction }
+  - {
+      op: changeContentType,
+      id: monsters.unicorn.innate-spellcasting,
+      from: monsterSpellcasting,
+      to: monsterAction,
+    }
+  - { op: changeContentType, id: monsters.unicorn.magic-resistance, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.unicorn.magic-weapons, from: trait, to: monsterAction }
+  - {
+      op: changeContentType,
+      id: monsters.vampire-spawn.regeneration,
+      from: trait,
+      to: monsterAction,
+    }
+  - {
+      op: changeContentType,
+      id: monsters.vampire-spawn.spider-climb,
+      from: trait,
+      to: monsterAction,
+    }
+  - {
+      op: changeContentType,
+      id: monsters.vampire-spawn.vampire-weaknesses,
+      from: trait,
+      to: monsterAction,
+    }
+  - { op: changeContentType, id: monsters.vampire.misty-escape, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.vampire.regeneration, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.vampire.shapechanger, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.vampire.spider-climb, from: trait, to: monsterAction }
+  - {
+      op: changeContentType,
+      id: monsters.vampire.vampire-weaknesses,
+      from: trait,
+      to: monsterAction,
+    }
+  - {
+      op: changeContentType,
+      id: monsters.violet-fungus.false-appearance,
+      from: trait,
+      to: monsterAction,
+    }
+  - { op: changeContentType, id: monsters.vrock.magic-resistance, from: trait, to: monsterAction }
+  - {
+      op: changeContentType,
+      id: monsters.vulture.keen-sight-and-smell,
+      from: trait,
+      to: monsterAction,
+    }
+  - { op: changeContentType, id: monsters.vulture.pack-tactics, from: trait, to: monsterAction }
+  - {
+      op: changeContentType,
+      id: monsters.warhorse.trampling-charge,
+      from: trait,
+      to: monsterAction,
+    }
+  - { op: changeContentType, id: monsters.water-elemental.freeze, from: trait, to: monsterAction }
+  - {
+      op: changeContentType,
+      id: monsters.water-elemental.water-form,
+      from: trait,
+      to: monsterAction,
+    }
+  - {
+      op: changeContentType,
+      id: monsters.weasel.keen-hearing-and-smell,
+      from: trait,
+      to: monsterAction,
+    }
+  - { op: changeContentType, id: monsters.werebear.keen-smell, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.werebear.shapechanger, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.wereboar.charge, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.wereboar.shapechanger, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.wererat.keen-smell, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.wererat.shapechanger, from: trait, to: monsterAction }
+  - {
+      op: changeContentType,
+      id: monsters.weretiger.keen-hearing-and-smell,
+      from: trait,
+      to: monsterAction,
+    }
+  - { op: changeContentType, id: monsters.weretiger.pounce, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.weretiger.shapechanger, from: trait, to: monsterAction }
+  - {
+      op: changeContentType,
+      id: monsters.werewolf.keen-hearing-and-smell,
+      from: trait,
+      to: monsterAction,
+    }
+  - { op: changeContentType, id: monsters.werewolf.shapechanger, from: trait, to: monsterAction }
+  - {
+      op: changeContentType,
+      id: monsters.wight.sunlight-sensitivity,
+      from: trait,
+      to: monsterAction,
+    }
+  - { op: changeContentType, id: monsters.will-o-wisp.consume-life, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.will-o-wisp.ephemeral, from: trait, to: monsterAction }
+  - {
+      op: changeContentType,
+      id: monsters.will-o-wisp.incorporeal-movement,
+      from: trait,
+      to: monsterAction,
+    }
+  - {
+      op: changeContentType,
+      id: monsters.will-o-wisp.variable-illumination,
+      from: trait,
+      to: monsterAction,
+    }
+  - {
+      op: changeContentType,
+      id: monsters.winter-wolf.keen-hearing-and-smell,
+      from: trait,
+      to: monsterAction,
+    }
+  - { op: changeContentType, id: monsters.winter-wolf.pack-tactics, from: trait, to: monsterAction }
+  - {
+      op: changeContentType,
+      id: monsters.winter-wolf.snow-camouflage,
+      from: trait,
+      to: monsterAction,
+    }
+  - {
+      op: changeContentType,
+      id: monsters.wolf.keen-hearing-and-smell,
+      from: trait,
+      to: monsterAction,
+    }
+  - { op: changeContentType, id: monsters.wolf.pack-tactics, from: trait, to: monsterAction }
+  - {
+      op: changeContentType,
+      id: monsters.worg.keen-hearing-and-smell,
+      from: trait,
+      to: monsterAction,
+    }
+  - {
+      op: changeContentType,
+      id: monsters.wraith.incorporeal-movement,
+      from: trait,
+      to: monsterAction,
+    }
+  - {
+      op: changeContentType,
+      id: monsters.wraith.sunlight-sensitivity,
+      from: trait,
+      to: monsterAction,
+    }
+  - { op: changeContentType, id: monsters.xorn.earth-glide, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.xorn.stone-camouflage, from: trait, to: monsterAction }
+  - { op: changeContentType, id: monsters.xorn.treasure-sense, from: trait, to: monsterAction }
+  - {
+      op: changeContentType,
+      id: monsters.young-black-dragon.amphibious,
+      from: trait,
+      to: monsterAction,
+    }
+  - {
+      op: changeContentType,
+      id: monsters.young-bronze-dragon.amphibious,
+      from: trait,
+      to: monsterAction,
+    }
+  - {
+      op: changeContentType,
+      id: monsters.young-gold-dragon.amphibious,
+      from: trait,
+      to: monsterAction,
+    }
+  - {
+      op: changeContentType,
+      id: monsters.young-green-dragon.amphibious,
+      from: trait,
+      to: monsterAction,
+    }
+  - {
+      op: changeContentType,
+      id: monsters.young-white-dragon.ice-walk,
+      from: trait,
+      to: monsterAction,
+    }
+  - { op: changeContentType, id: monsters.zombie.undead-fortitude, from: trait, to: monsterAction }
+  - { op: changeContentType, id: traits.nimble-escape, from: trait, to: monsterAction }

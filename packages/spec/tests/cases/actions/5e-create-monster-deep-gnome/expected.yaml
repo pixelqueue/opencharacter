@@ -7,105 +7,187 @@ outcome:
   result: created
   data: { hp: 16 }
 proposedChanges:
-  - {
-      to: self,
-      step: monster,
-      change: { type: addItem, entry: { id: monster, item: 5e-srd-5.1:monsters.deep-gnome } },
-    }
-  - {
-      to: self,
-      step: stats,
-      change: { type: set, field: 5e-srd-5.1:abilities.str.base, value: 15 },
-    }
-  - {
-      to: self,
-      step: stats,
-      change: { type: set, field: 5e-srd-5.1:abilities.dex.base, value: 14 },
-    }
-  - {
-      to: self,
-      step: stats,
-      change: { type: set, field: 5e-srd-5.1:abilities.con.base, value: 14 },
-    }
-  - {
-      to: self,
-      step: stats,
-      change: { type: set, field: 5e-srd-5.1:abilities.int.base, value: 12 },
-    }
-  - {
-      to: self,
-      step: stats,
-      change: { type: set, field: 5e-srd-5.1:abilities.wis.base, value: 10 },
-    }
-  - { to: self, step: stats, change: { type: set, field: 5e-srd-5.1:abilities.cha.base, value: 9 } }
-  - { to: self, step: stats, change: { type: set, field: 5e-srd-5.1:challenge.rating, value: 0.5 } }
-  - { to: self, step: stats, change: { type: set, field: 5e-srd-5.1:creature.size, value: small } }
-  - {
-      to: self,
-      step: stats,
-      change: { type: set, field: 5e-srd-5.1:creature.type, value: humanoid },
-    }
-  - {
-      to: self,
-      step: stats,
-      change: { type: set, field: 5e-srd-5.1:creature.alignment, value: neutral-good },
-    }
-  - { to: self, step: stats, change: { type: set, field: 5e-srd-5.1:combat.speed, value: 20 } }
-  - {
-      to: self,
-      step: stats,
-      change:
-        {
-          type: set,
-          field: 5e-srd-5.1:proficiencies.skills,
-          value: [skill.investigation, skill.perception, skill.stealth],
-        },
-    }
-  - {
-      to: self,
-      step: stats,
-      change:
-        {
-          type: set,
-          field: 5e-srd-5.1:proficiencies.languages,
-          value:
-            [
-              5e-srd-5.1:languages.gnomish,
-              5e-srd-5.1:languages.primordial,
-              5e-srd-5.1:languages.undercommon,
-            ],
-        },
-    }
-  - { to: self, step: stats, change: { type: set, field: 5e-srd-5.1:hp.base, value: 16 } }
-  - { to: self, step: stats, change: { type: set, field: 5e-srd-5.1:hp.current, value: 16 } }
   - to: self
-    step: ownCopies
+    step: monster
+    change:
+      type: addItem
+      entry:
+        id: monster
+        item: 5e-srd-5.1:monsters.deep-gnome
+  - to: self
+    step: stats
+    change:
+      type: set
+      field: 5e-srd-5.1:abilities.str.base
+      value: 15
+  - to: self
+    step: stats
+    change:
+      type: set
+      field: 5e-srd-5.1:abilities.dex.base
+      value: 14
+  - to: self
+    step: stats
+    change:
+      type: set
+      field: 5e-srd-5.1:abilities.con.base
+      value: 14
+  - to: self
+    step: stats
+    change:
+      type: set
+      field: 5e-srd-5.1:abilities.int.base
+      value: 12
+  - to: self
+    step: stats
+    change:
+      type: set
+      field: 5e-srd-5.1:abilities.wis.base
+      value: 10
+  - to: self
+    step: stats
+    change:
+      type: set
+      field: 5e-srd-5.1:abilities.cha.base
+      value: 9
+  - to: self
+    step: stats
+    change:
+      type: set
+      field: 5e-srd-5.1:challenge.rating
+      value: 0.5
+  - to: self
+    step: stats
+    change:
+      type: set
+      field: 5e-srd-5.1:creature.size
+      value: small
+  - to: self
+    step: stats
+    change:
+      type: set
+      field: 5e-srd-5.1:creature.type
+      value: humanoid
+  - to: self
+    step: stats
+    change:
+      type: set
+      field: 5e-srd-5.1:creature.alignment
+      value: neutral-good
+  - to: self
+    step: stats
+    change:
+      type: set
+      field: 5e-srd-5.1:combat.speed
+      value: 20
+  - to: self
+    step: stats
+    change:
+      type: set
+      field: 5e-srd-5.1:proficiencies.skills
+      value:
+        - skill.investigation
+        - skill.perception
+        - skill.stealth
+  - to: self
+    step: stats
+    change:
+      type: set
+      field: 5e-srd-5.1:proficiencies.languages
+      value:
+        - 5e-srd-5.1:languages.gnomish
+        - 5e-srd-5.1:languages.primordial
+        - 5e-srd-5.1:languages.undercommon
+  - to: self
+    step: stats
+    change:
+      type: set
+      field: 5e-srd-5.1:hp.base
+      value: 16
+  - to: self
+    step: stats
+    change:
+      type: set
+      field: 5e-srd-5.1:hp.current
+      value: 16
+  - to: self
+    step: entries
+    change:
+      type: addItem
+      entry:
+        id: monsters-deep-gnome-stone-camouflage-1
+        item: 5e-srd-5.1:monsters.deep-gnome.stone-camouflage
+  - to: self
+    step: entries
+    change:
+      type: addItem
+      entry:
+        id: monsters-deep-gnome-gnome-cunning-1
+        item: 5e-srd-5.1:monsters.deep-gnome.gnome-cunning
+  - to: self
+    step: entries
+    change:
+      type: addItem
+      entry:
+        id: monsters-deep-gnome-innate-spellcasting-1
+        item: 5e-srd-5.1:monsters.deep-gnome.innate-spellcasting
+  - to: self
+    step: entries
+    change:
+      type: addItem
+      entry:
+        id: monsters-deep-gnome-war-pick-1
+        item: 5e-srd-5.1:monsters.deep-gnome.war-pick
+  - to: self
+    step: entries
+    change:
+      type: addItem
+      entry:
+        id: monsters-deep-gnome-poisoned-dart-1
+        item: 5e-srd-5.1:monsters.deep-gnome.poisoned-dart
+  - to: self
+    step: entries
     change:
       type: addItem
       entry:
         id: monster-actions-innate-spell-1
         item: 5e-srd-5.1:monster-actions.innate-spell
-        state: { perDay: 1, usesLeft: 1 }
-        choices: { spell: [{ option: 5e-srd-5.1:spells.blindness-deafness }] }
+        state:
+          perDay: 1
+          usesLeft: 1
+        choices:
+          spell:
+            - option: 5e-srd-5.1:spells.blindness-deafness
   - to: self
-    step: ownCopies
+    step: entries
     change:
       type: addItem
       entry:
         id: monster-actions-innate-spell-2
         item: 5e-srd-5.1:monster-actions.innate-spell
-        state: { perDay: 1, usesLeft: 1 }
-        choices: { spell: [{ option: 5e-srd-5.1:spells.blur }] }
+        state:
+          perDay: 1
+          usesLeft: 1
+        choices:
+          spell:
+            - option: 5e-srd-5.1:spells.blur
   - to: self
-    step: ownCopies
+    step: entries
     change:
       type: addItem
       entry:
         id: monster-actions-innate-spell-3
         item: 5e-srd-5.1:monster-actions.innate-spell
-        state: { perDay: 1, usesLeft: 1 }
-        choices: { spell: [{ option: 5e-srd-5.1:spells.disguise-self }] }
-  - { to: self, step: finish, change: { type: finishCreation } }
+        state:
+          perDay: 1
+          usesLeft: 1
+        choices:
+          spell:
+            - option: 5e-srd-5.1:spells.disguise-self
+  - to: self
+    step: finish
+    change:
+      type: finishCreation
 log:
   - { step: monster, kind: choice, by: engine, option: 5e-srd-5.1:monsters.deep-gnome }
   - { step: hp, kind: choice, by: engine, option: average }
