@@ -78,6 +78,19 @@ const pack = {
         },
       ],
     },
+    // Each element's position as `i`: the second school's core spell, ranked by position.
+    {
+      id: 'features.ladder',
+      type: 'feature',
+      grants: [
+        {
+          forEach: "['fire', 'ice']",
+          when: 'i > 0',
+          item: { query: { type: 'spell', where: 'item.core && item.school == x' } },
+          state: { rank: 'i + 6' },
+        },
+      ],
+    },
     // A list that fails grants nothing.
     {
       id: 'features.broken',
@@ -124,6 +137,15 @@ describe('a grant per element', () => {
     );
     expect(sheet.errors).toEqual([]);
     expect(sheet.values['test-pack:power']?.value).toBe(5);
+  });
+
+  it("binds i, the element's position, beside x", () => {
+    const sheet = computeSheet(
+      ruleset,
+      character({ features: [{ id: 'ladder', item: 'test-pack:features.ladder' }] }),
+    );
+    expect(sheet.errors).toEqual([]);
+    expect(sheet.values['test-pack:power']?.value).toBe(7);
   });
 
   it('resolves a content-only query at load', () => {

@@ -4044,7 +4044,10 @@ function offerFollowUp(
   } as Change;
 }
 
-/** With `forEach`, once per element with `x` bound, each counting toward `maxActionSteps`. */
+/**
+ * With `forEach`, once per element with `x` bound (and `i`, its position), each counting toward
+ * `maxActionSteps`.
+ */
 function repeated(
   ctx: Ctx,
   frame: Frame,
@@ -4055,10 +4058,10 @@ function repeated(
   const list = evaluate(ctx, frame, change.forEach, bound);
   if (list.kind !== 'list')
     throw new ActionError('type-mismatch', { message: 'forEach needs a list' });
-  return list.value.map((element) => {
+  return list.value.map((element, i) => {
     if (++ctx.stepsRun > MAX_STEPS)
       throw new ActionError('safety-limit-exceeded', { limit: 'maxActionSteps' });
-    return { ...bound, x: rootValue(element) };
+    return { ...bound, x: rootValue(element), i };
   });
 }
 

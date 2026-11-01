@@ -110,3 +110,26 @@ actions:
         data:
           tier: steps.roll.bandValue
           tiers: mapList(steps.tier, x.bandValue)
+  # Each target's tier, paired with the target by position: `i` beside `x` under `forEach`.
+  - id: mark
+    participants:
+      target:
+        fields:
+          prone: { type: boolean, default: false }
+          taunting: { type: boolean, default: false }
+          winded: { type: boolean, default: false }
+    steps:
+      - id: roll
+        kind: roll
+        tags: [power]
+        bands: power
+        parts: [{ dice: 2d10 }, { value: might }]
+      - { id: tier, kind: roll, each: target, of: roll, tags: [target], bands: power }
+      - id: marks
+        kind: changes
+        to: target
+        changes:
+          - type: adjust
+            forEach: steps.tier
+            field: might
+            by: x.bandValue * 10 + i

@@ -385,7 +385,8 @@ grants:
 
 **A grant per key, and content by query**. A grant may say `forEach`: a list
 formula, evaluated as its `when` is, and the grant is made once per element, in list order, with
-`x` bound to the element in its `when`, `item`, `state` and `choices` (not in the list itself).
+`x` bound to the element and `i` to its position (from 0) in its `when`, `item`, `state` and
+`choices` (not in the list itself).
 Its `item` may be `{ query: { type, where } }`: every visible item of the type the query
 matches, in ruleset order, each granted as its own grant; `where` is an activation condition
 with the candidate as `item` (and `x`), and a query that reads only `item` is resolved at load.

@@ -445,7 +445,8 @@ it in a flag before the roll.
   participant and its flags are per participant ([Each steps](#each-steps)).
 - **changes:** a change with `forEach` is first repeated: its formula is
   evaluated to a list (`type-mismatch` otherwise), and the change is resolved once per element,
-  in list order, with `x` bound to the element; an empty list proposes nothing. Each copy counts
+  in list order, with `x` bound to the element and `i` to its position; an empty list proposes
+  nothing. Each copy counts
   toward `maxActionSteps`. A change whose `when` is false (for each element, with `forEach`) is
   skipped. Each other proposed change is resolved:
   - formulas are evaluated (`value`, `by`). A `by` the action evaluates that gives dice is

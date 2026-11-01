@@ -266,7 +266,8 @@ field with a formula, `field: { formula: <string> }`. It is evaluated when the c
 resolved and qualified against the action's pack, as a literal field is; it must name an input
 field (`unknown-field`, `not-input-field`), or for a link a qualified ID. A `split` adjust's
 field is written out. Any proposed change may also have `forEach: <list>`: it is proposed once
-per element, in list order, with `x` bound to the element, as in the list functions; its `when`
+per element, in list order, with `x` bound to the element and `i` to its position, as in the
+list functions; its `when`
 is evaluated per element, and an empty list proposes nothing. FitD crew creation marks each of
 a table's own crew type's starting upgrades (qualified field IDs) in one change:
 
@@ -291,7 +292,7 @@ changes:
 ```
 
 The build can't check a computed field, as it can't check a computed `addItem` item. Each copy
-of a `forEach` change counts toward `maxActionSteps`. `x` is not bound in the formulas a change
+of a `forEach` change counts toward `maxActionSteps`. `x` and `i` are not bound in the formulas a change
 aimed at copies passes on (`copies.where`, per-copy `by` and `value`).
 
 **A computed entry**. A proposed change's `entry` (other than an `addItem`'s

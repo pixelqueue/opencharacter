@@ -1548,9 +1548,10 @@ export class Sheet {
       const list = this.evaluateActivation(grant.forEach, pack, roots);
       if (list.kind !== 'list')
         throw new Failure({ code: 'type-mismatch', message: 'forEach needs a list' });
-      return list.value.map((x) => ({
+      return list.value.map((x, i) => ({
         ...roots,
         x: x.kind === 'decimal' || x.kind === 'dice' ? f.wrapValue(x) : f.toData(x),
+        i,
       }));
     } catch (error) {
       if (!(error instanceof Failure)) throw error;

@@ -260,8 +260,8 @@ A dotted name resolves in this order:
 
 1. **Context root.** If the first segment is a context root bound where the formula appears
    (`item`, `self`, `steps`, …), the rest of the path selects inside it. Roots are
-   [listed below](#context-roots). Field IDs must not start with a root's name, so this is never
-   ambiguous.
+   [listed below](#context-roots). A field ID's first segment can't be a root's name (`item`,
+   `i`, `x`, …), so this is never ambiguous.
 2. **Field.** Otherwise, the whole dotted name must be a field ID visible from the pack (its own
    fields, then its dependencies'). Its type is the field's formula type.
 3. Otherwise the formula is rejected with `unknown-name`.
@@ -372,7 +372,7 @@ see the content's own roots (`item`, `self`) with the action context (`steps`, `
 | `entry`                    | an immunity query's `where`                                                                                                                                                        | The candidate applied entry: `id` and its state keys, as its `self`                                                                                                               |
 | `f`                        | the arguments of `countFields`, `sumFields`, `maxFields` and `minFields`                                                                                                           | The field the argument is being evaluated for                                                                                                                                     |
 | `x`                        | the arguments of the list functions (`countList` … `sortList`), after the list; a proposed change or a grant with `forEach`                                                        | The list element the argument, the change or the grant is being evaluated for                                                                                                     |
-| `i`                        | the arguments of the list functions, after the list                                                                                                                                | The element's position in the list (an int from 0), skipped null elements counted                                                                                                 |
+| `i`                        | the arguments of the list functions, after the list; a proposed change or a grant with `forEach`                                                                                   | The element's position in the list (an int from 0), skipped null elements counted                                                                                                 |
 
 **Formulas a change passes on.** In a proposed change aimed at copies, `copies.where` and a `by` or
 `value` that reads `self` or `item` are evaluated per copy by applyChanges. There `item` and `self`
@@ -687,12 +687,13 @@ result: >-
 What they share:
 
 - **They are macros**, like `has`: the arguments are not evaluated before the call. They are
-  evaluated once per element, with the aggregate's root (`copy`, `pick`, `grant`, `f` or `x`)
-  bound to it. A
+  evaluated once per element, with the aggregate's root (`copy`, `pick`, `grant`, `f` or `x`,
+  and for the list functions `i`) bound to it. A
   list function's list is evaluated once, first, as usual.
 - **The root** is bound only inside the arguments (for the list functions, those after the
   list); elsewhere it is `unknown-name`. Inside `countPicks`, `pick` is the saved pick, not a
-  choice effect's. Field IDs can't start with `copy`, `grant`, `f` or `x`, as with any root.
+  choice effect's. A field ID's first segment can't be `copy`, `grant`, `f`, `x` or `i`, as with
+  any root.
 - **Other roots stay bound.** `item`, `self`, `steps` and the rest keep their meaning inside the
   arguments, so a weapon's condition can compare its own `item.ammo` with each `copy`. The
   field functions' `cond` is the exception (below).
@@ -806,7 +807,8 @@ declaration order), so a field a later pack adds is counted by an earlier pack's
   must be a list (`type-mismatch`).
 - **`i`** is the element's position in the list, an int from 0. It pairs lists that line up:
   an `each` step's per-participant results and flags with `participants.<role>`
-  (`mapList(steps.tier, participants.target[i].id)`).
+  (`mapList(steps.tier, participants.target[i].id)`). In a list function nested in another's
+  arguments, the inner `x` and `i` hide the outer ones.
 - **Null elements are skipped.** An `each` step's list holds null for a participant its `when`
   skipped; those elements aren't evaluated or counted, but they keep their place: `i` counts
   them.

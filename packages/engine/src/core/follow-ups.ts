@@ -453,7 +453,7 @@ function resolve(
           const list = sheet.evaluate(change.forEach, pack, roots);
           if (list.kind !== 'list')
             throw new Failure({ code: 'type-mismatch', message: 'forEach needs a list' });
-          each = list.value.map((x) => ({ ...roots, x: rootValue(x) }));
+          each = list.value.map((x, i) => ({ ...roots, x: rootValue(x), i }));
           copies += each.length;
         }
         return each.flatMap((own) => {

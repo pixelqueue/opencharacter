@@ -358,7 +358,7 @@
           ]
         },
         "forEach": {
-          "description": "The grant is made once per element of this list, in list order, with `x` bound to the element in `when`, `item` (a query's `where` too), `state` and `choices`. The list is an activation formula as `when` is (it reads `self`, `item` and input fields; `x` is unbound in it); an empty list grants nothing, and one that fails or isn't a list grants nothing with its sheet error. So one core grant covers every key of a family, an add-on's too: `{ forEach: keysOf('ward'), when: \"fieldOf('wards.{ward}', x) > 0\", item: { query: { type: rite, where: item.ward == x } } }`.",
+          "description": "The grant is made once per element of this list, in list order, with `x` bound to the element and `i` to its position (from 0) in `when`, `item` (a query's `where` too), `state` and `choices`. The list is an activation formula as `when` is (it reads `self`, `item` and input fields; `x` is unbound in it); an empty list grants nothing, and one that fails or isn't a list grants nothing with its sheet error. So one core grant covers every key of a family, an add-on's too: `{ forEach: keysOf('ward'), when: \"fieldOf('wards.{ward}', x) > 0\", item: { query: { type: rite, where: item.ward == x } } }`.",
           "$ref": "formula.schema.json"
         },
         "when": {

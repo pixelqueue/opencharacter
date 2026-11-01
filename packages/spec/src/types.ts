@@ -601,7 +601,7 @@ export type ProposedChange = {
     | 'offerFollowUp';
   /** The change is proposed only when this holds. */
   when?: Condition;
-  /** Propose the change once per element of this list, in list order, with `x` bound to the element. `when` and the change's other formulas are evaluated per element; an empty list proposes nothing. Each copy counts toward `maxActionSteps` (a follow-up's toward `maxFollowUps`). `x` is not bound in the formulas a change passes on. */
+  /** Propose the change once per element of this list, in list order, with `x` bound to the element and `i` to its position (from 0). `when` and the change's other formulas are evaluated per element; an empty list proposes nothing. Each copy counts toward `maxActionSteps` (a follow-up's toward `maxFollowUps`). `x` and `i` are not bound in the formulas a change passes on. */
   forEach?: Formula;
   /** setState and adjustState: `self`, the pick whose content defines the running action, resolved to `path` and `option` in the returned change; in an action that isn't a picked content's, `unknown-reference`. `owner`, the pick of the content the change is written on: in an option or `changes` an effect adds, the effect's content (picked content with saved state of its own), else the same as `self`; with no such pick, `unknown-reference`. */
   pick?: 'self' | 'owner';
@@ -1160,7 +1160,7 @@ export type Grant = {
     | {
         query: Query;
       };
-  /** The grant is made once per element of this list, in list order, with `x` bound to the element in `when`, `item` (a query's `where` too), `state` and `choices`. The list is an activation formula as `when` is (it reads `self`, `item` and input fields; `x` is unbound in it); an empty list grants nothing, and one that fails or isn't a list grants nothing with its sheet error. So one core grant covers every key of a family, an add-on's too: `{ forEach: keysOf('ward'), when: "fieldOf('wards.{ward}', x) > 0", item: { query: { type: rite, where: item.ward == x } } }`. */
+  /** The grant is made once per element of this list, in list order, with `x` bound to the element and `i` to its position (from 0) in `when`, `item` (a query's `where` too), `state` and `choices`. The list is an activation formula as `when` is (it reads `self`, `item` and input fields; `x` is unbound in it); an empty list grants nothing, and one that fails or isn't a list grants nothing with its sheet error. So one core grant covers every key of a family, an add-on's too: `{ forEach: keysOf('ward'), when: "fieldOf('wards.{ward}', x) > 0", item: { query: { type: rite, where: item.ward == x } } }`. */
   forEach?: Formula;
   when?: Condition;
   /** `holder` (default): the grant applies while the content is held, and the granted content is activated as held content. `applied`: while the content is the source of an active, unblocked `applied` entry, the granted content is activated as applied content (its `scope: applied` effects, immunities, grants and actions) with the granting entry as `self`, and immunities block it as they would an entry of it. */
