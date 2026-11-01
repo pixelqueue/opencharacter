@@ -4,8 +4,9 @@ tags: [noncombat]
 fields:
   bonusSkill: heal
 effects:
-  # Heal checks: 3d6, the lowest dropped.
+  # Heal checks: 3d6, the lowest dropped. Not with a Heal Specialist's dice, which are at least
+  # as many: the larger pool applies.
   - target: { rolls: [skill.heal] }
     op: rollModifier
     value: { kind: poolDice, count: 1 }
-    stackKey: skill-dice
+    when: "!('heal' in picksOf('foci.specialist', 'skill'))"
