@@ -4,8 +4,10 @@ import { display, type ShownGroup } from './display.ts';
 import { offers, type ListedFollowUp } from './follow-ups.ts';
 import { withHomebrew } from './homebrew.ts';
 import {
+  type Appliers,
   type Links,
   type ListedActivation,
+  type ListedAura,
   type ListedChoice,
   Sheet,
   type TemplatedItem,
@@ -55,11 +57,13 @@ export { buildRelease } from './release.ts';
 export type { Ruleset } from './ruleset.ts';
 export { resolveId } from './ruleset.ts';
 export type {
+  Appliers,
   ChoicePath,
   CompetingOptions,
   CopyLimitStatus,
   Links,
   ListedActivation,
+  ListedAura,
   ListedChoice,
   RulesIssue,
   Source,
@@ -74,13 +78,14 @@ export type { CharacterFile, ExportFile, ExportPack, FieldValue } from '@opencha
  * actions, pending choices, offers, issues.
  * `competing` lists the app's picked competing-option IDs; each group applies the first of its
  * options that is listed, else its recommendation. `links` are the views of the characters
- * filling the link slots.
+ * filling the link slots; `appliers` those of the characters whose auras the character is in.
  */
 export function computeSheet(
   ruleset: Ruleset,
   character: CharacterDoc,
   competing: readonly string[] = [],
   links: Links = {},
+  appliers: Appliers = [],
 ) {
   const layered = withHomebrew(ruleset, character);
   if (!layered.ok) {
@@ -100,12 +105,13 @@ export function computeSheet(
       situational: [],
       pending: [],
       offers: [] as ListedFollowUp[],
+      auras: [] as ListedAura[],
       competing: [],
       issues: [],
       errors: layered.errors,
     };
   }
-  const sheet = new Sheet(layered.ruleset, character, competing, links);
+  const sheet = new Sheet(layered.ruleset, character, competing, links, undefined, appliers);
   const values = sheet.values();
   // Computed values on copies and content come after every field.
   const copies = sheet.copies();
@@ -135,6 +141,7 @@ export function computeSheet(
     situational: sheet.situational(),
     pending,
     offers: offers(layered.ruleset, sheet),
+    auras: sheet.auras(),
     competing: sheet.competing,
     issues: sheet.issues(),
     errors: sheet.errors,

@@ -476,6 +476,8 @@ export type ApplyEffectChange = {
   id?: InstanceId;
   source: QualifiedId;
   active?: boolean;
+  /** For an aura's entry: one of the source item's `auras`, by ID (`unknown-id` otherwise). The entry runs only that aura's effects. Applying content again merges only into an entry of the same aura. */
+  aura?: Slug;
   /** The `id` of the character applying the entry, saved on it. Actions and follow-ups fill it in with the character proposing the change; an app applying content by hand names the applier itself. Applying content again (`reapply`) gives the merged entry this applier. */
   appliedBy?: string;
   /** The entry's state. A value may be `{ formula }`, a formula an action passed on because it reads `batch`: applyChanges evaluates it with `item` the source's item, this character's fields and `batch`, and the change as applied (`changes` in the result) carries the value. */
@@ -640,6 +642,8 @@ export type ProposedChange = {
   option?: Formula;
   /** applyEffect: the new entry's instance ID (without it, applyChanges picks one); removeEffect and toggleEffect: the applied entry's. */
   id?: InstanceId;
+  /** applyEffect: the aura of the source the entry runs, by ID, passed on as written. */
+  aura?: Slug;
   /** applyEffect: a string formula naming the content to apply, qualified against the action's pack as a proposed addItem's `item` is. A source that names no content, or a template, is `unknown-reference` when the action runs; for a link, or a role or target when qualified with a pack the ruleset doesn't load, it is passed on as written. */
   source?: Formula;
   /** applyEffect and toggleEffect: a boolean formula. */
@@ -745,6 +749,8 @@ export type CharacterFile = {
     /** Default true. */
     active?: boolean;
     state?: EntryState;
+    /** For an aura's entry: the ID of one of the source item's `auras`. The entry then runs only that aura's effects, reading its applier's view (`appliers`) as `applier`. */
+    aura?: Slug;
     /** The `id` of the character who applied the entry: the actor of the action or the character of the follow-up that proposed the `applyEffect`, or whoever the app names. Formulas read it as `self.appliedBy`; a change sent `to: applied` reaches only the entries its actor applied. */
     appliedBy?: string;
   }[];
@@ -1096,6 +1102,8 @@ export type ContentItem = {
   /** Computed values on this item's copies, added to the content type's or replacing one of them by name. A template's are added to the copies it is applied to. */
   computed?: Record<string, ComputedDecl>;
   effects?: Effect[];
+  /** Areas the holder projects, putting effects on whoever is inside: a field, a banner, a ward. Positions are the app's: computeSheet lists each aura that is up (`auras`), the app applies its entry to each creature as it enters (`applyEffect` with `source` this item, `aura` the aura's ID and `appliedBy` the holder) and removes it as the creature leaves or the aura ends. The entry runs only the aura's `effects`, whose formulas read the holder's live values as `applier.<field>` from the view the app passes (`appliers`). Text: `<contentId>.auras.<id>.name` (optional). */
+  auras?: Aura[];
   /** Follow-ups that apply while the character has this item's copy or pick, as effects do. Their formulas see `item` and `self`. */
   followUps?: FollowUp[];
   actions?: ActionOrUse[];
@@ -1125,6 +1133,21 @@ export type ContentItem = {
   deprecated?: Deprecation;
   /** IDs of the content type's effects this item switches off. */
   suppress?: Slug[];
+};
+
+export type Aura = {
+  /** Unique among the item's auras; an applied entry names it in `aura`. */
+  id: Slug;
+  /** On the holder, with the item's `item` and `self`: whether the aura is up. Default true. */
+  when?: Condition;
+  /** On the holder: how far it reaches, in the game's own unit (squares, feet), for the app's map. */
+  size?: Formula;
+  /** Whom the app puts it on: `all` (the default), `allies` or `enemies` of the holder, as the app's sides go. */
+  affects?: 'all' | 'allies' | 'enemies';
+  /** The holder's fields its effects read as `applier.<field>`, declared as a link slot's are (a value type and a literal `default`), by field ID without the pack. Without a view of the applier, each reads its default. */
+  fields?: DeclaredFields;
+  /** The effects on each creature inside, whose entry names this aura: `scope: applied` effects (a `scope` other than `applied` is `invalid-aura` at load), seeing `item` and `self` (the entry) as an applied entry's effects do, and `applier`. */
+  effects: Effect[];
 };
 
 export type Grant = {
@@ -1932,6 +1955,7 @@ export type ApplyChangesInput = {
   /** Strict mode: rules issues become errors and the batch is rejected. */
   strict?: boolean;
   links?: Links;
+  appliers?: Appliers;
 };
 
 export type ApplyChangesOutput =
@@ -2053,7 +2077,11 @@ export type ComputeSheetInput = {
   /** The app's picks for competing options, as option IDs. Each competing group (the `set` effects on a field, or a `playerChooses` stacking group) applies the first of its options, in instance order, that is listed, else its recommended option. IDs that name no option are ignored. */
   competing?: string[];
   links?: Links;
+  appliers?: Appliers;
 };
+
+/** Views of the characters who applied the character's aura entries, each the applier's `id` and its computed values, taken from its own computeSheet. An aura's effects read the view whose `id` is the entry's `appliedBy` as `applier`, its declared fields only; without one they read the declared defaults. */
+export type Appliers = View[];
 
 /** Views of the characters filling the character's link slots, by qualified slot ID. The app takes each from that character's own computeSheet. The engine reads only the declared fields. */
 export type Links = Record<string, View>;
@@ -2156,6 +2184,17 @@ export type ComputeSheetOutput = {
   situational: QualifiedId[];
   /** Choices that apply and need picks, in a pre-order walk of the activations: the rules-level choices first, then each activation's own choices, each followed by those of what it picked, before those of the activations it grants. They are the `choices` entries with `open` true, with `picked` their number of picks. */
   pending: PendingChoice[];
+  /** The auras the character projects now: each `auras` entry of its active holder content whose `when` holds, in activation order. The app applies an entry of each (`applyEffect` with `source`, `aura` and `appliedBy` the character's `id`) to every creature inside it that `affects` names, and removes it as the creature leaves or the aura leaves this list. */
+  auras?: {
+    /** The content declaring the aura. */
+    source: QualifiedId;
+    aura: Slug;
+    /** The copy the content belongs to, if any. */
+    entry?: InstanceId;
+    /** The aura's `size`, evaluated: how far it reaches in the game's unit. Absent when it declares none. */
+    size?: number;
+    affects: 'all' | 'allies' | 'enemies';
+  }[];
   /** What the rules offer the character now: its stored ephemeral follow-ups in file order, then its derived offers whose condition holds, the rules' in declaration order and then content's in instance order. Derived from the character file alone, so every app, a reload and an import see the same list. An app runs any entry with startAction and its ID, and dismisses only ephemeral ones. */
   offers?: ListedFollowUp[];
   competing: CompetingOptions[];
@@ -2276,6 +2315,7 @@ export type DescribeActionInput = {
     source?: QualifiedId;
   };
   links?: Links;
+  appliers?: Appliers;
 };
 
 export type DescribedParam = {
@@ -2351,6 +2391,7 @@ export type ListOptionsInput = {
   character: CharacterFile;
   choice: ChoicePath;
   links?: Links;
+  appliers?: Appliers;
 };
 
 export type ListOptionsOutput =
@@ -2480,6 +2521,7 @@ export type StartActionInput = {
   situational?: Record<string, Literal>;
   policy?: ActionPolicy;
   links?: Links;
+  appliers?: Appliers;
   /** The other characters taking part, by role the action declares: per role, a list of views in order, each `{ id, values }` from that character's own computeSheet. IDs are unique across the call (`duplicate-id`). Values match the role's declared fields by field ID without the pack; a wrong type, or two values with one field ID, is `invalid-link-value`. An undeclared role, or a count outside the role's `min`/`max`, is `invalid-participants`. */
   participants?: Record<string, View[]>;
   /** Answers to replay, one per pause in order, each exactly as continueAction takes it. The result is what startAction then continueAction with each answer in turn would return, with the same policy and dice function: finished, paused at the first pause left unanswered, or a failure. An answer that doesn't fit its pause, or one left over after the action finishes, is `answer-mismatch` with `data.index` (its index here) and, for a pause, `data.needs`. Omitted or empty, startAction runs as without it. */
@@ -3198,6 +3240,7 @@ export type ErrorCode =
   | 'link-field-mismatch'
   | 'invalid-create-offer'
   | 'invalid-clock-action'
+  | 'invalid-aura'
   | 'invalid-applied-change'
   | 'invalid-family'
   | 'invalid-extension'

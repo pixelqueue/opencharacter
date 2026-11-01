@@ -100,6 +100,10 @@
       "description": "Everywhere `character` is bound: the characters filling the character's link slots, each a view. `links.<slot>` resolves the slot in the formula's pack, then its dependencies, and is a closed object: `id` (the linked character's ID) plus each declared field by field ID (`links.crew.upgrades.mastery`). It is present when the character file links the slot or the app passes a view for it (`has(links.crew)`). A declared field the view lacks reads its `default`; with none it is absent (`has(links.crew.tier)`). An undeclared slot or field is `unknown-name`. Link reads are inputs, not field references: they add no dependency edges."
     },
     {
+      "id": "applier",
+      "description": "In an aura's effects: the character who applied the entry (its `appliedBy`), as the view the app passes in `appliers`: a closed object of `id` plus each field the aura declares in `fields`, by field ID (`applier.nullClass.fieldEffect`). Without that view a declared field reads its `default` (with none it is absent), so `has()` guards one without a default. Not bound elsewhere (`unknown-name`)."
+    },
+    {
       "id": "copy",
       "description": "Inside the arguments of `countCopies`, `sumCopies`, `maxCopies` and `minCopies`: the copy being evaluated: `copy.id`, `copy.item` (qualified item ID), `copy.type` (content type name), `copy.tags`, `copy.equipped`, `copy.quantity`, `copy.templates`, `copy.state.<key>` (declared state keys, saved value or default) and `copy.fields.<field>` (item fields as in `item`: the templates' values, else the item's, else the declared default). `state` and `fields` are `dyn`."
     },

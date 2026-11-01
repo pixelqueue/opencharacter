@@ -85,7 +85,9 @@ export function storeFollowUps(
   let previous: Map<string, Declared> | undefined;
   const beforeOf = (key: string): Declared | undefined => {
     previous ??= new Map(
-      declarations(ruleset, new Sheet(ruleset, before, [], links)).map((d) => [d.key, d]),
+      declarations(ruleset, new Sheet(ruleset, before, [], links, undefined, after.appliers)).map(
+        (d) => [d.key, d],
+      ),
     );
     return previous.get(key);
   };
@@ -565,6 +567,7 @@ function resolveChange(
   } else if (change.entry !== undefined) out.entry = change.entry;
   if (change.key !== undefined) out.key = change.key;
   if (change.id !== undefined) out.id = change.id;
+  if (change.aura !== undefined) out.aura = change.aura;
   if (change.source !== undefined) {
     const ref = evaluate(change.source);
     const qid =

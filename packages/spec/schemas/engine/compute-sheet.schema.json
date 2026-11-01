@@ -54,9 +54,19 @@
         },
         "links": {
           "$ref": "#/$defs/links"
+        },
+        "appliers": {
+          "$ref": "#/$defs/appliers"
         }
       },
       "additionalProperties": false
+    },
+    "appliers": {
+      "description": "Views of the characters who applied the character's aura entries, each the applier's `id` and its computed values, taken from its own computeSheet. An aura's effects read the view whose `id` is the entry's `appliedBy` as `applier`, its declared fields only; without one they read the declared defaults.",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/view"
+      }
     },
     "links": {
       "description": "Views of the characters filling the character's link slots, by qualified slot ID. The app takes each from that character's own computeSheet. The engine reads only the declared fields.",
@@ -399,6 +409,35 @@
           "type": "array",
           "items": {
             "$ref": "#/$defs/pendingChoice"
+          }
+        },
+        "auras": {
+          "description": "The auras the character projects now: each `auras` entry of its active holder content whose `when` holds, in activation order. The app applies an entry of each (`applyEffect` with `source`, `aura` and `appliedBy` the character's `id`) to every creature inside it that `affects` names, and removes it as the creature leaves or the aura leaves this list.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["source", "aura", "affects"],
+            "properties": {
+              "source": {
+                "description": "The content declaring the aura.",
+                "$ref": "../common.schema.json#/$defs/qualifiedId"
+              },
+              "aura": {
+                "$ref": "../common.schema.json#/$defs/slug"
+              },
+              "entry": {
+                "description": "The copy the content belongs to, if any.",
+                "$ref": "../common.schema.json#/$defs/instanceId"
+              },
+              "size": {
+                "description": "The aura's `size`, evaluated: how far it reaches in the game's unit. Absent when it declares none.",
+                "type": "number"
+              },
+              "affects": {
+                "enum": ["all", "allies", "enemies"]
+              }
+            },
+            "additionalProperties": false
           }
         },
         "offers": {

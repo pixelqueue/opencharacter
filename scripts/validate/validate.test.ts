@@ -278,6 +278,8 @@ describe('pnpm validate', () => {
       ['a role field the pack lacks', /role lookout: "lookout.eyes" is not a field of broken/],
       ['each over an undeclared role', /step bribe: each names undeclared role "ghost"/],
       ['changes to an undeclared role', /step tip: to names undeclared role "accomplice"/],
+      ['a repeated aura ID', /weapons.mace aura dread: duplicate aura id/],
+      ['an aura effect on its holder', /aura dread: an aura's effects are on whoever is inside/],
       ['a clock action with a required parameter', /actions.tick: a clock action's parameter by/],
       ['a change to applied that is no query', /step shun: a change sent to applied is a remove/],
       ['an applyEffect of unknown content', /step hex: unknown content "weapons.nothing"/],

@@ -55,6 +55,7 @@ import {
   type EffectInstance,
   entryOf,
   Failure,
+  type Appliers,
   type Links,
   ownerKey,
   ownsEntry,
@@ -89,6 +90,8 @@ export interface ActionInput {
   policy?: Policy;
   /** Views of the characters filling the link slots. */
   links?: Links;
+  /** Views of the characters whose auras the character is in, by their `id`. */
+  appliers?: Appliers;
   /** Views of the other characters taking part, by role. */
   participants?: Record<string, View[]>;
   /** Answers to replay, one per pause, as continueAction takes them. */
@@ -134,8 +137,9 @@ type ActionState = {
   action: ActionRef;
   params: Record<string, unknown>;
   situational: Record<string, unknown>;
-  /** Link views are inputs: a paused action keeps them. */
+  /** Link views are inputs: a paused action keeps them, and the applier views. */
   links?: Links;
+  appliers?: Appliers;
   participants?: Record<string, View[]>;
   policy?: Policy;
   answers: Answer[];
@@ -358,6 +362,7 @@ export function startAction(
     params: input.params ?? {},
     situational: input.situational ?? {},
     ...(input.links && Object.keys(input.links).length > 0 ? { links: input.links } : {}),
+    ...(input.appliers && input.appliers.length > 0 ? { appliers: input.appliers } : {}),
     ...(input.participants && Object.keys(input.participants).length > 0
       ? { participants: input.participants }
       : {}),
@@ -499,7 +504,7 @@ const memos = new WeakMap<object, RunMemo>();
 function newMemo(ruleset: Ruleset, state: ActionState): RunMemo {
   return {
     ruleset,
-    given: JSON.stringify([state.character, state.links ?? {}]),
+    given: JSON.stringify([state.character, state.links ?? {}, state.appliers ?? []]),
     sheets: new Map(),
     batch: new Map(),
   };
@@ -569,7 +574,14 @@ function run(
   dice: DiceFunction,
   memo: RunMemo = newMemo(ruleset, state),
 ): ActionResult {
-  const sheet = new Sheet(ruleset, state.character, [], state.links ?? {});
+  const sheet = new Sheet(
+    ruleset,
+    state.character,
+    [],
+    state.links ?? {},
+    undefined,
+    state.appliers ?? [],
+  );
   const ctx: Ctx = {
     memo,
     sheet,
@@ -1294,10 +1306,11 @@ function proposedSheet(ctx: Ctx, path: string): Sheet {
         links,
         undefined,
         ctx.memo.batch,
+        ctx.state.appliers ?? [],
       );
       if (!applied.ok)
         throw new ActionError('proposed-changes-failed', { step: path, error: applied.errors[0] });
-      sheet = new Sheet(ctx.ruleset, applied.character, [], links);
+      sheet = new Sheet(ctx.ruleset, applied.character, [], links, undefined, ctx.state.appliers);
       ctx.memo.sheets.set(key, sheet);
     }
   }
@@ -3952,6 +3965,7 @@ function proposeOne(
     else if (change.entry !== undefined) out.entry = change.entry;
     if (change.key !== undefined) out.key = change.key;
     if (change.id !== undefined) out.id = change.id;
+    if (change.aura !== undefined) out.aura = change.aura;
     if (change.source !== undefined)
       out.source = contentRef(ctx, frame, change.source, extra, linked, other);
     // The actor applies what it proposes, and a change `to: applied` reaches only its own entries.

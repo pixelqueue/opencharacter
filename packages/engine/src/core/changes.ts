@@ -34,6 +34,7 @@ import {
   type ChoicePath,
   type ChoiceRecord,
   type EffectInstance,
+  type Appliers,
   Failure,
   type Links,
   type RulesIssue,
@@ -141,8 +142,19 @@ export function applyChanges(
   strict = false,
   links: Links = {},
   dice?: DiceFunction,
+  appliers: Appliers = [],
 ): ApplyResult {
-  return applyBatch(ruleset, character, changes, strict, links, dice);
+  return applyBatch(ruleset, character, changes, strict, links, dice, undefined, appliers);
+}
+
+/**
+ * The applier views a batch was given, by its links object: every sheet the batch builds reads
+ * them, wherever the links are passed.
+ */
+const batchAppliers = new WeakMap<Links, Appliers>();
+
+function sheetOf(ruleset: Ruleset, c: CharacterDoc, links: Links): Sheet {
+  return new Sheet(ruleset, c, [], links, undefined, batchAppliers.get(links) ?? []);
 }
 
 /** Sheets by ruleset and character JSON: an action's successive batches revisit the same ones. */
@@ -160,7 +172,12 @@ export function applyBatch(
   links: Links = {},
   dice?: DiceFunction,
   sheets?: BatchSheets,
+  appliers: Appliers = [],
 ): ApplyResult {
+  if (appliers.length > 0) {
+    links = { ...links };
+    batchAppliers.set(links, appliers);
+  }
   // A batch that starts by replacing the homebrew doesn't load the old one, so a homebrew that
   // stopped loading can be fixed.
   const base = withoutHomebrew(ruleset);
@@ -220,8 +237,8 @@ export function applyBatch(
       };
     }
   }
-  let sheet = new Sheet(ruleset, next, [], links);
-  if (dropDefaultStandard(ruleset, sheet, next)) sheet = new Sheet(ruleset, next, [], links);
+  let sheet = sheetOf(ruleset, next, links);
+  if (dropDefaultStandard(ruleset, sheet, next)) sheet = sheetOf(ruleset, next, links);
   const issues = sheet.issues();
   if (strict && issues.length > 0)
     return { ok: false, errors: [{ code: 'rules-issue', data: { issues } }], issues };
@@ -755,7 +772,7 @@ function keptSheet(sheets: BatchSheets, ruleset: Ruleset, c: CharacterDoc, links
   if (!byCharacter) sheets.set(ruleset, (byCharacter = new Map()));
   const key = JSON.stringify(c);
   let sheet = byCharacter.get(key);
-  if (!sheet) byCharacter.set(key, (sheet = new Sheet(ruleset, structuredClone(c), [], links)));
+  if (!sheet) byCharacter.set(key, (sheet = sheetOf(ruleset, structuredClone(c), links)));
   return sheet;
 }
 
@@ -771,7 +788,7 @@ function applyOne(
   const sheet =
     sheets && READ_FIRST.has(change.type)
       ? keptSheet(sheets, ruleset, c, links)
-      : new Sheet(ruleset, c, [], links);
+      : sheetOf(ruleset, c, links);
   if (change.copies !== undefined && PER_COPY.has(change.type)) {
     applyToCopies(ruleset, sheet, c, change, adjustments, links);
     return;
@@ -883,7 +900,7 @@ function applyOne(
       }
       if (type?.carried) c.inventory = [...(c.inventory ?? []), entry];
       else c.features = [...(c.features ?? []), entry];
-      if (entry.choices) checkPicks(ruleset, new Sheet(ruleset, c, [], links), entry);
+      if (entry.choices) checkPicks(ruleset, sheetOf(ruleset, c, links), entry);
       return;
     }
     case 'removeItem': {
@@ -1035,6 +1052,9 @@ function applyOne(
       const source = str('source');
       const item = ruleset.content[source];
       if (!item || item.type === 'template') throw new ChangeError('unknown-id', { id: source });
+      const aura = change.aura === undefined ? undefined : str('aura');
+      if (aura !== undefined && !item.auras?.some((a) => a.id === aura))
+        throw new ChangeError('unknown-id', { id: `${source}#${aura}` });
       const view = itemView(ruleset, item, [], (n, p) => sheet.inputValue(`${p}:${n}`));
       const pack = ruleset.contentTypes[item.type]?.pack ?? item.pack;
       // A `{ formula }` value is evaluated now, with `item` the source's item and `batch`.
@@ -1071,7 +1091,7 @@ function applyOne(
             num(typedValue(decl, state[key]) as f.Value),
           );
       const by = change.appliedBy === undefined ? undefined : str('appliedBy');
-      const merged = reapplied(ruleset, sheet, c, item, view, pack, state, by);
+      const merged = reapplied(ruleset, sheet, c, item, view, pack, state, by, aura);
       if (merged !== undefined) {
         adjustments.push({ applied: [merged] });
         return computed ? { state } : undefined;
@@ -1083,6 +1103,7 @@ function applyOne(
         source,
         ...(change.active !== undefined ? { active: change.active as boolean } : {}),
         ...(change.state ? { state } : {}),
+        ...(aura !== undefined ? { aura } : {}),
         ...(by !== undefined ? { appliedBy: by } : {}),
       };
       c.applied = [...(c.applied ?? []), applied];
@@ -1304,6 +1325,7 @@ function reapplied(
   pack: string,
   state: Record<string, Literal>,
   appliedBy: string | undefined,
+  aura: string | undefined,
 ): string | undefined {
   const reapply = item.reapply ?? ruleset.contentTypes[item.type]?.reapply;
   if (!reapply) return undefined;
@@ -1326,6 +1348,7 @@ function reapplied(
   const existing = (c.applied ?? []).find(
     (a) =>
       a.source === item.qid &&
+      a.aura === aura &&
       a.active !== false &&
       (reapply.match ?? []).every((key) =>
         key === 'appliedBy'
@@ -1825,7 +1848,7 @@ function applyThen(
       } else {
         let value: Literal;
         try {
-          value = setGrantState(ruleset, new Sheet(ruleset, c, [], links), c, {
+          value = setGrantState(ruleset, sheetOf(ruleset, c, links), c, {
             ...one,
             ...own.grant,
           });

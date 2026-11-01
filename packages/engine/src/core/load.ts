@@ -841,6 +841,18 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
     if (raw.immuneTo) out.immuneTo = raw.immuneTo.map((i) => q.immunity(i, pack));
     if (raw.choices) out.choices = q.choices(raw.choices, pack, raw.id ?? 'content');
     if (raw.effects) out.effects = raw.effects.map((e) => q.effect(e, pack));
+    if (raw.auras) {
+      // An aura's effects are on whoever is inside: `scope: applied`, whatever they leave out.
+      const seen = new Set<string>();
+      out.auras = raw.auras.map((aura) => {
+        if (seen.has(aura.id)) err('invalid-aura', { item: raw.id, aura: aura.id, pack });
+        seen.add(aura.id);
+        for (const e of aura.effects)
+          if ((e.scope ?? 'applied') !== 'applied')
+            err('invalid-aura', { item: raw.id, aura: aura.id, pack });
+        return { ...aura, effects: aura.effects.map((e) => q.effect(e, pack)) };
+      });
+    }
     if (raw.followUps) {
       const own = itemActions(raw, pack);
       out.followUps = raw.followUps.map((fu) => q.followUp(fu, pack, own));

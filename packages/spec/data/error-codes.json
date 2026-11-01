@@ -126,7 +126,7 @@
     {
       "id": "invalid-link-value",
       "kind": "runtime",
-      "description": "A linked character's value doesn't have its declared field's type, or two of its values share a field ID. The field's default is used. Data: `link`, `field`, `expected`. In startAction, a participant's value does: the action fails, data `role`, `id`, `field`, `expected`."
+      "description": "A linked character's value doesn't have its declared field's type, or two of its values share a field ID. The field's default is used. Data: `link`, `field`, `expected`. In startAction, a participant's value does: the action fails, data `role`, `id`, `field`, `expected`. An applier's view (`appliers`) for an aura's declared fields: data `applier`, `field`, `expected`, and the default is used."
     },
     {
       "id": "rules-issue",
@@ -217,6 +217,11 @@
       "id": "invalid-clock-action",
       "kind": "load",
       "description": "An action with `clock` can't run unattended at that moment: it is content's (only rules actions have a clock), a parameter other than `ended` and `started` has no default and isn't `optional`, `ended` or `started` isn't a string, or a role has a `min` above 0. Data: `action`, `pack`, and `param` or `role` when one is the cause."
+    },
+    {
+      "id": "invalid-aura",
+      "kind": "load",
+      "description": "An item's auras repeat an ID, or one of an aura's effects has a `scope` other than `applied` (an aura's effects are on whoever is inside). Data: `item`, `aura`, `pack`."
     },
     {
       "id": "invalid-applied-change",

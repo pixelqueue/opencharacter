@@ -1,6 +1,13 @@
 import type { EngineError } from './load.ts';
 import type { CharacterDoc, Choice } from './pack-types.ts';
-import { type ChoicePath, type ChoiceRecord, type Links, type RulesIssue, Sheet } from './sheet.ts';
+import {
+  type Appliers,
+  type ChoicePath,
+  type ChoiceRecord,
+  type Links,
+  type RulesIssue,
+  Sheet,
+} from './sheet.ts';
 import { samePath, treeFor } from './tree.ts';
 import * as f from '../formula/index.ts';
 import type { Ruleset } from './ruleset.ts';
@@ -44,11 +51,13 @@ export function listOptions(
   character: CharacterDoc,
   path: ChoicePath,
   links: Links = {},
+  appliers: Appliers = [],
 ): ListOptionsResult {
   const layered = withHomebrew(ruleset, character);
   if (!layered.ok) return { errors: layered.errors };
   ruleset = layered.ruleset;
-  return optionsOn(ruleset, new Sheet(ruleset, character, [], links), path, links);
+  const sheet = new Sheet(ruleset, character, [], links, undefined, appliers);
+  return optionsOn(ruleset, sheet, path, links);
 }
 
 /**
@@ -182,7 +191,7 @@ export function optionsOn(
           }
         }
       }
-      const after = new Sheet(ruleset, trial, [], links);
+      const after = new Sheet(ruleset, trial, [], links, undefined, sheet.appliers);
       reasons.push(...after.prerequisiteIssues(sourceId ?? String(option)));
     }
     return {

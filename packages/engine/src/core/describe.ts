@@ -11,7 +11,7 @@ import {
 import { withHomebrew } from './homebrew.ts';
 import type { CharacterDoc, Formula, ValueDecl } from './pack-types.ts';
 import { resolveContent, resolveField, type Ruleset } from './ruleset.ts';
-import { Failure, type Links, Sheet } from './sheet.ts';
+import { type Appliers, Failure, type Links, Sheet } from './sheet.ts';
 import { outputData } from './views.ts';
 
 export type { DescribedParam, DescribedRole };
@@ -27,12 +27,13 @@ export function describeAction(
   character: CharacterDoc,
   action: Omit<ActionRef, 'followUp'>,
   links: Links = {},
+  appliers: Appliers = [],
 ): DescribeActionResult {
   const layered = withHomebrew(ruleset, character);
   if (!layered.ok) return { errors: layered.errors };
   ruleset = layered.ruleset;
   const { id, entry, source } = action;
-  const sheet = new Sheet(ruleset, character, [], links);
+  const sheet = new Sheet(ruleset, character, [], links, undefined, appliers);
   const listed = sheet
     .actions(true)
     .some((a) => a.action === id && a.entry === entry && a.source === source);

@@ -89,6 +89,7 @@ const expectedKeys: Record<string, string[]> = {
     'choices',
     'groups',
     'offers',
+    'auras',
   ],
   listOptions: ['options', 'min', 'max', 'errors'],
   describeAction: ['action', 'errors'],
@@ -241,7 +242,13 @@ function run(dir: string): void {
   const r = ruleset(dir, spec.packs);
 
   if (spec.call === 'computeSheet') {
-    const sheet = computeSheet(r, character, input.competing ?? [], input.links ?? {});
+    const sheet = computeSheet(
+      r,
+      character,
+      input.competing ?? [],
+      input.links ?? {},
+      input.appliers ?? [],
+    );
     type Value = {
       value?: unknown;
       base?: unknown;
@@ -289,6 +296,7 @@ function run(dir: string): void {
     if (expected.groups) expect(sheet.groups).toEqual(expected.groups);
     if (expected.copyLimits) expect(sheet.copyLimits).toEqual(expected.copyLimits);
     if (expected.offers) expect(sheet.offers).toEqual(expected.offers);
+    if (expected.auras) expect(sheet.auras).toEqual(expected.auras);
     if (expected.errors) expect(sheet.errors.map((e) => e.code)).toEqual(expected.errors);
     if (expected.valueErrors)
       expect(
@@ -344,7 +352,7 @@ function run(dir: string): void {
   }
 
   if (spec.call === 'listOptions') {
-    const result = listOptions(r, character, input.choice, input.links ?? {});
+    const result = listOptions(r, character, input.choice, input.links ?? {}, input.appliers ?? []);
     if ('errors' in result) {
       expect(result.errors.map((e) => e.code)).toEqual(expected.errors);
       return;
@@ -372,7 +380,13 @@ function run(dir: string): void {
   }
 
   if (spec.call === 'describeAction') {
-    const result = describeAction(r, character, input.action, input.links ?? {});
+    const result = describeAction(
+      r,
+      character,
+      input.action,
+      input.links ?? {},
+      input.appliers ?? [],
+    );
     if ('errors' in result) {
       expect(result.errors.map((e) => e.code)).toEqual(expected.errors);
       return;
@@ -397,6 +411,7 @@ function run(dir: string): void {
       input.strict ?? false,
       input.links ?? {},
       dice,
+      input.appliers ?? [],
     );
     expect(result.ok).toBe(expected.ok);
     if (!result.ok) {

@@ -256,6 +256,13 @@ reads them and never computes the other character.
   the rest computes.
 - Link reads add no dependency edges, so they can't form a `circular-formula`.
 
+**Appliers.** The same calls (and `describeAction`) take optional `appliers`: a list of views of
+the characters who applied the character's aura entries ([content.md](content.md#auras)). An
+aura entry's effects read the view whose `id` is the entry's `appliedBy` as `applier`, with the
+aura's declared `fields` read as a link's are: passed value, else `default`, else absent. A value
+of the wrong type is `invalid-link-value` (data `applier`, `field`, `expected`). A paused action
+keeps them, as it keeps its links.
+
 ### Standard copies
 
 The rules and content items may declare `standardCopies` ([content.md](content.md#standard-copies)). The engines see the character with them:

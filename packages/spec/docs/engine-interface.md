@@ -77,6 +77,9 @@ Besides these calls, `checkRelease` ([upgrades.md](upgrades.md#the-build-check),
   `activate: false` choices included; `preset: true` marks a choice a grant answers, which
   `choose` and `unchoose` refuse (`preset-choice`) ([engine-core.md](engine-core.md#the-choice-list)).
 - `competing` lists competing options, one entry per competing group with its `op` and, for a stacking group, `stackKey` (see [effects.md](effects.md#competing-options)); a group of a key spanning fields also lists `fields`, and each option its `values` per field. The input's `competing` is a list of picked option IDs; each group applies its listed option, else its recommendation.
+- `auras` lists the auras the character projects now (`{ source, aura, entry?, size?, affects }`):
+  the app applies an entry of each, `appliedBy` the character, to whoever is inside, and removes
+  it as they leave or the aura drops off this list ([content.md](content.md#auras)).
 - `issues` lists rules issues.
 - `copies` maps each copy's instance ID to its computed values (`{ <name>: value }`), for copies that have any.
 - `activationValues` lists the computed values of picked and granted content, as
@@ -154,6 +157,13 @@ of the characters filling the character's link slots, by qualified slot ID, each
 `{ id, values }`. The app takes `values` from that character's own
 `computeSheet` and may pass all of them; the engine reads only the declared fields. `upgrade`
 takes none: it changes saved state only. See [engine-core.md](engine-core.md#links).
+
+### Appliers
+
+The same calls, and `describeAction`, take optional `appliers`: views (`{ id, values }`) of the
+characters whose auras the character is in, from their own `computeSheet`. An aura entry's
+effects read the one whose `id` is the entry's `appliedBy` as `applier`
+([content.md](content.md#auras)); without it, the aura's declared defaults.
 
 ### listOptions
 

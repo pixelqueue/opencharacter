@@ -1,0 +1,17 @@
+# An aura: while it is up, each enemy inside has a lower potency, and a slower speed once the
+# holder anchors it (read live from the holder's view).
+id: features.null-field
+type: feature
+auras:
+  - id: field
+    when: aura.active
+    size: 1 + aura.extra
+    affects: enemies
+    fields:
+      aura.effect: { type: string, default: none }
+    effects:
+      - { target: potency, op: add, value: -1 }
+      - target: speed
+        op: add
+        value: -2
+        when: applier.aura.effect == 'anchor'

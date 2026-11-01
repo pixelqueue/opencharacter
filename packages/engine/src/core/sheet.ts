@@ -11,6 +11,7 @@ import type { EngineError } from './load.ts';
 import type {
   ActionDef,
   ActionOrUse,
+  Aura,
   CharacterDoc,
   Choice,
   ChoiceTree,
@@ -87,6 +88,18 @@ export interface View {
   values?: Record<string, unknown>;
 }
 
+/** Views of the characters who applied entries, read by an aura's effects as `applier`. */
+export type Appliers = readonly View[];
+
+/** An aura the character projects now, for the app to apply to whoever is inside. */
+export interface ListedAura {
+  source: string;
+  aura: string;
+  entry?: string;
+  size?: number;
+  affects: 'all' | 'allies' | 'enemies';
+}
+
 export type Links = Record<string, View>;
 
 /**
@@ -139,6 +152,8 @@ export interface Activation {
   roots: Record<string, unknown>;
   entry?: Entry;
   applied?: string;
+  /** For an aura's applied entry: the aura it runs. */
+  aura?: Aura;
   source: Source;
   /** Used for stacking (`source`), competing option IDs and prerequisite IDs. */
   sourceId: string;
@@ -521,6 +536,7 @@ export class Sheet {
     picks: readonly string[] = [],
     links: Links = {},
     fixed?: Rounds,
+    readonly appliers: Appliers = [],
   ) {
     this.picks = new Set(picks);
     this.file = character;
@@ -534,7 +550,7 @@ export class Sheet {
     // a round adds nothing.
     if (fixed === undefined && (hasItemStandard(ruleset) || hasKeptTemplates(ruleset))) {
       for (let round = 0; round < MAX_DEPTH; round++) {
-        const probe = new Sheet(ruleset, character, picks, links, found);
+        const probe = new Sheet(ruleset, character, picks, links, found, appliers);
         const errors = probe.errors.length;
         const next = probe.wanted(found);
         if (sameRounds(next, found)) {
@@ -682,6 +698,48 @@ export class Sheet {
     }
     this.linkRoots.set(pack, root);
     return root;
+  }
+
+  /** The applier's view as an aura declares it: its fields, else their defaults. */
+  private applierView(aura: Aura, id: string | undefined): Record<string, unknown> {
+    const view = id === undefined ? undefined : this.appliers.find((v) => v.id === id);
+    return viewData(
+      aura.fields ?? {},
+      { id: id ?? '', values: view?.values },
+      (field, key, expected) =>
+        this.errors.push({
+          code: 'invalid-link-value',
+          path: `/appliers/${id ?? ''}/values/${key}`,
+          data: { applier: id ?? '', field, expected },
+        }),
+    );
+  }
+
+  /** The auras the character projects now: each holder activation's whose `when` holds. */
+  auras(): ListedAura[] {
+    const out: ListedAura[] = [];
+    for (const a of this.activations) {
+      if (a.scope !== 'holder' || !a.item?.auras) continue;
+      for (const aura of a.item.auras) {
+        try {
+          if (!this.test(aura.when, a.item.pack, a.roots)) continue;
+          const size =
+            aura.size === undefined ? undefined : this.evaluate(aura.size, a.item.pack, a.roots);
+          out.push({
+            source: a.item.qid,
+            aura: aura.id,
+            ...(a.entry ? { entry: a.entry.id } : {}),
+            ...(size && (size.kind === 'int' || size.kind === 'decimal')
+              ? { size: f.toData(size) as number }
+              : {}),
+            affects: aura.affects ?? 'all',
+          });
+        } catch (error) {
+          if (!(error instanceof Failure)) throw error;
+        }
+      }
+    }
+    return out;
   }
 
   linkedId(qid: string): string | undefined {
@@ -1323,6 +1381,19 @@ export class Sheet {
       }
       const view = itemView(this.ruleset, item, [], (n, p) => this.inputByName(n, p));
       const self = appliedView(this.ruleset, applied);
+      // An aura's entry runs that aura, reading its applier's view (else the declared defaults).
+      const aura =
+        applied.aura === undefined ? undefined : item.auras?.find((x) => x.id === applied.aura);
+      if (applied.aura !== undefined && !aura) {
+        this.errors.push({
+          code: 'unknown-id',
+          path: `/applied/${i}/aura`,
+          data: { id: `${applied.source}#${applied.aura}` },
+        });
+        return;
+      }
+      const roots: Record<string, unknown> = { item: view, self };
+      if (aura) roots.applier = this.applierView(aura, applied.appliedBy);
       entries.push({
         id: applied.id,
         item,
@@ -1332,9 +1403,10 @@ export class Sheet {
           kind: 'applied',
           scope: 'applied',
           applied: applied.id,
+          ...(aura ? { aura } : {}),
           item,
           pack: item.pack,
-          roots: { item: view, self },
+          roots,
           source: { type: 'item', id: item.qid },
           sourceId: item.qid,
           key: this.freeKey(`applied:${applied.id}`),
@@ -1817,6 +1889,21 @@ export class Sheet {
 
   private activateContent(activation: Activation, depth: number): void {
     const item = activation.item;
+    // An aura's entry runs only the aura's effects.
+    if (activation.aura) {
+      activation.aura.effects.forEach((effect, index) =>
+        this.instance(
+          effect,
+          item?.pack ?? activation.pack,
+          activation.roots,
+          activation.source,
+          activation.sourceId,
+          `aura.${activation.aura?.id}.${effect.id ?? index}`,
+          activation.applied,
+        ),
+      );
+      return;
+    }
     const type =
       item && item.type !== 'template' ? this.ruleset.contentTypes[item.type] : undefined;
     // Picked or held granted content with state of its own: `then` writes there, as `self` reads.
@@ -3425,7 +3512,8 @@ export class Sheet {
     // those of scope `holder`, an applied entry those of scope `applied`, with the entry's ID as
     // `entry`.
     for (const a of this.activations) {
-      if (!a.item) continue;
+      // An aura's entry offers none of its source's actions.
+      if (!a.item || a.aura) continue;
       // Content picked or granted on the entry is named by `source`, so several picks can share one
       // action. Content with no owning copy is named by `source` alone.
       const source = ownsEntry(a) ? undefined : a.item.qid;

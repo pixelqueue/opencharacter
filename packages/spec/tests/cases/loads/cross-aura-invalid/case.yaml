@@ -1,0 +1,20 @@
+description: 'An item repeating an aura ID, or an aura effect on its holder, is invalid-aura'
+specVersion: 0.3.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        { id: test-pack, version: 1.0.0, specVersion: 0.3.0, license: CC0-1.0, defaultLanguage: en }
+      rules:
+        fields:
+          speed: { type: integer, formula: 30 }
+        contentTypes:
+          feature: {}
+      content:
+        - id: features.banner
+          type: feature
+          auras:
+            - id: banner
+              effects: [{ target: speed, op: add, value: 1 }]
+            - id: banner
+              effects: [{ target: speed, op: add, value: 2, scope: holder }]

@@ -192,6 +192,37 @@ A follow-up can go there too: an offer with `to: 'applied'` (the tactician is dy
 marks end) is stored on the character whose change fired it. Apply its `changes` the same way,
 then clear it on that character with `{ type: 'clearFollowUp', id }`.
 
+## Auras
+
+A null's field, a paladin's aura, a banner: an aura puts effects on whoever is inside it. Where
+creatures stand is your app's business, so the pack lists the auras and you place their entries.
+The holder's `computeSheet` lists what it projects now in `auras`; apply an entry of each to every
+creature inside that `affects` names, and remove it when they leave or the aura drops off the
+list:
+
+```ts
+const nullSheet = computeSheet(rulesetFor(nullHero), nullHero);
+// nullSheet.auras: [{ source: 'draw-steel-heroes:abilities.null.null-field', aura: 'field',
+//                     entry: 'null-field', size: 1, affects: 'enemies' }]
+for (const a of nullSheet.auras)
+  for (const enemy of enemiesWithin(nullHero, a.size))
+    applyChanges(rulesetFor(enemy), enemy, [
+      { type: 'applyEffect', source: a.source, aura: a.aura, appliedBy: nullHero.id },
+    ]);
+```
+
+The aura's effects read the holder's live state (the extra effect the null bought this round),
+so pass the holder's view as `appliers` whenever you compute or act for a creature inside:
+
+```ts
+const appliers = [view(nullHero, nullSheet)];
+const goblinSheet = computeSheet(rulesetFor(goblin), goblin, [], {}, appliers);
+startAction(rulesetFor(goblin), goblin, { action: { id: 'monster-attack' }, appliers });
+```
+
+Without the view, the effects read the defaults the aura declares. Nothing in the goblin's file
+changes when the null's does: recompute it with the new view.
+
 ## Turns
 
 Your app keeps the clock, but some rules count another creature's turn: damage taken "in one

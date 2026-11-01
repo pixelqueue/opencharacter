@@ -95,6 +95,14 @@
         "$ref": "effect.schema.json"
       }
     },
+    "auras": {
+      "description": "Areas the holder projects, putting effects on whoever is inside: a field, a banner, a ward. Positions are the app's: computeSheet lists each aura that is up (`auras`), the app applies its entry to each creature as it enters (`applyEffect` with `source` this item, `aura` the aura's ID and `appliedBy` the holder) and removes it as the creature leaves or the aura ends. The entry runs only the aura's `effects`, whose formulas read the holder's live values as `applier.<field>` from the view the app passes (`appliers`). Text: `<contentId>.auras.<id>.name` (optional).",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/aura"
+      },
+      "minItems": 1
+    },
     "followUps": {
       "description": "Follow-ups that apply while the character has this item's copy or pick, as effects do. Their formulas see `item` and `self`.",
       "type": "array",
@@ -279,6 +287,41 @@
   ],
   "additionalProperties": false,
   "$defs": {
+    "aura": {
+      "type": "object",
+      "required": ["id", "effects"],
+      "properties": {
+        "id": {
+          "description": "Unique among the item's auras; an applied entry names it in `aura`.",
+          "$ref": "common.schema.json#/$defs/slug"
+        },
+        "when": {
+          "description": "On the holder, with the item's `item` and `self`: whether the aura is up. Default true.",
+          "$ref": "formula.schema.json#/$defs/condition"
+        },
+        "size": {
+          "description": "On the holder: how far it reaches, in the game's own unit (squares, feet), for the app's map.",
+          "$ref": "formula.schema.json"
+        },
+        "affects": {
+          "description": "Whom the app puts it on: `all` (the default), `allies` or `enemies` of the holder, as the app's sides go.",
+          "enum": ["all", "allies", "enemies"]
+        },
+        "fields": {
+          "description": "The holder's fields its effects read as `applier.<field>`, declared as a link slot's are (a value type and a literal `default`), by field ID without the pack. Without a view of the applier, each reads its default.",
+          "$ref": "common.schema.json#/$defs/declaredFields"
+        },
+        "effects": {
+          "description": "The effects on each creature inside, whose entry names this aura: `scope: applied` effects (a `scope` other than `applied` is `invalid-aura` at load), seeing `item` and `self` (the entry) as an applied entry's effects do, and `applier`.",
+          "type": "array",
+          "items": {
+            "$ref": "effect.schema.json"
+          },
+          "minItems": 1
+        }
+      },
+      "additionalProperties": false
+    },
     "grant": {
       "type": "object",
       "required": ["item"],

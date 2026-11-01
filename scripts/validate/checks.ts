@@ -1015,6 +1015,22 @@ export class PackChecker {
       actionPacks: this.scope,
     };
     for (const effect of item.effects ?? []) this.effect(effect, file, owner);
+    const auras = new Set<string>();
+    for (const aura of item.auras ?? []) {
+      const where = `${owner} aura ${aura.id}`;
+      if (auras.has(aura.id)) this.report.error(file, `${where}: duplicate aura id`);
+      auras.add(aura.id);
+      this.optionalKeys.add(`${owner}.auras.${aura.id}.name`);
+      const ids = Object.keys(aura.fields ?? {});
+      for (const id of ids)
+        if (ids.some((other) => other.startsWith(`${id}.`)))
+          this.report.error(file, `${where}: "${id}" is also the start of another declared field`);
+      for (const effect of aura.effects) {
+        if ((effect.scope ?? 'applied') !== 'applied')
+          this.report.error(file, `${where}: an aura's effects are on whoever is inside (applied)`);
+        this.effect(effect, file, where);
+      }
+    }
     this.followUps(
       (item.followUps ?? []).map((fu) => ({ def: fu, file })),
       `${owner}.followUps`,

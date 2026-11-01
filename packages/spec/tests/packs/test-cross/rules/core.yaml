@@ -4,6 +4,12 @@ fields:
   hp.current: { type: integer, input: true, default: 10, min: 0 }
   # Each active mark on the character adds one.
   marks: { type: integer, formula: 0 }
+  potency: { type: integer, formula: 2 }
+  speed: { type: integer, formula: 30 }
+  # The null field: up or not, how much larger, and the extra effect bought for it.
+  aura.active: { type: boolean, input: true, default: false }
+  aura.extra: { type: integer, input: true, default: 0, min: 0 }
+  aura.effect: { type: string, input: true, default: none }
 
 contentTypes:
   condition:
@@ -52,6 +58,10 @@ actions:
           - type: removeEffect
             when: has(params.started)
             applied: { where: "self.appliedBy == params.started && self.until == 'start'" }
+  # Moves at the character's speed (an aura may slow it).
+  - id: stride
+    steps:
+      - { id: done, kind: outcome, data: { speed: speed } }
   # Ends the actor's own marks on the target only.
   - id: release
     participants:
