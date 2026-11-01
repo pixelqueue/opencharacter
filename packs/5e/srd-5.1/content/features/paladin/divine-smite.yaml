@@ -1,5 +1,122 @@
 id: features.paladin.divine-smite
 type: feature
+# On a melee weapon hit, the attack's on-hit choice offers a smite per spell slot level the
+# paladin has left (and the pact slot): the slot is spent and the weapon's damage roll adds 2d8
+# radiant, plus 1d8 per slot level above 1st (5d8 at most), plus 1d8 against an undead or a fiend.
+# A critical hit doubles the dice. `divine-smite` stays for a smite worked out apart.
+effects:
+  - target: combat.hitOptions
+    op: add
+    value: 1
+    when: >-
+      countList([1, 2, 3, 4, 5, 6, 7, 8, 9], fieldOf('spellSlots.level{slot}.max', x)
+        - fieldOf('spellSlots.level{slot}.used', x) > 0) > 0 || pactSlots.max - pactSlots.used > 0
+  - target: { choices: [weapon-hit] }
+    op: option
+    when: >-
+      action.item.range == 'melee'
+        && spellSlots.level1.max - spellSlots.level1.used > 0
+    value:
+      id: smite-1
+      flags: { smiteSlot: 1 }
+      changes:
+        - { type: adjust, field: spellSlots.level1.used, by: 1 }
+  - target: { choices: [weapon-hit] }
+    op: option
+    when: >-
+      action.item.range == 'melee'
+        && spellSlots.level2.max - spellSlots.level2.used > 0
+    value:
+      id: smite-2
+      flags: { smiteSlot: 2 }
+      changes:
+        - { type: adjust, field: spellSlots.level2.used, by: 1 }
+  - target: { choices: [weapon-hit] }
+    op: option
+    when: >-
+      action.item.range == 'melee'
+        && spellSlots.level3.max - spellSlots.level3.used > 0
+    value:
+      id: smite-3
+      flags: { smiteSlot: 3 }
+      changes:
+        - { type: adjust, field: spellSlots.level3.used, by: 1 }
+  - target: { choices: [weapon-hit] }
+    op: option
+    when: >-
+      action.item.range == 'melee'
+        && spellSlots.level4.max - spellSlots.level4.used > 0
+    value:
+      id: smite-4
+      flags: { smiteSlot: 4 }
+      changes:
+        - { type: adjust, field: spellSlots.level4.used, by: 1 }
+  - target: { choices: [weapon-hit] }
+    op: option
+    when: >-
+      action.item.range == 'melee'
+        && spellSlots.level5.max - spellSlots.level5.used > 0
+    value:
+      id: smite-5
+      flags: { smiteSlot: 5 }
+      changes:
+        - { type: adjust, field: spellSlots.level5.used, by: 1 }
+  - target: { choices: [weapon-hit] }
+    op: option
+    when: >-
+      action.item.range == 'melee'
+        && spellSlots.level6.max - spellSlots.level6.used > 0
+    value:
+      id: smite-6
+      flags: { smiteSlot: 6 }
+      changes:
+        - { type: adjust, field: spellSlots.level6.used, by: 1 }
+  - target: { choices: [weapon-hit] }
+    op: option
+    when: >-
+      action.item.range == 'melee'
+        && spellSlots.level7.max - spellSlots.level7.used > 0
+    value:
+      id: smite-7
+      flags: { smiteSlot: 7 }
+      changes:
+        - { type: adjust, field: spellSlots.level7.used, by: 1 }
+  - target: { choices: [weapon-hit] }
+    op: option
+    when: >-
+      action.item.range == 'melee'
+        && spellSlots.level8.max - spellSlots.level8.used > 0
+    value:
+      id: smite-8
+      flags: { smiteSlot: 8 }
+      changes:
+        - { type: adjust, field: spellSlots.level8.used, by: 1 }
+  - target: { choices: [weapon-hit] }
+    op: option
+    when: >-
+      action.item.range == 'melee'
+        && spellSlots.level9.max - spellSlots.level9.used > 0
+    value:
+      id: smite-9
+      flags: { smiteSlot: 9 }
+      changes:
+        - { type: adjust, field: spellSlots.level9.used, by: 1 }
+  - target: { choices: [weapon-hit] }
+    op: option
+    when: action.item.range == 'melee' && pactSlots.max - pactSlots.used > 0
+    value:
+      id: smite-pact
+      flags: { smiteSlot: pactSlots.level }
+      changes:
+        - { type: adjust, field: pactSlots.used, by: 1 }
+  - target: { rolls: [damage.weapon] }
+    op: add
+    value: >-
+      dieOf(1d8, min(5, 1 + flags.smiteSlot)
+        + (size(participants.target) > 0
+          && participants.target[0].creature.type in ['fiend', 'undead'] ? 1 : 0))
+    tags: [damage.radiant]
+    when: has(flags.smiteSlot) && flags.smiteSlot > 0
 actions:
   - id: divine-smite
     tags: [feature]

@@ -349,6 +349,8 @@ actions:
                       && !('two-handed' in item.tags) && !('property.heavy' in item.tags)))
               dice: "self.wielding == 'two-handed' && has(item.versatileDamage) ? item.versatileDamage : item.damage"
               crit: combat.critRange
+              # The slot level a Divine Smite picked on the hit spends, 0 for none.
+              smiteSlot: 0
               ac: >-
                 size(participants.target) > 0 && item.range == 'ranged'
                     && has(participants.target[0].combat.rangedAc)
