@@ -8,11 +8,17 @@ effects:
   - { target: spellcasting.casterLevel, op: add, value: self.level }
 choices:
   - id: cantrips
+    recommend: >-
+      (filterList([@spells.guidance, @spells.sacred-flame, @spells.thaumaturgy], x in options) +
+        options)[0]
     pick: 'self.level >= 10 ? 5 : self.level >= 4 ? 4 : 3'
     from: { type: spell, where: 'item.level == 0 && @classes.cleric in item.classes' }
     effects:
       - { target: spells.cleric, op: grant, value: { formula: pick.id } }
   - id: spells
+    recommend: >-
+      (filterList([@spells.bless, @spells.cure-wounds, @spells.guiding-bolt,
+        @spells.shield-of-faith], x in options) + sortList(options, -itemField(x, 'level')))[0]
     pick: 'max(1, abilities.wis.mod + self.level)'
     from:
       {

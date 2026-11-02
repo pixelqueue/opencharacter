@@ -66,6 +66,9 @@ grants:
   - { item: features.rogue.ability-score-improvement, when: self.level >= 4 }
 choices:
   - id: skills
+    recommend: >-
+      (filterList(['skill.acrobatics', 'skill.perception', 'skill.sleight-of-hand',
+        'skill.stealth'], x in options) + options)[0]
     pick: 4
     unique: skills
     from:
@@ -90,6 +93,9 @@ choices:
     effects:
       - { target: proficiencies.skills, op: grant, value: { formula: pick.value } }
   - id: multiclass-skill
+    recommend: >-
+      (filterList(['skill.acrobatics', 'skill.perception', 'skill.sleight-of-hand',
+        'skill.stealth'], x in options) + options)[0]
     pick: 1
     unique: skills
     from:
@@ -114,6 +120,7 @@ choices:
     effects:
       - { target: proficiencies.skills, op: grant, value: { formula: pick.value } }
   - id: roguish-archetype
+    recommend: options[0]
     from: { type: subclass, where: 'item.class == @classes.rogue' }
     when: self.level >= 3
 actions:

@@ -2,6 +2,14 @@ id: features.fighter.ability-score-improvement
 type: feature
 choices:
   - id: improvement
+    # +2 to an ability that takes it, else +1 to two, else a feat.
+    recommend: >-
+      countList(['str', 'dex', 'con', 'int', 'wis', 'cha'],
+          fieldOf('abilities.{ability}.base', x) + 2 <= fieldOf('abilities.{ability}.max', x)) > 0
+        ? @improvements.plus-two
+        : countList(['str', 'dex', 'con', 'int', 'wis', 'cha'],
+            fieldOf('abilities.{ability}.base', x) < fieldOf('abilities.{ability}.max', x)) > 0
+        ? @improvements.plus-one : @improvements.feat
     slots: [4, 6, 8, 12, 14, 16, 19]
     when: self.level >= slot
     from: { items: [improvements.plus-two, improvements.plus-one, improvements.feat] }

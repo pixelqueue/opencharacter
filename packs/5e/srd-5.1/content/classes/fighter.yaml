@@ -41,13 +41,18 @@ grants:
   - { item: features.fighter.ability-score-improvement, when: self.level >= 4 }
 choices:
   - id: fighting-style
+    recommend: >-
+      (filterList([@fighting-styles.defense, @fighting-styles.great-weapon-fighting,
+        @fighting-styles.archery], x in options) + options)[0]
     from: { type: fightingStyle }
     when: self.level >= 1
     unique: fighting-style
   - id: martial-archetype
+    recommend: options[0]
     from: { type: subclass, where: 'item.class == @classes.fighter' }
     when: self.level >= 3
   - id: skills
+    recommend: "(filterList(['skill.athletics', 'skill.perception'], x in options) + options)[0]"
     pick: 2
     unique: skills
     from:
@@ -97,12 +102,14 @@ actions:
         recommend: options[0]
         random: params.random
       - id: fighterMartial
+        recommend: '(filterList([@weapons.longsword], x in options) + options)[0]'
         kind: choice
         options: { content: { type: weapon, where: "item.category == 'martial'" } }
         random: params.random
         changes:
           - { type: addItem, entry: { item: picked.id, equipped: true } }
       - id: fighterMartial2
+        recommend: '(filterList([@weapons.longsword], x in options) + options)[0]'
         kind: choice
         when: "steps.fighterWeapons.picked == 'two-martial'"
         options: { content: { type: weapon, where: "item.category == 'martial'" } }

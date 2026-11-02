@@ -2,6 +2,9 @@ id: traits.extra-language
 type: trait
 choices:
   - id: language
+    recommend: >-
+      (filterList([@languages.dwarvish, @languages.elvish, @languages.giant, @languages.goblin,
+        @languages.halfling], x in options) + options)[0]
     unique: languages
     from: { type: language, where: "!('secret' in item.tags) && !('monster' in item.tags)" }
     eligible: '!(item.id in proficiencies.languages) || item.id in choice.picks'

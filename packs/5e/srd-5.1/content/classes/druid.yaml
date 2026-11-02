@@ -101,6 +101,7 @@ grants:
   - { item: features.ability-score-improvement, when: self.level >= 4 }
 choices:
   - id: skills
+    recommend: "(filterList(['skill.nature', 'skill.perception'], x in options) + options)[0]"
     pick: 2
     unique: skills
     from:
@@ -122,6 +123,7 @@ choices:
     effects:
       - { target: proficiencies.skills, op: grant, value: { formula: pick.value } }
   - id: druid-circle
+    recommend: options[0]
     from: { type: subclass, where: 'item.class == @classes.druid' }
     when: self.level >= 2
 actions:
@@ -140,6 +142,7 @@ actions:
         recommend: options[0]
         random: params.random
       - id: druidSimple
+        recommend: options[0]
         kind: choice
         when: "steps.druidFirst.picked == 'simple'"
         options: { content: { type: weapon, where: "item.category == 'simple'" } }
@@ -156,6 +159,7 @@ actions:
         recommend: options[0]
         random: params.random
       - id: druidSimpleMelee
+        recommend: options[0]
         kind: choice
         when: "steps.druidWeapon.picked == 'simple-melee'"
         options:
@@ -164,6 +168,7 @@ actions:
         changes:
           - { type: addItem, entry: { item: picked.id, equipped: true } }
       - id: druidFocus
+        recommend: options[0]
         kind: choice
         options: { content: { type: gear, where: "item.category == 'druidic-focus'" } }
         random: params.random

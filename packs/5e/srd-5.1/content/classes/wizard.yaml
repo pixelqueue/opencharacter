@@ -62,6 +62,7 @@ grants:
   - { item: features.ability-score-improvement, when: self.level >= 4 }
 choices:
   - id: skills
+    recommend: "(filterList(['skill.arcana', 'skill.investigation'], x in options) + options)[0]"
     pick: 2
     unique: skills
     from:
@@ -81,6 +82,7 @@ choices:
     effects:
       - { target: proficiencies.skills, op: grant, value: { formula: pick.value } }
   - id: arcane-tradition
+    recommend: options[0]
     from: { type: subclass, where: 'item.class == @classes.wizard' }
     when: self.level >= 2
 actions:
@@ -109,6 +111,7 @@ actions:
         recommend: options[0]
         random: params.random
       - id: wizardArcaneFocus
+        recommend: options[0]
         kind: choice
         when: "steps.wizardFocus.picked == 'arcane-focus'"
         options: { content: { type: gear, where: "item.category == 'arcane-focus'" } }

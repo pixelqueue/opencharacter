@@ -2,6 +2,13 @@ id: features.warlock.eldritch-invocations
 type: feature
 choices:
   - id: invocations
+    recommend: >-
+      (filterList([@invocations.agonizing-blast, @invocations.armor-of-shadows,
+        @invocations.devils-sight, @invocations.mask-of-many-faces, @invocations.misty-visions,
+        @invocations.beguiling-influence, @invocations.eldritch-sight, @invocations.fiendish-vigor,
+        @invocations.thief-of-five-fates, @invocations.gaze-of-two-minds, @invocations.beast-speech,
+        @invocations.eyes-of-the-rune-keeper], x in options && (x != @invocations.agonizing-blast ||
+        @spells.eldritch-blast in spells.warlock)) + options)[0]
     pick: >-
       self.level >= 18 ? 8 : self.level >= 15 ? 7 : self.level >= 12 ? 6 : self.level >= 9 ? 5
         : self.level >= 7 ? 4 : self.level >= 5 ? 3 : 2

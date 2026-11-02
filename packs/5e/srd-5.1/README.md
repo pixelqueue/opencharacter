@@ -51,8 +51,8 @@ const sheet = computeSheet(ruleset, applied.character);
 console.log(en['fields.hp.max.name'], sheet.values['5e-srd-5.1:hp.max']?.value);
 ```
 
-The guided start (`create-character`) pauses for each pick instead; a monster is made with
-`create-monster`. The [quick start](https://opencharacterformat.org/guides/quick-start/) and
+The guided start (`create-character`) asks each pick instead, recommending one, so an automatic
+run finishes too; a monster is made with `create-monster`. The [quick start](https://opencharacterformat.org/guides/quick-start/) and
 the [guides](https://opencharacterformat.org/guides/) explain each call.
 
 ## Scope at a glance
@@ -159,10 +159,15 @@ Where the SRD is unclear or silent, the pack reads it this way:
 
   The standard array is recommended, and each method recommends the scores by the class's
   ability priority (below), the highest to its first ability (point buy at the same spread, 27
-  points). The race, subrace, class and background recommend nothing: they are the player's.
+  points). The race, subrace, class and background recommend the first offered.
 
   Then what the race, class and background bring (a tool, a fighting style, skills, languages,
   a prepared caster's spells, …), one pick at a time; while creating, every pick must be made.
+  Every pick recommends one of the options it offers (`recommend` over `options`), so an
+  automatic run finishes, and a level-up's picks do too: a short list of the SRD's usual picks
+  first (the class's skills, Defense or Archery, a caster's staple spells, Common's neighbors
+  among languages), then the highest-level spell or the first option offered. An Ability Score
+  Improvement recommends +2 to the highest ability that takes it, else +1 to two, else a feat.
   Then the starting equipment: the class's "(a) or (b)" lines, each recommending (a), only the
   proficient options where the SRD says "if proficient", and the background's. Armor, a shield
   and every weapon come equipped; equipment packs come whole (`unpack` adds the contents). Coins

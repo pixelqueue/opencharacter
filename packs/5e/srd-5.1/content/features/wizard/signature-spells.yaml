@@ -2,6 +2,7 @@ id: features.wizard.signature-spells
 type: feature
 choices:
   - id: first
+    recommend: '(filterList([@spells.counterspell, @spells.fireball], x in options) + options)[0]'
     from: { type: spell, where: 'item.level == 3 && item.id in spells.wizardBook' }
     effects:
       - { target: spells.wizard, op: grant, value: { formula: pick.id } }
@@ -14,6 +15,7 @@ choices:
           changes:
             - { type: setState, entry: self, key: signatureSpell1Used, value: true }
   - id: second
+    recommend: '(filterList([@spells.counterspell, @spells.fireball], x in options) + options)[0]'
     from: { type: spell, where: 'item.level == 3 && item.id in spells.wizardBook' }
     effects:
       - { target: spells.wizard, op: grant, value: { formula: pick.id } }

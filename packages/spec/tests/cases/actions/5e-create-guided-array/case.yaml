@@ -1,11 +1,19 @@
-description: "5E's guided start, run with every checkpoint automatic and its race, subrace, class and background answered: its method falls back to the standard array, which goes out by the class's ability priority (a barbarian's Strength, Constitution, Dexterity, Wisdom, Charisma, Intelligence), and the run pauses at the first pending pick that recommends nothing, the hill dwarf's tool"
+description: "5E's guided start, run with every checkpoint automatic but its race, subrace, class and background answered and its pending picks paused: its method falls back to the standard array, which goes out by the class's ability priority (a barbarian's Strength, Constitution, Dexterity, Wisdom, Charisma, Intelligence), and the run pauses at the first pending pick, the hill dwarf's tool, recommending the first tool offered"
 specVersion: 0.1.0
 call: startAction
 packs:
   - path: ../../../../../../packs/5e/srd-5.1
 input:
   action: { id: 5e-srd-5.1:create-character }
-  policy: { dice: auto, choices: auto, allocations: auto }
+  policy:
+    dice: auto
+    choices: auto
+    allocations: auto
+    rules:
+      - kind: choice
+        tags: [creation.race, creation.subrace, creation.class, creation.background]
+        then: pause
+      - { kind: choice, step: picks, then: pause }
 answers:
   - { option: '5e-srd-5.1:races.dwarf' }
   - { option: '5e-srd-5.1:subraces.hill-dwarf' }

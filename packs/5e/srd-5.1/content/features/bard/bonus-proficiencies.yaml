@@ -2,6 +2,9 @@ id: features.bard.bonus-proficiencies
 type: feature
 choices:
   - id: skills
+    recommend: >-
+      (filterList(['skill.arcana', 'skill.insight', 'skill.perception', 'skill.stealth'],
+        x in options) + options)[0]
     pick: 3
     unique: skills
     from:

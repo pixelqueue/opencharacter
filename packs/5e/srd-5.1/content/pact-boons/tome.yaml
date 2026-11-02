@@ -2,6 +2,9 @@ id: pact-boons.tome
 type: pactBoon
 choices:
   - id: cantrips
+    recommend: >-
+      (filterList([@spells.guidance, @spells.mage-hand, @spells.minor-illusion], x in options) +
+        options)[0]
     pick: 3
     from: { type: spell, where: item.level == 0 }
     effects:

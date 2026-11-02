@@ -8,11 +8,16 @@ effects:
   - { target: spellcasting.casterLevel, op: add, value: self.level }
 choices:
   - id: cantrips
+    recommend: >-
+      (filterList([@spells.dancing-lights, @spells.vicious-mockery], x in options) + options)[0]
     pick: 'self.level >= 10 ? 4 : self.level >= 4 ? 3 : 2'
     from: { type: spell, where: 'item.level == 0 && @classes.bard in item.classes' }
     effects:
       - { target: spells.bard, op: grant, value: { formula: pick.id } }
   - id: spells
+    recommend: >-
+      (filterList([@spells.charm-person, @spells.cure-wounds, @spells.healing-word,
+        @spells.thunderwave], x in options) + sortList(options, -itemField(x, 'level')))[0]
     pick: '[4, 5, 6, 7, 8, 9, 10, 11, 12, 14, 15, 15, 16, 18, 19, 19, 20, 22, 22, 22][self.level - 1]'
     from:
       {

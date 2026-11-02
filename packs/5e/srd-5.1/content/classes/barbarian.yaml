@@ -47,6 +47,7 @@ grants:
   - { item: features.ability-score-improvement, when: self.level >= 4 }
 choices:
   - id: skills
+    recommend: "(filterList(['skill.athletics', 'skill.perception'], x in options) + options)[0]"
     pick: 2
     unique: skills
     from:
@@ -66,6 +67,7 @@ choices:
     effects:
       - { target: proficiencies.skills, op: grant, value: { formula: pick.value } }
   - id: primal-path
+    recommend: options[0]
     from: { type: subclass, where: 'item.class == @classes.barbarian' }
     when: self.level >= 3
 actions:
@@ -84,6 +86,7 @@ actions:
         recommend: options[0]
         random: params.random
       - id: barbarianMartial
+        recommend: '(filterList([@weapons.greataxe], x in options) + options)[0]'
         kind: choice
         when: "steps.barbarianWeapon.picked == 'martial-melee'"
         options:
@@ -102,6 +105,7 @@ actions:
         recommend: options[0]
         random: params.random
       - id: barbarianSimple
+        recommend: options[0]
         kind: choice
         when: "steps.barbarianSecond.picked == 'simple'"
         options: { content: { type: weapon, where: "item.category == 'simple'" } }

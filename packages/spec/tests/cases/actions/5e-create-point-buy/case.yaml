@@ -5,15 +5,8 @@ packs:
   - path: ../../../../../../packs/5e/srd-5.1
 input:
   action: { id: 5e-srd-5.1:create-character }
-  # The pending picks take their recommendations where they have one: `#done` isn't
-  # offered while the character is being created.
-  policy:
-    {
-      dice: pause,
-      choices: pause,
-      allocations: pause,
-      rules: [{ kind: choice, step: picks, then: auto }],
-    }
+  # Every pending pick is answered: `#done` isn't offered while the character is being created.
+  policy: { dice: pause, choices: pause, allocations: pause }
 answers:
   - option: 5e-srd-5.1:races.dwarf
   - option: 5e-srd-5.1:subraces.hill-dwarf
@@ -28,7 +21,7 @@ answers:
         5e-srd-5.1:abilities.wis.base: 3,
         5e-srd-5.1:abilities.cha.base: 1,
       }
-  # The pending picks the recommendations leave open, in the step's order.
+  # The pending picks, in the step's order.
   - option: 5e-srd-5.1:tools.smiths-tools
   - option: 5e-srd-5.1:fighting-styles.archery
   - option: skill.acrobatics

@@ -10,6 +10,9 @@ effects:
     value: 'spellcasting.classes == 1 ? ceil(self.level / 2) : floor(self.level / 2)'
 choices:
   - id: spells
+    recommend: >-
+      (filterList([@spells.cure-wounds, @spells.hunters-mark], x in options) + sortList(options,
+        -itemField(x, 'level')))[0]
     pick: '[0, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10, 11, 11][self.level - 1]'
     from:
       {

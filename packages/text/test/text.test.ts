@@ -299,8 +299,8 @@ describe('5E', () => {
             { option: '5e-srd-5.1:classes.barbarian' },
             { option: '5e-srd-5.1:backgrounds.acolyte' },
           ],
-          // oxlint-disable-next-line unicorn/no-thenable
-          policy: { rules: [{ kind: 'choice', step: 'method', then: 'pause' }], dice: 'pause' },
+          // Every choice pauses: the race, subrace, class and background recommend one now.
+          policy: { choices: 'pause', dice: 'pause' },
         },
         diceFrom([]),
       ),

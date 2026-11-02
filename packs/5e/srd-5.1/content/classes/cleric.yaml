@@ -38,6 +38,7 @@ grants:
   - { item: features.ability-score-improvement, when: self.level >= 4 }
 choices:
   - id: skills
+    recommend: "(filterList(['skill.insight', 'skill.religion'], x in options) + options)[0]"
     pick: 2
     unique: skills
     from:
@@ -49,6 +50,7 @@ choices:
     effects:
       - { target: proficiencies.skills, op: grant, value: { formula: pick.value } }
   - id: divine-domain
+    recommend: options[0]
     from: { type: subclass, where: 'item.class == @classes.cleric' }
     when: self.level >= 1
 actions:
@@ -98,6 +100,7 @@ actions:
         recommend: options[0]
         random: params.random
       - id: clericSimple
+        recommend: options[0]
         kind: choice
         when: "steps.clericRanged.picked == 'simple'"
         options: { content: { type: weapon, where: "item.category == 'simple'" } }
@@ -114,6 +117,7 @@ actions:
         recommend: options[0]
         random: params.random
       - id: clericSymbol
+        recommend: options[0]
         kind: choice
         options: { content: { type: gear, where: "item.category == 'holy-symbol'" } }
         random: params.random

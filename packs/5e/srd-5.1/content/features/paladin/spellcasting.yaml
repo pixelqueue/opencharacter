@@ -10,6 +10,9 @@ effects:
     value: 'spellcasting.classes == 1 ? ceil(self.level / 2) : floor(self.level / 2)'
 choices:
   - id: spells
+    recommend: >-
+      (filterList([@spells.bless, @spells.cure-wounds, @spells.heroism], x in options) +
+        sortList(options, -itemField(x, 'level')))[0]
     pick: 'max(1, abilities.cha.mod + floor(self.level / 2))'
     from:
       {

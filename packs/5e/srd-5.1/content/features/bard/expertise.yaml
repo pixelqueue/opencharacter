@@ -2,6 +2,9 @@ id: features.bard.expertise
 type: feature
 choices:
   - id: skills
+    recommend: >-
+      (filterList(['skill.performance', 'skill.persuasion', 'skill.deception', 'skill.insight'],
+        x in options) + options)[0]
     slots: [3, 10]
     pick: 2
     from:

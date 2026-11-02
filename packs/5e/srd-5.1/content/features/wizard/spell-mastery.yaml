@@ -2,6 +2,9 @@ id: features.wizard.spell-mastery
 type: feature
 choices:
   - id: level
+    recommend: >-
+      (filterList([@spells.magic-missile, @spells.shield, @spells.misty-step, @spells.invisibility],
+        x in options) + options)[0]
     slots: [1, 2]
     pick: 1
     from: { type: spell, where: 'item.level == slot && item.id in spells.wizardBook' }

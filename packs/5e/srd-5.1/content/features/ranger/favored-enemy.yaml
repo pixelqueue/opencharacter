@@ -3,6 +3,7 @@ type: feature
 # "Two races of humanoid" is one `humanoids` pick.
 choices:
   - id: enemies
+    recommend: options[0]
     pick: 'self.level >= 14 ? 3 : self.level >= 6 ? 2 : 1'
     from:
       options:
@@ -21,6 +22,9 @@ choices:
         - { id: undead }
         - { id: humanoids }
   - id: languages
+    recommend: >-
+      (filterList([@languages.dwarvish, @languages.elvish, @languages.giant, @languages.goblin,
+        @languages.halfling], x in options) + options)[0]
     pick: 'self.level >= 14 ? 3 : self.level >= 6 ? 2 : 1'
     unique: languages
     from: { type: language, where: "!('monster' in item.tags)" }

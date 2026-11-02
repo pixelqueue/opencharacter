@@ -1,0 +1,200 @@
+status: finished
+outcome: {}
+proposedChanges:
+  - to: self
+    step: race
+    change:
+      type: addItem
+      entry:
+        id: race
+        item: 5e-srd-5.1:races.dragonborn
+  - to: self
+    step: class
+    change:
+      type: addItem
+      entry:
+        id: class
+        item: 5e-srd-5.1:classes.barbarian
+        state:
+          level: 1
+          startingClass: true
+  - to: self
+    step: background
+    change:
+      type: addItem
+      entry:
+        id: background
+        item: 5e-srd-5.1:backgrounds.acolyte
+  - to: self
+    step: scores/array
+    change:
+      type: set
+      field: 5e-srd-5.1:abilities.str.base
+      value: 15
+  - to: self
+    step: scores/array
+    change:
+      type: set
+      field: 5e-srd-5.1:abilities.dex.base
+      value: 13
+  - to: self
+    step: scores/array
+    change:
+      type: set
+      field: 5e-srd-5.1:abilities.con.base
+      value: 14
+  - to: self
+    step: scores/array
+    change:
+      type: set
+      field: 5e-srd-5.1:abilities.int.base
+      value: 8
+  - to: self
+    step: scores/array
+    change:
+      type: set
+      field: 5e-srd-5.1:abilities.wis.base
+      value: 12
+  - to: self
+    step: scores/array
+    change:
+      type: set
+      field: 5e-srd-5.1:abilities.cha.base
+      value: 10
+  - to: self
+    step: picks
+    change:
+      type: choose
+      path:
+        entry: race
+        choice:
+          - draconic-ancestry
+      option: 5e-srd-5.1:draconic-ancestries.black
+  - to: self
+    step: picks
+    change:
+      type: choose
+      path:
+        entry: class
+        choice:
+          - skills
+      option: skill.athletics
+  - to: self
+    step: picks
+    change:
+      type: choose
+      path:
+        entry: class
+        choice:
+          - skills
+      option: skill.perception
+  - to: self
+    step: picks
+    change:
+      type: choose
+      path:
+        entry: background
+        choice:
+          - languages
+      option: 5e-srd-5.1:languages.dwarvish
+  - to: self
+    step: picks
+    change:
+      type: choose
+      path:
+        entry: background
+        choice:
+          - languages
+      option: 5e-srd-5.1:languages.elvish
+  - to: self
+    step: equipment/class/barbarianWeapon
+    change:
+      type: addItem
+      entry:
+        id: weapons-greataxe-1
+        item: 5e-srd-5.1:weapons.greataxe
+        equipped: true
+  - to: self
+    step: equipment/class/barbarianSecond
+    change:
+      type: addItem
+      entry:
+        id: weapons-handaxe-1
+        item: 5e-srd-5.1:weapons.handaxe
+        equipped: true
+        quantity: 2
+  - to: self
+    step: equipment/class/barbarianKit
+    change:
+      type: addItem
+      entry:
+        id: gear-explorers-pack-1
+        item: 5e-srd-5.1:gear.explorers-pack
+  - to: self
+    step: equipment/class/barbarianKit
+    change:
+      type: addItem
+      entry:
+        id: weapons-javelin-1
+        item: 5e-srd-5.1:weapons.javelin
+        equipped: true
+        quantity: 4
+  - to: self
+    step: equipment/background/acolyteSymbol
+    change:
+      type: addItem
+      entry:
+        id: gear-amulet-1
+        item: 5e-srd-5.1:gear.amulet
+  - to: self
+    step: equipment/background/acolyteKit
+    change:
+      type: addItem
+      entry:
+        id: gear-book-1
+        item: 5e-srd-5.1:gear.book
+  - to: self
+    step: equipment/background/acolyteKit
+    change:
+      type: addItem
+      entry:
+        id: gear-incense-1
+        item: 5e-srd-5.1:gear.incense
+        quantity: 5
+  - to: self
+    step: equipment/background/acolyteKit
+    change:
+      type: addItem
+      entry:
+        id: gear-vestments-1
+        item: 5e-srd-5.1:gear.vestments
+  - to: self
+    step: equipment/background/acolyteKit
+    change:
+      type: addItem
+      entry:
+        id: gear-common-clothes-1
+        item: 5e-srd-5.1:gear.common-clothes
+  - to: self
+    step: equipment/background/acolyteKit
+    change:
+      type: addItem
+      entry:
+        id: gear-pouch-1
+        item: 5e-srd-5.1:gear.pouch
+  - to: self
+    step: hitDie
+    change:
+      type: set
+      field: 5e-srd-5.1:hp.base
+      value: 12
+  - to: self
+    step: finish
+    change:
+      type: set
+      field: 5e-srd-5.1:hp.current
+      value: 14
+  - to: self
+    step: finish
+    change:
+      type: finishCreation

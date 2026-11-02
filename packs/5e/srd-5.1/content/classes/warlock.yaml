@@ -40,6 +40,7 @@ grants:
   - { item: features.ability-score-improvement, when: self.level >= 4 }
 choices:
   - id: skills
+    recommend: "(filterList(['skill.arcana', 'skill.deception'], x in options) + options)[0]"
     pick: 2
     unique: skills
     from:
@@ -60,6 +61,7 @@ choices:
     effects:
       - { target: proficiencies.skills, op: grant, value: { formula: pick.value } }
   - id: otherworldly-patron
+    recommend: options[0]
     from: { type: subclass, where: 'item.class == @classes.warlock' }
     when: self.level >= 1
 actions:
@@ -80,6 +82,7 @@ actions:
         recommend: options[0]
         random: params.random
       - id: warlockSimple
+        recommend: options[0]
         kind: choice
         when: "steps.warlockWeapon.picked == 'simple'"
         options: { content: { type: weapon, where: "item.category == 'simple'" } }
@@ -95,6 +98,7 @@ actions:
         recommend: options[0]
         random: params.random
       - id: warlockArcaneFocus
+        recommend: options[0]
         kind: choice
         when: "steps.warlockFocus.picked == 'arcane-focus'"
         options: { content: { type: gear, where: "item.category == 'arcane-focus'" } }
@@ -111,6 +115,7 @@ actions:
         recommend: options[0]
         random: params.random
       - id: warlockExtra
+        recommend: options[0]
         kind: choice
         options: { content: { type: weapon, where: "item.category == 'simple'" } }
         random: params.random

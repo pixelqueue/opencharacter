@@ -59,6 +59,7 @@ grants:
   - { item: features.ability-score-improvement, when: self.level >= 4 }
 choices:
   - id: skills
+    recommend: "(filterList(['skill.arcana', 'skill.persuasion'], x in options) + options)[0]"
     pick: 2
     unique: skills
     from:
@@ -78,6 +79,7 @@ choices:
     effects:
       - { target: proficiencies.skills, op: grant, value: { formula: pick.value } }
   - id: sorcerous-origin
+    recommend: options[0]
     from: { type: subclass, where: 'item.class == @classes.sorcerer' }
     when: self.level >= 1
 actions:
@@ -98,6 +100,7 @@ actions:
         recommend: options[0]
         random: params.random
       - id: sorcererSimple
+        recommend: options[0]
         kind: choice
         when: "steps.sorcererWeapon.picked == 'simple'"
         options: { content: { type: weapon, where: "item.category == 'simple'" } }
@@ -113,6 +116,7 @@ actions:
         recommend: options[0]
         random: params.random
       - id: sorcererArcaneFocus
+        recommend: options[0]
         kind: choice
         when: "steps.sorcererFocus.picked == 'arcane-focus'"
         options: { content: { type: gear, where: "item.category == 'arcane-focus'" } }

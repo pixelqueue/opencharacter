@@ -9,6 +9,9 @@ grants:
   - { item: features.fighter.survivor, when: self.level >= 18 }
 choices:
   - id: additional-fighting-style
+    recommend: >-
+      (filterList([@fighting-styles.defense, @fighting-styles.great-weapon-fighting,
+        @fighting-styles.archery, @fighting-styles.dueling], x in options) + options)[0]
     from: { type: fightingStyle }
     when: self.level >= 10
     unique: fighting-style # can't repeat the fighter's first style

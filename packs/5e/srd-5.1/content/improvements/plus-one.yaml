@@ -2,6 +2,11 @@ id: improvements.plus-one
 type: improvement
 choices:
   - id: abilities
+    # The highest ability the +1 doesn't take past its maximum.
+    recommend: >-
+      sortList(filterList(options,
+          fieldOf('abilities.{ability}.base', x) + 1 <= fieldOf('abilities.{ability}.max', x)),
+        -fieldOf('abilities.{ability}.base', x))[0]
     pick: 2
     from:
       options:

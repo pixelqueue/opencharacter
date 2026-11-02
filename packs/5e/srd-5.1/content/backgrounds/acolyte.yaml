@@ -9,6 +9,9 @@ grants:
   - item: background-features.shelter-of-the-faithful
 choices:
   - id: languages
+    recommend: >-
+      (filterList([@languages.dwarvish, @languages.elvish, @languages.giant, @languages.goblin,
+        @languages.halfling], x in options) + options)[0]
     pick: 2
     unique: languages
     from: { type: language, where: "!('secret' in item.tags) && !('monster' in item.tags)" }
@@ -20,6 +23,7 @@ actions:
       random: { type: boolean, default: false }
     steps:
       - id: acolyteSymbol
+        recommend: options[0]
         kind: choice
         options: { content: { type: gear, where: "item.category == 'holy-symbol'" } }
         random: params.random

@@ -14,6 +14,7 @@ actions:
     available: character.creating
     steps:
       - id: race
+        recommend: options[0]
         tags: [creation.race]
         kind: choice
         options: { content: { type: race } }
@@ -21,6 +22,7 @@ actions:
           - type: addItem
             entry: { id: race, item: picked.id }
       - id: subrace
+        recommend: options[0]
         tags: [creation.subrace]
         kind: choice
         options: { content: { type: subrace, where: item.race == steps.race.picked } }
@@ -29,6 +31,7 @@ actions:
             path: { entry: { formula: 'steps.race.added[0]' }, choice: [subrace] }
             option: picked.id
       - id: class
+        recommend: options[0]
         tags: [creation.class]
         kind: choice
         options: { content: { type: class } }
@@ -43,6 +46,7 @@ actions:
             flags:
               priority: steps.class.item.abilityPriority
       - id: background
+        recommend: options[0]
         tags: [creation.background]
         kind: choice
         options: { content: { type: background } }

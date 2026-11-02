@@ -2,5 +2,9 @@ id: features.sorcerer.metamagic
 type: feature
 choices:
   - id: options
+    recommend: >-
+      (filterList([@metamagic.quickened-spell, @metamagic.twinned-spell, @metamagic.careful-spell,
+        @metamagic.subtle-spell, @metamagic.empowered-spell, @metamagic.heightened-spell],
+        x in options) + options)[0]
     pick: 'self.level >= 17 ? 4 : self.level >= 10 ? 3 : 2'
     from: { type: metamagic }
