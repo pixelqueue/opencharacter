@@ -14,7 +14,7 @@ out.
 pnpm add @opencharacter/engine @opencharacter/5e-srd-5.1
 ```
 
-This release needs spec 0.3: `@opencharacter/engine` 0.3.0 or later. An engine for an older
+This release needs spec 0.4: `@opencharacter/engine` 0.4.0 or later. An engine for an older
 spec refuses it (`spec-version-unsupported`).
 
 The package's default export is the built pack (a `PackRelease`), and `i18n/en` its English
@@ -68,7 +68,7 @@ the [guides](https://opencharacterformat.org/guides/) explain each call.
 - **Text only:** the parts of spells, features and items that are narrative or the app's (turns,
   space, durations, other creatures' sheets); see [Limitations](#limitations).
 - **Out of scope:** non-SRD content, artifacts, barding, services, and the 2024 rules; see
-  [Omitted](#omitted).
+  [Out of scope](#out-of-scope).
 
 ## License
 
@@ -95,50 +95,6 @@ the [guides](https://opencharacterformat.org/guides/) explain each call.
   (`tags.finesse.name`, `.description`). Monsters' names and their traits' and actions' SRD text
   are in `i18n/en/monsters.yaml`, and the monster rules' labels in
   `i18n/en/monster-rules.yaml`.
-
-## Rule readings
-
-Where the SRD is unclear or silent, the pack reads it this way:
-
-- **Ability maximum:** racial increases count toward the cap of 20 like Ability Score
-  Improvements (only Primal Champion and the manuals and tomes raise it; items that set a score
-  go past it). A score past its maximum is reported as `out-of-limits`, not clamped, and an
-  Ability Score Improvement option that would pass 20 isn't offered.
-- **Level-up hit points:** current hit points rise by what the maximum gains (hit die,
-  Constitution, per-level bonuses), so a character at full health stays full.
-- **The random start:** the SRD has no random character method; the odds are the pack's. Six
-  rolls of 4d6 dropping the lowest go to the class's abilities by the priority table below;
-  race, subrace, class, background, every pending pick and each starting-equipment line are
-  drawn uniformly among the eligible options. A half-elf's two +1s go to the class's first two
-  abilities by priority.
-- **No proficiency twice:** a skill, language, tool or Expertise choice doesn't offer what the
-  character already has (the SRD's "choose a different proficiency instead").
-- **Competing AC:** armor, Unarmored Defense and Mage Armor compete and the highest is
-  recommended; an app can pick another.
-- **Extra critical dice:** Brutal Critical's and Savage Attacks' extra weapon dice are added once,
-  not doubled.
-- **Prone targets:** "within 5 feet" is read as a melee attack, beyond it as a ranged one.
-- **Which slot pays:** without a slot type, a spell slot of the cast's level pays when one is
-  left, else a pact slot; when both can, the player chooses (the pact slot recommended for a
-  warlock spell).
-- **Saves against magic:** Gnome Cunning's "against magic" is the `spellSave` choice; Fey
-  Ancestry's "magic can't put you to sleep" blocks an unconscious condition applied by magic.
-  Saves don't know the condition a spell or monster would apply: the player marks `charmSave`
-  or `frightSave`.
-- **Earlier charms and frights:** an immunity (Purity of Spirit, protection from evil and good,
-  Mindless Rage) also blocks a condition applied before it, suspended until the immunity ends,
-  where the SRD gives advantage on new saves.
-- **Approximations:** Sacred Weapon applies to every weapon attack and Lifedrinker to every melee
-  weapon attack (the app knows which weapon is the pact weapon); Favored Enemy's "two races of
-  humanoid" is one pick; Sculpt Spells' spared target makes no save and takes no damage.
-- **Sorcerer:** Flexible Casting only refills a spent slot; Empowered Spell rerolls, once, the
-  lowest damage dice at or below half their faces; one Metamagic option per cast.
-- **Ioun stones:** an increase "to a maximum of 20" adds only what fits under 20.
-- **Death saves:** only while dying; monsters die at 0 hit points and never make one.
-- **Monsters:** stat block numbers (to hit, damage, DC, AC) are as printed, not recomputed.
-  Multiattacks that don't name their weapons are read as one weapon's (the erinyes, the
-  gladiator's spear); the rakshasa's immunity to nonmagical weapons is read as nonmagical
-  attacks.
 
 ## What's modeled
 
@@ -277,7 +233,8 @@ Where the SRD is unclear or silent, the pack reads it this way:
   effects are boolean inputs; once per turn is the app's. Divine Smite is offered on a melee
   weapon hit (one option per spell slot level left, and the pact slot): it spends the slot and
   adds its radiant dice to the hit's damage roll, doubled on a critical hit. Stunning Strike
-  (`stunningStrike`, 1 ki on a melee hit) and Open Hand Technique (`openHand`, on an unarmed strike) are parameters of
+  (`stunningStrike`, 1 ki on a melee hit) and Open Hand Technique (`openHand`, offered on every
+  unarmed strike; whether the strike is one of Flurry of Blows' is the player's) are parameters of
   the attack: on the hit (the attacks' `attack-hit` step) the target makes its save at the ki
   save DC as part of the attack, stunned or knocked prone on a failure; the push and No
   reactions are the player's.
@@ -301,7 +258,7 @@ Where the SRD is unclear or silent, the pack reads it this way:
   shield is up (warm or chill as cast); within 5 feet, 60 feet and seen are the app's. Multiattack
   Defense records each creature that hits the ranger with an attack in the pick's state (a
   required offer) and exposes it as `combat.multiattackDefense`, so that creature's later attack
-  rolls against the ranger take -4, which hits exactly when +4 AC would. The new `turn-boundary`
+  rolls against the ranger take -4, which hits exactly when +4 AC would. The `turn-boundary`
   clock action, which the app runs on every creature at each turn change, clears it.
 - **Auras:** Aura of Protection, Aura of Courage (no frightened) and Aura of Devotion (no
   charmed), all in `aura.range` while the paladin is conscious, Protection reading its live
@@ -316,11 +273,13 @@ Where the SRD is unclear or silent, the pack reads it this way:
   don't place auras; Courage's and Devotion's are gone, though `ally` entries saved before keep
   their immunity. Spirit Guardians' save and
   damage after the cast (a creature entering or starting its turn there) are the app's: running
-  the cast again would spend another slot.
+  the cast again would spend another slot, and an aura can't run a per-creature save
+  ([#253](https://github.com/pixelqueue/opencharacter/issues/253)).
 - **Equipment:** every SRD weapon and armor, 135 gear items, 7 equipment packs, 35 tools, 8
   mounts and 11 vehicles, with cost (gp) and weight (lb) per unit. Extradimensional containers
   and the Efficient Quiver take what they hold out of carried weight.
-- **Magic items:** the SRD 5.1 list, 318 files, 255 with mechanics. Magic weapons, armor,
+- **Magic items:** the SRD 5.1 list as 320 files (251 magic items, 68 templates and one stored
+  spell), 268 with mechanics. Magic weapons, armor,
   shields, ammunition and staffs are templates on the mundane item. Charges, daily properties,
   attunement (more than three, or an unmet requirement, is a rules issue), potions, oils and
   dusts, spells cast from items, item powers, on-hit charges, wounds, stored spells and
@@ -343,7 +302,9 @@ processes:
 - **Magic items** and magic weapon or armor templates restricted to classes list them in
   `attunementClasses`. A `magicItem` with `requiresAttunement` has its effects only while
   attuned (the type's `effectsWhen`), so its effects needn't check `self.attuned`; a template that
-  needs attunement says `effectsWhen: self.attuned` itself.
+  needs attunement says `effectsWhen: self.attuned` itself. One whose rest reset must run while
+  unattuned sets `effectsWhen: true` and checks `self.attuned` in its other effects (the Ring of
+  X-ray Vision).
 - **Metamagic options** are `metamagic` content and the Hunter's options `hunterTactic` content
   (`feature` names the choice that offers them). Containers add to `carrying.stowCapacity`,
   `carrying.stowUnlimited` or `carrying.quivers`, and content resets its uses on a rest with a
@@ -370,11 +331,57 @@ processes:
 - **Step tags** for rules-level `option` and `changes` effects: `creation.race`,
   `creation.subrace`, `creation.class`, `creation.background`, `creation.method` and
   `creation.finish` (guided and random creation), `level-up.class`, `level-up.hit-points` and
-  `level-up.gain`, `rest.long` and `rest.short`, and the attack's `weapon-hit` and
-  `ammunition`.
+  `level-up.gain`, `rest.long` and `rest.short`, and the attack's `weapon-hit`, `ammunition` and
+  `attack-hit`. On-hit parameters use `attack-hit`: a `params` effect on the `attack-hit` action
+  tag (`unarmed` for unarmed strikes only), and an `action` effect on the `attack-hit` step, the
+  one that deals the hit's damage.
 
 Still closed: the abilities, skills, weapon and armor categories and conditions are the game's
 fixed sets.
+
+## Rule readings
+
+Where the SRD is unclear or silent, the pack reads it this way:
+
+- **Ability maximum:** racial increases count toward the cap of 20 like Ability Score
+  Improvements (only Primal Champion and the manuals and tomes raise it; items that set a score
+  go past it). A score past its maximum is reported as `out-of-limits`, not clamped, and an
+  Ability Score Improvement option that would pass 20 isn't offered.
+- **Level-up hit points:** current hit points rise by what the maximum gains (hit die,
+  Constitution, per-level bonuses), so a character at full health stays full.
+- **The random start:** the SRD has no random character method; the odds are the pack's. Six
+  rolls of 4d6 dropping the lowest go to the class's abilities by the priority table above;
+  race, subrace, class, background, every pending pick and each starting-equipment line are
+  drawn uniformly among the eligible options. A half-elf's two +1s go to the class's first two
+  abilities by priority.
+- **No proficiency twice:** a skill, language, tool or Expertise choice doesn't offer what the
+  character already has (the SRD's "choose a different proficiency instead").
+- **Competing AC:** armor, Unarmored Defense and Mage Armor compete and the highest is
+  recommended; an app can pick another.
+- **Extra critical dice:** Brutal Critical's and Savage Attacks' extra weapon dice are added once,
+  not doubled.
+- **Prone targets:** "within 5 feet" is read as a melee attack, beyond it as a ranged one.
+- **Which slot pays:** without a slot type, a spell slot of the cast's level pays when one is
+  left, else a pact slot; when both can, the player chooses (the pact slot recommended for a
+  warlock spell).
+- **Saves against magic:** Gnome Cunning's "against magic" is the `spellSave` choice; Fey
+  Ancestry's "magic can't put you to sleep" blocks an unconscious condition applied by magic.
+  Saves don't know the condition a spell or monster would apply: the player marks `charmSave`
+  or `frightSave`.
+- **Earlier charms and frights:** an immunity (Purity of Spirit, protection from evil and good,
+  Mindless Rage) also blocks a condition applied before it, suspended until the immunity ends,
+  where the SRD gives advantage on new saves.
+- **Approximations:** Sacred Weapon applies to every weapon attack and Lifedrinker to every melee
+  weapon attack (the app knows which weapon is the pact weapon); Favored Enemy's "two races of
+  humanoid" is one pick; Sculpt Spells' spared target makes no save and takes no damage.
+- **Sorcerer:** Flexible Casting only refills a spent slot; Empowered Spell rerolls, once, the
+  lowest damage dice at or below half their faces; one Metamagic option per cast.
+- **Ioun stones:** an increase "to a maximum of 20" adds only what fits under 20.
+- **Death saves:** only while dying; monsters die at 0 hit points and never make one.
+- **Monsters:** stat block numbers (to hit, damage, DC, AC) are as printed, not recomputed.
+  Multiattacks that don't name their weapons are read as one weapon's (the erinyes, the
+  gladiator's spear); the rakshasa's immunity to nonmagical weapons is read as nonmagical
+  attacks.
 
 ## Limitations
 
@@ -382,8 +389,8 @@ Of the 152 class and subclass features, 8 have no mechanics, nor do 15 other opt
 five Hunter's tactics (Escape the Horde, Giant Killer, Horde Breaker, Stand Against the Tide,
 Steel Will), two invocations (Eyes of the Rune Keeper, Gaze of Two Minds), the Protection and
 Two-Weapon Fighting styles, Pact of the Blade, four traits (Halfling Nimbleness, Naturally
-Stealthy, Trance, Nimble Escape) and Shelter of the Faithful: 23 files in all. 63 of
-the 318 magic items are text. Of the 319 spells, 163 do nothing on the sheet beyond spending the
+Stealthy, Trance, Nimble Escape) and Shelter of the Faithful: 23 files in all. 52 of
+the 320 magic item files are text. Of the 319 spells, 163 do nothing on the sheet beyond spending the
 slot (no attack, save, damage, healing, condition, applied effect or action of their own): what
 they do is their SRD text, for the app and the table (detection, illusions, summoning, movement,
 utility).
@@ -403,7 +410,7 @@ utility).
 - **Monster diseases:** the diseases a monster's attack gives (the diseased giant rat, the
   otyugh) are the attack's text. The hydra's bites per head are text: heads aren't tracked.
 
-## Omitted
+### Out of scope
 
 - **Non-SRD content:** races, subclasses, backgrounds, feats, spells and items that aren't in
   the SRD 5.1. Each SRD class has only its one SRD subclass.
