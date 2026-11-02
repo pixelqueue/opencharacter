@@ -1,0 +1,22 @@
+# Specialist (1 die) and Healer (1 die) share `skill-dice`: one counts. The push die has no key and
+# counts too: 4d6kh2. The bonus die has the same key on the bonus part, grouped apart, so it
+# counts: 2d4kh1.
+status: finished
+outcome: { data: { total: 13 } }
+log:
+  - step: roll
+    action: 'test-pool-stacking:check'
+    kind: dice
+    by: engine
+    faces: [4, 2, 6, 1, 3, 1]
+    total: 13
+    items:
+      - { kind: dice, count: 4, sides: 6, value: 10, tags: [skill-dice] }
+      - kind: dice
+        count: 2
+        sides: 4
+        value: 3
+        faces:
+          - { value: 3, kept: true }
+          - { value: 1, kept: false, source: { type: rules, id: 'test-pool-stacking:rules' } }
+        tags: [bonus-dice]

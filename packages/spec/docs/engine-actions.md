@@ -241,8 +241,9 @@ A roll step is built, then rolled, then classified.
    item records `steppedFrom`.
 
 3. **Pool dice.** Each `poolDice` adds `count` dice to its part's first dice item (the part named
-   by `part`, else the first dice part). In effect order, each added die records the effect as
-   its face `source`.
+   by `part`, else the first dice part). The modifiers on one part stack by key, compared by
+   `count`; those that don't count add nothing. In effect order, each added die records the
+   effect as its face `source`.
 4. **Empty pools.** A dice part whose first dice item has 0 dice after pool dice is replaced by
    its `ifEmpty` dice, if it has one. `empty` is then true.
 5. **Advantage and disadvantage.** Count the sources of each kind. A `noAdvantage` modifier sets

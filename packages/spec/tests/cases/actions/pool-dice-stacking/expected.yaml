@@ -1,0 +1,24 @@
+# Specialist (2 dice) and Healer (1 die) share `skill-dice: highestOnly`: only the 2 dice count,
+# so 4d6kh2. [1, 5, 3, 6] keeps 5 and 6; the d4 bonus pool shows 2.
+status: finished
+outcome: { data: { total: 13 } }
+log:
+  - step: roll
+    action: 'test-pool-stacking:check'
+    kind: dice
+    by: engine
+    faces: [1, 5, 3, 6, 2]
+    total: 13
+    items:
+      - kind: dice
+        count: 4
+        sides: 6
+        modifiers: [{ type: keepHighest, count: 2 }]
+        value: 11
+        faces:
+          - { value: 1, kept: false }
+          - { value: 5, kept: true }
+          - { value: 3, kept: false, source: { type: rules, id: 'test-pool-stacking:rules' } }
+          - { value: 6, kept: true, source: { type: rules, id: 'test-pool-stacking:rules' } }
+        tags: [skill-dice]
+      - { kind: dice, count: 1, sides: 4, value: 2, tags: [bonus-dice] }

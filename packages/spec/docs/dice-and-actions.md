@@ -1555,6 +1555,19 @@ A `rollModifier` of kind `poolDice` adds `count` dice to a dice part of the roll
 
 - The added dice are the part's die type. In the roll item, each added face records its
   `source`; faces without one belong to the item's own source.
+- **Stacking:** the `poolDice` modifiers on one part stack by key, compared by `count`, as
+  `stepDie` modifiers are by `steps`: under `highestOnly` only the largest pool counts. Sine
+  Nomine's skill dice don't add up, the larger pool applies, so with `skill-dice: highestOnly`
+  in `settings.stacking.keys` a Heal Specialist with Healer rolls the Specialist's dice only:
+
+  ```yaml
+  # foci.healer: Heal checks roll 3d6, the best two kept.
+  - target: { rolls: [skill.heal] }
+    op: rollModifier
+    value: { kind: poolDice, count: 1 }
+    stackKey: skill-dice
+  ```
+
 - **`ifEmpty`:** a dice part may name what to roll when it ends up with no dice after pool dice
   are added. FitD rolls `2d6kl1` for an empty pool: `{ dice: '(params.rating.value)d6kh1',
   ifEmpty: 2d6kl1 }`.

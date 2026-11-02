@@ -2124,11 +2124,23 @@ function rollStep(ctx: Ctx, frame: Frame, step: Step, path: string): void {
   };
   for (const item of items) if (item.term) item.baseCount = item.term.count;
 
-  // 3. Pool dice.
-  for (const { modifier, c } of modifiers) {
-    if (modifier.kind !== 'poolDice') continue;
-    const partId =
-      modifier.part ?? items.find((i) => i.kind === 'dice' && i.part !== undefined)?.part;
+  // 3. Pool dice: those on one part stack by key, compared by `count`.
+  const firstDicePart = items.find((i) => i.kind === 'dice' && i.part !== undefined)?.part;
+  const poolPart = (modifier: RollModifier) => modifier.part ?? firstDicePart;
+  const pools = modifiers.filter((m) => m.modifier.kind === 'poolDice');
+  const countedPools = new Set(
+    [...new Set(pools.map((m) => poolPart(m.modifier)))].flatMap((partId) =>
+      stack(
+        ctx,
+        pools.filter((m) => poolPart(m.modifier) === partId).map((m) => m.c),
+        effectCtx,
+        (c) => (c.effect.value as RollModifier).count ?? 0,
+      ),
+    ),
+  );
+  for (const { modifier, c } of pools) {
+    if (!countedPools.has(c)) continue;
+    const partId = poolPart(modifier);
     const target = items.find((i) => i.kind === 'dice' && i.part === partId);
     if (!target?.term) continue;
     const count = num(modifier.count, c, 0);
