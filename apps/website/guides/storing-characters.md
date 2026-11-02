@@ -26,7 +26,7 @@ inventory: # carried content
     templates: [5e-srd-5.1:magic-items.weapon-plus-one]
     equipped: true
 applied: # temporary effects from content the character doesn't own
-  - { id: bless-1, source: 5e-srd-5.1:spells.bless, active: true }
+  - { id: bless-1, source: 5e-srd-5.1:spells.bless, active: true, appliedBy: example-cleric }
 choices: {} # picks for rules-level choices
 homebrew: {} # the player's own content, if any (below)
 extensions: # your app's own data
@@ -42,6 +42,10 @@ the state of content a copy or pick grants (`grants`, below) and active temporar
 attack bonuses and maximum HP are **never** in the file. They come from `computeSheet` every
 time, so a saved character can't disagree with the rules, and a pack fix reaches every character
 without migrating anything.
+
+An applied entry may name who applied it (`appliedBy`), the aura it belongs to (`aura`), and
+state of its own (`state`). A pick that adds a copy (`addAs: copy`) saves that copy's instance ID
+as `entry`. Round-trip them all.
 
 Content an item grants can keep state of its own: an artifact's gift whose Effort stays
 committed. It is saved on the copy (or the pick) that grants it, under `grants`, by the granted
@@ -266,7 +270,9 @@ The engine has no partial or incremental compute, so cache yourself:
 
 - Compute the sheet when a character changes (after `applyChanges`) and keep the values you
   need next to the file, keyed by character `id`.
-- Throw the cache away when the character, its pinned packs, or the engine version changes.
+- Throw the cache away when the character, its pinned packs, the engine version, or a linked or
+  aura-holding character's values change: a sheet also depends on the `links` and `appliers`
+  views you pass in.
 - Never write cached values into the character file.
 
 ## Monsters and NPCs
