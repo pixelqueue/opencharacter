@@ -140,7 +140,7 @@ actions:
   # scene, or for the day. A gift an artifact grants spends a point of the artifact's Effort
   # instead: held on its grant while it lasts, otherwise back at dawn.
   - id: invoke-gift
-    tags: [gift, effort]
+    tags: [gift, effort, gift.invoke]
     available: >-
       item.commit != 'none' && !has(item.blast) && !has(item.healing)
         && (item.commit != 'active' || self.committed == 0)
@@ -154,6 +154,7 @@ actions:
             flags: { artifact: self.artifactEffort > 0 }
       - id: commit
         kind: changes
+        tags: [gift.invoke]
         changes:
           - type: adjustState
             when: "flags.artifact && item.commit != 'active'"

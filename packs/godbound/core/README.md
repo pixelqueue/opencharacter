@@ -131,7 +131,11 @@ computeSheet(ruleset, made.character).values['godbound-core:effort.max']?.value;
   - `saving-throw` and `attribute-check` roll d20 against the target; a failed save may commit a
     day's Effort to succeed.
   - `divine-fury` at zero hit points, once a level: half the hit points back and bonus Effort equal
-    to the level until `end-fury`.
+    to the level for as many rounds as the level (`fury.rounds`). The app's `turn-boundary`
+    clock action counts a round off as each of the hero's turns ends, and ends the fury after
+    the last; `end-fury` ends it early.
+  - Burning Vitality, used on the hero, heals a hit point as each of the hero's turns ends,
+    until at full health.
 - **Advancement:** the experience and Dominion-spent table to level 10; the `level-up` follow-up
   and action add the level, renew divine fury and spend or save the two new gift points (or bind a
   Word for three).
@@ -166,8 +170,9 @@ gift names its Word in `word`).
   step of creation), `level.gain` (each new level), `rest.scene` (the end of a scene),
   `rest.day` (a new day), `attack.boost` (before an attack's roll: a gift's `changes` effect
   sets its flags `maximize` and `sure`, a hit unless a natural 1, and adds 1 to `boosts`, the
-  scene's Effort committed) and `gift.commit` (a `gift-blast` committing its Effort: `mob` is
-  the flag for Mob damage).
+  scene's Effort committed), `gift.commit` (a `gift-blast` committing its Effort: `mob` is
+  the flag for Mob damage), `gift.invoke` (`invoke-gift` committing its Effort) and
+  `turn.boundary` (each turn change).
 
 Still closed, as the rules' own: a weapon's or gift's `attribute`, the saves, a gift's
 `activation`, `commit` and `degree`, an invocation's `tier` and a tradition's `casting`.

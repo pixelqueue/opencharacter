@@ -8,3 +8,24 @@ fields:
 prerequisites:
   - id: word
     when: '@words.health in words.bound'
+# Used on the hero, it heals a hit point as each of the hero's turns ends, until at full health.
+state:
+  mending: { type: boolean, default: false }
+effects:
+  - target: { actions: [gift.invoke], from: self }
+    op: params
+    value:
+      onSelf: { type: boolean, default: true }
+  - target: { steps: [gift.invoke], from: self }
+    op: changes
+    when: has(params.onSelf) && params.onSelf && hp.current < hp.max
+    value:
+      changes:
+        - { type: setState, entry: self, key: mending, value: true }
+  - target: { steps: [turn.boundary] }
+    op: changes
+    when: self.mending && has(params.ended) && params.ended == character.id
+    value:
+      changes:
+        - { type: adjust, field: hp.current, by: 1, tags: [healing] }
+        - { type: setState, entry: self, key: mending, value: hp.current + 1 < hp.max }

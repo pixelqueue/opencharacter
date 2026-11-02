@@ -50,6 +50,8 @@ fields:
 
   fury.active: { type: boolean, input: true, default: false }
   fury.spent: { type: boolean, input: true, default: false }
+  # Rounds of divine fury left, counted down as the hero's turns end.
+  fury.rounds: { type: integer, input: true, default: 0, min: 0 }
 
 effects:
   - id: miracle-armor
@@ -392,6 +394,7 @@ actions:
           - { type: set, field: hp.current, value: ceil(hp.max / 2) }
           - { type: set, field: fury.active, value: true }
           - { type: set, field: fury.spent, value: true }
+          - { type: set, field: fury.rounds, value: level }
       - id: result
         kind: outcome
         result: "'raging'"
@@ -407,6 +410,35 @@ actions:
         kind: changes
         changes:
           - { type: set, field: fury.active, value: false }
+          - { type: set, field: fury.rounds, value: 0 }
       - id: result
         kind: outcome
         result: "'ended'"
+
+  # The app runs this at each turn change. As the hero's own turn ends, a round of divine fury
+  # passes; the last ends it. Content joins in through the `turn.boundary` step.
+  - id: turn-boundary
+    tags: [turn]
+    clock: turn-boundary
+    params:
+      ended: { type: string, optional: true }
+      started: { type: string, optional: true }
+    results: [passed]
+    steps:
+      - id: boundary
+        kind: changes
+        tags: [turn.boundary]
+        changes:
+          - type: adjust
+            when: fury.active && has(params.ended) && params.ended == character.id
+            field: fury.rounds
+            by: -1
+          - type: set
+            when: >-
+              fury.active && has(params.ended) && params.ended == character.id
+                && fury.rounds <= 1
+            field: fury.active
+            value: false
+      - id: result
+        kind: outcome
+        result: "'passed'"
