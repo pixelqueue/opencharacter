@@ -5,3 +5,10 @@ fields:
   price: 50
   amount: 1d6
   amountKind: bonus
+# The rolled bonus goes to each target the reader names, as a boon.
+effects:
+  - target: { steps: [power.success], from: self }
+    op: changes
+    value:
+      changes:
+        - { type: applyEffect, source: "'boons.grace'", state: { bonus: steps.amount.total } }

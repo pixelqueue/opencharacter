@@ -86,10 +86,14 @@ start a character with `creating: true` and run one of the creation starts below
   - From other characters, as applied `boon` content: a Speaker of Truths' clarity
     (`boons.clarity`, +4) makes the next test 4 easier, and the Horn of the Schleswig Lords'
     blare (`boons.horn`, the roll tally `horn`) the next non-combat test a success (a crit stays
-    one); each ends itself on the test it changes, an omen's reroll keeping the clarity. The
-    situational choices `invisible` (Metzhuotl Blind Your Eye: attack and defense at DR6) and
-    `grace` (Grace for a Sinner: +d6 on one test or damage roll) are offered on every sheet,
-    since a scroll someone else read brings them.
+    one); each ends itself on the test it changes, an omen's reroll keeping the clarity. Two
+    scrolls leave boons on their targets too (below): `boons.unseen` (Metzhuotl Blind Your Eye:
+    attack and defense at DR6, +6 on the roll, for its rounds; two count once) and `boons.grace`
+    (Grace for a Sinner: its rolled bonus, spent on a run's tests and damage with the situational
+    choice `grace`, offered while one is held; the roll ends it).
+  - **Rounds:** the `turn-boundary` clock action, which the app runs on every character at each
+    turn change, counts down applied entries that last rounds (a `rounds` state) as their
+    holder's turn starts, and ends each on its last.
 - **Classes:** the six core classes (Fanged Deserter, Gutterborn Scum, Esoteric Hermit, Wretched
   Royalty, Heretical Priest, Occult Herbmaster) and `classes.classless` for a character without
   one. Each carries:
@@ -109,11 +113,12 @@ start a character with `creating: true` and run one of the creation starts below
   hidden flag, and its actions are offered while it is set. Uses per day come back with
   `new-day`.
   - Fanged Deserter: Wizard Teeth (`rattle-teeth` before battle, a d6 a tooth; each 6 a charge
-    the situational choice `teeth` spends on a hit for maximum damage). The Brown Scimitar's
+    the `maximum` choice after a hit spends for maximum damage). The Brown Scimitar's
     1-in-6 sepsis on a hit and the Shoe of Death's Horse's 1-in-6 smashed skull are outcome data
     (`sepsis`, `skullSmashed`): the 10 minutes and the creature's size are the app's and GM's.
-  - Gutterborn Scum: Coward's Jab (a weapon action: DR10 Agility, then damage + 3; an omen on
-    the hit, `omenDamage`, makes the weapon's die its maximum), Filthy
+  - Gutterborn Scum: Coward's Jab (a weapon action, offered by the weapon type's `use` entry on a
+    light one-handed weapon: DR10 Agility, then damage + 3; an omen on the hit, picked in the
+    `maximum` choice, makes the weapon's die its maximum), Filthy
     Fingersmith (`fingersmith`, DR8 Agility), Abominable Gob Lobber (`gob-lob`: DR8 Presence; a
     hit blinds for d4 rounds and hands each witness a Toughness test, `ally` DR10 and `enemy`
     DR12), Escaping Fate (a follow-up on each omen spent lists `escape-fate`, a d2 per omen, a 1
@@ -152,12 +157,12 @@ start a character with `creating: true` and run one of the creation starts below
     companion. The app makes the file, runs the start and saves the link, which ends the offer;
     declining leaves the companion on the flag. Not offered while creating, so a random start
     finishes.
-  - **Poltroon:** the situational choice `poltroon` adds 2 to the tests of `attack`, `defend`
-    and the bite, which run `test` tagged `attack` or `defense`; it is offered on
-    those rolls only. **Barbarister:** `barbarister` lowers a Presence
-    test's DR by 2. Both are offered while the feature is picked and a linked companion has HP
-    above 0. The jester helps the owner's allies too: `poltroonAlly` (+2 on attack and defense)
-    is offered on every other sheet, as 5E's Bardic Inspiration is.
+  - **Poltroon:** the jester's own sheet projects an aura, `capering`, on its allies (the owner
+    too) while it has HP above 0: +2 to the tests of `attack`, `defend` and the bite, which run
+    `test` tagged `attack` or `defense`. The app puts it on whoever fights beside the jester.
+    Without the jester's sheet, the owner has the situational choice `poltroon` (the same +2)
+    instead. **Barbarister:** `barbarister` lowers a Presence test's DR by 2, offered while the
+    feature is picked and a linked horse has HP above 0.
   - **Hamfund:** Eurekia is `cursed`: each attack with it rolls a d6, and a 1 sets the linked
     Hamfund's HP to −1 (dead) and removes Eurekia.
 - **Decoctions:** the Occult Herbmaster's eight, as `decoction` items whose quantity is the
@@ -218,11 +223,13 @@ start a character with `creating: true` and run one of the creation starts below
   - `attack` (weapons): Strength for melee, Presence for ranged. A crit doubles the damage and
     proposes that the target's worn armor drop a tier (a change aimed at the target's armor
     copies, which its applyChanges resolves). A fumble marks the weapon `broken`. Spending an
-    omen on a hit (situational choice `omenDamage`) deals the weapon's maximum damage
-    (`maxOf(item.damage)`), doubled on a crit, and proposes spending it; a Wizard Teeth charge
-    (`teeth`) does the same when no omen is spent. A poisoned blade kills when its die shows 1. It reads the omens left
-    after the test's (on the DR, `omen`, or a reroll, `fate`; the proposed sheet, proposal
-    0046): with none left, the damage is rolled. `fate` and `ward` read them the same way.
+    omen on a hit (the `maximum` choice, asked after the test hits while an omen or a Wizard
+    Teeth charge is left) deals the weapon's maximum damage (`maxOf(item.damage)`), doubled on a
+    crit, and proposes spending it; a Wizard Teeth charge (`tooth`) does the same. Rolling is
+    recommended, so the choice only stops a run whose policy pauses on it. A poisoned blade kills
+    when its die shows 1. The choice reads the omens left after the test's (on the DR, `omen`,
+    or a reroll, `fate`; the proposed sheet, proposal 0046). `fate` and `ward` read them the
+    same way.
   - `defend`: an Agility test against the attack. On a failure it proposes the attack's damage
     (a dice parameter); armor and shield come off when it is applied (below). A fumble doubles
     the damage and lowers the worn armor a tier; a crit reports a free attack back. The outcome's
@@ -274,11 +281,14 @@ start a character with `creating: true` and run one of the creation starts below
     hit or miss, from the first copy with any left. An empty copy stays.
   - **Scrolls:** the ten unclean and ten sacred scrolls. Each lists its random numbers:
     targets, an amount (damage, healing, temporary HP, a roll bonus, distance or creatures),
-    duration (some add Presence) and a resisting DR. A successful `use-power` rolls them and
-    returns them as outcome data; the app applies them to each target, since the source doesn't
-    say whether armor stops a power's damage or how Death's 4d10 is shared. On the target's
-    side, Metzhuotl Blind Your Eye and Grace for a Sinner are the situational choices
-    `invisible` and `grace` (above).
+    duration (some add Presence: the card shows the reader's, a computed `durationBonus`) and a
+    resisting DR. A successful `use-power` rolls them and returns them as outcome data; the app
+    applies them to each target, since the source doesn't say whether armor stops a power's
+    damage or how Death's 4d10 is shared. Grace for a Sinner and Metzhuotl Blind Your Eye put
+    their boon (above) on each of the run's `target` participants (the reader names itself to
+    take one), through `changes` effects on `use-power`'s tagged `power.success` step.
+  - A failed power's backlash, infection and hunger roll their dice tagged `damage.direct`, as
+    their harm is, so nothing that adds to a hit's damage reaches them.
 - **Getting better:** `get-better` handles everything in one action.
   - 6d10 against maximum HP for +d6 HP.
   - A d6 per ability, raising it (to +6) or lowering it (to −3; a 1 always lowers).
@@ -339,11 +349,12 @@ The sheet and the core rules are modeled. What's missing is left to the app or t
 
 - **Left to the app or the table on purpose:**
   - Creating a companion's sheet and linking it; the pack offers it.
-  - The clock: when timed states end (a hemorrhage's hours, Fernor's Philtre,
-    berserk, invisibility, a decoction spoiling after 24 hours), the first two rounds of
-    Poltroon's capering, Eurekia's once per combat and Gob Lobber's d2 spits a fight.
-  - Who is where: who drinks a decoction, who witnesses a gob, who fights beside the
-    jester.
+  - The clock beyond turns: when timed states end (a hemorrhage's hours, Fernor's Philtre,
+    berserk, a decoction spoiling after 24 hours), the first two rounds of Poltroon's capering,
+    Eurekia's once per combat and Gob Lobber's d2 spits a fight. The app runs `turn-boundary`
+    at each turn change; what lasts rounds counts down there.
+  - Who is where: who drinks a decoction, who witnesses a gob, who is inside the jester's
+    capering.
   - Miseries.
   - Enemy stats and morale (the Crumpled Monster Mask, the Crucifix).
   - The rest of the list below.

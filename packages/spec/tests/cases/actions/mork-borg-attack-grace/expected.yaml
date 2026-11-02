@@ -1,0 +1,16 @@
+# Test: 3 + 1 (Strength) + 4 (grace) + 6 (unseen, two entries counting once) = 14 against 12: a
+# success. Damage: 2 + 4 (grace) = 6. The roll that used the grace ends it.
+status: finished
+outcome:
+  result: success
+  data: { damage: 6, sepsis: false, skullSmashed: false }
+proposedChanges:
+  - to: self
+    step: check/check
+    change: { type: removeEffect, id: grace }
+  - to: target
+    step: deal
+    change: { type: adjust, field: mork-borg-core:hp.current, by: -6, tags: [damage] }
+log:
+  - { step: check/check, kind: dice, faces: [3], total: 14, band: success }
+  - { step: damage, kind: dice, faces: [2], total: 6 }

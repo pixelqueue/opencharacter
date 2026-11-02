@@ -57,11 +57,6 @@ display:
     daily.stones: { groups: [resources], priority: 1, showWhen: features.stones }
 
 situational:
-  - id: teeth
-    type: boolean
-    default: false
-    rolls: [damage.weapon]
-    available: teeth.charges > 0
   - id: sinner
     type: boolean
     default: false
@@ -410,9 +405,7 @@ actions:
 
   - id: cowards-jab
     tags: [attack]
-    available: >-
-      features.cowardsJab && self.equipped && !self.broken
-        && !(has(item.twoHanded) && item.twoHanded) && !(has(item.ranged) && item.ranged)
+    available: self.equipped && !self.broken
     results: { bands: test }
     steps:
       - id: check
@@ -421,13 +414,21 @@ actions:
         tags: [attack]
         params: { ability: "'abilities.agility'", dr: 10, combat: true }
       # An omen spent on the hit only counts if one is left after any the test spent.
-      - id: maximum
+      - id: plain
         kind: branch
-        sheet: proposed
         cases:
           - when: true
-            flags:
-              omen: situational.omenDamage && omens.current > 0
+            flags: { omen: 'false' }
+      - id: maximum
+        kind: choice
+        sheet: proposed
+        when: >-
+          (steps.check.result == 'success' || steps.check.result == 'crit') && omens.current > 0
+        options:
+          - id: roll
+          - id: omen
+            flags: { omen: 'true' }
+        recommend: "'roll'"
       - id: damage
         kind: roll
         when: "steps.check.result == 'success' || steps.check.result == 'crit'"

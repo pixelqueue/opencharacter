@@ -44,7 +44,11 @@ contentTypes:
         when: self.equipped && has(item.defenseDrModifier)
     actions:
       - use: attack
+      # The Gutterborn Scum's, with a light one-handed weapon: neither two-handed nor ranged.
       - use: cowards-jab
+        available: >-
+          features.cowardsJab && !(has(item.twoHanded) && item.twoHanded)
+            && !(has(item.ranged) && item.ranged)
 
   armor:
     carried: true
@@ -145,16 +149,28 @@ actions:
             copies: { type: ammo, where: 'item.kind == action.item.ammo && self.quantity > 0' }
             limit: 1
             by: -1
-      - id: maximum
+      # On a hit, an omen or a Wizard Teeth charge left after the test may make the damage its
+      # maximum. Rolling is recommended, so the choice only stops a run whose policy pauses on it.
+      - id: plain
         kind: branch
-        sheet: proposed
         cases:
           - when: true
-            flags:
-              omen: situational.omenDamage && omens.current > 0
-              tooth: >-
-                !(situational.omenDamage && omens.current > 0)
-                  && situational.teeth && teeth.charges > 0
+            flags: { omen: 'false', tooth: 'false' }
+      - id: maximum
+        kind: choice
+        sheet: proposed
+        when: >-
+          (steps.check.result == 'success' || steps.check.result == 'crit')
+            && (omens.current > 0 || teeth.charges > 0)
+        options:
+          - id: roll
+          - id: omen
+            when: omens.current > 0
+            flags: { omen: 'true' }
+          - id: tooth
+            when: teeth.charges > 0
+            flags: { tooth: 'true' }
+        recommend: "'roll'"
       - id: damage
         kind: roll
         when: "steps.check.result == 'success' || steps.check.result == 'crit'"

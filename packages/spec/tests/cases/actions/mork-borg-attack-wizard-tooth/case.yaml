@@ -1,8 +1,10 @@
-description: "MÖRK BORG: a Wizard Teeth charge (situational `teeth`) makes a hit deal the weapon's maximum damage and spends the charge"
+description: "MÖRK BORG: a Wizard Teeth charge (the `maximum` choice after the hit) makes a hit deal the weapon's maximum damage and spends the charge"
 specVersion: 0.1.0
 call: startAction
 packs:
   - path: ../../../../../../packs/mork-borg/core
 input:
   action: { id: mork-borg-core:attack, entry: sword }
-  situational: { mork-borg-core:teeth: true }
+  policy: { choices: pause }
+answers:
+  - option: tooth

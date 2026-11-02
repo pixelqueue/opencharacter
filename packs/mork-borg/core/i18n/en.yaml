@@ -65,7 +65,6 @@ types.scroll.name: Scroll
 types.class.name: Class
 
 situational.omen.name: Spend an omen (DR −4)
-situational.omenDamage.name: Spend an omen for maximum damage
 situational.poltroon.name: "Poltroon's capering (DR −2)"
 situational.barbarister.name: "Barbarister's help (DR −2)"
 
@@ -261,6 +260,25 @@ boons.clarity.name: "Speaker of Truths' clarity"
 boons.clarity.description: Your next test is 4 easier.
 boons.horn.name: "Horn of the Schleswig Lords' blare"
 boons.horn.description: Your next non-combat test succeeds.
+boons.grace.name: Grace for a Sinner
+boons.grace.description: '+{self_bonus} on a roll you choose: a test or damage.'
+boons.unseen.name: Metzhuotl Blind Your Eye
+boons.unseen.description: 'Attack and defense at DR6 for {self_rounds, plural, one {# more round} other {# more rounds}}.'
+companions.poltroon.auras.capering.name: "Poltroon's capering (+2)"
+actions.turn-boundary.name: Turn change
+actions.turn-boundary.params.ended.name: Whose turn ended
+actions.turn-boundary.params.started.name: Whose turn starts
+actions.use-power.participants.target.name: Targets
+actions.attack.steps.maximum.prompt: Make the damage its maximum?
+actions.attack.options.roll.name: Roll the damage
+actions.attack.options.omen.name: Spend an omen for maximum damage
+actions.attack.options.tooth.name: Spend a wizard tooth for maximum damage
+actions.cowards-jab.steps.maximum.prompt: Make the damage its maximum?
+actions.cowards-jab.options.roll.name: Roll the damage
+actions.cowards-jab.options.omen.name: Spend an omen for maximum damage
+tags.power.success.name: Power succeeds
+tags.turn.name: Turn
+tags.turn.boundary.name: Turn change
 types.equipment.state.uses.name: Uses left
 types.equipment.state.hours.name: Hours of oil left
 groups.equipment.label: Equipment
@@ -406,11 +424,8 @@ fields.daily.college.name: Scrolls summoned today
 fields.daily.bible.name: Bible read today
 fields.daily.horn.name: Horn blown today
 fields.daily.stones.name: Stones silent until sunset
-situational.teeth.name: Wizard tooth (maximum damage)
+situational.grace.name: 'Spend Grace for a Sinner'
 situational.sinner.name: Against a revealed sinner (+2)
-situational.invisible.name: Invisible (DR6)
-situational.grace.name: Grace for a Sinner (+d6)
-situational.poltroonAlly.name: "Poltroon's capering (+2)"
 situational.shieldSacrifice.name: Break the shield to ignore this hit
 types.scroll.state.summoned.name: Summoned
 followUps.escaping-fate.name: Escaping fate
@@ -464,7 +479,7 @@ types.armor.block: >-
 types.shield.block: '**{name}** — *Shield* · −1 damage{has_price, select, true { · {price}s} other {}}'
 types.scroll.block: >-
   **{name}** — *{kind_name} scroll*{has_amount, select, true { · {amount} {amountKind_name}} other {}}
-  {has_targets, select, true {· {targets} targets } other {}}{has_duration, select, true {· {duration}{durationAddsPresence, select, true { + Presence} other {}} {durationUnit_name} } other {}}{has_resistDr, select, true {· Resist DR {resistDr} } other {}}{has_price, select, true {· {price}s} other {}}
+  {has_targets, select, true {· {targets} targets } other {}}{has_duration, select, true {· {duration}{durationAddsPresence, select, true {{has_self_durationBonus, select, true { {self_durationBonus, number, ::sign-always}} other { + Presence}}} other {}} {durationUnit_name} } other {}}{has_resistDr, select, true {· Resist DR {resistDr} } other {}}{has_price, select, true {· {price}s} other {}}
 types.scroll.fields.kind.values.unclean.name: 'Unclean'
 types.scroll.fields.kind.values.sacred.name: 'Sacred'
 types.scroll.fields.amountKind.values.damage.name: 'damage'

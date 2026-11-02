@@ -614,8 +614,8 @@ A weapon's damage is a whole dice value (`item.damage`). `maxOf`, `minOf`, `dieO
 inside one without rolling it.
 
 ```yaml
-# Maximum damage when an omen is spent (MÖRK BORG).
-dice: 'situational.omenDamage ? maxOf(item.damage) : item.damage'
+# Maximum damage when an omen is spent on the hit (MÖRK BORG).
+dice: 'flags.omen ? maxOf(item.damage) : item.damage'
 # One more of the weapon's dice on a critical hit, not doubled (5E's Savage Attacks).
 value: dieOf(roll.item.damage)
 multiplied: false

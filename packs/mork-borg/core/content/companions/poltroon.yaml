@@ -1,2 +1,9 @@
 id: companions.poltroon
 type: companion
+# The jester's capering: the app puts it on the allies fighting beside it, the owner too.
+auras:
+  - id: capering
+    when: hp.current > 0
+    affects: allies
+    effects:
+      - { target: { rolls: [attack, defense] }, op: add, value: 2 }

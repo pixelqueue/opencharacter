@@ -1,4 +1,4 @@
-# Strength test 15 + 1 = 16 against DR 12: a success. With `omenDamage`, the damage is
+# Strength test 15 + 1 = 16 against DR 12: a success. With an omen picked after the hit, the damage is
 # maxOf(1d6) = 6, a flat item, so the damage roll asks for no faces. The omen is spent.
 status: finished
 outcome:
@@ -31,6 +31,7 @@ log:
     total: 16
     band: success
     bandSet: mork-borg-core:test
+  - { step: maximum, action: mork-borg-core:attack, kind: choice, by: app, option: omen }
   - step: damage
     kind: dice
     by: engine

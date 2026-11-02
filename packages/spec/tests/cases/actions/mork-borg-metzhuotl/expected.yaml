@@ -1,0 +1,26 @@
+# 12 + 2 = 14: success. The d6 duration rolls 3; each target (the reader named itself too) gets
+# `boons.unseen` for 3 rounds.
+status: finished
+outcome:
+  result: success
+  data: { catastrophe: false, targets: 0, amount: 0, duration: 3 }
+proposedChanges:
+  - to: self
+    step: spend
+    change: { type: adjust, field: mork-borg-core:powers.current, by: -1 }
+  - to: target
+    character: test
+    step: success
+    change:
+      type: applyEffect
+      source: mork-borg-core:boons.unseen
+      appliedBy: test
+      state: { rounds: 3 }
+  - to: target
+    character: ally
+    step: success
+    change:
+      type: applyEffect
+      source: mork-borg-core:boons.unseen
+      appliedBy: test
+      state: { rounds: 3 }

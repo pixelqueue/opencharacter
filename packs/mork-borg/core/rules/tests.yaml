@@ -1,4 +1,10 @@
 situational:
+  # Spends a held Grace for a Sinner (boons.grace) on this run's rolls.
+  - id: grace
+    type: boolean
+    default: false
+    rolls: [test, damage]
+    available: 'countList(character.applied, x.active && x.source == @boons.grace) > 0'
   - id: omen
     type: boolean
     default: false
@@ -8,23 +14,6 @@ situational:
       - target: { rolls: [test] }
         op: add
         value: 4
-  - id: invisible
-    type: boolean
-    default: false
-    rolls: [attack, defense]
-    effects:
-      - { target: { rolls: [attack, defense] }, op: add, value: 6 }
-  - id: grace
-    type: boolean
-    default: false
-    rolls: [test, damage]
-    effects:
-      - { target: { rolls: [test, damage] }, op: add, value: 1d6 }
-  - id: omenDamage
-    type: boolean
-    default: false
-    rolls: [damage.weapon]
-    available: omens.current > 0
 
 # The Horn of the Schleswig Lords' blare (boons.horn) makes a test a success.
 rollTallies: [horn]
@@ -57,6 +46,27 @@ resultBands:
       when: true
 
 actions:
+  # The app runs it on every character at each turn change. An applied entry that lasts rounds
+  # (a `rounds` state) uses one up as its holder's turn starts, and ends with its last.
+  - id: turn-boundary
+    clock: turn-boundary
+    params:
+      ended: { type: string, optional: true }
+      started: { type: string, optional: true }
+    steps:
+      - id: boundary
+        kind: changes
+        tags: [turn.boundary]
+        when: has(params.started) && params.started == character.id
+        to: self
+        changes:
+          - type: adjustState
+            applied: { where: has(self.rounds) && self.rounds > 1 }
+            key: rounds
+            by: -1
+          - type: removeEffect
+            applied: { where: has(self.rounds) && self.rounds <= 1 }
+
   - id: test
     tags: [test]
     params:

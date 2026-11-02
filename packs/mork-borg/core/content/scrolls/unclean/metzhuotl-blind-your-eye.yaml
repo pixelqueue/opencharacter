@@ -5,3 +5,12 @@ fields:
   price: 50
   duration: 1d6
   durationUnit: rounds
+# Each target the reader names is unseen for the rounds rolled, as a boon.
+effects:
+  - target: { steps: [power.success], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: "'boons.unseen'"
+          state: { rounds: steps.duration.total }

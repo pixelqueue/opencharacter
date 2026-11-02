@@ -37,7 +37,7 @@ actions:
       - id: infection
         kind: roll
         when: condition.infected
-        tags: [damage]
+        tags: [damage.direct]
         parts:
           - dice: 1d6
       - id: save
@@ -57,7 +57,7 @@ actions:
       - id: hunger
         kind: roll
         when: has(params.fed) && !params.fed && condition.hungryDays >= 2
-        tags: [damage]
+        tags: [damage.direct]
         parts:
           - dice: 1d4
       - id: food

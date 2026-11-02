@@ -1,0 +1,18 @@
+# 12 + 2 (Presence) = 14 against DR 12: success. The d6 bonus rolls 4; the success step puts it
+# on the one target as `boons.grace`, applied by the reader.
+status: finished
+outcome:
+  result: success
+  data: { catastrophe: false, targets: 0, amount: 4, duration: 0 }
+proposedChanges:
+  - to: self
+    step: spend
+    change: { type: adjust, field: mork-borg-core:powers.current, by: -1 }
+  - to: target
+    character: ally
+    step: success
+    change:
+      type: applyEffect
+      source: mork-borg-core:boons.grace
+      appliedBy: test
+      state: { bonus: 4 }

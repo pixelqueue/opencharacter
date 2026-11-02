@@ -23,6 +23,12 @@ contentTypes:
       resistDr: { type: integer, min: 1 }
     state:
       summoned: { type: boolean, default: false }
+    # What the duration adds: the reader's Presence for a scroll whose duration adds it. The card
+    # shows it, and the duration roll adds it.
+    computed:
+      durationBonus:
+        type: integer
+        formula: 'has(item.durationAddsPresence) && item.durationAddsPresence ? abilities.presence : 0'
     actions:
       - use: use-power
 
@@ -30,6 +36,9 @@ actions:
   - id: use-power
     tags: [power]
     available: powers.current > 0 && powers.blocked == 0
+    # Whom a scroll's boon goes to (the reader names itself to take it).
+    participants:
+      target: {}
     results: { bands: test }
     steps:
       - id: spend
@@ -51,7 +60,7 @@ actions:
       - id: backlash
         kind: roll
         when: "steps.check.result == 'failure' || steps.check.result == 'fumble'"
-        tags: [damage]
+        tags: [damage.direct]
         parts:
           - dice: 1d2
       - id: hurt
@@ -78,7 +87,13 @@ actions:
         tags: [power]
         parts:
           - dice: item.duration
-          - value: 'has(item.durationAddsPresence) && item.durationAddsPresence ? abilities.presence : 0'
+          - value: self.durationBonus
+      # A scroll that leaves something on its targets adds it here.
+      - id: success
+        kind: changes
+        tags: [power.success]
+        when: "steps.check.result == 'success' || steps.check.result == 'crit'"
+        to: target
       - id: result
         kind: outcome
         result: steps.check.result

@@ -1,4 +1,4 @@
-description: "MÖRK BORG: an omen spent on a hit deals the weapon's maximum damage"
+description: "MÖRK BORG: an omen spent on a hit (the `maximum` choice after it) deals the weapon's maximum damage"
 specVersion: 0.1.0
 call: startAction
 packs:
@@ -9,5 +9,6 @@ input:
     id: mork-borg-core:attack
     entry: blade
   params: {}
-  situational:
-    mork-borg-core:omenDamage: true
+  policy: { choices: pause }
+answers:
+  - option: omen
