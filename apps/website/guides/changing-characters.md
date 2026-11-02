@@ -204,11 +204,13 @@ Two kinds of choice ask a little more of your app:
 - **A choice with a cost** (`changes` in its declaration: the null's discipline, a once-a-scene
   use) pays it by itself, once per batch, after the batch's last change, however many of the
   attack's changes carry it. The cost shows in `adjustments` with the choice as its `source`,
-  and a follow-up it offers is in `followUps`. Don't apply the cost yourself.
+  and a follow-up it offers is in `followUps`. Don't apply the cost yourself. The choice's
+  `available` says whether it can be paid; a cost past the field's minimum clamps.
 - **A batch-scoped choice** (`scope: batch`: 5E 5.2's Deflect Attacks, which reduces the attack's
   total damage once) goes on the attack's first change only, and reaches the batch's later
-  changes. Apply one attack's changes as one batch, and log the batch as returned: the rolled
-  reduction's faces are on the change that rolled it.
+  changes its `incoming` matches. Apply one attack's changes as one batch, and log the batch as
+  returned: the rolled reduction's faces are on the change that rolled it. Replay a log batch by
+  batch, never change by change.
 
 ## What the rules call for next
 
