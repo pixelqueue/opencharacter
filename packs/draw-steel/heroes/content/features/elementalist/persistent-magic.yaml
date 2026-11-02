@@ -6,6 +6,9 @@ type: feature
 fields:
   class: classes.elementalist
   level: 1
+# Damage taken this turn (anyone's turn) while maintaining abilities.
+state:
+  taken: { type: integer, default: 0, min: 0 }
 effects:
   - { target: heroic.turnBonus, op: add, value: -elementalist.upkeep }
   - target: { steps: [ability.after] }
@@ -21,15 +24,25 @@ effects:
   - target: { steps: [combat.end] }
     op: changes
     value: { changes: [{ type: set, field: elementalist.maintained, value: '[]' }] }
+  # The damage taken this turn: each hit adds to it, and every turn change resets it.
+  - target: { incoming: { fields: [stamina.current], tags: [damage] } }
+    op: add
+    value: 0
+    when: incoming.amount < 0 && size(elementalist.maintained) > 0
+    then:
+      - { type: adjustState, entry: self, key: taken, by: -incoming.amount }
+  - target: { steps: [turn.boundary] }
+    op: changes
+    when: self.taken > 0
+    value: { changes: [{ type: setState, entry: self, key: taken, value: 0 }] }
 followUps:
   - id: maintain
     action: maintain
-  # "In one turn" is approximated by one hit (one batch of changes).
+  # 5 × Reason damage taken in one turn (anyone's) ends them.
   - id: overwhelmed
-    on: { field: stamina.current, tags: [damage], once: true }
-    when: >-
-      size(elementalist.maintained) > 0
-        && -change.taken >= 5 * characteristics.reason.score
+    becomes: >-
+      self.taken >= 5 * characteristics.reason.score
+        && size(elementalist.maintained) > 0
     required: true
     changes:
       - { type: set, field: elementalist.maintained, value: '[]' }
