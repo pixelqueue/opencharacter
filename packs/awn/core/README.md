@@ -15,7 +15,7 @@ edition and is used with the author's permission. Nothing from the paid edition 
 pnpm add @opencharacter/awn-core @opencharacter/engine
 ```
 
-This release needs spec 0.3: `@opencharacter/engine` 0.3.0 or later. An engine for an older
+This release needs spec 0.4: `@opencharacter/engine` 0.4.0 or later. An engine for an older
 spec refuses it (`spec-version-unsupported`).
 
 ```ts

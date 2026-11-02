@@ -18,7 +18,7 @@ Publishing.
 pnpm add @opencharacter/wwn-srd @opencharacter/engine
 ```
 
-This release needs spec 0.3: `@opencharacter/engine` 0.3.0 or later. An engine for an older
+This release needs spec 0.4: `@opencharacter/engine` 0.4.0 or later. An engine for an older
 spec refuses it (`spec-version-unsupported`).
 
 The package's default export is the pack's release, ready for `loadRuleset`; its English text is
