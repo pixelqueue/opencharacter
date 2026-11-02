@@ -84,7 +84,7 @@ const COPY_ONLY = [
   'prerequisites',
   'suppress',
 ] as const;
-const BUILT_IN_MEMBER_KINDS = new Set(['field', 'tag', 'string']);
+const BUILT_IN_MEMBER_KINDS = new Set(['field', 'tag', 'string', 'integer']);
 /** The changes a step or follow-up may send `to: applied`. */
 const APPLIED_ROUTE = new Set(['removeEffect', 'toggleEffect', 'setState', 'adjustState']);
 
@@ -573,7 +573,8 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
       return { ...decl, tagOptions };
     },
     members(decl: ValueDecl, value: Literal, pack: string): Literal {
-      if (!decl.of || decl.of === 'tag' || decl.of === 'string') return value;
+      if (!decl.of || decl.of === 'tag' || decl.of === 'string' || decl.of === 'integer')
+        return value;
       const one = (v: string) => (decl.of === 'field' ? q.field(v, pack) : q.content(v, pack));
       if (decl.type === 'id' && typeof value === 'string') return one(value);
       if ((decl.type === 'set' || decl.type === 'list') && Array.isArray(value))
@@ -1836,7 +1837,8 @@ function takesWhere(decl: ValueDecl): boolean {
     ['id', 'set', 'list'].includes(decl.type) &&
     decl.of !== undefined &&
     decl.of !== 'tag' &&
-    decl.of !== 'string'
+    decl.of !== 'string' &&
+    decl.of !== 'integer'
   );
 }
 

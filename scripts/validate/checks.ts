@@ -84,7 +84,7 @@ import type {
 
 const BUILT_IN_TYPES = new Set(['template', 'field']);
 const numeric = (t: string | undefined) => t === 'integer' || t === 'decimal';
-const MEMBER_KINDS = new Set(['field', 'tag', 'string']);
+const MEMBER_KINDS = new Set(['field', 'tag', 'string', 'integer']);
 const OP_TARGETS = new Map(
   loadFixedSet('effect-operations').items.map((op) => [op.id, op['targets'] as string[]]),
 );
@@ -135,6 +135,11 @@ export class PackChecker {
   readonly prerequisiteKeys = new Set<string>();
   private readonly blocks = new Map<string, BlockScope>();
   private contentOwner: string | undefined;
+  /**
+   * What `owner: self` names in an unchoose: the rules (none) in their actions, effects and
+   * follow-ups, a content item's local ID in its own; unknown for a content type's.
+   */
+  private choiceSelf: { rules: true } | { item: string } | undefined;
   /**
    * Where an offered follow-up is looked for, as the engine looks: `own`, the content's (or its
    * type's) by local ID; then the rules of the action's pack, a local ID qualified against it. An
@@ -196,6 +201,47 @@ export class PackChecker {
       entry = parent ? this.ruleset.item(parent, this.ruleset.scope(entry.pack)) : undefined;
     }
     return false;
+  }
+
+  /**
+   * An unchoose naming its choice by owner: for the actor's own choices, and a literal owner is
+   * content declaring the choice (a slot's key for a slotted one), itself or by `extends`.
+   */
+  private ownerChoice(change: ProposedChange, file: string, where: string, to?: Destination): void {
+    const { owner, id } = change.choice as { owner: string; id: string };
+    if (change.type !== 'unchoose' || change.path !== undefined || change.option !== undefined)
+      this.report.error(file, `${where}: choice is for an unchoose without path or option`);
+    if (to !== undefined && to !== 'self')
+      this.report.error(file, `${where}: an unchoose by owner is for the actor's own choices`);
+    const self = this.choiceSelf;
+    if (owner === 'self' && self && 'rules' in self) {
+      this.report.error(
+        file,
+        `${where}: an unchoose of owner: self is for content; the rules have no choice of their own to name`,
+      );
+      return;
+    }
+    if (owner === 'self' && !self) return;
+    const named = owner === 'self' ? (self as { item: string }).item : owner;
+    let entry = this.ruleset.item(named, this.scope);
+    if (!entry) {
+      this.report.error(file, `${where}: unknown content "${named}"`);
+      return;
+    }
+    const seen = new Set<string>();
+    while (entry && !seen.has(entry.qid)) {
+      seen.add(entry.qid);
+      const declared = (entry.item.choices ?? []) as { id: string; slots?: unknown }[];
+      if (
+        declared.some(
+          (c) => c.id === id || (c.slots !== undefined && new RegExp(`^${c.id}-\\d+$`).test(id)),
+        )
+      )
+        return;
+      const parent: string | undefined = entry.item.extends ?? entry.item.override;
+      entry = parent ? this.ruleset.item(parent, this.ruleset.scope(entry.pack)) : undefined;
+    }
+    this.report.error(file, `${where}: "${named}" declares no choice "${id}"`);
   }
 
   /** Whether any loaded content type or item defines an inline action with this local ID. */
@@ -410,17 +456,21 @@ export class PackChecker {
     }
 
     this.offerable = { own: [], actionPacks: [this.packId] };
+    this.choiceSelf = { rules: true };
     for (const [, { def, at: file }] of rules.actions) this.action(def, file, `actions.${def.id}`);
+    this.choiceSelf = undefined;
     this.offerable = undefined;
     this.creation(rules.creation);
     // The rules' option and changes effects add to tagged steps, their options named `rules.options.<id>`.
     this.contentOwner = 'rules';
+    this.choiceSelf = { rules: true };
     for (const { def, at: file } of rules.effects) this.effect(def, file, 'rules effect', false);
     this.contentOwner = undefined;
     this.followUps(
       rules.followUps.map(({ def, at }) => ({ def, file: at })),
       'followUps',
     );
+    this.choiceSelf = undefined;
     for (const { def, at: file } of rules.choices.values()) this.choices([def], file, 'rules');
     // A slot's key may not be another rules-level choice's ID.
     for (const { def, at: file } of rules.choices.values())
@@ -487,8 +537,11 @@ export class PackChecker {
 
     for (const { file, doc } of pack.content) {
       this.contentOwner = doc.id ?? doc.override;
+      const self = doc.id ?? doc.override;
+      this.choiceSelf = self === undefined ? undefined : { item: self };
       this.item(doc, file);
       this.contentOwner = undefined;
+      this.choiceSelf = undefined;
     }
     this.formulas();
     this.upgradeScripts();
@@ -1329,7 +1382,12 @@ export class PackChecker {
         enum: `one of ${decl.values?.join(', ')}`,
         id: 'an id',
         set: 'a list',
-        list: decl.unique ? 'a list without duplicates' : 'a list',
+        list:
+          decl.of === 'integer'
+            ? 'a list of integers'
+            : decl.unique
+              ? 'a list without duplicates'
+              : 'a list',
       };
       this.report.error(
         file,
@@ -1352,7 +1410,7 @@ export class PackChecker {
       this.tag(value, file, where);
       this.memberTag(value, decl, file, where);
     }
-    if (!of || of === 'tag' || of === 'string') return;
+    if (!of || of === 'tag' || of === 'string' || of === 'integer') return;
     if (of === 'field') {
       if (!this.ruleset.field(value, this.scope))
         this.report.error(file, `${where}: unknown field "${value}"`);
@@ -1388,7 +1446,8 @@ export class PackChecker {
       ['id', 'set', 'list'].includes(decl.type) &&
       decl.of !== undefined &&
       decl.of !== 'tag' &&
-      decl.of !== 'string';
+      decl.of !== 'string' &&
+      decl.of !== 'integer';
     if (takesWhere && decl.where !== undefined && !refs)
       this.report.error(
         file,
@@ -2347,7 +2406,8 @@ export class PackChecker {
     // A choice to pick in: choose and unchoose need a path, choose an option too (an unchoose
     // without one removes every pick); nothing else takes them.
     const picks = change.type === 'choose' || change.type === 'unchoose';
-    if (picks && change.path === undefined)
+    if (change.choice !== undefined) this.ownerChoice(change, file, where, to);
+    else if (picks && change.path === undefined)
       this.report.error(file, `${where}: ${change.type} needs a path`);
     if (change.type === 'choose' && change.option === undefined)
       this.report.error(file, `${where}: choose needs an option`);

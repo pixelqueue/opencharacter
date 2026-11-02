@@ -338,8 +338,29 @@ copy as a parameter. orc-2e's runic weapon puts its template on the ally's weapo
 is left out for a rules-level choice. `path.choice` is the path as a list of literal segments, or a formula
 giving the list; `option` is a formula. An `unchoose` may leave `option` out to
 remove every pick of the choice, so an action can replace a pick it can't read: 5E's
-shapechangers change form with an `unchoose` of their `form` choice, then a `choose`. A
-creation action for a table's own FitD playbooks could pick the playbook, then the special ability
+shapechangers change form with an `unchoose` of their `form` choice, then a `choose`. An
+`unchoose` may instead name a content's choice by its owner, `choice: { owner, id }`, without
+`path` and `option`, for content that can't know where it was picked: it clears the choice on every
+activation of the content, as `picksOf(owner, id)` reads them, proposed as one `unchoose` with its
+`path` for each activation whose choice has picks (none for one without; a choice a grant presets
+is left alone; one another activation already cleared in the step, once). `owner` is a content ID,
+qualified against the action's pack, or `self`: the content carrying the effect that adds the
+change, else the content whose action it is. A follow-up's `self` is its content. The rules have
+no content of their own: `owner: self` in a rules action, a rules effect or a rules follow-up is
+`unknown-reference` when the action runs (a follow-up isn't offered), and the validator reports it,
+as it does an owner (`self` included) that doesn't declare the choice. It is for the actor's own
+choices only (`to: self`).
+Draw Steel's Eidetic Memory picks a lore skill anew at each respite:
+
+```yaml
+- target: { steps: [respite] }
+  op: changes
+  value:
+    changes:
+      - { type: unchoose, choice: { owner: self, id: skill } }
+```
+
+A creation action for a table's own FitD playbooks could pick the playbook, then the special ability
 inside the picked playbook:
 
 ```yaml

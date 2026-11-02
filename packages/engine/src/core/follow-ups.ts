@@ -458,6 +458,8 @@ function resolve(
           copies += each.length;
         }
         return each.flatMap((own) => {
+          if (change.choice)
+            return ownerChoice(sheet, change, change.choice, pack, own, activation, def.to);
           const resolved = resolveChange(
             ruleset,
             sheet,
@@ -534,6 +536,36 @@ function startable(
     return fromContent(ref);
   }
   return available(def.available, def.pack, sheet.rulesRoots()) ? { id: ref } : undefined;
+}
+
+/**
+ * An unchoose naming its choice by owner (`self`, the follow-up's content): one per activation of
+ * the owner whose choice has picks. Only for the character's own choices.
+ */
+function ownerChoice(
+  sheet: Sheet,
+  change: ProposedChange,
+  choice: { owner: string; id: string },
+  pack: string,
+  roots: Record<string, unknown>,
+  activation: Activation | undefined,
+  to: FollowUp['to'],
+): Change[] {
+  if (!sheet.test(change.when, pack, roots)) return [];
+  const { owner: ref, id } = choice;
+  const owner =
+    (to ?? 'self') !== 'self'
+      ? undefined
+      : ref === 'self'
+        ? activation?.item?.qid
+        : resolveContent(sheet.ruleset, ref, pack);
+  if (owner === undefined)
+    throw new Failure({
+      code: 'unknown-name',
+      message: 'unchoose: unknown choice owner',
+      data: { name: `${ref}/${id}` },
+    });
+  return sheet.contentChoicePaths(owner, id).map((path) => ({ type: 'unchoose', path }) as Change);
 }
 
 /** Like an action's `changes` step; a change aimed at copies passes its formulas on unchanged. */

@@ -39,7 +39,7 @@ export function expectedData(
 }
 
 export function typedValue(
-  decl: { type: string; values?: string[]; unique?: boolean },
+  decl: { type: string; values?: string[]; unique?: boolean; of?: string },
   raw: unknown,
 ): f.Value | string {
   switch (decl.type) {
@@ -67,6 +67,10 @@ export function typedValue(
         : 'a list';
     case 'list': {
       if (!Array.isArray(raw)) return 'a list';
+      if (decl.of === 'integer') {
+        if (!raw.every((v) => Number.isInteger(v))) return 'a list of integers';
+        return { kind: 'list', value: raw.map((v) => ({ kind: 'int', value: v as number })) };
+      }
       const members = raw.map(String);
       if (decl.unique && new Set(members).size !== members.length)
         return 'a list without duplicates';
@@ -511,7 +515,8 @@ export function copyFieldProblem(
   if (typeof value === 'string')
     return { code: 'wrong-type', data: { target: field, ...expectedData(decl, value) } };
   if (decl.type !== 'id' && decl.type !== 'set' && decl.type !== 'list') return undefined;
-  if (!decl.of || decl.of === 'string' || decl.of === 'tag') return undefined;
+  if (!decl.of || decl.of === 'string' || decl.of === 'tag' || decl.of === 'integer')
+    return undefined;
   const ids = (Array.isArray(raw) ? raw : [raw]).map(String);
   const missing = ids.find(
     (id) => !(decl.of === 'field' ? ruleset.fields[id] : ruleset.content[id]),

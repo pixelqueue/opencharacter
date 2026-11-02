@@ -1,0 +1,50 @@
+description: "An unchoose names a content's choice by its owner (`choice: { owner, id }`): it clears the choice on every activation of the content, as `picksOf` reads them, one unchoose with its path for each that has picks and none for one without. `owner: self` is the content carrying the effect that adds the change; a choice another of its activations already cleared in the step is proposed once. Another content's choice of the same ID is left alone"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        tags: [respite]
+        fields:
+          known: { type: set, of: string }
+        contentTypes:
+          perk: {}
+        choices:
+          - id: perk
+            pick: { min: 0, max: 2 }
+            required: false
+            from: { type: perk }
+        actions:
+          - id: respite
+            steps:
+              - { id: rest, kind: changes, tags: [respite] }
+      content:
+        # Picks a skill it keeps until the next respite.
+        - id: perks.memory
+          type: perk
+          choices:
+            - id: skill
+              required: false
+              from: { values: [history, magic, nature] }
+              effects:
+                - { target: known, op: grant, value: { formula: pick.value } }
+          effects:
+            - target: { steps: [respite] }
+              op: changes
+              value:
+                changes:
+                  - { type: unchoose, choice: { owner: self, id: skill } }
+        - id: perks.scholar
+          type: perk
+          choices:
+            - id: skill
+              required: false
+              from: { values: [history, magic, nature] }
+input:
+  action: { id: 'test-pack:respite' }

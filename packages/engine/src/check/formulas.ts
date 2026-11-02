@@ -630,6 +630,16 @@ class FormulaChecker<L> {
   /** An item field's or state key's `where` is resolved by loadRuleset: it reads only `item`. */
   private declWhere(decl: ValueDecl, at: L, where: string): void {
     const { of, where: condition } = decl;
+    if (condition !== undefined && of === 'integer') {
+      this.problems.push({
+        at,
+        where: `${where} where`,
+        formula: condition,
+        code: 'unknown-name',
+        message: '`where` is for an id, set or list of fields or content, not of integers',
+      });
+      return;
+    }
     if (condition === undefined || !of || of === 'tag' || of === 'string') return;
     const before = this.problems.length;
     this.at('query', () => this.query({ type: of, where: condition }, at, `${where} where`));

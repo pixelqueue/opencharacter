@@ -44,6 +44,20 @@ const pack = {
         from: { type: 'tool' },
         effects: [{ target: 'tools', op: 'grant', value: { formula: 'pick.id' } }],
       },
+      {
+        id: 'path',
+        pick: { min: 0, max: 1 },
+        required: false,
+        from: {
+          options: [
+            {
+              id: 'deep',
+              prerequisites: [{ id: 'high', when: 'level >= 5' }],
+              choices: [{ id: 'step', pick: { min: 0, max: 1 }, from: { values: [1, 2] } }],
+            },
+          ],
+        },
+      },
     ],
   },
   content: [
@@ -132,8 +146,34 @@ describe('picks that are not activated', () => {
     ]);
     // A hidden item matches no query, so it is also not eligible.
     expect(sheet.issues.map((i) => [i.code, i.id])).toEqual([
-      ['option-not-eligible', 'rules/tools'],
+      ['option-not-eligible', 'test-pack:rules/tools'],
       ['content-hidden', 'test-pack:tools.lens'],
     ]);
+  });
+});
+
+describe("a rules-level choice's IDs", () => {
+  it('name the pack that declares it, and its inline options under it', () => {
+    const doc = {
+      ...character,
+      choices: {
+        numbers: [{ option: 2 }],
+        path: [{ option: 'deep', choices: { step: [{ option: 1 }, { option: 2 }] } }],
+      },
+    } as CharacterDoc;
+    expect(computeSheet(ruleset, doc).issues.map((i) => [i.code, i.id])).toEqual([
+      ['option-not-eligible', 'test-pack:rules/numbers'],
+      ['prerequisite-not-met', 'test-pack:rules/path/deep/high'],
+      ['too-many-picks', 'test-pack:rules/path/deep/step'],
+    ]);
+    const listed = listOptions(ruleset, character, { choice: ['path'] });
+    expect(listed).toMatchObject({
+      options: [
+        {
+          option: 'deep',
+          reasons: [{ code: 'prerequisite-not-met', id: 'test-pack:rules/path/deep/high' }],
+        },
+      ],
+    });
   });
 });

@@ -1,0 +1,18 @@
+description: 'A `list` item field `of: integer` takes no `where`, which is for an id, set or list of fields or content: a `formula-error` (`unknown-name`)'
+specVersion: 0.3.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.3.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        contentTypes:
+          class:
+            fields:
+              array: { type: list, of: integer, where: 'true' }
+      content:
+        - { id: classes.fine, type: class, fields: { array: [2, -1, -1] } }

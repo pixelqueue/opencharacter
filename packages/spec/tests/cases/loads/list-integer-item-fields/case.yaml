@@ -1,0 +1,23 @@
+description: 'A `list` item field `of: integer` takes a list of whole numbers: a string member, a decimal member and a string value are `invalid-item-field` (`wrong-type`); its members are not references, so they are never qualified or checked as IDs'
+specVersion: 0.3.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.3.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        contentTypes:
+          class:
+            fields:
+              array: { type: list, of: integer }
+              steps: { type: list, of: integer, unique: true }
+      content:
+        - { id: classes.fine, type: class, fields: { array: [2, -1, -1], steps: [1, 2, 3] } }
+        - { id: classes.text, type: class, fields: { array: [2, a, -1] } }
+        - { id: classes.half, type: class, fields: { array: [1.5, 0, 0] } }
+        - { id: classes.scalar, type: class, fields: { array: '2' } }
+        - { id: classes.twice, type: class, fields: { steps: [1, 1] } }

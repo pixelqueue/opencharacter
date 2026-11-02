@@ -965,19 +965,9 @@ export function createText(options: TextOptions): Text {
         'id' in issue &&
         issue.id
       ) {
-        // A rules-level choice's ID (`rules/<choice>`) has no pack: its prompt is in the one
-        // pack that declares the choice.
         // A slot's prompt is formatted with its number; a prompt missing an argument is skipped.
-        const prompt = (k: { pack: string | null; key: string; slot?: number }) => {
-          const args = k.slot === undefined ? {} : { slot: k.slot };
-          const one = (pack: string) => format(findPack(pack, k.key), args, true);
-          return k.pack
-            ? one(k.pack)
-            : packOrder
-                .flatMap((l) => Object.keys(options.packs[l] ?? {}))
-                .map(one)
-                .find((m) => m !== undefined);
-        };
+        const prompt = (k: MessageRef & { slot?: number }) =>
+          format(findPack(k.pack ?? '', k.key), k.slot === undefined ? {} : { slot: k.slot }, true);
         const choice = issueChoicePromptKeys(issue.id)
           .map(prompt)
           .find((m) => m !== undefined);

@@ -478,7 +478,12 @@ Each field's value is computed on demand and remembered. To compute field F:
      - **Option IDs:** each option's ID is `<source id>#<n>`, the effect's index in its
        content's `effects` list (or `#<effect id>` when the effect has one). Two copies of
        the same content share their option IDs, so a pick can't tell them apart; the earlier
-       copy applies. **PROVISIONAL.**
+       copy applies. A choice's own `effects` have the source ID `<owner>/<choice>` and are
+       numbered `<pick>/<n>` (`<owner>/<choice>#<pick>/<n>`); an inline option's, its source ID
+       `<owner>/<choice>/<option>`. The owner is qualified as in
+       [choice issue IDs](#pending-choices-and-issues): `<pack>:rules` for a rules-level choice, so the
+       divine option of orc-2e's `qi-tradition` sets the tradition as
+       `orc-2e:rules/qi-tradition/divine#0`. **PROVISIONAL.**
      - **Recommended:** the option chosen by the field's `recommend`, or else by
        `settings.competing.recommend`. `highest` and `lowest` compare values, with ties going
        to the earlier instance. `first` and `last` use instance order.
@@ -602,9 +607,13 @@ For each activation's choices, and the rules-level choices:
   follow the same order.
 - **`pending`** is the open entries of [the choice list](#the-choice-list), in
   the same order, each as `{ path, min, max, picked, slot }`, `picked` the number of picks.
-- **Choice issue IDs:** `choice-not-applicable`, `too-many-picks` and `option-not-eligible`
-  carry `id: <owner>/<choice id>`, where the owner is the content ID of the item that declares
-  the choice (or `rules`), and `source` is the owner's activation.
+- **Choice issue IDs:** `choice-not-applicable`, `too-many-picks`, `too-few-picks`,
+  `option-not-eligible`, `already-picked`, `no-eligible-option` and `picked-copy-invalid` carry
+  `id: <owner>/<choice id>`, where the owner is qualified: the content ID of the item that declares
+  the choice, `<pack>:rules` for a rules-level choice (the pack that declares it, as
+  `needs.choice.owner` names it), and for a choice of an inline option the option's source ID
+  (`<owner>/<choice>/<option>`, so `<pack>:rules/<choice>/<option>` under a rules-level choice).
+  `source` is the owner's activation.
 - **Slots**: a slotted choice is one choice per slot, each keyed `<id>-<slot>`
   and gathered in list order where the choice is declared, with `slot` bound in its formulas
   ([content.md](content.md#choice-slots)). Each is pending, applicable or not, and reported on its

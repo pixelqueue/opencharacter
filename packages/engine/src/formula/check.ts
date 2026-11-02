@@ -108,8 +108,12 @@ export function parseTypeName(name: string): FType {
   return match ? { list: parseTypeName(match[1] as string) } : (name as FType);
 }
 
-/** Maps a field's declared type (packages/spec/data/value-types.json) to its formula type. */
-export function fieldFormulaType(declared: string): FType {
+/**
+ * Maps a field's declared type (packages/spec/data/value-types.json) to its formula type; a list
+ * `of: integer` is a list of ints.
+ */
+export function fieldFormulaType(declared: string, of?: string): FType {
+  if (declared === 'list' && of === 'integer') return { list: 'int' };
   switch (declared) {
     case 'integer':
       return 'int';

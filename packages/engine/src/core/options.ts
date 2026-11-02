@@ -7,6 +7,7 @@ import {
   type Links,
   type RulesIssue,
   Sheet,
+  choiceOwnerId,
 } from './sheet.ts';
 import { samePath, treeFor } from './tree.ts';
 import * as f from '../formula/index.ts';
@@ -89,7 +90,7 @@ export function optionsOn(
     candidates = from.options.map((o) => ({
       option: o.id,
       inQuery: true,
-      sourceId: `${owner.sourceId}/${choice.id}/${o.id}`,
+      sourceId: `${choiceOwnerId(owner, pack)}/${choice.id}/${o.id}`,
     }));
   } else {
     const matches = new Set(
@@ -121,7 +122,7 @@ export function optionsOn(
       if (elsewhere) {
         reasons.push({
           code: 'already-picked',
-          id: `${owner.sourceId}/${choice.id}`,
+          id: `${choiceOwnerId(owner, pack)}/${choice.id}`,
           source: owner.source,
           data: { option, path: elsewhere.path },
         });
@@ -130,7 +131,7 @@ export function optionsOn(
     if (!inQuery || (sourceId === undefined && !sheet.optionEligible(record, option)))
       reasons.push({
         code: 'option-not-eligible',
-        id: `${owner.sourceId}/${choice.id}`,
+        id: `${choiceOwnerId(owner, pack)}/${choice.id}`,
         source: owner.source,
         data: { option },
       });

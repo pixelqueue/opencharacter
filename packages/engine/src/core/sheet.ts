@@ -8,6 +8,7 @@ import type {
 } from '@opencharacter/spec';
 import * as f from '../formula/index.ts';
 import type { EngineError } from './load.ts';
+import { samePath } from './tree.ts';
 import type {
   ActionDef,
   ActionOrUse,
@@ -2274,7 +2275,7 @@ export class Sheet {
               pack,
               { ...roots, ...pickRoot },
               owner.source,
-              `${owner.sourceId}/${choice.id}`,
+              `${choiceOwnerId(owner, pack)}/${choice.id}`,
               `${pick.option}/${effect.id ?? index}`,
               undefined,
               undefined,
@@ -2287,7 +2288,7 @@ export class Sheet {
         if ('options' in from) {
           const inline = from.options.find((o) => o.id === pick.option);
           if (!inline) continue;
-          const sourceId = `${owner.sourceId}/${choice.id}/${inline.id}`;
+          const sourceId = `${choiceOwnerId(owner, pack)}/${choice.id}/${inline.id}`;
           const textId = `${owner.textId ?? owner.sourceId}/${slot?.choice ?? choice.id}/${inline.id}`;
           this.pickedContent(
             record,
@@ -4068,6 +4069,27 @@ export class Sheet {
     return out;
   }
 
+  /**
+   * The paths of a content's choice on every activation of it, in activation order, as
+   * `picksOf(content, choice)` reads them: those with picks, a choice a grant presets left out.
+   */
+  contentChoicePaths(content: string, choice: string): ChoicePath[] {
+    const out: ChoicePath[] = [];
+    for (const a of this.activations) {
+      if (a.item?.qid !== content) continue;
+      for (const record of this.choices)
+        if (
+          record.owner === a &&
+          record.choice.id === choice &&
+          !record.preset &&
+          record.picks.length > 0 &&
+          !out.some((p) => samePath(p, record.path))
+        )
+          out.push(record.path);
+    }
+    return out;
+  }
+
   /** The active holder grants in activation order, each item once per node. */
   private grantViews(): Record<string, unknown>[] {
     const seen = new Set<string>();
@@ -4172,7 +4194,15 @@ function computedValue(type: string, value: f.Value): f.Value | undefined {
 }
 
 function choiceId(owner: Activation, choice: Choice): string {
-  return `${owner.sourceId}/${choice.id}`;
+  return `${choiceOwnerId(owner, (choice as Choice & { pack?: string }).pack ?? owner.pack)}/${choice.id}`;
+}
+
+/**
+ * The qualified ID of a choice's owner, as choice issue IDs and inline options' source IDs name it:
+ * the activation's source ID, `<pack>:rules` for the rules (`pack` declares the choice).
+ */
+export function choiceOwnerId(owner: Activation, pack: string): string {
+  return owner.kind === 'rules' ? `${pack}:rules` : owner.sourceId;
 }
 
 const cachedParse = f.parseCached;

@@ -188,8 +188,8 @@ export function prerequisiteOwner(id: string):
 /**
  * A choice issue's choice prompt keys, from its `<owner>/<choice>` ID (an inline option's choice
  * `<item>/<choice>/<option>/<choice>`): the key as written, then a slot's declared choice's with
- * the slot's number (a slot's prompt takes `{slot}`). A
- * rules-level choice's (`rules/<choice>`) has pack `''`: the ID doesn't name it.
+ * the slot's number (a slot's prompt takes `{slot}`). A rules-level choice's owner is
+ * `<pack>:rules`.
  */
 export function issueChoicePromptKeys(id: string): (MessageRef & { slot?: number })[] {
   const [pack, local] = split(id);
