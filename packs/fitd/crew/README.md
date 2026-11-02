@@ -220,6 +220,8 @@ no crew types, so a crew-type pack's are the ones offered).
   the add-on's named by its `actions.create-crew.options.<type>.name` (found through the
   ruleset's `familyOrigins`), and elite and claim scale read them by key. A claim like Training Rooms sets `trainsGang` to
   show its `trainedGang` pick.
+- **Claims:** an added claim's effects are off while `lair.lost` is set, unless it is a prison
+  claim (`prison`; the type's `effectsWhen`).
 - **Naming what an add-on adds:** it names each added value, option or key in its own text,
   under the key this pack would use, and `createText` finds it there when the app passes the
   ruleset's `enumOrigins`, `optionOrigins` and `familyOrigins`. For example,

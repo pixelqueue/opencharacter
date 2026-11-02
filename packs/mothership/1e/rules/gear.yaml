@@ -32,27 +32,28 @@ contentTypes:
       bulky: { type: boolean }
     state:
       destroyed: { type: boolean, default: false }
+    effectsWhen: self.equipped
     effects:
       # Bulky armor's [-] applies while worn, destroyed or not.
       - id: bulky
         target: { rolls: [check.speed] }
         op: rollModifier
         value: { kind: disadvantage }
-        when: self.equipped && has(item.bulky) && item.bulky
+        when: has(item.bulky) && item.bulky
       # Damage reduction comes first, and always: on destroyed armor too, and against anti-armor
       # weapons.
       - id: damage-reduction
         target: { incoming: { fields: [health.current], tags: [damage] } }
         op: add
         value: item.dr
-        when: self.equipped && has(item.dr)
+        when: has(item.dr)
       # The effects see the damage as dealt, so they take DR off themselves.
       - id: armor-points-hold
         target: { incoming: { fields: [health.current], tags: [damage] } }
         op: multiply
         value: 0
         when: >-
-          self.equipped && !self.destroyed && item.ap > 0
+          !self.destroyed && item.ap > 0
             && !('damage.anti-armor' in incoming.tags)
             && -incoming.amount - (has(item.dr) ? item.dr : 0) < item.ap
       - id: armor-points-break
@@ -60,7 +61,7 @@ contentTypes:
         op: add
         value: item.ap
         when: >-
-          self.equipped && !self.destroyed && item.ap > 0
+          !self.destroyed && item.ap > 0
             && !('damage.anti-armor' in incoming.tags)
             && -incoming.amount - (has(item.dr) ? item.dr : 0) >= item.ap
         then:
@@ -69,14 +70,14 @@ contentTypes:
         target: { incoming: { fields: [health.current], tags: [damage.anti-armor] } }
         op: add
         value: 0
-        when: self.equipped && !self.destroyed
+        when: '!self.destroyed'
         then:
           - { type: setState, entry: self, key: destroyed, value: true }
       - id: damage-floor
         target: { incoming: { fields: [health.current], tags: [damage] } }
         op: atMost
         value: 0
-        when: self.equipped && has(item.dr)
+        when: has(item.dr)
 
 actions:
   - id: shoot
