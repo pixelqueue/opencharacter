@@ -396,9 +396,12 @@ Still closed: attributes, proficiency ranks, saves, spell traditions (and a staf
   feat's Strike given it (Twin Feint); agile, finesse and ranged weapons, or a ruffian's
   small-die weapons. A thief adds Dexterity for Strength on finesse melee damage. Debilitating
   Strike sends a debilitation (an applied effect) or enfeebled 1 to the target, two from 15th,
-  until the end of the rogue's next turn (`duration: next-end`); it first ends the rogue's
-  earlier debilitations wherever they are (`to: applied`, the entries marked `debilitation`), as
-  do the racket feats' debilitations.
+  until the end of the rogue's next turn (`duration: next-end`), as do the racket feats'
+  debilitations; it first ends the rogue's earlier debilitations on that target (its entries
+  marked `debilitation`, by `appliedBy`), before any is picked. A condition a debilitation gives
+  stays its own entry (the condition type's `reapply` matches `debilitation` and `duration`), so
+  it doesn't merge into the same condition from elsewhere. Two rogues debilitating one creature
+  with the same condition share one entry, owned by the later.
   Evasive Reflexes, Rogue Resilience and Agile Mind turn successes into critical successes. Feats:
   33 of levels 1 to 6; Twin Feint, Underhanded Assault, Head Stomp, Mug and Twist the Knife are
   actions, Nimble Dodge a toggle (the start of the turn clears it), Trap Finder a situational
@@ -566,8 +569,10 @@ Still closed: attributes, proficiency ranks, saves, spell traditions (and a staf
   of the champion's next turn below 10th level): Aura of Courage lowers an ally's frightened at
   the end of the champion's turn (`turn-boundary`), Aura of Despair gives enemies −1 to saves
   against fear, Aura of Determination and Aura of Life give allies their bonuses and resistance
-  (and Aura of Life the champion its +1 to saves against void). Aura of Faith and Aura of
-  Righteousness are text.
+  (and Aura of Life the champion its +1 to saves against void). The auras are down while the
+  champion is unconscious. Still text: Aura of Courage's lower frightened value for the champion,
+  Aura of Despair's floor of frightened 1, Aura of Determination's morph and polymorph effects
+  (only mental ones are a situational choice), Aura of Faith and Aura of Righteousness.
 - **The alchemist** (Player Core 2): Intelligence, versatile vials (`vials`, refilled by
   daily preparations), formulas (`formulas`, a set the book picks fill), advanced alchemy (one
   infused item per vial, its level the alchemist's), quick alchemy (a vial into an item), the
@@ -756,7 +761,10 @@ Still closed: attributes, proficiency ranks, saves, spell traditions (and a staf
   caster picks its damage type (resist energy, shadow blast, telekinetic projectile, …) adds
   that choice to its own cast as a parameter with only the book's types (a `params` effect, such
   as resist energy's `resistType`), which sets the cast's damage type at its `spell.chosen`
-  step; elemental toss and elemental blast take the elemental influence's type there.
+  step; elemental toss and elemental blast take the elemental influence's type there, and
+  dragon breath and flurry of claws the draconic exemplar's tradition's (force, spirit, mental or
+  fire), unless the cast names one. Inner upheaval's and qi form's type is chosen once, as the
+  spell is cast, though the book lets inner upheaval choose it each Strike.
 - **Spells:** the 41 Player Core cantrips (with the bard's compositions and the witch's hexes)
   and every 1st-, 2nd- and 3rd-rank spell (58, 55, 34), text in `i18n/en/spells.yaml`; the
   casters' 1st-rank focus spells (7 school, 37 domain, 10 bloodline and 5 order spells), text in
@@ -823,6 +831,9 @@ Still closed: attributes, proficiency ranks, saves, spell traditions (and a staf
 
 Where the books leave a rule open, or the format needs a choice the books don't make, the pack
 reads it as below. These are the pack's provisional calls; a table may rule otherwise.
+
+- **Debilitating Strike:** "a new debilitation ends any earlier one" is read per target: the
+  rogue's debilitations on other creatures stay.
 
 - **Random start:** the books have players choose, so the odds are the pack's. Each pick is
   drawn uniformly among the options eligible then, in the guided start's order, except that

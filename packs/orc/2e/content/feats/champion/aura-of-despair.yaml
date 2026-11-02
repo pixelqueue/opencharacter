@@ -7,6 +7,8 @@ prerequisites:
 # Enemies in the aura take a -1 circumstance penalty to saves against fear.
 auras:
   - id: despair
+    # The champion's aura ends while the champion is unconscious.
+    when: countList(character.applied, x.active && x.source == @conditions.unconscious) == 0
     size: champion.auraSize
     affects: enemies
     effects:

@@ -13,7 +13,9 @@ fields:
   heighten: 1
   heightenDice: 2
 effects:
-  # The damage type is chosen on each cast: a parameter the spell adds to its own cast.
+  # The exemplar's type follows its tradition (the draconic exemplar sets the spellcasting
+  # tradition): force (arcane), spirit (divine), mental (occult) or fire (primal). A parameter
+  # the spell adds to its cast names another, for an exemplar the sheet doesn't hold.
   - target: { actions: [spell], from: self }
     op: params
     value:
@@ -21,4 +23,10 @@ effects:
   - target: { steps: [spell.chosen], from: self }
     op: changes
     value:
-      { flags: { damageType: 'has(params.exemplarType) ? params.exemplarType : item.damageType' } }
+      flags:
+        damageType: >-
+          has(params.exemplarType) ? params.exemplarType
+            : spellcasting.tradition == 'arcane' ? 'force'
+            : spellcasting.tradition == 'divine' ? 'spirit'
+            : spellcasting.tradition == 'occult' ? 'mental'
+            : spellcasting.tradition == 'primal' ? 'fire' : item.damageType

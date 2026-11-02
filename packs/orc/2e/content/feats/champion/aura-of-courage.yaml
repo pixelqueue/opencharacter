@@ -7,6 +7,8 @@ prerequisites:
 # aura's entry joins the turn change that ends the champion's turn.
 auras:
   - id: courage
+    # The champion's aura ends while the champion is unconscious.
+    when: countList(character.applied, x.active && x.source == @conditions.unconscious) == 0
     size: champion.auraSize
     affects: allies
     effects:

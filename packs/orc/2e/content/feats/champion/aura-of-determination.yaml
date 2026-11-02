@@ -9,6 +9,8 @@ effects:
     when: situational.againstMental
 auras:
   - id: determination
+    # The champion's aura ends while the champion is unconscious.
+    when: countList(character.applied, x.active && x.source == @conditions.unconscious) == 0
     size: champion.auraSize
     affects: allies
     effects:
