@@ -58,6 +58,15 @@ effects:
     when: "heroic.kind == 'clarity' && (!combat.active || talent.psion)"
     value:
       talentStrain: { type: boolean, default: false }
+  # Outside combat, taking the strain (or using a second clarity ability within a minute) costs
+  # 1d6 damage too.
+  - id: strain-outside-combat
+    target: { steps: [ability.after] }
+    op: changes
+    when: "!combat.active && 'kw.psionic' in action.item.tags && has(params.talentStrain) && params.talentStrain"
+    value:
+      changes:
+        - { type: adjust, field: stamina.current, by: -1d6, tags: [damage, talent.strain] }
   # Psi boosts (a talent's at 6th level, a null's at 7th), on a psionic main action or maneuver,
   # with the hero's potency characteristic (Reason, or a null's Intuition). The Psi Boost feature
   # pays for them. Expanded and Shared change the ability's area or targets (the app's).
