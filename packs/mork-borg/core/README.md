@@ -87,13 +87,15 @@ start a character with `creating: true` and run one of the creation starts below
     (`boons.clarity`, +4) makes the next test 4 easier, and the Horn of the Schleswig Lords'
     blare (`boons.horn`, the roll tally `horn`) the next non-combat test a success (a crit stays
     one); each ends itself on the test it changes, an omen's reroll keeping the clarity. Two
-    scrolls leave boons on their targets too (below): `boons.unseen` (Metzhuotl Blind Your Eye:
-    attack and defense at DR6, +6 on the roll, for its rounds; two count once) and `boons.grace`
-    (Grace for a Sinner: its rolled bonus, spent on a run's tests and damage with the situational
-    choice `grace`, offered while one is held; the roll ends it).
+    scrolls leave a boon on their one target too (below): `boons.unseen` (Metzhuotl Blind Your
+    Eye: attack and defense at DR6, +6 on the roll, for its rounds or until the holder takes
+    damage; two count once) and `boons.grace` (Grace for a Sinner: its rolled bonus on one roll,
+    which the holder names with the situational choice `grace`, `test` or `damage`, offered while
+    one is held; that roll ends it).
   - **Rounds:** the `turn-boundary` clock action, which the app runs on every character at each
     turn change, counts down applied entries that last rounds (a `rounds` state) as their
-    holder's turn starts, and ends each on its last.
+    applier's turn starts, and ends each on its last, so a holder keeps one through its own turns
+    in between.
 - **Classes:** the six core classes (Fanged Deserter, Gutterborn Scum, Esoteric Hermit, Wretched
   Royalty, Heretical Priest, Occult Herbmaster) and `classes.classless` for a character without
   one. Each carries:
@@ -160,8 +162,9 @@ start a character with `creating: true` and run one of the creation starts below
   - **Poltroon:** the jester's own sheet projects an aura, `capering`, on its allies (the owner
     too) while it has HP above 0: +2 to the tests of `attack`, `defend` and the bite, which run
     `test` tagged `attack` or `defense`. The app puts it on whoever fights beside the jester.
-    Without the jester's sheet, the owner has the situational choice `poltroon` (the same +2)
-    instead. **Barbarister:** `barbarister` lowers a Presence test's DR by 2, offered while the
+    Where the aura isn't on a character (no jester sheet, or an app without auras), the owner has
+    the situational choice `poltroon` and its allies `poltroonAlly` (the same +2) instead, offered
+    only while no capering entry is held. **Barbarister:** `barbarister` lowers a Presence test's DR by 2, offered while the
     feature is picked and a linked horse has HP above 0.
   - **Hamfund:** Eurekia is `cursed`: each attack with it rolls a d6, and a 1 sets the linked
     Hamfund's HP to −1 (dead) and removes Eurekia.
@@ -285,10 +288,11 @@ start a character with `creating: true` and run one of the creation starts below
     resisting DR. A successful `use-power` rolls them and returns them as outcome data; the app
     applies them to each target, since the source doesn't say whether armor stops a power's
     damage or how Death's 4d10 is shared. Grace for a Sinner and Metzhuotl Blind Your Eye put
-    their boon (above) on each of the run's `target` participants (the reader names itself to
-    take one), through `changes` effects on `use-power`'s tagged `power.success` step.
+    their boon (above) on the run's one `target` participant (the reader names itself to take
+    it), through `changes` effects on `use-power`'s tagged `power.success` step.
   - A failed power's backlash, infection and hunger roll their dice tagged `damage.direct`, as
-    their harm is, so nothing that adds to a hit's damage reaches them.
+    their harm is. It is below `damage`, so effects on `damage` rolls (a crit's doubling) still
+    reach them; Grace for a Sinner's damage bonus leaves them out by name.
 - **Getting better:** `get-better` handles everything in one action.
   - 6d10 against maximum HP for +d6 HP.
   - A d6 per ability, raising it (to +6) or lowering it (to −3; a 1 always lowers).

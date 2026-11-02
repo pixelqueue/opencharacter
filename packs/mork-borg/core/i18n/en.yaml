@@ -263,7 +263,7 @@ boons.horn.description: Your next non-combat test succeeds.
 boons.grace.name: Grace for a Sinner
 boons.grace.description: '+{self_bonus} on a roll you choose: a test or damage.'
 boons.unseen.name: Metzhuotl Blind Your Eye
-boons.unseen.description: 'Attack and defense at DR6 for {self_rounds, plural, one {# more round} other {# more rounds}}.'
+boons.unseen.description: 'Attack and defense at DR6 for {self_rounds, plural, one {# more round} other {# more rounds}}, or until you take damage.'
 companions.poltroon.auras.capering.name: "Poltroon's capering (+2)"
 actions.turn-boundary.name: Turn change
 actions.turn-boundary.params.ended.name: Whose turn ended
@@ -425,6 +425,10 @@ fields.daily.bible.name: Bible read today
 fields.daily.horn.name: Horn blown today
 fields.daily.stones.name: Stones silent until sunset
 situational.grace.name: 'Spend Grace for a Sinner'
+situational.grace.values.none.name: 'Not now'
+situational.grace.values.test.name: 'On this test'
+situational.grace.values.damage.name: 'On this damage'
+situational.poltroonAlly.name: "Poltroon's capering (+2)"
 situational.sinner.name: Against a revealed sinner (+2)
 situational.shieldSacrifice.name: Break the shield to ignore this hit
 types.scroll.state.summoned.name: Summoned
@@ -479,7 +483,7 @@ types.armor.block: >-
 types.shield.block: '**{name}** — *Shield* · −1 damage{has_price, select, true { · {price}s} other {}}'
 types.scroll.block: >-
   **{name}** — *{kind_name} scroll*{has_amount, select, true { · {amount} {amountKind_name}} other {}}
-  {has_targets, select, true {· {targets} targets } other {}}{has_duration, select, true {· {duration}{durationAddsPresence, select, true {{has_self_durationBonus, select, true { {self_durationBonus, number, ::sign-always}} other { + Presence}}} other {}} {durationUnit_name} } other {}}{has_resistDr, select, true {· Resist DR {resistDr} } other {}}{has_price, select, true {· {price}s} other {}}
+  {has_targets, select, true {· {targets} targets } other {}}{has_duration, select, true {· {duration}{durationAddsPresence, select, true {{has_self_durationBonus, select, true {{self_durationBonus, plural, =0 {} other { {self_durationBonus, number, ::sign-always}}}} other { + Presence}}} other {}} {durationUnit_name} } other {}}{has_resistDr, select, true {· Resist DR {resistDr} } other {}}{has_price, select, true {· {price}s} other {}}
 types.scroll.fields.kind.values.unclean.name: 'Unclean'
 types.scroll.fields.kind.values.sacred.name: 'Sacred'
 types.scroll.fields.amountKind.values.damage.name: 'damage'

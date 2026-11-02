@@ -1,16 +1,24 @@
 id: boons.grace
 type: boon
-# Grace for a Sinner's bonus, rolled when the scroll is read. The holder spends it on a run with
-# the situational choice `grace`: it adds to that run's tests and damage (not damage taken or harm
-# that isn't a hit), and the roll ends it.
+# Grace for a Sinner's bonus, rolled when the scroll is read: one roll of the holder's choice. The
+# situational choice `grace` says which: a test, or the run's damage roll (not damage taken or harm
+# that isn't a hit). That roll ends it.
 state:
   bonus: { type: integer, default: 1, min: 0 }
 effects:
-  - target: { rolls: [test, damage] }
+  - target: { rolls: [test] }
+    op: add
+    value: self.bonus
+    when: situational.grace == 'test'
+    scope: applied
+    then:
+      - { type: removeEffect, entry: self }
+  - target: { rolls: [damage] }
     op: add
     value: self.bonus
     when: >-
-      situational.grace && !('damage.taken' in roll.tags) && !('damage.direct' in roll.tags)
+      situational.grace == 'damage' && !('damage.taken' in roll.tags)
+        && !('damage.direct' in roll.tags)
     scope: applied
     then:
       - { type: removeEffect, entry: self }

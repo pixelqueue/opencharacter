@@ -82,12 +82,24 @@ followUps:
       params: { companion: '@companions.hamfund' }
 
 situational:
-  # Without the jester's own sheet, its aura can't reach the owner: the owner says so here.
+  # Where the jester's aura isn't on the character (no jester sheet, or an app without auras), the
+  # owner and its allies say so here instead.
   - id: poltroon
     type: boolean
     default: false
     rolls: [attack, defense]
-    available: companions.poltroon && !has(links.poltroon)
+    available: >-
+      companions.poltroon && (!has(links.poltroon) || links.poltroon.hp.current > 0)
+        && countList(character.applied, x.active && x.source == @companions.poltroon) == 0
+    effects:
+      - { target: { rolls: [attack, defense] }, op: add, value: 2 }
+  - id: poltroonAlly
+    type: boolean
+    default: false
+    rolls: [attack, defense]
+    available: >-
+      !companions.poltroon
+        && countList(character.applied, x.active && x.source == @companions.poltroon) == 0
     effects:
       - { target: { rolls: [attack, defense] }, op: add, value: 2 }
   - id: barbarister

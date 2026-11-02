@@ -1,0 +1,16 @@
+# Test: 9 + 1 + 6 (unseen) = 16, no grace: a success. Damage: 2 + 4 (grace) = 6; that roll ends
+# the grace.
+status: finished
+outcome:
+  result: success
+  data: { damage: 6, sepsis: false, skullSmashed: false }
+proposedChanges:
+  - to: self
+    step: damage
+    change: { type: removeEffect, id: grace }
+  - to: target
+    step: deal
+    change: { type: adjust, field: mork-borg-core:hp.current, by: -6, tags: [damage] }
+log:
+  - { step: check/check, kind: dice, faces: [9], total: 16, band: success }
+  - { step: damage, kind: dice, faces: [2], total: 6 }

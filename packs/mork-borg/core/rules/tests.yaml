@@ -1,8 +1,9 @@
 situational:
-  # Spends a held Grace for a Sinner (boons.grace) on this run's rolls.
+  # Spends a held Grace for a Sinner (boons.grace) on one roll of this run: its test or its damage.
   - id: grace
-    type: boolean
-    default: false
+    type: enum
+    values: [none, test, damage]
+    default: none
     rolls: [test, damage]
     available: 'countList(character.applied, x.active && x.source == @boons.grace) > 0'
   - id: omen
@@ -47,7 +48,8 @@ resultBands:
 
 actions:
   # The app runs it on every character at each turn change. An applied entry that lasts rounds
-  # (a `rounds` state) uses one up as its holder's turn starts, and ends with its last.
+  # (a `rounds` state) uses one up as its applier's turn starts, and ends with its last, so the
+  # holder keeps it through its own turns in between.
   - id: turn-boundary
     clock: turn-boundary
     params:
@@ -57,15 +59,17 @@ actions:
       - id: boundary
         kind: changes
         tags: [turn.boundary]
-        when: has(params.started) && params.started == character.id
+        when: has(params.started)
         to: self
         changes:
           - type: adjustState
-            applied: { where: has(self.rounds) && self.rounds > 1 }
+            applied:
+              where: has(self.rounds) && self.rounds > 1 && self.appliedBy == params.started
             key: rounds
             by: -1
           - type: removeEffect
-            applied: { where: has(self.rounds) && self.rounds <= 1 }
+            applied:
+              where: has(self.rounds) && self.rounds <= 1 && self.appliedBy == params.started
 
   - id: test
     tags: [test]

@@ -1,3 +1,18 @@
+# The proposed queries name the holder as applier: none of its entries match, so nothing changes.
 status: finished
-proposedChanges: []
+proposedChanges:
+  - to: self
+    step: boundary
+    change:
+      type: adjustState
+      key: rounds
+      applied:
+        where: has(self.rounds) && self.rounds > 1 && self.appliedBy == 'test'
+      by: -1
+  - to: self
+    step: boundary
+    change:
+      type: removeEffect
+      applied:
+        where: has(self.rounds) && self.rounds <= 1 && self.appliedBy == 'test'
 log: []

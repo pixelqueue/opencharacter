@@ -1,5 +1,5 @@
-# The holder's turn starts: entries with rounds left lose one (unseen, 2), those on their last
-# round end (fading, 1). Each receiving sheet resolves the queries.
+# The reader's (hermit-1's) turn starts: its entries with rounds left lose one (unseen, 2), those on
+# their last round end (fading, 1). Each receiving sheet resolves the queries.
 status: finished
 proposedChanges:
   - to: self
@@ -7,11 +7,13 @@ proposedChanges:
     change:
       type: adjustState
       key: rounds
-      applied: { where: has(self.rounds) && self.rounds > 1 }
+      applied:
+        where: has(self.rounds) && self.rounds > 1 && self.appliedBy == 'hermit-1'
       by: -1
   - to: self
     step: boundary
     change:
       type: removeEffect
-      applied: { where: has(self.rounds) && self.rounds <= 1 }
+      applied:
+        where: has(self.rounds) && self.rounds <= 1 && self.appliedBy == 'hermit-1'
 log: []

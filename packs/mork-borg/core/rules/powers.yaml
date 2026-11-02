@@ -36,9 +36,9 @@ actions:
   - id: use-power
     tags: [power]
     available: powers.current > 0 && powers.blocked == 0
-    # Whom a scroll's boon goes to (the reader names itself to take it).
+    # The one creature a scroll's boon goes to (the reader names itself to take it).
     participants:
-      target: {}
+      target: { max: 1 }
     results: { bands: test }
     steps:
       - id: spend

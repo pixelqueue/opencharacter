@@ -1,9 +1,17 @@
 id: boons.unseen
 type: boon
 # Metzhuotl Blind Your Eye: attack and defense at DR6 (+6 on the roll) for the rounds rolled when
-# the scroll is read; the turn change counts them down (rules/tests.yaml).
+# the scroll is read, counted on the reader's turns (rules/tests.yaml), or until the holder takes
+# damage.
 state:
   rounds: { type: integer, default: 1, min: 0 }
 effects:
   # Read twice, it still counts once.
   - { target: { rolls: [attack, defense] }, op: add, value: 6, scope: applied, stackKey: source }
+  - target: { incoming: { fields: [hp.current], tags: [damage] } }
+    op: add
+    value: 0
+    when: incoming.amount < 0
+    scope: applied
+    then:
+      - { type: removeEffect, entry: self }
