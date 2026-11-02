@@ -1,2 +1,14 @@
 id: complications.following-in-the-footsteps
 type: complication
+choices:
+  # The idol's technique: a heroic ability of the hero's class above their level. It isn't
+  # known yet, so the pick grants nothing; its later cost reduction is the table's.
+  - id: technique
+    from:
+      type: ability
+      where: item.kind == 'heroic' && has(item.class)
+    eligible: item.level > level && countCopies(copy.item == item.class) > 0
+    # None above 9th level.
+    pick: { min: 'level < 9 ? 1 : 0', max: 1 }
+    recommend: options[0]
+    activate: false
