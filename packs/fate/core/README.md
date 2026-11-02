@@ -12,7 +12,7 @@ stunts, stress and consequences, recovery, milestones, contests, extras, and NPC
 pnpm add @opencharacter/fate-core @opencharacter/engine
 ```
 
-This release needs spec 0.3: `@opencharacter/engine` 0.3.0 or later. An engine for an older
+This release needs spec 0.4: `@opencharacter/engine` 0.4.0 or later. An engine for an older
 spec refuses it (`spec-version-unsupported`).
 
 The package's default export is the pack's release, ready for `loadRuleset`; its English text is
@@ -267,33 +267,6 @@ A pack that depends on `fate-core` (a setting pack) adds to it without changing 
   `types.stunt.fields.limit.values.day.name: Once per day`, which `createText` finds when the
   app passes the ruleset's `enumOrigins`.
 
-## Text only, and left to the app
-
-- **Text only:** aspects, situation aspects and what a boost says are the player's words; which
-  aspect each invocation is on, and that each is invoked once per roll; a swap stunt's skill
-  substitution (the rolls take any skill); Demonbane's and X-Ray Vision's narrative powers; a
-  custom extra's Weapon or Armor rating (the attack's `weapon` and worn armor carry it).
-- **Left to the app and the table:** opposition and difficulties; who takes part (targets,
-  opponents, helpers, the patient, who benefits from a failed advantage); when conflicts, scenes,
-  sessions and scenarios end; zones and whose turn it is; the order of rolls in an exchange (to
-  invoke after seeing the defense, the app runs the defender's `defend` first and passes its
-  total as `opposition`); and a Killing Stroke on a severe consequence (`strokeSecond`), whose
-  second consequence the SRD leaves open.
-
-## Out of scope
-
-- The GM's tools (game creation, issues, scenarios), and character death beyond being taken out.
-- A GM fate point pool. The SRD's compel and invocation rules pay from and into "the GM's
-  infinite pool", so there's no finite pool to keep on a shared sheet; a pool by the table's
-  own rule would be a variant.
-- **Fate Accelerated, Fate Condensed and the Fate System Toolkit:** each would be its own pack.
-
-## Sources
-
-The Fate Core System SRD at fate-srd.com (Characters, Aspects and Fate Points, Skills and Stunts,
-Actions and Outcomes, Challenges, Contests and Conflicts, The Long Game, Extras), checked against
-the SRD's Markdown text (github.com/fate-srd/fate-srd-content).
-
 ## Rule readings
 
 Where the SRD leaves a rule open, the pack reads it this way:
@@ -315,3 +288,28 @@ Where the SRD leaves a rule open, the pack reads it this way:
   free slot; Riposte's hit is physical; Super-Speed's +2 in contests of pure speed is to
   Athletics.
 - **Supporting NPCs** aren't held to the skill columns: the SRD's own examples break them.
+
+## Limitations
+
+- **Text only:** aspects, situation aspects and what a boost says are the player's words; which
+  aspect each invocation is on, and that each is invoked once per roll; a swap stunt's skill
+  substitution (the rolls take any skill); Demonbane's and X-Ray Vision's narrative powers; a
+  custom extra's Weapon or Armor rating (the attack's `weapon` and worn armor carry it).
+- **Left to the app and the table:** opposition and difficulties; who takes part (targets,
+  opponents, helpers, the patient, who benefits from a failed advantage); when conflicts, scenes,
+  sessions and scenarios end; zones and whose turn it is; the order of rolls in an exchange (to
+  invoke after seeing the defense, the app runs the defender's `defend` first and passes its
+  total as `opposition`); and a Killing Stroke on a severe consequence (`strokeSecond`), whose
+  second consequence the SRD leaves open.
+- **Out of scope:**
+  - The GM's tools (game creation, issues, scenarios), and character death beyond being taken out.
+  - A GM fate point pool. The SRD's compel and invocation rules pay from and into "the GM's
+    infinite pool", so there's no finite pool to keep on a shared sheet; a pool by the table's
+    own rule would be a variant.
+  - **Fate Accelerated, Fate Condensed and the Fate System Toolkit:** each would be its own pack.
+
+## Sources
+
+The Fate Core System SRD at fate-srd.com (Characters, Aspects and Fate Points, Skills and Stunts,
+Actions and Outcomes, Challenges, Contests and Conflicts, The Long Game, Extras), checked against
+the SRD's Markdown text (github.com/fate-srd/fate-srd-content).
