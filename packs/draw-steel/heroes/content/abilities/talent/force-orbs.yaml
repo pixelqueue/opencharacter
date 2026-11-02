@@ -35,7 +35,7 @@ effects:
           when: (combat.active && heroic.current - item.cost - params.spend - flags.extra < 0) || (has(params.talentStrain) && params.talentStrain)
           source: "'conditions.weakened'"
           state: { duration: "'until'" }
-  - { target: immunity.all, op: add, value: talent.forceOrbs }
+  - { target: immunity.all, op: atLeast, value: talent.forceOrbs }
   - target: { steps: [combat.end] }
     op: changes
     value: { changes: [{ type: set, field: talent.forceOrbs, value: 0 }] }

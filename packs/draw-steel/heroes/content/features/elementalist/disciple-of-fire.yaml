@@ -5,7 +5,7 @@ fields:
   subclass: subclasses.elementalist.fire
   level: 2
 effects:
-  - { target: immunity.fire, op: add, value: 5 + level }
+  - { target: immunity.fire, op: atLeast, value: 5 + level }
   # Surges equal to Victories at the start of combat (after the core sets them to 0).
   - target: { steps: [combat.start] }
     op: changes
