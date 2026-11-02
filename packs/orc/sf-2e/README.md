@@ -199,7 +199,10 @@ fixed sets.
 - **Ancestries:** android, barathu, human, kasatha, lashunta, pahtra, shirren, skittermander,
   vesk and ysoki, with their Hit Points, size, Speed, boosts and flaws, languages, senses and
   heritages; borai and prismeni are versatile heritages. Ancestry feats' numbers (unarmed attacks,
-  resistances, Speeds, senses, skill trainings, granted feats) are effects.
+  resistances, Speeds, senses, skill trainings, granted feats) are effects. Natural Grace,
+  Center Thoughts (the better result stands) and the chosen pahtra's once-a-day rerolls are
+  options after a failed check (`check.reroll`, beside the Hero Point's), marking the pick used
+  until daily preparations.
 - **Backgrounds:** boosts, two trainings (a skill and a Lore) and a skill feat.
 - **Classes:**
   - **Envoy:** directives (Get 'Em and the others, with Lead by Example; a new Get 'Em ends the

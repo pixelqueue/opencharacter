@@ -1,0 +1,15 @@
+# Will +13: 12 + 13 = 25 fails DC 27; the reroll, 2 + 13 = 15, a critical failure, is worse, so
+# the first result stands.
+status: finished
+outcome:
+  result: failure
+  data: { total: 25, dc: 27, natural: 12 }
+proposedChanges:
+  - to: self
+    step: reroll
+    change:
+      type: setState
+      key: used
+      path: { choice: [ancestry-feat-1] }
+      option: orc-sf-2e:feats.ancestry.center-thoughts
+      value: true
