@@ -31,6 +31,50 @@ contentTypes:
         default: 'has(item.magazine) ? item.magazine : 0'
         min: 0
         max: 'has(item.magazine) ? item.magazine : 0'
+    # The weapon's numbers as an attack with it starts: the better attribute, single fire, not
+    # thrown, before situational modifiers.
+    computed:
+      attributeMod:
+        type: integer
+        formula: >-
+          item.attribute == 'none' ? 0
+            : item.attribute == 'str-dex' ? max(attributes.str.mod, attributes.dex.mod)
+            : fieldOf('attributes.{attribute}.mod', item.attribute)
+      ranged: { type: boolean, formula: "has(item.rangeNormal) && !('melee' in item.tags)" }
+      skillDamage:
+        type: integer
+        formula: >-
+          'unarmed' in item.tags ? 0
+            : 'thrown' in item.tags ? max(combat.meleeSkillDamage, combat.rangedSkillDamage)
+            : self.ranged ? combat.rangedSkillDamage : combat.meleeSkillDamage
+      # The combat skill: a throwable's best of Shoot, Stab and Exert.
+      skillLevel:
+        type: integer
+        formula: >-
+          'thrown' in item.tags ? max(skills.shoot.level, skills.stab.level, skills.exert.level)
+            : fieldOf('skills.{skill}.level', item.skill)
+      # Attack bonus, attribute, combat skill (-2 untrained) and the weapon's and Armsmaster's
+      # bonuses.
+      hit:
+        type: integer
+        formula: >-
+          combat.attackBonus + self.attributeMod + item.attackBonus
+            + (self.skillLevel >= 0 ? self.skillLevel : -2)
+            + (!('unarmed' in item.tags) && (!self.ranged || 'thrown' in item.tags)
+              ? combat.meleeHitBonus : 0)
+      # Added to the damage die.
+      damage:
+        type: integer
+        formula: >-
+          self.attributeMod + item.damageBonus + self.skillDamage + combat.damageBonus
+            + ('unarmed' in item.tags ? max(0, skills.punch.level) : 0)
+      shock:
+        type: integer
+        formula: >-
+          has(item.shockDamage) && item.shockDamage > 0 && !self.ranged
+            ? max(0, item.shockDamage + self.attributeMod + item.shockBonus + combat.shockBonus
+              + combat.damageBonus + self.skillDamage)
+            : 0
     effects:
       # What a weapon offers on each attack: the better of Strength and Dexterity unless the
       # player picks, throwing a melee weapon with a range, and burst fire.

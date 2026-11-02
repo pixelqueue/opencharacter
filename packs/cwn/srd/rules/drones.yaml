@@ -19,6 +19,9 @@ contentTypes:
       hp: { type: integer, default: item.hp, min: 0, max: item.hp }
       # Bought with a Drone Pilot's gear budget.
       focusGear: { type: boolean, default: false }
+    computed:
+      # The pilot's attack bonus with the drone's guns.
+      attackBonus: { type: integer, formula: drones.attackBonus }
 
 fields:
   # A pilot's attack bonus with a drone's guns: their attack bonus, Int or Dex, and the better of

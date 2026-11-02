@@ -96,7 +96,9 @@ the player's choices and other characters.
   that ablates per fight, and an attack action with the skill (-2 untrained), Shock on a miss,
   the Trauma Die and Traumatic Hits, Killing Blow, Armsmaster and Deadeye. Each weapon adds the
   parameters it uses: the attribute for a Str/Dex weapon, throwing for a melee weapon with a
-  range, burst fire for a burst weapon. Weapons track their magazines.
+  range, burst fire for a burst weapon. Weapons track their magazines, and each weapon copy
+  computes its hit bonus, damage bonus and Shock as an attack with it starts (`hit`, `damage`,
+  `shock`), which its block shows; a drone copy its pilot's attack bonus.
 - **Gear:** every weapon, armor, accessory, mod, mission gear, pharmaceutical, cyberdeck,
   program element, drone, drone fitting, vehicle, vehicle fitting and mod in the document.
   Mods, fittings and armor accessories are templates on their item; fittings use a drone's
