@@ -192,7 +192,7 @@ effects:
     tags:
       [{ formula: "roll.item.damageType == 'untyped' ? [] : ['damage.' + roll.item.damageType]" }]
   # What each target brings to the power roll, on its own tier (`power-target`): an edge against
-  # a prone target (melee), a restrained one, one frightened of the user or one a tactician
+  # a prone target (melee), a restrained one, one frightened of the user or one the user
   # marked; a bane when the user is grabbed or frightened by someone else than the target, a
   # double bane when taunted by someone else.
   - id: target-prone
@@ -214,7 +214,7 @@ effects:
     target: { rolls: [power-target], tally: edges }
     op: add
     value: 1
-    when: size(participant.tactician.markedBy) > 0
+    when: character.id in participant.tactician.markedBy
   - id: user-grabbed
     target: { rolls: [power-target], tally: banes }
     op: add

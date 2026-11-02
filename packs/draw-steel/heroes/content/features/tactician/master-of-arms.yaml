@@ -3,3 +3,23 @@ type: feature
 fields:
   class: classes.tactician
   level: 6
+# A kit's signature ability or a weapon free strike: one bane fewer (a double bane is a bane), on
+# each target's tier, or on the roll when there is no target.
+effects:
+  - target: { rolls: [power-target], tally: banes }
+    op: add
+    value: -1
+    when: >-
+      action.item.kind == 'kit' || (action.item.kind == 'free-strike' && 'kw.weapon' in action.item.tags)
+  - target: { rolls: [power-target], tally: banes }
+    op: atLeast
+    value: 0
+  - target: { rolls: [power-roll.ability], tally: banes }
+    op: add
+    value: -1
+    when: >-
+      size(participants.target) == 0 && (action.item.kind == 'kit'
+        || (action.item.kind == 'free-strike' && 'kw.weapon' in action.item.tags))
+  - target: { rolls: [power-roll.ability], tally: banes }
+    op: atLeast
+    value: 0

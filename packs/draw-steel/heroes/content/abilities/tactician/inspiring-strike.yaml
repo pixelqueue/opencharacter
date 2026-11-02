@@ -1,4 +1,4 @@
-# On a tier 3 outcome you spend a Recovery (on tiers 1 and 2, you or an ally can).
+# You can spend a Recovery (on tier 3, you and an ally can); the edges on tier 3 are the table's.
 id: abilities.tactician.inspiring-strike
 type: ability
 tags:
@@ -23,12 +23,8 @@ fields:
   t2Damage: 5
   t3Damage: 8
 effects:
-  - target: { steps: [ability.hit], from: self }
+  # You can spend a Recovery (an ally's is theirs to take).
+  - target: { steps: [ability.after], from: self }
     op: changes
-    when: >-
-      flags.tier == 3 && recoveries.current > 0 && participant.id == participants.target[0].id
-    value:
-      to: self
-      changes:
-        - { type: adjust, field: recoveries.spent, by: 1 }
-        - { type: adjust, field: stamina.current, by: recoveries.value, tags: [healing] }
+    when: has(steps.roll) && size(participants.target) > 0 && recoveries.current > 0 && stamina.current < stamina.max
+    value: { changes: [{ type: offerFollowUp, followUp: spend-recovery }] }
