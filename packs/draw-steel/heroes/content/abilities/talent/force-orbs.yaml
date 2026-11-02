@@ -13,6 +13,13 @@ fields:
   resource: clarity
   cost: 7
   distanceKind: self
+  # An orb's damage when fired (the card's).
+  t1Damage: 2
+  t1AddsChar: false
+  t2Damage: 3
+  t2AddsChar: false
+  t3Damage: 5
+  t3AddsChar: false
 # Using it makes the orbs (`talent.forceOrbs`, each damage immunity 1); the power roll is the
 # orb fired as a free maneuver, the item's `fire-orb` action.
 effects:
@@ -57,7 +64,7 @@ actions:
         kind: roll
         tags: [damage]
         parts:
-          - value: '[2, 3, 5][steps.roll.bandValue - 1]'
+          - value: '[self.damage1, self.damage2, self.damage3][steps.roll.bandValue - 1]'
       - id: hit
         kind: changes
         each: target

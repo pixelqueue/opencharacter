@@ -6,4 +6,6 @@ fields:
   usage: maneuver
   kind: common
 actions:
+  # A dying hero can't catch their breath in combat.
   - use: spend-recovery
+    available: '!(combat.active && stamina.dying)'
