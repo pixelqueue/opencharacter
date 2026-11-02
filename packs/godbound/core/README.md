@@ -117,7 +117,8 @@ computeSheet(ruleset, made.character).values['godbound-core:effort.max']?.value;
   - Defy the Iron is the `defyTheIron` situational choice, selected on the damage it negates:
     the attack's or injury's batch takes none, and a point of Effort is committed for the scene.
     Whether the harm is physical (not mental, spiritual or a Spirit save's) is the player's
-    call. An artifact's Defy the Iron spends the artifact's Effort, so it stays with
+    call, and against ongoing peril it negates only one round's worth of damage: each round's
+    damage is its own batch. An artifact's Defy the Iron spends the artifact's Effort, so it stays with
     `invoke-gift`.
   - Gift points: six, plus two per level. A lesser gift of a bound Word costs 1, a greater 2, a
     lesser gift of another Word 2 (1 once that Word is bound), a universal gift 1 (Effort of the

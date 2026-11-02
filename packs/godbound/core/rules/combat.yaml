@@ -76,6 +76,7 @@ situational:
     default: false
     incoming: { fields: [hp.current], tags: [damage] }
     scope: batch
+    # The hero's own gift: an artifact's grant isn't a copy, and spends the artifact's Effort.
     available: countCopies(copy.item == @gifts.endurance.defy-the-iron) > 0 && effort.free > 0
     effects:
       - target: { incoming: { fields: [hp.current], tags: [damage] } }
