@@ -1,3 +1,10 @@
+# Base Armor Class from armor, dermal plating and Skin of Steel doesn't stack: one source sets
+# both Ranged and Melee AC, the best pair together recommended.
+settings:
+  stacking:
+    keys:
+      base-ac: { policy: playerChooses, spansFields: true }
+
 contentTypes:
   # Armor must be Readied (`equipped`) to protect. Clothing and suits set the base Armor Classes;
   # a shield adds to them. Damage Soak ablates in a fight: the copy counts what it has absorbed.
@@ -22,11 +29,13 @@ contentTypes:
       - id: ranged-ac
         target: ac.ranged.base
         op: set
+        stackKey: base-ac
         value: item.rangedAc
         when: self.equipped && item.kind != 'shield'
       - id: melee-ac
         target: ac.melee.base
         op: set
+        stackKey: base-ac
         value: item.meleeAc
         when: self.equipped && item.kind != 'shield'
       - id: shield-ranged

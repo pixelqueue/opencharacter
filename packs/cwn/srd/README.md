@@ -177,4 +177,6 @@ cyberware `concealment`, a spell's `effort`, vehicle `size`, and the attributes.
 - **Physical skills** for skillplugs: Drive, Exert, Perform, Punch, Shoot, Sneak and Stab.
 - **Pushing encumbrance:** up to two Readied and four Stowed past the limits is Move 7 m, twice
   that is Move 5 m, and more is past the limits.
-- **Dermal plating and armor** don't stack: the higher base AC applies.
+- **Dermal plating, Skin of Steel and armor** don't stack: one source sets both base Armor
+  Classes (the `base-ac` key spans the two fields), and the player picks it, the best Ranged and
+  Melee AC together recommended.
