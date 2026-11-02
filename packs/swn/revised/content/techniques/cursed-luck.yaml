@@ -18,6 +18,15 @@ effects:
     scope: applied
   # Attackers read it from the target's sheet.
   - { target: psionics.cursedLuck, op: set, value: true, scope: applied }
+  # The curse lasts the scene its Effort is Committed for: when the psychic's scene ends, it ends
+  # on whoever holds it.
+  - target: { steps: [rest.scene, rest.night] }
+    op: changes
+    value:
+      to: applied
+      changes:
+        - type: removeEffect
+          applied: { where: 'item.id == @techniques.cursed-luck' }
 actions:
   # A Main Action and Effort Committed for the scene curse a visible target.
   - id: curse

@@ -114,7 +114,9 @@ sheet.values['swn-revised:saves.physical']?.value; // 15 less the better of Str 
   rolls the torching table for a free point. Cursed Luck's `curse` commits Effort for the scene
   and applies the technique to its target: their attacks, damage, checks and saves roll twice
   and keep the worse, attacks and damage against them roll twice and keep the better, and their
-  `throw-off` makes the Mental save that ends it.
+  `throw-off` makes the Mental save that ends it. The psychic's `end-scene` and `rest` end it
+  too, on whoever holds it (a removal `to: applied`, which the app applies to the characters the
+  psychic cursed).
 - **Advancement:** the experience table (a `level-up` follow-up to 10th level; later levels are
   the GM's call). `level-up` rolls the hit dice, grants three skill points (one psychic for a
   psychic, plus the Expert's), and a focus level at 2nd, 5th, 7th and 10th. `raise-skill`,
