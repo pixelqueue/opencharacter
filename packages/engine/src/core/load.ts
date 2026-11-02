@@ -23,6 +23,7 @@ import type {
   Query,
   Role,
   Step,
+  StepAction,
   StepChanges,
   ValueDecl,
 } from './pack-types.ts';
@@ -686,6 +687,14 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
           out.value = {
             ...v,
             changes: q.changes(v.changes ?? [], pack, v.to),
+            ...q.to(v.to, pack),
+          };
+        } else if (effect.op === 'action' && effect.value && typeof effect.value === 'object') {
+          const v = effect.value as StepAction;
+          out.value = {
+            ...v,
+            use: q.actionId(v.use, pack),
+            ...(v.changes ? { changes: q.changes(v.changes, pack, v.to) } : {}),
             ...q.to(v.to, pack),
           };
         }

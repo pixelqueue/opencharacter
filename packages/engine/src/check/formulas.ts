@@ -31,6 +31,7 @@ import type {
   InlineOption,
   KeptTemplate,
   OptionValue,
+  StepAction,
   StepChanges,
   ProposedChange,
   Query,
@@ -67,6 +68,7 @@ import {
   BATCH,
   FIELD_ITEM,
   PARTICIPANT_LIST,
+  RUN,
   PENDING_CHOICE,
   OWN_CHOICE,
   formulaTree,
@@ -775,6 +777,18 @@ class FormulaChecker<L> {
       for (const [name, formula] of Object.entries(value.flags ?? {}))
         this.optionFlag(tags, 'changes', name, formula, at, label);
       for (const change of value.changes ?? []) this.proposedChange(change, at, label);
+    } else if (effect.op === 'action') {
+      // The run's parameters and participants see the effect's context; its changes the run too.
+      const value = effect.value as StepAction;
+      for (const formula of Object.values(value.params ?? {}))
+        this.formula(formula, at, label, ANY, true);
+      for (const formula of Object.values(value.participants ?? {}))
+        this.formula(formula, at, label, PARTICIPANT_LIST);
+      this.typed({ run: RUN }, () =>
+        this.withRoots(['run'], () => {
+          for (const change of value.changes ?? []) this.proposedChange(change, at, label);
+        }),
+      );
     } else if (effect.op === 'params') {
       // Bounds see the effect's roots, as its `when`, and the action's `params`; a `where` sees
       // what an action's own does.

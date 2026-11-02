@@ -89,6 +89,9 @@ while ('status' in cast && cast.status === 'paused' && cast.needs.kind === 'hand
 - **The participant's own changes are yours to apply.** The outer action only sees the
   outcome; whatever the saving throw proposes belongs to the goblin.
 - **The log records each answer** (`kind: 'handoff'`), so a paused action replays exactly.
+- **Content can add handoffs to an action**: a feature's `action` effect can hand off its own
+  save on a hit. Its `needs.step` is the hit step's path, then the content and the effect's ID
+  (`deal/<feature id>#stun[0]`); answer it like any other.
 - **A handoff may name other characters for the run**: `needs.run.participants` lists IDs by
   role, the running character's own `id` included. Pass their views as the run's
   `participants`, as you would to any action. A Fate attack names the attacker this way, so the

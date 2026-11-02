@@ -1447,10 +1447,11 @@ export type Effect = {
     | 'rollModifier'
     | 'option'
     | 'changes'
+    | 'action'
     | 'params';
-  /** A formula for add/set/multiply/atLeast/atMost (on rolls and on incoming changes, `add` accepts dice: `1d4`; on rolls, `atLeast` and `atMost` take an integer and bound the roll's total after the dice); a grant value object for grant; a roll modifier for rollModifier; an option for option; changes for a tagged changes step for changes; parameter declarations for params. On a roll's parts, `set` takes a formula (dice or a number) that replaces each matching part. */
+  /** A formula for add/set/multiply/atLeast/atMost (on rolls and on incoming changes, `add` accepts dice: `1d4`; on rolls, `atLeast` and `atMost` take an integer and bound the roll's total after the dice); a grant value object for grant; a roll modifier for rollModifier; an option for option; changes for a tagged changes step for changes; a nested action run for action; parameter declarations for params. On a roll's parts, `set` takes a formula (dice or a number) that replaces each matching part. */
   value?: unknown;
-  /** Condition for the effect to be active. `self` is the character's copy of the item carrying it. For `option`, the added option is offered only while this holds; it also sees the action context and `action`. For `changes`, the changes are added only while this holds, with the same context and `participant` in an `each` step. On an incoming target, it also sees `incoming`. */
+  /** Condition for the effect to be active. `self` is the character's copy of the item carrying it. For `option`, the added option is offered only while this holds; it also sees the action context and `action`. For `changes`, the changes are added only while this holds, with the same context and `participant` in an `each` step. For `action`, the action runs only while this holds, evaluated per participant (with `participant` bound) when it runs per participant. On an incoming target, it also sees `incoming`. */
   when?: Condition;
   /** Effects sharing a stack key on the same target are combined by the game's stacking policy for that key. The reserved value `source` means the content item the effect comes from (5E: two Blesses don't stack). Any other value is a literal key (orc-2e: `item`, `status`, `circumstance`). On a choice step, `option` effects sharing a key add only the first of them, in instance order, whatever the stacking policy. */
   stackKey?: string;
@@ -1505,7 +1506,7 @@ export type ActionTarget = {
   from?: 'self' | 'any';
 };
 
-/** Changes steps of actions as they run, by tag. Only op `changes`. */
+/** Changes steps of actions as they run, by tag. Only ops `changes` and `action`. */
 export type StepTarget = {
   /** Changes step tags; the effect adds its changes to a step carrying any of them (a tag matches itself and every tag below it; tags an `action` step adds count). */
   steps: Tags;
@@ -1521,6 +1522,26 @@ export type StepChanges = {
   order?: 'before' | 'after';
   changes?: ProposedChange[];
   /** Who the changes are for, as a `changes` step's `to`. Default: the step's `to`. */
+  to?: Destination;
+};
+
+/** What an `action` effect runs at a tagged changes step each time the step runs while the effect's `when` holds: the action `use` names, as an `action` step runs it, after the step's own changes and those `changes` effects add, then the value's own `changes`, which see that run's outcome as `run` (`run.result`, `run.data`). Each effect runs its own action, so two features add two saving throws at their own DCs. Its ID is `<content id>#<id>` (`<pack>:rules#<id>` for the rules' effects); the run's path is `<step path>/<that ID>`, with `[<i>]` per participant. In its `when`, `params`, `participants` and `changes`, `item` and `self` are the content carrying the effect, the action's own are `action.item`, `action.self` and `action.step`, and the action's `params`, `situational`, `steps`, `flags`, `participants` (and `participant` when it runs per participant) are bound. */
+export type StepAction = {
+  /** Names the run: its path and log entries are under `<step path>/<content id>#<id>`. Of the effects reaching one step with one ID, only the first runs. */
+  id: Slug;
+  /** The rules action to run (a local ID resolves in the effect's pack). It runs with the running action's entry, source and situational choices, as an `action` step without `source` or `entry` would. */
+  use: Ref;
+  /** Formulas for the used action's parameters, evaluated in the effect's context. One giving `null` leaves the parameter out, as on an `action` step. */
+  params?: Record<string, Formula>;
+  /** Participants passed on to the used action's roles, as an `action` step's `participants`. Without it, the nested action has no participants. */
+  participants?: Record<string, Formula>;
+  /** Run once per participant of this role of the running action, in input order, with `participant` bound and the effect's `when` evaluated per participant. A role the action doesn't declare, or one with no participants, runs nothing. In an `each` step it must name the step's role (or be left out): the run is for the step's current participant; another role fails the action with `unknown-role`. */
+  each?: Name;
+  /** `participant`: hand the run off to the current participant (of `each`, or of the `each` step it runs in), as an `action` step's `as: participant`. Without a current participant the action fails with `unknown-role`. */
+  as?: 'participant';
+  /** Proposed after the run, as a `changes` step's, at the step's path, with the run's outcome as `run`: `run.result` (absent when the action finished without one) and `run.data`. */
+  changes?: ProposedChange[];
+  /** Who the changes are for, as a `changes` step's `to`. Default: the step's `to`. Per participant, a role's changes go to the current participant only. */
   to?: Destination;
 };
 

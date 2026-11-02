@@ -1,0 +1,41 @@
+# Both targets take 4. Stunning Strike hands off a DC 13 Constitution save to each target, the
+# orc saves and the ogre is stunned; Cunning Strike then hands off its DC 15 Dexterity save to
+# the first target only, who fails and falls prone.
+status: finished
+outcome: {}
+proposedChanges:
+  - to: target
+    character: orc
+    step: hit
+    change: { type: adjust, field: test-pack:hp, by: -4 }
+  - to: target
+    character: ogre
+    step: hit
+    change: { type: adjust, field: test-pack:hp, by: -4 }
+  - to: target
+    character: ogre
+    step: hit
+    change: { type: applyEffect, source: test-pack:stunned, appliedBy: hero }
+  - to: target
+    character: orc
+    step: hit
+    change: { type: applyEffect, source: test-pack:prone, appliedBy: hero }
+log:
+  - step: hit/test-pack:stunning-strike#stun[0]
+    action: test-pack:attack
+    kind: handoff
+    by: app
+    participant: { role: target, id: orc }
+    outcome: { result: success }
+  - step: hit/test-pack:stunning-strike#stun[1]
+    action: test-pack:attack
+    kind: handoff
+    by: app
+    participant: { role: target, id: ogre }
+    outcome: { result: failure }
+  - step: hit/test-pack:cunning-strike#trip[0]
+    action: test-pack:attack
+    kind: handoff
+    by: app
+    participant: { role: target, id: orc }
+    outcome: { result: failure, data: { total: 9 } }

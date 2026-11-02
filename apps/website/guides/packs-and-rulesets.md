@@ -149,8 +149,9 @@ monster starts) offer it beside the core's own:
   Added inline options and values are named in the add-on's text under the core's key; pass
   `ruleset.optionOrigins` to `createText` too.
 
-- **Action steps.** The add-on's rules' `option` and `changes` effects reach the core's tagged
-  choice and changes steps (an extra option in a creation step), its options named
+- **Action steps.** The add-on's rules' `option`, `changes` and `action` effects reach the core's
+  tagged choice and changes steps (an extra option in a creation step, a saving throw on a hit),
+  its options named
   `rules.options.<id>.name`; its `params` effects add parameters to the core's tagged actions,
   named `rules.params.<name>.name`. Tag targets reach only packs that share a pack declaring
   the tag with the effect's: an add-on and its core reach each other's tagged actions, rolls and

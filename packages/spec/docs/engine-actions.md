@@ -106,7 +106,8 @@ The **context** of a formula in an action:
 - `situational`;
 - `participants.<role>`, and in an `each` step `participant`;
 - `steps.<id>`: results of earlier steps;
-- `flags.<name>`: set by branches and by picked choice options.
+- `flags.<name>`: set by branches and by picked choice options;
+- `run`: in an `action` effect's changes, the outcome of the action it ran ([Other steps](#other-steps)).
 
 Fields, `character`, `item` and `self` are read from the step's sheet: the character as given,
 or the proposed sheet (below).
@@ -540,8 +541,8 @@ it in a flag before the roll.
     `{ formula }` for applyChanges to evaluate with `item` the source's item, the receiving
     character's fields and `batch` ([engine-core.md](engine-core.md#what-the-batch-did));
   - a formula passed on (`copies.where`, `applied.where`, a `by` or `value` that reads `self`, `item` or `batch`, and an `applyEffect` state value that reads `batch`) may
-    read fields, `self`, `item` and `character`, and also `steps`, `flags`, `params` and
-    `action`. Those four are substituted now: each
+    read fields, `self`, `item` and `character`, and also `steps`, `flags`, `params`,
+    `action` and (in an `action` effect's changes) `run`. Those are substituted now: each
     maximal name or member path rooted at one of them (index expressions inside the path included) is evaluated in the
     action and replaced by its value as a literal, and `has(<such path>)` by `true` or `false`.
     The tree is then printed back with the standard printer: strings quoted, lists as list
@@ -609,7 +610,7 @@ it in a flag before the roll.
 
 - **Changes content adds**: a changes step's `tags` (computed entries
   evaluated when it runs, with the tags `action` steps running the action add after them, as for
-  roll and choice steps) are matched by content's `changes` effects
+  roll and choice steps) are matched by content's `changes` and `action` effects
   (`target: { steps: [<tag>], from? }`, [effects.md](effects.md#targets)). The step runs in this
   order:
   1. Its `release`, if any.
@@ -625,6 +626,20 @@ it in a flag before the roll.
   3. The changes of those with `order: before`, in instance order.
   4. The step's own `changes`, their `when`s seeing the flags step 2 set.
   5. The changes of the others (`order: after`, the default), in instance order.
+  6. Each active `action` effect matching as in 2 (the first of those sharing an ID
+     `<content id>#<id>`), in instance order. Per run (per participant of its `each`; in an
+     `each` step, the current participant's; else once), when its `when` holds (`participant`
+     bound per participant), it runs `use` as an `action` step with `params` and `participants`
+     evaluated in the effect's context, at `<step path>/<content id>#<id>`, `[<i>]` added per
+     participant of its `each` (`hit/5e-srd-5.2:features.monk.stunning-strike#stun[0]`). Without
+     `as` it runs on the actor with the action's own entry, source and situational choices, its
+     log entries and proposed changes nested under that path; with `as: participant` it is a
+     [handoff](#handoffs) at that path, to the current participant (none is `unknown-role`, data:
+     `step`, the effect's ID, and `pack`; so is an `each` naming a role other than the `each`
+     step's). Then the value's `changes` are resolved as an instance's in 5, at the step's path,
+     with the run's outcome as `run`: `{ result?, data }`, as an `action` step's result. The run
+     is no step of the action: `steps` doesn't hold it. A used action whose own steps the effect
+     reaches again runs it again, up to `maxActionDepth`.
 
   Each instance's changes go `to` its value's `to`, else the step's. Its formulas see what
   an added option's see: `item` and `self` the content carrying the effect (`entry: self` its
@@ -763,7 +778,9 @@ participant as the case's steps' are.
 ## Handoffs
 
 An `action` step with `each: <role>` and `as: participant` is **handed off**: the
-participant runs the used action on its own character, and the engine doesn't run it.
+participant runs the used action on its own character, and the engine doesn't run it. So is an
+`action` effect's run with `as: participant` ([Other steps](#other-steps)), the same way, at its
+own path, its outcome its changes' `run`.
 
 1. Its `params` are evaluated in the actor's context. The used action (`use`, qualified at
    load) must exist in the ruleset (`unknown-action`), and types them: a missing required one

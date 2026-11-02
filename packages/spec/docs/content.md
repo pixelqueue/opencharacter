@@ -1465,8 +1465,8 @@ classes.warden.choices.knack.options.hexing.name: Hexing
 - **Releases.** Dropping an addition is an interface change (`extension-removed`), see
   [upgrades.md](upgrades.md#a-packs-interface).
 
-Choice steps of actions take options from the rules too: an add-on's rules-level `option` and
-`changes` effects reach a dependency's tagged steps ([effects.md](effects.md#targets)).
+Choice steps of actions take options from the rules too: an add-on's rules-level `option`,
+`changes` and `action` effects reach a dependency's tagged steps ([effects.md](effects.md#targets)).
 
 ### Where picks are kept
 

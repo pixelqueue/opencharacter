@@ -1,0 +1,67 @@
+description: "An `action` effect without `as` runs its action on the actor, nested under `<step path>/<content id>#<id>`, with the running action's entry; its changes follow, `to` its own `to`, reading `run.data`"
+specVersion: 0.3.0
+call: startAction
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.3.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        tags: [hit]
+        fields:
+          hp: { type: integer, input: true, default: 10 }
+          surges: { type: integer, input: true, default: 0 }
+        contentTypes:
+          weapon:
+            fields:
+              damage: { type: integer }
+            actions:
+              - use: strike
+          feature: {}
+        actions:
+          # Gains surges: the weapon's damage, plus the bonus asked for.
+          - id: surge
+            params:
+              bonus: { type: integer, default: 0 }
+            steps:
+              - id: gain
+                kind: changes
+                changes:
+                  - { type: adjust, field: surges, by: item.damage + params.bonus }
+              - id: done
+                kind: outcome
+                result: "'surged'"
+                data: { gained: item.damage + params.bonus }
+          - id: strike
+            participants:
+              target: { max: 1 }
+            steps:
+              - id: deal
+                kind: changes
+                tags: [hit]
+                to: target
+                changes:
+                  - { type: adjust, field: hp, by: -item.damage }
+      content:
+        - id: axe
+          type: weapon
+          fields: { damage: 3 }
+        - id: fury
+          type: feature
+          effects:
+            - target: { steps: [hit] }
+              op: action
+              value:
+                id: surge
+                use: surge
+                params: { bonus: '1' }
+                to: self
+                changes:
+                  - { type: adjust, field: hp, by: run.data.gained }
+input:
+  action: { id: test-pack:strike, entry: axe }
+  participants:
+    target: [{ id: orc, values: {} }]

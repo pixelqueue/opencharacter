@@ -101,7 +101,8 @@ Bare field names in formulas resolve the same way as local content references: t
 - **Extensions:** a pack adds to its dependencies without overriding them, so add-ons don't
   collide: values to an open enum (`extendEnums`, [rules-and-fields.md](rules-and-fields.md#open-enums)),
   options to a choice (`extendChoices`, [content.md](content.md#adding-options-to-a-dependencys-choices)),
-  and, from its rules' `option` and `changes` effects, options and changes to tagged action steps
+  and, from its rules' `option`, `changes` and `action` effects, options, changes and action
+  runs to tagged action steps
   ([effects.md](effects.md#targets)). Additions merge in load order and are applied after
   overrides.
 - **Hide:** `hides` in the manifest removes dependency content from the ruleset. Queries no longer match it. A character that owns hidden content gets a rules issue (`content-hidden`), not an error.

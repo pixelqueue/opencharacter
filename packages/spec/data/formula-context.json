@@ -64,6 +64,10 @@
       "description": "In a choice step's `changes` and its options' `changes` and `flags`: the pick they follow: `picked.id` (the option ID), plus `picked.item` (the item view) over content and copies, and `picked.self` (the copy) over copies, and `picked.value` (the value itself, `picked.id` its string form) over values. Over pending choices, `picked.id` and `picked.path`, the choice path."
     },
     {
+      "id": "run",
+      "description": "In an `action` effect's `changes`: the outcome of the action the effect ran at the step, as an `action` step's result: `run.result` (absent when the action finished without one) and `run.data`; per participant, the current participant's run. Substituted as literals in a formula a proposed change passes on."
+    },
+    {
       "id": "options",
       "description": "In a choice step's `recommend`: the list of option IDs its source offers, in order, without `#done` or options added by content, so a roll can pick one (`options[steps.roll.total - 1]`). In a declared choice's `recommend`: the options it offers that are eligible apart from prerequisites (in `from` and its `where`, passing `eligible`, not taken in another choice of its `unique` group) and not among its own picks, in the order offered: content IDs, inline option IDs, or a value choice's strings or numbers (`options[0]`, the next to pick)."
     },

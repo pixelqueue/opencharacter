@@ -1,0 +1,92 @@
+description: "Two features' `action` effects each hand off their own saving throw on a hit, at their own DCs, per target; each effect's changes see its run's outcome as `run`"
+specVersion: 0.3.0
+call: startAction
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.3.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        tags: [attack-hit]
+        fields:
+          hp: { type: integer, input: true, default: 10 }
+          focus: { type: integer, input: true, default: 3 }
+        contentTypes:
+          feature:
+            fields:
+              dc: { type: integer }
+        actions:
+          - id: saving-throw
+            params:
+              ability: { type: string }
+              dc: { type: integer }
+            results: [success, failure]
+            steps:
+              - { id: done, kind: outcome, result: "'success'" }
+          - id: attack
+            params:
+              cunning: { type: boolean, default: false }
+            participants:
+              target: {}
+            steps:
+              - id: hit
+                kind: changes
+                tags: [attack-hit]
+                to: target
+                changes:
+                  - { type: adjust, field: hp, by: -4 }
+      content:
+        # A Constitution save or Stunned, when the monk spends focus.
+        - id: stunning-strike
+          type: feature
+          fields: { dc: 13 }
+          effects:
+            - target: { steps: [attack-hit] }
+              op: action
+              when: focus > 0
+              value:
+                id: stun
+                use: saving-throw
+                each: target
+                as: participant
+                params: { ability: "'con'", dc: item.dc }
+                changes:
+                  - type: applyEffect
+                    source: "'stunned'"
+                    when: run.result == 'failure'
+        # A Dexterity save or Prone, on the first target only, when the rogue asks for it.
+        - id: cunning-strike
+          type: feature
+          fields: { dc: 15 }
+          effects:
+            - target: { steps: [attack-hit] }
+              op: action
+              when: params.cunning && participant.id == participants.target[0].id
+              value:
+                id: trip
+                use: saving-throw
+                each: target
+                as: participant
+                params: { ability: "'dex'", dc: item.dc }
+                changes:
+                  - type: applyEffect
+                    source: "'prone'"
+                    when: run.result == 'failure'
+        - id: stunned
+          type: feature
+        - id: prone
+          type: feature
+input:
+  action: { id: test-pack:attack }
+  params: { cunning: true }
+  participants:
+    target:
+      - { id: orc, values: {} }
+      - { id: ogre, values: {} }
+answers:
+  - { outcome: { result: success } }
+  - { outcome: { result: failure } }
+  - { outcome: { result: failure, data: { total: 9 } } }

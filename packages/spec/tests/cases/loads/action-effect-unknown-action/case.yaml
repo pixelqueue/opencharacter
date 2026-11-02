@@ -1,0 +1,29 @@
+description: "An `action` effect's `use` must name a rules action, local IDs resolving in the effect's pack"
+specVersion: 0.3.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.3.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        tags: [hit]
+        actions:
+          - id: save
+            steps:
+              - { id: done, kind: outcome }
+          - id: strike
+            steps:
+              - { id: onHit, kind: changes, tags: [hit] }
+      content:
+        - id: ring
+          effects:
+            - target: { steps: [hit] }
+              op: action
+              value: { id: known, use: save }
+            - target: { steps: [hit] }
+              op: action
+              value: { id: unknown, use: shove }

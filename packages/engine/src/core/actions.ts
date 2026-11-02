@@ -13,6 +13,7 @@ import type {
   FollowUp,
   Formula,
   OptionValue,
+  StepAction,
   StepChanges,
   PendingSource,
   ProposedChange,
@@ -933,9 +934,9 @@ function params(
       at: { ...own, addedBy: p.addedBy },
     })),
   ];
-  for (const { name, decl, pack, roots, at } of all) {
   // Bounds read `params`, so they are checked once every parameter has its value.
   const ranges: (() => void)[] = [];
+  for (const { name, decl, pack, roots, at } of all) {
     let value: unknown = raw[name];
     if (fixed[name] !== undefined) {
       const evaluated = ctx.sheet.evaluate(fixed[name] as Formula, fixedPack, frame.roots);
@@ -997,8 +998,8 @@ function params(
     );
     out[name] = rootValue(typed);
   }
-  return out;
   for (const range of ranges) range();
+  return out;
 }
 
 /** A parameter content adds to an action through a `params` effect. */
@@ -1428,41 +1429,12 @@ function runStep(ctx: Ctx, frame: Frame, step: Step, path: string): void {
       groupStep(ctx, frame, step, path);
       break;
     case 'action': {
-      if (step.as === 'participant') {
-        handoff(ctx, frame, step, path);
-        break;
-      }
-      const raw = stepParams(ctx, frame, step);
-      const target = nestedRun(ctx, frame, step);
-      const nested = startFrame(
-        ctx,
-        target.action,
-        target.entry,
-        target.source,
-        raw,
-        `${path}/`,
-        frame.depth + 1,
-        {
-          ...(step.participants !== undefined
-            ? { participants: passedParticipants(ctx, frame, step) }
-            : {}),
-          added: [...frame.added, ...tagsOf(ctx, step.tags, (fm) => evaluate(ctx, frame, fm))],
-          situational: stepSituational(ctx, frame, step),
-        },
-      );
-      let outcome: Outcome = {};
-      const first = ctx.proposed.length;
-      try {
-        runSteps(ctx, nested, nested.def.steps);
-      } catch (error) {
-        if (!(error instanceof Finish)) throw error;
-        outcome = error.outcome;
-      }
-      if (step.hold) hold(ctx, frame, step.id, first);
-      setResult(frame, step.id, {
-        ...(outcome.result !== undefined ? { result: outcome.result } : {}),
-        data: outcome.data ?? {},
-      });
+      const result =
+        step.as === 'participant'
+          ? handoff(ctx, frame, step, path)
+          : nestedAction(ctx, frame, step, path);
+      if (step.hold) hold(ctx, frame, step.id, result.first);
+      setResult(frame, step.id, result.outcome);
       break;
     }
     case 'outcome': {
@@ -1479,6 +1451,59 @@ function runStep(ctx: Ctx, frame: Frame, step: Step, path: string): void {
       });
     }
   }
+}
+
+/** A nested run's outcome as `steps.<id>` holds it, and where its proposed changes start. */
+interface NestedResult {
+  outcome: { result?: string; data: Record<string, unknown> };
+  first: number;
+}
+
+/**
+ * Runs `use` with the parameters, participants, tags and situational values the step gives,
+ * evaluated in `frame`; `owner` is the run whose entry and source it takes (an `action` effect's
+ * runs take the action's, not the content's).
+ */
+function nestedAction(
+  ctx: Ctx,
+  frame: Frame,
+  step: Step,
+  path: string,
+  owner: Frame = frame,
+): NestedResult {
+  const raw = stepParams(ctx, frame, step);
+  const target = nestedRun(ctx, owner, step);
+  const nested = startFrame(
+    ctx,
+    target.action,
+    target.entry,
+    target.source,
+    raw,
+    `${path}/`,
+    frame.depth + 1,
+    {
+      ...(step.participants !== undefined
+        ? { participants: passedParticipants(ctx, frame, step) }
+        : {}),
+      added: [...frame.added, ...tagsOf(ctx, step.tags, (fm) => evaluate(ctx, frame, fm))],
+      situational: stepSituational(ctx, frame, step),
+    },
+  );
+  let outcome: Outcome = {};
+  const first = ctx.proposed.length;
+  try {
+    runSteps(ctx, nested, nested.def.steps);
+  } catch (error) {
+    if (!(error instanceof Finish)) throw error;
+    outcome = error.outcome;
+  }
+  return {
+    outcome: {
+      ...(outcome.result !== undefined ? { result: outcome.result } : {}),
+      data: outcome.data ?? {},
+    },
+    first,
+  };
 }
 
 /**
@@ -1673,7 +1698,7 @@ function handoffParticipants(
 }
 
 /** The participant runs the used action on its own character; the policy doesn't apply. */
-function handoff(ctx: Ctx, frame: Frame, step: Step, path: string): void {
+function handoff(ctx: Ctx, frame: Frame, step: Step, path: string): NestedResult {
   const each = frame.each;
   if (!each) throw new ActionError('unknown-role', { step: step.id, pack: frame.pack });
   const qid = step.use as string;
@@ -1716,10 +1741,13 @@ function handoff(ctx: Ctx, frame: Frame, step: Step, path: string): void {
   if (outcome.result !== undefined && !declaresResult(ctx.ruleset, used, outcome.result))
     throw new ActionError('answer-mismatch', { reason: 'the result is not declared' });
   ctx.log.push({ step: path, action: frame.qid, kind: 'handoff', by: 'app', participant, outcome });
-  setResult(frame, step.id, {
-    ...(outcome.result !== undefined ? { result: outcome.result } : {}),
-    data: outcome.data ?? {},
-  });
+  return {
+    outcome: {
+      ...(outcome.result !== undefined ? { result: outcome.result } : {}),
+      data: outcome.data ?? {},
+    },
+    first: ctx.proposed.length,
+  };
 }
 
 interface BuiltItem {
@@ -3844,7 +3872,70 @@ function changesStep(ctx: Ctx, frame: Frame, step: Step, path: string): void {
   for (const a of added) if (a.value.order === 'before') proposeAdded(ctx, step, path, a);
   if (step.changes) proposeChanges(ctx, frame, step, path, step.to ?? 'self', step.changes);
   for (const a of added) if (a.value.order !== 'before') proposeAdded(ctx, step, path, a);
+  if (step.tags !== undefined || frame.added.length > 0) addedRuns(ctx, frame, step, path);
   setResult(frame, step.id, { added: addedIds(ctx, first, path) });
+}
+
+/**
+ * Each `action` effect reaching the step, in instance order (the first of those sharing an ID):
+ * per participant of its `each` (the step's own participant in an `each` step), when its `when`
+ * holds, it runs `use` at `<path>/<content id>#<id>` (handed off with `as`), then proposes its
+ * changes with the run's outcome as `run`.
+ */
+function addedRuns(ctx: Ctx, frame: Frame, step: Step, path: string): void {
+  const action = actionRoot(ctx, frame, step);
+  const tags = action.step.tags;
+  if (tags.length === 0) return;
+  const ids = new Set<string>();
+  for (const instance of ctx.sheet.instances) {
+    const effect = instance.effect;
+    const target = effect.target;
+    if (effect.op !== 'action' || typeof target !== 'object' || !('steps' in target)) continue;
+    if (!tagsReach(ctx.ruleset, instance.pack, frame.declared, target.steps, tags)) continue;
+    if (!addsToSteps(instance, frame, target.from)) continue;
+    const value = effect.value as StepAction;
+    const id = `${instance.source.id}#${value.id}`;
+    if (ids.has(id)) continue;
+    ids.add(id);
+    const added = optionFrame(frame, instance);
+    const runs: { frame: Frame; path: string }[] = [];
+    const role = value.each;
+    if (frame.each) {
+      if (role !== undefined && role !== frame.each.role)
+        throw new ActionError('unknown-role', { role, step: id, pack: instance.pack });
+      runs.push({ frame: added, path: `${path}/${id}` });
+    } else if (role !== undefined) {
+      const list =
+        (frame.roots.participants as Record<string, Record<string, unknown>[]>)[role] ?? [];
+      for (const [index, view] of list.entries())
+        runs.push({
+          frame: { ...added, each: { role, index, view, step: id } },
+          path: `${path}/${id}[${index}]`,
+        });
+    } else runs.push({ frame: added, path: `${path}/${id}` });
+    const used: Step = {
+      id,
+      kind: 'action',
+      use: value.use,
+      ...(value.params ? { params: value.params } : {}),
+      ...(value.participants ? { participants: value.participants } : {}),
+    };
+    for (const [n, one] of runs.entries()) {
+      if (n > 0 && ++ctx.stepsRun > MAX_STEPS)
+        throw new ActionError('safety-limit-exceeded', { limit: 'maxActionSteps' });
+      if (effect.when !== undefined && !test(ctx, one.frame, effect.when, { action })) continue;
+      const result =
+        value.as === 'participant'
+          ? handoff(ctx, one.frame, used, one.path)
+          : nestedAction(ctx, one.frame, used, one.path, frame);
+      if (!value.changes) continue;
+      const to = value.to ?? step.to ?? 'self';
+      proposeChanges(ctx, one.frame, step, path, to, value.changes, {
+        action,
+        run: result.outcome,
+      });
+    }
+  }
 }
 
 /** The instance IDs of the copies the step's own `addItem`s add to the actor, in order. */
@@ -4324,6 +4415,7 @@ export function reads(formula: Formula, roots: string[]): boolean {
 }
 
 const ACTION_ROOTS: ReadonlySet<string> = new Set([
+  'run',
   'steps',
   'flags',
   'params',

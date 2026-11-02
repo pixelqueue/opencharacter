@@ -125,6 +125,20 @@ export interface StepChanges {
   order?: 'before' | 'after';
 }
 
+/** An `action` effect's run at a tagged changes step, then its changes, which see `run`. */
+export interface StepAction {
+  id: string;
+  /** A rules action, qualified at load in the effect's pack. */
+  use: string;
+  params?: Record<string, Formula>;
+  participants?: Record<string, Formula>;
+  each?: string;
+  as?: 'participant';
+  changes?: ProposedChange[];
+  /** Default: the step's `to`. */
+  to?: Destination;
+}
+
 export interface OptionValue {
   id: string;
   /** Without changes, the pick is only recorded. */
@@ -167,6 +181,7 @@ export interface Effect {
     | RollModifier
     | OptionValue
     | StepChanges
+    | StepAction
     | Record<string, ValueDecl>;
   when?: Formula;
   stackKey?: string;

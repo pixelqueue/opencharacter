@@ -58,6 +58,12 @@
       "description": "Add changes to an action's changes steps with a matching tag, or set its flags there: `{ changes?, to?, flags?, order? }`, each time the step runs while the effect's `when` holds. `flags` are set before the step's own changes; `changes` are proposed after them, or before with `order: before`."
     },
     {
+      "id": "action",
+      "order": 0,
+      "targets": ["step"],
+      "description": "Run a rules action at an action's changes steps with a matching tag: `{ id, use, params?, participants?, each?, as?, changes?, to? }`, each time the step runs while the effect's `when` holds, after the step's changes, per participant with `each`; `as: participant` hands it off. Its `changes` follow, seeing the run's outcome as `run`."
+    },
+    {
       "id": "params",
       "order": 0,
       "targets": ["action"],

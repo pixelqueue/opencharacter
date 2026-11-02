@@ -1,0 +1,16 @@
+# The orc takes the axe's 3. Fury runs surge on the actor with the axe as its item: 3 + 1 = 4
+# surges, at the nested path; its changes then heal the actor by what the run gained.
+status: finished
+outcome: {}
+proposedChanges:
+  - to: target
+    character: orc
+    step: deal
+    change: { type: adjust, field: test-pack:hp, by: -3 }
+  - to: self
+    step: deal/test-pack:fury#surge/gain
+    change: { type: adjust, field: test-pack:surges, by: 4 }
+  - to: self
+    step: deal
+    change: { type: adjust, field: test-pack:hp, by: 4 }
+log: []

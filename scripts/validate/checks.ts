@@ -72,6 +72,7 @@ import type {
   InlineOption,
   Literal,
   OptionValue,
+  StepAction,
   StepChanges,
   ProposedChange,
   Query,
@@ -1789,6 +1790,23 @@ export class PackChecker {
           file,
           `${label}: changes effects are only for the rules' effects and content items and types (their effects, choices and inline options)`,
         );
+      for (const change of value.changes ?? [])
+        this.proposedChange(change, file, label, false, new Set(), value.to);
+    }
+    // An action effect runs a rules action at a step the way a changes effect adds to it.
+    if (effect.op === 'action') {
+      const value = effect.value as StepAction;
+      if (this.contentOwner === undefined)
+        this.report.error(
+          file,
+          `${label}: action effects are only for the rules' effects and content items and types (their effects, choices and inline options)`,
+        );
+      const used = this.ruleset.action(value.use, this.scope);
+      if (!used) this.report.error(file, `${label}: unknown action "${value.use}"`);
+      else
+        for (const name of Object.keys(value.params ?? {}))
+          if (!used.def.params?.[name])
+            this.report.error(file, `${label}: action "${value.use}" has no parameter "${name}"`);
       for (const change of value.changes ?? [])
         this.proposedChange(change, file, label, false, new Set(), value.to);
     }

@@ -870,6 +870,36 @@ counts before the step's own spending clamps the field.
     changes: [{ type: adjust, field: surges.current, by: 1 }]
 ```
 
+**Actions content runs**. An `action` effect aimed at a tagged changes step runs a rules action
+there, as an `action` step would, after the step's own changes and those `changes` effects add,
+whenever the step runs and its `when` holds. Its value is `{ id, use, params?, participants?,
+each?, as?, changes?, to? }`: `use` runs with `params` evaluated in the effect's context (the
+content's `item` and `self`, the action's `params`, `flags`, `steps`, `participants`), per
+participant of `each` (in an `each` step, for its current participant), and with
+`as: participant` the participant runs it on their own sheet (a handoff). Its `changes` follow
+and read the run's outcome as `run`. Each effect runs its own action, so a hit carries one saving
+throw per feature, each at its own DC. The run's path is `<step path>/<content id>#<id>`
+(`[<i>]` per participant), where policies and replay find it
+([engine-actions.md](engine-actions.md#other-steps)).
+
+```yaml
+# content/features/monk/stunning-strike.yaml: a Constitution save or Stunned on a hit.
+effects:
+  - target: { steps: [attack-hit] }
+    op: action
+    when: params.stunningStrike
+    value:
+      id: stun
+      use: saving-throw
+      each: target
+      as: participant
+      params: { ability: "'con'", dc: focus.saveDc }
+      changes:
+        - type: applyEffect
+          when: run.result == 'failure'
+          source: "'conditions.stunned'"
+```
+
 **Rolled amounts.** A proposed change's `by` (an `adjust`, `adjustState` or `adjustQuantity`)
 may give dice: the action rolls it with its dice function as the change is resolved, a dice
 checkpoint at the step's path that the policy matches by the change's tags, and the change

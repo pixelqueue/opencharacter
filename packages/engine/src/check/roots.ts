@@ -102,6 +102,7 @@ export const ALL_ROOTS = new Set([
   'action',
   'picks',
   'picked',
+  'run',
   'options',
   'choice',
   'owner',
@@ -394,6 +395,9 @@ export function pickedType(views: { item?: FType; self?: FType; value?: FType })
 /** The instance IDs of the copies a step's own `addItem`s add to the actor. */
 const ADDED: FType = { list: 'string' };
 
+/** A nested action's outcome: an `action` step's result, an `action` effect's `run`. */
+export const RUN: FType = { object: { result: 'string', data: 'dyn' } };
+
 /**
  * An `each` step's result is a list of per-participant results; one of them inside an `each`
  * step over `eachRole`; the list of its earlier runs inside step `own` itself.
@@ -427,7 +431,7 @@ export function stepsAndFlags(
               }
             : { object: { picked: 'string', ...views(step), added: ADDED } };
       else if (step.kind === 'changes') type = { object: { added: ADDED } };
-      else if (step.kind === 'action') type = { object: { result: 'string', data: 'dyn' } };
+      else if (step.kind === 'action') type = RUN;
       // An allocate step's amounts are by qualified field ID, which no path can name.
       else if (step.kind === 'allocate') type = { object: { amounts: 'dyn' } };
       stepTypes[step.id] =
