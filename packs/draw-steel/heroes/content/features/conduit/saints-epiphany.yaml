@@ -4,3 +4,7 @@ fields:
   class: classes.conduit
   level: 4
   subclass: subclasses.conduit.knowledge
+computed:
+  domainChar:
+    type: string
+    formula: "countCopies(copy.item == @classes.censor) > 0 ? 'characteristics.presence.score' : 'characteristics.intuition.score'"

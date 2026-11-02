@@ -21,3 +21,7 @@ choices:
     activate: false
     effects:
       - { target: skills.known, op: grant, value: { formula: pick.id } }
+computed:
+  domainChar:
+    type: string
+    formula: "countCopies(copy.item == @classes.censor) > 0 ? 'characteristics.presence.score' : 'characteristics.intuition.score'"

@@ -5,8 +5,15 @@ fields:
   level: 7
   subclass: subclasses.conduit.life
 effects:
+  # A Censor's My Life for Yours: Spend 1 is free, and its target gains 10 temporary Stamina.
+  - { target: censor.fontOfGrace, op: set, value: 'true' }
   # Healing Grace: 1 free piety for its Spend, on the same turn.
   - target: { steps: [ability.pay] }
     op: changes
     when: action.item.id == @abilities.conduit.healing-grace && combat.active && params.spend > 0
     value: { changes: [{ type: adjust, field: heroic.current, by: 1 }] }
+computed:
+  domainAbility:
+    type: string
+    formula: 'countCopies(copy.item == @classes.censor) > 0 ? @abilities.censor.my-life-for-yours : @abilities.conduit.healing-grace'
+  censor: { type: boolean, formula: countCopies(copy.item == @classes.censor) > 0 }

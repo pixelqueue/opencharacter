@@ -3,163 +3,26 @@ type: feature
 fields:
   class: classes.censor
   level: 1
-# The censor's one domain is one of the conduit's domains. The pick names the domain; the censor's
-# own domain features (1st, 4th and 7th level) are granted here, the conduit's where the book's
-# text is the same for both classes, the censor's own where it reads Presence or My Life for Yours.
-# Each 1st-level domain feature asks for the domain's skill.
+# The censor's one domain is one of the conduit's domains. The pick names the domain, and the
+# domain grants its 1st-, 4th- and 7th-level features as the hero reaches them: the conduit's,
+# whose text and numbers read the holder's class (Presence, My Life for Yours, wrath), except
+# Storm's 7th-level feature, which is the censor's own Ride the Lightning.
 choices:
   - id: domain
     from: { type: subclass, where: 'item.class == @classes.conduit' }
     activate: false
     recommend: '@subclasses.conduit.war'
+effects:
+  # Domain features use the censor's Presence.
+  - { target: conduit.domainScore, op: set, value: characteristics.presence.score }
 grants:
-  # Creation
-  - {
-      item: features.censor.hands-of-the-maker,
-      when: "@subclasses.conduit.creation in picksOf('domain')",
-    }
-  - {
-      item: features.conduit.improved-hands-of-the-maker,
-      when: "@subclasses.conduit.creation in picksOf('domain') && self.level >= 4",
-    }
-  - {
-      item: features.conduit.divine-quartermaster,
-      when: "@subclasses.conduit.creation in picksOf('domain') && self.level >= 7",
-    }
-  # Death
-  - { item: features.conduit.grave-speech, when: "@subclasses.conduit.death in picksOf('domain')" }
-  - {
-      item: features.conduit.seance,
-      when: "@subclasses.conduit.death in picksOf('domain') && self.level >= 4",
-    }
-  - {
-      item: features.censor.word-of-death-deferred,
-      when: "@subclasses.conduit.death in picksOf('domain') && self.level >= 7",
-    }
-  # Fate
-  - {
-      item: features.conduit.oracular-visions,
-      when: "@subclasses.conduit.fate in picksOf('domain')",
-    }
-  - {
-      item: features.conduit.oracular-warning,
-      when: "@subclasses.conduit.fate in picksOf('domain') && self.level >= 4",
-    }
-  - {
-      item: features.conduit.word-of-fate-denied,
-      when: "@subclasses.conduit.fate in picksOf('domain') && self.level >= 7",
-    }
-  # Knowledge
-  - {
-      item: features.conduit.blessing-of-comprehension,
-      when: "@subclasses.conduit.knowledge in picksOf('domain')",
-    }
-  - {
-      item: features.censor.saints-epiphany,
-      when: "@subclasses.conduit.knowledge in picksOf('domain') && self.level >= 4",
-    }
-  - {
-      item: features.conduit.gods-library,
-      when: "@subclasses.conduit.knowledge in picksOf('domain') && self.level >= 7",
-    }
-  # Life
-  - {
-      item: features.conduit.revitalizing-ritual,
-      when: "@subclasses.conduit.life in picksOf('domain')",
-    }
-  - {
-      item: features.censor.blessing-of-life,
-      when: "@subclasses.conduit.life in picksOf('domain') && self.level >= 4",
-    }
-  - {
-      item: features.censor.font-of-grace,
-      when: "@subclasses.conduit.life in picksOf('domain') && self.level >= 7",
-    }
-  # Love
-  - {
-      item: features.conduit.blessing-of-compassion,
-      when: "@subclasses.conduit.love in picksOf('domain')",
-    }
-  - {
-      item: features.conduit.invocation-of-the-heart,
-      when: "@subclasses.conduit.love in picksOf('domain') && self.level >= 4",
-    }
-  - {
-      item: features.conduit.covenant-of-the-heart,
-      when: "@subclasses.conduit.love in picksOf('domain') && self.level >= 7",
-    }
-  # Nature
-  - {
-      item: features.conduit.faithful-friend,
-      when: "@subclasses.conduit.nature in picksOf('domain')",
-    }
-  - {
-      item: features.censor.wode-road,
-      when: "@subclasses.conduit.nature in picksOf('domain') && self.level >= 4",
-    }
-  - {
-      item: features.conduit.natures-bounty,
-      when: "@subclasses.conduit.nature in picksOf('domain') && self.level >= 7",
-    }
-  # Protection
-  - {
-      item: features.conduit.protective-circle,
-      when: "@subclasses.conduit.protection in picksOf('domain')",
-    }
-  - {
-      item: features.censor.impervious-touch,
-      when: "@subclasses.conduit.protection in picksOf('domain') && self.level >= 4",
-    }
-  - {
-      item: features.conduit.blessing-of-iron,
-      when: "@subclasses.conduit.protection in picksOf('domain') && self.level >= 7",
-    }
-  # Storm
-  - {
-      item: features.conduit.blessing-of-fortunate-weather,
-      when: "@subclasses.conduit.storm in picksOf('domain')",
-    }
-  - {
-      item: features.conduit.windwalk,
-      when: "@subclasses.conduit.storm in picksOf('domain') && self.level >= 4",
-    }
-  - {
-      item: features.censor.ride-the-lightning,
-      when: "@subclasses.conduit.storm in picksOf('domain') && self.level >= 7",
-    }
-  # Sun
-  - { item: features.conduit.inner-light, when: "@subclasses.conduit.sun in picksOf('domain')" }
-  - {
-      item: features.censor.light-of-revelation,
-      when: "@subclasses.conduit.sun in picksOf('domain') && self.level >= 4",
-    }
-  - {
-      item: features.conduit.light-of-the-burning-sun,
-      when: "@subclasses.conduit.sun in picksOf('domain') && self.level >= 7",
-    }
-  # Trickery
-  - {
-      item: features.censor.inspired-deception,
-      when: "@subclasses.conduit.trickery in picksOf('domain')",
-    }
-  - {
-      item: features.conduit.blessing-of-secrets,
-      when: "@subclasses.conduit.trickery in picksOf('domain') && self.level >= 4",
-    }
-  - {
-      item: features.censor.trinity-of-trickery,
-      when: "@subclasses.conduit.trickery in picksOf('domain') && self.level >= 7",
-    }
-  # War
-  - {
-      item: features.conduit.sanctified-weapon,
-      when: "@subclasses.conduit.war in picksOf('domain')",
-    }
-  - {
-      item: features.conduit.improved-sanctified-weapon,
-      when: "@subclasses.conduit.war in picksOf('domain') && self.level >= 4",
-    }
-  - {
-      item: features.conduit.your-triumphs-are-remembered,
-      when: "@subclasses.conduit.war in picksOf('domain') && self.level >= 7",
-    }
+  - forEach: picksOf('domain')
+    item:
+      query:
+        type: feature
+        where: >-
+          has(item.subclass) && item.subclass == x && item.class == @classes.conduit
+            && item.level <= self.level
+            && item.id != @features.conduit.thunderstruck
+  - item: features.censor.ride-the-lightning
+    when: "@subclasses.conduit.storm in picksOf('domain') && self.level >= 7"

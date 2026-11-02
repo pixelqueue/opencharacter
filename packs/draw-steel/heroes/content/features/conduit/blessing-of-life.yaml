@@ -4,3 +4,13 @@ fields:
   class: classes.conduit
   level: 4
   subclass: subclasses.conduit.life
+computed:
+  domainChar:
+    type: string
+    formula: "countCopies(copy.item == @classes.censor) > 0 ? 'characteristics.presence.score' : 'characteristics.intuition.score'"
+  domainAbility:
+    type: string
+    formula: 'countCopies(copy.item == @classes.censor) > 0 ? @abilities.censor.my-life-for-yours : @abilities.conduit.healing-grace'
+effects:
+  # A Censor's My Life for Yours adds the bonus; a Conduit's Healing Grace bonus is the table's.
+  - { target: censor.mendBonus, op: add, value: conduit.domainScore }

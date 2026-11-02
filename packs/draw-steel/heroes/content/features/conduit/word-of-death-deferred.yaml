@@ -12,3 +12,7 @@ effects:
     when: has(participant) && participant.stamina.isWinded
     tags:
       - formula: "action.item.damageType == 'untyped' ? [] : ['damage.' + action.item.damageType]"
+computed:
+  domainAbility:
+    type: string
+    formula: 'countCopies(copy.item == @classes.censor) > 0 ? @abilities.censor.my-life-for-yours : @abilities.conduit.healing-grace'
