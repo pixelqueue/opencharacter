@@ -63,7 +63,7 @@
       }
     },
     "changes": {
-      "description": "Incoming changes only: what choosing it costs or gains (spend a resource, mark a once-a-scene use, offer a follow-up). Applied to the receiving character once per batch that selects it, however many changes do, after the batch's last change. Formulas see the character as the batch left it, `situational` and `batch`.",
+      "description": "Incoming changes only: what choosing it costs or gains (spend a resource, mark a once-a-scene use, damage a held shield, offer a follow-up). Applied to the receiving character once per batch that selects it, however many changes do, after the batch's last change. Formulas see the character as the batch left it, `situational` and `batch`; a `setState` or `adjustState` also sees `item` and `self` per matched copy.",
       "type": "array",
       "items": {
         "$ref": "#/$defs/situationalChange"
@@ -97,12 +97,12 @@
   },
   "$defs": {
     "situationalChange": {
-      "description": "A change a situational choice makes: `set` (`field`, `value`) or `adjust` (`field`, `by`, optional `tags`) of the character's input fields, or `offerFollowUp` of a rules follow-up (`followUp`, optional `params`). `when` skips it unless it holds. Its adjust is routed without incoming-change effects.",
+      "description": "A change a situational choice makes: `set` (`field`, `value`) or `adjust` (`field`, `by`, optional `tags`) of the character's input fields, `setState` (`key`, `value`) or `adjustState` (`key`, `by`) of held copies named by `copies` (and optionally `limit`), or `offerFollowUp` of a rules follow-up (`followUp`, optional `params`). `when` skips it unless it holds. Its adjust is routed without incoming-change effects.",
       "type": "object",
       "required": ["type"],
       "properties": {
         "type": {
-          "enum": ["set", "adjust", "offerFollowUp"]
+          "enum": ["set", "adjust", "setState", "adjustState", "offerFollowUp"]
         },
         "when": {
           "$ref": "formula.schema.json#/$defs/condition"
@@ -118,6 +118,29 @@
         },
         "tags": {
           "$ref": "common.schema.json#/$defs/tags"
+        },
+        "copies": {
+          "description": "setState, adjustState: the copies whose state changes, as a change's `copies` query: the copies of `type` (local or qualified; inventory, then features, each in file order) whose `where` holds with `item` and `self` bound, at the batch's end. `where`, `value` and `by` are evaluated per match, in the choice's pack, with `item`, `self`, `situational` and `batch`. No match is not an error.",
+          "type": "object",
+          "required": ["type"],
+          "properties": {
+            "type": {
+              "$ref": "common.schema.json#/$defs/typeRef"
+            },
+            "where": {
+              "$ref": "formula.schema.json#/$defs/condition"
+            }
+          },
+          "additionalProperties": false
+        },
+        "limit": {
+          "description": "With `copies`: change at most this many matches.",
+          "type": "integer",
+          "minimum": 1
+        },
+        "key": {
+          "description": "setState, adjustState: a state key the content type declares (numeric for adjustState).",
+          "$ref": "common.schema.json#/$defs/name"
         },
         "followUp": {
           "description": "A rules follow-up's ID, local or `<pack>:<id>`.",
@@ -167,6 +190,40 @@
             "required": ["field", "by"],
             "propertyNames": {
               "enum": ["type", "when", "field", "by", "tags"]
+            },
+            "type": "object"
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "setState"
+              }
+            },
+            "type": "object"
+          },
+          "then": {
+            "required": ["copies", "key", "value"],
+            "propertyNames": {
+              "enum": ["type", "when", "copies", "limit", "key", "value"]
+            },
+            "type": "object"
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "adjustState"
+              }
+            },
+            "type": "object"
+          },
+          "then": {
+            "required": ["copies", "key", "by"],
+            "propertyNames": {
+              "enum": ["type", "when", "copies", "limit", "key", "by"]
             },
             "type": "object"
           }

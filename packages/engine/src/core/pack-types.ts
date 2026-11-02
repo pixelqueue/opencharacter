@@ -663,9 +663,13 @@ export interface Situational {
 
 /** What choosing a situational choice on an incoming change costs or gains. */
 export interface SituationalChange {
-  type: 'set' | 'adjust' | 'offerFollowUp';
+  type: 'set' | 'adjust' | 'offerFollowUp' | 'setState' | 'adjustState';
   when?: Formula;
   field?: string;
+  /** setState, adjustState: the held copies whose state changes. */
+  copies?: { type: string; where?: Formula };
+  limit?: number;
+  key?: string;
   value?: Formula;
   by?: Formula;
   tags?: string[];

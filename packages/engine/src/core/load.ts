@@ -1193,6 +1193,9 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
                 return {
                   ...c,
                   ...(c.field !== undefined ? { field: q.field(c.field, pid) } : {}),
+                  ...(c.copies !== undefined
+                    ? { copies: { ...c.copies, type: q.type(c.copies.type, pid) } }
+                    : {}),
                   ...(c.followUp !== undefined
                     ? { followUp: c.followUp.includes(':') ? c.followUp : `${pid}:${c.followUp}` }
                     : {}),
@@ -1741,6 +1744,15 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
       if (field && !field.input) invalid({ reason: 'not-input', field: change.field });
       else if (field && change.type === 'adjust' && !['integer', 'decimal'].includes(field.type))
         invalid({ reason: 'not-numeric', field: change.field });
+      // A held copy's state: a key its content type declares, numeric for adjustState.
+      const type = change.copies ? ruleset.contentTypes[change.copies.type] : undefined;
+      if (type && change.key !== undefined) {
+        const decl = type.state?.[change.key];
+        const at = { type: change.copies?.type, key: change.key };
+        if (!decl) invalid({ reason: 'state-key', ...at });
+        else if (change.type === 'adjustState' && !['integer', 'decimal'].includes(decl.type))
+          invalid({ reason: 'not-numeric', ...at });
+      }
       if (change.followUp === undefined) continue;
       const offered = ruleset.rules.followUps.find(
         (fu) => `${fu.pack}:${fu.id}` === change.followUp,

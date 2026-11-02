@@ -437,13 +437,15 @@ export class PackChecker {
           this.report.error(file, `situational ${id}: unknown field "${ref}"`);
       }
       for (const effect of def.effects ?? []) this.effect(effect, file, `situational ${id}`, false);
-      // Its changes: known fields and the rules' follow-ups (loadRuleset's invalid-situational-change
-      // covers derived fields and follow-up parameters).
+      // Its changes: known fields, content types and the rules' follow-ups (loadRuleset's
+      // invalid-situational-change covers derived fields, state keys and follow-up parameters).
       for (const change of def.changes ?? []) {
         const where = `situational ${id} change`;
         this.tagList(change.tags, file, where);
         if (change.field !== undefined && !this.ruleset.field(change.field, this.scope))
           this.report.error(file, `${where}: unknown field "${change.field}"`);
+        if (change.copies && !this.ruleset.contentType(change.copies.type, this.scope))
+          this.report.error(file, `${where}: unknown content type "${change.copies.type}"`);
         if (change.followUp === undefined) continue;
         const colon = change.followUp.indexOf(':');
         const owner = colon < 0 ? this.packId : change.followUp.slice(0, colon);

@@ -77,7 +77,8 @@ export type Adjustment =
       /** On the `requested` entry of a situational choice's own adjust: the choice. */
       source?: Source;
     }
-  | { copies: string[] }
+  /** A situational choice's own `setState` or `adjustState` names the choice. */
+  | { copies: string[]; source?: Source }
   | { applied: string[] }
   /**
    * A state change an incoming-change effect's `then` made: to its own entry (`entry`), its pick
@@ -519,7 +520,10 @@ const PER_COPY = new Set([
   'removeItem',
 ]);
 
-/** Matches in inventory-then-features file order; formulas resolve in the type's pack. */
+/**
+ * Matches in inventory-then-features file order; formulas resolve in the type's pack, or, for a
+ * situational choice's change, in the choice's pack with its roots too.
+ */
 function applyToCopies(
   ruleset: Ruleset,
   sheet: Sheet,
@@ -527,6 +531,7 @@ function applyToCopies(
   change: AnyChange,
   adjustments: Adjustment[],
   views: Views,
+  choice?: { pack: string; roots: Record<string, unknown> },
 ): void {
   const query = change.copies as { type: string; where?: Formula };
   const type = ruleset.contentTypes[query.type];
@@ -534,7 +539,7 @@ function applyToCopies(
   const limit = change.limit as number | undefined;
   const evaluate = (formula: Formula, roots: Record<string, unknown>) => {
     try {
-      return sheet.evaluate(formula, type.pack, roots);
+      return sheet.evaluate(formula, choice?.pack ?? type.pack, roots);
     } catch (error) {
       if (!(error instanceof Failure)) throw error;
       throw new ChangeError(error.error.code, {
@@ -557,6 +562,7 @@ function applyToCopies(
       item: itemView(ruleset, item, templates, (n, p) => sheet.inputValue(`${p}:${n}`)),
       self: selfView(entry, stateDecls(ruleset, item, templates), ids),
       batch,
+      ...choice?.roots,
     };
     if (query.where !== undefined) {
       const ok = evaluate(query.where, roots);
@@ -1957,6 +1963,16 @@ function applyChoiceChanges(
           followUp: change.followUp as string,
           ...(change.params ? { params } : {}),
         } as OfferFollowUp);
+      } else if (change.type === 'setState' || change.type === 'adjustState') {
+        // A held copy's state, by query, each formula per match with `item` and `self`.
+        const { when: _when, ...stateChange } = change;
+        const { situational } = roots;
+        applyToCopies(ruleset, sheet, c, stateChange, adjustments, views, {
+          pack: def.pack,
+          roots: { situational },
+        });
+        const matched = adjustments.at(-1);
+        if (matched && 'copies' in matched) matched.source = { type: 'situational', id };
       } else if (change.type === 'set') {
         const value = f.toData(evaluate(change.value as Formula));
         applyOne(ruleset, c, { type: 'set', field: change.field, value }, adjustments, views);

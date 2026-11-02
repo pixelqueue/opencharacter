@@ -1,0 +1,29 @@
+description: "A situational choice's `adjustState` names a numeric state key: a boolean one is `invalid-situational-change`"
+specVersion: 0.1.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        tags: [damage]
+        fields:
+          hp: { type: integer, input: true, default: 10 }
+        contentTypes:
+          shield:
+            carried: true
+            state:
+              damage: { type: integer, default: 0, min: 0 }
+              raised: { type: boolean, default: false }
+        situational:
+          - id: block
+            type: boolean
+            default: false
+            incoming: { fields: [hp], tags: [damage] }
+            changes:
+              - { type: adjustState, copies: { type: shield }, key: raised, by: 1 }
+      content: []

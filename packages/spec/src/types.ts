@@ -2057,7 +2057,7 @@ export type ApplyChangesOutput =
       /** The batch as applied: each `adjust` whose incoming-change effects rolled dice carries every face it used in `faces`, supplied and rolled. Apps log this, not their input, so a replay never rolls. A batch that rolled nothing comes back unchanged. */
       changes: Change[];
       issues: RulesIssue[];
-      /** What adjust changes actually did after incoming-change effects, absorption, overflow and clamping: one entry per field touched, in order. A change aimed at copies by query adds `{ copies }`: the instance IDs it matched, in order (empty when none matched); one aimed at applied entries by query adds `{ applied }` the same way, and an `applyEffect` merged into an existing entry (`reapply`) adds `{ applied: [<that entry's ID>] }`. An incoming-change effect's `then` adds `{ key, value, source }` per state change it made, addressed as the setState that made it: `entry` (its own entry), `path` and `option` (its pick), or `grant` with the node (its grant's saved state); and `{ entry, removed: true, source }` when it removed its applied entry. */
+      /** What adjust changes actually did after incoming-change effects, absorption, overflow and clamping: one entry per field touched, in order. A change aimed at copies by query adds `{ copies }`: the instance IDs it matched, in order (empty when none matched), with `source` the choice when a situational choice's `changes` made it; one aimed at applied entries by query adds `{ applied }` the same way, and an `applyEffect` merged into an existing entry (`reapply`) adds `{ applied: [<that entry's ID>] }`. An incoming-change effect's `then` adds `{ key, value, source }` per state change it made, addressed as the setState that made it: `entry` (its own entry), `path` and `option` (its pick), or `grant` with the node (its grant's saved state); and `{ entry, removed: true, source }` when it removed its applied entry. */
       adjustments?: (
         | {
             field: string;
@@ -2097,6 +2097,8 @@ export type ApplyChangesOutput =
           }
         | {
             copies: InstanceId[];
+            /** On the entry of a `setState` or `adjustState` a situational choice's `changes` made: the choice, `{ type: situational, id }`. */
+            source?: Source;
           }
         | {
             applied: InstanceId[];
@@ -3230,19 +3232,28 @@ export type SituationalChoice = {
   available?: Condition;
   /** Effects that apply while this choice is selected (boolean) or non-default (integer, enum): its roll effects on a roll it is selected for, its incoming-change effects on a change it is selected for. The selected value is visible as `situational.<id>`. */
   effects?: Effect[];
-  /** Incoming changes only: what choosing it costs or gains (spend a resource, mark a once-a-scene use, offer a follow-up). Applied to the receiving character once per batch that selects it, however many changes do, after the batch's last change. Formulas see the character as the batch left it, `situational` and `batch`. */
+  /** Incoming changes only: what choosing it costs or gains (spend a resource, mark a once-a-scene use, damage a held shield, offer a follow-up). Applied to the receiving character once per batch that selects it, however many changes do, after the batch's last change. Formulas see the character as the batch left it, `situational` and `batch`; a `setState` or `adjustState` also sees `item` and `self` per matched copy. */
   changes?: SituationalChange[];
   label?: I18nKey;
 };
 
-/** A change a situational choice makes: `set` (`field`, `value`) or `adjust` (`field`, `by`, optional `tags`) of the character's input fields, or `offerFollowUp` of a rules follow-up (`followUp`, optional `params`). `when` skips it unless it holds. Its adjust is routed without incoming-change effects. */
+/** A change a situational choice makes: `set` (`field`, `value`) or `adjust` (`field`, `by`, optional `tags`) of the character's input fields, `setState` (`key`, `value`) or `adjustState` (`key`, `by`) of held copies named by `copies` (and optionally `limit`), or `offerFollowUp` of a rules follow-up (`followUp`, optional `params`). `when` skips it unless it holds. Its adjust is routed without incoming-change effects. */
 export type SituationalChange = {
-  type: 'set' | 'adjust' | 'offerFollowUp';
+  type: 'set' | 'adjust' | 'setState' | 'adjustState' | 'offerFollowUp';
   when?: Condition;
   field?: FieldRef;
   value?: Formula;
   by?: Formula;
   tags?: Tags;
+  /** setState, adjustState: the copies whose state changes, as a change's `copies` query: the copies of `type` (local or qualified; inventory, then features, each in file order) whose `where` holds with `item` and `self` bound, at the batch's end. `where`, `value` and `by` are evaluated per match, in the choice's pack, with `item`, `self`, `situational` and `batch`. No match is not an error. */
+  copies?: {
+    type: TypeRef;
+    where?: Condition;
+  };
+  /** With `copies`: change at most this many matches. */
+  limit?: number;
+  /** setState, adjustState: a state key the content type declares (numeric for adjustState). */
+  key?: Name;
   /** A rules follow-up's ID, local or `<pack>:<id>`. */
   followUp?: string;
   /** Formulas for the follow-up's action parameters, replacing the declaration's own. */
