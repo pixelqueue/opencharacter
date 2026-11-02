@@ -39,8 +39,7 @@ effects:
         - ability.hit
       from: self
     op: changes
-    when:
-      ((combat.active && heroic.current - item.cost - params.spend <
+    when: ((combat.active && heroic.current - item.cost - params.spend <
       0) || params.talentStrain) && has(steps.damage)
     value:
       changes:
