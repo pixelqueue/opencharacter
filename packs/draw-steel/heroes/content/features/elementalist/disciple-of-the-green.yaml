@@ -40,7 +40,12 @@ effects:
     op: grant
     when: elementalist.form == 'mohler'
     value: { tag: move.burrow }
-  - { target: immunity.fire, op: atLeast, value: 3, when: "elementalist.form == 'giant-salamander'" }
+  - {
+      target: immunity.fire,
+      op: atLeast,
+      value: 3,
+      when: "elementalist.form == 'giant-salamander'",
+    }
   # The form's melee damage bonus, on melee weapon damage (free strikes).
   - target: { rolls: [damage.kit-melee] }
     op: add
