@@ -89,7 +89,7 @@
     },
     {
       "id": "situational",
-      "description": "Selected situational choices (`situational.<id>`): in actions and roll effects, the player's choices for the action; in incoming-change effects, the receiving player's choices on the change being routed. A choice not selected reads its default."
+      "description": "Selected situational choices (`situational.<id>`): in actions and roll effects, the player's choices for the action; in incoming-change effects, the receiving player's choices on the change being routed (and a batch-scoped one selected on an earlier change of the batch); in a situational choice's `changes`, the choices selected on the batch. A choice not selected reads its default."
     },
     {
       "id": "roll",
@@ -137,15 +137,15 @@
     },
     {
       "id": "incoming",
-      "description": "In an incoming-change effect's `when`, `value` and `then`: the adjust being routed. `incoming.amount` is the change's `by` as requested, before any incoming-change effect (negative for harm), so every effect sees the same number; `incoming.field` is the qualified ID of the field it is aimed at; `incoming.tags` is its tags, as written. Never bound for overflow adjusts, which skip incoming-change effects."
+      "description": "In an incoming-change effect's `when`, `value` and `then`: the adjust being routed. `incoming.amount` is the change's `by` as requested, before any incoming-change effect (negative for harm), so every effect sees the same number; `incoming.field` is the qualified ID of the field it is aimed at; `incoming.tags` is its tags, as written. In `then` only: `incoming.taken`, the amount after every incoming-change effect, and `incoming.rolled`, the total the effect's own dice rolled (0 when it rolled none). Never bound for overflow adjusts, which skip incoming-change effects."
     },
     {
       "id": "change",
-      "description": "In a follow-up triggered by `on`: the `adjustments` entry that triggered it. `change.by` (what the field took), `change.requested` (the change's original amount; 0 when the entry has none), `change.taken` (the amount after incoming-change effects, before absorbing; 0 when the entry has none), `change.reason` (`requested`, `absorbed`, `overflow`, `reset` or `carry`), `change.clamped` (false when absent) and `change.tags` (the change's tags for `requested` and `absorbed` entries, the overflow's for `overflow` entries, `[]` for `reset` and `carry`). With `on.once`, the matching entries summed: `by`, `requested` and `taken` the sums, `reason` the first entry's, `clamped` true if any entry's is, `tags` the union in entry order. In a changes step's `release.where`: a held change, as the action returns it (`type`, `field`, `by`, `entry`, …), its `tags` `[]` when it has none."
+      "description": "In a follow-up triggered by `on`: the `adjustments` entry that triggered it. `change.by` (what the field took), `change.requested` (the change's original amount; 0 when the entry has none), `change.taken` (the amount after incoming-change effects, before absorbing; 0 when the entry has none), `change.reason` (`requested`, `absorbed`, `overflow`, `reset` or `carry`), `change.clamped` (false when absent) and `change.tags` (the change's tags for `requested` and `absorbed` entries, the overflow's for `overflow` entries, `[]` for `reset` and `carry`). With `on.once`, the matching entries summed: `by`, `requested` and `taken` the sums, `reason` the first entry's, `clamped` true if any entry's is, `tags` the union in entry order. In a changes step's `release.where`: a held change, as the action returns it (`type`, `field`, `by`, `entry`, \u2026), its `tags` `[]` when it has none."
     },
     {
       "id": "batch",
-      "description": "In the formulas applyChanges evaluates: a change aimed at copies or applied entries (`where`, `by`, `value`) and an applyEffect state value passed on as `{ formula }`. `batch.adjustments` lists the `adjustments` entries of the batch's earlier changes on this character that change a field, in order, each `{ field, by, requested, reason, clamped, tags }` as an `on` follow-up's `change` has them (`requested` 0 and `clamped` false when absent). A proposed change's formula that reads `batch` is passed on, as one reading `self` or `item` under `copies` is."
+      "description": "In the formulas applyChanges evaluates: a change aimed at copies or applied entries (`where`, `by`, `value`), an applyEffect state value passed on as `{ formula }`, an incoming-change effect's `when`, `value` and `then`, and a situational choice's `changes`. `batch.adjustments` lists the `adjustments` entries of the batch's earlier changes on this character that change a field, in order, each `{ field, by, requested, taken, reason, clamped, tags }` as an `on` follow-up's `change` has them (`requested` and `taken` 0 and `clamped` false when absent). A situational choice's `changes` see the whole batch's. A proposed change's formula that reads `batch` is passed on, as one reading `self` or `item` under `copies` is."
     }
   ],
   "functions": [

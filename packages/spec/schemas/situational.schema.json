@@ -47,6 +47,10 @@
       },
       "additionalProperties": false
     },
+    "scope": {
+      "description": "Incoming changes only: how far a selection reaches. `change` (default): the change it is selected on. `batch`: selected on one change of a batch, its incoming-change effects reach that change and every later adjust of the batch (an attack's damage types), and each `add` among them is worked out once and spent over those changes, never past 0: what one change doesn't take carries to the next.",
+      "enum": ["change", "batch"]
+    },
     "available": {
       "description": "When the choice is offered: a condition on the character (fields and `character`), checked before any roll. Absent means always.",
       "$ref": "formula.schema.json#/$defs/condition"
@@ -57,6 +61,14 @@
       "items": {
         "$ref": "effect.schema.json"
       }
+    },
+    "changes": {
+      "description": "Incoming changes only: what choosing it costs or gains (spend a resource, mark a once-a-scene use, offer a follow-up). Applied to the receiving character once per batch that selects it, however many changes do, after the batch's last change. Formulas see the character as the batch left it, `situational` and `batch`.",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/situationalChange"
+      },
+      "minItems": 1
     },
     "label": {
       "$ref": "common.schema.json#/$defs/i18nKey"
@@ -78,5 +90,105 @@
       }
     }
   ],
-  "additionalProperties": false
+  "additionalProperties": false,
+  "dependentRequired": {
+    "scope": ["incoming"],
+    "changes": ["incoming"]
+  },
+  "$defs": {
+    "situationalChange": {
+      "description": "A change a situational choice makes: `set` (`field`, `value`) or `adjust` (`field`, `by`, optional `tags`) of the character's input fields, or `offerFollowUp` of a rules follow-up (`followUp`, optional `params`). `when` skips it unless it holds. Its adjust is routed without incoming-change effects.",
+      "type": "object",
+      "required": ["type"],
+      "properties": {
+        "type": {
+          "enum": ["set", "adjust", "offerFollowUp"]
+        },
+        "when": {
+          "$ref": "formula.schema.json#/$defs/condition"
+        },
+        "field": {
+          "$ref": "common.schema.json#/$defs/fieldRef"
+        },
+        "value": {
+          "$ref": "formula.schema.json"
+        },
+        "by": {
+          "$ref": "formula.schema.json"
+        },
+        "tags": {
+          "$ref": "common.schema.json#/$defs/tags"
+        },
+        "followUp": {
+          "description": "A rules follow-up's ID, local or `<pack>:<id>`.",
+          "type": "string",
+          "minLength": 1
+        },
+        "params": {
+          "description": "Formulas for the follow-up's action parameters, replacing the declaration's own.",
+          "type": "object",
+          "propertyNames": {
+            "$ref": "common.schema.json#/$defs/name"
+          },
+          "additionalProperties": {
+            "$ref": "formula.schema.json"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "set"
+              }
+            },
+            "type": "object"
+          },
+          "then": {
+            "required": ["field", "value"],
+            "propertyNames": {
+              "enum": ["type", "when", "field", "value"]
+            },
+            "type": "object"
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "adjust"
+              }
+            },
+            "type": "object"
+          },
+          "then": {
+            "required": ["field", "by"],
+            "propertyNames": {
+              "enum": ["type", "when", "field", "by", "tags"]
+            },
+            "type": "object"
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "offerFollowUp"
+              }
+            },
+            "type": "object"
+          },
+          "then": {
+            "required": ["followUp"],
+            "propertyNames": {
+              "enum": ["type", "when", "followUp", "params"]
+            },
+            "type": "object"
+          }
+        }
+      ]
+    }
+  }
 }

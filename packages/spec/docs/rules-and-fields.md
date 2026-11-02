@@ -473,6 +473,7 @@ its dependencies' tallies. A roll step exposes every visible tally as `steps.<id
 - `rolls` lists the roll tags the choice is offered for. Tags match by prefix ([effects.md](effects.md#tag-matching)).
 - `incoming: { fields?, tags? }` offers the choice for incoming changes: an `adjust` whose field is one of `fields` and with a tag matching one of `tags`, each filter optional, as an incoming-change target matches ([effects.md](effects.md#targets)). A choice may have `rolls`, `incoming` or both. The receiving player selects it on the change itself (`situational` on an `adjust`, [below](#choices-on-incoming-changes)).
 - `effects` apply while the choice is selected (boolean) or non-default (integer, enum). Formulas see the value as `situational.<id>`. Roll items added by these effects have source `{ type: situational, id }`.
+- `scope` and `changes` are for choices with `incoming`: how far one selection reaches, and what choosing it costs ([below](#costs-and-whole-attacks)).
 - `available` is a condition on the character that says when the choice is offered: `omens.current > 0`, or a set field holding the content that grants the choice. Its formula sees the character's fields and `character`, as constraints do; there is no `item`, `self`, `steps` or `roll`, because it is decided before any roll. A choice without `available` is always offered. `computeSheet` lists the choices offered now in `situational`, and `startAction` rejects selecting one that isn't (`situational-unavailable`), and an ID the ruleset doesn't declare (`unknown-situational`).
 - Text: `situational.<id>.name`.
 - Releases: removing a choice, changing its `type` or dropping enum values is an interface change (`situational-removed`, `situational-type-changed`), and so is narrowing `available`, `rolls` or `incoming`, which needs a breaking bump the build can't check ([upgrades.md](upgrades.md#a-packs-interface)).
@@ -501,11 +502,74 @@ situational:
 - While that change is routed, each selected choice adds its incoming-change effects after the
   character's own, with source `{ type: situational, id }`. Every incoming-change effect, the
   character's own included, sees the values as `situational.<id>` (defaults for the rest).
-- The choices reach only that change: not its overflow and not the rest of the batch.
+- The choices reach only that change: not its overflow and not the rest of the batch (unless
+  the choice is batch-scoped, below).
 - An undeclared choice is `unknown-situational`. A selected choice that isn't offered, or whose
   `incoming` doesn't match the change, is `situational-unavailable`. Either rejects the batch ([engine-core.md](engine-core.md#routing-an-adjust)).
 - An action never sets them: the target's player chooses, on the target's side. Spending the
-  reaction is the app's.
+  reaction itself (a turn's one reaction) is the app's; a cost the rules track is the choice's
+  `changes`.
+
+### Costs and whole attacks
+
+A reaction often costs something (the Draw Steel null's discipline, a Godbound's Effort, a
+once-a-scene use), and some reduce an attack's **total** damage once, though the attack arrives
+as one adjust per damage type (5E 5.2's Deflect Attacks). Two keys cover them:
+
+```yaml
+situational:
+  - id: inertialShield
+    type: boolean
+    default: false
+    incoming: { fields: [stamina.current], tags: [damage] }
+    available: heroic.current >= 1
+    effects:
+      - target: { incoming: { fields: [stamina.current], tags: [damage] } }
+        op: multiply
+        value: 0.5
+    changes:
+      - { type: adjust, field: heroic.current, by: -1 }
+  - id: deflectAttacks
+    type: boolean
+    default: false
+    incoming: { fields: [hp.current], tags: [attack] }
+    scope: batch
+    available: deflectAttacks.known && !reaction.used
+    effects:
+      - target: { incoming: { fields: [hp.current], tags: [damage] } }
+        op: add
+        value: 1d10 + deflectAttacks.bonus
+        when: incoming.amount < 0
+    changes:
+      - { type: set, field: reaction.used, value: true }
+      - type: offerFollowUp
+        followUp: deflect-redirect
+        when: >-
+          countList(batch.adjustments, x.field == 'hp.current' && x.reason == 'requested'
+            && x.taken < 0) == 0
+```
+
+- **`changes`** are what choosing it costs or gains: `set` (`field`, `value`) and `adjust`
+  (`field`, `by`, optional `tags`) of the character's input fields, and `offerFollowUp` of a
+  rules follow-up (`followUp`, optional `params`), each with an optional `when`. They apply
+  **once per batch** that selects the choice, however many of its changes do (an attack split by
+  damage type pays once), after the batch's last change, in the order the choices were first
+  selected. Their formulas see the character as the batch left it, `situational` (the batch's
+  selections) and `batch` (every field entry of the batch). An adjust among them routes without
+  incoming-change effects, as an overflow does, and its `requested` entry in `adjustments`
+  carries the choice as `source`. They are never added to the returned `changes`: the change that
+  carries the selection brings them back on replay. A failure rejects the batch, at the change
+  that first selected the choice.
+- **`scope: batch`** makes one selection reach the whole attack: selected on one adjust, the
+  choice's incoming-change effects apply to that adjust and every later adjust of the batch
+  (their targets pick which), and the character's own effects see it as `situational.<id>` on
+  them all. Each `add` among its effects is worked out once, on the first change it counts on
+  (its dice rolled there, the faces on that adjust), and spent over the changes in order: it
+  moves each amount toward 0, by at most the amount, and what is left carries to the next change;
+  it never moves an amount away from 0. Its other operations apply to each change it reaches. It
+  can be selected on one change of a batch: a second is `situational-unavailable`. An app routes
+  one attack's damage as one batch and selects the choice on its first change.
+- Without `scope` (or with `scope: change`) a choice reaches only the change it is selected on.
 
 ## Link slots
 

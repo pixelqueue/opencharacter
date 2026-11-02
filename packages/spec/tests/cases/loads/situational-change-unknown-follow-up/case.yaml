@@ -1,0 +1,23 @@
+description: "A situational choice's `offerFollowUp` names a rules follow-up: an unknown one is `unknown-reference`"
+specVersion: 0.1.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        tags: [damage]
+        fields:
+          hp: { type: integer, input: true, default: 10 }
+        situational:
+          - id: parry
+            type: boolean
+            default: false
+            incoming: { fields: [hp], tags: [damage] }
+            changes:
+              - { type: offerFollowUp, followUp: riposte }
+      content: []

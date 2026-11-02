@@ -1,0 +1,28 @@
+# 6 + 2 = 8 stops the 3 and the 4, with 1 left over: the redirect is offered for the 7 stopped.
+# The dice function's face comes back on the change that rolled it.
+ok: true
+changes:
+  - type: adjust
+    field: test-reactions:hp
+    by: -3
+    tags: [attack, damage.slashing]
+    situational: { test-reactions:deflect: true }
+    faces: [6]
+  - { type: adjust, field: test-reactions:hp, by: -4, tags: [attack, damage.fire] }
+followUps:
+  - id: redirect-1
+    kind: ephemeral
+    followUp: test-reactions:redirect
+    to: self
+    required: false
+    action:
+      id: test-reactions:redirect
+      followUp: redirect-1
+    params:
+      stopped: 7
+character:
+  values:
+    test-reactions:deflects: true
+    test-reactions:hp: 20
+  followUps:
+    - { id: redirect-1, followUp: test-reactions:redirect, params: { stopped: 7 } }

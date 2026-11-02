@@ -162,7 +162,9 @@ spell it casts:
 incoming-change effect's `when`, `value` and `then` see `incoming`: `incoming.amount` is the
 change's `by` as requested, before any incoming-change effect (negative for harm), so every
 effect sees the same number whatever op runs first; `incoming.field` is the qualified ID of the
-field; `incoming.tags` is the change's tags. An incoming-change effect may also carry `then`: a
+field; `incoming.tags` is the change's tags. They also see `batch`, the batch's earlier field
+entries ([engine-core.md](engine-core.md#what-the-batch-did)), so an effect can reach only an
+attack's first damage. An incoming-change effect may also carry `then`: a
 list of changes to its own **entry**, `self`: the copy for a `holder` effect, the applied entry
 for an `applied` one (for content an applied grant reaches, the granting entry). Each is a
 `setState` or `adjustState` with `entry: self`, or, on an `applied` effect only, a
@@ -174,7 +176,9 @@ kept it), applyChanges applies them right after the adjust is routed, and report
 `adjustments`: a state change as `{ key, value, source }` with the address a setState would
 take (`entry`; `path` and `option`; or `grant` with either), a removal as
 `{ entry, removed: true, source }` ([engine-core.md](engine-core.md#routing-an-adjust)). Their
-`value` and `by` are formulas seeing `item`, `self` and `incoming`. They are not adjusts, so
+`value` and `by` are formulas seeing `item`, `self`, `incoming` and `batch`; there `incoming`
+also has `taken`, the amount after every incoming-change effect, and `rolled`, the total the
+effect's own dice rolled (0 when it rolled none). They are not adjusts, so
 nothing routes or triggers on them. Instead of `entry: self`, a state change may name
 `pick: owner`, the pick that activated the effect's content, or `grant: owner`, the holder grant
 that did, whatever keys they declare; content that isn't picked or granted that way has none,

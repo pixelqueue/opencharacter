@@ -1,0 +1,28 @@
+# The first damage: the ward soaks 3 (-5 to -2) and keeps 3 soaked and -2 taken. The second
+# isn't the batch's first damage, so the ward stays out of it.
+ok: true
+adjustments:
+  - field: test-reactions:hp
+    by: -2
+    requested: -5
+    taken: -2
+    reason: requested
+    rolled:
+      - source: { type: item, id: test-reactions:wards.ward, entry: ward, effect: soak }
+        dice: 1d4
+        faces: [3]
+        total: 3
+  - entry: ward
+    key: soaked
+    value: 3
+    source: { type: item, id: test-reactions:wards.ward, entry: ward, effect: soak }
+  - entry: ward
+    key: lastTaken
+    value: -2
+    source: { type: item, id: test-reactions:wards.ward, entry: ward, effect: soak }
+  - { field: test-reactions:hp, by: -4, requested: -4, taken: -4, reason: requested }
+character:
+  values:
+    test-reactions:hp: 14
+  inventory:
+    - { id: ward, item: test-reactions:wards.ward, state: { soaked: 3, lastTaken: -2 } }
