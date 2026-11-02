@@ -169,15 +169,18 @@ A content type may say `effectsWhen`: a condition every effect of its items need
 that holds for all of them ("only while attuned", "only with a matching kit") is written once.
 An item's own `effectsWhen` replaces its type's (`true` lifts it).
 
-- **Which effects:** it is ANDed into the `when` of the type's effects and the item's own, its
-  choices' `effects`, its inline options' effects (and theirs in turn) and its auras' `when`,
-  whatever their target (fields, rolls, choice and changes steps, action params, incoming
-  changes). Content the item grants or picks has its own.
-- **Read as `when`:** it is evaluated with the effect's roots, as the effect's `when` is: derived
-  fields bound, `item` and `self` the item and its copy, and whatever else the effect's `when`
-  sees there (`pick` in a choice's effects, `action` and `roll` in a roll effect's). A loop
-  through it is the effect's loop: a condition reading the field its own effect changes makes
-  that field `circular-formula`, as such a `when` does.
+- **Which effects:** it is ANDed into the `when` of the item's holder effects (`scope: holder`,
+  the default): the type's and the item's own, its choices' `effects` and its inline options'
+  effects (and theirs in turn), whatever their target (fields, rolls, choice and changes steps,
+  action params, incoming changes), and into the `when` of its holder auras. Content the item
+  grants or picks has its own.
+- **Not applied effects:** `scope: applied` effects and auras, whose `self` is the applied entry
+  (no attunement or investment there), don't read it: Winged Boots cast on an ally fly whether
+  or not anyone is attuned.
+- **What it reads:** `item`, `self` (the holder's copy) and the character's fields, derived
+  ones bound, as an effect's `when` does; not `pick`, `action` or `roll`, which only some of the
+  effects have. A loop through it is the effect's loop: a condition reading the field its own
+  effect changes makes that field `circular-formula`, as such a `when` does.
 - **Not activation:** grants, choices and actions don't read it: they are activation decisions
   (`when`, `activeWhen`) and listings (`available`).
 
@@ -195,31 +198,31 @@ magicItem:
 
 A content item ([`content-item.schema.json`](../schemas/content-item.schema.json)) is mechanics only. Its text lives in i18n under `<id>.name` and `<id>.description`.
 
-| Property         | Meaning                                                                                                                                                                                                                              |
-| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `id`, `type`     | Local ID (matching the file path) and content type                                                                                                                                                                                   |
-| `override`       | Instead of `id`/`type`: patch another pack's item ([packs.md](packs.md#overrides-hiding-and-extends))                                                                                                                                |
-| `extends`        | Permanent variant of another item                                                                                                                                                                                                    |
-| `tags`           | Free-form tags for queries (`martial`, `sword`, `finesse`)                                                                                                                                                                           |
-| `fields`         | Values for the type's item fields: literals or formulas. They MUST match the declared types; undeclared names and missing required fields are errors (`invalid-item-field`).                                                         |
-| `state`          | Extra per-copy state keys beyond the type's                                                                                                                                                                                          |
-| `effects`        | [effects.md](effects.md)                                                                                                                                                                                                             |
-| `effectsWhen`    | A condition every effect of the item needs, replacing its type's ([above](#a-condition-every-effect-needs))                                                                                                                          |
-| `followUps`      | What the rules call for after a change while the character has the item ([rules-and-fields.md](rules-and-fields.md#follow-ups))                                                                                                      |
-| `actions`        | Inline actions, or `{ use: <rules action>, params }`; `scope: applied` offers one on the character the item is applied to                                                                                                            |
-| `choices`        | See below                                                                                                                                                                                                                            |
-| `grants`         | `{ item, when, scope? }`: other content made active while this item is active (class features at level N); `scope: applied` while it is applied (below); `item` may be a formula or a query, and `forEach` makes it once per element |
-| `prerequisites`  | `{ id, when }`: conditions for having the item                                                                                                                                                                                       |
-| `immuneTo`       | `{ id, items \| query, when?, scope? }`: applied content the character can't be affected by while the item is active (below)                                                                                                         |
-| `reapply`        | `{ match?, state }`: what applying the item again does, replacing its type's (below)                                                                                                                                                 |
-| `appliesTo`      | Templates only                                                                                                                                                                                                                       |
-| `removeTags`     | Templates only: tags the copy's item doesn't have ([below](#templates))                                                                                                                                                              |
-| `params`         | Templates only: values its item fields read as `params.<name>`, given by the content keeping it ([below](#from-the-keeper))                                                                                                          |
-| `keepsTemplates` | Templates kept on the character's copies while the item is active ([below](#kept-templates))                                                                                                                                         |
-| `keepsFields`    | Item fields the templates it keeps leave alone ([below](#kept-templates))                                                                                                                                                            |
-| `repeatable`     | `true`: exempt from exclusivity groups, so several choices of one can pick it ([below](#exclusive-choices))                                                                                                                          |
-| `grantOnly`      | `true`: held only through grants and picks; `addItem` of it is `not-addable`. Replaces its type's ([above](#grant-only-content))                                                                                                     |
-| `deprecated`     | `{ since, replacedBy? }`                                                                                                                                                                                                             |
+| Property         | Meaning                                                                                                                                                                                                                                          |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `id`, `type`     | Local ID (matching the file path) and content type                                                                                                                                                                                               |
+| `override`       | Instead of `id`/`type`: patch another pack's item ([packs.md](packs.md#overrides-hiding-and-extends))                                                                                                                                            |
+| `extends`        | Permanent variant of another item                                                                                                                                                                                                                |
+| `tags`           | Free-form tags for queries (`martial`, `sword`, `finesse`)                                                                                                                                                                                       |
+| `fields`         | Values for the type's item fields: literals or formulas. They MUST match the declared types; undeclared names and missing required fields are errors (`invalid-item-field`).                                                                     |
+| `state`          | Extra per-copy state keys beyond the type's                                                                                                                                                                                                      |
+| `effects`        | [effects.md](effects.md)                                                                                                                                                                                                                         |
+| `effectsWhen`    | A condition every effect of the item needs, replacing its type's ([above](#a-condition-every-effect-needs))                                                                                                                                      |
+| `followUps`      | What the rules call for after a change while the character has the item ([rules-and-fields.md](rules-and-fields.md#follow-ups))                                                                                                                  |
+| `actions`        | Inline actions, or `{ use: <rules action>, params }`; `scope: applied` offers one on the character the item is applied to                                                                                                                        |
+| `choices`        | See below                                                                                                                                                                                                                                        |
+| `grants`         | `{ item, when, available?, scope? }`: other content made active while this item is active (class features at level N); `scope: applied` while it is applied (below); `item` may be a formula or a query, and `forEach` makes it once per element |
+| `prerequisites`  | `{ id, when }`: conditions for having the item                                                                                                                                                                                                   |
+| `immuneTo`       | `{ id, items \| query, when?, scope? }`: applied content the character can't be affected by while the item is active (below)                                                                                                                     |
+| `reapply`        | `{ match?, state }`: what applying the item again does, replacing its type's (below)                                                                                                                                                             |
+| `appliesTo`      | Templates only                                                                                                                                                                                                                                   |
+| `removeTags`     | Templates only: tags the copy's item doesn't have ([below](#templates))                                                                                                                                                                          |
+| `params`         | Templates only: values its item fields read as `params.<name>`, given by the content keeping it ([below](#from-the-keeper))                                                                                                                      |
+| `keepsTemplates` | Templates kept on the character's copies while the item is active ([below](#kept-templates))                                                                                                                                                     |
+| `keepsFields`    | Item fields the templates it keeps leave alone ([below](#kept-templates))                                                                                                                                                                        |
+| `repeatable`     | `true`: exempt from exclusivity groups, so several choices of one can pick it ([below](#exclusive-choices))                                                                                                                                      |
+| `grantOnly`      | `true`: held only through grants and picks; `addItem` of it is `not-addable`. Replaces its type's ([above](#grant-only-content))                                                                                                                 |
+| `deprecated`     | `{ since, replacedBy? }`                                                                                                                                                                                                                         |
 
 ### Auras
 
@@ -637,9 +640,9 @@ computed sheet, as an action's `available` is (derived fields bound; `self`, `it
 `i` as in the grant's `when`).
 
 - **What it gates:** it is ANDed into the `available` of every action the granted content offers,
-  its type's and its own, and of the content that content grants or picks in turn. Those actions
-  aren't listed and can't be started (`unknown-action`) while it fails; follow-ups don't offer
-  them.
+  its type's and its own, and of the content that content grants or picks in turn. While it
+  fails, those actions aren't listed and can't be started (`unknown-action`), follow-ups don't
+  offer them, the content's own follow-ups aren't declared and its auras aren't up.
 - **What it doesn't:** the grant stays an activation decision. The content is active and listed
   in computeSheet's `activations`, marked `unavailable: true` while the condition fails
   ([engine-core.md](engine-core.md#the-activation-list)), and its effects, grants and choices

@@ -83,7 +83,7 @@
       }
     },
     "effectsWhen": {
-      "description": "A condition every effect of each item of this type needs, unless the item gives its own `effectsWhen`: ANDed into the `when` of the type's effects and the item's own, its choices' and inline options' effects (roll, step, option and incoming effects too) and its auras' `when`, and evaluated as an effect's `when` is (derived fields bound; `item` and `self` the item and its copy). Not on grants, choices or actions, which are activation decisions. A magic item's attunement: `'!item.requiresAttunement || self.attuned'`.",
+      "description": "A condition every effect of each item of this type needs, unless the item gives its own `effectsWhen`: ANDed into the `when` of its holder effects (`scope: holder`): the type's and the item's own, its choices' and inline options' effects (roll, step, option and incoming effects too), and its holder auras' `when`. `scope: applied` effects and auras, whose `self` is the entry, don't read it. It reads `item`, `self` (the copy) and fields, derived ones bound, as an effect's `when` does. Not on grants, choices or actions, which are activation decisions. A magic item's attunement: `'!item.requiresAttunement || self.attuned'`.",
       "$ref": "formula.schema.json#/$defs/condition"
     },
     "followUps": {

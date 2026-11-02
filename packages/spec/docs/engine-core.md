@@ -430,7 +430,7 @@ this sheet, so it neither stacks nor appears in `effects`.
 **Content type effects and grants.** Wherever an item is active, its content type's effects
 (minus those the item `suppress`es) and grants apply first, then the item's own. Their
 competing-option keys are `<item id>#type.<effect id or index>`. The item's `effectsWhen`, else its
-type's, holds for all its effects ([content.md](content.md#a-condition-every-effect-needs)).
+type's, holds for all its holder effects ([content.md](content.md#a-condition-every-effect-needs)).
 
 **Choice keys.** An activation reads its choices' picks from its tree. The tree's own item (the
 entry's item, or a picked option) uses bare choice IDs. A template or granted content in the
@@ -445,10 +445,11 @@ activation's scope (`holder` effects for holder activations, `applied` effects f
 plus each choice's `effects` once per pick (with `pick` bound). An instance's source is
 `{ type: item | template | rules, id, entry? }`.
 
-- An instance counts while its `when` holds and, for content whose item or type has
-  `effectsWhen`, that condition holds too, evaluated with the same roots wherever the `when` is
-  (fields, rolls, steps, listings, incoming changes). Inline options and a choice's `effects`
-  take their owner's. A loop through it is `circular-formula`, as through a `when`.
+- An instance counts while its `when` holds and, for a holder effect of content whose item or
+  type has `effectsWhen`, that condition holds too, wherever the `when` is evaluated (fields,
+  rolls, steps, listings, incoming changes). Inline options and a choice's `effects` take their
+  owner's; `scope: applied` effects, whose `self` is the entry, don't read it. A loop through it
+  is `circular-formula`, as through a `when`.
 - Situational effects are not part of the sheet; they apply only when an action rolls.
 - Effects targeting rolls are listed in `effects`, but they apply only when an action rolls.
 - Effects targeting incoming changes apply only in `applyChanges`.
@@ -681,9 +682,11 @@ An action is available when its `available` formula (if any) is true, and, for a
 use's own `available` too (evaluated with the listing's `item` and `self`, in the pack that writes
 the use). A content action also needs the `available` of every grant its activation was reached
 through (its own grant's and those above it, each with that grant's roots, on the computed sheet):
-while one fails, the activation lists none of its actions and is marked `unavailable` in
-`activations` ([content.md](content.md#conditions-on-computed-values)). An activation offering several with one ID lists the first available one, and
-startAction and describeAction run and describe that one, its fixed `params` included. An available action with
+while one fails, the activation lists none of its actions, declares no follow-ups and projects
+no auras, and is marked `unavailable` in `activations`
+([content.md](content.md#conditions-on-computed-values)). An activation offering several with
+one ID lists the first available one, and startAction and describeAction run and describe that
+one, its fixed `params` included. An available action with
 `listed: false` (on the action, or on the `use` that names it) is left out of `actions`: only
 `startAction` and other actions' `action` steps run it. Two kinds of action are listed in
 `actions`:
@@ -807,8 +810,8 @@ depth first, then the active applied entries with their applied grants. Each is
   pick (content granted by picked content or an inline option), that pick's path, which names
   the grant's saved state ([applyChanges](#applychanges)).
 - `unavailable`: `true` while a grant's `available` it was reached through (its own grant's or
-  one above it) fails: the content is active, but none of its actions is listed. Absent
-  otherwise.
+  one above it) fails: the content is active, but none of its actions is listed, and it has no
+  follow-ups or auras. Absent otherwise.
 
 Inline options, the rules and applied entries an immunity blocks (which aren't activated) aren't
 listed, nor are the picks of a choice with `activate: false` or `addAs: copy` (whose copies are

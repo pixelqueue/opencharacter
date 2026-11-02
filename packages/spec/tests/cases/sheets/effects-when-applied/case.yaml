@@ -1,0 +1,31 @@
+description: "`effectsWhen` holds for holder effects only: an applied entry of an item that needs attunement has its `scope: applied` effects, its `self` being the entry, while the holder's unattuned copy has none"
+specVersion: 0.3.0
+call: computeSheet
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.3.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        fields:
+          speed: { type: integer, formula: 30 }
+          flying: { type: integer, formula: 0 }
+        contentTypes:
+          relic:
+            carried: true
+            fields:
+              requiresAttunement: { type: boolean, default: false }
+            state:
+              attuned: { type: boolean, default: false }
+            effectsWhen: '!item.requiresAttunement || self.attuned'
+      content:
+        # Worn, it gives its wearer flight while attuned; cast on another, it gives flight.
+        - id: relics.winged-boots
+          type: relic
+          fields: { requiresAttunement: true }
+          effects:
+            - { target: flying, op: add, value: 1 }
+            - { target: speed, op: add, value: 10, scope: applied }

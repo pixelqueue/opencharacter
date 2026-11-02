@@ -1,0 +1,20 @@
+# The mail kit has no shield: only the treasure's own follow-up is listed, not Roar's.
+ok: true
+followUps:
+  - id: ring-1
+    kind: ephemeral
+    followUp: 'test-pack:treasures.kings-roar#ring'
+    source: { type: item, id: test-pack:treasures.kings-roar, entry: shield }
+    to: self
+    required: false
+    changes:
+      - { type: adjust, field: test-pack:echoes, by: 1 }
+      - { type: clearFollowUp, id: ring-1 }
+    cause:
+      field: test-pack:strain
+      by: 1
+      requested: 1
+      taken: 1
+      reason: requested
+      clamped: false
+      tags: []

@@ -40,7 +40,7 @@ One-line definitions of OCF terms, consistent with the [specification](../../pac
 - **Dice modifier:** one of the fixed set of notation modifiers (keep, drop, explode, reroll, count successes, …).
 - **Display hint:** optional presentation data (groups, priority, format, unit, `showWhen`, hidden) that never affects calculations. A display group holds fields, actions or content.
 - **Effect:** a change active content makes to a field, a roll or an incoming change, with an operation, value and condition.
-- **effectsWhen:** a condition on a content type or item that every effect of its items needs (5E attunement: `'!item.requiresAttunement || self.attuned'`), ANDed into each effect's `when` and read as it is; an item's replaces its type's.
+- **effectsWhen:** a condition on a content type or item that every effect of its items needs (5E attunement: `'!item.requiresAttunement || self.attuned'`), ANDed into each holder effect's `when` and read as it is (not applied effects); an item's replaces its type's.
 - **Effect operation:** one of the fixed set: add, set, multiply, atLeast, atMost, grant, rollModifier, and, for tagged action steps, option (an extra choice option) and changes (extra proposed changes, or flags set), and, for tagged actions, params (extra parameters).
 - **Effect scope:** whether an effect applies to a character who has the content (`holder`) or one it is applied to (`applied`).
 - **Engine:** an implementation of the spec's calls; the TypeScript one is the reference engine, others are ports.
@@ -57,7 +57,7 @@ One-line definitions of OCF terms, consistent with the [specification](../../pac
 - **Follow-up:** what the rules call for on a character: a derived offer (`while`) or an ephemeral one (`on`, an adjustment, with `once` the batch's matching adjustments summed; `becomes`, a condition becoming true), with an action to run, changes to apply or (a derived one) a linked character to make. computeSheet lists them in `offers`; the engine never runs or applies one.
 - **Formula:** an expression in OCF's CEL-like language with dice notation; safe, finite and deterministic.
 - **Grant:** an effect operation that adds a member (proficiency, tag, action) to a set field; also an item's `grants` list making other content active.
-- **Grant `available`:** a condition on the computed sheet that a grant's content's actions wait on (a treasure's ability, usable only with a matching kit); the content stays active, marked `unavailable` in computeSheet's `activations`.
+- **Grant `available`:** a condition on the computed sheet that a grant's content's actions, follow-ups and auras wait on (a treasure's ability, usable only with a matching kit); the content stays active, marked `unavailable` in computeSheet's `activations`.
 - **Grant-only content:** content held only through what grants or picks it (a class feature, a subclass), marked `grantOnly` on its content type or item; `addItem` of it is `not-addable`, and apps leave it out of add-item catalogs.
 - **Group step:** an action step that runs its steps again and again, one pass at a time, while its `repeat.while` holds and up to `repeat.max` passes (a reroll, see the result, reroll again). Each pass's steps are at `<group>[<n>]/<step>`.
 - **Handoff:** an action step (`as: participant`) run on a participant's own character by the app, which answers the paused action with that run's outcome.
