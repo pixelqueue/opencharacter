@@ -11,8 +11,8 @@ content, better display hints) need no upgrade work at all. The character's save
 same thing under the new version; only the computed sheet changes.
 
 Some updates do change what saved state means: an item renamed or removed, a choice split in two
-or removed, a state key moved from a copy to one of its picks or granted content, a new required
-choice. Those versions have a **breaking** version bump (the minor version while a pack is 0.x, such
+or removed, a state key moved from a copy to one of its picks or granted content, an item that
+changes content type, granted content that becomes copies of its own, a new required choice. Those versions have a **breaking** version bump (the minor version while a pack is 0.x, such
 as 0.1.4 → 0.2.0; the major version from 1.0.0, such as 1.4.2 → 2.0.0) and ship an
 **upgrade script**, written by the pack's author, that moves characters across. The pack build
 refuses to release such a version without one, so your app never has to work out what a change
@@ -22,7 +22,24 @@ Upgrade scripts are data in the pack release, not code. A pack's latest release 
 its scripts, so any older pinned version can be upgraded from it. Their steps (`renameContent`,
 `removeChoice`, `moveState`, `removeState`, …, with `item` to narrow a state step to one item and
 an owner path for a choice nested in an inline option) are listed in the spec's
-[upgrade scripts](../../../packages/spec/docs/upgrades.md#upgrade-scripts).
+[upgrade scripts](../../../packages/spec/docs/upgrades.md#upgrade-scripts). Two of them move
+copies, which the player sees in the inventory:
+
+- **`changeContentType`**: an item's copies move to the list its new type keeps them in
+  (`inventory` or `features`), and lose `equipped` where the new type isn't equippable.
+- **`grantsToCopies`**: content a copy was granted becomes copies of its own, keeping its state
+  and picks (a 5E monster's traits, once granted by its stat block, now copied onto the sheet).
+
+### What your app passes in
+
+A breaking version may also change what your app passes to actions, with no upgrade script: it
+removes an action parameter or a situational choice, narrows one, or makes a parameter derived.
+Drop any you saved (a remembered toggle, a default) that computeSheet's `situational` and
+describeAction no longer list. startAction ignores a value for a parameter the action no longer
+declares, but reports the rest: `unknown-situational` for a removed situational choice,
+`situational-unavailable` for one no longer offered, `invalid-param` for a value given to a
+derived parameter. A paused action from before the upgrade can fail the same way when
+continued: start it again.
 
 ## The `upgrade` call
 
@@ -105,7 +122,10 @@ The engine computes the character under both versions and reports the difference
 - **`homebrew`**: each place in the character's homebrew a step rewrote, as `{ path, step }`
   (`path` a JSON Pointer into the upgraded character).
 - **`errors`**: anything in the upgraded character that still doesn't resolve (a reference no
-  script handled). Show these; the character still computes without the broken part. Homebrew
+  script handled). Show these; the character still computes without the broken part.
+  `grant-not-copied` (data `entry`, `item`) is granted content a `grantsToCopies` step couldn't
+  make a copy of (missing from the new release, or grant-only there): its saved state is gone, so
+  tell the player. Homebrew
   that no longer loads on the new ruleset is `homebrew-error`; the upgraded character still comes
   back, so the player can fix the custom content with a `setHomebrew` change
   ([Changing characters](changing-characters.md)).
