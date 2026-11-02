@@ -87,6 +87,10 @@ shape, an optional **dice function**.
    `available` is false must be left at its default (false for a boolean); selecting it is
    `situational-unavailable` (data: `situational`). Availability is checked once, when the
    action starts, against the character as given; changes the action proposes don't affect it.
+   A choice with `incoming` is meant to be selected on the change it reacts to
+   ([rules-and-fields.md](rules-and-fields.md#choices-on-incoming-changes)): given here, its
+   value is read as `situational.<id>`, but its incoming-change effects, `changes` and `scope`
+   apply only in applyChanges.
 4. **Participants**. `participants` maps the roles the action declares to lists
    of views (`{ id, values }`), each taken by the app from that character's own computed sheet.
    - A role the action doesn't declare, or a count outside the role's `min` (default 0) and
@@ -110,7 +114,9 @@ The **context** of a formula in an action:
 
 - `item` and `self`: the copy's views (absent for a rules action run without an entry; content
   without an entry has `item` and no `self`); for an applied entry's action,
-  `item` is its source and `self` the entry (`id` and its state keys);
+  `item` is its source and `self` the entry (`id` and its state keys). `self` also has the
+  content's computed values, the content's own over the owning copy's
+  ([content.md](content.md#computed-values));
 - `character` and `links`;
 - `params`;
 - `situational`;
@@ -206,7 +212,8 @@ A roll step is built, then rolled, then classified.
    its copy: its own action matches by the entry alone. A nested `action` step keeps its
    `source`. Each effect's `when` sees `roll` (`item`, `self`, `tags`) and the action context,
    `participants` and `participant` included, with `item`, `self` and the content's other roots
-   the effect's own, as an option effect's are: the Bracers of Archery's `self` is the bracers'
+   the effect's own, as an option effect's are (`self` with the content's computed values,
+   [content.md](content.md#computed-values)): the Bracers of Archery's `self` is the bracers'
    copy, whichever weapon attacks. The action's own item, copy and step are
    `action.item`, `action.self` and `action.step`. Stacking applies, by stack key as in
    the sheet, with the parts' carried instances:
@@ -666,7 +673,7 @@ it in a flag before the roll.
 
   Each instance's changes go `to` its value's `to`, else the step's. Its formulas see what
   an added option's see: `item` and `self` the content carrying the effect (`entry: self` its
-  copy), the action's own as `action.item`, `action.self` and `action.step` (the step's
+  copy; `self` with the content's computed values), the action's own as `action.item`, `action.self` and `action.step` (the step's
   evaluated tags), and the action's `params`, `situational`, `steps`, `flags`, `participants`
   and, in an `each` step, `participant`. They are resolved as the step's own changes are, at the
   step's path (per participant in an `each` step), and held by a `hold` action step like any
@@ -1069,7 +1076,8 @@ Roll, choice and allocate steps are **checkpoints** (a roll with no dice items i
 its own (`auto`) or pauses (`pause`); a [handoff](#handoffs) is a checkpoint that always pauses:
 
 1. The first matching `rules` entry decides. An entry matches by `kind`, by `tags` (any of the
-   roll's or the choice step's tags, with those an `action` step adds), and by `step` (the step's
+   roll's, the choice step's or the allocate step's tags, with those an `action` step adds to
+   roll and choice steps), and by `step` (the step's
    path).
 2. Otherwise the default applies: `dice` for rolls, `choices` for choices, `allocations` for
    allocate steps. Each defaults to `auto`. A rule's `kind` is `roll`, `choice`
@@ -1130,7 +1138,9 @@ Every checkpoint adds a log entry:
   `faces` lists every roll's faces as supplied; and `summary`, the roll's [summary](#the-roll-summary), a dice-less roll's
   included;
 - for a proposed change's rolled amount ([Other steps](#other-steps)), `kind: dice` with its
-  `faces`, the `dice` as canonical text and the `total`, at the changes step's path.
+  `faces`, the `dice` as canonical text, the `total`, and the change's `tags` and `field`, at
+  the path the change was proposed at (the changes step's, a choice step's for a picked option's
+  changes, or a roll step's for a roll effect's `then`).
 
 **A paused action is its inputs plus its answers so far** (`state`): the ruleset version, the
 character, the action, params, situational choices, link and applier views, participants, and every
@@ -1208,11 +1218,20 @@ These follow from the rules above; they are spelled out because engines have to 
 ## Errors and limits
 
 - **Errors:** the result is `{ ok: false, errors }` with:
-  - `unknown-action`, `missing-param`, `wrong-type`, `out-of-range`, `invalid-option`;
+  - `unknown-action`, `missing-param`, `wrong-type`, `out-of-range`, `invalid-option`,
+    `invalid-param`;
+  - `unknown-follow-up` (a `followUp` taken up that isn't offered);
   - `unknown-situational`, `situational-unavailable` (the app's `situational`);
   - `invalid-participants`, `duplicate-id`, `invalid-link-value` (participants);
   - `undeclared-result`;
   - `unknown-field`, `not-input-field` (a computed field; a roll part's `field`);
+  - `unknown-reference` (a computed `addItem` item, `applyEffect` source or template; an
+    `offerFollowUp`'s follow-up; `pick: owner` or `grant: owner` with none; a choice named by
+    owner that doesn't resolve) and `not-addable` (a computed `addItem` of grant-only content);
+  - `unknown-role` (an `action` effect's `each` naming another role in an `each` step, or its
+    `as: participant` with no current participant);
+  - `unknown-tag` (a computed tag that isn't declared);
+  - `invalid-face` (a `setFaces` face not on the die);
   - `answer-mismatch` (from replayed `answers`, with `index` and `needs`);
   - `proposed-changes-failed` ([the proposed sheet](#the-proposed-sheet));
   - `conflicting-roll-modifiers`;
