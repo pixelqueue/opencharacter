@@ -5,3 +5,20 @@ fields:
   requires: non-mage
 prerequisites:
   - { id: non-mage, when: class.mage == 0 }
+# You and allies within twenty feet: +2 on saves against magical effects.
+effects:
+  - target: { rolls: [save] }
+    op: add
+    value: 2
+    when: situational.magical
+    stackKey: nullifier
+auras:
+  - id: nullification
+    size: 20
+    affects: allies
+    effects:
+      - target: { rolls: [save] }
+        op: add
+        value: 2
+        when: situational.magical
+        stackKey: nullifier

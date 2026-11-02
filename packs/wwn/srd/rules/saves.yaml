@@ -18,7 +18,12 @@ fields:
     formula: 16 - level
 
 situational:
-  # Nullifier: +2 on a save against magic, for the hero and allies within twenty feet.
+  # A save against a magical effect: a Nullifier, and allies in the Nullifier's aura, get +2.
+  - id: magical
+    type: boolean
+    default: false
+    rolls: [save]
+  # The Nullifier's +2 for a table that doesn't place the aura: it doesn't add to the aura's.
   - id: nullified
     type: boolean
     default: false
@@ -27,6 +32,7 @@ situational:
       - target: { rolls: [save] }
         op: add
         value: 2
+        stackKey: nullifier
 
 resultBands:
   save:

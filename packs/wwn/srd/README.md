@@ -72,7 +72,10 @@ computeSheet(ruleset, made.character).values['wwn-srd:saves.physical']?.value; /
 - **Foci:** all thirty-six, Traditional Education included, with their levels, bonus skills,
   who may take them, and the effects that change numbers: Die Hard, Impervious Defense,
   Developed Attribute, Armsmaster, Deadeye, Shocking Assault, Close Combatant, Unarmed Combatant,
-  Specialist, Gifted Chirurgeon, Polymath, Alert, Armored Magic, Xenoblooded.
+  Specialist, Gifted Chirurgeon, Polymath, Alert, Armored Magic, Xenoblooded, Nullifier. A
+  Nullifier's +2 on saves against magic (the `magical` situational choice) reaches allies
+  through its twenty-foot aura, which the app places on those inside; the `nullified` choice
+  stays for a table that doesn't, and never adds to the aura's.
 - **Hit points, attack and saves:** hit dice rolled again each level (no die below 1, one more
   than before at least), the class mix's attack bonus, saves of 16 less level and the better
   modifier, System Strain up to Constitution, Frail and Mortally Wounded.
