@@ -1,0 +1,109 @@
+# Hero tokens: a pool the whole party shares, kept on a party sheet of its own (the `party`
+# creation start) that every hero links through the `party` slot. Heroes spend from it with changes
+# to the link; the party sheet refills it at the start of a session and takes awards.
+fields:
+  heroTokens: { type: integer, input: true, default: 0, min: 0 }
+  sheet.party: { type: boolean, formula: "countCopies(copy.type == 'party') > 0" }
+
+contentTypes:
+  # The party sheet's one item: it isn't a hero.
+  party:
+    carried: false
+    effects:
+      - { target: sheet.hero, op: set, value: 'false' }
+
+links:
+  party:
+    pack: draw-steel-heroes
+    fields:
+      heroTokens: { type: integer, default: 0 }
+
+creation:
+  - { id: party, action: create-party }
+
+actions:
+  # A party sheet: the pool, starting with a token per hero.
+  - id: create-party
+    tags: [creation]
+    available: character.creating
+    params:
+      heroes: { type: integer, default: 4, min: 0 }
+    results: [created]
+    steps:
+      - id: make
+        kind: changes
+        changes:
+          - { type: addItem, entry: { item: "'parties.party'" } }
+          - { type: set, field: heroTokens, value: params.heroes }
+          - { type: finishCreation }
+      - { id: done, kind: outcome, result: "'created'" }
+
+  # The party sheet's: a new session starts with a token per hero; the Director awards more.
+  - id: start-session
+    tags: [resource]
+    available: sheet.party
+    params:
+      heroes: { type: integer, default: 4, min: 0 }
+    results: [started]
+    steps:
+      - id: refill
+        kind: changes
+        changes:
+          - { type: set, field: heroTokens, value: params.heroes }
+      - { id: done, kind: outcome, result: "'started'" }
+  - id: award-hero-token
+    tags: [resource]
+    available: sheet.party
+    params:
+      tokens: { type: integer, default: 1, min: 1 }
+    results: [awarded]
+    steps:
+      - id: award
+        kind: changes
+        changes:
+          - { type: adjust, field: heroTokens, by: params.tokens }
+      - { id: done, kind: outcome, result: "'awarded'" }
+
+  # A hero's: 1 token for 2 surges, to succeed on a failed saving throw (the save-ends entry it
+  # ends) or to reroll a test (the app rerolls); 2 tokens to regain Stamina equal to the recovery
+  # value. One benefit per turn or test is the table's to keep.
+  - id: spend-hero-token
+    tags: [resource]
+    available: sheet.hero && has(links.party) && links.party.heroTokens > 0 && !stamina.dead
+    params:
+      benefit: { type: enum, values: [surges, save, reroll, stamina], default: surges }
+      entry: { type: string, optional: true }
+    results: [spent, short]
+    steps:
+      - id: short
+        kind: outcome
+        when: "params.benefit == 'stamina' && links.party.heroTokens < 2"
+        result: "'short'"
+      - id: spend
+        kind: changes
+        to: { link: party }
+        changes:
+          - type: adjust
+            field: draw-steel-heroes:heroTokens
+            by: "params.benefit == 'stamina' ? -2 : -1"
+      - id: benefit
+        kind: changes
+        changes:
+          - { type: adjust, when: "params.benefit == 'surges'", field: surges.current, by: 2 }
+          - type: adjust
+            when: "params.benefit == 'stamina'"
+            field: stamina.current
+            by: recoveries.value
+            tags: [healing]
+          - type: removeEffect
+            when: "params.benefit == 'save' && has(params.entry)"
+            applied: { where: self.id == params.entry }
+      - { id: done, kind: outcome, result: "'spent'" }
+
+followUps:
+  # A hero without a party sheet is offered one.
+  - id: party-sheet
+    while: '!character.creating && sheet.hero'
+    create:
+      link: party
+      start: party
