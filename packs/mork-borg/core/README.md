@@ -13,28 +13,13 @@ with Ockult Örtmästare Games or Stockholm Kartell. It is published under the
 [MÖRK BORG Third Party License](https://morkborg.com/license/). MÖRK BORG is copyright Ockult
 Örtmästare Games and Stockholm Kartell.
 
-## License
-
-- **Metadata:** `mechanics-only`. The license's required notices (above) are in the manifest, so
-  apps pass them on to their users: the copyright line is the pack's `credit`, and the
-  independent-production statement its `not-affiliated` notice.
-- **Terms:** [`LICENSE`](LICENSE) gives the pack's terms: the contributors' own work in it is under CC0 1.0 (the repository's default for packs), with the notices above.
-- **What the Third Party License allows:**
-  - Anyone may publish material based on MÖRK BORG, free or paid, without asking.
-  - The mechanics and rules may be reused freely.
-  - The names of creatures, locations and entities of the game world may be used.
-- **What it forbids:**
-  - Reusing or translating the books' art and text without permission.
-  - Using the publishers' logos.
-  - Suggesting the product is official or endorsed.
-
 ## Install and load
 
 ```sh
 pnpm add @opencharacter/engine @opencharacter/mork-borg-core
 ```
 
-This release needs spec 0.3: `@opencharacter/engine` 0.3.0 or later. An engine for an older
+This release needs spec 0.4: `@opencharacter/engine` 0.4.0 or later. An engine for an older
 spec refuses it (`spec-version-unsupported`).
 
 ```ts
@@ -59,6 +44,21 @@ sheet.values['mork-borg-core:load.capacity']?.value; // 9 (Strength + 8)
 The English text is `@opencharacter/mork-borg-core/i18n/en`. To make a new character instead,
 start a character with `creating: true` and run one of the creation starts below (`guided`,
 `class` or `classless`) with `startAction`.
+
+## License
+
+- **Metadata:** `mechanics-only`. The license's required notices (above) are in the manifest, so
+  apps pass them on to their users: the copyright line is the pack's `credit`, and the
+  independent-production statement its `not-affiliated` notice.
+- **Terms:** [`LICENSE`](LICENSE) gives the pack's terms: the contributors' own work in it is under CC0 1.0 (the repository's default for packs), with the notices above.
+- **What the Third Party License allows:**
+  - Anyone may publish material based on MÖRK BORG, free or paid, without asking.
+  - The mechanics and rules may be reused freely.
+  - The names of creatures, locations and entities of the game world may be used.
+- **What it forbids:**
+  - Reusing or translating the books' art and text without permission.
+  - Using the publishers' logos.
+  - Suggesting the product is official or endorsed.
 
 ## What's modeled
 
@@ -164,8 +164,10 @@ start a character with `creating: true` and run one of the creation starts below
     `test` tagged `attack` or `defense`. The app puts it on whoever fights beside the jester.
     Where the aura isn't on a character (no jester sheet, or an app without auras), the owner has
     the situational choice `poltroon` and its allies `poltroonAlly` (the same +2) instead, offered
-    only while no capering entry is held. **Barbarister:** `barbarister` lowers a Presence test's DR by 2, offered while the
-    feature is picked and a linked horse has HP above 0.
+    only while no capering entry is held; the owner's `poltroon` isn't offered while a linked
+    jester is at 0 HP or below either.
+  - **Barbarister:** `barbarister` lowers a Presence test's DR by 2, offered while the feature is
+    picked, unless a linked horse is at 0 HP or below.
   - **Hamfund:** Eurekia is `cursed`: each attack with it rolls a d6, and a 1 sets the linked
     Hamfund's HP to −1 (dead) and removes Eurekia.
 - **Decoctions:** the Occult Herbmaster's eight, as `decoction` items whose quantity is the
@@ -221,7 +223,7 @@ start a character with `creating: true` and run one of the creation starts below
   - **Crits and fumbles that double damage:** the rules' `crit-damage` doubles
     every item of a damage roll made after a crit on the action's test (`steps.check`), and
     `fumble-damage` every item of the damage a defense takes (`damage.taken`) after a fumble.
-    Whatever adds to the roll (Grace for a Sinner's d6) is doubled with it. This covers `attack`,
+    Whatever adds to the roll (Grace for a Sinner's bonus) is doubled with it. This covers `attack`,
     `companion-attack`, the Fanged Deserter's bite and Coward's Jab.
   - `attack` (weapons): Strength for melee, Presence for ranged. A crit doubles the damage and
     proposes that the target's worn armor drop a tier (a change aimed at the target's armor
@@ -231,7 +233,7 @@ start a character with `creating: true` and run one of the creation starts below
     crit, and proposes spending it; a Wizard Teeth charge (`tooth`) does the same. Rolling is
     recommended, so the choice only stops a run whose policy pauses on it. A poisoned blade kills
     when its die shows 1. The choice reads the omens left after the test's (on the DR, `omen`,
-    or a reroll, `fate`; the proposed sheet, proposal 0046). `fate` and `ward` read them the
+    or a reroll, `fate`: the omens left on the proposed sheet). `fate` and `ward` read them the
     same way.
   - `defend`: an Agility test against the attack. On a failure it proposes the attack's damage
     (a dice parameter); armor and shield come off when it is applied (below). A fumble doubles
@@ -346,49 +348,12 @@ A pack that depends on `mork-borg-core` can add content of its types, and it joi
   `creation.armor`, `creation.scroll`, `creation.equipment`, `creation.shield`, `creation.ammo`
   and `creation.features`; for its `changes` effects: `creation.scores` (saving the rolls) and
   `creation.gear` (adding the starting gear).
+- **Plain die rolls** that are neither tests nor damage (a weapon's doom or curse d6, the bite's
+  exposure, rattled wizard teeth, a gob's blindness, an omen's ward d6) are tagged `chance`, so
+  an add-on's effects on `attack`, `defense` or `test` don't reach them.
 
 Still closed: a scroll's and a decoction's `amountKind`, `durationUnit` and a decoction's
 `state`, which the core's actions read.
-
-## Coverage
-
-The sheet and the core rules are modeled. What's missing is left to the app or the table:
-
-- **Left to the app or the table on purpose:**
-  - Creating a companion's sheet and linking it; the pack offers it.
-  - The clock beyond turns: when timed states end (a hemorrhage's hours, Fernor's Philtre,
-    berserk, a decoction spoiling after 24 hours), the first two rounds of Poltroon's capering,
-    Eurekia's once per combat and Gob Lobber's d2 spits a fight. The app runs `turn-boundary`
-    at each turn change; what lasts rounds counts down there.
-  - Who is where: who drinks a decoction, who witnesses a gob, who is inside the jester's
-    capering.
-  - Miseries.
-  - Enemy stats and morale (the Crumpled Monster Mask, the Crucifix).
-  - The rest of the list below.
-
-## Omitted
-
-- **Items beyond the starting lists.** Gear from the price list beyond the starting-equipment
-  tables is left out, and so are the weapons beyond the d10 starting table: battle axe, mace, handaxe, club,
-  whip, shortbow and sling. Arrow and bolt prices are left out because the sources'
-  bundle sizes disagree. The tablets from the supplements are left out too.
-- **Scroll effects in words:** what a scroll does besides its numbers (confusion, invisibility,
-  questions to the dead, …) is text.
-- **What class features do,** beyond their numbers: a book's slayers fighting, a mask or
-  crucifix scaring creatures, hallucinations, a crook sparing the faithless, the Blade of Your
-  Ancestors turning on a disappointing owner (when is the GM's), Excretal Stealth (the other
-  side's DR16 test) and the Bard's +d4 on reaction rolls (the GM's roll). The Stolen Mitre's
-  stealth test names no ability, so it isn't an action. The origin tables are left out too.
-- **The Occult Herbmaster's first brew** isn't part of creation: the herbmaster runs `brew`.
-- **Tables:** arcane catastrophes, terrible traits, broken bodies, bad habits. The
-  actions return the rolls for the app to look up.
-- **Behavior decided at the table or by the app:**
-  - Being dizzy for an hour after a failed power.
-  - Hirelings and followers other than the class companions.
-  - What companions do beyond their numbers: the hound's nose and frenzy, the hawk's scouting,
-    and when Barbarister cares to help.
-- **Miseries.** The end of the world is campaign state, not a character's.
-- **Supplement classes** (Feretory and others).
 
 ## Rule readings
 
@@ -411,6 +376,42 @@ Where the book leaves a rule open, the pack reads it this way:
   character knows whether it has a scroll. The donkey, the wagon, the dog and the monkeys don't
   count toward load (`load: false`); the containers don't raise it. What the dog and monkeys do
   in a fight is the GM's.
+
+## Limitations
+
+The sheet and the core rules are modeled. What's missing is left to the app or the table, or
+left out:
+
+- **Left to the app or the table on purpose:**
+  - Creating a companion's sheet and linking it; the pack offers it.
+  - The clock beyond turns: when timed states end (a hemorrhage's hours, Fernor's Philtre,
+    berserk, a decoction spoiling after 24 hours), the first two rounds of Poltroon's capering,
+    Eurekia's once per combat and Gob Lobber's d2 spits a fight. The app runs `turn-boundary`
+    at each turn change; what lasts rounds counts down there.
+  - Who is where: who drinks a decoction, who witnesses a gob, who is inside the jester's
+    capering.
+  - Enemy stats and morale (the Crumpled Monster Mask, the Crucifix).
+- **Items beyond the starting lists.** Gear from the price list beyond the starting-equipment
+  tables is left out, and so are the weapons beyond the d10 starting table: battle axe, mace, handaxe, club,
+  whip, shortbow and sling. Arrow and bolt prices are left out because the sources'
+  bundle sizes disagree. The tablets from the supplements are left out too.
+- **Scroll effects in words:** what a scroll does besides its numbers (confusion, invisibility,
+  questions to the dead, …) is text.
+- **What class features do,** beyond their numbers: a book's slayers fighting, a mask or
+  crucifix scaring creatures, hallucinations, a crook sparing the faithless, the Blade of Your
+  Ancestors turning on a disappointing owner (when is the GM's), Excretal Stealth (the other
+  side's DR16 test) and the Bard's +d4 on reaction rolls (the GM's roll). The Stolen Mitre's
+  stealth test names no ability, so it isn't an action. The origin tables are left out too.
+- **The Occult Herbmaster's first brew** isn't part of creation: the herbmaster runs `brew`.
+- **Tables:** arcane catastrophes, terrible traits, broken bodies, bad habits. The
+  actions return the rolls for the app to look up.
+- **Behavior decided at the table or by the app:**
+  - Being dizzy for an hour after a failed power.
+  - Hirelings and followers other than the class companions.
+  - What companions do beyond their numbers: the hound's nose and frenzy, the hawk's scouting,
+    and when Barbarister cares to help.
+- **Miseries.** The end of the world is campaign state, not a character's.
+- **Supplement classes** (Feretory and others).
 
 ## Sources
 
