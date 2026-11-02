@@ -41,11 +41,7 @@ effects:
           state: { duration: "'save'", value: '[3, 5, 7][flags.tier - 1]' }
   - { target: weakness.fire, op: add, value: self.value, scope: applied }
 actions:
-  - id: save
+  - use: saving-throw
     scope: applied
-    tags: [saving-throw]
     available: "self.duration == 'save'"
-    results: [success, failure]
-    steps:
-      - { id: save, kind: action, use: saving-throw, params: { entry: self.id } }
-      - { id: done, kind: outcome, result: steps.save.result }
+    params: { entry: self.id }

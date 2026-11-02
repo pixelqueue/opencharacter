@@ -33,15 +33,11 @@ contentTypes:
         scope: applied
         when: "item.id == @conditions.taunted && self.appliedBy != ''"
     actions:
-      # A saving throw against this save-ends condition; a success ends it.
-      - id: save
+      # The saving throw, offered while the condition is "save ends"; a success ends it.
+      - use: saving-throw
         scope: applied
-        tags: [saving-throw]
         available: "self.duration == 'save'"
-        results: [success, failure]
-        steps:
-          - { id: save, kind: action, use: saving-throw, params: { entry: self.id } }
-          - { id: done, kind: outcome, result: steps.save.result }
+        params: { entry: self.id }
 
   # Any other effect an ability leaves on a creature for a while ("the target has damage weakness
   # 5 (save ends)"): applied content with a condition's duration, source and saving throw. Its
@@ -57,14 +53,10 @@ contentTypes:
         }
     reapply: { state: { duration: replace } }
     actions:
-      - id: save
+      - use: saving-throw
         scope: applied
-        tags: [saving-throw]
         available: "self.duration == 'save'"
-        results: [success, failure]
-        steps:
-          - { id: save, kind: action, use: saving-throw, params: { entry: self.id } }
-          - { id: done, kind: outcome, result: steps.save.result }
+        params: { entry: self.id }
 
 fields:
   # The conditions in effect: each active, unblocked applied condition grants itself here (and
