@@ -301,6 +301,10 @@ tags:
 
 - Declaring `damage.fire` also declares `damage`.
 - A pack may use its dependencies' tags.
+- Tags aren't qualified: unrelated packs may declare the same tag. An effect's tag targets reach
+  only the actions, rolls and steps of packs that meet its own over that tag, and its `fields`
+  queries only fields of packs that meet its own
+  ([effects.md](effects.md#which-packs-a-tag-target-reaches)).
 - The build rejects undeclared static tags (`unknown-tag`). A tag computed by a formula is checked when the action runs. A tag on a change an app gives applyChanges is checked there: an undeclared one rejects the batch (`unknown-tag`), so a misspelled or qualified tag (`5e-srd-5.1:damage.fire`; tags are never qualified) isn't applied silently, matching no effect or follow-up. An app applying changes to a linked character (an action's changes `to` a link or role) must load that character with a ruleset that declares the tags it sends.
 - Tags are data, not text. Apps may show labels from the optional translation key `tags.<tag>.name`.
 

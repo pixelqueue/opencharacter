@@ -152,7 +152,12 @@ monster starts) offer it beside the core's own:
 - **Action steps.** The add-on's rules' `option` and `changes` effects reach the core's tagged
   choice and changes steps (an extra option in a creation step), its options named
   `rules.options.<id>.name`; its `params` effects add parameters to the core's tagged actions,
-  named `rules.params.<name>.name`.
+  named `rules.params.<name>.name`. Tag targets reach only packs that share a pack declaring
+  the tag with the effect's: an add-on and its core reach each other's tagged actions, rolls and
+  steps, and so do two add-ons of one core. An unrelated game loaded in the same ruleset (the
+  `@opencharacter/packs` bundle) never reaches another game's own actions, even with the same
+  tags; a homebrew depending on both is reached by each, but runs a game's content-type action
+  only under that game's effects and its own.
 
 An add-on can't change what the core wrote out by ID: a fixed kit list, a random table over core
 IDs, a choice over a query whose `where` lists IDs. Those are for the core pack to open up, with

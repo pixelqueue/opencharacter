@@ -126,8 +126,11 @@ chooses its damage type on each use, and a feature adds an opt-in to a rules act
 - A `use` may fix an added parameter in its `params`, as its own.
 - A name an action its literal target tags reach already declares, or one another `params`
   effect adds with another declaration over target tags that meet, is `invalid-added-param` at
-  load. An action reached only through computed tags keeps its own parameter, and the first
-  effect's declaration wins.
+  load. An action counts by the pack that wrote it, and only when the effect reaches it over
+  packs that meet; two effects conflict only when one action may take both
+  ([effects.md](effects.md#which-packs-a-tag-target-reaches)), so an unrelated game loaded beside
+  it never clashes. An action reached only through computed tags keeps its own
+  parameter, and the first effect's declaration wins.
 - Text: `<content key>.params.<name>.name`: an item's or a template's own key,
   `types.<type>` for a content type's effect, `rules` for the rules'.
 

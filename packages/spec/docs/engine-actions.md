@@ -179,6 +179,9 @@ A roll step is built, then rolled, then classified.
    - the effects of the selected situational choices. A boolean choice is selected when true; an
      integer or enum choice when it differs from its default.
 
+   Either way, only effects of packs that meet the pack that wrote the action, over a matching
+   target tag, are candidates ([effects.md](effects.md#which-packs-a-tag-target-reaches)).
+
    An instance with `from: self` applies only to rolls made by its own copy: its source entry is
    the action's entry, and when the action runs for content granted or picked under the copy
    (named by `source`), the content carrying the effect is that content. A template is part of
@@ -604,7 +607,9 @@ it in a flag before the roll.
   order:
   1. Its `release`, if any.
   2. Each active `changes` instance whose source is a content item, a template or the rules'
-     effects (`item` and `self` unbound, `from: self` never matching), whose target tags match
+     effects (`item` and `self` unbound, `from: self` never matching), of a pack that meets the
+     pack that wrote the action over the matching tag
+     ([effects.md](effects.md#which-packs-a-tag-target-reaches)), whose target tags match
      one of the step's (a tag matches itself and the tags below it), whose `from: self` (if any)
      names the action's own copy (and the content granted or picked under the copy, named by
      `source`, as for roll effects), and whose `when` holds is taken, in instance order: its `flags`
@@ -792,7 +797,10 @@ A choice step has one source of options (a fifth, pending choices, is
 
 - **Added options**. A step with `tags` also offers, after its source's
   options, the options content adds: each of the character's active `option` effects (in
-  instance order, as for roll effects) whose target tags match one of the step's evaluated tags
+  instance order, as for roll effects) of a pack that meets the pack that
+  wrote the action over the matching tag
+  ([effects.md](effects.md#which-packs-a-tag-target-reaches)), whose target tags match one of
+  the step's evaluated tags
   ([tag matching](effects.md#tag-matching)), whose `from: self`, if given, names the action's
   entry (and the content granted or picked under the copy, named by `source`, as for roll
   effects), and whose `when` holds. Its ID is `<content id>#<option id>`, the content being the

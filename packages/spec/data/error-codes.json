@@ -266,7 +266,7 @@
     {
       "id": "invalid-added-param",
       "kind": "load",
-      "description": "A `params` effect's parameter can't be added: it is neither `optional` nor has a `default` (reason `required`), an action its target tags reach by its literal tags declares a parameter of that name (reason `declared`, data `action`), or another `params` effect adds that name with another declaration over target tags that meet (one is the other or below it; reason `conflict`, data `other`). Data: `param`, `source` (the effect's content, `<pack>:types.<type>` or `<pack>:rules`), `reason`."
+      "description": "A `params` effect's parameter can't be added: it is neither `optional` nor has a `default` (reason `required`), an action its target tags reach by its literal tags declares a parameter of that name (reason `declared`, data `action`), or another `params` effect adds that name with another declaration over target tags that meet (one is the other or below it; reason `conflict`, data `other`). An action counts by the pack that wrote it and only when the effect reaches it over packs that meet; two effects conflict only when one action's literal tags meet a target tag of each (effects.md, Which packs a tag target reaches). Data: `param`, `source` (the effect's content, `<pack>:types.<type>` or `<pack>:rules`), `reason`."
     },
     {
       "id": "circular-extends",

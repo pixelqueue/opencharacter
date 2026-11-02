@@ -90,7 +90,7 @@ effects:
     scope: applied
   ```
 
-- **Rolls as they happen:** `target: { rolls: [attack, damage], from: self }`. The effect applies to any roll carrying one of the tags. `from: self` limits it to rolls made by the item carrying the effect (a +1 weapon): the action's copy, and for an action run for content granted or picked under the copy (named by `source`) that content, so abilities a class grants that share their type's action each reach only their own rolls (a template is part of its copy, so its own action matches by the copy, as the copy's item's does; a nested `action` step keeps its `source`); `from: any` (the default) covers every matching roll the character makes (Bless). Roll effects add items to the itemized roll or modify its dice, and `atLeast` and `atMost` bound its total once it is rolled (see below). With `tally: <name>`, the effect adds to one of the roll's tallies instead (see below). With `band: value`, an `atLeast` or `atMost` bounds the value of the roll's band set instead (see below). With `parts: [<tag>]`, it reaches the roll's own parts carrying a matching tag instead of the whole roll: a `set` replaces them, and a `stepDie` or `setFaces` roll modifier changes only their dice (see [Replacing a roll's part](#replacing-a-rolls-part)). Its formulas see `item` and `self` as the content carrying the effect, the roll as `roll`, the action's own item and copy as `action.item` and `action.self`, and the running action's `params` (those `params` effects add included), `situational`, `steps`, `flags`, `participants` and, in an `each` step, `participant`, so Bracers of Archery test their own copy while a bow attacks.
+- **Rolls as they happen:** `target: { rolls: [attack, damage], from: self }`. The effect applies to any roll carrying one of the tags, in an action written by a pack that meets its own over that tag ([Which packs a tag target reaches](#which-packs-a-tag-target-reaches)). `from: self` limits it to rolls made by the item carrying the effect (a +1 weapon): the action's copy, and for an action run for content granted or picked under the copy (named by `source`) that content, so abilities a class grants that share their type's action each reach only their own rolls (a template is part of its copy, so its own action matches by the copy, as the copy's item's does; a nested `action` step keeps its `source`); `from: any` (the default) covers every matching roll the character makes (Bless). Roll effects add items to the itemized roll or modify its dice, and `atLeast` and `atMost` bound its total once it is rolled (see below). With `tally: <name>`, the effect adds to one of the roll's tallies instead (see below). With `band: value`, an `atLeast` or `atMost` bounds the value of the roll's band set instead (see below). With `parts: [<tag>]`, it reaches the roll's own parts carrying a matching tag instead of the whole roll: a `set` replaces them, and a `stepDie` or `setFaces` roll modifier changes only their dice (see [Replacing a roll's part](#replacing-a-rolls-part)). Its formulas see `item` and `self` as the content carrying the effect, the roll as `roll`, the action's own item and copy as `action.item` and `action.self`, and the running action's `params` (those `params` effects add included), `situational`, `steps`, `flags`, `participants` and, in an `each` step, `participant`, so Bracers of Archery test their own copy while a bow attacks.
 - **Incoming changes:** `target: { incoming: { fields: [hp.current], tags: [damage.fire] } }`. The effect modifies the amount of an `adjust` change aimed at this character before it is applied, so apps don't apply resistances themselves. Both filters are optional; omitting both matches every incoming adjustment. After these effects, the change is routed through absorbing fields and overflow ([rules-and-fields.md](rules-and-fields.md#absorbing-and-overflow)). How a multiplied incoming amount rounds is a game setting (`settings.roundIncoming`). The effect's `when`, `value` and `then` see the change as `incoming` (see below), and the receiving player's [situational choices](rules-and-fields.md#choices-on-incoming-changes) on the change as `situational`. A situational choice's own incoming-change effects apply only to a change that selects it.
 - **Choice steps as actions run:** `target: { choices: [push-cost], from: self }`. The effect adds an option to every choice step of the character's actions that carries a matching tag; `from: self` limits it to the actions of the item carrying the effect, as for rolls. The only op is `option`.
 - **Changes steps as actions run:** `target: { steps: [strike.hit], from: self }`. The effect adds changes to every `changes` step of the character's actions that carries a matching tag, after the step's own, each time it runs (per participant in an `each` step); `from: self` limits it to the actions of the item carrying the effect, as for rolls. The only op is `changes`, whose value is `{ changes?, to?, flags?, order? }` (one of `changes` and `flags` at least): `flags` are set as the step runs, before its own changes (per participant in an `each` step; only flags the action sets elsewhere, checked at load, as an added option's), and `changes` are proposed after the step's own, or with `order: before` before them, `to` the value's `to`, else the step's. Its `when`, flags and changes see what an added option's do, with the action's `participants` (and `participant` in an `each` step) and no `picks`. Content items, templates, content types (for each active item of the type) and the rules' effects add changes, as for options (a build error on a situational choice's or a choice's). See [engine-actions.md](engine-actions.md#other-steps).
@@ -105,8 +105,10 @@ effects:
   startAction like them (on the run the app starts only, never a nested one) and listed by
   describeAction with `addedBy`. Each is `optional` or has a `default`; a name an action its
   literal tags reach declares, or another effect's other declaration of the name, is the load
-  error `invalid-added-param` ([dice-and-actions.md](dice-and-actions.md#actions)). The action's own formulas only see the parameters
-  it declares; content reads an added one as `params.<name>` in its roll, option and `changes`
+  error `invalid-added-param` ([dice-and-actions.md](dice-and-actions.md#actions)), counting
+  only actions and effects of packs that meet
+  ([Which packs a tag target reaches](#which-packs-a-tag-target-reaches)). The action's own
+  formulas only see the parameters it declares; content reads an added one as `params.<name>` in its roll, option and `changes`
   effects. Text: `<content key>.params.<name>.name` (and `.values.<value>.name`), the content
   key the item's, `types.<type>` for a content type's effect, `rules` for the rules'. Content
   items, templates, content types and the rules' effects add parameters, as for options. See
@@ -340,6 +342,49 @@ The roll item records `multiplied: false`. Like `tags`, `multiplied` is only all
 ### Tag matching
 
 A target tag matches the same tag and every tag below it: `damage` matches `damage` and `damage.fire`; `damage.fire` does not match `damage`. Roll targets match a roll if **any** listed tag matches **any** of the roll's tags; choice targets match a choice step the same way.
+
+### Which packs a tag target reaches
+
+Tags are never qualified, so two games loaded in one ruleset (the `@opencharacter/packs` bundle,
+an app or validator loading every pack, a homebrew mixing games) may both declare `attack`. An
+effect's tag targets therefore reach only what packs that **meet** its own wrote. Two packs meet
+over a target tag when their scopes (each pack with its dependencies, transitively) share a pack
+that declares that tag, or a tag below it.
+
+- **Rolls, choice steps, changes steps and listed actions:** the effect reaches a roll step, a
+  choice step, a changes step or an action's listing (`params`) when one of its target tags
+  matches the step's or action's tags and the action's pack meets the effect's over that target
+  tag. The effect's pack is the pack that wrote it (an item's, a content type's, the rules', a
+  situational choice's; an override's for the effects it replaced). The action's pack is the pack
+  that wrote the action, whatever pack its formulas run in: a rules action's own (a `use` names
+  one), a content type's for the type's actions, even on another pack's item, and an item's own
+  (its override's, for actions it replaced). A nested `action` step runs the action it names, by
+  that action's pack.
+- **A set of fields:** any `fields` query, whatever its `where` reads, matches only fields of
+  packs whose scopes share a pack with the effect's. It names no target tag, so no shared pack
+  needs to declare one.
+- **What meets:** an add-on and its core, either way round: an add-on's option in the core's
+  creation, and the core's Bless on an add-on's or the homebrew's own spell attack (the homebrew
+  depends on every pinned pack, so its own actions are reached by every game it depends on, and
+  its effects reach theirs). Two add-ons of one core meet over the core's tags, so a condition
+  from one reaches a monster's attack from the other. Packs with no pack in common never meet,
+  whatever tags they share, even when a character pins both or a homebrew depends on both: a
+  homebrew item of one game's content type runs that type's action, which only that game (and
+  the homebrew) reaches. A base pack two games share connects them only over the tags it
+  declares, so a shared base that doesn't declare `attack` connects nothing over `attack`. A pack
+  needs no opt-in for its dependents: depending on a pack takes up its tag vocabulary.
+- **Load checks:** `invalid-added-param` ([dice-and-actions.md](dice-and-actions.md#actions))
+  counts an action by the pack that wrote it. A name is `declared` when an action the effect
+  reaches by its literal tags declares it; two `params` effects `conflict` only when one action
+  may take both: its literal tags meet a target tag of each (one is the other or below it), over
+  packs that meet on that tag. So one game's `params` effect never clashes with an unrelated
+  game's action or effect, even when a third pack depends on both.
+- **Not scoped:** incoming changes. A change carries tags, never a pack: the receiving sheet's
+  incoming-change effects and situational choices match its tags whichever character or action
+  sent it, the tags being ones the receiving ruleset declares (an undeclared one is
+  `unknown-tag`, [rules-and-fields.md](rules-and-fields.md#tags)). Stacking needs no scope of its
+  own: it groups effects already on one field or one roll. An app's `policy` rules match the
+  steps of whatever action it runs.
 
 ## Operations
 
