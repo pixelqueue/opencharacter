@@ -1,7 +1,7 @@
 abilities.talent.entropic-bolt.name: Entropic Bolt
 abilities.talent.entropic-bolt.description: "*You advance an enemy's age for a moment.*"
 abilities.talent.entropic-bolt.texts.target: One creature or object
-abilities.talent.entropic-bolt.texts.distance: Ranged 10
+abilities.talent.entropic-bolt.texts.distance: 'Ranged {has_self_distance, select, true {{self_distance}} other {10}}'
 abilities.talent.entropic-bolt.texts.roll: Power Roll + Presence
 abilities.talent.entropic-bolt.texts.tier1: '{has_self_damage1, select, true {{self_damage1}} other {2 + P}} corruption damage; P < {has_self_potency1, select, true {{self_potency1}} other {WEAK}}, slowed (save ends)'
 abilities.talent.entropic-bolt.texts.tier2: '{has_self_damage2, select, true {{self_damage2}} other {3 + P}} corruption damage; P < {has_self_potency2, select, true {{self_potency2}} other {AVERAGE}}, slowed (save ends)'
@@ -15,7 +15,7 @@ abilities.talent.entropic-bolt.texts.effect: >-
 abilities.talent.perfect-clarity.name: Perfect Clarity
 abilities.talent.perfect-clarity.description: '*You clear the mind of nothing but the goal.*'
 abilities.talent.perfect-clarity.texts.target: Self or one ally
-abilities.talent.perfect-clarity.texts.distance: Ranged 10
+abilities.talent.perfect-clarity.texts.distance: 'Ranged {has_self_distance, select, true {{self_distance}} other {10}}'
 abilities.talent.perfect-clarity.texts.effect: >-
   Effect: Until the start of your next turn, the target gains a +3 bonus to speed, and they have a
   double edge on the next power roll they make. If the target obtains a tier 3 outcome on that roll,
@@ -36,7 +36,7 @@ abilities.talent.kinetic-pulse.texts.effect: 'Strained: The size of the burst in
 abilities.talent.hoarfrost.name: Hoarfrost
 abilities.talent.hoarfrost.description: '*You blast a foe with a pulse of cold energy.*'
 abilities.talent.hoarfrost.texts.target: One creature
-abilities.talent.hoarfrost.texts.distance: Ranged 10
+abilities.talent.hoarfrost.texts.distance: 'Ranged {has_self_distance, select, true {{self_distance}} other {10}}'
 abilities.talent.hoarfrost.texts.roll: Power Roll + Reason
 abilities.talent.hoarfrost.texts.tier1: '{has_self_damage1, select, true {{self_damage1}} other {2 + R}} cold damage; M < {has_self_potency1, select, true {{self_potency1}} other {WEAK}}, slowed (EoT)'
 abilities.talent.hoarfrost.texts.tier2: '{has_self_damage2, select, true {{self_damage2}} other {4 + R}} cold damage; M < {has_self_potency2, select, true {{self_potency2}} other {AVERAGE}}, slowed (EoT)'
@@ -46,7 +46,7 @@ abilities.talent.hoarfrost.texts.effect: 'Strained: You are slowed until the end
 abilities.talent.optic-blast.name: Optic Blast
 abilities.talent.optic-blast.description: '*Your eyes emit rays of powerful enervating force.*'
 abilities.talent.optic-blast.texts.target: One creature or object
-abilities.talent.optic-blast.texts.distance: Ranged 10
+abilities.talent.optic-blast.texts.distance: 'Ranged {has_self_distance, select, true {{self_distance}} other {10}}'
 abilities.talent.optic-blast.texts.roll: Power Roll + Reason
 abilities.talent.optic-blast.texts.tier1: '{has_self_damage1, select, true {{self_damage1}} other {2 + R}} damage; M < {has_self_potency1, select, true {{self_potency1}} other {WEAK}}, prone'
 abilities.talent.optic-blast.texts.tier2: '{has_self_damage2, select, true {{self_damage2}} other {4 + R}} damage; M < {has_self_potency2, select, true {{self_potency2}} other {AVERAGE}}, prone'
@@ -62,7 +62,7 @@ abilities.talent.optic-blast.texts.effect: >-
 abilities.talent.kinetic-grip.name: Kinetic Grip
 abilities.talent.kinetic-grip.description: '*You lift and hurl your foe away from you.*'
 abilities.talent.kinetic-grip.texts.target: One creature or object
-abilities.talent.kinetic-grip.texts.distance: Ranged 10
+abilities.talent.kinetic-grip.texts.distance: 'Ranged {has_self_distance, select, true {{self_distance}} other {10}}'
 abilities.talent.kinetic-grip.texts.roll: Power Roll + Reason
 abilities.talent.kinetic-grip.texts.tier1: Slide 2 + R
 abilities.talent.kinetic-grip.texts.tier2: Slide 4 + R
@@ -73,12 +73,12 @@ abilities.talent.feedback-loop.description: '*Creating a brief psychic link betw
   their target gives that foe a taste of their own medicine.*'
 abilities.talent.feedback-loop.texts.trigger: The target deals damage to an ally.
 abilities.talent.feedback-loop.texts.target: One creature
-abilities.talent.feedback-loop.texts.distance: Ranged 10
+abilities.talent.feedback-loop.texts.distance: 'Ranged {has_self_distance, select, true {{self_distance}} other {10}}'
 abilities.talent.feedback-loop.texts.effect: 'Effect: The target takes psychic damage equal to half the triggering damage.'
 abilities.talent.mind-spike.name: Mind Spike
 abilities.talent.mind-spike.description: "*A telepathic bolt instantly zaps a creature's brain.*"
 abilities.talent.mind-spike.texts.target: One creature
-abilities.talent.mind-spike.texts.distance: Ranged 10
+abilities.talent.mind-spike.texts.distance: 'Ranged {has_self_distance, select, true {{self_distance}} other {10}}'
 abilities.talent.mind-spike.texts.roll: Power Roll + Reason
 abilities.talent.mind-spike.texts.tier1: '{has_self_damage1, select, true {{self_damage1}} other {2 + R}} psychic damage'
 abilities.talent.mind-spike.texts.tier2: '{has_self_damage2, select, true {{self_damage2}} other {4 + R}} psychic damage'
@@ -88,7 +88,7 @@ abilities.talent.mind-spike.texts.effect: "Strained: The target takes an extra 2
 abilities.talent.flashback.name: Flashback
 abilities.talent.flashback.description: '*The target is thrown several seconds back through time and gets to do it all again.*'
 abilities.talent.flashback.texts.target: Self or one ally
-abilities.talent.flashback.texts.distance: Ranged 10
+abilities.talent.flashback.texts.distance: 'Ranged {has_self_distance, select, true {{self_distance}} other {10}}'
 abilities.talent.flashback.texts.effect: >-
   Effect: The target uses an ability with a base Heroic Resource cost of 7 or lower that they've
   previously used this round, without needing to spend the base cost. Augmentations to the ability
@@ -114,7 +114,7 @@ abilities.talent.minor-telekinesis.name: Minor Telekinesis
 abilities.talent.minor-telekinesis.description: '*Wisps of psychic energy ripple visibly from your
   brain as you force the target to move using only your mind.*'
 abilities.talent.minor-telekinesis.texts.target: Self or one size 1 creature or object
-abilities.talent.minor-telekinesis.texts.distance: Ranged 10
+abilities.talent.minor-telekinesis.texts.distance: 'Ranged {has_self_distance, select, true {{self_distance}} other {10}}'
 abilities.talent.minor-telekinesis.texts.effect: >-
   Effect: You slide the target up to a number of squares equal to your Reason score.
 
@@ -127,7 +127,7 @@ abilities.talent.minor-telekinesis.texts.effect: >-
 abilities.talent.accelerate.name: Accelerate
 abilities.talent.accelerate.description: '*To your ally, it seems as though the world has slowed down.*'
 abilities.talent.accelerate.texts.target: Self or one creature
-abilities.talent.accelerate.texts.distance: Ranged 10
+abilities.talent.accelerate.texts.distance: 'Ranged {has_self_distance, select, true {{self_distance}} other {10}}'
 abilities.talent.accelerate.texts.effect: |-
   Effect: The target shifts up to a number of squares equal to your Reason score.
 
@@ -135,7 +135,7 @@ abilities.talent.accelerate.texts.effect: |-
 abilities.talent.incinerate.name: Incinerate
 abilities.talent.incinerate.description: '*The air erupts into a column of smokeless flame.*'
 abilities.talent.incinerate.texts.target: Each enemy in the area
-abilities.talent.incinerate.texts.distance: 3 cube within 10
+abilities.talent.incinerate.texts.distance: '3 cube within {has_self_within, select, true {{self_within}} other {10}}'
 abilities.talent.incinerate.texts.roll: Power Roll + Reason
 abilities.talent.incinerate.texts.tier1: '{has_self_damage1, select, true {{self_damage1}} other {2}} fire damage'
 abilities.talent.incinerate.texts.tier2: '{has_self_damage2, select, true {{self_damage2}} other {4}} fire damage'
@@ -150,7 +150,7 @@ abilities.talent.incinerate.texts.effect: >-
 abilities.talent.iron.name: Iron
 abilities.talent.iron.description: "*The target's skin turns to hard, dark metal, impenetrable and dense.*"
 abilities.talent.iron.texts.target: Self or one ally
-abilities.talent.iron.texts.distance: Ranged 10
+abilities.talent.iron.texts.distance: 'Ranged {has_self_distance, select, true {{self_distance}} other {10}}'
 abilities.talent.iron.texts.effect: >-
   Effect: The target's stability increases by an amount equal to your Reason score, and they gain 10
   temporary Stamina and 2 surges. This stability increase lasts until the target no longer has
@@ -162,13 +162,13 @@ abilities.talent.again.name: Again
 abilities.talent.again.description: '*You step back a split second to see if things play out a little differently.*'
 abilities.talent.again.texts.trigger: The target makes an ability roll.
 abilities.talent.again.texts.target: Self or one creature
-abilities.talent.again.texts.distance: Ranged 10
+abilities.talent.again.texts.distance: 'Ranged {has_self_distance, select, true {{self_distance}} other {10}}'
 abilities.talent.again.texts.effect: 'Effect: You can use this ability after seeing the result of
   the triggering roll. The target must reroll the power roll and use the new roll.'
 abilities.talent.remote-assistance.name: Remote Assistance
 abilities.talent.remote-assistance.description: '*An ally gains the benefit of your intellect.*'
 abilities.talent.remote-assistance.texts.target: One creature or object
-abilities.talent.remote-assistance.texts.distance: Ranged 10
+abilities.talent.remote-assistance.texts.distance: 'Ranged {has_self_distance, select, true {{self_distance}} other {10}}'
 abilities.talent.remote-assistance.texts.effect: >-
   Effect: The next ability roll an ally makes against the target before the start of your next turn
   gains an edge.
@@ -178,7 +178,7 @@ abilities.talent.remote-assistance.texts.effect: >-
 abilities.talent.choke.name: Choke
 abilities.talent.choke.description: '*You crush a foe in a telekinetic grip.*'
 abilities.talent.choke.texts.target: One creature
-abilities.talent.choke.texts.distance: Ranged 10
+abilities.talent.choke.texts.distance: 'Ranged {has_self_distance, select, true {{self_distance}} other {10}}'
 abilities.talent.choke.texts.roll: Power Roll + Reason
 abilities.talent.choke.texts.tier1: '{has_self_damage1, select, true {{self_damage1}} other {3 + R}} damage; M < {has_self_potency1, select, true {{self_potency1}} other {WEAK}}, slowed (save ends)'
 abilities.talent.choke.texts.tier2: '{has_self_damage2, select, true {{self_damage2}} other {5 + R}} damage; M < {has_self_potency2, select, true {{self_potency2}} other {AVERAGE}}, slowed (save ends)'
@@ -189,7 +189,7 @@ abilities.talent.repel.name: Repel
 abilities.talent.repel.description: "*They aren't going anywhere, but you might!*"
 abilities.talent.repel.texts.trigger: The target takes damage or is force moved.
 abilities.talent.repel.texts.target: Self or one ally
-abilities.talent.repel.texts.distance: Ranged 10
+abilities.talent.repel.texts.distance: 'Ranged {has_self_distance, select, true {{self_distance}} other {10}}'
 abilities.talent.repel.texts.effect: 'Effect: The target takes half the triggering damage, or the
   distance of the triggering forced movement is reduced by a number of squares equal to your Reason
   score. If the target took damage and was force moved, you choose the effect. If the forced
@@ -205,7 +205,7 @@ abilities.talent.precognition.texts.effect: 'Effect: Ability rolls made against 
 abilities.talent.awe.name: Awe
 abilities.talent.awe.description: '*You project psionic energy out to a creature and take on a new visage in their mind.*'
 abilities.talent.awe.texts.target: One creature
-abilities.talent.awe.texts.distance: Ranged 10
+abilities.talent.awe.texts.distance: 'Ranged {has_self_distance, select, true {{self_distance}} other {10}}'
 abilities.talent.awe.texts.roll: Power Roll + Presence
 abilities.talent.awe.texts.tier1: '{has_self_damage1, select, true {{self_damage1}} other {3 + P}} psychic damage; I < {has_self_potency1, select, true {{self_potency1}} other {WEAK}}, frightened (save ends)'
 abilities.talent.awe.texts.tier2: '{has_self_damage2, select, true {{self_damage2}} other {6 + P}} psychic damage; I < {has_self_potency2, select, true {{self_potency2}} other {AVERAGE}}, frightened (save ends)'
@@ -216,7 +216,7 @@ abilities.talent.awe.texts.effect: 'Effect: If you target an ally, they gain tem
 abilities.talent.inertia-soak.name: Inertia Soak
 abilities.talent.inertia-soak.description: '*Your psionic energy surrounds the target and pushes everything else away from them.*'
 abilities.talent.inertia-soak.texts.target: Self or one ally
-abilities.talent.inertia-soak.texts.distance: Ranged 10
+abilities.talent.inertia-soak.texts.distance: 'Ranged {has_self_distance, select, true {{self_distance}} other {10}}'
 abilities.talent.inertia-soak.texts.effect: >-
   Effect: The target ignores difficult terrain and takes no damage from forced movement until the
   start of your next turn. Whenever the target enters a square while under this effect, they can
@@ -230,7 +230,7 @@ abilities.talent.inertia-soak.texts.effect: >-
 abilities.talent.smolder.name: Smolder
 abilities.talent.smolder.description: '*Smoke flows from your enemy like tears as their skin begins to blacken and flake.*'
 abilities.talent.smolder.texts.target: One creature
-abilities.talent.smolder.texts.distance: Ranged 10
+abilities.talent.smolder.texts.distance: 'Ranged {has_self_distance, select, true {{self_distance}} other {10}}'
 abilities.talent.smolder.texts.roll: Power Roll + Reason
 abilities.talent.smolder.texts.tier1: '{has_self_damage1, select, true {{self_damage1}} other {3 + R}} damage; R < WEAK, the target has weakness 5 (save ends)'
 abilities.talent.smolder.texts.tier2: '{has_self_damage2, select, true {{self_damage2}} other {6 + R}} damage; R < AVERAGE, the target has weakness 5 (save ends)'
@@ -241,7 +241,7 @@ abilities.talent.smolder.texts.effect: 'Effect: Choose the damage type and the w
 abilities.talent.materialize.name: Materialize
 abilities.talent.materialize.description: "*You picture an object in your mind and give it form—directly above your opponent's head.*"
 abilities.talent.materialize.texts.target: One creature or object
-abilities.talent.materialize.texts.distance: Ranged 10
+abilities.talent.materialize.texts.distance: 'Ranged {has_self_distance, select, true {{self_distance}} other {10}}'
 abilities.talent.materialize.texts.roll: Power Roll + Reason
 abilities.talent.materialize.texts.tier1: '{has_self_damage1, select, true {{self_damage1}} other {3 + R}} damage'
 abilities.talent.materialize.texts.tier2: '{has_self_damage2, select, true {{self_damage2}} other {5 + R}} damage'
@@ -270,7 +270,7 @@ abilities.talent.mindwipe.texts.effect: |-
 abilities.talent.rejuvenate.name: Rejuvenate
 abilities.talent.rejuvenate.description: "*You reshape the flow of time in the target's body to return it to an earlier state.*"
 abilities.talent.rejuvenate.texts.target: Self or one ally
-abilities.talent.rejuvenate.texts.distance: Ranged 10
+abilities.talent.rejuvenate.texts.distance: 'Ranged {has_self_distance, select, true {{self_distance}} other {10}}'
 abilities.talent.rejuvenate.texts.effect: >-
   Effect: Choose two of the following effects:
 
@@ -300,7 +300,7 @@ abilities.talent.doubt.name: Doubt
 abilities.talent.doubt.description: "*You tug at the strings of the foe's anima and unravel them,
   allowing someone else to take advantage of their drive.*"
 abilities.talent.doubt.texts.target: One creature or object
-abilities.talent.doubt.texts.distance: Ranged 10
+abilities.talent.doubt.texts.distance: 'Ranged {has_self_distance, select, true {{self_distance}} other {10}}'
 abilities.talent.doubt.texts.roll: Power Roll + Presence
 abilities.talent.doubt.texts.tier1: '{has_self_damage1, select, true {{self_damage1}} other {10 + P}} damage; P < {has_self_potency1, select, true {{self_potency1}} other {WEAK}}, weakened (save ends)'
 abilities.talent.doubt.texts.tier2: '{has_self_damage2, select, true {{self_damage2}} other {14 + P}} damage; P < {has_self_potency2, select, true {{self_potency2}} other {AVERAGE}}, weakened (save ends)'
@@ -316,7 +316,7 @@ abilities.talent.doubt.texts.effect: >-
 abilities.talent.steel.name: Steel
 abilities.talent.steel.description: "*The target's skin becomes covered in tough metal.*"
 abilities.talent.steel.texts.target: Self or one ally
-abilities.talent.steel.texts.distance: Ranged 10
+abilities.talent.steel.texts.distance: 'Ranged {has_self_distance, select, true {{self_distance}} other {10}}'
 abilities.talent.steel.texts.effect: >-
   Effect: The target has damage immunity 5 and can't be made slowed or weakened until the start of
   your next turn. Whenever the target force moves a creature or object while under this effect, the
@@ -328,7 +328,7 @@ abilities.talent.stasis-shield.name: Stasis Shield
 abilities.talent.stasis-shield.description: '*You freeze time just long enough to bring the victim to safety!*'
 abilities.talent.stasis-shield.texts.trigger: The target takes damage.
 abilities.talent.stasis-shield.texts.target: Self, or one creature or object
-abilities.talent.stasis-shield.texts.distance: Ranged 10
+abilities.talent.stasis-shield.texts.distance: 'Ranged {has_self_distance, select, true {{self_distance}} other {10}}'
 abilities.talent.stasis-shield.texts.effect: >-
   Effect: The target is teleported to an unoccupied space adjacent to you, taking no damage and
   suffering no additional effects if this movement would get them out of harm's way.
@@ -339,7 +339,7 @@ abilities.talent.stasis-shield.texts.effect: >-
 abilities.talent.stasis-field.name: Stasis Field
 abilities.talent.stasis-field.description: '*Keep everything as it was. Ignore everything that will be.*'
 abilities.talent.stasis-field.texts.target: Each creature and object in the area
-abilities.talent.stasis-field.texts.distance: 4 cube within 10
+abilities.talent.stasis-field.texts.distance: '4 cube within {has_self_within, select, true {{self_within}} other {10}}'
 abilities.talent.stasis-field.texts.roll: Power Roll + Presence
 abilities.talent.stasis-field.texts.tier1: 'P < {has_self_potency1, select, true {{self_potency1}} other {WEAK}}, the target is slowed until the effect ends'
 abilities.talent.stasis-field.texts.tier2: P < AVERAGE, the target's speed is 0 until the effect ends
@@ -385,7 +385,7 @@ abilities.talent.synaptic-conditioning.texts.effect: 'Strained: While the target
 abilities.talent.gravitic-well.name: Gravitic Well
 abilities.talent.gravitic-well.description: '*You bend gravity into a fine point and pull your foes toward it.*'
 abilities.talent.gravitic-well.texts.target: Each creature and object in the area
-abilities.talent.gravitic-well.texts.distance: 4 cube within 10
+abilities.talent.gravitic-well.texts.distance: '4 cube within {has_self_within, select, true {{self_within}} other {10}}'
 abilities.talent.gravitic-well.texts.roll: Power Roll + Reason
 abilities.talent.gravitic-well.texts.tier1: '{has_self_damage1, select, true {{self_damage1}} other {6}} damage; vertical pull 5 toward the center of the area'
 abilities.talent.gravitic-well.texts.tier2: '{has_self_damage2, select, true {{self_damage2}} other {9}} damage; vertical pull 7 toward the center of the area'
@@ -399,7 +399,7 @@ abilities.talent.gravitic-well.texts.effect: >-
 abilities.talent.greater-kinetic-grip.name: Greater Kinetic Grip
 abilities.talent.greater-kinetic-grip.description: '*You raise the target into the air without breaking a sweat.*'
 abilities.talent.greater-kinetic-grip.texts.target: One creature or object
-abilities.talent.greater-kinetic-grip.texts.distance: Ranged 10
+abilities.talent.greater-kinetic-grip.texts.distance: 'Ranged {has_self_distance, select, true {{self_distance}} other {10}}'
 abilities.talent.greater-kinetic-grip.texts.roll: Power Roll + Reason
 abilities.talent.greater-kinetic-grip.texts.tier1: Slide 4 + R; M < WEAK, the forced movement is vertical
 abilities.talent.greater-kinetic-grip.texts.tier2: Slide 8 + R; M < AVERAGE, the forced movement is vertical
@@ -410,7 +410,7 @@ abilities.talent.synaptic-dissipation.name: Synaptic Dissipation
 abilities.talent.synaptic-dissipation.description: "*You manipulate your enemies' minds and make
   them wonder if you were ever really there in the first place.*"
 abilities.talent.synaptic-dissipation.texts.target: Special
-abilities.talent.synaptic-dissipation.texts.distance: Ranged 10
+abilities.talent.synaptic-dissipation.texts.distance: 'Ranged {has_self_distance, select, true {{self_distance}} other {10}}'
 abilities.talent.synaptic-dissipation.texts.roll: Power Roll + Reason
 abilities.talent.synaptic-dissipation.texts.tier1: Two creatures
 abilities.talent.synaptic-dissipation.texts.tier2: Three creatures
@@ -438,7 +438,7 @@ abilities.talent.hypersonic.texts.effect: >-
 abilities.talent.exothermic-shield.name: Exothermic Shield
 abilities.talent.exothermic-shield.description: '*You encase the target in psionic flame and allow them to flicker without fear of burning out.*'
 abilities.talent.exothermic-shield.texts.target: Self or one ally
-abilities.talent.exothermic-shield.texts.distance: Ranged 10
+abilities.talent.exothermic-shield.texts.distance: 'Ranged {has_self_distance, select, true {{self_distance}} other {10}}'
 abilities.talent.exothermic-shield.texts.effect: >-
   Effect: Until the start of your next turn, the target has cold immunity 10 and fire immunity 10,
   and their strikes deal extra fire damage equal to twice your Reason score. Additionally, whenever
@@ -451,7 +451,7 @@ abilities.talent.mind-snare.name: Mind Snare
 abilities.talent.mind-snare.description: "*You latch onto your prey's brain and don't let go, like a
   song they can't get out of their head.*"
 abilities.talent.mind-snare.texts.target: One creature
-abilities.talent.mind-snare.texts.distance: Ranged 10
+abilities.talent.mind-snare.texts.distance: 'Ranged {has_self_distance, select, true {{self_distance}} other {10}}'
 abilities.talent.mind-snare.texts.roll: Power Roll + Reason
 abilities.talent.mind-snare.texts.tier1: '{has_self_damage1, select, true {{self_damage1}} other {10 + R}} psychic damage; R < {has_self_potency1, select, true {{self_potency1}} other {WEAK}}, slowed (save ends)'
 abilities.talent.mind-snare.texts.tier2: '{has_self_damage2, select, true {{self_damage2}} other {14 + R}} psychic damage; R < {has_self_potency2, select, true {{self_potency2}} other {AVERAGE}}, slowed (save ends)'
@@ -468,7 +468,7 @@ abilities.talent.soulbound.name: Soulbound
 abilities.talent.soulbound.description: '*You fire a piercing bolt of psychic energy that lances
   through two foes and leaves a faint intangible thread between them.*'
 abilities.talent.soulbound.texts.target: Two enemies
-abilities.talent.soulbound.texts.distance: Ranged 10
+abilities.talent.soulbound.texts.distance: 'Ranged {has_self_distance, select, true {{self_distance}} other {10}}'
 abilities.talent.soulbound.texts.roll: Power Roll + Presence
 abilities.talent.soulbound.texts.tier1: '{has_self_damage1, select, true {{self_damage1}} other {8}} damage; A < WEAK, the target is stitched to the other target (save ends)'
 abilities.talent.soulbound.texts.tier2: '{has_self_damage2, select, true {{self_damage2}} other {13}} damage; A < AVERAGE, the target is stitched to the other target (save ends)'
@@ -484,7 +484,7 @@ abilities.talent.soulbound.texts.effect: >-
 abilities.talent.overwhelm.name: Overwhelm
 abilities.talent.overwhelm.description: '*You overload their senses, turning all their subconscious thoughts into conscious ones.*'
 abilities.talent.overwhelm.texts.target: One creature
-abilities.talent.overwhelm.texts.distance: Ranged 10
+abilities.talent.overwhelm.texts.distance: 'Ranged {has_self_distance, select, true {{self_distance}} other {10}}'
 abilities.talent.overwhelm.texts.roll: Power Roll + Reason
 abilities.talent.overwhelm.texts.tier1: '{has_self_damage1, select, true {{self_damage1}} other {6 + R}} psychic damage; I < {has_self_potency1, select, true {{self_potency1}} other {WEAK}}, slowed (save ends)'
 abilities.talent.overwhelm.texts.tier2: '{has_self_damage2, select, true {{self_damage2}} other {10 + R}} psychic damage; I < {has_self_potency2, select, true {{self_potency2}} other {AVERAGE}}, weakened (save ends)'
@@ -495,7 +495,7 @@ abilities.talent.applied-chronometrics.name: Applied Chronometrics
 abilities.talent.applied-chronometrics.description: "*Time slows down around you. Your heartbeat is
   the only gauge of the extra moments you've gained.*"
 abilities.talent.applied-chronometrics.texts.target: Special
-abilities.talent.applied-chronometrics.texts.distance: Ranged 10
+abilities.talent.applied-chronometrics.texts.distance: 'Ranged {has_self_distance, select, true {{self_distance}} other {10}}'
 abilities.talent.applied-chronometrics.texts.roll: Power Roll + Presence
 abilities.talent.applied-chronometrics.texts.tier1: You target two creatures, one of which can be you.
 abilities.talent.applied-chronometrics.texts.tier2: You target three creatures, one of which can be you.
@@ -519,7 +519,7 @@ abilities.talent.gravitic-burst.texts.effect: 'Strained: The size of the burst i
 abilities.talent.synaptic-override.name: Synaptic Override
 abilities.talent.synaptic-override.description: "*You control an enemy's nervous system. How pleasant for them.*"
 abilities.talent.synaptic-override.texts.target: One enemy
-abilities.talent.synaptic-override.texts.distance: Ranged 10
+abilities.talent.synaptic-override.texts.distance: 'Ranged {has_self_distance, select, true {{self_distance}} other {10}}'
 abilities.talent.synaptic-override.texts.roll: Power Roll + Reason
 abilities.talent.synaptic-override.texts.tier1: The target makes a free strike against one enemy of your choice.
 abilities.talent.synaptic-override.texts.tier2: The target shifts up to their speed and uses their
@@ -536,7 +536,7 @@ abilities.talent.synaptic-override.texts.effect: >-
 abilities.talent.levity-and-gravity.name: Levity and Gravity
 abilities.talent.levity-and-gravity.description: '*You raise the target slightly into the air, then smother them against the ground.*'
 abilities.talent.levity-and-gravity.texts.target: One creature or object
-abilities.talent.levity-and-gravity.texts.distance: Ranged 10
+abilities.talent.levity-and-gravity.texts.distance: 'Ranged {has_self_distance, select, true {{self_distance}} other {10}}'
 abilities.talent.levity-and-gravity.texts.roll: Power Roll + Reason
 abilities.talent.levity-and-gravity.texts.tier1: '{has_self_damage1, select, true {{self_damage1}} other {6 + R}} damage; M < {has_self_potency1, select, true {{self_potency1}} other {WEAK}}, prone'
 abilities.talent.levity-and-gravity.texts.tier2: '{has_self_damage2, select, true {{self_damage2}} other {10 + R}} damage; M < {has_self_potency2, select, true {{self_potency2}} other {AVERAGE}}, prone'
@@ -545,7 +545,7 @@ abilities.talent.levity-and-gravity.texts.effect: 'Strained: You take half the d
 abilities.talent.slow.name: Slow
 abilities.talent.slow.description: '*Perhaps they wonder why everyone else is moving so quickly?*'
 abilities.talent.slow.texts.target: Three creatures or objects
-abilities.talent.slow.texts.distance: Ranged 10
+abilities.talent.slow.texts.distance: 'Ranged {has_self_distance, select, true {{self_distance}} other {10}}'
 abilities.talent.slow.texts.roll: Power Roll + Presence
 abilities.talent.slow.texts.tier1: "The target's speed is halved (save ends), or if P < {has_self_potency1, select, true {{self_potency1}} other {WEAK}}, the target is slowed (save ends)."
 abilities.talent.slow.texts.tier2: The target is slowed (save ends), or if P < AVERAGE, the target's speed is 0 (save ends).
@@ -578,7 +578,7 @@ abilities.talent.fling-through-time.name: Fling Through Time
 abilities.talent.fling-through-time.description: '*You hurl the target through the annals of time,
   forcing them to witness every moment of their existence all at once.*'
 abilities.talent.fling-through-time.texts.target: One creature or object
-abilities.talent.fling-through-time.texts.distance: Ranged 10
+abilities.talent.fling-through-time.texts.distance: 'Ranged {has_self_distance, select, true {{self_distance}} other {10}}'
 abilities.talent.fling-through-time.texts.roll: Power Roll + Presence
 abilities.talent.fling-through-time.texts.tier1: '{has_self_damage1, select, true {{self_damage1}} other {3 + P}} corruption damage; P < {has_self_potency1, select, true {{self_potency1}} other {WEAK}}, weakened (save ends)'
 abilities.talent.fling-through-time.texts.tier2: '{has_self_damage2, select, true {{self_damage2}} other {5 + P}} corruption damage; the target is flung through time, and if P < {has_self_potency2, select, true {{self_potency2}} other {AVERAGE}}, they are weakened (save ends)'
@@ -593,7 +593,7 @@ abilities.talent.fling-through-time.texts.effect: >-
 abilities.talent.soul-burn.name: Soul Burn
 abilities.talent.soul-burn.description: '*You blast their soul out of their body, leaving it to helplessly float back to a weakened husk.*'
 abilities.talent.soul-burn.texts.target: One creature
-abilities.talent.soul-burn.texts.distance: Ranged 10
+abilities.talent.soul-burn.texts.distance: 'Ranged {has_self_distance, select, true {{self_distance}} other {10}}'
 abilities.talent.soul-burn.texts.roll: Power Roll + Presence
 abilities.talent.soul-burn.texts.tier1: '{has_self_damage1, select, true {{self_damage1}} other {6 + P}} damage; P < {has_self_potency1, select, true {{self_potency1}} other {WEAK}}, dazed (save ends)'
 abilities.talent.soul-burn.texts.tier2: '{has_self_damage2, select, true {{self_damage2}} other {10 + P}} damage; P < {has_self_potency2, select, true {{self_potency2}} other {AVERAGE}}, dazed (save ends)'
@@ -651,7 +651,7 @@ abilities.talent.acceleration-field.name: Acceleration Field
 abilities.talent.acceleration-field.description: '*You forcibly stuff more moments into a critical
   point in time, knowing full well you might need to steal some of your own.*'
 abilities.talent.acceleration-field.texts.target: Three allies
-abilities.talent.acceleration-field.texts.distance: Ranged 5
+abilities.talent.acceleration-field.texts.distance: 'Ranged {has_self_distance, select, true {{self_distance}} other {5}}'
 abilities.talent.acceleration-field.texts.roll: Power Roll + Presence
 abilities.talent.acceleration-field.texts.tier1: '{has_self_damage1, select, true {{self_damage1}} other {4}} corruption damage; slowed (save ends)'
 abilities.talent.acceleration-field.texts.tier2: '{has_self_damage2, select, true {{self_damage2}} other {6}} corruption damage; slowed (save ends)'
@@ -689,7 +689,7 @@ abilities.talent.resonant-mind-spike.name: Resonant Mind Spike
 abilities.talent.resonant-mind-spike.description: "*You fire a telepathic bolt empowered by every
   consciousness within reach directly into your foe's mind.*"
 abilities.talent.resonant-mind-spike.texts.target: One creature
-abilities.talent.resonant-mind-spike.texts.distance: Ranged 10
+abilities.talent.resonant-mind-spike.texts.distance: 'Ranged {has_self_distance, select, true {{self_distance}} other {10}}'
 abilities.talent.resonant-mind-spike.texts.roll: Power Roll + Reason
 abilities.talent.resonant-mind-spike.texts.tier1: '{has_self_damage1, select, true {{self_damage1}} other {15 + R}} psychic damage'
 abilities.talent.resonant-mind-spike.texts.tier2: '{has_self_damage2, select, true {{self_damage2}} other {24 + R}} psychic damage'

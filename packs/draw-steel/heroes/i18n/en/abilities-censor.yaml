@@ -2,7 +2,7 @@ abilities.censor.my-life-for-yours.name: My Life for Yours
 abilities.censor.my-life-for-yours.description: '*You channel some of your vitality into more resilience for you or an ally.*'
 abilities.censor.my-life-for-yours.texts.trigger: The target starts their turn or takes damage.
 abilities.censor.my-life-for-yours.texts.target: Self or one ally
-abilities.censor.my-life-for-yours.texts.distance: Ranged 10
+abilities.censor.my-life-for-yours.texts.distance: 'Ranged {has_self_distance, select, true {{self_distance}} other {10}}'
 abilities.censor.my-life-for-yours.texts.effect: >-
   Effect: You spend a Recovery and the target regains Stamina equal to your recovery value.
 
@@ -21,7 +21,7 @@ abilities.censor.driving-assault.texts.effect: 'Effect: You can shift up to your
 abilities.censor.every-step-death.name: Every Step... Death!
 abilities.censor.every-step-death.description: '*You show your foe a glimpse of their fate after death.*'
 abilities.censor.every-step-death.texts.target: One creature
-abilities.censor.every-step-death.texts.distance: Ranged 10
+abilities.censor.every-step-death.texts.distance: 'Ranged {has_self_distance, select, true {{self_distance}} other {10}}'
 abilities.censor.every-step-death.texts.roll: Power Roll + Presence
 abilities.censor.every-step-death.texts.tier1: '{has_self_damage1, select, true {{self_damage1}} other {5 + P}} psychic damage'
 abilities.censor.every-step-death.texts.tier2: '{has_self_damage2, select, true {{self_damage2}} other {7 + P}} psychic damage'
@@ -31,7 +31,7 @@ abilities.censor.every-step-death.texts.effect: 'Effect: Each time the target wi
 abilities.censor.behold-the-face-of-justice.name: Behold the Face of Justice!
 abilities.censor.behold-the-face-of-justice.description: '*You attack a foe and your enemies behold a vision of the true nature of your resolve.*'
 abilities.censor.behold-the-face-of-justice.texts.target: One creature
-abilities.censor.behold-the-face-of-justice.texts.distance: Melee 1 or ranged 5
+abilities.censor.behold-the-face-of-justice.texts.distance: 'Melee 1 or ranged {has_self_rangedDistance, select, true {{self_rangedDistance}} other {5}}'
 abilities.censor.behold-the-face-of-justice.texts.roll: Power Roll + Might
 abilities.censor.behold-the-face-of-justice.texts.tier1: '{has_self_damage1, select, true {{self_damage1}} other {3 + M}} holy damage; if the target has P < WEAK, each enemy within 2 squares of them is frightened of you (save ends)'
 abilities.censor.behold-the-face-of-justice.texts.tier2: '{has_self_damage2, select, true {{self_damage2}} other {5 + M}} holy damage; if the target has P < AVERAGE, each enemy within 2 squares of them is frightened of you (save ends)'
@@ -79,7 +79,7 @@ abilities.censor.back-blasphemer.texts.tier3: '{has_self_damage3, select, true {
 abilities.censor.judgment.name: Judgment
 abilities.censor.judgment.description: '*You utter a prayer that outlines your foe in holy energy.*'
 abilities.censor.judgment.texts.target: One enemy
-abilities.censor.judgment.texts.distance: Ranged 10
+abilities.censor.judgment.texts.distance: 'Ranged {has_self_distance, select, true {{self_distance}} other {10}}'
 abilities.censor.judgment.texts.effect: >-
   Effect: The target is judged by you until the end of the encounter, you use this ability again,
   you willingly end this effect (no action required), or another censor judges the target.
@@ -109,7 +109,7 @@ abilities.censor.judgment.texts.effect: >-
 abilities.censor.repent.name: Repent!
 abilities.censor.repent.description: '*You conjure memories of their sins to harry your foes.*'
 abilities.censor.repent.texts.target: One creature
-abilities.censor.repent.texts.distance: Ranged 10
+abilities.censor.repent.texts.distance: 'Ranged {has_self_distance, select, true {{self_distance}} other {10}}'
 abilities.censor.repent.texts.roll: Power Roll + Presence
 abilities.censor.repent.texts.tier1: '{has_self_damage1, select, true {{self_damage1}} other {5 + P}} holy damage; I < {has_self_potency1, select, true {{self_potency1}} other {WEAK}}, dazed (save ends)'
 abilities.censor.repent.texts.tier2: '{has_self_damage2, select, true {{self_damage2}} other {8 + P}} holy damage; I < {has_self_potency2, select, true {{self_potency2}} other {AVERAGE}}, dazed (save ends)'
@@ -127,7 +127,7 @@ abilities.censor.censored.texts.effect: 'Effect: When a target who is not a lead
 abilities.censor.purifying-fire.name: Purifying Fire
 abilities.censor.purifying-fire.description: '*The gods judge, fire cleanses.*'
 abilities.censor.purifying-fire.texts.target: One creature
-abilities.censor.purifying-fire.texts.distance: Melee 1 or ranged 5
+abilities.censor.purifying-fire.texts.distance: 'Melee 1 or ranged {has_self_rangedDistance, select, true {{self_rangedDistance}} other {5}}'
 abilities.censor.purifying-fire.texts.roll: Power Roll + Might
 abilities.censor.purifying-fire.texts.tier1: '{has_self_damage1, select, true {{self_damage1}} other {5 + M}} holy damage; M < WEAK, the target has fire weakness 3 (save ends)'
 abilities.censor.purifying-fire.texts.tier2: '{has_self_damage2, select, true {{self_damage2}} other {9 + M}} holy damage; M < AVERAGE, the target has fire weakness 5 (save ends)'
@@ -182,7 +182,7 @@ abilities.censor.pillar-of-holy-fire.texts.effect: 'Effect: At the end of each o
 abilities.censor.hand-of-the-gods.name: Hand of the Gods
 abilities.censor.hand-of-the-gods.description: '*You use your foe as a tool against your enemies.*'
 abilities.censor.hand-of-the-gods.texts.target: One creature
-abilities.censor.hand-of-the-gods.texts.distance: Ranged 10
+abilities.censor.hand-of-the-gods.texts.distance: 'Ranged {has_self_distance, select, true {{self_distance}} other {10}}'
 abilities.censor.hand-of-the-gods.texts.roll: Power Roll + Might
 abilities.censor.hand-of-the-gods.texts.tier1: '{has_self_damage1, select, true {{self_damage1}} other {10 + M}} damage'
 abilities.censor.hand-of-the-gods.texts.tier2: '{has_self_damage2, select, true {{self_damage2}} other {15 + M}} damage'
@@ -193,7 +193,7 @@ abilities.censor.hand-of-the-gods.texts.effect: 'Effect: Until the end of the en
 abilities.censor.your-allies-turn-on-you.name: Your Allies Turn on You!
 abilities.censor.your-allies-turn-on-you.description: "*You turn your enemies' ire to the target.*"
 abilities.censor.your-allies-turn-on-you.texts.target: One creature
-abilities.censor.your-allies-turn-on-you.texts.distance: Ranged 10
+abilities.censor.your-allies-turn-on-you.texts.distance: 'Ranged {has_self_distance, select, true {{self_distance}} other {10}}'
 abilities.censor.your-allies-turn-on-you.texts.roll: Power Roll + Presence
 abilities.censor.your-allies-turn-on-you.texts.tier1: '{has_self_damage1, select, true {{self_damage1}} other {5 + P}} damage; I < {has_self_potency1, select, true {{self_potency1}} other {WEAK}}, slowed (save ends)'
 abilities.censor.your-allies-turn-on-you.texts.tier2: '{has_self_damage2, select, true {{self_damage2}} other {9 + P}} damage; I < {has_self_potency2, select, true {{self_potency2}} other {AVERAGE}}, slowed (save ends)'
@@ -213,7 +213,7 @@ abilities.censor.edict-of-peace.texts.effect: 'Effect: Until the end of the enco
 abilities.censor.burden-of-evil.name: Burden of Evil
 abilities.censor.burden-of-evil.description: "*You reveal a vision of your enemies' fate that causes them to scramble as it staggers them.*"
 abilities.censor.burden-of-evil.texts.target: Three enemies
-abilities.censor.burden-of-evil.texts.distance: Ranged 10
+abilities.censor.burden-of-evil.texts.distance: 'Ranged {has_self_distance, select, true {{self_distance}} other {10}}'
 abilities.censor.burden-of-evil.texts.roll: Power Roll + Presence
 abilities.censor.burden-of-evil.texts.tier1: 'Slide 3; I < {has_self_potency1, select, true {{self_potency1}} other {WEAK}}, dazed (save ends)'
 abilities.censor.burden-of-evil.texts.tier2: 'Slide 5; I < {has_self_potency2, select, true {{self_potency2}} other {AVERAGE}}, dazed (save ends)'
@@ -222,7 +222,7 @@ abilities.censor.intercede.name: Intercede
 abilities.censor.intercede.description: "*You take your ally's place.*"
 abilities.censor.intercede.texts.trigger: A creature makes a strike against the target.
 abilities.censor.intercede.texts.target: One ally
-abilities.censor.intercede.texts.distance: Ranged 10
+abilities.censor.intercede.texts.distance: 'Ranged {has_self_distance, select, true {{self_distance}} other {10}}'
 abilities.censor.intercede.texts.effect: "Effect: The target is unaffected by the strike and you
   become the target instead, even if you aren't a valid target for it. You take half the damage from
   the strike, and the target gains 3 surges."
@@ -240,7 +240,7 @@ abilities.censor.pain-of-your-own-making.description: '*You reverse the effects 
 abilities.censor.pain-of-your-own-making.texts.trigger: The target gains a condition or effect that
   is ended by a saving throw or that ends at the end of their turn.
 abilities.censor.pain-of-your-own-making.texts.target: Self or one ally
-abilities.censor.pain-of-your-own-making.texts.distance: Ranged 10
+abilities.censor.pain-of-your-own-making.texts.distance: 'Ranged {has_self_distance, select, true {{self_distance}} other {10}}'
 abilities.censor.pain-of-your-own-making.texts.effect: 'Effect: The effect ends on the target and is
   applied to the creature who imposed the effect on them. That creature also takes damage equal to
   three times your Presence score.'
@@ -255,7 +255,7 @@ abilities.censor.begone.texts.tier3: '{has_self_damage3, select, true {{self_dam
 abilities.censor.gods-grant-thee-strength.name: Gods Grant Thee Strength
 abilities.censor.gods-grant-thee-strength.description: '*You channel divine force for movement that cannot be stopped.*'
 abilities.censor.gods-grant-thee-strength.texts.target: Self or one ally
-abilities.censor.gods-grant-thee-strength.texts.distance: Ranged 10
+abilities.censor.gods-grant-thee-strength.texts.distance: 'Ranged {has_self_distance, select, true {{self_distance}} other {10}}'
 abilities.censor.gods-grant-thee-strength.texts.effect: 'Effect: The target ends any condition or
   effect on them that is ended by a saving throw or that ends at the end of their turn, or a prone
   target can stand up. The target then gains 2 surges, can shift up to their speed while ignoring
@@ -291,7 +291,7 @@ abilities.censor.righteous-judgment.texts.effect: 'Effect: Until the end of the 
 abilities.censor.it-is-justice-you-fear.name: It Is Justice You Fear
 abilities.censor.it-is-justice-you-fear.description: '*I am but a vessel. Your own deeds weigh upon you.*'
 abilities.censor.it-is-justice-you-fear.texts.target: One creature
-abilities.censor.it-is-justice-you-fear.texts.distance: Ranged 10
+abilities.censor.it-is-justice-you-fear.texts.distance: 'Ranged {has_self_distance, select, true {{self_distance}} other {10}}'
 abilities.censor.it-is-justice-you-fear.texts.roll: Power Roll + Might
 abilities.censor.it-is-justice-you-fear.texts.tier1: '{has_self_damage1, select, true {{self_damage1}} other {8 + M}} holy damage; P < {has_self_potency1, select, true {{self_potency1}} other {WEAK}}, frightened (save ends)'
 abilities.censor.it-is-justice-you-fear.texts.tier2: '{has_self_damage2, select, true {{self_damage2}} other {12 + M}} holy damage; P < {has_self_potency2, select, true {{self_potency2}} other {AVERAGE}}, frightened (save ends)'
@@ -303,14 +303,14 @@ abilities.censor.prescient-grace.name: Prescient Grace
 abilities.censor.prescient-grace.description: '*Gifted by a prescient vision, you warn an ally of an impending attack.*'
 abilities.censor.prescient-grace.texts.trigger: An enemy within 10 squares starts their turn.
 abilities.censor.prescient-grace.texts.target: Self or one ally
-abilities.censor.prescient-grace.texts.distance: Ranged 10
+abilities.censor.prescient-grace.texts.distance: 'Ranged {has_self_distance, select, true {{self_distance}} other {10}}'
 abilities.censor.prescient-grace.texts.effect: 'Effect: You can spend a Recovery to allow the target
   to regain Stamina equal to your recovery value. The target can then take their turn immediately
   before the triggering enemy.'
 abilities.censor.with-my-blessing.name: With My Blessing
 abilities.censor.with-my-blessing.description: '*A word in prayer, and the gods show the way.*'
 abilities.censor.with-my-blessing.texts.target: Self or one ally
-abilities.censor.with-my-blessing.texts.distance: Ranged 10
+abilities.censor.with-my-blessing.texts.distance: 'Ranged {has_self_distance, select, true {{self_distance}} other {10}}'
 abilities.censor.with-my-blessing.texts.effect: 'Effect: The target can use a free triggered action
   to use a strike signature ability or a strike heroic ability, and has a double edge on that
   ability. If a heroic ability is chosen, reduce its Heroic Resource cost by 3 (to a minimum cost of
@@ -388,7 +388,7 @@ abilities.censor.fulfill-your-destiny.name: Fulfill Your Destiny
 abilities.censor.fulfill-your-destiny.description: '*You have looked at various futures, and only this one works.*'
 abilities.censor.fulfill-your-destiny.texts.trigger: You or another hero ends their turn.
 abilities.censor.fulfill-your-destiny.texts.target: One ally
-abilities.censor.fulfill-your-destiny.texts.distance: Ranged 10
+abilities.censor.fulfill-your-destiny.texts.distance: 'Ranged {has_self_distance, select, true {{self_distance}} other {10}}'
 abilities.censor.fulfill-your-destiny.texts.effect: 'Effect: The target takes their turn after the
   triggering hero, and immediately removes all conditions and negative effects on themself. During
   their turn, the target has a double edge on power rolls.'
@@ -404,7 +404,7 @@ abilities.censor.apostate.texts.effect: 'Effect: Until the end of the encounter 
 abilities.censor.terror-manifest.name: Terror Manifest
 abilities.censor.terror-manifest.description: '*"I know what you fear."*'
 abilities.censor.terror-manifest.texts.target: One creature
-abilities.censor.terror-manifest.texts.distance: Ranged 10
+abilities.censor.terror-manifest.texts.distance: 'Ranged {has_self_distance, select, true {{self_distance}} other {10}}'
 abilities.censor.terror-manifest.texts.roll: Power Roll + Presence
 abilities.censor.terror-manifest.texts.tier1: '{has_self_damage1, select, true {{self_damage1}} other {7 + P}} psychic damage; P < {has_self_potency1, select, true {{self_potency1}} other {WEAK}}, frightened (save ends)'
 abilities.censor.terror-manifest.texts.tier2: '{has_self_damage2, select, true {{self_damage2}} other {10 + P}} psychic damage; P < {has_self_potency2, select, true {{self_potency2}} other {AVERAGE}}, frightened (save ends)'
@@ -423,7 +423,7 @@ abilities.censor.blessing-and-a-curse.name: Blessing and a Curse
 abilities.censor.blessing-and-a-curse.description: '*The gods bless and damn in equal measure.*'
 abilities.censor.blessing-and-a-curse.texts.trigger: The target makes a power roll.
 abilities.censor.blessing-and-a-curse.texts.target: One creature
-abilities.censor.blessing-and-a-curse.texts.distance: Ranged 10
+abilities.censor.blessing-and-a-curse.texts.distance: 'Ranged {has_self_distance, select, true {{self_distance}} other {10}}'
 abilities.censor.blessing-and-a-curse.texts.effect: 'Effect: The target obtains a tier 1 or tier 3
   outcome on their power roll (your choice). You can then choose another target within distance, who
   obtains the opposite outcome on their next power roll.'

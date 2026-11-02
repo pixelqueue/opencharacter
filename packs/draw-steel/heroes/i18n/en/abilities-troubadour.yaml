@@ -25,7 +25,7 @@ abilities.troubadour.hypnotic-overtones.texts.effect: 'Spend 2+ Drama: The size 
 abilities.troubadour.cutting-sarcasm.name: Cutting Sarcasm
 abilities.troubadour.cutting-sarcasm.description: '*There you are, radiating your usual charisma.*'
 abilities.troubadour.cutting-sarcasm.texts.target: One creature
-abilities.troubadour.cutting-sarcasm.texts.distance: Ranged 10
+abilities.troubadour.cutting-sarcasm.texts.distance: 'Ranged {has_self_distance, select, true {{self_distance}} other {10}}'
 abilities.troubadour.cutting-sarcasm.texts.roll: Power Roll + Presence
 abilities.troubadour.cutting-sarcasm.texts.tier1: '{has_self_damage1, select, true {{self_damage1}} other {2 + P}} psychic damage; P < {has_self_potency1, select, true {{self_potency1}} other {WEAK}}, bleeding (save ends)'
 abilities.troubadour.cutting-sarcasm.texts.tier2: '{has_self_damage2, select, true {{self_damage2}} other {5 + P}} psychic damage; P < {has_self_potency2, select, true {{self_potency2}} other {AVERAGE}}, bleeding (save ends)'
@@ -35,7 +35,7 @@ abilities.troubadour.harmonize.description: '*Give the chorus a little punch.*'
 abilities.troubadour.harmonize.texts.trigger: The target uses an ability that targets only one enemy
   and costs 3 or fewer of their Heroic Resource.
 abilities.troubadour.harmonize.texts.target: One ally
-abilities.troubadour.harmonize.texts.distance: Ranged 5
+abilities.troubadour.harmonize.texts.distance: 'Ranged {has_self_distance, select, true {{self_distance}} other {5}}'
 abilities.troubadour.harmonize.texts.effect: >-
   Effect: The target can choose one additional target for the triggering ability. Any damage dealt
   to the additional target is sonic damage.
@@ -53,7 +53,7 @@ abilities.troubadour.revitalizing-limerick.texts.effect: 'Effect: At the end of 
 abilities.troubadour.dramatic-monologue.name: Dramatic Monologue
 abilities.troubadour.dramatic-monologue.description: "*It doesn't need to make sense. Just say it with emotion.*"
 abilities.troubadour.dramatic-monologue.texts.target: Special
-abilities.troubadour.dramatic-monologue.texts.distance: Ranged 10
+abilities.troubadour.dramatic-monologue.texts.distance: 'Ranged {has_self_distance, select, true {{self_distance}} other {10}}'
 abilities.troubadour.dramatic-monologue.texts.effect: >-
   Effect: Choose one of the following effects:
 
@@ -71,7 +71,7 @@ abilities.troubadour.turnabout-is-fair-play.name: Turnabout Is Fair Play
 abilities.troubadour.turnabout-is-fair-play.description: "*All's fair in love and whatever.*"
 abilities.troubadour.turnabout-is-fair-play.texts.trigger: The target makes an ability roll that has an edge, a double edge, a bane, or a double bane.
 abilities.troubadour.turnabout-is-fair-play.texts.target: One creature
-abilities.troubadour.turnabout-is-fair-play.texts.distance: Ranged 10
+abilities.troubadour.turnabout-is-fair-play.texts.distance: 'Ranged {has_self_distance, select, true {{self_distance}} other {10}}'
 abilities.troubadour.turnabout-is-fair-play.texts.effect: >-
   Effect: An edge on the triggering roll becomes a bane, or a double edge becomes an edge. A bane
   becomes an edge, or a double bane becomes a bane.
@@ -90,7 +90,7 @@ abilities.troubadour.power-chord.texts.tier3: Push 3
 abilities.troubadour.quick-rewrite.name: Quick Rewrite
 abilities.troubadour.quick-rewrite.description: '*You write something unexpected into the scene that hinders your enemy.*'
 abilities.troubadour.quick-rewrite.texts.target: Each enemy in the area
-abilities.troubadour.quick-rewrite.texts.distance: 3 cube within 10
+abilities.troubadour.quick-rewrite.texts.distance: '3 cube within {has_self_within, select, true {{self_within}} other {10}}'
 abilities.troubadour.quick-rewrite.texts.roll: Power Roll + Presence
 abilities.troubadour.quick-rewrite.texts.tier1: '{has_self_damage1, select, true {{self_damage1}} other {4}} damage; P < {has_self_potency1, select, true {{self_potency1}} other {WEAK}}, slowed (save ends)'
 abilities.troubadour.quick-rewrite.texts.tier2: '{has_self_damage2, select, true {{self_damage2}} other {5}} damage; P < {has_self_potency2, select, true {{self_potency2}} other {AVERAGE}}, slowed (save ends)'
@@ -111,7 +111,7 @@ abilities.troubadour.riposte.texts.effect: 'Effect: The target makes a free stri
 abilities.troubadour.thunder-mother.name: '"Thunder Mother"'
 abilities.troubadour.thunder-mother.description: '*All for thunder motherrr! ♪ Run and hide for coverrr!♪*'
 abilities.troubadour.thunder-mother.texts.target: One creature
-abilities.troubadour.thunder-mother.texts.distance: Ranged 10
+abilities.troubadour.thunder-mother.texts.distance: 'Ranged {has_self_distance, select, true {{self_distance}} other {10}}'
 abilities.troubadour.thunder-mother.texts.roll: Power Roll + Presence
 abilities.troubadour.thunder-mother.texts.tier1: Lightning damage equal to your level
 abilities.troubadour.thunder-mother.texts.tier2: Lightning damage equal to 5 + your level
@@ -122,7 +122,7 @@ abilities.troubadour.thunder-mother.texts.effect: "Effect: At the end of each co
 abilities.troubadour.harsh-critic.name: Harsh Critic
 abilities.troubadour.harsh-critic.description: '*Just one bad review will ruin their day.*'
 abilities.troubadour.harsh-critic.texts.target: One creature or object
-abilities.troubadour.harsh-critic.texts.distance: Melee 1 or ranged 10
+abilities.troubadour.harsh-critic.texts.distance: 'Melee 1 or ranged {has_self_rangedDistance, select, true {{self_rangedDistance}} other {10}}'
 abilities.troubadour.harsh-critic.texts.roll: Power Roll + Presence
 abilities.troubadour.harsh-critic.texts.tier1: '{has_self_damage1, select, true {{self_damage1}} other {7 + P}} sonic damage'
 abilities.troubadour.harsh-critic.texts.tier2: '{has_self_damage2, select, true {{self_damage2}} other {10 + P}} sonic damage'
@@ -165,7 +165,7 @@ abilities.troubadour.artful-flourish.texts.effect: |-
 abilities.troubadour.witty-banter.name: Witty Banter
 abilities.troubadour.witty-banter.description: '*A lyrical (and physical) jab insults an enemy and inspires an ally.*'
 abilities.troubadour.witty-banter.texts.target: One creature
-abilities.troubadour.witty-banter.texts.distance: Melee 1 or ranged 5
+abilities.troubadour.witty-banter.texts.distance: 'Melee 1 or ranged {has_self_rangedDistance, select, true {{self_rangedDistance}} other {5}}'
 abilities.troubadour.witty-banter.texts.roll: Power Roll + Presence
 abilities.troubadour.witty-banter.texts.tier1: '{has_self_damage1, select, true {{self_damage1}} other {4 + P}} psychic damage'
 abilities.troubadour.witty-banter.texts.tier2: '{has_self_damage2, select, true {{self_damage2}} other {5 + P}} psychic damage'
@@ -239,7 +239,7 @@ abilities.troubadour.radical-fantasia.texts.effect: 'Effect: While this performa
 abilities.troubadour.the-show-must-go-on.name: The Show Must Go On
 abilities.troubadour.the-show-must-go-on.description: '*You shine a bright light on the players on the stage and compel them to finish the performance.*'
 abilities.troubadour.the-show-must-go-on.texts.target: Each enemy in the area
-abilities.troubadour.the-show-must-go-on.texts.distance: 5 cube within 10
+abilities.troubadour.the-show-must-go-on.texts.distance: '5 cube within {has_self_within, select, true {{self_within}} other {10}}'
 abilities.troubadour.the-show-must-go-on.texts.roll: Power Roll + Presence
 abilities.troubadour.the-show-must-go-on.texts.tier1: "{has_self_damage1, select, true {{self_damage1}} other {6}} damage; P < WEAK, the target can't willingly leave the area (EoT)"
 abilities.troubadour.the-show-must-go-on.texts.tier2: "{has_self_damage2, select, true {{self_damage2}} other {8}} damage; P < AVERAGE, the target can't willingly leave the area (save ends)"
@@ -285,7 +285,7 @@ abilities.troubadour.saved-in-the-edit.texts.effect: >-
 abilities.troubadour.power-ballad.name: Power Ballad
 abilities.troubadour.power-ballad.description: '*A song for the brokenhearted wraps itself around the target and blossoms into a ward of thorns.*'
 abilities.troubadour.power-ballad.texts.target: Self or one ally
-abilities.troubadour.power-ballad.texts.distance: Ranged 10
+abilities.troubadour.power-ballad.texts.distance: 'Ranged {has_self_distance, select, true {{self_distance}} other {10}}'
 abilities.troubadour.power-ballad.texts.effect: 'Effect: Until the end of the encounter, whenever
   the target takes damage while winded, they can use a free triggered action to deal half the damage
   they took to the source of the damage.'
@@ -359,14 +359,14 @@ abilities.troubadour.we-cant-be-upstaged.texts.effect: 'Effect: While this perfo
 abilities.troubadour.love-song.name: Love Song
 abilities.troubadour.love-song.description: "*You play a small ditty that plants you inside your target's heart.*"
 abilities.troubadour.love-song.texts.target: One creature or object
-abilities.troubadour.love-song.texts.distance: Ranged 10
+abilities.troubadour.love-song.texts.distance: 'Ranged {has_self_distance, select, true {{self_distance}} other {10}}'
 abilities.troubadour.love-song.texts.effect: "Effect: The target gains 20 temporary Stamina. Until
   the end of the encounter, whenever the target takes damage while you're within distance, you can
   choose to take the damage instead of the target."
 abilities.troubadour.patter-song.name: Patter Song
 abilities.troubadour.patter-song.description: '*Dazzle them with your fancy patter and they forget where they were.*'
 abilities.troubadour.patter-song.texts.target: Special
-abilities.troubadour.patter-song.texts.distance: Ranged 10
+abilities.troubadour.patter-song.texts.distance: 'Ranged {has_self_distance, select, true {{self_distance}} other {10}}'
 abilities.troubadour.patter-song.texts.roll: Power Roll + Presence
 abilities.troubadour.patter-song.texts.tier1: One ally within distance can take their turn immediately after yours.
 abilities.troubadour.patter-song.texts.tier2: Two allies within distance can take their turns immediately after yours in any order.
@@ -387,7 +387,7 @@ abilities.troubadour.action-hero.texts.effect: "Effect: Unless you score a criti
 abilities.troubadour.continuity-error.name: Continuity Error
 abilities.troubadour.continuity-error.description: '*Your subject is written into two places at once.*'
 abilities.troubadour.continuity-error.texts.target: One enemy or object
-abilities.troubadour.continuity-error.texts.distance: Ranged 10
+abilities.troubadour.continuity-error.texts.distance: 'Ranged {has_self_distance, select, true {{self_distance}} other {10}}'
 abilities.troubadour.continuity-error.texts.effect: "Effect: The target is split into two separate
   entities, one of which remains in the target's space while the other appears in an unoccupied
   space of your choice within distance. If the target is a creature, this creates a new creature
@@ -407,7 +407,7 @@ abilities.troubadour.encore.texts.effect: 'Effect: You use an ability that you h
 abilities.troubadour.guest-star.name: Guest Star
 abilities.troubadour.guest-star.description: "*We offered them a percentage of the gross. So they're working for free!*"
 abilities.troubadour.guest-star.texts.target: Special
-abilities.troubadour.guest-star.texts.distance: Ranged 10
+abilities.troubadour.guest-star.texts.distance: 'Ranged {has_self_distance, select, true {{self_distance}} other {10}}'
 abilities.troubadour.guest-star.texts.effect: "Effect: A guest star appears to help you during the
   encounter: either a bystander within distance uplifted by your magic, or a mysterious new hero who
   appears in an unoccupied space within distance. This guest star is controlled by you, has their
@@ -418,7 +418,7 @@ abilities.troubadour.guest-star.texts.effect: "Effect: A guest star appears to h
 abilities.troubadour.tough-crowd.name: Tough Crowd
 abilities.troubadour.tough-crowd.description: "*Your fans don't seem to like the opening act...*"
 abilities.troubadour.tough-crowd.texts.target: Special
-abilities.troubadour.tough-crowd.texts.distance: 3 cube within 10
+abilities.troubadour.tough-crowd.texts.distance: '3 cube within {has_self_within, select, true {{self_within}} other {10}}'
 abilities.troubadour.tough-crowd.texts.roll: Power Roll + Presence
 abilities.troubadour.tough-crowd.texts.tier1: '{has_self_damage1, select, true {{self_damage1}} other {5}} corruption damage; M < {has_self_potency1, select, true {{self_potency1}} other {WEAK}}, pull 1 toward the center of the area'
 abilities.troubadour.tough-crowd.texts.tier2: '{has_self_damage2, select, true {{self_damage2}} other {9}} corruption damage; M < {has_self_potency2, select, true {{self_potency2}} other {AVERAGE}}, pull 2 toward the center of the area'
@@ -430,7 +430,7 @@ abilities.troubadour.tough-crowd.texts.effect: 'Effect: The area is haunted by a
 abilities.troubadour.twist-at-the-end.name: Twist at the End
 abilities.troubadour.twist-at-the-end.description: "*You didn't see that coming, did you?!*"
 abilities.troubadour.twist-at-the-end.texts.target: One dead enemy
-abilities.troubadour.twist-at-the-end.texts.distance: Ranged 10
+abilities.troubadour.twist-at-the-end.texts.distance: 'Ranged {has_self_distance, select, true {{self_distance}} other {10}}'
 abilities.troubadour.twist-at-the-end.texts.effect: "Effect: A target who is not a leader or solo
   creature comes back to life with half their Stamina and becomes an ally under the Director's
   control. The players can work with the Director to determine when the target takes their turn each
@@ -456,7 +456,7 @@ abilities.troubadour.classic-chandelier-stunt.texts.effect: 'Effect: Each target
 abilities.troubadour.we-meet-at-last.name: We Meet at Last
 abilities.troubadour.we-meet-at-last.description: '*You magically intertwine your fate with another creature—for better or worse.*'
 abilities.troubadour.we-meet-at-last.texts.target: One creature
-abilities.troubadour.we-meet-at-last.texts.distance: Ranged 10
+abilities.troubadour.we-meet-at-last.texts.distance: 'Ranged {has_self_distance, select, true {{self_distance}} other {10}}'
 abilities.troubadour.we-meet-at-last.texts.effect: >-
   Effect: Until the end of the encounter, both you and the target can target each other with
   abilities even if you are beyond distance, with the distance of this ability replacing those
@@ -503,7 +503,7 @@ abilities.troubadour.fire-up-the-night.texts.effect: "Effect: While this perform
 abilities.troubadour.star-solo.name: Star Solo
 abilities.troubadour.star-solo.description: "*Your performance travels and doesn't stop moving until your audience is completely rocked.*"
 abilities.troubadour.star-solo.texts.target: One creature or object
-abilities.troubadour.star-solo.texts.distance: Melee 1 or ranged 10
+abilities.troubadour.star-solo.texts.distance: 'Melee 1 or ranged {has_self_rangedDistance, select, true {{self_rangedDistance}} other {10}}'
 abilities.troubadour.star-solo.texts.roll: Power Roll + Presence
 abilities.troubadour.star-solo.texts.tier1: '{has_self_damage1, select, true {{self_damage1}} other {5 + P}} damage'
 abilities.troubadour.star-solo.texts.tier2: '{has_self_damage2, select, true {{self_damage2}} other {8 + P}} damage; push 3'
@@ -526,7 +526,7 @@ abilities.troubadour.rising-tension.name: Rising Tension
 abilities.troubadour.rising-tension.description: '*You narrate the tension of the scene and put all
   hope into your protagonist to turn things around.*'
 abilities.troubadour.rising-tension.texts.target: One ally
-abilities.troubadour.rising-tension.texts.distance: Ranged 10
+abilities.troubadour.rising-tension.texts.distance: 'Ranged {has_self_distance, select, true {{self_distance}} other {10}}'
 abilities.troubadour.rising-tension.texts.effect: 'Effect: The target gains 3 of their Heroic
   Resource, has a double edge on a power roll of their choice made during their next turn, is no
   longer slowed or weakened if they were before, and can immediately take their turn after yours if
@@ -551,7 +551,7 @@ abilities.troubadour.renegotiated-contract.texts.effect: "Effect: Add your curre
 abilities.troubadour.melt-their-faces.name: Melt Their Faces
 abilities.troubadour.melt-their-faces.description: '*The power of music rips through the reality around the target and blows them away.*'
 abilities.troubadour.melt-their-faces.texts.target: One creature or object
-abilities.troubadour.melt-their-faces.texts.distance: Melee 1 or ranged 10
+abilities.troubadour.melt-their-faces.texts.distance: 'Melee 1 or ranged {has_self_rangedDistance, select, true {{self_rangedDistance}} other {10}}'
 abilities.troubadour.melt-their-faces.texts.roll: Power Roll + Presence
 abilities.troubadour.melt-their-faces.texts.tier1: '{has_self_damage1, select, true {{self_damage1}} other {12 + P}} sonic damage; push 5'
 abilities.troubadour.melt-their-faces.texts.tier2: '{has_self_damage2, select, true {{self_damage2}} other {16 + P}} sonic damage; push 10'
@@ -561,7 +561,7 @@ abilities.troubadour.epic.name: Epic
 abilities.troubadour.epic.description: "*Your story tells a tale of the villain's waning power and
   how the heroes rose to the occasion to stop them.*"
 abilities.troubadour.epic.texts.target: One creature
-abilities.troubadour.epic.texts.distance: Melee 1 or ranged 10
+abilities.troubadour.epic.texts.distance: 'Melee 1 or ranged {has_self_rangedDistance, select, true {{self_rangedDistance}} other {10}}'
 abilities.troubadour.epic.texts.roll: Power Roll + Presence
 abilities.troubadour.epic.texts.tier1: The target takes a bane on ability rolls (save ends).
 abilities.troubadour.epic.texts.tier2: The target has a double bane on ability rolls (save ends).

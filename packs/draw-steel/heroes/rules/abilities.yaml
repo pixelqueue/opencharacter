@@ -133,16 +133,30 @@ contentTypes:
         formula: >-
           has(item.t3PotencyValue) ? item.t3PotencyValue
             : has(item.t3Potency) ? [potency.weak, potency.average, potency.strong][indexOf(['weak', 'average', 'strong'], item.t3Potency)] : 0
+      # The bonus to a ranged ability's distance from the hero's features (Omnisensory, Prayer of
+      # Distance, …): on a ranged ability's distance, the ranged part of "melee or ranged", or
+      # an area's range ("within").
+      rangeBonus:
+        type: integer
+        formula: >-
+          !('kw.ranged' in item.tags) ? 0
+            : abilities.rangeBonus + ('kw.magic' in item.tags ? abilities.rangeBonus.magic : 0)
+              + ('kw.psionic' in item.tags ? abilities.rangeBonus.psionic : 0)
+              + ('kw.magic' in item.tags && 'kw.void' in item.tags ? abilities.rangeBonus.voidMagic : 0)
       distance:
         type: integer
         formula: >-
           item.distance + ('kw.weapon' in item.tags && item.distanceKind in ['melee', 'melee-or-ranged'] ? kit.meleeDistance
             : 'kw.weapon' in item.tags && item.distanceKind == 'ranged' ? kit.rangedDistance : 0)
+            + (item.distanceKind == 'ranged' ? self.rangeBonus : 0)
       rangedDistance:
         type: integer
         formula: >-
           item.rangedDistance == 0 ? 0
-            : item.rangedDistance + ('kw.weapon' in item.tags ? kit.rangedDistance : 0)
+            : item.rangedDistance + ('kw.weapon' in item.tags ? kit.rangedDistance : 0) + self.rangeBonus
+      within:
+        type: integer
+        formula: 'item.within == 0 ? 0 : item.within + self.rangeBonus'
     actions:
       - use: use-ability
 
@@ -156,6 +170,12 @@ fields:
   abilities.edgeDiscount: { type: integer, formula: 0, min: 0 }
   # Abilities that cost nothing to use right now (an Elementalist's maintained abilities).
   abilities.free: { type: set, of: ability, formula: '[]' }
+  # Bonuses to the distance of ranged abilities: any, magic, psionic, and void magic ones. An
+  # area's bonus goes to its range ("within"), not its size.
+  abilities.rangeBonus: { type: integer, formula: 0 }
+  abilities.rangeBonus.magic: { type: integer, formula: 0 }
+  abilities.rangeBonus.psionic: { type: integer, formula: 0 }
+  abilities.rangeBonus.voidMagic: { type: integer, formula: 0 }
 
 effects:
   # A kit's damage bonus for the tier each target got, on weapon abilities that deal damage.
@@ -503,7 +523,9 @@ actions:
               && item.usage == 'main-action'
           tier: 'has(steps.roll) ? steps.roll.bandValue : 0'
           damage: 'has(steps.preview) ? steps.preview.total : 0'
-          distance: 'self.distance + (has(steps.roll) ? steps.roll.tallies.distanceBonus : 0)'
+          # A bonus on the roll (Extended Power) adds to an area's range, else to the distance.
+          distance: 'self.distance + (has(steps.roll) && item.within == 0 ? steps.roll.tallies.distanceBonus : 0)'
+          within: 'self.within + (has(steps.roll) && item.within > 0 ? steps.roll.tallies.distanceBonus : 0)'
           rangedDistance: >-
             self.rangedDistance == 0 ? 0
               : self.rangedDistance + (has(steps.roll) ? steps.roll.tallies.distanceBonus : 0)

@@ -17,7 +17,7 @@ abilities.shadow.gasping-in-pain.texts.effect: 'Effect: One ally within 5 square
 abilities.shadow.teamwork-has-its-place.name: Teamwork Has Its Place
 abilities.shadow.teamwork-has-its-place.description: '*You attack an enemy as an ally exposes their weakness.*'
 abilities.shadow.teamwork-has-its-place.texts.target: One creature or object
-abilities.shadow.teamwork-has-its-place.texts.distance: Melee 1 or ranged 5
+abilities.shadow.teamwork-has-its-place.texts.distance: 'Melee 1 or ranged {has_self_rangedDistance, select, true {{self_rangedDistance}} other {5}}'
 abilities.shadow.teamwork-has-its-place.texts.roll: Power Roll + Agility
 abilities.shadow.teamwork-has-its-place.texts.tier1: '{has_self_damage1, select, true {{self_damage1}} other {3 + A}} damage'
 abilities.shadow.teamwork-has-its-place.texts.tier2: '{has_self_damage2, select, true {{self_damage2}} other {6 + A}} damage'
@@ -58,7 +58,7 @@ abilities.shadow.setup.name: Setup
 effects.shadow.setup.name: Set up (damage weakness 5)
 abilities.shadow.setup.description: '*Your friends will thank you.*'
 abilities.shadow.setup.texts.target: One creature
-abilities.shadow.setup.texts.distance: Ranged 5
+abilities.shadow.setup.texts.distance: 'Ranged {has_self_distance, select, true {{self_distance}} other {5}}'
 abilities.shadow.setup.texts.roll: Power Roll + Agility
 abilities.shadow.setup.texts.tier1: '{has_self_damage1, select, true {{self_damage1}} other {6 + A}} damage; R < {has_self_potency1, select, true {{self_potency1}} other {WEAK}}, the target has damage weakness 5 (save ends)'
 abilities.shadow.setup.texts.tier2: '{has_self_damage2, select, true {{self_damage2}} other {9 + A}} damage; R < {has_self_potency2, select, true {{self_potency2}} other {AVERAGE}}, the target has damage weakness 5 (save ends)'
@@ -118,7 +118,7 @@ abilities.shadow.im-no-threat.texts.effect: >-
 abilities.shadow.coup-de-grace.name: Coup de Grace
 abilities.shadow.coup-de-grace.description: '*Your blade might be the last thing they see.*'
 abilities.shadow.coup-de-grace.texts.target: One creature
-abilities.shadow.coup-de-grace.texts.distance: Melee 1 or ranged 5
+abilities.shadow.coup-de-grace.texts.distance: 'Melee 1 or ranged {has_self_rangedDistance, select, true {{self_rangedDistance}} other {5}}'
 abilities.shadow.coup-de-grace.texts.roll: Power Roll + Agility
 abilities.shadow.coup-de-grace.texts.tier1: 2d6 + 7 + A damage
 abilities.shadow.coup-de-grace.texts.tier2: 2d6 + 11 + A damage
@@ -126,7 +126,7 @@ abilities.shadow.coup-de-grace.texts.tier3: 2d6 + 16 + A damage
 abilities.shadow.i-work-better-alone.name: I Work Better Alone
 abilities.shadow.i-work-better-alone.description: '*"It''s better, just you and me. Isn''t it?"*'
 abilities.shadow.i-work-better-alone.texts.target: One creature
-abilities.shadow.i-work-better-alone.texts.distance: Melee 1 or ranged 5
+abilities.shadow.i-work-better-alone.texts.distance: 'Melee 1 or ranged {has_self_rangedDistance, select, true {{self_rangedDistance}} other {5}}'
 abilities.shadow.i-work-better-alone.texts.roll: Power Roll + Agility
 abilities.shadow.i-work-better-alone.texts.tier1: '{has_self_damage1, select, true {{self_damage1}} other {3 + A}} damage'
 abilities.shadow.i-work-better-alone.texts.tier2: '{has_self_damage2, select, true {{self_damage2}} other {6 + A}} damage'
@@ -169,7 +169,7 @@ abilities.shadow.you-were-watching-the-wrong-one.texts.effect: 'Effect: As long 
 abilities.shadow.eviscerate.name: Eviscerate
 abilities.shadow.eviscerate.description: '*You leave your foe bleeding out after a devastating attack.*'
 abilities.shadow.eviscerate.texts.target: One creature
-abilities.shadow.eviscerate.texts.distance: Melee 1 or ranged 5
+abilities.shadow.eviscerate.texts.distance: 'Melee 1 or ranged {has_self_rangedDistance, select, true {{self_rangedDistance}} other {5}}'
 abilities.shadow.eviscerate.texts.roll: Power Roll + Agility
 abilities.shadow.eviscerate.texts.tier1: '{has_self_damage1, select, true {{self_damage1}} other {4 + A}} damage; A < {has_self_potency1, select, true {{self_potency1}} other {WEAK}}, bleeding (save ends)'
 abilities.shadow.eviscerate.texts.tier2: '{has_self_damage2, select, true {{self_damage2}} other {6 + A}} damage; A < {has_self_potency2, select, true {{self_potency2}} other {AVERAGE}}, bleeding (save ends)'
@@ -177,7 +177,7 @@ abilities.shadow.eviscerate.texts.tier3: '{has_self_damage3, select, true {{self
 abilities.shadow.two-throats-at-once.name: Two Throats at Once
 abilities.shadow.two-throats-at-once.description: '*A bargain.*'
 abilities.shadow.two-throats-at-once.texts.target: Two creatures or objects
-abilities.shadow.two-throats-at-once.texts.distance: Melee 1 or ranged 5
+abilities.shadow.two-throats-at-once.texts.distance: 'Melee 1 or ranged {has_self_rangedDistance, select, true {{self_rangedDistance}} other {5}}'
 abilities.shadow.two-throats-at-once.texts.roll: Power Roll + Agility
 abilities.shadow.two-throats-at-once.texts.tier1: '{has_self_damage1, select, true {{self_damage1}} other {4}} damage'
 abilities.shadow.two-throats-at-once.texts.tier2: '{has_self_damage2, select, true {{self_damage2}} other {6}} damage'
@@ -193,7 +193,7 @@ abilities.shadow.shadowgrasp.texts.tier3: '{has_self_damage3, select, true {{sel
 abilities.shadow.they-always-line-up.name: They Always Line Up
 abilities.shadow.they-always-line-up.description: '*You fire a projectile so fast that it passes through a line of foes, hamstringing them.*'
 abilities.shadow.they-always-line-up.texts.target: Each enemy in the area
-abilities.shadow.they-always-line-up.texts.distance: 5 x 1 line within 5
+abilities.shadow.they-always-line-up.texts.distance: '5 x 1 line within {has_self_within, select, true {{self_within}} other {5}}'
 abilities.shadow.they-always-line-up.texts.roll: Power Roll + Agility
 abilities.shadow.they-always-line-up.texts.tier1: '{has_self_damage1, select, true {{self_damage1}} other {12}} damage; M < {has_self_potency1, select, true {{self_potency1}} other {WEAK}}, slowed (save ends)'
 abilities.shadow.they-always-line-up.texts.tier2: '{has_self_damage2, select, true {{self_damage2}} other {18}} damage; M < {has_self_potency2, select, true {{self_potency2}} other {AVERAGE}}, slowed (save ends)'
@@ -218,7 +218,7 @@ abilities.shadow.assassinate.texts.effect: 'Effect: A target who is not a minion
 abilities.shadow.time-bomb.name: Time Bomb
 abilities.shadow.time-bomb.description: '*The longer it cooks, the bigger the boom.*'
 abilities.shadow.time-bomb.texts.target: Each enemy in the area
-abilities.shadow.time-bomb.texts.distance: 2 cube within 10
+abilities.shadow.time-bomb.texts.distance: '2 cube within {has_self_within, select, true {{self_within}} other {10}}'
 abilities.shadow.time-bomb.texts.effect: >-
   Effect: Each target takes acid, fire, or poison damage (your choice) equal to your Agility score.
 
@@ -237,7 +237,7 @@ abilities.shadow.look.texts.effect: 'Effect: Until the start of your next turn, 
 abilities.shadow.one-vial-makes-you-better.name: One Vial Makes You Better
 abilities.shadow.one-vial-makes-you-better.description: '*A well-timed throw of a potion will keep your allies in the fight.*'
 abilities.shadow.one-vial-makes-you-better.texts.target: Three creatures
-abilities.shadow.one-vial-makes-you-better.texts.distance: Ranged 10
+abilities.shadow.one-vial-makes-you-better.texts.distance: 'Ranged {has_self_distance, select, true {{self_distance}} other {10}}'
 abilities.shadow.one-vial-makes-you-better.texts.effect: >-
   Effect: You ready, hand, or lob a potion to each target, who can immediately quaff the potion (no
   action required). If they don't drink the potion right away, they must use the Use Consumable
@@ -277,7 +277,7 @@ abilities.shadow.cinderstorm.texts.effect: 'Effect: Each target can teleport up 
 abilities.shadow.one-vial-makes-you-faster.name: One Vial Makes You Faster
 abilities.shadow.one-vial-makes-you-faster.description: '*Each ally who catches a potion you throw can take the battle to the next level.*'
 abilities.shadow.one-vial-makes-you-faster.texts.target: Three creatures
-abilities.shadow.one-vial-makes-you-faster.texts.distance: Ranged 10
+abilities.shadow.one-vial-makes-you-faster.texts.distance: 'Ranged {has_self_distance, select, true {{self_distance}} other {10}}'
 abilities.shadow.one-vial-makes-you-faster.texts.roll: Power Roll + Agility
 abilities.shadow.one-vial-makes-you-faster.texts.tier1: The creature's speed is increased by 2 until the end of the encounter.
 abilities.shadow.one-vial-makes-you-faster.texts.tier2: The creature can fly until the end of the encounter.
@@ -320,7 +320,7 @@ abilities.shadow.into-the-shadows.texts.effect: 'Effect: You and the target are 
 abilities.shadow.you-talk-too-much.name: You Talk Too Much
 abilities.shadow.you-talk-too-much.description: '*Silence is a virtue. A knife pinning their mouth shut is the next best thing.*'
 abilities.shadow.you-talk-too-much.texts.target: One creature
-abilities.shadow.you-talk-too-much.texts.distance: Melee 1 or ranged 5
+abilities.shadow.you-talk-too-much.texts.distance: 'Melee 1 or ranged {has_self_rangedDistance, select, true {{self_rangedDistance}} other {5}}'
 abilities.shadow.you-talk-too-much.texts.roll: Power Roll + Agility
 abilities.shadow.you-talk-too-much.texts.tier1: '{has_self_damage1, select, true {{self_damage1}} other {10 + A}} damage; P < {has_self_potency1, select, true {{self_potency1}} other {WEAK}}, dazed (save ends)'
 abilities.shadow.you-talk-too-much.texts.tier2: '{has_self_damage2, select, true {{self_damage2}} other {15 + A}} damage; P < {has_self_potency2, select, true {{self_potency2}} other {AVERAGE}}, dazed (save ends)'
@@ -338,7 +338,7 @@ abilities.shadow.too-slow.texts.effect: 'Effect: You ignore any effects associat
 abilities.shadow.stink-bomb.name: Stink Bomb
 abilities.shadow.stink-bomb.description: '*Putrid yellow gas explodes from a bomb you toss.*'
 abilities.shadow.stink-bomb.texts.target: Each creature in the area
-abilities.shadow.stink-bomb.texts.distance: 3 cube within 10
+abilities.shadow.stink-bomb.texts.distance: '3 cube within {has_self_within, select, true {{self_within}} other {10}}'
 abilities.shadow.stink-bomb.texts.roll: Power Roll + Agility
 abilities.shadow.stink-bomb.texts.tier1: '{has_self_damage1, select, true {{self_damage1}} other {2}} poison damage'
 abilities.shadow.stink-bomb.texts.tier2: '{has_self_damage2, select, true {{self_damage2}} other {5}} poison damage'
@@ -349,7 +349,7 @@ abilities.shadow.stink-bomb.texts.effect: 'Effect: The gas remains in the area u
 abilities.shadow.sticky-bomb.name: Sticky Bomb
 abilities.shadow.sticky-bomb.description: "*Explosives are best when they're attached to an enemy.*"
 abilities.shadow.sticky-bomb.texts.target: One creature
-abilities.shadow.sticky-bomb.texts.distance: Ranged 10
+abilities.shadow.sticky-bomb.texts.distance: 'Ranged {has_self_distance, select, true {{self_distance}} other {10}}'
 abilities.shadow.sticky-bomb.texts.roll: Power Roll + Agility
 abilities.shadow.sticky-bomb.texts.tier1: '{has_self_damage1, select, true {{self_damage1}} other {4 + A}} fire damage'
 abilities.shadow.sticky-bomb.texts.tier2: '{has_self_damage2, select, true {{self_damage2}} other {7 + A}} fire damage'
@@ -372,7 +372,7 @@ abilities.shadow.machinations-of-sound.name: Machinations of Sound
 abilities.shadow.machinations-of-sound.description: '*Illusory sounds make your foes reposition
   themselves as they cower or investigate the disturbance.*'
 abilities.shadow.machinations-of-sound.texts.target: Each creature in the area
-abilities.shadow.machinations-of-sound.texts.distance: 3 cube within 10
+abilities.shadow.machinations-of-sound.texts.distance: '3 cube within {has_self_within, select, true {{self_within}} other {10}}'
 abilities.shadow.machinations-of-sound.texts.roll: Power Roll + Agility
 abilities.shadow.machinations-of-sound.texts.tier1: Slide 4
 abilities.shadow.machinations-of-sound.texts.tier2: Slide 5
@@ -383,7 +383,7 @@ abilities.shadow.machinations-of-sound.texts.effect: "Effect: This forced moveme
 abilities.shadow.in-a-puff-of-ash.name: In a Puff of Ash
 abilities.shadow.in-a-puff-of-ash.description: '*You enchant a strike with your teleportation magic.*'
 abilities.shadow.in-a-puff-of-ash.texts.target: One creature
-abilities.shadow.in-a-puff-of-ash.texts.distance: Melee 1 or ranged 5
+abilities.shadow.in-a-puff-of-ash.texts.distance: 'Melee 1 or ranged {has_self_rangedDistance, select, true {{self_rangedDistance}} other {5}}'
 abilities.shadow.in-a-puff-of-ash.texts.roll: Power Roll + Agility
 abilities.shadow.in-a-puff-of-ash.texts.tier1: '{has_self_damage1, select, true {{self_damage1}} other {6 + A}} damage; you can teleport the target 1 square'
 abilities.shadow.in-a-puff-of-ash.texts.tier2: '{has_self_damage2, select, true {{self_damage2}} other {10 + A}} damage; you can teleport the target up to 3 squares'
@@ -391,7 +391,7 @@ abilities.shadow.in-a-puff-of-ash.texts.tier3: '{has_self_damage3, select, true 
 abilities.shadow.pinning-shot.name: Pinning Shot
 abilities.shadow.pinning-shot.description: '*One missile—placed well and placed hard.*'
 abilities.shadow.pinning-shot.texts.target: One creature
-abilities.shadow.pinning-shot.texts.distance: Ranged 5
+abilities.shadow.pinning-shot.texts.distance: 'Ranged {has_self_distance, select, true {{self_distance}} other {5}}'
 abilities.shadow.pinning-shot.texts.roll: Power Roll + Agility
 abilities.shadow.pinning-shot.texts.tier1: '{has_self_damage1, select, true {{self_damage1}} other {8 + A}} damage; A < {has_self_potency1, select, true {{self_potency1}} other {WEAK}}, restrained (save ends)'
 abilities.shadow.pinning-shot.texts.tier2: '{has_self_damage2, select, true {{self_damage2}} other {12 + A}} damage; A < {has_self_potency2, select, true {{self_potency2}} other {AVERAGE}}, restrained (save ends)'
@@ -406,7 +406,7 @@ abilities.shadow.dancer.texts.effect: 'Effect: Until the end of the encounter, w
 abilities.shadow.careful-observation.name: Careful Observation
 abilities.shadow.careful-observation.description: '*A moment of focus leaves a foe firmly in your sights.*'
 abilities.shadow.careful-observation.texts.target: One creature
-abilities.shadow.careful-observation.texts.distance: Ranged 20
+abilities.shadow.careful-observation.texts.distance: 'Ranged {has_self_distance, select, true {{self_distance}} other {20}}'
 abilities.shadow.careful-observation.texts.effect: 'Effect: As long as you remain within distance of
   the target, maintain line of effect to them, and strike no other creature first, you gain an edge
   on the next strike you make against the assessed creature, and gain 1 surge you can use only on
@@ -414,7 +414,7 @@ abilities.shadow.careful-observation.texts.effect: 'Effect: As long as you remai
 abilities.shadow.staggering-blow.name: Staggering Blow
 abilities.shadow.staggering-blow.description: "*There's no recovering from this.*"
 abilities.shadow.staggering-blow.texts.target: One creature
-abilities.shadow.staggering-blow.texts.distance: Melee 1 or ranged 5
+abilities.shadow.staggering-blow.texts.distance: 'Melee 1 or ranged {has_self_rangedDistance, select, true {{self_rangedDistance}} other {5}}'
 abilities.shadow.staggering-blow.texts.roll: Power Roll + Agility
 abilities.shadow.staggering-blow.texts.tier1: '{has_self_damage1, select, true {{self_damage1}} other {7 + A}} damage; M < {has_self_potency1, select, true {{self_potency1}} other {WEAK}}, slowed (save ends)'
 abilities.shadow.staggering-blow.texts.tier2: "{has_self_damage2, select, true {{self_damage2}} other {11 + A}} damage; M < {has_self_potency2, select, true {{self_potency2}} other {AVERAGE}}, prone and can't stand (save ends)"
@@ -422,7 +422,7 @@ abilities.shadow.staggering-blow.texts.tier3: "{has_self_damage3, select, true {
 abilities.shadow.misdirecting-strike.name: Misdirecting Strike
 abilities.shadow.misdirecting-strike.description: '*"Why are you looking at ME?!"*'
 abilities.shadow.misdirecting-strike.texts.target: One creature
-abilities.shadow.misdirecting-strike.texts.distance: Melee 1 or ranged 5
+abilities.shadow.misdirecting-strike.texts.distance: 'Melee 1 or ranged {has_self_rangedDistance, select, true {{self_rangedDistance}} other {5}}'
 abilities.shadow.misdirecting-strike.texts.roll: Power Roll + Agility
 abilities.shadow.misdirecting-strike.texts.tier1: '{has_self_damage1, select, true {{self_damage1}} other {9 + A}} damage'
 abilities.shadow.misdirecting-strike.texts.tier2: '{has_self_damage2, select, true {{self_damage2}} other {13 + A}} damage'
@@ -432,7 +432,7 @@ abilities.shadow.misdirecting-strike.texts.effect: "Effect: The target is taunte
 abilities.shadow.i-am-you.name: I Am You
 abilities.shadow.i-am-you.description: "*Your mask reflects your foe's face. Surely they won't need it much longer.*"
 abilities.shadow.i-am-you.texts.target: One creature
-abilities.shadow.i-am-you.texts.distance: Ranged 10
+abilities.shadow.i-am-you.texts.distance: 'Ranged {has_self_distance, select, true {{self_distance}} other {10}}'
 abilities.shadow.i-am-you.texts.effect: "Effect: Until the end of the encounter, you gain the
   target's damage immunities and speed (if they are better than yours), and can use any types of
   movement they can use. You can also use the target's signature ability, using their bonus for the
@@ -463,7 +463,7 @@ abilities.shadow.to-the-stars.name: To the Stars
 abilities.shadow.to-the-stars.description: "*You attach your most potent explosive to your foe.
   Under less pressing circumstances, you're sure you could launch them into orbit.*"
 abilities.shadow.to-the-stars.texts.target: One creature or object
-abilities.shadow.to-the-stars.texts.distance: Melee 1 or ranged 10
+abilities.shadow.to-the-stars.texts.distance: 'Melee 1 or ranged {has_self_rangedDistance, select, true {{self_rangedDistance}} other {10}}'
 abilities.shadow.to-the-stars.texts.roll: Power Roll + Agility
 abilities.shadow.to-the-stars.texts.tier1: '{has_self_damage1, select, true {{self_damage1}} other {4 + A}} fire damage; vertical push 8'
 abilities.shadow.to-the-stars.texts.tier2: '{has_self_damage2, select, true {{self_damage2}} other {7 + A}} fire damage; vertical push 10'
@@ -483,7 +483,7 @@ abilities.shadow.cacophony-of-cinders.texts.effect: 'Effect: You shift up to twi
 abilities.shadow.chain-reaction.name: Chain Reaction
 abilities.shadow.chain-reaction.description: '*One explosion, an offense. Three explosions, an assault. Nine explosions, a celebration.*'
 abilities.shadow.chain-reaction.texts.target: One creature or object
-abilities.shadow.chain-reaction.texts.distance: Ranged 10
+abilities.shadow.chain-reaction.texts.distance: 'Ranged {has_self_distance, select, true {{self_distance}} other {10}}'
 abilities.shadow.chain-reaction.texts.roll: Power Roll + Agility
 abilities.shadow.chain-reaction.texts.tier1: '{has_self_damage1, select, true {{self_damage1}} other {7}} damage'
 abilities.shadow.chain-reaction.texts.tier2: '{has_self_damage2, select, true {{self_damage2}} other {10}} damage'
@@ -496,7 +496,7 @@ abilities.shadow.night-watch.name: Night Watch
 abilities.shadow.night-watch.description: '*A steely dagger from out of the blue knocks another weapon off course.*'
 abilities.shadow.night-watch.texts.trigger: The target takes damage from another creature's ability while you are hidden.
 abilities.shadow.night-watch.texts.target: One ally
-abilities.shadow.night-watch.texts.distance: Ranged 5
+abilities.shadow.night-watch.texts.distance: 'Ranged {has_self_distance, select, true {{self_distance}} other {5}}'
 abilities.shadow.night-watch.texts.effect: 'Effect: The target takes half the damage. You remain hidden.'
 abilities.shadow.im-no-threat.actions.end-illusion.name: End the illusion
 abilities.shadow.im-no-threat.actions.end-illusion.results.ended.name: Ended

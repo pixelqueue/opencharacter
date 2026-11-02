@@ -6,7 +6,4 @@ fields:
   subclass: subclasses.talent.telepathy
 effects:
   # +5 distance for ranged psionic abilities.
-  - target: { rolls: [power-roll.ability], tally: distanceBonus }
-    op: add
-    value: 5
-    when: "'kw.ranged' in roll.item.tags && 'kw.psionic' in roll.item.tags"
+  - { target: abilities.rangeBonus.psionic, op: add, value: 5 }
