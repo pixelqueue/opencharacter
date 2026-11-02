@@ -1,3 +1,7 @@
+families:
+  # How a weapon is used: its skill's way (Stab melee, Shoot ranged, Punch unarmed), or thrown.
+  attackMode: [melee, thrown, ranged, unarmed]
+
 fields:
   # Martial Style: Punch attacks hit no worse than an Expert of the same level.
   attack.punchBase: { type: integer, formula: attack.base }
@@ -48,6 +52,13 @@ fields:
   shock.ignoresAc: { type: boolean, formula: false }
   shock.unarmedIgnoresAc: { type: boolean, formula: false }
 
+  # Hit and damage bonuses by how the weapon is used, and melee and unarmed Shock bonuses
+  # (Armsmaster, Deadeye).
+  'attack.{attackMode}.bonus': { type: integer, formula: 0 }
+  'damage.{attackMode}.bonus': { type: integer, formula: 0 }
+  shock.melee.bonus: { type: integer, formula: 0 }
+  shock.unarmed.bonus: { type: integer, formula: 0 }
+
   # A Duelist's favored weapons and their hit bonus: the Duelist's table, or the level with a
   # partial Warrior.
   duelist.favored: { type: set, of: weapon }
@@ -79,6 +90,45 @@ contentTypes:
       enc: { type: integer, default: 1, min: 0 }
       bundle: { type: integer, default: 1, min: 1 }
       wornFree: { type: boolean, default: false }
+    # The weapon's numbers as wielded (thrown aside): what `attack` adds to the hit roll and to
+    # the damage die (`unarmed.die` for unarmed attacks), and the Shock dealt and the AC it reaches.
+    computed:
+      mode:
+        type: string
+        formula: "item.skill == 'shoot' ? 'ranged' : item.skill == 'punch' ? 'unarmed' : 'melee'"
+      attributeMod:
+        type: integer
+        formula: >-
+          item.attribute == 'str-dex' ? max(attributes.str.mod, attributes.dex.mod)
+            : fieldOf('attributes.{attr}.mod', item.attribute)
+      hit:
+        type: integer
+        formula: >-
+          (item.skill == 'punch' ? attack.punchBase
+            : item.id in duelist.favored ? attack.favoredBase : attack.base)
+            + (fieldOf('skills.{skill}', item.skill) >= 0 ? fieldOf('skills.{skill}', item.skill) : -2)
+            + self.attributeMod + fieldOf('attack.{attackMode}.bonus', self.mode)
+      damage:
+        type: integer
+        formula: >-
+          self.attributeMod + (self.mode == 'unarmed' ? max(0, skills.punch) : 0)
+            + damage.killingBlow + fieldOf('damage.{attackMode}.bonus', self.mode)
+      shockDamage:
+        type: integer
+        formula: >-
+          ('unarmed' in item.tags ? unarmed.shock : item.shock) > 0
+              && self.mode in ['melee', 'unarmed']
+            ? ('unarmed' in item.tags ? unarmed.shock : item.shock) + self.attributeMod
+              + damage.killingBlow + shock.bonus
+              + (self.mode == 'melee' ? shock.melee.bonus : shock.unarmed.bonus)
+            : 0
+      shockAc:
+        type: integer
+        formula: "'unarmed' in item.tags ? unarmed.shockAc : item.shockAc"
+      shockAnyAc:
+        type: boolean
+        formula: >-
+          (self.mode == 'melee' && shock.ignoresAc) || (self.mode == 'unarmed' && shock.unarmedIgnoresAc)
     actions:
       # Only a throwable weapon asks whether it's thrown.
       - { use: attack, available: "'throwable' in item.tags" }
@@ -176,6 +226,7 @@ actions:
                 : 'attack.base'
           - value: 'flags.skill >= 0 ? flags.skill : -2'
           - field: "'attributes.' + flags.attribute + '.mod'"
+          - field: "'attack.' + flags.mode + '.bonus'"
       - id: confirm
         kind: choice
         when: steps.hitRoll.band == 'rolled'
@@ -198,6 +249,7 @@ actions:
           - field: "'attributes.' + flags.attribute + '.mod'"
           - field: "'damage.killingBlow'"
           - field: "'shock.bonus'"
+          - field: "'shock.' + flags.mode + '.bonus'"
       - id: shockApplies
         kind: branch
         cases:
@@ -220,6 +272,7 @@ actions:
           - value: max(0, skills.punch)
             when: flags.mode == 'unarmed'
           - field: "'damage.killingBlow'"
+          - field: "'damage.' + flags.mode + '.bonus'"
       - id: totals
         kind: branch
         cases:

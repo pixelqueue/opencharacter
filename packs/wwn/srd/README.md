@@ -78,8 +78,13 @@ computeSheet(ruleset, made.character).values['wwn-srd:saves.physical']?.value; /
   modifier, System Strain up to Constitution, Frail and Mortally Wounded.
 - **Combat:** `attack` on each weapon: 1d20 plus attack bonus, skill (-2 without it) and the
   better attribute; damage on a hit, Shock on a melee miss against a target with an AC no
-  better than the weapon's, and a hit never doing less than its Shock. Armor Class from armor,
-  shields (+1 over armor as good) and the natural defenses some Foci and arts give. `initiative`.
+  better than the weapon's, and a hit never doing less than its Shock. Only a throwable weapon
+  asks whether it's thrown. Each weapon's card shows its numbers as wielded (computed values):
+  hit bonus, damage bonus, Shock damage and the AC it reaches. Armsmaster's and Deadeye's
+  bonuses are fields by use (`attack.<mode>.bonus`, `damage.<mode>.bonus`, `shock.melee.bonus`,
+  `shock.unarmed.bonus`; melee, thrown, ranged or unarmed), so they count on the cards too.
+  Armor Class from armor, shields (+1 over armor as good) and the natural defenses some Foci and
+  arts give. `initiative`.
 - **Magic:** spells by level and list (High Magic, Elementalist, Necromancer), preparation and
   casting limits for full, partial, dual partial and Invoker casters (spell points), the arts
   of every class with the Effort they commit, each class's own Effort pool, and the arts its

@@ -5,7 +5,5 @@ fields:
   bonusSkill: shoot
 effects:
   # Shoot added to ranged damage (not with Armsmaster's on thrown weapons).
-  - target: { rolls: [damage.ranged, damage.thrown] }
-    op: add
-    value: max(0, skills.shoot)
-    stackKey: skill-damage
+  - { target: damage.ranged.bonus, op: add, value: 'max(0, skills.shoot)', stackKey: skill-damage }
+  - { target: damage.thrown.bonus, op: add, value: 'max(0, skills.shoot)', stackKey: skill-damage }
