@@ -7,6 +7,7 @@ resources, conditions, kits, classes, ancestries, culture, careers and advanceme
 
 The Open Character Format Draw Steel Heroes pack (draw-steel-heroes) is an independent product
 published under the DRAW STEEL Creator License and is not affiliated with MCDM Productions, LLC.
+DRAW STEEL © 2026 MCDM Productions, LLC.
 
 ## Install and load
 
@@ -14,7 +15,8 @@ published under the DRAW STEEL Creator License and is not affiliated with MCDM P
 pnpm add @opencharacter/draw-steel-heroes @opencharacter/engine
 ```
 
-This release needs spec 0.3: `@opencharacter/engine` 0.3.0 or later.
+This release needs spec 0.4: `@opencharacter/engine` 0.4.0 or later. An engine for an older
+spec refuses it (`spec-version-unsupported`).
 
 The package's default export is the pack's release, ready for `loadRuleset`; its English text is
 `@opencharacter/draw-steel-heroes/i18n/en` (also as JSON, `release.json` and `i18n/en.json`).
