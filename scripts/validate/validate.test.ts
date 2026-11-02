@@ -208,6 +208,14 @@ describe('pnpm validate', () => {
         "an enum situational choice's value without a name",
         /missing translation key "situational.cover.values.half.name"/,
       ],
+      [
+        "a situational choice's change on an unknown field",
+        /situational parry change: unknown field "nowhere"/,
+      ],
+      [
+        'a situational choice offering an unknown follow-up',
+        /situational parry change: offers unknown follow-up "riposte"/,
+      ],
       ['an item field without a name', /missing translation key "types.weapon.fields.skill.name"/],
       ['a template field without a name', /missing translation key "templateFields.edge.name"/],
       ['a declared result without a name', /missing translation key "actions.aim.results.ok.name"/],

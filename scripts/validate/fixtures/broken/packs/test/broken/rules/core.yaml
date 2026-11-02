@@ -265,6 +265,13 @@ choices:
 # An enum situational choice: its values need names.
 situational:
   - { id: cover, type: enum, values: [none, half], default: none }
+  # A reaction whose cost sets an unknown field and offers an unknown follow-up.
+  - id: parry
+    type: boolean
+    incoming: { fields: [abilities.str.score] }
+    changes:
+      - { type: set, field: nowhere, value: 1 }
+      - { type: offerFollowUp, followUp: riposte }
 templateFields:
   rarity: { type: enum, values: [common, rare], default: legendary }
   edge: { type: integer, default: 0 }
