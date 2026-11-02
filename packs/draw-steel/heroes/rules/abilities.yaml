@@ -133,6 +133,10 @@ contentTypes:
         formula: >-
           has(item.t3PotencyValue) ? item.t3PotencyValue
             : has(item.t3Potency) ? [potency.weak, potency.average, potency.strong][indexOf(['weak', 'average', 'strong'], item.t3Potency)] : 0
+      # The hero's potencies, for texts that name one outside the tier fields.
+      potencyWeak: { type: integer, formula: potency.weak }
+      potencyAverage: { type: integer, formula: potency.average }
+      potencyStrong: { type: integer, formula: potency.strong }
       # The bonus to a ranged ability's distance from the hero's features (Omnisensory, Prayer of
       # Distance, …): on a ranged ability's distance, the ranged part of "melee or ranged", or
       # an area's range ("within").

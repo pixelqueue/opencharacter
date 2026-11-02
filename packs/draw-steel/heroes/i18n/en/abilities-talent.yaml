@@ -264,9 +264,9 @@ abilities.talent.mindwipe.description: '*You attempt to make them forget all the
 abilities.talent.mindwipe.texts.target: One creature
 abilities.talent.mindwipe.texts.distance: Melee 2
 abilities.talent.mindwipe.texts.roll: Power Roll + Reason
-abilities.talent.mindwipe.texts.tier1: '{has_self_damage1, select, true {{self_damage1}} other {12 + R}} damage; R < WEAK, the target takes a bane on their next power roll'
-abilities.talent.mindwipe.texts.tier2: '{has_self_damage2, select, true {{self_damage2}} other {17 + R}} damage; R < AVERAGE, the target takes a bane on power rolls (save ends)'
-abilities.talent.mindwipe.texts.tier3: '{has_self_damage3, select, true {{self_damage3}} other {23 + R}} damage; R < STRONG, the target has a double bane on power rolls (save ends)'
+abilities.talent.mindwipe.texts.tier1: '{has_self_damage1, select, true {{self_damage1}} other {12 + R}} damage; R < {has_self_potencyWeak, select, true {{self_potencyWeak}} other {WEAK}}, the target takes a bane on their next power roll'
+abilities.talent.mindwipe.texts.tier2: '{has_self_damage2, select, true {{self_damage2}} other {17 + R}} damage; R < {has_self_potencyAverage, select, true {{self_potencyAverage}} other {AVERAGE}}, the target takes a bane on power rolls (save ends)'
+abilities.talent.mindwipe.texts.tier3: '{has_self_damage3, select, true {{self_damage3}} other {23 + R}} damage; R < {has_self_potencyStrong, select, true {{self_potencyStrong}} other {STRONG}}, the target has a double bane on power rolls (save ends)'
 abilities.talent.mindwipe.texts.effect: |-
   Effect: The target can't communicate with anyone until the end of the encounter.
 
@@ -346,7 +346,7 @@ abilities.talent.stasis-field.texts.target: Each creature and object in the area
 abilities.talent.stasis-field.texts.distance: '4 cube within {has_self_within, select, true {{self_within}} other {10}}'
 abilities.talent.stasis-field.texts.roll: Power Roll + Presence
 abilities.talent.stasis-field.texts.tier1: 'P < {has_self_potency1, select, true {{self_potency1}} other {WEAK}}, the target is slowed until the effect ends'
-abilities.talent.stasis-field.texts.tier2: P < AVERAGE, the target's speed is 0 until the effect ends
+abilities.talent.stasis-field.texts.tier2: P < {has_self_potencyAverage, select, true {{self_potencyAverage}} other {AVERAGE}}, the target's speed is 0 until the effect ends
 abilities.talent.stasis-field.texts.tier3: 'P < {has_self_potency3, select, true {{self_potency3}} other {STRONG}}, the target is restrained until the effect ends'
 abilities.talent.stasis-field.texts.effect: >-
   Effect: The area is frozen in time until the start of your next turn. Each object in the area is
@@ -405,9 +405,9 @@ abilities.talent.greater-kinetic-grip.description: '*You raise the target into t
 abilities.talent.greater-kinetic-grip.texts.target: One creature or object
 abilities.talent.greater-kinetic-grip.texts.distance: 'Ranged {has_self_distance, select, true {{self_distance}} other {10}}'
 abilities.talent.greater-kinetic-grip.texts.roll: Power Roll + Reason
-abilities.talent.greater-kinetic-grip.texts.tier1: Slide 4 + R; M < WEAK, the forced movement is vertical
-abilities.talent.greater-kinetic-grip.texts.tier2: Slide 8 + R; M < AVERAGE, the forced movement is vertical
-abilities.talent.greater-kinetic-grip.texts.tier3: Slide 12 + R; prone; M < STRONG, the forced movement is vertical
+abilities.talent.greater-kinetic-grip.texts.tier1: Slide 4 + R; M < {has_self_potencyWeak, select, true {{self_potencyWeak}} other {WEAK}}, the forced movement is vertical
+abilities.talent.greater-kinetic-grip.texts.tier2: Slide 8 + R; M < {has_self_potencyAverage, select, true {{self_potencyAverage}} other {AVERAGE}}, the forced movement is vertical
+abilities.talent.greater-kinetic-grip.texts.tier3: Slide 12 + R; prone; M < {has_self_potencyStrong, select, true {{self_potencyStrong}} other {STRONG}}, the forced movement is vertical
 abilities.talent.greater-kinetic-grip.texts.effect: 'Strained: The forced movement ignores
   stability. You take 2d6 damage and are weakened (save ends).'
 abilities.talent.synaptic-dissipation.name: Synaptic Dissipation
@@ -474,9 +474,9 @@ abilities.talent.soulbound.description: '*You fire a piercing bolt of psychic en
 abilities.talent.soulbound.texts.target: Two enemies
 abilities.talent.soulbound.texts.distance: 'Ranged {has_self_distance, select, true {{self_distance}} other {10}}'
 abilities.talent.soulbound.texts.roll: Power Roll + Presence
-abilities.talent.soulbound.texts.tier1: '{has_self_damage1, select, true {{self_damage1}} other {8}} damage; A < WEAK, the target is stitched to the other target (save ends)'
-abilities.talent.soulbound.texts.tier2: '{has_self_damage2, select, true {{self_damage2}} other {13}} damage; A < AVERAGE, the target is stitched to the other target (save ends)'
-abilities.talent.soulbound.texts.tier3: '{has_self_damage3, select, true {{self_damage3}} other {17}} damage; A < STRONG, the target is stitched to the other target (save ends)'
+abilities.talent.soulbound.texts.tier1: '{has_self_damage1, select, true {{self_damage1}} other {8}} damage; A < {has_self_potencyWeak, select, true {{self_potencyWeak}} other {WEAK}}, the target is stitched to the other target (save ends)'
+abilities.talent.soulbound.texts.tier2: '{has_self_damage2, select, true {{self_damage2}} other {13}} damage; A < {has_self_potencyAverage, select, true {{self_potencyAverage}} other {AVERAGE}}, the target is stitched to the other target (save ends)'
+abilities.talent.soulbound.texts.tier3: '{has_self_damage3, select, true {{self_damage3}} other {17}} damage; A < {has_self_potencyStrong, select, true {{self_potencyStrong}} other {STRONG}}, the target is stitched to the other target (save ends)'
 abilities.talent.soulbound.texts.effect: >-
   Effect: If any target becomes stitched to the other, both targets are stitched together. While
   stitched together, a target takes a bane on power rolls while not adjacent to a creature they're
@@ -552,8 +552,8 @@ abilities.talent.slow.texts.target: Three creatures or objects
 abilities.talent.slow.texts.distance: 'Ranged {has_self_distance, select, true {{self_distance}} other {10}}'
 abilities.talent.slow.texts.roll: Power Roll + Presence
 abilities.talent.slow.texts.tier1: "The target's speed is halved (save ends), or if P < {has_self_potency1, select, true {{self_potency1}} other {WEAK}}, the target is slowed (save ends)."
-abilities.talent.slow.texts.tier2: The target is slowed (save ends), or if P < AVERAGE, the target's speed is 0 (save ends).
-abilities.talent.slow.texts.tier3: The target is slowed (save ends), or if P < STRONG, the target's speed is 0 (save ends).
+abilities.talent.slow.texts.tier2: The target is slowed (save ends), or if P < {has_self_potencyAverage, select, true {{self_potencyAverage}} other {AVERAGE}}, the target's speed is 0 (save ends).
+abilities.talent.slow.texts.tier3: The target is slowed (save ends), or if P < {has_self_potencyStrong, select, true {{self_potencyStrong}} other {STRONG}}, the target's speed is 0 (save ends).
 abilities.talent.slow.texts.effect: >-
   Effect: A target can't use triggered actions while their speed is reduced this way.
 

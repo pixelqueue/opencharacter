@@ -33,9 +33,9 @@ abilities.censor.behold-the-face-of-justice.description: '*You attack a foe and 
 abilities.censor.behold-the-face-of-justice.texts.target: One creature
 abilities.censor.behold-the-face-of-justice.texts.distance: 'Melee 1 or ranged {has_self_rangedDistance, select, true {{self_rangedDistance}} other {5}}'
 abilities.censor.behold-the-face-of-justice.texts.roll: Power Roll + Might
-abilities.censor.behold-the-face-of-justice.texts.tier1: '{has_self_damage1, select, true {{self_damage1}} other {3 + M}} holy damage; if the target has P < WEAK, each enemy within 2 squares of them is frightened of you (save ends)'
-abilities.censor.behold-the-face-of-justice.texts.tier2: '{has_self_damage2, select, true {{self_damage2}} other {5 + M}} holy damage; if the target has P < AVERAGE, each enemy within 2 squares of them is frightened of you (save ends)'
-abilities.censor.behold-the-face-of-justice.texts.tier3: '{has_self_damage3, select, true {{self_damage3}} other {8 + M}} holy damage; if the target has P < STRONG, each enemy within 2 squares of them is frightened of you (save ends)'
+abilities.censor.behold-the-face-of-justice.texts.tier1: '{has_self_damage1, select, true {{self_damage1}} other {3 + M}} holy damage; if the target has P < {has_self_potencyWeak, select, true {{self_potencyWeak}} other {WEAK}}, each enemy within 2 squares of them is frightened of you (save ends)'
+abilities.censor.behold-the-face-of-justice.texts.tier2: '{has_self_damage2, select, true {{self_damage2}} other {5 + M}} holy damage; if the target has P < {has_self_potencyAverage, select, true {{self_potencyAverage}} other {AVERAGE}}, each enemy within 2 squares of them is frightened of you (save ends)'
+abilities.censor.behold-the-face-of-justice.texts.tier3: '{has_self_damage3, select, true {{self_damage3}} other {8 + M}} holy damage; if the target has P < {has_self_potencyStrong, select, true {{self_potencyStrong}} other {STRONG}}, each enemy within 2 squares of them is frightened of you (save ends)'
 abilities.censor.behold-the-face-of-justice.texts.effect: 'Effect: Each enemy frightened this way is
   pushed up to 2 squares away from the target and takes psychic damage equal to your Presence
   score.'
@@ -129,9 +129,9 @@ abilities.censor.purifying-fire.description: '*The gods judge, fire cleanses.*'
 abilities.censor.purifying-fire.texts.target: One creature
 abilities.censor.purifying-fire.texts.distance: 'Melee 1 or ranged {has_self_rangedDistance, select, true {{self_rangedDistance}} other {5}}'
 abilities.censor.purifying-fire.texts.roll: Power Roll + Might
-abilities.censor.purifying-fire.texts.tier1: '{has_self_damage1, select, true {{self_damage1}} other {5 + M}} holy damage; M < WEAK, the target has fire weakness 3 (save ends)'
-abilities.censor.purifying-fire.texts.tier2: '{has_self_damage2, select, true {{self_damage2}} other {9 + M}} holy damage; M < AVERAGE, the target has fire weakness 5 (save ends)'
-abilities.censor.purifying-fire.texts.tier3: '{has_self_damage3, select, true {{self_damage3}} other {12 + M}} holy damage; M < STRONG, the target has fire weakness 7 (save ends)'
+abilities.censor.purifying-fire.texts.tier1: '{has_self_damage1, select, true {{self_damage1}} other {5 + M}} holy damage; M < {has_self_potencyWeak, select, true {{self_potencyWeak}} other {WEAK}}, the target has fire weakness 3 (save ends)'
+abilities.censor.purifying-fire.texts.tier2: '{has_self_damage2, select, true {{self_damage2}} other {9 + M}} holy damage; M < {has_self_potencyAverage, select, true {{self_potencyAverage}} other {AVERAGE}}, the target has fire weakness 5 (save ends)'
+abilities.censor.purifying-fire.texts.tier3: '{has_self_damage3, select, true {{self_damage3}} other {12 + M}} holy damage; M < {has_self_potencyStrong, select, true {{self_potencyStrong}} other {STRONG}}, the target has fire weakness 7 (save ends)'
 abilities.censor.purifying-fire.texts.effect: 'Effect: While the target has fire weakness from this
   ability, you can choose to have your abilities deal fire damage to the target instead of holy
   damage.'
@@ -375,9 +375,9 @@ abilities.censor.banish.description: "*You sever the target's tenuous connection
 abilities.censor.banish.texts.target: One creature
 abilities.censor.banish.texts.distance: Melee 1
 abilities.censor.banish.texts.roll: Power Roll + Might
-abilities.censor.banish.texts.tier1: '{has_self_damage1, select, true {{self_damage1}} other {5 + M}} damage; P < WEAK, the target is banished (save ends)'
-abilities.censor.banish.texts.tier2: '{has_self_damage2, select, true {{self_damage2}} other {8 + M}} damage; P < AVERAGE, the target is banished (save ends)'
-abilities.censor.banish.texts.tier3: '{has_self_damage3, select, true {{self_damage3}} other {11 + M}} damage; P < STRONG, the target is banished (save ends)'
+abilities.censor.banish.texts.tier1: '{has_self_damage1, select, true {{self_damage1}} other {5 + M}} damage; P < {has_self_potencyWeak, select, true {{self_potencyWeak}} other {WEAK}}, the target is banished (save ends)'
+abilities.censor.banish.texts.tier2: '{has_self_damage2, select, true {{self_damage2}} other {8 + M}} damage; P < {has_self_potencyAverage, select, true {{self_potencyAverage}} other {AVERAGE}}, the target is banished (save ends)'
+abilities.censor.banish.texts.tier3: '{has_self_damage3, select, true {{self_damage3}} other {11 + M}} damage; P < {has_self_potencyStrong, select, true {{self_potencyStrong}} other {STRONG}}, the target is banished (save ends)'
 abilities.censor.banish.texts.effect: "Effect: This ability gains an edge against demons, devils,
   undead, and creatures not native to your current world. If you know the target's true name, this
   ability has a double edge. While banished, the target is sent to another manifold in the timescape

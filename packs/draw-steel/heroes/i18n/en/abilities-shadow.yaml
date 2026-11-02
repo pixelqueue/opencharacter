@@ -260,9 +260,9 @@ abilities.shadow.puppet-strings.description: '*You prick little needles on the t
 abilities.shadow.puppet-strings.texts.target: Two enemies
 abilities.shadow.puppet-strings.texts.distance: Melee 1
 abilities.shadow.puppet-strings.texts.roll: Power Roll + Agility
-abilities.shadow.puppet-strings.texts.tier1: '{has_self_damage1, select, true {{self_damage1}} other {2}} damage; if the target has R < WEAK, before the damage is resolved, they make a free strike.'
-abilities.shadow.puppet-strings.texts.tier2: '{has_self_damage2, select, true {{self_damage2}} other {5}} damage; if the target has R < AVERAGE, before the damage is resolved, they use a main action ability of your choice.'
-abilities.shadow.puppet-strings.texts.tier3: '{has_self_damage3, select, true {{self_damage3}} other {7}} damage; if the target has R < STRONG, before the damage is resolved, they can shift up to their speed and use a main action ability of your choice.'
+abilities.shadow.puppet-strings.texts.tier1: '{has_self_damage1, select, true {{self_damage1}} other {2}} damage; if the target has R < {has_self_potencyWeak, select, true {{self_potencyWeak}} other {WEAK}}, before the damage is resolved, they make a free strike.'
+abilities.shadow.puppet-strings.texts.tier2: '{has_self_damage2, select, true {{self_damage2}} other {5}} damage; if the target has R < {has_self_potencyAverage, select, true {{self_potencyAverage}} other {AVERAGE}}, before the damage is resolved, they use a main action ability of your choice.'
+abilities.shadow.puppet-strings.texts.tier3: '{has_self_damage3, select, true {{self_damage3}} other {7}} damage; if the target has R < {has_self_potencyStrong, select, true {{self_potencyStrong}} other {STRONG}}, before the damage is resolved, they can shift up to their speed and use a main action ability of your choice.'
 abilities.shadow.puppet-strings.texts.effect: "Effect: You choose the new targets for the original
   target's free strike or ability. Additionally, if you are hidden or disguised, using this ability
   doesn't cause you to be revealed."
@@ -344,7 +344,7 @@ abilities.shadow.stink-bomb.texts.tier1: '{has_self_damage1, select, true {{self
 abilities.shadow.stink-bomb.texts.tier2: '{has_self_damage2, select, true {{self_damage2}} other {5}} poison damage'
 abilities.shadow.stink-bomb.texts.tier3: '{has_self_damage3, select, true {{self_damage3}} other {7}} poison damage'
 abilities.shadow.stink-bomb.texts.effect: 'Effect: The gas remains in the area until the end of the
-  encounter. Any creature who starts their turn in the area and has M < AVERAGE is weakened (save
+  encounter. Any creature who starts their turn in the area and has M < {has_self_potencyAverage, select, true {{self_potencyAverage}} other {AVERAGE}} is weakened (save
   ends).'
 abilities.shadow.sticky-bomb.name: Sticky Bomb
 abilities.shadow.sticky-bomb.description: "*Explosives are best when they're attached to an enemy.*"

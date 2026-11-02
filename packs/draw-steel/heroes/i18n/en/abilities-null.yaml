@@ -183,9 +183,9 @@ abilities.null.arcane-purge.description: '*You focus your null field into a pres
 abilities.null.arcane-purge.texts.target: One creature
 abilities.null.arcane-purge.texts.distance: Melee 1
 abilities.null.arcane-purge.texts.roll: Power Roll + Agility
-abilities.null.arcane-purge.texts.tier1: '{has_self_damage1, select, true {{self_damage1}} other {13 + A}} damage; M < WEAK, the target is suppressed (save ends)'
-abilities.null.arcane-purge.texts.tier2: '{has_self_damage2, select, true {{self_damage2}} other {19 + A}} damage; M < AVERAGE, the target is suppressed (save ends)'
-abilities.null.arcane-purge.texts.tier3: '{has_self_damage3, select, true {{self_damage3}} other {24 + A}} damage; M < STRONG, the target is suppressed (save ends)'
+abilities.null.arcane-purge.texts.tier1: '{has_self_damage1, select, true {{self_damage1}} other {13 + A}} damage; M < {has_self_potencyWeak, select, true {{self_potencyWeak}} other {WEAK}}, the target is suppressed (save ends)'
+abilities.null.arcane-purge.texts.tier2: '{has_self_damage2, select, true {{self_damage2}} other {19 + A}} damage; M < {has_self_potencyAverage, select, true {{self_potencyAverage}} other {AVERAGE}}, the target is suppressed (save ends)'
+abilities.null.arcane-purge.texts.tier3: '{has_self_damage3, select, true {{self_damage3}} other {24 + A}} damage; M < {has_self_potencyStrong, select, true {{self_potencyStrong}} other {STRONG}}, the target is suppressed (save ends)'
 abilities.null.arcane-purge.texts.effect: 'Effect: While suppressed, a target takes psychic damage
   equal to twice your Intuition score at the start of their turns, whenever they use a supernatural
   ability, or whenever they use an ability that costs Malice.'
@@ -218,7 +218,7 @@ abilities.null.synaptic-anchor.texts.trigger: The target takes damage from anoth
 abilities.null.synaptic-anchor.texts.target: Self or one creature
 abilities.null.synaptic-anchor.texts.distance: Self; see below
 abilities.null.synaptic-anchor.texts.effect: 'Effect: The target takes half the damage, and if the
-  triggering creature has I < AVERAGE, they are dazed (save ends). While the triggering creature is
+  triggering creature has I < {has_self_potencyAverage, select, true {{self_potencyAverage}} other {AVERAGE}}, they are dazed (save ends). While the triggering creature is
   dazed this way, they take psychic damage equal to your Intuition score whenever they use a main
   action.'
 abilities.null.ice-pillars.name: Ice Pillars
@@ -244,8 +244,8 @@ abilities.null.wall-of-ice.texts.effect: "Effect: You can place this wall in occ
   sliding each creature in the area into the nearest unoccupied space of your choice. The wall
   remains until the end of the encounter or until you are dying. The wall's squares are treated as
   stone squares for the purpose of damage, and you and allies can move freely through the wall. Each
-  enemy who enters a square adjacent to the wall and has M < AVERAGE is slowed (save ends). Each
-  enemy who is force moved into the wall and has M < AVERAGE is restrained (save ends)."
+  enemy who enters a square adjacent to the wall and has M < {has_self_potencyAverage, select, true {{self_potencyAverage}} other {AVERAGE}} is slowed (save ends). Each
+  enemy who is force moved into the wall and has M < {has_self_potencyAverage, select, true {{self_potencyAverage}} other {AVERAGE}} is restrained (save ends)."
 abilities.null.interphase.name: Interphase
 abilities.null.interphase.description: '*You slip into a faster timestream to act more quickly.*'
 abilities.null.interphase.texts.target: Self
@@ -374,7 +374,7 @@ abilities.null.molecular-rearrangement-field.texts.target: Self
 abilities.null.molecular-rearrangement-field.texts.distance: Self
 abilities.null.molecular-rearrangement-field.texts.effect: 'Effect: Until the end of the encounter,
   the size of your Null Field ability increases by 1. While the area of that ability is enlarged
-  this way, each enemy who has I < AVERAGE and enters the area for the first time in a combat round
+  this way, each enemy who has I < {has_self_potencyAverage, select, true {{self_potencyAverage}} other {AVERAGE}} and enters the area for the first time in a combat round
   or starts their turn there is bleeding (save ends). Each ally who enters the area for the first
   time in a combat round or starts their turn there gains temporary Stamina equal to your Intuition
   score.'
@@ -441,9 +441,9 @@ abilities.null.arrestor-cycle.texts.trigger: The triggering creature starts thei
 abilities.null.arrestor-cycle.texts.target: One creature
 abilities.null.arrestor-cycle.texts.distance: 'Ranged {has_self_distance, select, true {{self_distance}} other {10}}'
 abilities.null.arrestor-cycle.texts.roll: Power Roll + Intuition
-abilities.null.arrestor-cycle.texts.tier1: I < WEAK, the target loses their turn
-abilities.null.arrestor-cycle.texts.tier2: I < AVERAGE, the target loses their turn
-abilities.null.arrestor-cycle.texts.tier3: I < STRONG, the target loses their turn
+abilities.null.arrestor-cycle.texts.tier1: I < {has_self_potencyWeak, select, true {{self_potencyWeak}} other {WEAK}}, the target loses their turn
+abilities.null.arrestor-cycle.texts.tier2: I < {has_self_potencyAverage, select, true {{self_potencyAverage}} other {AVERAGE}}, the target loses their turn
+abilities.null.arrestor-cycle.texts.tier3: I < {has_self_potencyStrong, select, true {{self_potencyStrong}} other {STRONG}}, the target loses their turn
 abilities.null.arrestor-cycle.texts.effect: "Effect: If the target loses their turn, the round
   continues as if they had acted. A target who doesn't lose their turn takes psychic damage equal to
   twice your Intuition score for each main action they take until the end of their next turn."
