@@ -10,4 +10,5 @@ choices:
       where: item.ancestry == @ancestries.dragon-knight && !item.signature
     eligible: item.cost + sumList(filterList(choice.picks, x != item.id), itemField(x, 'cost')) <= 2
     recommend: '@ancestry-traits.dragon-knight.wings'
-    activate: false
+    # The traits work while the hero has 5 or more Victories.
+    activeWhen: victories >= 5
