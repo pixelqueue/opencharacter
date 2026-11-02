@@ -18,8 +18,8 @@ fields:
   rogue.uncannyDodge: { type: boolean, formula: false }
 
 # Cunning Strike's effects (the attack's `cunningStrike` and `cunningStrike2` parameters) spend
-# Sneak Attack dice: the ones the rogue can use, if together they fit in the Sneak Attack (else
-# none is used, and nothing is spent).
+# Sneak Attack dice: the ones the rogue can use on this target (Trip needs a Large or smaller one),
+# if together they fit in the Sneak Attack (else none is used, and nothing is spent).
 situational:
   - id: sneakAttack
     type: boolean
@@ -31,15 +31,27 @@ situational:
         op: add
         value: >-
           (rogue.sneakAttack - ((has(params.cunningStrike) && params.cunningStrike in rogue.strikeEffects
+                  && !(params.cunningStrike == 'trip' && has(participants.target) && size(participants.target) > 0
+                      && has(participants.target[0].creature.size)
+                      && participants.target[0].creature.size in ['huge', 'gargantuan'])
                 ? (params.cunningStrike == 'knock-out' ? 6 : params.cunningStrike == 'obscure' ? 3
                   : params.cunningStrike == 'daze' ? 2 : 1) : 0)
             + (has(params.cunningStrike2) && params.cunningStrike2 in rogue.strikeEffects
+                  && !(params.cunningStrike2 == 'trip' && has(participants.target) && size(participants.target) > 0
+                      && has(participants.target[0].creature.size)
+                      && participants.target[0].creature.size in ['huge', 'gargantuan'])
                 ? (params.cunningStrike2 == 'knock-out' ? 6 : params.cunningStrike2 == 'obscure' ? 3
                   : params.cunningStrike2 == 'daze' ? 2 : 1) : 0) <= rogue.sneakAttack
               ? (has(params.cunningStrike) && params.cunningStrike in rogue.strikeEffects
+                  && !(params.cunningStrike == 'trip' && has(participants.target) && size(participants.target) > 0
+                      && has(participants.target[0].creature.size)
+                      && participants.target[0].creature.size in ['huge', 'gargantuan'])
                 ? (params.cunningStrike == 'knock-out' ? 6 : params.cunningStrike == 'obscure' ? 3
                   : params.cunningStrike == 'daze' ? 2 : 1) : 0)
                 + (has(params.cunningStrike2) && params.cunningStrike2 in rogue.strikeEffects
+                  && !(params.cunningStrike2 == 'trip' && has(participants.target) && size(participants.target) > 0
+                      && has(participants.target[0].creature.size)
+                      && participants.target[0].creature.size in ['huge', 'gargantuan'])
                 ? (params.cunningStrike2 == 'knock-out' ? 6 : params.cunningStrike2 == 'obscure' ? 3
                   : params.cunningStrike2 == 'daze' ? 2 : 1) : 0) : 0))d6
         tags:
@@ -51,9 +63,15 @@ situational:
         when: >-
           situational.sneakAttack
             && rogue.sneakAttack != (has(params.cunningStrike) && params.cunningStrike in rogue.strikeEffects
+                  && !(params.cunningStrike == 'trip' && has(participants.target) && size(participants.target) > 0
+                      && has(participants.target[0].creature.size)
+                      && participants.target[0].creature.size in ['huge', 'gargantuan'])
                 ? (params.cunningStrike == 'knock-out' ? 6 : params.cunningStrike == 'obscure' ? 3
                   : params.cunningStrike == 'daze' ? 2 : 1) : 0)
               + (has(params.cunningStrike2) && params.cunningStrike2 in rogue.strikeEffects
+                  && !(params.cunningStrike2 == 'trip' && has(participants.target) && size(participants.target) > 0
+                      && has(participants.target[0].creature.size)
+                      && participants.target[0].creature.size in ['huge', 'gargantuan'])
                 ? (params.cunningStrike2 == 'knock-out' ? 6 : params.cunningStrike2 == 'obscure' ? 3
                   : params.cunningStrike2 == 'daze' ? 2 : 1) : 0)
             && has(roll.item) && has(roll.item.damageType)

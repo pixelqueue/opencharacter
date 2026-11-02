@@ -166,8 +166,8 @@ Where the SRD is unclear or silent, the pack reads it this way:
     of the attack (an `action` effect on its `attack-hit` step), Poisoned, Prone, Unconscious or
     Blinded on a failure. An effect the rogue can't use (`rogue.strikeEffects`: not known yet, or
     Poison without a Poisoner's Kit), or effects together costing more dice than the Sneak Attack
-    has, do nothing and cost nothing; a Trip on a Huge or larger target does nothing, its die
-    spent. Withdraw, Daze's limit and Stealth Attack are the player's.
+    has, do nothing and cost nothing, as does a Trip on a Huge or larger target. Withdraw,
+    Daze's limit and Stealth Attack are the player's.
   - Stunning Strike (`stunningStrike`, 1 Focus Point, Constitution or Stunned), Open Hand
     Technique (`openHand`, on an Unarmed Strike: Push's Strength save, Topple's Dexterity save or Prone), Hurl Through
     Hell (`hurlThroughHell`: its use or a Pact Magic slot, then a Charisma save or 8d10 Psychic

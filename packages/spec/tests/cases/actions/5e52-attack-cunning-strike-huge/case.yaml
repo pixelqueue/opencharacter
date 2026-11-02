@@ -1,0 +1,17 @@
+description: '5E 2024 Cunning Strike at rogue 11: Trip against a Huge target does nothing and costs no Sneak Attack die, so the full 6d6 lands and no save is made'
+specVersion: 0.3.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/5e/srd-5.2
+input:
+  action: { id: 5e-srd-5.2:weapon-attack, entry: rapier }
+  params: { cunningStrike: trip }
+  situational: { 5e-srd-5.2:sneakAttack: true }
+  participants:
+    target:
+      - id: giant
+        values: { combat.ac: 15, creature.size: huge, creature.type: giant }
+  policy:
+    dice: auto
+    choices: auto
+    allocations: auto
