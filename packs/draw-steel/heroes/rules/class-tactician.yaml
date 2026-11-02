@@ -1,12 +1,10 @@
 # The Tactician: marks, focus gained from other creatures' acts, and the epic resource command.
 fields:
-  # The creatures this tactician has marked (character IDs). The Mark ability replaces them;
-  # other abilities that mark add to them. Ended with the encounter, or when dying.
-  tactician.marked: { type: set, of: string, input: true, default: [] }
   # How many creatures the Mark ability marks at once (Anticipation: 2).
   tactician.markLimit: { type: integer, formula: 1 }
-  # The tacticians who marked this creature (character IDs), from the applied marks. Power rolls
-  # against a marked creature gain an edge (`use-ability` reads it through the `creature` view).
+  # The tacticians who marked this creature (character IDs), from the applied marks' appliers.
+  # Power rolls against a marked creature gain an edge (`use-ability` reads it through the
+  # `creature` view), and a tactician finds its own marks among its targets by it.
   tactician.markedBy: { type: set, of: string }
   # Focus gained the first time each round a marked creature is damaged (Focus on Their
   # Weaknesses: 2).
@@ -27,7 +25,7 @@ situational:
     type: boolean
     default: false
     rolls: [damage]
-    available: combat.active && size(tactician.marked) > 0 && heroic.current - 1 >= heroic.min
+    available: combat.active && heroic.current - 1 >= heroic.min
   # Parry, when you are the target: you take half the damage.
   - id: parry
     type: boolean
@@ -41,7 +39,6 @@ situational:
 
 display:
   fields:
-    tactician.marked: { groups: [resources], priority: 1, showWhen: size(tactician.marked) > 0 }
     tactician.markedBy: { groups: [summary], priority: 2, showWhen: size(tactician.markedBy) > 0 }
     tactician.command:
       { groups: [resources], priority: 1, showWhen: "heroic.kind == 'focus' && level >= 10" }

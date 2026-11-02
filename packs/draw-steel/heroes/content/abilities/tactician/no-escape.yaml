@@ -29,12 +29,4 @@ effects:
       changes:
         - type: applyEffect
           source: "'features.tactician.marked'"
-          state: { duration: "'encounter'", by: character.id }
-  - target: { steps: [ability.after], from: self }
-    op: changes
-    value:
-      changes:
-        - type: set
-          field: tactician.marked
-          value: >-
-            tactician.marked + filterList(mapList(participants.target, x.id), !(x in tactician.marked))
+          state: { duration: "'encounter'" }

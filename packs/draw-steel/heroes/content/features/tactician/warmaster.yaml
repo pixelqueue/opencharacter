@@ -11,4 +11,4 @@ effects:
     value: { kind: advantage }
     when: >-
       has(participants.target) && size(participants.target) > 0
-        && countList(participants.target, x.id in tactician.marked) == size(participants.target)
+        && countList(participants.target, character.id in x.tactician.markedBy) == size(participants.target)

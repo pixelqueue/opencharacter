@@ -1,4 +1,4 @@
-# Marks the first target (two with Anticipation), replacing your earlier marks.
+# Marks the first target (two with Anticipation); your earlier marks end.
 id: abilities.tactician.mark
 type: ability
 tags:
@@ -11,6 +11,15 @@ fields:
   distanceKind: ranged
   distance: 10
 effects:
+  # Your earlier marks end wherever they are, before this use's mark lands.
+  - target: { steps: [ability.pay], from: self }
+    op: changes
+    when: size(participants.target) > 0
+    value:
+      to: applied
+      changes:
+        - type: removeEffect
+          applied: { where: 'item.id == @features.tactician.marked' }
   - target: { steps: [ability.hit], from: self }
     op: changes
     when: >-
@@ -19,16 +28,4 @@ effects:
       changes:
         - type: applyEffect
           source: "'features.tactician.marked'"
-          state: { duration: "'encounter'", by: character.id }
-  - target: { steps: [ability.after], from: self }
-    op: changes
-    when: >-
-      size(participants.target) > 0
-    value:
-      changes:
-        - type: set
-          field: tactician.marked
-          value: >-
-            tactician.markLimit >= 2 && size(participants.target) >= 2
-              ? [participants.target[0].id, participants.target[1].id]
-              : [participants.target[0].id]
+          state: { duration: "'encounter'" }

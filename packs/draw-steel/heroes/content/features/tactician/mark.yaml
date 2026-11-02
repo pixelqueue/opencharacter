@@ -1,5 +1,6 @@
 # The Mark ability, and the benefits of a mark. Power rolls against a marked creature gain an edge
-# (the shared `use-ability` reads the target's `tactician.markedBy`). Dying ends your marks.
+# (the shared `use-ability` reads the target's `tactician.markedBy`). Dying ends your marks,
+# wherever they are.
 id: features.tactician.mark
 type: feature
 fields:
@@ -21,16 +22,18 @@ effects:
     value: { changes: [{ type: adjust, field: heroic.current, by: -1 }] }
 followUps:
   - id: marks-end
-    becomes: stamina.dying && size(tactician.marked) > 0
+    becomes: stamina.dying
+    to: applied
     changes:
-      - { type: set, field: tactician.marked, value: '[]' }
+      - type: removeEffect
+        applied: { where: 'item.id == @features.tactician.marked' }
 actions:
   # Spend 1 focus when you or an ally deals rolled damage to a creature you marked. Extra damage
   # and the shift are the outcome's numbers; you spend the Recovery when the damage was yours;
   # the taunt goes to the target (a melee ability of yours).
   - id: mark-benefit
     tags: [resource]
-    available: combat.active && size(tactician.marked) > 0 && heroic.current - 1 >= heroic.min
+    available: combat.active && heroic.current - 1 >= heroic.min
     params:
       benefit: { type: enum, values: [damage, recovery, shift, taunt], default: damage }
       mine: { type: boolean, default: false }
@@ -53,7 +56,7 @@ actions:
         changes:
           - type: applyEffect
             source: "'conditions.taunted'"
-            state: { duration: "'eot'", by: character.id }
+            state: { duration: "'eot'" }
       - id: done
         kind: outcome
         result: "'used'"

@@ -17,7 +17,6 @@ effects:
     op: changes
     value:
       changes:
-        - { type: set, field: tactician.marked, value: '[]' }
         - { type: set, field: tactician.markFocusGained, value: 'false' }
         - { type: set, field: tactician.allyFocusGained, value: 'false' }
   # Your own ability damaging a creature you marked (the first such target of the ability).
@@ -25,8 +24,8 @@ effects:
     op: changes
     when: >-
       combat.active && !tactician.markFocusGained && flags.tier > 0
-        && has(action.item.t1Damage) && participant.id in tactician.marked
-        && participant.id == filterList(participants.target, x.id in tactician.marked)[0].id
+        && has(action.item.t1Damage) && character.id in participant.tactician.markedBy
+        && participant.id == filterList(participants.target, character.id in x.tactician.markedBy)[0].id
     value:
       to: self
       changes:
