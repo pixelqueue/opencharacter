@@ -190,7 +190,8 @@ the definition, wherever it lives: a rules action, one inline on an item or on i
   true when the parameter is neither `optional`, defaulted nor fixed. A parameter a `use` fixes
   has `fixed: true` and its `value` as startAction evaluates it; the app's is ignored. `min` and
   `max` are evaluated as startAction evaluates them, with every situational choice at its
-  default; one that fails is left out.
+  default; one that fails, or that reads `params` (it depends on the values the app is yet to
+  give), is left out.
 - `values` is an enum's values, those dependent packs add included. `options` lists every ID an
   `id`, `set` or `list` parameter of a content type, `field` or `tag` takes, its `where`
   applied: content in ruleset order (hidden items left out), fields in ruleset order, tags

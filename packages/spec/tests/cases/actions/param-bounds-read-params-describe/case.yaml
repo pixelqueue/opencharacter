@@ -1,0 +1,32 @@
+description: 'describeAction leaves out a bound that reads `params`: it depends on the values the app is yet to give'
+specVersion: 0.3.0
+call: describeAction
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.3.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        tags: [ability]
+        contentTypes:
+          feature: {}
+        actions:
+          - id: use-ability
+            tags: [ability]
+            params:
+              spend: { type: integer, default: 0, min: 0 }
+            steps:
+              - { id: done, kind: outcome }
+      content:
+        - id: grace
+          type: feature
+          effects:
+            - target: { actions: [ability] }
+              op: params
+              value:
+                graceRecoveries: { type: integer, default: 0, min: 0, max: params.spend }
+input:
+  action: { id: test-pack:use-ability }

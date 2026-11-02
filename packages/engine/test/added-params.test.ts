@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { loadRuleset, startAction, type PackRelease } from '../src/index.ts';
+import { describeAction, loadRuleset, startAction, type PackRelease } from '../src/index.ts';
 
 /** A pack whose `use-ability` (tagged `ability`) declares `surges`, with these features' effects. */
 const pack = (effects: Record<string, unknown[]>, steps?: unknown[]): PackRelease =>
@@ -162,5 +162,78 @@ describe('params effects at run time', () => {
     };
     expect(changes('p:use-ability')).toBe(1);
     expect(changes('p:start-turn')).toBe(0);
+  });
+});
+
+describe('parameter bounds that read params', () => {
+  // Healing Grace: one enhancement per point of the Spend.
+  const release = pack({
+    grace: [
+      adds('ability', {
+        stand: { type: 'boolean', default: false },
+        recoveries: {
+          type: 'integer',
+          default: 0,
+          min: 0,
+          max: 'params.surges - (params.stand ? 1 : 0)',
+        },
+      }),
+    ],
+  });
+  const own = {
+    ...release,
+    rules: {
+      ...release.rules,
+      actions: [
+        {
+          id: 'use-ability',
+          tags: ['ability'],
+          params: {
+            surges: { type: 'integer', default: 0, max: 'params.cap' },
+            cap: { type: 'integer', default: 3 },
+          },
+          steps: [{ id: 'done', kind: 'outcome' }],
+        },
+      ],
+    },
+  } as unknown as PackRelease;
+  const character = {
+    specVersion: '0.3.0',
+    id: 'hero',
+    packs: [{ id: 'p', version: '1.0.0' }],
+    features: [{ id: 'grace', item: 'p:features.grace' }],
+  };
+  const run = (r: PackRelease, params: Record<string, unknown>) => {
+    const loaded = loadRuleset([r]);
+    if (!loaded.ok) throw new Error(JSON.stringify(loaded.errors));
+    const result = startAction(loaded.ruleset, character, {
+      action: { id: 'p:use-ability' },
+      params,
+    });
+    return 'errors' in result && result.errors
+      ? result.errors.map((e) => [e.code, (e.data as { max?: number }).max])
+      : 'ok';
+  };
+
+  it('see every parameter, the app’s and the defaults, added ones included', () => {
+    expect(run(release, { surges: 2, recoveries: 2 })).toBe('ok');
+    expect(run(release, { surges: 2, recoveries: 2, stand: true })).toEqual([['out-of-range', 1]]);
+    expect(run(release, { recoveries: 1 })).toEqual([['out-of-range', 0]]);
+  });
+
+  it('on an action’s own parameter, read a later one', () => {
+    expect(run(own, { surges: 3 })).toBe('ok');
+    expect(run(own, { surges: 3, cap: 2 })).toEqual([['out-of-range', 2]]);
+  });
+
+  it('are left out of describeAction', () => {
+    const loaded = loadRuleset([release]);
+    if (!loaded.ok) throw new Error(JSON.stringify(loaded.errors));
+    const described = describeAction(loaded.ruleset, character, { id: 'p:use-ability' });
+    if (!('action' in described)) throw new Error(JSON.stringify(described));
+    expect(described.action.params.find((p) => p.name === 'recoveries')).toMatchObject({
+      min: 0,
+    });
+    expect(described.action.params.find((p) => p.name === 'recoveries')).not.toHaveProperty('max');
   });
 });

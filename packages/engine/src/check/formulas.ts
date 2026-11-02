@@ -776,11 +776,16 @@ class FormulaChecker<L> {
         this.optionFlag(tags, 'changes', name, formula, at, label);
       for (const change of value.changes ?? []) this.proposedChange(change, at, label);
     } else if (effect.op === 'params') {
-      // Bounds see the effect's roots, as its `when`; a `where` sees what an action's own does.
+      // Bounds see the effect's roots, as its `when`, and the action's `params`; a `where` sees
+      // what an action's own does.
       for (const [name, decl] of Object.entries(effect.value as Record<string, ValueDecl>)) {
         const place = `${label} param ${name}`;
-        this.formula(decl.min, at, `${place} min`, NUMBER);
-        this.formula(decl.max, at, `${place} max`, NUMBER);
+        this.typed({ params: 'dyn' }, () =>
+          this.withRoots(['params'], () => {
+            this.formula(decl.min, at, `${place} min`, NUMBER);
+            this.formula(decl.max, at, `${place} max`, NUMBER);
+          }),
+        );
         if (decl.where === undefined || decl.type !== 'id' || decl.of === undefined) continue;
         if (decl.of === 'field') this.query({ type: 'field', where: decl.where }, at, place);
         else if (decl.of !== 'tag' && decl.of !== 'string')
@@ -1015,15 +1020,18 @@ class FormulaChecker<L> {
         ),
       );
     }
-    // Parameter bounds are evaluated as the action starts: no steps, flags or params yet.
+    // Parameter bounds are evaluated as the action starts, once every parameter has its value:
+    // `params`, but no steps or flags yet.
     for (const [name, decl] of Object.entries(action.params ?? {}))
-      this.typed({ ...own, situational: types.situational as FType }, () =>
-        this.at('content', () =>
-          this.onlyRoots(['situational'], () => {
-            this.formula(decl.min, at, `${key} param ${name} min`, NUMBER);
-            this.formula(decl.max, at, `${key} param ${name} max`, NUMBER);
-          }),
-        ),
+      this.typed(
+        { ...own, situational: types.situational as FType, params: types.params as FType },
+        () =>
+          this.at('content', () =>
+            this.onlyRoots(['situational', 'params'], () => {
+              this.formula(decl.min, at, `${key} param ${name} min`, NUMBER);
+              this.formula(decl.max, at, `${key} param ${name} max`, NUMBER);
+            }),
+          ),
       );
     this.typed(types, () => this.actionBody(action, at, key, each));
   }

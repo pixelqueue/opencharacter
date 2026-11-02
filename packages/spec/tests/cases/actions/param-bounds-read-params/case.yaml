@@ -1,0 +1,41 @@
+description: "Parameter bounds see `params` once every parameter has its value: an added parameter's `max` reads the action's own and another added one, given or defaulted"
+specVersion: 0.3.0
+call: startAction
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.3.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        tags: [ability]
+        contentTypes:
+          feature: {}
+        actions:
+          - id: use-ability
+            tags: [ability]
+            params:
+              spend: { type: integer, default: 0, min: 0 }
+            steps:
+              - { id: done, kind: outcome }
+      content:
+        # One enhancement per point spent: standing up takes one, the rest are Recoveries.
+        - id: grace
+          type: feature
+          effects:
+            - target: { actions: [ability] }
+              op: params
+              value:
+                graceRecoveries:
+                  {
+                    type: integer,
+                    default: 0,
+                    min: 0,
+                    max: 'params.spend - (params.graceStand ? 1 : 0)',
+                  }
+                graceStand: { type: boolean, default: false }
+input:
+  action: { id: test-pack:use-ability }
+  params: { spend: 2, graceRecoveries: 2, graceStand: true }

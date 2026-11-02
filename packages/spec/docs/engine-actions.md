@@ -41,7 +41,7 @@ shape, an optional **dice function**.
    listing. Each declared parameter takes the app's value, then, for the run the app starts
    (not one an `action` step runs), each one content adds through a `params` effect
    ([effects.md](effects.md#targets)): its IDs resolve in the effect's pack and its `min` and
-   `max` see the effect's roots (as its `when`). A `use` that fixes a parameter, an added one
+   `max` see the effect's roots (as its `when`) and `params`. A `use` that fixes a parameter, an added one
    included, wins over the app's value; its formula is evaluated in the pack that writes the
    use, with the listing's `item` and `self`. Missing required parameters are `missing-param`; wrong types are
    `wrong-type`. Every parameter error (`missing-param`, `wrong-type`, `out-of-range`,
@@ -53,8 +53,13 @@ shape, an optional **dice function**.
    - A number parameter (`integer`, `decimal`) outside its `min`/`max`, once a `use`'s fixed
      value or the default is in, is `out-of-range` (data: `target`, the parameter's name, and the
      evaluated `min` and `max`). The bounds are number formulas evaluated here, as the action
-     starts: they see the action's `item` and `self`, `situational` and the character's fields,
-     but no `params`, `steps` or `flags` (`amount: { type: integer, min: 1, max: effort.free }`).
+     starts, once every parameter (the action's own, then the added ones) has its value: they see
+     the action's `item` and `self`, `situational`, the character's fields and `params`, every
+     parameter as the action's formulas will read it, but no `steps` or `flags`
+     (`amount: { type: integer, min: 1, max: effort.free }`,
+     `recoveries: { max: params.spend }`). The parameters are checked in order, the first out of
+     range failing the action. A bound reads values, never another bound, so bounds that read
+     each other can't loop.
    - A **field parameter** (`type: id, of: field`) takes a field ID, qualified or local to the
      action's pack. A field outside its `where` set is `invalid-option`. Formulas see
      `params.<name>` as `{ id, type, tags, value }`: the field view its `where` sees (the qualified

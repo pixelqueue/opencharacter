@@ -121,8 +121,23 @@ chooses its damage type on each use, and a feature adds an opt-in to a rules act
   (startAction, a follow-up taken up, a handoff's run on its own character) has it: an `action`
   step's nested run doesn't. A required one is the load error `invalid-added-param`.
 - Its `min` and `max` see the effect's roots, as its `when` (`item` and `self` the content's,
-  the listing's as `action.item` and `action.self`); a content parameter's `where` sees the
-  candidate as `item` and the listing's as `action`, as an action's own does.
+  the listing's as `action.item` and `action.self`), and the action's `params`; a content
+  parameter's `where` sees the candidate as `item` and the listing's as `action`, as an action's
+  own does.
+- Bounds, an action's own and added ones alike, are checked once every parameter has its value
+  (the app's, a `use`'s fixed one, or the default), so one parameter bounds another. A bound reads
+  values, never another bound, so bounds that read each other can't loop. Healing Grace spends
+  one piety per enhancement:
+
+  ```yaml
+  - target: { actions: [ability], from: self }
+    op: params
+    value:
+      graceRecoveries:
+        { type: integer, default: 0, min: 0, max: 'params.spend - (params.graceStand ? 1 : 0)' }
+      graceStand: { type: boolean, default: false }
+  ```
+
 - A `use` may fix an added parameter in its `params`, as its own.
 - A name an action its literal target tags reach already declares, or one another `params`
   effect adds with another declaration, is `invalid-added-param` at load. An action counts by the

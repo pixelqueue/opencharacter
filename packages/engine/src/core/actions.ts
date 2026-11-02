@@ -934,6 +934,8 @@ function params(
     })),
   ];
   for (const { name, decl, pack, roots, at } of all) {
+  // Bounds read `params`, so they are checked once every parameter has its value.
+  const ranges: (() => void)[] = [];
     let value: unknown = raw[name];
     if (fixed[name] !== undefined) {
       const evaluated = ctx.sheet.evaluate(fixed[name] as Formula, fixedPack, frame.roots);
@@ -987,13 +989,16 @@ function params(
         if (!admitsTag(decl.members, tag))
           throw new ActionError('invalid-option', { param: name, option: tag, ...at });
     }
-    paramRange(name, at, decl, typed, (bound) => {
-      const v = ctx.sheet.evaluate(bound, pack, roots);
-      return v.kind === 'int' || v.kind === 'decimal' ? v.value : undefined;
-    });
+    ranges.push(() =>
+      paramRange(name, at, decl, typed, (bound) => {
+        const v = ctx.sheet.evaluate(bound, pack, { ...roots, params: out });
+        return v.kind === 'int' || v.kind === 'decimal' ? v.value : undefined;
+      }),
+    );
     out[name] = rootValue(typed);
   }
   return out;
+  for (const range of ranges) range();
 }
 
 /** A parameter content adds to an action through a `params` effect. */
@@ -1113,7 +1118,10 @@ export function contentParamTakes(
   return ok.kind === 'bool' && ok.value;
 }
 
-/** A number parameter outside its `min`/`max`, evaluated as the action starts, is out-of-range. */
+/**
+ * A number parameter outside its `min`/`max`, evaluated as the action starts once every parameter
+ * has its value, is out-of-range.
+ */
 function paramRange(
   name: string,
   at: Record<string, string>,
@@ -4305,7 +4313,8 @@ function perCopy(formula: Formula): boolean {
   return reads(formula, ['self', 'item', 'batch']);
 }
 
-function reads(formula: Formula, roots: string[]): boolean {
+/** Whether the formula reads one of the roots. */
+export function reads(formula: Formula, roots: string[]): boolean {
   if (typeof formula !== 'string') return false;
   const tree = f.parse(formula);
   if (!tree.ok) return false;

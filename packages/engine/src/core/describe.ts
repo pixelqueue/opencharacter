@@ -6,6 +6,7 @@ import {
   fieldParamTakes,
   findAction,
   ownerRoots,
+  reads,
   situationalRoot,
 } from './actions.ts';
 import { withHomebrew } from './homebrew.ts';
@@ -52,8 +53,9 @@ export function describeAction(
     ...ownerRoots(activation ? sheet.actionRoots(activation) : sheet.rulesRoots()),
     situational: situationalRoot(ruleset, pack, {}),
   };
+  // A bound that reads `params` depends on the values the app is yet to give.
   const number = (formula: Formula | undefined, at: string, seen: Record<string, unknown>) => {
-    if (formula === undefined) return undefined;
+    if (formula === undefined || reads(formula, ['params'])) return undefined;
     const v = attempt(() => sheet.evaluate(formula, at, seen));
     return v && (v.kind === 'int' || v.kind === 'decimal') ? v.value : undefined;
   };

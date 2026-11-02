@@ -103,7 +103,8 @@ effects:
   and `self` the content carrying the effect, the listing's as `action.item` and `action.self`,
   and the character's fields), each is a parameter of the action after its own, checked by
   startAction like them (on the run the app starts only, never a nested one) and listed by
-  describeAction with `addedBy`. Each is `optional` or has a `default`; a name an action its
+  describeAction with `addedBy`. Its `min` and `max` also see the action's `params`, checked
+  once every parameter has its value. Each is `optional` or has a `default`; a name an action its
   literal tags reach declares, or another effect's other declaration of the name (not between
   `from: self` effects of different content items, unless one item holding both has an action
   both reach), is the load error
