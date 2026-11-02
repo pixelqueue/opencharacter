@@ -1,28 +1,76 @@
-# A first-level berserker fury with the Quick Build picks and the Panther kit: Might and Agility 2 and the 2, −1, −1 array, at full
-# Stamina (21 + 6 from the kit) with all ten Recoveries.
+# A first-level orc berserker fury (gladiator career) with the Quick Build picks and the Panther
+# kit: Might and Agility 2 and the 2, -1, -1 array, at full Stamina (21 + 6 from the kit) with all
+# ten Recoveries. Made by the guided start.
 specVersion: 0.3.0
 id: example-draw-steel-khorva
 packs:
-  - { id: draw-steel-heroes, version: 0.1.0 }
+  - id: draw-steel-heroes
+    version: 0.1.0
+features:
+  - id: ancestries-orc-1
+    item: draw-steel-heroes:ancestries.orc
+    choices:
+      trait-1:
+        - option: draw-steel-heroes:ancestry-traits.orc.glowing-recovery
+      trait-3:
+        - option: draw-steel-heroes:ancestry-traits.orc.grounded
+  - id: cultures-culture-1
+    item: draw-steel-heroes:cultures.culture
+    choices:
+      language:
+        - option: draw-steel-heroes:languages.kalliak
+      environment:
+        - option: draw-steel-heroes:culture-aspects.wilderness
+          choices:
+            skill:
+              - option: draw-steel-heroes:skills.endurance
+      organization:
+        - option: draw-steel-heroes:culture-aspects.communal
+          choices:
+            skill:
+              - option: draw-steel-heroes:skills.jump
+      upbringing:
+        - option: draw-steel-heroes:culture-aspects.creative
+          choices:
+            skill:
+              - option: draw-steel-heroes:skills.perform
+  - id: careers-gladiator-1
+    item: draw-steel-heroes:careers.gladiator
+    choices:
+      skills:
+        - option: draw-steel-heroes:skills.gymnastics
+        - option: draw-steel-heroes:skills.climb
+      languages:
+        - option: draw-steel-heroes:languages.vaslorian
+      perk:
+        - option: draw-steel-heroes:perks.exploration.friend-catapult
+      incident:
+        - option: betrayed
+  - id: classes-fury-1
+    item: draw-steel-heroes:classes.fury
+    state:
+      level: 1
+    choices:
+      aspect:
+        - option: draw-steel-heroes:subclasses.fury.berserker
+          choices:
+            draw-steel-heroes:features.common.kit/kit:
+              - option: draw-steel-heroes:kits.panther
+      skills:
+        - option: draw-steel-heroes:skills.alertness
+        - option: draw-steel-heroes:skills.track
+      signature:
+        - option: draw-steel-heroes:abilities.fury.to-the-death
+      heroic-3:
+        - option: draw-steel-heroes:abilities.fury.back
+      heroic-5:
+        - option: draw-steel-heroes:abilities.fury.blood-for-blood
 values:
   draw-steel-heroes:characteristics.might.base: 2
   draw-steel-heroes:characteristics.agility.base: 2
   draw-steel-heroes:characteristics.reason.base: 2
   draw-steel-heroes:characteristics.intuition.base: -1
   draw-steel-heroes:characteristics.presence.base: -1
+  draw-steel-heroes:xp.current: 0
   draw-steel-heroes:stamina.current: 27
-features:
-  - id: fury
-    item: draw-steel-heroes:classes.fury
-    state: { level: 1 }
-    choices:
-      aspect:
-        - option: draw-steel-heroes:subclasses.fury.berserker
-          choices:
-            draw-steel-heroes:features.common.kit/kit: [{ option: draw-steel-heroes:kits.panther }]
-      skills:
-        - { option: draw-steel-heroes:skills.alertness }
-        - { option: draw-steel-heroes:skills.jump }
-      signature: [{ option: draw-steel-heroes:abilities.fury.to-the-death }]
-      heroic-3: [{ option: draw-steel-heroes:abilities.fury.back }]
-      heroic-5: [{ option: draw-steel-heroes:abilities.fury.blood-for-blood }]
+  draw-steel-heroes:recoveries.spent: 0
