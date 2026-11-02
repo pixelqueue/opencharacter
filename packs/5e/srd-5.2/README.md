@@ -146,9 +146,8 @@ automatic run finishes too; a `level` parameter starts higher. A monster is made
   Metamagic options, Pact Magic and the 28 invocations, the spellbook, Arcane Recovery. Uses until
   a rest are state on the class copy, an invocation's on its pick (Gift of the Depths' `used`).
   Features carry the numbers their card needs as computed values (in computeSheet's
-  `activationValues`), which their actions read: Cunning Strike's `strikeDc` (its saves' DC; the
-  strike effects read it from the `rogue.strikeDc` field, since effects can't read computed values
-  yet ([#251](https://github.com/pixelqueue/opencharacter/issues/251))), Intimidating
+  `activationValues`), which their actions and action-time effects read: Cunning Strike's
+  `strikeDc` (its saves' DC, read by the strike effects), Intimidating
   Presence's `presenceDc`, Relentless Rage's `rageDc`, Sacred Weapon's `weaponBonus`, Preserve
   Life's `healingPool`, and Breath Weapon's `breathDc` and `breathDice`.
   A species trait keeps its own uses as its grant's saved state (Breath Weapon, Draconic Flight,
@@ -337,8 +336,9 @@ Where the SRD is unclear or silent, the pack reads it this way:
     of the attack (an `action` effect on its `attack-hit` step), Poisoned, Prone, Unconscious or
     Blinded on a failure. An effect the rogue can't use (`rogue.strikeEffects`: not known yet, or
     Poison without a Poisoner's Kit), or effects together costing more dice than the Sneak Attack
-    has, do nothing and cost nothing, as does a Trip on a Huge or larger target. Withdraw,
-    Daze's limit and Stealth Attack are the player's.
+    has, do nothing and cost nothing, as does a Trip on a Huge or larger target. The attack works
+    out the dice spent once, as the derived parameter `cunningStrikeCost`, from its first target
+    (an attack has one). Withdraw, Daze's limit and Stealth Attack are the player's.
   - Stunning Strike (`stunningStrike`, 1 Focus Point, Constitution or Stunned), Open Hand
     Technique (`openHand`, on an Unarmed Strike: Push's Strength save, Topple's Dexterity save or
     Prone; it is offered on every Unarmed Strike, and whether the strike is one of Flurry of
