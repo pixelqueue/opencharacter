@@ -13,7 +13,6 @@ fields:
 effects:
   - target: { steps: [ability.after], from: self }
     op: changes
-    when: action.item.id == item.id
     value: { changes: [{ type: set, field: shadow.noThreat, value: 'true' }] }
   # While the illusion lasts: an edge on strikes and 1 more square of Disengage.
   - { target: { rolls: [kw.strike], tally: edges }, op: add, value: 1, when: shadow.noThreat }

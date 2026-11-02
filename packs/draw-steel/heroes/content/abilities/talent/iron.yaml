@@ -19,7 +19,6 @@ effects:
         - ability.hit
       from: self
     op: changes
-    when: 'action.item.id == item.id'
     value:
       changes:
         - type: set
@@ -33,7 +32,7 @@ effects:
         - ability.after
       from: self
     op: changes
-    when: action.item.id == item.id && (size(participants.target) == 0)
+    when: size(participants.target) == 0
     value:
       changes:
         - type: set

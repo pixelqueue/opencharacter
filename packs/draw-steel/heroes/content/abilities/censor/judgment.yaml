@@ -15,14 +15,13 @@ effects:
   # is used again.
   - target: { steps: [ability.hit], from: self }
     op: changes
-    when: action.item.id == item.id
     value:
       to: self
       changes:
         - { type: set, field: censor.judged, value: participant.id }
   - target: { steps: [ability.after], from: self }
     op: changes
-    when: 'action.item.id == item.id && (size(participants.target) > 0)'
+    when: 'size(participants.target) > 0'
     value: { changes: [{ type: set, field: censor.benefitUsed, value: 'true' }] }
 actions:
   # The free triggered action against a judged creature that uses a main action: holy damage equal

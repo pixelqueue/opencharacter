@@ -7,7 +7,6 @@ fields: { usage: triggered, kind: treasure, distanceKind: ranged, distance: 5 }
 effects:
   - target: { steps: [ability.hit], from: self }
     op: changes
-    when: action.item.id == item.id
     value:
       changes:
         - type: applyEffect
@@ -15,7 +14,7 @@ effects:
           state: { duration: "'eot'", by: character.id }
   - target: { steps: [ability.hit], from: self }
     op: changes
-    when: action.item.id == item.id && level >= 5
+    when: level >= 5
     value:
       changes:
         - type: adjust

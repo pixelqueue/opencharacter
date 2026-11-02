@@ -15,7 +15,6 @@ effects:
   # 20 temporary Stamina, and stability + Intuition until the end of the encounter.
   - target: { steps: [ability.after], from: self }
     op: changes
-    when: action.item.id == item.id
     value:
       changes:
         - { type: set, field: stamina.temp, value: 'max(stamina.temp, 20)' }

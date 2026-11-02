@@ -13,7 +13,6 @@ effects:
   # Temporary Stamina equal to your Might score.
   - target: { steps: [ability.after], from: self }
     op: changes
-    when: action.item.id == item.id
     value:
       changes:
         - type: set
@@ -23,7 +22,7 @@ effects:
   - target: { steps: [ability.spend], from: self }
     op: changes
     when: >-
-      action.item.id == item.id && (!stamina.dying && recoveries.current > 0)
+      !stamina.dying && recoveries.current > 0
     value:
       changes:
         - { type: adjust, field: recoveries.spent, by: 1 }

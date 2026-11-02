@@ -11,7 +11,7 @@ fields:
 effects:
   - target: { steps: [ability.hit], from: self }
     op: changes
-    when: action.item.id == item.id && participant.characteristics.presence.score < potency.average
+    when: participant.characteristics.presence.score < potency.average
     value:
       changes:
         - type: applyEffect

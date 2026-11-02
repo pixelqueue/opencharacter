@@ -28,8 +28,8 @@ effects:
       from: self
     op: changes
     when:
-      action.item.id == item.id && (((combat.active && heroic.current - item.cost - params.spend <
-      0) || situational.talentStrain) && has(steps.damage))
+      ((combat.active && heroic.current - item.cost - params.spend <
+      0) || situational.talentStrain) && has(steps.damage)
     value:
       changes:
         - type: adjust

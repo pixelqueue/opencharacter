@@ -28,7 +28,7 @@ reapply: { state: { duration: replace, by: replace } }
 effects:
   - target: { steps: [ability.hit], from: self }
     op: changes
-    when: 'action.item.id == item.id && (flags.tier > 0)'
+    when: 'flags.tier > 0'
     value:
       changes:
         - type: applyEffect

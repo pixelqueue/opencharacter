@@ -25,7 +25,7 @@ effects:
   # Tier 3: bleeding too, behind the same potency.
   - target: { steps: [ability.hit], from: self }
     op: changes
-    when: action.item.id == item.id && flags.tier == 3 && flags.landed
+    when: flags.tier == 3 && flags.landed
     value:
       changes:
         - type: applyEffect
@@ -34,7 +34,7 @@ effects:
   # Tier 1: you take 4 sonic damage unless you have the Performance skill.
   - target: { steps: [ability.after], from: self }
     op: changes
-    when: action.item.id == item.id && has(steps.roll) && steps.roll.bandValue == 1 && !(@skills.perform in skills.known)
+    when: has(steps.roll) && steps.roll.bandValue == 1 && !(@skills.perform in skills.known)
     value:
       changes:
         - { type: adjust, field: stamina.current, by: -4, tags: [damage, damage.sonic] }

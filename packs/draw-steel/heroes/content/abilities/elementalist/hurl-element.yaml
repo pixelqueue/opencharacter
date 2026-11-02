@@ -26,7 +26,6 @@ effects:
   - { target: elementalist.hurlElement, op: set, value: 'true' }
   - target: { rolls: [damage], from: self }
     op: add
-    when: action.item.id == item.id
     value: >-
       [2, 4, 6][(flags.tier > 0 ? flags.tier : steps.roll.bandValue) - 1]
         + (flags.char == 'none' ? 0 : fieldOf('characteristics.{characteristic}.score', flags.char))

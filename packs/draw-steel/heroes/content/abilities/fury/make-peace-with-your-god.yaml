@@ -12,7 +12,6 @@ effects:
   # 1 surge, and the next ability roll this turn is a tier 3 outcome.
   - target: { steps: [ability.after], from: self }
     op: changes
-    when: action.item.id == item.id
     value:
       changes:
         - { type: adjust, field: surges.current, by: 1 }

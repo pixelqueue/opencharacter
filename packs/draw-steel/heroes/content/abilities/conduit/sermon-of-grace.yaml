@@ -17,7 +17,6 @@ effects:
   # Each target can spend a Recovery.
   - target: { steps: [ability.hit], from: self }
     op: changes
-    when: action.item.id == item.id
     value:
       changes:
         - { type: adjust, field: recoveries.spent, by: 1, tags: [recovery.granted] }

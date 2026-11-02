@@ -31,16 +31,16 @@ effects:
     op: set
     value: 0
     when:
-      'action.item.id == item.id && (!((combat.active && heroic.current - item.cost - params.spend <
-      0) || situational.talentStrain))'
+      '!((combat.active && heroic.current - item.cost - params.spend <
+      0) || situational.talentStrain)'
   - target:
       steps:
         - ability.after
       from: self
     op: changes
     when:
-      action.item.id == item.id && ((combat.active && heroic.current - item.cost - params.spend < 0)
-      || situational.talentStrain)
+      (combat.active && heroic.current - item.cost - params.spend < 0)
+      || situational.talentStrain
     value:
       changes:
         - type: applyEffect

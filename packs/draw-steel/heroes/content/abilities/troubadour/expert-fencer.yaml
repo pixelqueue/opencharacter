@@ -30,7 +30,7 @@ effects:
   - target: { steps: [ability.after], from: self }
     op: changes
     when: >-
-      action.item.id == item.id && has(steps.roll) && steps.roll.bandValue == 3 && size(steps.roll.kept) >= 2
+      has(steps.roll) && steps.roll.bandValue == 3 && size(steps.roll.kept) >= 2
         && steps.roll.kept[0] + steps.roll.kept[1] >= 17
     value:
       changes:

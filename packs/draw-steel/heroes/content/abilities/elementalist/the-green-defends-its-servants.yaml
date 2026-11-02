@@ -19,5 +19,5 @@ fields:
 effects:
   - target: { steps: [ability.after], from: self }
     op: changes
-    when: action.item.id == item.id && size(participants.target) == 0
+    when: size(participants.target) == 0
     value: { changes: [{ type: set, field: stamina.temp, value: 'max(stamina.temp, 30)' }] }

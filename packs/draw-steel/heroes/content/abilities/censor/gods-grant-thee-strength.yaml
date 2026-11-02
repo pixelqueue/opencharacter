@@ -16,7 +16,6 @@ effects:
   # and gains 2 surges.
   - target: { steps: [ability.hit], from: self }
     op: changes
-    when: action.item.id == item.id
     value:
       changes:
         - { type: adjust, field: surges.current, by: 2 }
@@ -26,7 +25,7 @@ effects:
               (has(self.duration) && self.duration in ['save', 'eot']) || item.id == @conditions.prone
   - target: { steps: [ability.after], from: self }
     op: changes
-    when: 'action.item.id == item.id && (size(participants.target) == 0)'
+    when: 'size(participants.target) == 0'
     value:
       changes:
         - { type: adjust, field: surges.current, by: 2 }

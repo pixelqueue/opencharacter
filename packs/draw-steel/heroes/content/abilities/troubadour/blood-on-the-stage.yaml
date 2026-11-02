@@ -36,7 +36,7 @@ effects:
   # Tier 3: bleeding (EoT) when the potency doesn't land.
   - target: { steps: [ability.hit], from: self }
     op: changes
-    when: action.item.id == item.id && flags.tier == 3 && !flags.landed
+    when: flags.tier == 3 && !flags.landed
     value:
       changes:
         - type: applyEffect

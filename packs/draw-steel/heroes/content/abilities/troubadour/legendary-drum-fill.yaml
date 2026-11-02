@@ -17,7 +17,6 @@ effects:
   # You are a target: 1 surge now, then 1 at the start of each combat round this encounter.
   - target: { steps: [ability.after], from: self }
     op: changes
-    when: action.item.id == item.id
     value:
       changes:
         - { type: adjust, field: surges.current, by: 1 }

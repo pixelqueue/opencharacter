@@ -16,7 +16,6 @@ fields:
 effects:
   - target: { steps: [ability.hit], from: self }
     op: changes
-    when: action.item.id == item.id
     value:
       changes:
         - type: applyEffect
@@ -24,7 +23,6 @@ effects:
           state: { duration: "'encounter'", by: character.id }
   - target: { steps: [ability.after], from: self }
     op: changes
-    when: action.item.id == item.id
     value:
       changes:
         - type: set
@@ -33,5 +31,4 @@ effects:
             tactician.marked + filterList(mapList(participants.target, x.id), !(x in tactician.marked))
   - target: { steps: [ability.after], from: self }
     op: changes
-    when: action.item.id == item.id
     value: { changes: [{ type: adjust, field: surges.current, by: 2 }] }

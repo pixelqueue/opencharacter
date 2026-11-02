@@ -22,7 +22,7 @@ effects:
   # The surge when an ally is within 5 squares of the target.
   - target: { steps: [ability.pay], from: self }
     op: changes
-    when: action.item.id == item.id && situational.shadowConditionMet
+    when: situational.shadowConditionMet
     # Set from the value before the step, so the surge can pay for this ability's own surges.
     value:
       changes:

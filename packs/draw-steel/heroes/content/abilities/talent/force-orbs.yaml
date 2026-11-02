@@ -28,7 +28,6 @@ effects:
           when: (combat.active && heroic.current - item.cost - params.spend < 0) || situational.talentStrain
           source: "'conditions.weakened'"
           state: { duration: "'until'", by: character.id }
-    when: action.item.id == item.id
   - { target: immunity.all, op: add, value: talent.forceOrbs }
   - target: { steps: [combat.end] }
     op: changes

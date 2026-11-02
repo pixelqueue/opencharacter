@@ -7,7 +7,6 @@ fields:
 effects:
   - target: { steps: [ability.after], from: self }
     op: changes
-    when: action.item.id == item.id
     value: { changes: [{ type: set, field: dragonKnight.oath, value: 'true' }] }
   # Until the start of your next turn, a saving throw succeeds on 4 or higher.
   - target: { rolls: [saving-throw] }

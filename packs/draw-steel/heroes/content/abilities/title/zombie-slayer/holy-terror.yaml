@@ -12,7 +12,6 @@ fields:
 effects:
   - target: { steps: [ability.hit], from: self }
     op: changes
-    when: action.item.id == item.id
     value:
       changes:
         - type: adjust
@@ -23,7 +22,7 @@ effects:
           tags: [damage, damage.holy]
   - target: { steps: [ability.hit], from: self }
     op: changes
-    when: action.item.id == item.id && participant.characteristics.presence.score < potency.strong
+    when: participant.characteristics.presence.score < potency.strong
     value:
       changes:
         - type: applyEffect

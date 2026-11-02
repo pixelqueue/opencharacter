@@ -37,8 +37,8 @@ effects:
       from: self
     op: changes
     when:
-      action.item.id == item.id && (((combat.active && heroic.current - item.cost - params.spend <
-      0) || situational.talentStrain) && flags.tier >= 2)
+      ((combat.active && heroic.current - item.cost - params.spend <
+      0) || situational.talentStrain) && flags.tier >= 2
     value:
       changes:
         - type: adjust

@@ -23,7 +23,7 @@ effects:
   # You gain 10, 15 or 20 temporary Stamina by the tier (each adjacent ally too).
   - target: { steps: [ability.after], from: self }
     op: changes
-    when: 'action.item.id == item.id && (has(steps.roll))'
+    when: 'has(steps.roll)'
     value:
       changes:
         - type: set

@@ -16,7 +16,7 @@ effects:
   - target: { steps: [ability.hit], from: self }
     op: changes
     when: >-
-      action.item.id == item.id && (params.spend >= 1 && participant.characteristics.reason.score < potency.average)
+      params.spend >= 1 && participant.characteristics.reason.score < potency.average
     value:
       changes:
         - type: applyEffect

@@ -32,9 +32,9 @@ effects:
   - target: { steps: [ability.hit], from: self }
     op: changes
     when: >-
-      action.item.id == item.id && (flags.tier > 0
+      flags.tier > 0
         && participant.characteristics.might.score
-          < [potency.weak, potency.average, potency.strong][flags.tier - 1])
+          < [potency.weak, potency.average, potency.strong][flags.tier - 1]
     value:
       changes:
         - type: applyEffect

@@ -22,7 +22,7 @@ effects:
   # 10, 15 or 20 temporary Stamina by tier (temporary Stamina doesn't stack: the greater stays).
   - target: { steps: [ability.after], from: self }
     op: changes
-    when: action.item.id == item.id && has(steps.roll)
+    when: has(steps.roll)
     value:
       changes:
         - type: set

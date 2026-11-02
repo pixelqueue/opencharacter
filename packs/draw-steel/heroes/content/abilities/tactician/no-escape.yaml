@@ -25,7 +25,6 @@ fields:
 effects:
   - target: { steps: [ability.hit], from: self }
     op: changes
-    when: action.item.id == item.id
     value:
       changes:
         - type: applyEffect
@@ -33,7 +32,6 @@ effects:
           state: { duration: "'encounter'", by: character.id }
   - target: { steps: [ability.after], from: self }
     op: changes
-    when: action.item.id == item.id
     value:
       changes:
         - type: set

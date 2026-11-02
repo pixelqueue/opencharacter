@@ -39,8 +39,8 @@ effects:
       from: self
     op: changes
     when:
-      action.item.id == item.id && ((combat.active && heroic.current - item.cost - params.spend < 0)
-      || situational.talentStrain)
+      (combat.active && heroic.current - item.cost - params.spend < 0)
+      || situational.talentStrain
     value:
       changes:
         - type: offerFollowUp
@@ -53,8 +53,8 @@ effects:
       from: self
     op: changes
     when:
-      action.item.id == item.id && (((combat.active && heroic.current - item.cost - params.spend <
-      0) || situational.talentStrain) && flags.tier == 3)
+      ((combat.active && heroic.current - item.cost - params.spend <
+      0) || situational.talentStrain) && flags.tier == 3
     value:
       changes:
         - type: adjust

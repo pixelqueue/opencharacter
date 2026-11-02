@@ -36,7 +36,7 @@ effects:
   # A target already frightened takes psychic damage equal to twice your Presence score.
   - target: { steps: [ability.hit], from: self }
     op: changes
-    when: 'action.item.id == item.id && (flags.landed && participant.conditions.frightened)'
+    when: 'flags.landed && participant.conditions.frightened'
     value:
       changes:
         - type: adjust

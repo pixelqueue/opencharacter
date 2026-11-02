@@ -26,7 +26,7 @@ effects:
   - target: { steps: [ability.hit], from: self }
     op: changes
     when: >-
-      action.item.id == item.id && (flags.tier == 3 && recoveries.current > 0 && participant.id == participants.target[0].id)
+      flags.tier == 3 && recoveries.current > 0 && participant.id == participants.target[0].id
     value:
       to: self
       changes:

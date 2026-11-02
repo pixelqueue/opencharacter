@@ -14,7 +14,7 @@ effects:
   - target: { steps: [ability.hit], from: self }
     op: changes
     when: >-
-      action.item.id == item.id && (indexOf(mapList(participants.target, x.id), participant.id) < tactician.markLimit)
+      indexOf(mapList(participants.target, x.id), participant.id) < tactician.markLimit
     value:
       changes:
         - type: applyEffect
@@ -23,7 +23,7 @@ effects:
   - target: { steps: [ability.after], from: self }
     op: changes
     when: >-
-      action.item.id == item.id && (size(participants.target) > 0)
+      size(participants.target) > 0
     value:
       changes:
         - type: set
