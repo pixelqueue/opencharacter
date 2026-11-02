@@ -1,5 +1,166 @@
 # @opencharacter/text
 
+## 0.4.0
+
+### Minor Changes
+
+- c89c541: Content extends a shared action per item (#194):
+
+  - A `use` entry may have its own `available`, ANDed with the used action's and evaluated with
+    the listing's `item` and `self`: a condition's saving throw only while it is "save ends".
+  - An action's `tags` may hold `{ formula }` entries, evaluated per listing with its `item` and
+    `self`; computeSheet's listing (display groups), describeAction and `params` effects see them.
+  - A new effect op, `params`, on a new target, `{ actions: [<tag>], from? }`, adds parameters to
+    the listed actions whose tags match while its `when` holds: an ability's damage type chosen
+    on each use, a feature's opt-in on a rules action. startAction checks them as the action's
+    own (their errors carry `addedBy`), describeAction lists them after the action's own with
+    `addedBy`, and content reads them as `params.<name>` in its effects. Their text is
+    `<content key>.params.<name>.name`; the text package adds `addedParam`,
+    `addedParamDescription`, `addedParamValue` and the keys `addedParamKey` and
+    `addedParamValueKey`, and names a parameter error by `addedBy`. Each added parameter is
+    optional or defaulted and reaches only the run the app starts (not a nested `action` step's);
+    a required one, a name an action the effect's tags reach declares, or two effects declaring
+    one name differently over tags that meet are the new load error `invalid-added-param`. Its
+    `min` and `max` see the effect's roots; a `use` may fix it.
+  - startAction and describeAction read the `use` computeSheet lists (the first available one
+    with the ID), and evaluate its fixed `params` in the pack that writes the use.
+
+- 5a70646: Picked and granted content has computed values: its type's, item's and kept templates' `computed`
+  are worked out per activation after every field, reading derived fields and the owning copy (with
+  its computed values). computeSheet lists them in `activationValues` (`{ activation, values }`),
+  and the content's actions and follow-ups read them as `self.<name>`. A template kept on content
+  without a copy may now give computed values. An item's description and named texts take a
+  block's arguments, so `{self_<name>}` fills them from those values: `contentCard` fills the
+  description, the new `contentText` gives a description or named text filled, headline pieces of
+  picked content read `activationValues`, and `pnpm validate` checks their arguments (#193).
+- 766416f: Inline options as content items (#195): an inline option may have an optional description,
+  `<owner>.choices.<choice>.options.<id>.description` (Markdown), so a random table of named
+  paragraphs is a choice of inline options, and `createText`'s new `optionDescription(choice, id)`
+  reads it (from the adding pack for an option `extendChoices` added). An inline option takes
+  `immuneTo`, held while it is picked and active; the `immune` issue's `id` is the option's source
+  ID plus the immunity's (`<owner>/<choice>/<option>/<id>`).
+- 52f032a: A rules-level choice's issue IDs name its pack (#213): `choice-not-applicable`, `too-many-picks`,
+  `too-few-picks`, `option-not-eligible`, `already-picked`, `no-eligible-option` and
+  `picked-copy-invalid` carry `<pack>:rules/<choice>` (was `rules/<choice>`), the owner as
+  `needs.choice.owner` names it, and an inline option of a rules-level choice has the source ID
+  `<pack>:rules/<choice>/<option>`, so its prerequisite, immunity and nested choice IDs are
+  qualified too. Competing-option IDs move with them: a rules-level choice's own effects are
+  `<pack>:rules/<choice>#<pick>/<effect>` (was `rules/<choice>#…`) and its inline options'
+  `<pack>:rules/<choice>/<option>#<effect>` (orc-2e's `qi-tradition`:
+  `orc-2e:rules/qi-tradition/divine#0`), so an app re-keys the competing picks it saved (in
+  `extensions`) under the old IDs. `@opencharacter/text` reads the choice's prompt from the pack the ID names instead of
+  searching the loaded packs. A breaking change for an app that keys on `rules/<choice>`.
+
+### Patch Changes
+
+- ec9726a: `issues.too-many-picks.choice` and `issues.choice-not-applicable.choice` lead a choice issue with its choice's prompt, so a rules-level choice's issue (fitd-crew's Rigging after its box is unmarked) names what it's about; a slot's prompt gets its number as `{slot}` (#175).
+- ec9726a: `errors.invalid-option` has variants by its data: `errors.invalid-option.param`, `.field` and `.target` name the parameter (by its label), the character field (by its name), or the item field or state key the option was for, as the other parameter errors do (#175).
+- 4be76a3: The README's example passes `content` (the headline needs it) and shows the wizard's real skill prompt, and the API list names the parameter and option texts.
+- Updated dependencies [71a3eb6]
+- Updated dependencies [53c36f2]
+- Updated dependencies [53c36f2]
+- Updated dependencies [53c36f2]
+- Updated dependencies [769efe5]
+- Updated dependencies [769efe5]
+- Updated dependencies [769efe5]
+- Updated dependencies [769efe5]
+- Updated dependencies [53c36f2]
+- Updated dependencies [71a3eb6]
+- Updated dependencies [71a3eb6]
+- Updated dependencies [71a3eb6]
+- Updated dependencies [53c36f2]
+- Updated dependencies [53c36f2]
+- Updated dependencies [53c36f2]
+- Updated dependencies [71a3eb6]
+- Updated dependencies [53c36f2]
+- Updated dependencies [53c36f2]
+- Updated dependencies [53c36f2]
+- Updated dependencies [bf23fd5]
+- Updated dependencies [ec9726a]
+- Updated dependencies [71a3eb6]
+- Updated dependencies [53c36f2]
+- Updated dependencies [53c36f2]
+- Updated dependencies [71a3eb6]
+- Updated dependencies [71a3eb6]
+- Updated dependencies [71a3eb6]
+- Updated dependencies [53c36f2]
+- Updated dependencies [53c36f2]
+- Updated dependencies [c89c541]
+- Updated dependencies [c09dbbb]
+- Updated dependencies [66e21e3]
+- Updated dependencies [2b5c337]
+- Updated dependencies [4824a5a]
+- Updated dependencies [d698709]
+- Updated dependencies [4824a5a]
+- Updated dependencies [5d33422]
+- Updated dependencies [0f1fa68]
+- Updated dependencies [5d33422]
+- Updated dependencies [766416f]
+- Updated dependencies [766416f]
+- Updated dependencies [ec9726a]
+- Updated dependencies [766416f]
+- Updated dependencies [5a70646]
+- Updated dependencies [ec9726a]
+- Updated dependencies [d698709]
+- Updated dependencies [66e21e3]
+- Updated dependencies [ec9726a]
+- Updated dependencies [9b7b570]
+- Updated dependencies [847d025]
+- Updated dependencies [ec9726a]
+- Updated dependencies [847d025]
+- Updated dependencies [d698709]
+- Updated dependencies [766416f]
+- Updated dependencies [ec9726a]
+- Updated dependencies [a627c9d]
+- Updated dependencies [52f032a]
+- Updated dependencies [ec9726a]
+- Updated dependencies [847d025]
+- Updated dependencies [aedbd71]
+- Updated dependencies [847d025]
+- Updated dependencies [4824a5a]
+- Updated dependencies [d698709]
+- Updated dependencies [c1ab9fb]
+- Updated dependencies [c1ab9fb]
+- Updated dependencies [c1ab9fb]
+- Updated dependencies [c1ab9fb]
+- Updated dependencies [c1ab9fb]
+- Updated dependencies [c1ab9fb]
+- Updated dependencies [c1ab9fb]
+- Updated dependencies [c1ab9fb]
+- Updated dependencies [aedbd71]
+- Updated dependencies [c1ab9fb]
+- Updated dependencies [766b5de]
+- Updated dependencies [a627c9d]
+- Updated dependencies [852f9dd]
+- Updated dependencies [852f9dd]
+- Updated dependencies [8a898a7]
+- Updated dependencies [852f9dd]
+- Updated dependencies [52f032a]
+- Updated dependencies [5d33422]
+- Updated dependencies [489b687]
+- Updated dependencies [bc91814]
+- Updated dependencies [489b687]
+- Updated dependencies [5a70646]
+- Updated dependencies [9b7b570]
+- Updated dependencies [9b7b570]
+- Updated dependencies [9b7b570]
+- Updated dependencies [9b7b570]
+- Updated dependencies [a3fcd4f]
+- Updated dependencies [769efe5]
+- Updated dependencies [769efe5]
+- Updated dependencies [769efe5]
+- Updated dependencies [aae4b97]
+- Updated dependencies [aae4b97]
+- Updated dependencies [4be76a3]
+- Updated dependencies [766b5de]
+- Updated dependencies [c89c541]
+- Updated dependencies [205adc0]
+- Updated dependencies [5d33422]
+- Updated dependencies [52f032a]
+- Updated dependencies [8a898a7]
+- Updated dependencies [2ed1d82]
+  - @opencharacter/spec@0.4.0
+
 ## 0.3.0
 
 ### Minor Changes

@@ -1,5 +1,22 @@
 # @opencharacter/godbound-core
 
+## 0.3.0
+
+### Minor Changes
+
+- aae4b97: `attack` drops its manual `maximize` parameter: Unerring Blade and Surge of Strength add their own parameters to the attacks they fit (`unerringBlade`, `surgeOfStrength`), committing the scene's Effort (Unerring Blade also hits on anything but a natural 1), and the weapon's `equipped` and a held gift's Effort gate their `use` entries. `gift-blast`'s `mob` parameter is offered only on gifts with Mob damage. Apps that passed `maximize` to `attack` pass the gift's parameter instead (a `maximize` passed now is ignored), pass `mob` only where `gift-blast` offers it, and no longer find `attack` listed on an unequipped weapon.
+
+### Patch Changes
+
+- 44a8809: The gift type's `effectsWhen` holds a gift held while active to its committed Effort, in place of the `self.committed > 0` guard each such gift's effects repeated. Nothing changes on the sheet.
+- aae4b97: Adept of the Gate, the Way and the Throne recommend the first invocation they offer instead of a fixed list, so an add-on pack's invocations are recommended too.
+- aae4b97: Unerring Blade and Surge of Strength asked on one attack with Effort for only one commit one Effort and apply one gift, not both. A divine fury saved with no rounds left (`fury.rounds` 0) no longer ends on the first turn boundary; it waits for `end-fury`.
+- 44a8809: Defy the Iron is modeled: the `defyTheIron` situational choice, offered while the hero holds the gift and has free Effort, is selected on the damage it negates. The attack's or injury's batch takes no damage, and one Effort is committed for the scene.
+- aae4b97: Gifts compute the hero's damage, Mob damage and healing dice (`damage`, `mobDamage`, `healing`, in dice notation at the hero's level), on copies and on the gifts Apotheosis and artifacts grant, and the gift card shows them.
+- aae4b97: While Rain of Sorrow is held, a ranged attack offers `mob`: against a Mob, its damage is read straight and adds the level.
+- ca525b4: README: Effort and Influence wording; the quick start passes `policy`; the closed #70 citation replaced with the real reason; new Limitations section.
+- aae4b97: A `turn-boundary` clock action counts divine fury's rounds down (`fury.rounds`, set to the level) as the hero's turns end and ends the fury after the last. Burning Vitality, used on the hero, heals a hit point at each of those turn ends until at full health.
+
 ## 0.2.0
 
 ### Minor Changes

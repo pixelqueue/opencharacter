@@ -1,5 +1,513 @@
 # @opencharacter/engine
 
+## 0.4.0
+
+### Minor Changes
+
+- c89c541: Content extends a shared action per item (#194):
+
+  - A `use` entry may have its own `available`, ANDed with the used action's and evaluated with
+    the listing's `item` and `self`: a condition's saving throw only while it is "save ends".
+  - An action's `tags` may hold `{ formula }` entries, evaluated per listing with its `item` and
+    `self`; computeSheet's listing (display groups), describeAction and `params` effects see them.
+  - A new effect op, `params`, on a new target, `{ actions: [<tag>], from? }`, adds parameters to
+    the listed actions whose tags match while its `when` holds: an ability's damage type chosen
+    on each use, a feature's opt-in on a rules action. startAction checks them as the action's
+    own (their errors carry `addedBy`), describeAction lists them after the action's own with
+    `addedBy`, and content reads them as `params.<name>` in its effects. Their text is
+    `<content key>.params.<name>.name`; the text package adds `addedParam`,
+    `addedParamDescription`, `addedParamValue` and the keys `addedParamKey` and
+    `addedParamValueKey`, and names a parameter error by `addedBy`. Each added parameter is
+    optional or defaulted and reaches only the run the app starts (not a nested `action` step's);
+    a required one, a name an action the effect's tags reach declares, or two effects declaring
+    one name differently over tags that meet are the new load error `invalid-added-param`. Its
+    `min` and `max` see the effect's roots; a `use` may fix it.
+  - startAction and describeAction read the `use` computeSheet lists (the first available one
+    with the ID), and evaluate its fixed `params` in the pack that writes the use.
+
+- c09dbbb: Two conditions that read the computed sheet beside activation (#232, #234).
+
+  A grant may say `available`: a condition evaluated on the computed sheet (derived fields bound,
+  `self`, `item`, `x` and `i` as in its `when`), ANDed into the `available` of every action the
+  granted content offers and of the content it grants or picks in turn. The content stays active
+  and listed; computeSheet's `activations` marks it `unavailable: true` while the condition fails,
+  its actions aren't listed, startAction refuses them (`unknown-action`), follow-ups don't offer
+  them, and it declares no follow-ups and projects no auras. So a Draw Steel treasure grants its ability only with a matching kit.
+
+  A content type, or an item in place of its type's, may say `effectsWhen`: a condition ANDed into
+  the `when` of every holder effect of its items (the type's, the item's own, its choices' and
+  inline options', on fields, rolls, steps, params and incoming changes) and its holder auras'
+  `when`, evaluated as the effect's `when` is. `scope: applied` effects and auras, whose `self` is
+  the entry, don't read it. `true` on an item lifts the type's. So 5E's attunement or ORC's
+  investment is written once on the type. Neither condition decides activation, so neither can
+  loop back into it; a loop through `effectsWhen` is `circular-formula`, as through a `when`.
+  Conformance suite: `sheets/grant-available`, `sheets/grant-available-met`,
+  `sheets/effects-when`, `sheets/effects-when-met`, `sheets/effects-when-circular`,
+  `sheets/effects-when-applied`, `changes/grant-available-follow-up`,
+  `actions/effects-when-roll`, `actions/grant-available-start`, `loads/activation-gate-checks`.
+
+- 66e21e3: A `params` effect may add bounds to a parameter the run already has: an entry with only `min`
+  and/or `max` (no `type`) bounds the action's own parameter, or one another effect adds, instead
+  of declaring it. Every bound must hold; the `out-of-range` error names that parameter, with the
+  failing bound's `min` and `max` and `boundBy`, the content that added it. describeAction lists
+  them under the parameter's `addedBounds`. Two bounds on one name don't conflict; a bound on a
+  name no action declares and no effect adds is `invalid-added-param` (reason `undeclared`). So
+  Healing Grace's enhancements bound the ability's own `spend`, and an overspend names `spend`
+  (#252).
+- 2b5c337: `invalid-added-param` (`conflict`) follows the effects again, not only the actions loaded so far
+  (#222). Two `params` effects adding one name with other declarations conflict when their target
+  tags meet (one is the other or below it) and their packs meet over that tag, or when one action's
+  literal tags reach both. So two add-ons of one core, or two effects of one pack whose action gets
+  the tag only from a formula, are rejected again (#224 accepted them when no loaded action carried
+  the tag literally); an unrelated game loaded beside them, or a pack depending on two games, still
+  never clashes. Two `from: self` effects carried by different content items don't conflict, so
+  each spell may declare its own values for one `damageType` parameter on the shared cast action,
+  unless one item names both (itself, its `grants`, its choices' `items` and inline options) and has
+  an action, its own or its type's, that both reach: its copy's own run takes both. A
+  breaking change for packs that declared one name otherwise over tags that meet.
+- 4824a5a: An `adjust` may carry `from`, the ID of the character whose action or follow-up sent it. Actions
+  fill it in on every adjust they propose for another character (`to` a role, `target`, a link or
+  `applied`; not one for the actor's own view in a role), and follow-ups on every adjust for another character; changes `to: self` carry none.
+  Its field entries keep it: an `on` follow-up reads it as `change.from` (`''` when none) and
+  stores it in its `cause`, and `batch.adjustments` entries have it. Expected proposed changes in
+  the conformance cases now include it (#187).
+- d698709: applyChanges rejects an adjust whose tag no loaded pack declares: `unknown-tag` (data: `tag`,
+  path `/changes/<index>`), the batch unapplied. Before, the change applied and the tag matched
+  nothing, so a misspelled or qualified tag (`<pack>:damage.fire`; tags are never qualified)
+  silently fired no incoming effect or follow-up (#186).
+  An app applying changes to a linked character must load a ruleset that declares the tags it
+  sends.
+- 4824a5a: A proposed `applyEffect` may name its applier with an `appliedBy` formula giving a character ID,
+  usually a participant's (`participants.ally[0].id`: frightened of the ally who triggered it);
+  without one it is the actor, as before. A value that isn't a non-empty string is `type-mismatch`.
+  Everything that reads the applier follows the named character, so the actor's own changes
+  `to: applied` no longer reach the entry (#236).
+- 5d33422: Applied entries record who applied them: `appliedBy`, the applier's character ID (optional, so
+  saved entries without it stay valid). Every `applyEffect` an action or follow-up proposes carries
+  the actor's ID; formulas read it as `self.appliedBy` and in `character.applied`. An applied query
+  may keep to one applier's entries (`applied.appliedBy`; `appliedBy: self` in a proposed change).
+  A step, option, added changes, roll effect `then` or follow-up may send changes `to: applied`:
+  every character holding an entry the actor applied. Each is proposed once with no `character`,
+  its query limited to the actor's entries, for the app to apply to every character that may hold
+  one; anything but a removeEffect, toggleEffect, setState or adjustState naming applied entries by
+  query is `invalid-applied-change` at load, as are a follow-up `to: applied` without `changes` and
+  a role named `applied`. The app applies a run's changes in the order proposed, across characters. `reapply` gives a merged entry the new applier, and
+  `match: [appliedBy]` keeps one entry per applier (#187).
+- 0f1fa68: Auras from casts, and auras that grant immunity.
+
+  - An aura may say `scope: applied` (#229): it is projected by applied entries of its item instead
+    of by the held item. computeSheet lists it once per active, unblocked applied entry the
+    character applied itself (no `appliedBy`, or its own `id`), with `entry` that entry's ID, and
+    its `when` and `size` see the entry as `self`. So one cast is one aura, whatever it was cast
+    from, sized by the cast's own state, and it leaves `auras` when the entry ends.
+  - Content an applied grant reaches sees its own declared state defaults in `self` for keys the
+    granting entry lacks.
+  - An aura whose `when` or `size` fails is left out of `auras` with the formula's error, no longer
+    silently.
+  - An aura may declare `immuneTo` (#227), the immunities of its entry: a matching applied entry on
+    whoever is inside is blocked and reported `immune` with the ID `<item>#<aura>/<id>`. Its `when`
+    and query `where` see `item`, `self` and `applier`. A `scope` other than `applied` on one is
+    `invalid-aura`, as is an aura with neither `effects` nor `immuneTo`.
+
+- 5d33422: Content items may declare `auras`: areas whose effects are on whoever is inside (`{ id, when?,
+  size?, affects?, fields?, effects }`). computeSheet lists the auras the character projects now
+  (`auras`: `{ source, aura, entry?, size?, affects }`); the app applies the aura's entry to each
+  creature inside (`applyEffect` with `aura` and `appliedBy`) and removes it as they leave. An aura
+  entry runs only its aura's effects (none of its source's rules for the holder: effects, grants,
+  actions, prerequisites, immunities, standard copies, kept templates) and is one per applier;
+  they read the holder's live values as `applier.<field>` from
+  the view the app passes in the new `appliers` input of computeSheet, listOptions, applyChanges,
+  startAction and describeAction (declared defaults without one; a paused action keeps them; a
+  repeated view `id` is `duplicate-id`). A repeated aura ID or an aura effect on its holder is
+  `invalid-aura` at load, a declared field the item's pack lacks or types otherwise
+  `link-field-mismatch`; an unknown `aura` is `unknown-id`. `appliedBy` is a reserved state key
+  name (#188).
+- 766416f: Choices whose picks wake on a condition or come as copies (#196). `activeWhen` on a choice, an
+  activation condition, keeps its picks saved and counted while it fails, but neither activated
+  nor applied (its `effects` don't run either); computeSheet's choice list marks the choice
+  `inactive: true`. `addAs: copy` on a content choice holds each pick as a copy of its own:
+  `choose` adds the copy as `addItem` would (under the option's derived ID, or the next free one)
+  and saves its instance ID on the pick (`entry`, a new optional key of a saved pick); removing the
+  pick, or what holds it, removes the copy, and `removeItem` of the copy is the new runtime error
+  `picked-copy` (data: `entry`, `path`; standard text in `i18n/en.yaml`). The pick itself activates
+  nothing, so the item applies once, through its copy; `listOptions` checks its prerequisites as
+  that copy's. `pnpm validate` reports `addAs` on a choice of values or inline options.
+- 766416f: Choice picks held as copies, tightened (#195, #196). A choice's `recommend` no longer sees its
+  own picks in `options`, so `options[0]` is the next to pick. A pick's copy is added under the
+  option's derived ID plus `_pick`, which no standard copy can have, and `adoptStandard` and the
+  standard-copy cleanup leave copies picks name alone. Saved copy links are checked: a missing
+  or dangling link, one to another item's entry, one an earlier pick names, or `entry` on a
+  choice without `addAs` is the new rules issue `picked-copy-invalid` (data `problem`), and only
+  links that hold count for `picked-copy` and for removal with the pick. Upgrade steps that remove
+  a pick remove its copy too. Grant-only content is `option-not-eligible` in an `addAs: copy`
+  choice; `addAs` with `waivePrerequisites` is a schema error, and `pnpm validate` reports a grant
+  presetting such a choice and warns on `activeWhen` with `activate: false`. Below a failing
+  `activeWhen`, the picks' own choices are still listed and asked, inactive too. `checkRelease`
+  reports a choice gaining or losing `addAs` as the interface change `choice-copies-changed`.
+- 766416f: Recommendations that follow the character (#195). A declared choice's `recommend` sees
+  `options`: the options it offers that are eligible apart from prerequisites (in `from` and its
+  `where`, passing `eligible`, not taken elsewhere in its `unique` group), in the order offered, so
+  a choice whose options depend on the character recommends one (`options[0]`) and guided and
+  random starts over pending choices don't stop there. An allocate step's `recommend` may be one
+  formula, evaluated per offered field with `field` bound (`{ id, value }`), giving its amount or
+  `null` for none; and a `recommend` map's entries for fields the step doesn't offer are now
+  ignored instead of making the recommendation invalid, so one step recommends for whichever
+  fields its query offers.
+- 5a70646: Picked and granted content has computed values: its type's, item's and kept templates' `computed`
+  are worked out per activation after every field, reading derived fields and the owning copy (with
+  its computed values). computeSheet lists them in `activationValues` (`{ activation, values }`),
+  and the content's actions and follow-ups read them as `self.<name>`. A template kept on content
+  without a copy may now give computed values. An item's description and named texts take a
+  block's arguments, so `{self_<name>}` fills them from those values: `contentCard` fills the
+  description, the new `contentText` gives a description or named text filled, headline pieces of
+  picked content read `activationValues`, and `pnpm validate` checks their arguments (#193).
+- ec9726a: A content display group with a member other than a standard copy is shown whatever its `showWhen`, so held content never disappears (a spell added from the catalog to a cwn-srd character who isn't a caster) (#175).
+- 66e21e3: Derived parameters: an action parameter (its own, or one a `params` effect adds) may declare a
+  `formula` instead of being given. startAction works it out once every given parameter has its
+  value and before any bound, in declaration order, reading the given parameters and the derived
+  ones before it (a later one is `unknown-name` at load, so they can't loop), and the run's
+  `participants`, now checked before the parameters (their errors come first). Everything reads it
+  as `params.<name>`. A value for it from the app, a `use`, an `action` step or a handoff is the new
+  error `invalid-param` (reason `derived`); the build reports a `use`'s, a creation start's, a
+  field roll's, an `action` step's and an `action` effect's. describeAction lists it with
+  `derived: true`.
+
+  Effects that act as an action runs (on rolls, choice and changes steps, listed actions and
+  incoming changes) read their content's computed values as `self.<name>`, as its actions do. A
+  field effect still can't (`unknown-name` at load): computed values are worked out after every
+  field, so one feeding a field could loop. So Cunning Strike's cost is worked out once, and its
+  DC is a computed value its strike effects read (#251).
+
+- d698709: `from: self` on a roll, choice-step or changes-step effect names the content the action runs
+  for: besides the copy being the action's entry, an action run for content granted or picked
+  under the copy (named by `source`) matches only the effects that content carries. Abilities a
+  class grants that share their content type's action now each add only to their own runs;
+  before, every ability on the copy matched, so one ability's bonus reached another's rolls
+  (#199). So an effect on the copy's own item (a class) or in a choice's own `effects` no longer
+  reaches the actions of content granted or picked under it. A template is part of its copy: its
+  own action still matches by entry, so the copy's item, type and other templates reach it.
+- 766416f: Inline options as content items (#195): an inline option may have an optional description,
+  `<owner>.choices.<choice>.options.<id>.description` (Markdown), so a random table of named
+  paragraphs is a choice of inline options, and `createText`'s new `optionDescription(choice, id)`
+  reads it (from the adding pack for an option `extendChoices` added). An inline option takes
+  `immuneTo`, held while it is picked and active; the `immune` issue's `id` is the option's source
+  ID plus the immunity's (`<owner>/<choice>/<option>/<id>`).
+- a627c9d: The list functions (`countList` … `sortList`) bind `i`, the element's position in the list, an
+  int from 0. A skipped null element keeps its place, so `i` pairs an `each` step's
+  per-participant results and flags with `participants.<role>`
+  (`mapList(steps.tier, participants.target[i].id)`). A proposed change or a grant with `forEach`
+  binds `i` too, beside `x`. `i` is a context root, so a field ID's first segment can't be `i`, as
+  it can't be any root's name (`x`, `item`, …) (#192).
+- 52f032a: A `list` item field may hold whole numbers, `of: integer` (#211): its value is a list of
+  integers, checked at load and per copy (`invalid-item-field` / `wrong-type`), and formulas read it
+  as `list<int>`. So content carries a table of numbers: a class's characteristic array, a point-buy
+  cost table, a per-level bonus. `of: integer` is for a `list` only, and `integer` joins the reserved
+  content type names.
+- 4824a5a: Follow-ups can react to another character's events. A successful applyChanges that made field entries (adjusted a
+  field) returns `observe`: an `observe` change naming the character, its field entries (with tags
+  and who sent them) and the applied entries it held that name an applier. Applied to another
+  character, the new `observe` change changes nothing but fires its `on` follow-ups with `from`:
+  `any` (any other character), `applied` (one holding an entry this character applied) or
+  `{ link }` (the character filling a slot); `change.character` and `change.applied` name the
+  observed character and the content it holds from this one. computeSheet lists the fields such
+  follow-ups watch in `observes`, so an app routes `observe` only where it matters; an app that
+  doesn't route events loses only these reactions. A follow-up may also be `to: character`, for the
+  character whose ID its `character` formula gives (`change.from`): stored and listed here with the
+  ID in `character`, its changes resolved in this pack's scope (#187).
+- 766b5de: A parameter's `min` and `max`, an action's own and those a `params` effect adds, see `params`:
+  startAction checks every bound once every parameter has its value (the app's, a `use`'s fixed
+  one, or the default), so one parameter bounds another (Healing Grace's enhancements up to the
+  Spend: `max: params.spend - (params.graceStand ? 1 : 0)`). describeAction leaves out a bound that
+  reads `params` (#235).
+- a627c9d: Per-target edges and banes, a roll's effective total, and minimum tiers (#190, #192):
+
+  - A roll's `atLeast` and `atMost` on its tallies and on its band value hold whenever it is
+    classified again (`of`): before, a minimum tier or a tally cap was lost on the per-target
+    bands.
+  - A roll step that classifies an earlier roll again (`of`) may carry `tags` of its own. The roll
+    effects matching them work out its tallies and bounds again from the earlier roll's, in the
+    step's context (`participant` bound in an `each` step), so what one target brings to a roll
+    (an edge against a prone or winded target) reaches only that target's band, and the roll's
+    tally bound (ignoring banes) applies after it. Their `then` is proposed as on a roll step. The
+    log entry lists the step's `tallies` and own `bounds`. Effects that add items or dice don't
+    apply there, so per-target advantage isn't covered.
+  - A band set may give `total`, the roll's effective total: evaluated first, it becomes the
+    step's `total` (and `roll.total` for the set's `value` and bands), so a roll with an edge
+    reports 15, not 13. The total before it is the new `steps.<id>.bounded`, and the log entry's
+    `bounded` when they differ. A set needs `value`, `total` or both.
+  - `atLeast` and `atMost` roll effects aimed at a band set's value (`target: { rolls, band:
+    value }`) bound a numeric `value` before the bands read it: a minimum tier. The log entry lists
+    them in `bandBounds`. `pnpm validate` warns when a matching roll's band set has no `value`.
+
+  The docs also show costs that depend on the roll: a `changes` step after it, with `available`
+  reading the lowest cost and an `outcome` step ending an action whose cost can't be paid (after
+  the roll's dice and its effects' `then`).
+
+- 852f9dd: `poolDice` roll modifiers stack by key (#214): those on one part are grouped by `stackKey` and
+  reduced by the key's policy, compared by `count`, as `stepDie` modifiers are by `steps`. Under
+  `highestOnly` only the largest pool counts, so Sine Nomine's skill dice from two foci no longer
+  add up. A pack whose keyed pool dice used a non-`addAll` policy now rolls fewer dice.
+- 852f9dd: Paying to improve a finished roll (part of #192): a choice step's `recommend` may name `#done`
+  while it is offered, so declining is the default and an automatic run doesn't pause on a step
+  offering only added options; a written option list may be empty (`options: []`), so such a step
+  offers only what `option` effects add and is skipped when nothing does. The docs show the
+  pattern: a tagged step after the roll where content (Draw Steel's Brawny, PF2e's Hero Points,
+  5E's Lucky) adds a paid option that sets a flag the outcome reads.
+
+  Steps that already said `recommend: "'#done'"` now decline under an automatic policy instead of
+  pausing: orc-sf-2e's Re-forge Solar Weapon takes no traits unless the app asks (intended: it
+  recommends none). Over pending choices `#done` is still never recommended; `pnpm validate` warns
+  about a `recommend` naming `#done` on a step that never offers it.
+
+- 8a898a7: `checkRelease` reports more interface changes, each needing a breaking bump (#220):
+  `param-removed` and `param-type-changed` (an action parameter removed, retyped, losing enum
+  values or becoming required, on a rules action, an item's or a content type's inline action, or
+  added by a `params` effect), `situational-removed` and `situational-type-changed`, and
+  `action-removed` now also covers an inline action or `use` gone from a remaining item or content
+  type. upgrades.md says a narrowed `available`, `when`, target, bound, `where` or tag `members`
+  can't be compared statically and needs a breaking bump from the author.
+- 852f9dd: A `tag` roll effect adds tags to a roll's own parts (#212):
+  `{ target: { rolls, parts }, op: tag, value: [<tags>] }`, entries may be formulas. It applies
+  after replaced parts and before anything else reads the roll, so content types a part a shared
+  action builds from the item's own fields (Draw Steel's Dragon Breath and Hurl Element, a damage
+  type chosen on each use), and later part targets, a `split` and incoming-change effects see the
+  new tags. Every active `tag` effect counts; it takes no `stackKey`. `pnpm validate` checks its
+  literal tags.
+
+  `loadRuleset` reports a literal tag in a `tag` effect that no visible pack declares as
+  `unknown-tag`.
+
+- 52f032a: A rules-level choice's issue IDs name its pack (#213): `choice-not-applicable`, `too-many-picks`,
+  `too-few-picks`, `option-not-eligible`, `already-picked`, `no-eligible-option` and
+  `picked-copy-invalid` carry `<pack>:rules/<choice>` (was `rules/<choice>`), the owner as
+  `needs.choice.owner` names it, and an inline option of a rules-level choice has the source ID
+  `<pack>:rules/<choice>/<option>`, so its prerequisite, immunity and nested choice IDs are
+  qualified too. Competing-option IDs move with them: a rules-level choice's own effects are
+  `<pack>:rules/<choice>#<pick>/<effect>` (was `rules/<choice>#…`) and its inline options'
+  `<pack>:rules/<choice>/<option>#<effect>` (orc-2e's `qi-tradition`:
+  `orc-2e:rules/qi-tradition/divine#0`), so an app re-keys the competing picks it saved (in
+  `extensions`) under the old IDs. `@opencharacter/text` reads the choice's prompt from the pack the ID names instead of
+  searching the loaded packs. A breaking change for an app that keys on `rules/<choice>`.
+- 489b687: A situational choice on incoming changes may be `scope: batch`: selected on one adjust, its
+  incoming-change effects reach that adjust and every later adjust of the batch its `incoming`
+  matches, and each `add` among them is worked out once (dice rolled once, the faces on the adjust
+  that rolled) and spent toward 0 over the changes in order, what one doesn't take carrying to the
+  next: an attack's total damage reduced once. Selecting it on a second change of the batch is
+  `situational-unavailable`. Incoming-change effects now see `batch`, whose entries gain `taken`,
+  and their `then` sees `incoming.taken` (the amount after every incoming-change effect) and
+  `incoming.rolled` (the effect's own dice total). Making an existing choice batch-scoped changes
+  how logged batches replay: a breaking bump for the pack (#215).
+- bc91814: A situational choice's `changes` may `setState` or `adjustState` held copies, named by a
+  `copies: { type, where }` query with an optional `limit`, as a change aimed at copies is. They
+  apply once per batch with the choice's other changes, after the batch's last change; `where`,
+  `value` and `by` are evaluated per matched copy with `item`, `self`, `situational` and `batch`
+  bound, in the choice's pack, and each match is checked as a `setState` or `adjustState` naming
+  it. Their `{ copies }` entry in `adjustments` carries the choice as `source`. At load, a state
+  change without `copies`, a key the content type doesn't declare (or an `adjustState` of a non-numeric one) is
+  `invalid-situational-change`, and an unknown content type is `unknown-reference`. Shield Block
+  can now reduce a whole attack by the shield's hardness once and give the shield the rest (#244).
+- 489b687: A situational choice on incoming changes may declare `changes`, what choosing it costs or gains:
+  `set` and `adjust` of the character's input fields and `offerFollowUp` of a rules follow-up, each
+  with an optional `when`. applyChanges applies them once per batch that selects the choice, however
+  many of its changes do, after the batch's last change; their formulas see the character as the
+  batch left it, `situational` and `batch`. Their adjusts skip incoming-change effects and clamp as
+  any adjust, and the `requested` entry in `adjustments` carries the choice as `source`. The
+  returned `changes` don't list them: the selecting change brings them back on replay, so a log
+  replays batch by batch. A choice with `changes` selected at two values in one batch is
+  `situational-unavailable`. At load, a follow-up the rules don't declare is `unknown-reference`
+  (kind `follow-up`); a derived or non-numeric field, or a follow-up parameter its action doesn't
+  take, is the new `invalid-situational-change`; an undeclared tag is `unknown-tag`. Adding or
+  changing an existing choice's `changes` changes how logged batches replay: a breaking bump for
+  the pack (#192).
+- 5a70646: A stack key may span fields: `settings.stacking.keys.<key>: { policy, spansFields: true, score? }`
+  groups the key's effects of one op on every field and keeps one source for all of them, by its
+  score (`sum`, or `{ field }`). `playerChooses` reports it as one `competing` entry with `fields`,
+  one option per source with its score as `value` and its value per field as `values`; picking it
+  applies the source on every field. A Draw Steel kit's bonus across three tiers is one bonus
+  (#197). A score field none of the key's effects targets is the load error `invalid-stacking`. Keys
+  declared as a plain policy behave as before.
+- 766b5de: A new effect operation, `action`, on a tagged changes step (`target: { steps: [<tag>] }`) runs a
+  rules action there, as an `action` step would, after the step's changes: `{ id, use, params?,
+  participants?, each?, as?, changes?, to? }`. Per participant of `each` (the current one in an
+  `each` step), and with `as: participant` handed off, so a feature adds the target's saving throw
+  to a shared attack; each effect runs its own, so one hit carries two saves at their own DCs. Its
+  `changes` follow and read the run's outcome as `run` (a new formula root, also substituted in
+  formulas a change passes on). The run's path is `<step path>/<content id>#<id>`, `[<i>]` per
+  participant. Field IDs may no longer start with `run` (#228).
+- c89c541: A `changes` effect on a tagged changes step may set the action's flags (`value.flags`, only
+  flags the action sets elsewhere, checked at load as an added option's), before the step's own
+  changes and per participant in an `each` step, so content adds to what a shared action works out
+  (forced movement) or turns off one of its changes ("instead"). Its changes may come first, with
+  `order: before`, so a gain counts before the step's own spending clamps the field. A proposed
+  change's `by` that gives dice is rolled by the action: a dice checkpoint at the step matched by
+  the change's tags, logged with its `faces`, `dice`, `total`, and the change's `tags` and
+  `field`, which a pause also puts on each die it asks for (#191).
+- 205adc0: Tag targets reach only related packs (#217). Tags aren't qualified, so unrelated games loaded in
+  one ruleset (the `@opencharacter/packs` bundle, a homebrew mixing games) may share one. An
+  effect's roll, choice-step, changes-step and action (`params`) targets, and a situational
+  choice's roll effects, now reach an action only when the pack that wrote the action and the
+  effect's pack meet over the target tag: their scopes (each pack with its dependencies) share a
+  pack that declares it. An add-on and its core reach each other's tagged actions, as do two
+  add-ons of one core and the homebrew; an unrelated game never does, and a shared base pack
+  connects games only over the tags it declares. An action counts by the pack that wrote it (a
+  content type's action on a homebrew item is the type's pack's). A `fields` query reaches only
+  fields of packs whose scopes share a pack with the effect's. The load error
+  `invalid-added-param` uses the same scope: `declared` counts only actions the effect reaches,
+  and `conflict` needs one action both effects may reach. Incoming changes carry no pack and stay
+  unscoped. The ruleset's `packs` entries list each pack's own declared `tags`.
+- 5d33422: A rules action may declare `clock: turn-boundary`: the app runs it on every character in the
+  encounter at each turn change, with `params.ended` and `params.started` the IDs of the characters
+  whose turn ended and starts. It must run with nothing the app makes up and never pause (every
+  parameter defaulted or `optional`, `ended` and `started` strings, no role with a minimum, listed,
+  no choice, allocate or handoff step in it or a rules action it runs, never on content;
+  `invalid-clock-action` at load), and computeSheet lists it with its `clock`. Content resets
+  turn-scoped accumulators through its tagged steps and ends what the creature whose turn starts
+  applied until then (`self.appliedBy == params.started`) (#198, #187).
+- 52f032a: A proposed `unchoose` may name a content's choice by its owner, `choice: { owner, id }`, instead of
+  `path` (#233): it clears the choice on every activation of the content, as `picksOf(owner, id)`
+  reads them, proposed as one path-form `unchoose` per activation whose choice has picks. `owner` is
+  `self` (the content carrying the effect that adds the change, else the action's or follow-up's
+  content) or a content ID. Only for the actor's own choices. So content picked anywhere in the
+  choices tree resets its own pick from a step (Draw Steel's Eidetic Memory at a respite). Apps still
+  receive path-form unchooses only.
+- 8a898a7: A situational choice the app gives that the ruleset doesn't declare is now the error
+  `unknown-situational` (data `situational`) instead of being ignored: in startAction's
+  `situational` (an action error), and in an `adjust`'s `situational` in applyChanges (a runtime
+  error that rejects the batch; it was `unknown-id`) (#220). Apps must drop situational IDs
+  computeSheet no longer offers, for example after a pack update removes a choice, or the call
+  fails. A paused action resumed against a newer release is checked again the same way, so one
+  selecting a removed choice fails with `unknown-situational`: start it again.
+- 2ed1d82: Two upgrade steps (#200). `grantsToCopies` (`item?`, `type?`) turns content a copy's item or type
+  granted it directly, and no longer grants, into copies of their own right after it, with the
+  grants' saved state, `state` values, picks and the saved state of what they grant in turn. It
+  reads old IDs through the script's renames, handles each holder's grants once per upgrade, and
+  reports content it can't copy as `grant-not-copied` in the upgrade report's `errors`.
+  `changeContentType` (`id`, `from`, `to`) covers an item's `content-type-changed`: its copies move
+  to the list the new type keeps them in, lose `equipped` where it isn't equippable, and keep the
+  state keys the item declares now. checkRelease reports a new shape change, `grant-removed` (a
+  remaining item stops granting content it granted, covered by `grantsToCopies` or
+  `removeContent`), and `upgrade-step-mismatch` for a `changeContentType` whose types aren't the
+  item's.
+
+### Patch Changes
+
+- d698709: A view-field set's family keys expand where the set is declared, so a content action's
+  participant role that names the set gets the expanded fields, as a rules action's role does.
+  Before, the role kept the unexpanded keys and loadRuleset failed with `unknown-name` on a formula
+  reading one (#183).
+- 9b7b570: loadRuleset reports `duplicate-content-id` (data `id`, `pack`) when two content items of one
+  pack share an ID, instead of keeping the last silently.
+- 83158af: Actions run several times faster: the rules actions content names with `use` are found once per ruleset, and an action reuses the actor's sheet across its start and resumes instead of rebuilding it each time. What a run returns is its own copy, so a caller editing a result can't change a later run. No answer changes.
+- 4be76a3: The README lists `describeAction`, the export calls and the `spec` type namespace, says which calls take `links` and `appliers`, and describes the caches an action run keeps.
+- d698709: An offered follow-up that the content adding the option or changes doesn't declare (nor its
+  content type) falls back to the content defining the action, then to the rules, as the spec
+  says: content adding to a rules action's tagged step can offer the rules' follow-up. Before,
+  it was `unknown-reference` (#184).
+- Updated dependencies [71a3eb6]
+- Updated dependencies [53c36f2]
+- Updated dependencies [53c36f2]
+- Updated dependencies [53c36f2]
+- Updated dependencies [769efe5]
+- Updated dependencies [769efe5]
+- Updated dependencies [769efe5]
+- Updated dependencies [769efe5]
+- Updated dependencies [53c36f2]
+- Updated dependencies [71a3eb6]
+- Updated dependencies [71a3eb6]
+- Updated dependencies [71a3eb6]
+- Updated dependencies [53c36f2]
+- Updated dependencies [53c36f2]
+- Updated dependencies [53c36f2]
+- Updated dependencies [71a3eb6]
+- Updated dependencies [53c36f2]
+- Updated dependencies [53c36f2]
+- Updated dependencies [53c36f2]
+- Updated dependencies [bf23fd5]
+- Updated dependencies [ec9726a]
+- Updated dependencies [71a3eb6]
+- Updated dependencies [53c36f2]
+- Updated dependencies [53c36f2]
+- Updated dependencies [71a3eb6]
+- Updated dependencies [71a3eb6]
+- Updated dependencies [71a3eb6]
+- Updated dependencies [53c36f2]
+- Updated dependencies [53c36f2]
+- Updated dependencies [c89c541]
+- Updated dependencies [c09dbbb]
+- Updated dependencies [66e21e3]
+- Updated dependencies [2b5c337]
+- Updated dependencies [4824a5a]
+- Updated dependencies [d698709]
+- Updated dependencies [4824a5a]
+- Updated dependencies [5d33422]
+- Updated dependencies [0f1fa68]
+- Updated dependencies [5d33422]
+- Updated dependencies [766416f]
+- Updated dependencies [766416f]
+- Updated dependencies [ec9726a]
+- Updated dependencies [766416f]
+- Updated dependencies [5a70646]
+- Updated dependencies [ec9726a]
+- Updated dependencies [d698709]
+- Updated dependencies [66e21e3]
+- Updated dependencies [ec9726a]
+- Updated dependencies [9b7b570]
+- Updated dependencies [847d025]
+- Updated dependencies [ec9726a]
+- Updated dependencies [847d025]
+- Updated dependencies [d698709]
+- Updated dependencies [766416f]
+- Updated dependencies [ec9726a]
+- Updated dependencies [a627c9d]
+- Updated dependencies [52f032a]
+- Updated dependencies [ec9726a]
+- Updated dependencies [847d025]
+- Updated dependencies [aedbd71]
+- Updated dependencies [847d025]
+- Updated dependencies [4824a5a]
+- Updated dependencies [d698709]
+- Updated dependencies [c1ab9fb]
+- Updated dependencies [c1ab9fb]
+- Updated dependencies [c1ab9fb]
+- Updated dependencies [c1ab9fb]
+- Updated dependencies [c1ab9fb]
+- Updated dependencies [c1ab9fb]
+- Updated dependencies [c1ab9fb]
+- Updated dependencies [c1ab9fb]
+- Updated dependencies [aedbd71]
+- Updated dependencies [c1ab9fb]
+- Updated dependencies [766b5de]
+- Updated dependencies [a627c9d]
+- Updated dependencies [852f9dd]
+- Updated dependencies [852f9dd]
+- Updated dependencies [8a898a7]
+- Updated dependencies [852f9dd]
+- Updated dependencies [52f032a]
+- Updated dependencies [5d33422]
+- Updated dependencies [489b687]
+- Updated dependencies [bc91814]
+- Updated dependencies [489b687]
+- Updated dependencies [5a70646]
+- Updated dependencies [9b7b570]
+- Updated dependencies [9b7b570]
+- Updated dependencies [9b7b570]
+- Updated dependencies [9b7b570]
+- Updated dependencies [a3fcd4f]
+- Updated dependencies [769efe5]
+- Updated dependencies [769efe5]
+- Updated dependencies [769efe5]
+- Updated dependencies [aae4b97]
+- Updated dependencies [aae4b97]
+- Updated dependencies [4be76a3]
+- Updated dependencies [766b5de]
+- Updated dependencies [c89c541]
+- Updated dependencies [205adc0]
+- Updated dependencies [5d33422]
+- Updated dependencies [52f032a]
+- Updated dependencies [8a898a7]
+- Updated dependencies [2ed1d82]
+  - @opencharacter/spec@0.4.0
+
 ## 0.3.0
 
 ### Minor Changes

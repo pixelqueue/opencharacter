@@ -1,5 +1,55 @@
 # @opencharacter/web-editor
 
+## 0.1.4
+
+### Patch Changes
+
+- Updated dependencies [c89c541]
+- Updated dependencies [c09dbbb]
+- Updated dependencies [66e21e3]
+- Updated dependencies [2b5c337]
+- Updated dependencies [4824a5a]
+- Updated dependencies [d698709]
+- Updated dependencies [4824a5a]
+- Updated dependencies [5d33422]
+- Updated dependencies [0f1fa68]
+- Updated dependencies [5d33422]
+- Updated dependencies [766416f]
+- Updated dependencies [766416f]
+- Updated dependencies [766416f]
+- Updated dependencies [5a70646]
+- Updated dependencies [ec9726a]
+- Updated dependencies [d698709]
+- Updated dependencies [66e21e3]
+- Updated dependencies [9b7b570]
+- Updated dependencies [83158af]
+- Updated dependencies [4be76a3]
+- Updated dependencies [d698709]
+- Updated dependencies [766416f]
+- Updated dependencies [a627c9d]
+- Updated dependencies [52f032a]
+- Updated dependencies [4824a5a]
+- Updated dependencies [d698709]
+- Updated dependencies [766b5de]
+- Updated dependencies [a627c9d]
+- Updated dependencies [852f9dd]
+- Updated dependencies [852f9dd]
+- Updated dependencies [8a898a7]
+- Updated dependencies [852f9dd]
+- Updated dependencies [52f032a]
+- Updated dependencies [489b687]
+- Updated dependencies [bc91814]
+- Updated dependencies [489b687]
+- Updated dependencies [5a70646]
+- Updated dependencies [766b5de]
+- Updated dependencies [c89c541]
+- Updated dependencies [205adc0]
+- Updated dependencies [5d33422]
+- Updated dependencies [52f032a]
+- Updated dependencies [8a898a7]
+- Updated dependencies [2ed1d82]
+  - @opencharacter/engine@0.4.0
+
 ## 0.1.3
 
 ### Patch Changes

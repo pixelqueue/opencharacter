@@ -1,5 +1,20 @@
 # @opencharacter/awn-core
 
+## 0.3.0
+
+### Minor Changes
+
+- aae4b97: `attack` offers `burst` only on burst weapons and a new `thrown` parameter only on melee weapons that can be thrown, in place of the `burst` situational choice. A thrown attack is ranged and deals no Shock. Armsmaster and Deadeye now both reach thrown attacks, and only the better of the two counts there (the `thrown-focus` stack key, spanning hit and damage). Apps that selected the `burst` situational choice on `attack` pass the `burst: true` parameter instead; the situational choice is gone.
+- aae4b97: A wasteland warrior who picks one item from the d20 table now chooses among that table's named entries ("Rifle and two magazines", "Scrap mail") instead of "Entry 1" to "Entry 20": `starting-equipment` asks `nearEntry` or `wastelandEntry` by the kit, and the wasteland's three salvaged-tech entries are one option. Apps or scripts that answered the old `entry` step with a value from 1 to 20 answer `nearEntry` or `wastelandEntry` with the new option IDs (`near-rifle`, `wasteland-scrap-mail`, …) instead. The step only adds items, so saved characters are unaffected.
+
+### Patch Changes
+
+- 769efe5: Burst fire gives +2 to hit and damage only when the attack fires the burst: a burst weapon with fewer than three rounds left fires one round for no bonus, as it already spent.
+- aae4b97: Apex Predator, Robot Whisperer and Zombie Smasher add their attack bonuses through `attack` parameters (`beast`, `robot`, `zombie`): half the level to damage and Shock against beasts, +4 to hit and damage against robots, and at Zombie Smasher's level 2 a roll that counts as a natural 20 and 8 more damage against zombies.
+- 44a8809: The negative mutation type's `effectsWhen: '!self.light'` keeps a lightly touched mutation's effects off, in place of the guard each mutation's effects repeated. Nothing changes on the sheet.
+- ca525b4: README: the quick start finishes the character; situational choices `versus` and `social` named; burst and skill-dice notes; Low Resistances' real reason replaces the closed #68; Not modeled is now Limitations.
+- 44a8809: A Heal Specialist with Healer rolls the larger pool, not both: the pack now declares its `skill-dice` stack key `highestOnly`, so Healer's extra die no longer adds to the Specialist's (a level-1 Heal Specialist with Healer rolled 4d6 instead of 3d6).
+
 ## 0.2.0
 
 ### Minor Changes

@@ -1,5 +1,26 @@
 # @opencharacter/wwn-srd
 
+## 0.2.1
+
+### Patch Changes
+
+- aae4b97: Every art shows the Effort its tradition has free: a computed `effortFree` on the art type, which also reaches the arts a class grants (Vowed, Elementalist and the rest).
+- aae4b97: The Adventurer's two partial classes, the Mage's and the partial Mage's tradition, the Accursed's starting art and Xenoblooded's heritage recommend their first open option (`recommend: options[0]`), so these choices have a recommendation wherever they're asked, not only in creation's steps.
+- 769efe5: Every Elementalist, full or partial, gains Elemental Resilience and Elemental Sparks with the tradition, and an Invoker's Traditional Education in Elementalism brings them too. Before, nothing granted them and the art picks left them out, so no character could have them.
+- 769efe5: A Heal Specialist with Gifted Chirurgeon rolls the Specialist's pool on Heal checks (3d6, or 4d6 at its second level, best two kept) instead of adding Gifted Chirurgeon's extra die on top. The unused `skill-dice` stack key is gone: stack keys don't group pool dice.
+- aae4b97: Nullifier: a save's new `magical` situational choice ("against a magical effect") gives a Nullifier +2, and the Focus projects a twenty-foot `nullification` aura that gives allies inside the same. The `nullified` choice stays for tables that don't place the aura; a `nullifier` stack key keeps it from adding to the Focus's or the aura's +2.
+- ca525b4: README: new License section with the `not-affiliated` notice; `spell.cast` and `art.commit` listed; thrown and skill-dice notes; Limitations renamed.
+- aae4b97: Retain Sorcery gives the casting back: committing its Effort after a cast takes one off `spells.castsUsed`, so the spell doesn't count against the day's castings (an Invoker's spell points aren't refunded). `cast-spell`'s spend step and `commit-effort`'s commit step are tagged `spell.cast` and `art.commit`, so content (and add-ons) can add changes to them.
+- 44a8809: Gifted Chirurgeon's and a Specialist's extra dice share the `skill-dice` stack key (`highestOnly`) in place of Gifted Chirurgeon's guard on Heal Specialist picks: the larger pool still applies, now by the pool dice stacking rule.
+- 769efe5: Armsmaster's and Deadeye's skill damage on a thrown weapon no longer add together: the pack's `skill-damage` stack key takes the highest.
+- ec9726a: wwn-srd: a `traditions` display group lists the character's magical traditions, the one content type without a group (#175).
+- aae4b97: Unarmed Combatant, Natural Weaponry and Unarmed Might set the unarmed die, Shock and Shock AC under one spanning stack key (`unarmed`, `playerChooses`, scored by the die): the character takes all three from the one source picked, the best die recommended. Before, each field was its own competing group, so a sheet could take one source's die and another's Shock AC.
+
+  App state: the competing groups on the unarmed die, Shock and Shock AC are now one `unarmed` group spanning the three fields, with one option per source, so a pick an app saved for the old per-field groups has to be made again.
+
+- aae4b97: `attack` asks whether the weapon is thrown only for throwable weapons; any other weapon's `use` fixes `thrown: false`. An art lists `commit-effort` only when it commits Effort and `release-effort` only when its Effort is ongoing, through `available` on the art type's `use` entries instead of type tests in the shared actions.
+- aae4b97: Weapon cards show their numbers: each weapon copy has computed values for its hit bonus, damage bonus, Shock damage, the AC its Shock reaches and whether it ignores AC, as `attack` rolls them when the weapon is wielded. Armsmaster's and Deadeye's bonuses move from roll effects to new fields by use (`attack.<mode>.bonus` and `damage.<mode>.bonus` for melee, thrown, ranged and unarmed, `shock.melee.bonus`, `shock.unarmed.bonus`), which `attack` adds as parts, so the cards count them; the `skill-damage` stack key still keeps the better of the two on a thrown weapon.
+
 ## 0.2.0
 
 ### Minor Changes
