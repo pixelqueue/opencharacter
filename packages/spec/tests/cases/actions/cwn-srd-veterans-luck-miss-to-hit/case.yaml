@@ -1,0 +1,24 @@
+description: "cwn-srd: Veteran's Luck turns a missed attack roll into a hit, spending the scene's luck"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/cwn/srd
+input:
+  action:
+    id: cwn-srd:attack
+    entry: knife
+  participants:
+    target:
+      - id: guard
+        values:
+          cwn-srd:ac.ranged: 16
+          cwn-srd:ac.melee: 13
+          cwn-srd:trauma.target: 7
+  policy:
+    dice: auto
+    choices: auto
+    allocations: auto
+    rules:
+      - { kind: choice, tags: [missed-attack], then: pause }
+answers:
+  - option: 'cwn-srd:edges.veterans-luck#luck'

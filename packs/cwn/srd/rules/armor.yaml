@@ -1,9 +1,11 @@
 # Base Armor Class from armor, dermal plating and Skin of Steel doesn't stack: one source sets
-# both Ranged and Melee AC, the best pair together recommended.
+# both Ranged and Melee AC, the best pair together recommended. Healer's and a Heal Specialist's
+# extra dice don't add either: the larger pool applies.
 settings:
   stacking:
     keys:
       base-ac: { policy: playerChooses, spansFields: true }
+      skill-dice: highestOnly
 
 contentTypes:
   # Armor must be Readied (`equipped`) to protect. Clothing and suits set the base Armor Classes;
@@ -61,6 +63,7 @@ contentTypes:
         when: >-
           self.equipped && item.soak > self.soakUsed && incoming.amount < 0
             && !('damage.cyberspace' in incoming.tags) && !('damage.direct' in incoming.tags)
+            && !situational.veteransLuck
         then:
           - type: adjustState
             entry: self

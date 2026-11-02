@@ -96,9 +96,12 @@ sheet.values['swn-revised:saves.physical']?.value; // 15 less the better of Str 
     brings a free level-1 technique.
 - **Classes:** Expert (a non-combat focus, a reroll of a failed skill check once a scene, a
   bonus non-combat skill point each level), Psychic (unrestricted psionics, Effort), Warrior (a
-  combat focus, +2 hit points a level, attack bonus equal to the level, once-a-scene luck on
-  attacks) and Adventurer, with two of Partial Expert, Partial Psychic (one discipline) and
-  Partial Warrior (+1 attack bonus at 1st and 5th level).
+  combat focus, +2 hit points a level, attack bonus equal to the level, and once a scene either
+  a missed attack turned into a hit, an option on the attack, or a hit against them negated,
+  the `warriorLuck` situational choice on the hit's damage; damage doesn't say whether an attack
+  roll dealt it, so whether it may be negated is the table's call) and Adventurer, with two of
+  Partial Expert, Partial Psychic (one discipline) and Partial Warrior (+1 attack bonus at 1st and
+  5th level).
 - **Foci:** all 25 of the free edition, each with its bonus skill; their mechanical benefits are
   modeled where the sheet can show them (Ironhide's AC, Die Hard's hit points, Specialist's,
   Healer's, Hacker's and Sniper's dice, Armsman's and Gunslinger's damage, Unarmed Combatant's

@@ -69,6 +69,21 @@ situational:
       - target: { rolls: [check] }
         op: add
         value: 4
+  # Defy the Iron: Effort committed to the end of the scene negates one attack or instance of
+  # bodily injury. Selected on its damage; the whole batch takes none.
+  - id: defyTheIron
+    type: boolean
+    default: false
+    incoming: { fields: [hp.current], tags: [damage] }
+    scope: batch
+    # The hero's own gift: an artifact's grant isn't a copy, and spends the artifact's Effort.
+    available: countCopies(copy.item == @gifts.endurance.defy-the-iron) > 0 && effort.free > 0
+    effects:
+      - target: { incoming: { fields: [hp.current], tags: [damage] } }
+        op: multiply
+        value: 0
+    changes:
+      - { type: adjust, field: effort.scene, by: 1 }
 
 # A d20 roll against a target number: a natural 20 always succeeds and a natural 1 always fails.
 resultBands:

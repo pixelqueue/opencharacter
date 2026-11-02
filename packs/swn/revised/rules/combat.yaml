@@ -1,3 +1,19 @@
+situational:
+  # The Warrior's luck: once a scene, a successful attack against the warrior is negated, taking
+  # no damage from it. Selected on the hit's damage; the whole attack's batch takes none.
+  - id: warriorLuck
+    type: boolean
+    default: false
+    incoming: { fields: [hp.current], tags: [damage] }
+    scope: batch
+    available: 'countCopies(copy.item == @classes.warrior) > 0 && !scene.warriorLuck'
+    effects:
+      - target: { incoming: { fields: [hp.current], tags: [damage] } }
+        op: multiply
+        value: 0
+    changes:
+      - { type: set, field: scene.warriorLuck, value: true }
+
 actions:
   # d20 + attack bonus + combat skill (unskilled -2) + the weapon's attribute modifier, against
   # the target's AC. A miss still does the weapon's Shock if the target's AC is low enough, and a
@@ -50,10 +66,13 @@ actions:
           - value: self.hit
           - value: 'flags.burst ? 2 : 0'
           - value: params.modifier
+      # A miss, with the Warrior's luck unspent: the class may turn it into a hit.
       - id: luck
         kind: choice
         tags: [missed-attack]
-        when: "steps.roll.band == 'miss'"
+        when: >-
+          steps.roll.band == 'miss' && countCopies(copy.item == @classes.warrior) > 0
+            && !scene.warriorLuck
         options: [{ id: accept }]
         recommend: "'accept'"
       - id: outcome

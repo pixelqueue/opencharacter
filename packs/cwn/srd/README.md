@@ -94,7 +94,11 @@ the player's choices and other characters.
   points on skills and attribute boosts.
 - **Combat:** attack bonus, saves, initiative, Ranged and Melee AC, Trauma Target, Damage Soak
   that ablates per fight, and an attack action with the skill (-2 untrained), Shock on a miss,
-  the Trauma Die and Traumatic Hits, Killing Blow, Armsmaster and Deadeye. Each weapon adds the
+  the Trauma Die and Traumatic Hits, Killing Blow, Armsmaster and Deadeye. Veteran's Luck, once a
+  scene (`scene.veteransLuck`, cleared by `end-scene` and `rest`), turns a missed attack into a
+  hit (an option on the attack's `missed-attack` step) or a hit against the character into a
+  miss (the `veteransLuck` situational choice on a weapon hit's damage, tagged `damage.weapon`
+  as the attack deals it: the attack's batch takes none, Damage Soak untouched). Each weapon adds the
   parameters it uses: the attribute for a Str/Dex weapon, throwing for a melee weapon with a
   range, burst fire for a burst weapon. Weapons track their magazines, and each weapon copy
   computes its hit bonus, damage bonus and Shock as an attack with it starts (`hit`, `damage`,
@@ -162,8 +166,8 @@ cyberware `concealment`, a spell's `effort`, vehicle `size`, and the attributes.
   the attack's and checks' `modifier` parameters.
 - Execution Attacks, suppressive fire, grappling, drone and vehicle combat, chases, demons and
   network architecture are text: the attack covers single and burst fire.
-- Once-per-scene and once-per-day abilities (rerolls, Veteran's Luck, Enhanced Reflexes) are
-  text; the cyber that costs System Strain to trigger has a trigger action.
+- Once-per-scene and once-per-day abilities (rerolls, Enhanced Reflexes) are text, Veteran's
+  Luck aside; the cyber that costs System Strain to trigger has a trigger action.
 - Starting languages are a count and a free text field: the city's languages are the setting's.
 
 ## Rule readings
@@ -179,6 +183,9 @@ cyberware `concealment`, a spell's `effort`, vehicle `size`, and the attributes.
 - **Physical skills** for skillplugs: Drive, Exert, Perform, Punch, Shoot, Sneak and Stab.
 - **Pushing encumbrance:** up to two Readied and four Stowed past the limits is Move 7 m, twice
   that is Move 5 m, and more is past the limits.
+- **Veteran's Luck against a hit** takes the attack's damage to none: the incoming damage
+  doesn't say how much of it was a melee weapon's Shock, which a miss still deals, so that Shock
+  is the table's to apply.
 - **Dermal plating, Skin of Steel and armor** don't stack: one source sets both base Armor
   Classes (the `base-ac` key spans the two fields), and the player picks it, the best Ranged and
   Melee AC together recommended.

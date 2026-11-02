@@ -221,6 +221,11 @@ display:
     hp.max: { groups: [combat], priority: 15, visibility: background }
     hp.rolled: { groups: [combat], priority: 16, visibility: background }
     hp.frail: { groups: [combat], priority: 17 }
+    scene.veteransLuck:
+      groups: [combat]
+      priority: 18
+      showWhen: '@edges.veterans-luck in edges.taken'
+      input: { widget: checkbox }
     hp.dieBonus: { groups: [training], priority: 4, showWhen: hp.dieBonus != 0 }
     combat.shockAc: { hidden: true }
     combat.shockBonus: { hidden: true }

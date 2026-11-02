@@ -1,2 +1,13 @@
 id: edges.veterans-luck
 type: edge
+effects:
+  # Once a scene, an attack roll that missed is treated as a hit. The other half, a hit against
+  # the character treated as a miss, is the `veteransLuck` situational choice (rules/edges.yaml).
+  - target: { choices: [missed-attack] }
+    op: option
+    when: '!scene.veteransLuck'
+    value:
+      id: luck
+      flags: { luck: true }
+      changes:
+        - { type: set, field: scene.veteransLuck, value: true }

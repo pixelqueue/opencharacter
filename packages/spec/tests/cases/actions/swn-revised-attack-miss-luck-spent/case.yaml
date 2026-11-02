@@ -1,0 +1,18 @@
+description:
+  "swn-revised: with the Warrior's luck spent for the scene, a missed knife attack doesn't pause
+  at the luck step, even under a policy that pauses there, and still does its Shock"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/swn/revised
+input:
+  action:
+    id: swn-revised:attack
+    entry: weapons-knife-1
+  params: { targetAc: 14 }
+  policy:
+    dice: auto
+    choices: auto
+    allocations: auto
+    rules:
+      - { kind: choice, tags: [missed-attack], then: pause }
