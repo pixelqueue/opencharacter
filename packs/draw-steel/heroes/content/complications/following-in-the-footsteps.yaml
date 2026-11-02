@@ -2,13 +2,38 @@ id: complications.following-in-the-footsteps
 type: complication
 choices:
   # The idol's technique: a heroic ability of the hero's class above their level. It isn't
-  # known yet, so the pick grants nothing; its later cost reduction is the table's.
+  # known yet, so the pick grants nothing; once known, it costs 2 less (to a minimum of 1).
   - id: technique
     from:
       type: ability
       where: item.kind == 'heroic' && has(item.class)
-    eligible: item.level > level && countCopies(copy.item == item.class) > 0
+    eligible: (item.level > level && countCopies(copy.item == item.class) > 0) || item.id in choice.picks
     # None above 9th level.
     pick: { min: 'level < 9 ? 1 : 0', max: 1 }
     recommend: options[0]
     activate: false
+  # The drawback: a heroic ability the hero knows costs 1 more.
+  - id: neglected
+    from:
+      type: ability
+      where: item.kind == 'heroic' && has(item.class)
+    eligible: >-
+      (countPicks(pick.item == item.id) > 0 && !(item.id in picksOf('technique')))
+        || item.id in choice.picks
+    # Every class knows a heroic ability from 1st level.
+    pick: { min: "countCopies(copy.type == 'class') > 0 ? 1 : 0", max: 1 }
+    recommend: options[0]
+    activate: false
+effects:
+  - target: { steps: [ability.pay] }
+    op: changes
+    when: combat.active && action.item.id in picksOf('technique') && action.item.cost > 1
+    value:
+      changes:
+        - { type: adjust, field: heroic.current, by: 'min(2, action.item.cost - 1)' }
+  - target: { steps: [ability.pay] }
+    op: changes
+    when: combat.active && action.item.id in picksOf('neglected') && action.item.cost > 0
+    value:
+      changes:
+        - { type: adjust, field: heroic.current, by: -1 }
