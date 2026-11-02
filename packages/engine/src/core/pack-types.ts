@@ -852,7 +852,10 @@ export type { CharacterFile as CharacterDoc } from '@opencharacter/spec';
  * already has, not a declaration.
  */
 export function isAddedBound(decl: ValueDecl): boolean {
-  return (decl as { type?: string }).type === undefined;
+  return (
+    (decl as { type?: string }).type === undefined &&
+    (decl.min !== undefined || decl.max !== undefined)
+  );
 }
 
 export function appliesQueries(item: { appliesTo?: Query | Query[] | undefined }): Query[] {

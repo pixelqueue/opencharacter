@@ -2447,7 +2447,7 @@ export type DescribedParam = {
   min?: number;
   /** The `max` bound, evaluated likewise. */
   max?: number;
-  /** Bounds `params` effects add to it (an entry with only `min` and `max`), in instance order, each with the content that added it. startAction checks every one with its own; a bound that reads `params` is left out, as for `min` and `max`. */
+  /** Bounds `params` effects add to it (an entry with only `min` and `max`), in instance order, each with the content that added it. startAction checks every one with its own; a bound that reads `params` is left out, as for `min` and `max`, so an entry whose bounds all read `params` has only `addedBy`: the parameter is bounded there, by values the app is yet to give. */
   addedBounds?: {
     /** The content that added it, as a parameter's `addedBy`. */
     addedBy: string;
