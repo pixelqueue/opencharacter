@@ -109,10 +109,13 @@ the player's choices and other characters.
   counts implants, lifestyle and the drugs, first aid and cyber that add to it. A Neural
   Buffer's phantom hit points refresh by its hourly action and on a night's rest.
 - **Hacking:** Access, Memory, CPU and Shielding from the best deck, the program elements in
-  Memory, the programs a hacker can write and keep, and an action to run a program.
+  Memory, the programs a hacker can write and keep, and an action to run a program. Kill and
+  Stun compute their damage at the hacker's Program level (`damage`), which their text shows.
 - **Magic:** Mage and Summoner Effort, cyber's cost to them, prepared spells, casting (a spell
-  that Commits for the scene or the day asks which) and overcasting, summoning (each spirit's cost from its own powers and ritual), spirits and their
-  powers, and Graced arts with their points. Martial Instinct's bonus rolls (the `bonusRoll`
+  that Commits for the scene or the day asks which) and overcasting, summoning (each spirit's
+  cost from its own powers and ritual), spirits and their powers, and Graced arts with their
+  points. Spells that deal damage per level compute it at the caster's level (`damage`), and
+  Skin of Steel its Armor Class (`ac`), which their text shows. Martial Instinct's bonus rolls (the `bonusRoll`
   situational choice on an attack) roll the hit or damage twice, the better kept, and refresh
   with rest; Occult Pavis rolls saves against magic (`versusMagic`) twice.
 - **Contacts**, named by the player, as Acquaintances or Friends.
