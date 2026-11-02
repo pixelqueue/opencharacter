@@ -1,5 +1,21 @@
 # @opencharacter/swn-revised
 
+## 0.3.0
+
+### Minor Changes
+
+- aae4b97: Burst fire is now a `burst` parameter that only burst weapons' own attacks offer, in place of the `burst` situational every attack offered. It still spends three rounds for +2 to hit and damage, and fires one round for no bonus with fewer than three left. Apps that selected the `burst` situational choice on `attack` pass the `burst: true` parameter instead; the situational choice is gone.
+- aae4b97: `sustain-technique` is offered only on the techniques that last while their Effort stays Committed (a new `sustained` field: Cloak Powers, Concert of Minds, Kinetic Transversal, Metamorph, Neural Trap, Pressure Field (its shield for comrades), Prophecy, Spatial Awareness, Stutterjump, Telekinetic Armory and Telekinetic Flight), no longer on every technique. Apps that start `sustain-technique` on any other technique now get `unknown-action`; they commit its Effort with `commit-effort` (scene or day) instead.
+- 44a8809: The Warrior's luck against a hit is now the `warriorLuck` situational choice, selected on the hit's incoming damage: the attack (its whole batch) does no damage and the scene's luck is spent. It replaces the Warrior's `negate-hit` action, which only marked the luck spent; apps that ran it select the choice on the damage instead. The attack's `missed-attack` luck step is now reached only by a Warrior with the luck unspent, so a policy that pauses there no longer stops every miss.
+
+### Patch Changes
+
+- aae4b97: Cursed Luck ends with the psychic's scene: their `end-scene` and `rest` remove the curse they applied, on whoever holds it (`to: applied`).
+- aae4b97: Psychic Succor Commits Effort for the day on its first use in a scene, as the book says, and is free for the rest of the scene (a new `scene.succor` input, cleared by `end-scene` and `rest`) or always with Mastered Succor. Its healing at the biopsion's level shows on the technique as computed values (`healDice`, `healBonus`), which the roll reads.
+- ca525b4: README: situational choices named; `attack.fire` described as the step before the roll; skill-dice note; new Limitations section.
+- aae4b97: Choices that recommended a fixed option now fall back to the first eligible one (`options[0]`) when it's taken: a second Specialist no longer recommends Fix again, an Adventurer who took Partial Warrior first is recommended Partial Expert, and Wild Psychic Talent's picks recommend another technique when theirs is out of reach, so guided runs over these choices don't stop.
+- aae4b97: Weapons show their hit bonus, damage bonus, Shock damage and attribute modifier as computed values (`hit`, `damage`, `shock`, `attributeMod`), and `attack` reads them, so the card and the roll agree.
+
 ## 0.2.0
 
 ### Minor Changes

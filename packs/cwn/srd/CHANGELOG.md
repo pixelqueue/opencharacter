@@ -1,5 +1,30 @@
 # @opencharacter/cwn-srd
 
+## 0.3.0
+
+### Minor Changes
+
+- aae4b97: Weapons and spells declare the parameters they use (`params` effects): `attack` offers `attribute` only on Str/Dex weapons, `thrown` only on melee weapons with a range and `burst` only on burst weapons, and `cast-spell` offers `commit` only on spells that Commit for the scene or the day. Their text moves to `types.weapon.params.*` and `types.spell.params.*`.
+
+  Apps pass `attribute`, `thrown`, `burst` and `commit` only where describeAction lists them for that weapon or spell (one passed where describeAction doesn't list it is ignored), and read their names from `types.weapon.params.*` and `types.spell.params.*` instead of the actions' own param keys.
+
+### Patch Changes
+
+- aae4b97: Armor, dermal plating and Skin of Steel set both base Armor Classes from one source: their `set` effects share the `base-ac` stack key, which spans `ac.ranged.base` and `ac.melee.base` (`playerChooses`, the best pair recommended). A medium armored suit (18/14) with Dermal Armor I (16/16) no longer mixes into 18/16.
+
+  App state: the competing groups on `ac.ranged.base` and `ac.melee.base` are now one `base-ac` group spanning both fields, with one option per source, so a pick an app saved for the old per-field groups has to be made again.
+
+- aae4b97: Prodigy's attribute, Specialist's skill, a skillplug's skill and All Natural's attributes recommend an option (`recommend: options[0]`; All Natural the first attribute still under +3), so a guided level-up over All Natural's later picks finishes instead of pausing.
+- aae4b97: Healer's extra Heal die no longer adds to a Heal Specialist's: the larger pool applies. The pack's `skill-dice` stack key, which never grouped pool dice, is gone.
+- aae4b97: Martial Instinct spends its bonus roll itself, through a `changes` effect on the attack's new `attack.rolled` step, instead of the shared `attack` action doing it for the art.
+- 769efe5: A Neural Buffer's phantom hit points refresh: the buffer has an hourly action ("An hour passes") that refreshes them, and a night's rest does too. Before, `bufferUsed` never reset.
+- ca525b4: README: the quick start passes `policy`; more tagged steps listed; burst, thrown and skill-dice notes; Martial Instinct named as modeled; sections renamed and reordered.
+- 44a8809: Healer's and a Specialist's extra dice share the `skill-dice` stack key (`highestOnly`) in place of Healer's guard on Heal Specialist picks: the larger pool still applies, now by the pool dice stacking rule.
+- aae4b97: Spells that deal damage per level (Arson, Blast, Blastwave, Disrupt, Paralysis, Slow, Stun, Stunwave) compute it at the caster's level, and the Kill and Stun Verbs at the hacker's Program level (`damage`, such as `3d6`); Heal Injury computes its healing (`healing`, such as `1d6+1`); Skin of Steel computes its Armor Class (`ac`). Their descriptions show the value on a held copy (`{self_damage}`, `{self_healing}`, `{self_ac}`).
+- aae4b97: Spells count their casts in the scene (`sceneCasts` state, reset by `end-scene` and `rest`): Blast adds one System Strain after its first cast in a scene, Blastwave one on every cast, and a second Stun in a scene Commits Effort for the day. `cast-spell` has new tagged steps `spell.effort` and `spell.cast` for such costs.
+- 44a8809: Veteran's Luck is modeled. Once a scene (`scene.veteransLuck`, cleared by `end-scene` and `rest`) it turns a missed attack into a hit, an option on the attack's new `missed-attack` choice step (reached only when the attack misses a known AC and the edge's luck is unspent; recommended: keep the miss), or a hit against the character into a miss: the `veteransLuck` situational choice, selected on a weapon hit's damage (`damage.weapon`), takes the attack's batch to no damage without spending Damage Soak, deck Shielding or a Neural Buffer.
+- aae4b97: Weapon copies compute their hit bonus, damage bonus and Shock as an attack with them starts (`hit`, `damage`, `shock`, with `attributeMod`, `skillLevel`, `skillDamage` and `ranged`), and drone copies their pilot's `attackBonus`. The weapon and drone blocks show them.
+
 ## 0.2.0
 
 ### Minor Changes

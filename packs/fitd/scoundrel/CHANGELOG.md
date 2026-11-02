@@ -1,5 +1,13 @@
 # @opencharacter/fitd-scoundrel
 
+## 0.3.1
+
+### Patch Changes
+
+- 769efe5: The guided start recommends every pick, so run automatically it finishes: each dot of the starting, heritage, background and free allocations goes to the first action with room in an order that alternates the attributes (Hunt, Finesse, Attune, Study, …), and a pending choice takes its first option.
+- ca525b4: README: sections reordered, Out of scope is now Limitations; Expertise's card names the chosen action.
+- 847d025: fitd-crew and fitd-scoundrel: the READMEs describe the crew as the reference shared sheet (every member links one crew file; apply each member's heat as its own batch and recompute the crew before the next). fitd-scoundrel: Expertise computes the chosen action's rating (`action`, a computed value on the picked ability), and its card names it. No saved shape changes. Conformance case for the card value.
+
 ## 0.3.0
 
 ### Minor Changes

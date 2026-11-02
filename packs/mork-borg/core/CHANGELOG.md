@@ -1,5 +1,36 @@
 # @opencharacter/mork-borg-core
 
+## 0.3.0
+
+### Minor Changes
+
+- 847d025: mork-borg-core (breaking: situational choices are removed or changed): homebrew that reads `situational.omenDamage`, `situational.teeth` or `situational.invisible` no longer loads, and an app that passes them has them ignored. `grace` is now an enum, not a boolean, offered only while a Grace for a Sinner boon is held.
+
+  What apps must change:
+  - **Maximum damage:** instead of `situational.omenDamage` or `situational.teeth`, answer the `maximum` choice that `attack` and Coward's Jab ask after a hit (`roll`, recommended; `omen`; `tooth`). Under an automatic policy the damage is rolled.
+  - **Scrolls:** pass the one creature a Grace for a Sinner or Metzhuotl Blind Your Eye is read on as `use-power`'s `target` participant (the reader itself, to take it), and apply the proposed `applyEffect` to that sheet. That replaces `situational.invisible` and the old boolean `grace`.
+    - `boons.unseen`: +6 on attack and defense for its rounds, or until the holder takes damage.
+    - `boons.grace`: its rolled bonus on one roll. The holder picks the roll with `situational.grace: test` or `damage`; that roll ends it.
+  - **Rounds:** run the new `turn-boundary` clock action on every character at each turn change. It counts down applied entries that last rounds as their applier's turn starts.
+  - **Poltroon:** apply the jester sheet's `capering` aura entry to those fighting beside it. `poltroon` (the owner) and `poltroonAlly` (others) stay for characters the aura isn't on. They are no longer offered while a capering entry is held, or to the owner while a linked jester is at 0 HP.
+
+  Also:
+  - Coward's Jab is offered by the weapon type's `use` entry (`available`).
+  - A scroll's card shows the reader's Presence on its duration (a computed `durationBonus`, left out at 0).
+  - Backlash, infection and hunger roll their dice tagged `damage.direct`, below `damage`, so effects on `damage` rolls still reach them and only Grace's damage bonus leaves them out by name.
+
+  No saved shape changes. Conformance cases for each.
+
+- aedbd71: mork-borg-core: a shield sacrifice (`situational.shieldSacrifice`) breaks one shield per blow, the first worn unbroken one, instead of every worn shield on every change that selects it. The choice holds the effect and the break; the shield type's `shield-sacrifice` effect is gone, so the break's entry in `adjustments` is a `{ copies }` entry whose `source` is the choice, not the item's effect. Direct damage still breaks nothing.
+
+  No saved shape changes. Conformance case: one of two worn shields breaks.
+
+### Patch Changes
+
+- ec9726a: mork-borg-core: plain die rolls that are neither tests nor damage (a weapon's doom and curse d6, the Fanged Deserter's bite exposure, rattled wizard teeth, a lobbed gob's blindness, an omen's warding d6) are tagged `chance`, not `attack` or `defense`, so invisibility, the poltroon and the sinner's bonuses no longer reach them and Eurekia's curse can roll a 1. Conformance test for it.
+- ce9f330: The weapon, armor and shield types say once that their effects need the item equipped (and a shield unbroken), with `effectsWhen`, in place of the condition on each effect; an add-on's gear follows it too. No saved shape changes.
+- ca525b4: README: needs spec 0.4; sections reordered and Coverage and Omitted merged into Limitations; `chance` rolls described for add-ons; Grace for a Sinner, Poltroon and Barbarister wording corrected.
+
 ## 0.2.0
 
 ### Minor Changes

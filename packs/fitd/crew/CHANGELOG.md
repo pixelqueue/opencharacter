@@ -1,5 +1,16 @@
 # @opencharacter/fitd-crew
 
+## 0.3.1
+
+### Patch Changes
+
+- ec9726a: fitd-crew: a crew advance's two upgrade boxes may buy a new gang or expert cohort (with its edge and flaw) instead of upgrades (#175). Conformance test for it.
+- 769efe5: `crew-advance` takes the crew's members in a `member` role (scoundrel sheets) and proposes each one's stash (tier + 2) on their own sheet, in the scoundrel pack's `stash` field. The outcome still reports it for an app that passes no members.
+- ce9f330: The `claim` type's `effectsWhen` (`item.prison || !lair.lost`) turns off a lair claim's effects while the lair is lost, in place of the `!lair.lost` on each claim's effects; an add-on's claims follow it too. No saved shape changes.
+- 769efe5: Creation's gang type (asked when a new gang is taken instead of two upgrades) recommends the first gang type, so a run that takes the gang finishes automatically. It recommended an option that doesn't exist, so it always paused.
+- ca525b4: README: needs spec 0.4; sections reordered into one Limitations section; `cohort-roll`'s `commander` role named; the guided start finishes when run automatically.
+- 847d025: fitd-crew and fitd-scoundrel: the READMEs describe the crew as the reference shared sheet (every member links one crew file; apply each member's heat as its own batch and recompute the crew before the next). fitd-scoundrel: Expertise computes the chosen action's rating (`action`, a computed value on the picked ability), and its card names it. No saved shape changes. Conformance case for the card value.
+
 ## 0.3.0
 
 ### Minor Changes

@@ -34,9 +34,9 @@ const { ruleset } = loaded;
 
 // A random character: attributes, skills and silver rolled, every other pick drawn.
 const blank = {
-  specVersion: '0.3.0',
+  specVersion: '0.4.0',
   id: 'new',
-  packs: [{ id: 'wwn-srd', version: '0.2.0' }],
+  packs: [{ id: 'wwn-srd', version: '0.2.1' }],
   creating: true,
 };
 const run = startAction(ruleset, blank, {
