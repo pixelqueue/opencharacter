@@ -764,7 +764,12 @@ Still closed: attributes, proficiency ranks, saves, spell traditions (and a staf
   which sets the cast's damage type at its `spell.chosen` step; elemental toss and elemental blast take the elemental influence's type there, and
   dragon breath and flurry of claws the draconic exemplar's tradition's (force, spirit, mental or
   fire), unless the cast names one. Inner upheaval's and qi form's type is chosen once, as the
-  spell is cast, though the book lets inner upheaval choose it each Strike.
+  spell is cast, though the book lets inner upheaval choose it each Strike. Bless, protective wards
+  and protector's sphere are cast on the caster, whose entry projects the emanation as an
+  applied aura (`auras`, one per cast) for the app to place on allies inside; Sustaining bless or
+  protective wards to widen it is the spell's `widen` action, and the sphere's resistance by rank
+  reaches allies through the caster's `spells.sphereResistance`. Bane stays a target's entry:
+  its penalty needs each enemy's failed save, which an aura's entry can't carry.
 - **Spells:** the 41 Player Core cantrips (with the bard's compositions and the witch's hexes)
   and every 1st-, 2nd- and 3rd-rank spell (58, 55, 34), text in `i18n/en/spells.yaml`; the
   casters' 1st-rank focus spells (7 school, 37 domain, 10 bloodline and 5 order spells), text in

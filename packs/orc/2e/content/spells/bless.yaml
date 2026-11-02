@@ -9,7 +9,8 @@ tags:
     tradition.divine,
     tradition.occult,
   ]
-# Pass yourself as an ally too.
+# Cast on yourself: each cast projects its emanation, which the app places on allies inside.
+# Sustaining the spell to widen it is `widen`.
 fields:
   rank: 1
   cast: two
@@ -17,10 +18,32 @@ fields:
   areaSize: 15
   duration: minutes
   durationAmount: 1
-  applyTo: ally
+  applyTo: self
+state:
+  widened: { type: integer, default: 0, min: 0 }
 effects:
   - target: { fields: { where: "'attack' in item.tags" } }
     op: add
     value: 1
     stackKey: status-bonus
     scope: applied
+auras:
+  - id: blessing
+    scope: applied
+    size: item.areaSize + 10 * self.widened
+    affects: allies
+    effects:
+      - target: { fields: { where: "'attack' in item.tags" } }
+        op: add
+        value: 1
+        stackKey: status-bonus
+        scope: applied
+actions:
+  - id: widen
+    tags: [spell]
+    scope: applied
+    available: self.appliedBy == '' || self.appliedBy == character.id
+    steps:
+      - id: widen
+        kind: changes
+        changes: [{ type: adjustState, entry: self, key: widened, by: 1 }]

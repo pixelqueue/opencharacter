@@ -53,11 +53,12 @@ inventory:
   - { id: rope, item: orc-2e:gear.rope }
   - { id: rations, item: orc-2e:gear.rations, quantity: 2 }
 # Spells cast on her (applied by cast-spell with the rank they were cast at): heroism heightened
-# to 6th (+2 status), bless (+1 status, which doesn't stack with it), mystic armor (+1 item to AC,
-# which doesn't stack with her armor's +4) and resist energy against fire (resistance 5).
+# to 6th (+2 status), a cleric's bless (its aura's entry, placed by the app while she stands in
+# it: +1 status, which doesn't stack with heroism), mystic armor (+1 item to AC, which doesn't
+# stack with her armor's +4) and resist energy against fire (resistance 5).
 applied:
   - { id: heroism-1, source: orc-2e:spells.heroism, state: { rank: 6 } }
-  - { id: bless-1, source: orc-2e:spells.bless, state: { rank: 1 } }
+  - { id: bless-1, source: orc-2e:spells.bless, aura: blessing, appliedBy: example-orc-oriel }
   - { id: mystic-armor-1, source: orc-2e:spells.mystic-armor, state: { rank: 1 } }
   - id: resist-energy-1
     source: orc-2e:spells.resist-energy

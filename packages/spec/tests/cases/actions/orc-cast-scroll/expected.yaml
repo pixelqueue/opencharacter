@@ -16,14 +16,11 @@ proposedChanges:
       type: adjustQuantity
       entry: scroll
       by: -1
-  - to: ally
-    character: fighter
-    step: bless[0]
+  # Bless goes on the caster, whose entry projects its aura (a scroll's cast like any other).
+  - to: self
+    step: self
     change:
       type: applyEffect
       source: orc-2e:spells.bless
-      state:
-        rank: 2
-        damageType: force
-        copy: ''
       appliedBy: test-prepared-caster
+      state: { rank: 2, damageType: force, copy: '', form: '' }
