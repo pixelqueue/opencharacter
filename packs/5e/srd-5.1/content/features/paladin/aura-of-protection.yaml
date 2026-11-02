@@ -3,20 +3,47 @@ type: feature
 state:
   bonus: { type: integer, default: 1, min: 1 }
 # The saving-throw action itemizes the roll, so the bonus is a roll effect there and an effect on
-# every save field for the sheet.
+# every save field for the sheet. Each bonus has stackKey source, so a creature counts one Aura of
+# Protection, the highest: the paladin's own, an aura entry or an `ally` entry.
 effects:
   - target: { rolls: [save] }
     op: add
     value: max(1, abilities.cha.mod)
+    when: &conscious >-
+      countList(character.applied, x.active && x.source == @conditions.unconscious) == 0
+    stackKey: source
   - target: { fields: { where: "'save' in item.tags" } }
     op: add
     value: max(1, abilities.cha.mod)
+    when: *conscious
+    stackKey: source
   - { target: aura.range, op: atLeast, value: 10 }
-  - { target: { rolls: [save] }, op: add, value: self.bonus, scope: applied }
+  - { target: { rolls: [save] }, op: add, value: self.bonus, scope: applied, stackKey: source }
   - target: { fields: { where: "'save' in item.tags" } }
     op: add
     value: self.bonus
     scope: applied
+    stackKey: source
+# Friendly creatures in range while the paladin is conscious, reading its live Charisma modifier.
+auras:
+  - id: protection
+    when: *conscious
+    size: aura.range
+    affects: allies
+    fields:
+      abilities.cha.mod: { type: integer, default: 1 }
+    effects:
+      - target: { rolls: [save] }
+        op: add
+        value: max(1, applier.abilities.cha.mod)
+        scope: applied
+        stackKey: source
+      - target: { fields: { where: "'save' in item.tags" } }
+        op: add
+        value: max(1, applier.abilities.cha.mod)
+        scope: applied
+        stackKey: source
+# For an app that doesn't place auras: the ally's entry keeps the bonus the paladin had then.
 actions:
   - id: aura-of-protection
     tags: [feature]

@@ -8,6 +8,22 @@ effects:
     value: { kind: advantage }
     when: situational.charmSave || situational.frightSave
     scope: applied
+# While the bard performs (its own entry), friendly creatures within 30 feet who can hear it; ending
+# the performance drops the aura, so the app removes its entries.
+auras:
+  - id: performance
+    when: >-
+      countList(character.applied, x.active && x.source == @features.bard.countercharm) > 0
+    size: 30
+    affects: allies
+    effects:
+      - { target: items.charmSave, op: add, value: 1, scope: applied }
+      - { target: items.frightSave, op: add, value: 1, scope: applied }
+      - target: { rolls: [save] }
+        op: rollModifier
+        value: { kind: advantage }
+        when: situational.charmSave || situational.frightSave
+        scope: applied
 actions:
   - id: countercharm
     tags: [feature]

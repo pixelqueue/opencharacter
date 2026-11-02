@@ -1,8 +1,25 @@
 id: features.paladin.aura-of-protection
 type: feature
+# stackKey source: a creature in two Auras of Protection benefits from one, the highest.
 effects:
   - target: { fields: { where: "'save' in item.tags" } }
     op: add
     value: max(1, abilities.cha.mod)
     when: '!conditions.incapacitated'
+    stackKey: source
   - { target: paladin.auraRange, op: atLeast, value: 10 }
+# Allies in the Emanation, reading the paladin's live Charisma modifier; down while it has the
+# Incapacitated condition.
+auras:
+  - id: protection
+    when: '!conditions.incapacitated'
+    size: paladin.auraRange
+    affects: allies
+    fields:
+      abilities.cha.mod: { type: integer, default: 1 }
+    effects:
+      - target: { fields: { where: "'save' in item.tags" } }
+        op: add
+        value: max(1, applier.abilities.cha.mod)
+        scope: applied
+        stackKey: source
