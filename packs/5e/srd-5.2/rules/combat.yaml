@@ -379,6 +379,7 @@ actions:
             when: has(steps.ammo.item) && steps.ammo.item.damageBonus != 0
       - id: deal
         kind: changes
+        tags: [attack-hit]
         when: has(steps.damage)
         to: target
         changes:
@@ -584,6 +585,7 @@ actions:
             tags: [{ formula: "'damage.' + flags.damageType" }]
       - id: deal
         kind: changes
+        tags: [attack-hit]
         when: has(steps.damage)
         to: target
         changes:

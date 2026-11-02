@@ -277,12 +277,14 @@ Where the SRD is unclear or silent, the pack reads it this way:
   A species trait keeps its own uses as its grant's saved state (Breath Weapon, Draconic Flight,
   Stonecunning, the lineage spells, Giant Ancestry, Large Form, Adrenaline Rush, Relentless
   Endurance); Stone's Endurance spends a Giant Ancestry use from its incoming-damage effect's
-  `then`, and is offered while one is left. Retaliation offers each melee weapon's attack, and
-  an Unarmed Strike, as follow-ups when the barbarian takes damage and stays up. Deflect Attacks
-  is a situational choice on an incoming attack (`deflectAttacks`): the damage change it is
-  selected on, if Bludgeoning, Piercing or Slashing (any type with Deflect Energy), is reduced by
-  1d10 plus the Dexterity modifier and Monk level, never below 0; the `deflect-attacks` action
-  still redirects the force.
+  `then`, and is offered while one is left. Fire's Burn, Frost's Chill and Hill's Tumble are
+  options on a weapon or Unarmed Strike hit: their dice join the hit's damage roll (doubled on a
+  Critical Hit), and the use is spent with the damage; their own actions stay for other attack
+  rolls. Retaliation offers each melee weapon's attack, and an Unarmed Strike, as follow-ups
+  when the barbarian takes damage and stays up. Deflect Attacks is a situational choice on an
+  incoming attack (`deflectAttacks`): the damage change it is selected on, if Bludgeoning,
+  Piercing or Slashing (any type with Deflect Energy), is reduced by 1d10 plus the Dexterity
+  modifier and Monk level, never below 0; the `deflect-attacks` action still redirects the force.
 - **Spellcasting:** each class's cantrips and prepared spells (the table's counts), always-
   prepared subclass spells, the Multiclass Spellcaster slots, Pact Magic, the wizard's spellbook
   and Ritual Adept, Magic Initiate and species spells with their own ability, `cast-spell` with

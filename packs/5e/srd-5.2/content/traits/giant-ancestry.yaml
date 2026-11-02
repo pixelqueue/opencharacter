@@ -17,6 +17,66 @@ effects:
     op: atMost
     value: 0
     when: situational.stonesEndurance && incoming.amount < 0
+  # Fire's Burn, Frost's Chill and Hill's Tumble are offered on a weapon or Unarmed Strike hit:
+  # the extra dice join the hit's damage roll (doubled on a Critical Hit), and the use is spent
+  # on the damage step. Their own actions stay for other attack rolls.
+  - target: combat.hitOptions
+    op: add
+    value: 1
+    when: >-
+      self.lineage in [@lineages.fire-giant, @lineages.frost-giant, @lineages.hill-giant]
+        && self.giantAncestryUsed < proficiency.bonus
+  - target: { choices: [weapon-hit, unarmed-hit] }
+    op: option
+    when: self.lineage == @lineages.fire-giant && self.giantAncestryUsed < proficiency.bonus
+    value: { id: fires-burn }
+  - target: { choices: [weapon-hit, unarmed-hit] }
+    op: option
+    when: self.lineage == @lineages.frost-giant && self.giantAncestryUsed < proficiency.bonus
+    value: { id: frosts-chill }
+  - target: { choices: [weapon-hit, unarmed-hit] }
+    op: option
+    when: self.lineage == @lineages.hill-giant && self.giantAncestryUsed < proficiency.bonus
+    value: { id: hills-tumble }
+  - target: { rolls: [damage.weapon] }
+    op: add
+    value: 1d10
+    tags: [damage.fire]
+    when: has(steps.onHit) && steps.onHit.picked == '5e-srd-5.2:traits.giant-ancestry#fires-burn'
+  - target: { rolls: [damage.weapon] }
+    op: add
+    value: 1d6
+    tags: [damage.cold]
+    when: has(steps.onHit) && steps.onHit.picked == '5e-srd-5.2:traits.giant-ancestry#frosts-chill'
+  - target: { steps: [attack-hit] }
+    op: changes
+    when: has(steps.onHit) && steps.onHit.picked == '5e-srd-5.2:traits.giant-ancestry#frosts-chill'
+    value:
+      changes:
+        - { type: applyEffect, source: "'combat-effects.slowed'" }
+  - target: { steps: [attack-hit] }
+    op: changes
+    when: >-
+      has(steps.onHit) && steps.onHit.picked == '5e-srd-5.2:traits.giant-ancestry#hills-tumble'
+        && !(size(participants.target) > 0
+          && participants.target[0].creature.size in ['huge', 'gargantuan'])
+    value:
+      changes:
+        - type: applyEffect
+          source: "'conditions.prone'"
+          state: { by: creature.type, magical: true }
+  - target: { steps: [attack-hit] }
+    op: changes
+    when: >-
+      (has(steps.onHit) && steps.onHit.picked in ['5e-srd-5.2:traits.giant-ancestry#fires-burn',
+        '5e-srd-5.2:traits.giant-ancestry#frosts-chill'])
+        || (has(steps.onHit) && steps.onHit.picked == '5e-srd-5.2:traits.giant-ancestry#hills-tumble'
+          && !(size(participants.target) > 0
+            && participants.target[0].creature.size in ['huge', 'gargantuan']))
+    value:
+      to: self
+      changes:
+        - { type: adjustState, grant: owner, key: giantAncestryUsed, by: 1 }
   - target: { steps: [rest.long] }
     op: changes
     when: self.giantAncestryUsed > 0

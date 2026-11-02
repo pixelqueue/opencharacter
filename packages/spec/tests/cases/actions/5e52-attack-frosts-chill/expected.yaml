@@ -1,0 +1,40 @@
+status: finished
+outcome:
+  result: hit
+  data:
+    critical: false
+    attack: 22
+    damage: 11
+    mastery: none
+    push: 0
+    cleave: false
+proposedChanges:
+  - to: target
+    character: orc
+    step: deal
+    change:
+      type: adjust
+      field: 5e-srd-5.2:hp.current
+      by: -8
+      tags: [damage, attack, weapon, melee, nonmagical, damage.piercing]
+  - to: target
+    character: orc
+    step: deal
+    change:
+      type: adjust
+      field: 5e-srd-5.2:hp.current
+      by: -3
+      tags: [damage, attack, weapon, melee, nonmagical, damage.cold]
+  - to: target
+    character: orc
+    step: deal
+    change: { type: applyEffect, source: 5e-srd-5.2:combat-effects.slowed, appliedBy: test }
+  # The use is spent on the trait's grant under the species.
+  - to: self
+    step: deal
+    change:
+      type: adjustState
+      entry: species
+      grant: 5e-srd-5.2:traits.giant-ancestry
+      key: giantAncestryUsed
+      by: 1
