@@ -1,0 +1,35 @@
+tags: [test, test.improve]
+
+fields:
+  level: { type: integer, input: true, default: 2 }
+  stamina: { type: integer, input: true, default: 20 }
+
+contentTypes:
+  perk: {}
+
+actions:
+  # A test: 2d10 for a tier (1 below 12, 2 below 17, else 3). A failed test may be improved one
+  # tier by what content offers on `test.improve`; declining is recommended.
+  - id: test
+    steps:
+      - id: setup
+        kind: branch
+        cases:
+          - when: 'true'
+            flags: { improve: 0 }
+      - id: roll
+        kind: roll
+        tags: [test]
+        parts: [{ dice: 2d10 }]
+      - id: improve
+        kind: choice
+        tags: [test.improve]
+        when: steps.roll.total < 12
+        options: []
+        repeat: { max: 1 }
+        recommend: "'#done'"
+      - id: result
+        kind: outcome
+        data:
+          total: steps.roll.total
+          tier: 'min(3, (steps.roll.total >= 17 ? 3 : steps.roll.total >= 12 ? 2 : 1) + flags.improve)'

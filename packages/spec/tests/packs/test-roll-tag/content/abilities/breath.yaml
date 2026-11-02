@@ -1,0 +1,12 @@
+# The element is chosen on each use: it types the ability's own damage, read from its field.
+id: abilities.breath
+type: ability
+fields: { damage: 2d6 }
+effects:
+  - target: { actions: [ability], from: self }
+    op: params
+    value:
+      element: { type: enum, values: [fire, cold], default: fire }
+  - target: { rolls: [ability], parts: [ability.damage], from: self }
+    op: tag
+    value: [{ formula: "'damage.' + params.element" }]

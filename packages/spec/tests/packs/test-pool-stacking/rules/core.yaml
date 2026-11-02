@@ -1,0 +1,51 @@
+settings:
+  stacking:
+    keys:
+      skill-dice: highestOnly
+
+tags: [check, skill-dice, bonus-dice]
+
+fields:
+  # Switches for the effects below.
+  specialist: { type: integer, input: true, default: 0 }
+  healer: { type: boolean, input: true, default: false }
+  push: { type: boolean, input: true, default: false }
+  bonus: { type: boolean, input: true, default: false }
+
+effects:
+  # Two sources of skill dice: the larger pool applies (`highestOnly`, compared by `count`).
+  - target: { rolls: [check] }
+    op: rollModifier
+    value: { kind: poolDice, count: specialist }
+    stackKey: skill-dice
+    when: specialist > 0
+  - target: { rolls: [check] }
+    op: rollModifier
+    value: { kind: poolDice, count: 1 }
+    stackKey: skill-dice
+    when: healer
+  # A pool die without a key always counts.
+  - target: { rolls: [check] }
+    op: rollModifier
+    value: { kind: poolDice, count: 1 }
+    when: push
+  # The same key on another part is grouped apart.
+  - target: { rolls: [check] }
+    op: rollModifier
+    value: { kind: poolDice, count: 1, part: bonus }
+    stackKey: skill-dice
+    when: bonus
+
+actions:
+  # 2d6 keeping the best two, and a d4 bonus pool keeping the best one.
+  - id: check
+    steps:
+      - id: roll
+        kind: roll
+        tags: [check]
+        parts:
+          - { id: skill, dice: 2d6kh2, tags: [skill-dice] }
+          - { id: bonus, dice: 1d4kh1, tags: [bonus-dice] }
+      - id: result
+        kind: outcome
+        data: { total: steps.roll.total }

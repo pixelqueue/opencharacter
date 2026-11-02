@@ -225,6 +225,7 @@ A roll step is built, then rolled, then classified.
    - **`atLeast`** and **`atMost`** (without `tally`) bound the total once it is rolled (below).
    - **`set`** with `parts` replaces parts, before anything above reads them
      (below).
+   - **`tag`** with `parts` adds tags to parts, right after (below).
 
    **2a. Replaced parts**. For each part, the counted `set` effects whose `parts`
    tags match its items' tags are stacked by key; of those left, the one
@@ -235,14 +236,20 @@ A roll step is built, then rolled, then classified.
    built, in `replaces`. This happens before the carried instances and `add` effects of step 2
    are worked out.
 
+   **Tagged parts**. Then each active `tag` effect, in effect order, evaluates its tags (as an
+   `add`'s `tags`) and appends those an item doesn't carry yet to the items of every part whose
+   tags, as built or replaced in 2a, match its `parts`. `tag` effects don't stack. The steps
+   below, and a `split`, read the items' tags with the new ones.
+
    **2b. Die steps**. Each dice item from a part moves along d4, d6, d8, d10, d12 by
    the sum of the counted `stepDie` modifiers that reach it (all, or those whose `parts`
    match; stacking by key, compared by `steps`), stopping at the ends. Other sizes stay. The
    item records `steppedFrom`.
 
 3. **Pool dice.** Each `poolDice` adds `count` dice to its part's first dice item (the part named
-   by `part`, else the first dice part). In effect order, each added die records the effect as
-   its face `source`.
+   by `part`, else the first dice part). The modifiers on one part stack by key, compared by
+   `count`; those that don't count add nothing. In effect order, each added die records the
+   effect as its face `source`.
 4. **Empty pools.** A dice part whose first dice item has 0 dice after pool dice is replaced by
    its `ifEmpty` dice, if it has one. `empty` is then true.
 5. **Advantage and disadvantage.** Count the sources of each kind. A `noAdvantage` modifier sets
@@ -857,13 +864,16 @@ A choice step has one source of options (a fifth, pending choices, is
   (`has(steps.<id>)` is false); with it, `steps.<id>.picked` is `[]`.
 - **Recommending.** `recommend` is evaluated before each pick, with `options` bound to the IDs
   the step's own source offers (`#done` and added options left out); it recommends its value if
-  that is one of them, else nothing. Without `recommend`, a `content`, `copies` or `values` step
+  that is one of them, or `#done` while `#done` is offered (declining is then the default;
+  a `random` that holds draws instead), else nothing. Without `recommend`, a `content`, `copies` or `values` step
   recommends the candidate with the highest `prefer` (a number; ties go to the earlier
   candidate). A step with neither recommends nothing, whatever its source and however many
   candidates it offers: the first candidate is never recommended by default, so
   `needs.recommended` is absent and an automatic run pauses there. A pack that wants the first
-  says so with `recommend: options[0]`. `#done` and added options are never recommended, so a
-  step offering only added options pauses.
+  says so with `recommend: options[0]`. Added options are never recommended, and `#done` only
+  by `recommend`, so a step offering only added options pauses unless its `recommend` names
+  `#done`. A written list may be empty (`options: []`): the step then offers only what
+  `option` effects add, and is skipped when they add nothing.
 - **Random picks**. `random`, a condition, is evaluated before each pick in the
   same context as `recommend` (with `options`). When it holds and the source offers two options
   or more, the engine **draws**: one die with as many sides as the source's offered options

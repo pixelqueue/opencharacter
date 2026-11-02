@@ -1,0 +1,30 @@
+# Breath's 2d6 (its `damage` field) is the `ability.damage` part; its `tag` effect adds
+# `damage.cold` from the use's `element`. The kit part stays untyped. Split by `damage`: 8 cold,
+# then 2 untyped.
+status: finished
+outcome: { data: { total: 10 } }
+proposedChanges:
+  - to: self
+    step: deal
+    change: { type: adjust, field: 'test-roll-tag:hp', by: -8, tags: [damage.cold] }
+  - to: self
+    step: deal
+    change: { type: adjust, field: 'test-roll-tag:hp', by: -2 }
+log:
+  - step: roll
+    action: 'test-roll-tag:use-ability'
+    kind: dice
+    by: engine
+    faces: [3, 5]
+    total: 10
+    items:
+      - kind: dice
+        count: 2
+        sides: 6
+        value: 8
+        source: { type: item, id: 'test-roll-tag:abilities.breath', entry: breath }
+        tags: [ability.damage, damage.cold]
+      - kind: flat
+        value: 2
+        source: { type: item, id: 'test-roll-tag:abilities.breath', entry: breath }
+        tags: [kit]

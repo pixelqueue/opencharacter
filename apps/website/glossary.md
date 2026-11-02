@@ -41,7 +41,7 @@ One-line definitions of OCF terms, consistent with the [specification](../../pac
 - **Display hint:** optional presentation data (groups, priority, format, unit, `showWhen`, hidden) that never affects calculations. A display group holds fields, actions or content.
 - **Effect:** a change active content makes to a field, a roll or an incoming change, with an operation, value and condition.
 - **effectsWhen:** a condition on a content type or item that every effect of its items needs (5E attunement: `'!item.requiresAttunement || self.attuned'`), ANDed into each holder effect's `when` and read as it is (not applied effects); an item's replaces its type's.
-- **Effect operation:** one of the fixed set: add, set, multiply, atLeast, atMost, grant, rollModifier, and, for tagged action steps, option (an extra choice option) and changes (extra proposed changes, or flags set), and, for tagged actions, params (extra parameters).
+- **Effect operation:** one of the fixed set: add, set, multiply, atLeast, atMost, grant, rollModifier, tag (tags added to a roll's parts), and, for tagged action steps, option (an extra choice option) and changes (extra proposed changes, or flags set), and, for tagged actions, params (extra parameters).
 - **Effect scope:** whether an effect applies to a character who has the content (`holder`) or one it is applied to (`applied`).
 - **Engine:** an implementation of the spec's calls; the TypeScript one is the reference engine, others are ports.
 - **Entry (copy):** the character's copy of a content item: base item, templates, equipped flag, quantity, state, picks, and the state of content it grants.
@@ -86,7 +86,7 @@ One-line definitions of OCF terms, consistent with the [specification](../../pac
 - **Per-copy field:** an item field its content type marks `perCopy`, which a copy may set for itself (a Fate custom stunt's skill and limit), saved in the entry's `fields` and merged into its `item` after its templates; `setField` changes it.
 - **Per-copy state:** values tracked on a character's copy of an item (charges, shots, level), declared by its type, item or templates. Picks and granted content keep state of their own the same way.
 - **Pick:** one selected option in a choice, stored in the character's choices tree with its own nested picks, its `state` (a once-a-day feat's `used`) and the saved state of content it grants (`grants`).
-- **Pool dice:** dice an effect adds to a roll's dice part (`poolDice`) before keep and drop, each recording its source.
+- **Pool dice:** dice an effect adds to a roll's dice part (`poolDice`) before keep and drop, each recording its source; those on one part stack by key, compared by count.
 - **Prerequisite:** a condition for having content; a false one is a rules issue.
 - **Preset choice:** a choice of granted content that the grant answers (`choices`); never pending, and `choose` and `unchoose` refuse it (`preset-choice`).
 - **Priority:** a display hint ordering groups and fields; whole numbers, 0 highest.

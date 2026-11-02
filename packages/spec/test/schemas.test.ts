@@ -126,6 +126,8 @@ const partEffect = (value: unknown) => ({
   value,
 });
 
+const tagEffect = (target: object | string, rest: object = {}) => ({ target, op: 'tag', ...rest });
+
 const rollThen = (scope: string | undefined, then: object) => ({
   target: { rolls: ['attack'] },
   op: 'add',
@@ -144,6 +146,8 @@ describe('display, template and change shapes', () => {
     if (!validate) throw new Error(`no schema ${ref}`);
     return validate(data) as boolean;
   };
+  const validTag = (target: object | string, rest: object) =>
+    valid('effect.schema.json', tagEffect(target, rest));
 
   it('lets only a content group list applied entries', () => {
     expect(valid('display.schema.json#/$defs/group', appliedGroup('content', 'condition'))).toBe(
@@ -237,6 +241,20 @@ describe('display, template and change shapes', () => {
     expect(valid('effect.schema.json', partEffect({ kind: 'advantage' }))).toBe(false);
     expect(valid('effect.schema.json', partEffect({ kind: 'advantage', of: 'die' }))).toBe(false);
     expect(valid('effect.schema.json', partEffect({ kind: 'reroll', below: 1 }))).toBe(false);
+  });
+
+  it("adds tags to a roll's parts with op tag: parts required, a tag list, no stackKey", () => {
+    const parts = { rolls: ['damage'], parts: ['weapon'] };
+    const fire = { value: ['damage.fire'] };
+    expect(
+      validTag(parts, { value: ['damage.fire', { formula: "'damage.' + params.element" }] }),
+    ).toBe(true);
+    expect(validTag({ rolls: ['damage'] }, fire)).toBe(false);
+    expect(validTag({ ...parts, tally: 'edges' }, fire)).toBe(false);
+    expect(validTag(parts, { value: [] })).toBe(false);
+    expect(validTag(parts, { value: 'damage.fire' })).toBe(false);
+    expect(validTag(parts, { ...fire, stackKey: 'type' })).toBe(false);
+    expect(validTag('hp', fire)).toBe(false);
   });
 
   it('takes list item fields, unique only on a list; a field is never a list', () => {

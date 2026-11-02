@@ -1,0 +1,11 @@
+# Lose 1d6 + level stamina to improve a failed test one tier.
+id: perks.brawny
+type: perk
+effects:
+  - target: { choices: [test.improve] }
+    op: option
+    value:
+      id: push
+      flags: { improve: 1 }
+      changes:
+        - { type: adjust, field: stamina, by: '-(1d6 + level)' }

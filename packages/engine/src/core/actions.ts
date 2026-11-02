@@ -2034,6 +2034,25 @@ function rollStep(ctx: Ctx, frame: Frame, step: Step, path: string): void {
       ];
     }
   }
+  // 2a'. Retagged parts: every `tag` effect adds its tags to the items of the parts whose tags,
+  // as built and replaced, match.
+  const partTags = new Map(items.map((i) => [i, i.tags]));
+  for (const c of active) {
+    if (c.effect.op !== 'tag' || !targets(c.effect)?.parts) continue;
+    const reached = items.filter(
+      (i) => i.part !== undefined && onPart(c, partTags.get(i) as string[]),
+    );
+    if (reached.length === 0) continue;
+    const added = tagsOf(ctx, c.effect.value as TagOrFormula[], (fm) =>
+      sheet.evaluate(fm, c.pack, effectCtx(c)),
+    );
+    for (const item of reached) {
+      const fresh = added.filter((t) => !item.tags.includes(t));
+      if (fresh.length === 0) continue;
+      item.tags = [...item.tags, ...fresh];
+      changed.add(c);
+    }
+  }
   // 2b. Die steps.
   const steppers = stack(
     ctx,
@@ -2124,11 +2143,23 @@ function rollStep(ctx: Ctx, frame: Frame, step: Step, path: string): void {
   };
   for (const item of items) if (item.term) item.baseCount = item.term.count;
 
-  // 3. Pool dice.
-  for (const { modifier, c } of modifiers) {
-    if (modifier.kind !== 'poolDice') continue;
-    const partId =
-      modifier.part ?? items.find((i) => i.kind === 'dice' && i.part !== undefined)?.part;
+  // 3. Pool dice: those on one part stack by key, compared by `count`.
+  const firstDicePart = items.find((i) => i.kind === 'dice' && i.part !== undefined)?.part;
+  const poolPart = (modifier: RollModifier) => modifier.part ?? firstDicePart;
+  const pools = modifiers.filter((m) => m.modifier.kind === 'poolDice');
+  const countedPools = new Set(
+    [...new Set(pools.map((m) => poolPart(m.modifier)))].flatMap((partId) =>
+      stack(
+        ctx,
+        pools.filter((m) => poolPart(m.modifier) === partId).map((m) => m.c),
+        effectCtx,
+        (c) => (c.effect.value as RollModifier).count ?? 0,
+      ),
+    ),
+  );
+  for (const { modifier, c } of pools) {
+    if (!countedPools.has(c)) continue;
+    const partId = poolPart(modifier);
     const target = items.find((i) => i.kind === 'dice' && i.part === partId);
     if (!target?.term) continue;
     const count = num(modifier.count, c, 0);
@@ -2488,8 +2519,17 @@ function rollStep(ctx: Ctx, frame: Frame, step: Step, path: string): void {
     { active, roots: effectCtx, changed },
     action,
     rollRoot,
+    // `set` and `tag` matched the parts' tags before any `tag` effect added to them.
     (c) =>
-      !targets(c.effect)?.parts || items.some((i) => i.part !== undefined && onPart(c, i.tags)),
+      !targets(c.effect)?.parts ||
+      items.some(
+        (i) =>
+          i.part !== undefined &&
+          onPart(
+            c,
+            c.effect.op === 'set' || c.effect.op === 'tag' ? (partTags.get(i) ?? i.tags) : i.tags,
+          ),
+      ),
   );
 }
 
@@ -3320,7 +3360,10 @@ function preferRoots(
   return candidateRoots(frame, candidate, picks, action);
 }
 
-/** Without `recommend`, the highest `prefer` (ties to the earlier), else nothing; never `#done`. */
+/**
+ * `recommend`'s value if offered (`#done` too, while offered), else the highest `prefer` (ties to
+ * the earlier), else nothing.
+ */
 function recommendation(
   ctx: Ctx,
   frame: Frame,
@@ -3328,11 +3371,12 @@ function recommendation(
   candidates: Candidate[],
   counts: ReadonlyMap<string, number>,
   action: Record<string, unknown>,
+  done: boolean,
 ): string | undefined {
   const ids = candidates.map((c) => c.id);
   if (step.recommend !== undefined) {
     const v = f.toData(evaluate(ctx, frame, step.recommend as Formula, { options: ids }));
-    return typeof v === 'string' && ids.includes(v) ? v : undefined;
+    return typeof v === 'string' && (ids.includes(v) || (done && v === DONE)) ? v : undefined;
   }
   if ((!optionQuery(step) && !valueSource(step)) || step.prefer === undefined) return undefined;
   let best: { id: string; score: number } | undefined;
@@ -3389,7 +3433,7 @@ function choiceStep(ctx: Ctx, given: Frame, step: Step, path: string): void {
     const recommended =
       own.length > 0 && randomHolds(ctx, frame, step, { options: ownIds })
         ? ownIds[draw(ctx, frame, path, tags, ownIds, named)]
-        : recommendation(ctx, frame, step, own, counts, action);
+        : recommendation(ctx, frame, step, own, counts, action, options.includes(DONE));
     const [answer] = takeAnswers(ctx, path, 'choice');
     let pick: string;
     let by: 'engine' | 'app' = 'engine';

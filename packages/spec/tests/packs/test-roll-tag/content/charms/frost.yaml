@@ -1,0 +1,12 @@
+# Cold damage parts are also `chilled`; the charm marks itself used whenever it is in play on a
+# roll. It matches the parts' tags as written, so a part another `tag` effect makes cold isn't
+# reached.
+id: charms.frost
+type: charm
+effects:
+  - target: { rolls: [ability], parts: [damage.cold] }
+    op: tag
+    value: [chilled]
+    then:
+      when: applied
+      changes: [{ type: setState, entry: self, key: used, value: true }]

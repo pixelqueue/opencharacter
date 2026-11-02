@@ -1,0 +1,22 @@
+# The punch's 1d4 keeps its own tags: Breath's `tag` effect is `from: self`.
+status: finished
+outcome: { data: { total: 5 } }
+proposedChanges:
+  - to: self
+    step: deal
+    change: { type: adjust, field: 'test-roll-tag:hp', by: -5 }
+log:
+  - step: roll
+    action: 'test-roll-tag:use-ability'
+    kind: dice
+    by: engine
+    faces: [3]
+    total: 5
+    items:
+      - kind: dice
+        count: 1
+        sides: 4
+        value: 3
+        source: { type: item, id: 'test-roll-tag:abilities.punch', entry: punch }
+        tags: [ability.damage]
+      - { kind: flat, value: 2, tags: [kit] }

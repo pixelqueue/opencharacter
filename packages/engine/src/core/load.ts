@@ -715,6 +715,9 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
           };
         }
       }
+      // A `tag` effect's literal tags are declared; computed ones are checked as the roll is built.
+      if (effect.op === 'tag' && Array.isArray(effect.value))
+        q.tags(effect.value as (string | { formula: unknown })[], pack);
       if (effect.op === 'grant' && effect.value && typeof effect.value === 'object') {
         const v = effect.value as GrantValue;
         out.value =

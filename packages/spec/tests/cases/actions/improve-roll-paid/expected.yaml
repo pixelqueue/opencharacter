@@ -1,0 +1,29 @@
+# 3 + 4 = 7, tier 1. The player picks Brawny's option: its flag `improve: 1` raises the tier to
+# 2, and its change loses 1d6 + level stamina, rolled at once (5 + 2).
+status: finished
+outcome: { data: { total: 7, tier: 2 } }
+proposedChanges:
+  - to: self
+    step: improve
+    change: { type: adjust, field: 'test-improve-roll:stamina', by: -7 }
+log:
+  - step: roll
+    action: 'test-improve-roll:test'
+    kind: dice
+    by: engine
+    faces: [3, 4]
+    total: 7
+  - step: improve
+    action: 'test-improve-roll:test'
+    kind: choice
+    by: app
+    option: 'test-improve-roll:perks.brawny#push'
+    index: 0
+  - step: improve
+    action: 'test-improve-roll:test'
+    kind: dice
+    by: engine
+    faces: [5]
+    dice: -1d6 - 2
+    total: -7
+    field: 'test-improve-roll:stamina'

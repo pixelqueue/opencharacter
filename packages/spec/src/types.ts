@@ -109,7 +109,7 @@ export type ChoiceStep = {
   each?: Name;
   /** Tags of the step; entries may be formulas. `option` effects aimed at `{ choices: [<tag>] }` add options to a step carrying a matching tag, and policy rules match it by tag. The step's evaluated tags are `action.step.tags`. */
   tags?: TagList;
-  /** Where the options come from: exactly one source. A written list offers the options whose `when` holds (option ID: the written `id`; name: `<actionKey>.options.<id>.name`). `{ content }` offers the ruleset's content of a type, in content order (option ID: the qualified content ID; name: the item's name). `{ copies }` offers the character's copies of a type, inventory then features (option ID: the instance ID; name: the copy's item name). `{ values }` offers plain values, written out or from a list formula (option ID: the value as a string; name: `<actionKey>.options.<value>.name` when the pack has it, else the app names it). `{ pending }` asks the choices still pending on the proposed sheet, one pick at a time (option ID: the option as `listOptions` names it; name: the choice's own text). On a step with `tags`, matching `option` effects add options after these. */
+  /** Where the options come from: exactly one source. A written list offers the options whose `when` holds (an empty list offers only what `option` effects add) (option ID: the written `id`; name: `<actionKey>.options.<id>.name`). `{ content }` offers the ruleset's content of a type, in content order (option ID: the qualified content ID; name: the item's name). `{ copies }` offers the character's copies of a type, inventory then features (option ID: the instance ID; name: the copy's item name). `{ values }` offers plain values, written out or from a list formula (option ID: the value as a string; name: `<actionKey>.options.<value>.name` when the pack has it, else the app names it). `{ pending }` asks the choices still pending on the proposed sheet, one pick at a time (option ID: the option as `listOptions` names it; name: the choice's own text). On a step with `tags`, matching `option` effects add options after these. */
   options:
     | {
         id: Slug;
@@ -154,7 +154,7 @@ export type ChoiceStep = {
     /** Integer formula: the picks needed before `#done` is offered (default 0). Evaluated once, before the first pick. */
     min?: Formula;
   };
-  /** Formula naming the recommended option ID; it may read `options`, the list of IDs the step's own source offers (`#done` and added options left out). Under an automatic policy the engine takes it. `#done` and added options are never recommended. Without it, a `content`, `copies` or `values` step recommends the candidate with the highest `prefer`; with neither, no option is recommended, so an automatic run pauses there. Over pending choices, it also sees `choice`, the choice being asked (`{ path, owner, id }`); without it, the option `listOptions` marks recommended is. */
+  /** Formula naming the recommended option ID; it may read `options`, the list of IDs the step's own source offers (`#done` and added options left out). Under an automatic policy the engine takes it. On a written, `content`, `copies` or `values` source it may name `#done` while `#done` is offered (a `repeat` step past `min`), so declining is the default, unless `random` draws instead; over pending choices `#done` is never recommended. Added options are never recommended. Without it, a `content`, `copies` or `values` step recommends the candidate with the highest `prefer`; with neither, no option is recommended, so an automatic run pauses there. Over pending choices, it also sees `choice`, the choice being asked (`{ path, owner, id }`); without it, the option `listOptions` marks recommended is. */
   recommend?: Formula;
   /** Boolean formula, evaluated before each pick with `options` (and, over pending choices, `choice`) bound as for `recommend`: when it holds, the engine draws one die with as many sides as the source's offered options (added options and `#done` left out; over pending choices, the asked choice's eligible options) and recommends option face − 1 instead of `recommend` and `prefer`. With one option nothing is drawn. The draw is a dice checkpoint at the step's path, following the dice policy for the step's tags: a pause is `needs.kind: dice` with one die and `draw`. A creation action says `random: params.random`. */
   random?: Formula;
@@ -1456,11 +1456,12 @@ export type Effect = {
     | 'atMost'
     | 'grant'
     | 'rollModifier'
+    | 'tag'
     | 'option'
     | 'changes'
     | 'action'
     | 'params';
-  /** A formula for add/set/multiply/atLeast/atMost (on rolls and on incoming changes, `add` accepts dice: `1d4`; on rolls, `atLeast` and `atMost` take an integer and bound the roll's total after the dice); a grant value object for grant; a roll modifier for rollModifier; an option for option; changes for a tagged changes step for changes; a nested action run for action; parameter declarations for params. On a roll's parts, `set` takes a formula (dice or a number) that replaces each matching part. */
+  /** A formula for add/set/multiply/atLeast/atMost (on rolls and on incoming changes, `add` accepts dice: `1d4`; on rolls, `atLeast` and `atMost` take an integer and bound the roll's total after the dice); a grant value object for grant; a roll modifier for rollModifier; an option for option; changes for a tagged changes step for changes; a nested action run for action; parameter declarations for params. On a roll's parts, `set` takes a formula (dice or a number) that replaces each matching part, and `tag` a list of tags (entries may be formulas) added to each matching part's items. */
   value?: unknown;
   /** Condition for the effect to be active. `self` is the character's copy of the item carrying it. For `option`, the added option is offered only while this holds; it also sees the action context and `action`. For `changes`, the changes are added only while this holds, with the same context and `participant` in an `each` step. For `action`, the action runs only while this holds, evaluated per participant (with `participant` bound) when it runs per participant. On an incoming target, it also sees `incoming`. */
   when?: Condition;
@@ -1594,7 +1595,7 @@ export type RollTarget = {
   tally?: Name;
   /** `value`: the effect bounds the value of the band set the roll step classifies by (`atLeast` or `atMost`, an integer), once the set's `value` is worked out and before its bands read it as `roll.value`; a minimum tier. Only on a set whose `value` gives a number. */
   band?: 'value';
-  /** The roll's own parts, by tag: the effect reaches the items built from the action's parts (not those effects add) whose tags match. Only op `set` (replace the part) and the roll modifiers `stepDie`, `setFaces`, and `advantage` and `disadvantage` with `of: roll` (roll the matching parts again as a group, keeping the better or worse subtotal). Not with `tally`. */
+  /** The roll's own parts, by tag: the effect reaches the items built from the action's parts (not those effects add) whose tags match. Only op `set` (replace the part), op `tag` (add tags to the part's items) and the roll modifiers `stepDie`, `setFaces`, and `advantage` and `disadvantage` with `of: roll` (roll the matching parts again as a group, keeping the better or worse subtotal). Not with `tally`. */
   parts?: Tags;
 };
 
@@ -1848,7 +1849,7 @@ export type ActionNeed = {
   summary?: RollSummary;
   /** The offered option IDs, in order: written option IDs, qualified content IDs or instance IDs. A repeated step that has its `min` picks offers the reserved `#done` last. */
   options?: string[];
-  /** The recommended option, if any; never `#done`. */
+  /** The recommended option, if any; `#done` when the step's `recommend` names it. */
   recommended?: string;
   /** Choice steps over values, and their random draws: the qualified ID of the content the action runs for (its `item`: the copy's item, the picked or granted content, an applied entry's source); absent for an action run without content. The app names each value `<content>.options.<value>.name` when the content's pack has it, else `<actionKey>.options.<value>.name`, else as it names a plain value. */
   content?: string;
