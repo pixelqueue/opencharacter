@@ -17,7 +17,7 @@ short descriptions written for the pack.
 pnpm add @opencharacter/engine @opencharacter/fitd-crew @opencharacter/fitd-scoundrel
 ```
 
-This release needs spec 0.3: `@opencharacter/engine` 0.3.0 or later. An engine for an older
+This release needs spec 0.4: `@opencharacter/engine` 0.4.0 or later. An engine for an older
 spec refuses it (`spec-version-unsupported`).
 
 A crew is its own character file, loaded with this pack instead of the scoundrel pack
@@ -56,7 +56,7 @@ member's slot, and apply what a member's action sends to the crew (heat) as its 
 as the action finishes, then recompute the crew and pass the new view to the next member's call.
 Two members' heat then never both read the old value. The crew's own actions reach its members
 the other way, as participants (the advance's `member` role, the incarceration roll's
-`prisoner`). A new crew starts with `create-crew` (the guided start
+`prisoner`, the cohort roll's `commander`). A new crew starts with `create-crew` (the guided start
 `crew`, or `random`). The guide on
 [packs and rulesets](https://opencharacterformat.org/guides/packs-and-rulesets/) covers loading,
 and [other characters](https://opencharacterformat.org/guides/other-characters/) covers links.
@@ -68,8 +68,7 @@ source text at <https://github.com/amazingrando/blades-in-the-dark-srd-content>)
 crews: One Seven Design's terms put the setting and the other non-SRD material off limits. The
 SRD's crew playbook is a template, so the pack has:
 
-- **No named crew types.** Each table makes its own ("three to six options are good", the SRD
-  says), as homebrew `crewType` items (below). Without one, a crew takes its abilities and
+- **No named crew types.** Each table makes its own (the SRD suggests a few), as homebrew `crewType` items (below). Without one, a crew takes its abilities and
   favored operation from the SRD's pools.
 - **The SRD's 16 crew special abilities** as one pool: Deadly, Death Veil, No Traces, Patron,
   Predators, Fiends, Forged in the Fire, War Dogs, Anointed, Accord, High Society, Pack Rats,
@@ -89,6 +88,21 @@ SRD's crew playbook is a template, so the pack has:
   payoff, incarceration, entanglements and faction status, as the SRD gives them.
 
 It names no factions, people or places: the GM defines the factions.
+
+## License
+
+License metadata: `mechanics-only`, like `fitd-scoundrel`. The crew rules come from the
+game's SRD; only mechanics and names are taken from it, so the pack declares no text
+license. Its `credit` carries the SRD's attribution, which apps show with the pack:
+
+This work is based on Blades in the Dark (found at http://www.bladesinthedark.com/), product of
+One Seven Design, developed and authored by John Harper, and licensed for our use under the
+Creative Commons Attribution 3.0 Unported license (http://creativecommons.org/licenses/by/3.0/).
+
+[`LICENSE`](https://github.com/pixelqueue/opencharacter/blob/main/packs/fitd/crew/LICENSE)
+gives the pack's terms: the contributors' own work in it is under CC0 1.0 (the repository's
+default for packs), and the SRD's material stays under CC-BY 3.0 with the attribution above. The
+pack has no other notices.
 
 ## What's modeled
 
@@ -198,6 +212,7 @@ It names no factions, people or places: the GM defines the factions.
     uniform over what the guided start offers, the upgrade boxes one at a time to an upgrade with
     a box free (leaving out Mastery and the three-box upgrades), and every faction status drawn
     (on a faction named or on the sheet, when there is one).
+  - The guided start recommends every pick, so run automatically it finishes too.
 - **Sheet layout:** display groups for actions (crew rolls, after the score, crew downtime,
   factions, crew creation) and content (crew type, abilities, claims with turf first, cohorts by
   kind, cohort traits, contacts with the favorite first, operations, factions). The crew-specific
@@ -236,22 +251,6 @@ no crew types, so a crew-type pack's are the ones offered).
 - **Closed:** a cohort's `kind` (gang or expert), a faction's hold, the six plans and the
   payoff targets, which the core's rules read.
 
-## Text only
-
-- All Hands: the SRD doesn't say what the cohort rolls, and downtime activities are
-  the app's.
-- Upgrades: the vehicles themselves, Quarters, Underground Maps and Passkeys, Camouflage.
-- Cohort edges and flaws: decided in play.
-
-## Out of scope
-
-- The setting: factions, people and places, the map and the claim maps of the book's crew types.
-- Teamwork between members: the scoundrel pack's group action and assist.
-- Why a faction rises or falls on the ladder, and the factions' own clocks: the GM's; the crew
-  sheet tracks where each stands.
-- Extra downtime activities bought with coin or rep, and the boss's patience clock when a tithe
-  goes unpaid: the app's or the GM's.
-
 ## Rule readings
 
 - **SRD only:** no named crew types, and only the SRD's 16 crew abilities, its upgrades
@@ -270,22 +269,19 @@ no crew types, so a crew-type pack's are the ones offered).
 
 ## Limitations
 
-- A crew can't read its members (a link slot holds one character), so nothing on the crew sheet
-  can count or sum over them. Crew actions take members as participants instead: the prisoner,
-  a cohort's commander, and every member of a `crew-advance`, whose sheets each gain the
-  advance's stash.
-
-## License
-
-License metadata: `mechanics-only`, like `fitd-scoundrel`. The crew rules come from the
-game's SRD; only mechanics and names are taken from it, so the pack declares no text
-license. Its `credit` carries the SRD's attribution, which apps show with the pack:
-
-This work is based on Blades in the Dark (found at http://www.bladesinthedark.com/), product of
-One Seven Design, developed and authored by John Harper, and licensed for our use under the
-Creative Commons Attribution 3.0 Unported license (http://creativecommons.org/licenses/by/3.0/).
-
-[`LICENSE`](https://github.com/pixelqueue/opencharacter/blob/main/packs/fitd/crew/LICENSE)
-gives the pack's terms: the contributors' own work in it is under CC0 1.0 (the repository's
-default for packs), and the SRD's material stays under CC-BY 3.0 with the attribution above. The
-pack has no other notices.
+- **The crew's members:** a crew can't read its members (a link slot holds one character), so
+  nothing on the crew sheet can count or sum over them. Crew actions take members as
+  participants instead: the prisoner, a cohort's commander, and every member of a
+  `crew-advance`, whose sheets each gain the advance's stash.
+- **Text only:**
+  - All Hands: the SRD doesn't say what the cohort rolls, and downtime activities are the app's.
+  - Upgrades: the vehicles themselves, Quarters, Underground Maps and Passkeys, Camouflage.
+  - Cohort edges and flaws: decided in play.
+- **Out of scope:**
+  - The setting: factions, people and places, the map and the claim maps of the book's crew
+    types.
+  - Teamwork between members: the scoundrel pack's group action and assist.
+  - Why a faction rises or falls on the ladder, and the factions' own clocks: the GM's; the crew
+    sheet tracks where each stands.
+  - Extra downtime activities bought with coin or rep, and the boss's patience clock when a
+    tithe goes unpaid: the app's or the GM's.
