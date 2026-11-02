@@ -39,16 +39,16 @@ The spec leaves these to the app. Packs give the app what it needs for each: an 
 
 ## The calls
 
-| Call             | Input                                                                                                                          | Output                                                                                                                                                                                                       | Schema                                                           |
-| ---------------- | ------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------- |
-| `loadRuleset`    | pack releases in load order                                                                                                    | `{ ok: true, ruleset }` or `{ ok: false, errors }`                                                                                                                                                           | [load-ruleset](../schemas/engine/load-ruleset.schema.json)       |
-| `computeSheet`   | ruleset, character, optional competing-option picks (a list of option IDs), optional `links`                                   | values with breakdowns, active effects, available actions, offered situational choices, pending choices, offers, competing options, rules issues, computed values per copy and per picked or granted content | [compute-sheet](../schemas/engine/compute-sheet.schema.json)     |
-| `listOptions`    | ruleset, character, a choice path, optional `links`                                                                            | options, each with `eligible`, `picked`, `recommended` and `reasons`                                                                                                                                         | [list-options](../schemas/engine/list-options.schema.json)       |
-| `describeAction` | ruleset, character, action (`id`, `entry?`, `source?`), optional `links`                                                       | the action's defining ID, tags, results, parameters (each with `required`, bounds, enum values and the IDs a reference parameter takes) and roles                                                            | [describe-action](../schemas/engine/describe-action.schema.json) |
-| `applyChanges`   | ruleset, character, changes, `strict?`, optional `links`, optional dice function                                               | `{ ok: true, character, changes, issues, observe? }` or `{ ok: false, errors }`                                                                                                                              | [apply-changes](../schemas/engine/apply-changes.schema.json)     |
-| `startAction`    | ruleset, character, action (`id`, `entry?`), params, situational, policy, `links?`, `participants?`, `answers?`, dice function | finished, paused, or failure                                                                                                                                                                                 | [start-action](../schemas/engine/start-action.schema.json)       |
-| `continueAction` | ruleset, paused result, answer (`faces`, `option` or a handoff's `outcome`), policy                                            | finished, paused again, or failure                                                                                                                                                                           | [continue-action](../schemas/engine/continue-action.schema.json) |
-| `upgrade`        | old ruleset, new ruleset, character                                                                                            | upgraded character, pending choices, "what changed" report                                                                                                                                                   | [upgrade](../schemas/engine/upgrade.schema.json)                 |
+| Call             | Input                                                                                                                                       | Output                                                                                                                                                                                                       | Schema                                                           |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------- |
+| `loadRuleset`    | pack releases in load order                                                                                                                 | `{ ok: true, ruleset }` or `{ ok: false, errors }`                                                                                                                                                           | [load-ruleset](../schemas/engine/load-ruleset.schema.json)       |
+| `computeSheet`   | ruleset, character, optional competing-option picks (a list of option IDs), optional `links` and `appliers`                                 | values with breakdowns, active effects, available actions, offered situational choices, pending choices, offers, competing options, rules issues, computed values per copy and per picked or granted content | [compute-sheet](../schemas/engine/compute-sheet.schema.json)     |
+| `listOptions`    | ruleset, character, a choice path, optional `links` and `appliers`                                                                          | options, each with `eligible`, `picked`, `recommended` and `reasons`                                                                                                                                         | [list-options](../schemas/engine/list-options.schema.json)       |
+| `describeAction` | ruleset, character, action (`id`, `entry?`, `source?`), optional `links` and `appliers`                                                     | the action's defining ID, tags, results, parameters (each with `required`, bounds, enum values and the IDs a reference parameter takes) and roles                                                            | [describe-action](../schemas/engine/describe-action.schema.json) |
+| `applyChanges`   | ruleset, character, changes, `strict?`, optional `links` and `appliers`, optional dice function                                             | `{ ok: true, character, changes, adjustments, issues, followUps, observe? }` or `{ ok: false, errors, issues? }`                                                                                             | [apply-changes](../schemas/engine/apply-changes.schema.json)     |
+| `startAction`    | ruleset, character, action (`id`, `entry?`), params, situational, policy, `links?`, `appliers?`, `participants?`, `answers?`, dice function | finished, paused, or failure                                                                                                                                                                                 | [start-action](../schemas/engine/start-action.schema.json)       |
+| `continueAction` | ruleset, paused result, answer (`faces`, `option` or a handoff's `outcome`), policy                                                         | finished, paused again, or failure                                                                                                                                                                           | [continue-action](../schemas/engine/continue-action.schema.json) |
+| `upgrade`        | old ruleset, new ruleset, character                                                                                                         | upgraded character, pending choices, "what changed" report                                                                                                                                                   | [upgrade](../schemas/engine/upgrade.schema.json)                 |
 
 The ruleset's shape ([ruleset.schema.json](../schemas/engine/ruleset.schema.json)) is **PROVISIONAL**: only its top-level properties are fixed (`specVersion`, `packs`, `fields`, `contentTypes`, `content`, `rules`, `conflicts`). It is plain data, so apps can cache it or send it between machines running the same engine; another engine should rebuild it from the pack releases.
 
@@ -74,17 +74,19 @@ Besides these calls, `checkRelease` ([upgrades.md](upgrades.md#the-build-check),
 - `offers` lists what the rules offer the character now: its stored ephemeral
   follow-ups (a concentration check after damage), then its derived offers (a level-up the
   experience has earned). Each is `{ id, kind, followUp, source?, to, character?, action?,
-  params?, changes?, required, cause? }`; an app runs one with startAction and its `action`
+  params?, changes?, create?, required, cause? }`; an app runs one with startAction and its `action`
   (which carries `followUp: <id>`), and dismisses only ephemeral ones
   ([engine-core.md](engine-core.md#the-offer-list)).
 - `choices` lists every applicable choice, answered or not, in pending order,
-  as `{ path, owner, id, slot?, min, max?, picks, open, preset? }`, inline options' and
+  as `{ path, owner, id, slot?, type?, min, max?, picks, open, preset?, inactive? }`, inline options' and
   `activate: false` choices included; `preset: true` marks a choice a grant answers, which
-  `choose` and `unchoose` refuse (`preset-choice`) ([engine-core.md](engine-core.md#the-choice-list)).
+  `choose` and `unchoose` refuse (`preset-choice`), and `inactive: true` one whose `activeWhen`
+  fails ([engine-core.md](engine-core.md#the-choice-list)).
 - `competing` lists competing options, one entry per competing group with its `op` and, for a stacking group, `stackKey` (see [effects.md](effects.md#competing-options)); a group of a key spanning fields also lists `fields`, and each option its `values` per field. The input's `competing` is a list of picked option IDs; each group applies its listed option, else its recommendation.
 - `auras` lists the auras the character projects now (`{ source, aura, entry?, size?, affects }`):
   the app applies an entry of each, `appliedBy` the character, to whoever is inside, and removes
-  it as they leave or the aura drops off this list ([content.md](content.md#auras)). `entry` is
+  it as they leave or the aura drops off this list ([content.md](content.md#auras),
+  [engine-core.md](engine-core.md#auras)). `entry` is
   the copy a held aura's content belongs to, or the applied entry that projects a cast one
   (`scope: applied`), so two casts are two listings; a cast's aura leaves the list when its entry
   ends.
@@ -259,14 +261,14 @@ value outside it (`invalid-option`).
 
 A runtime error means the result would not be a valid character file. A rules issue means the file is valid, but the game's rules object.
 
-- **Errors** ([`error.schema.json`](../schemas/engine/error.schema.json)): `{ code, path?, data? }`, where `code` comes from [`data/error-codes.json`](../data/error-codes.json). Each code has a `kind`: `shape`, `runtime`, `load` or `action`.
-- **Rules issues** ([`rules-issue.schema.json`](../schemas/engine/rules-issue.schema.json)): `{ code, id?, source?, data? }`, where `code` comes from [`data/rules-issue-codes.json`](../data/rules-issue-codes.json). `id` is the qualified pack-defined prerequisite or constraint ID.
+- **Errors** ([`error.schema.json`](../schemas/engine/error.schema.json)): `{ code, path?, data? }`, where `code` comes from [`data/error-codes.json`](../data/error-codes.json). Each code has a `kind`: `shape`, `runtime`, `load`, `action`, `formula` (a formula's own error, usually the cause of a `formula-error`) or `build` (checkRelease).
+- **Rules issues** ([`rules-issue.schema.json`](../schemas/engine/rules-issue.schema.json)): `{ code, id?, source?, data? }`, where `code` comes from [`data/rules-issue-codes.json`](../data/rules-issue-codes.json). `id` names what the issue is about: the qualified prerequisite or constraint, the choice (`<owner>/<choice>`, `<pack>:rules/<choice>` at rules level), the immunity, the field or the content type ([engine-core.md](engine-core.md#pending-choices-and-issues)).
 - **Strict mode** (`strict: true` on `applyChanges`) turns rules issues into a runtime error (`rules-issue`, with the issues attached). Rules issues don't block by default because homebrew tables bend rules on purpose.
 - The spec ships standard English text for every code in [`../i18n/en.yaml`](../i18n/en.yaml) (`errors.<code>`, `issues.<code>`), exported as `@opencharacter/spec/i18n/en` (JavaScript and JSON; [i18n.md](i18n.md#engine-output)).
 
 ## Changes
 
-The change types are a small, generic, fixed set ([data](../data/change-types.json)): `set`, `adjust`, `addItem`, `removeItem`, `equip`, `setState`, `adjustState`, `setQuantity`, `adjustQuantity`, `applyTemplate`, `removeTemplate`, `applyEffect`, `removeEffect`, `toggleEffect`, `choose`, `unchoose`, `setExtension`, `finishCreation`, `setHomebrew`, `dismissFollowUp`, `clearFollowUp`, `offerFollowUp` and `observe`.
+The change types are a small, generic, fixed set ([data](../data/change-types.json)): `set`, `adjust`, `addItem`, `removeItem`, `equip`, `setState`, `adjustState`, `setField`, `setQuantity`, `adjustQuantity`, `applyTemplate`, `removeTemplate`, `applyEffect`, `removeEffect`, `toggleEffect`, `choose`, `unchoose`, `setExtension`, `finishCreation`, `setHomebrew`, `dismissFollowUp`, `clearFollowUp`, `offerFollowUp` and `observe`.
 
 - **Batches are all or nothing.** A level-up of eight changes either fully applies or doesn't apply at all.
 - **Same changes, same result.** Replaying a character's change list from the start always rebuilds the same character, which gives apps undo, history and multiplayer sync.
@@ -275,15 +277,19 @@ The change types are a small, generic, fixed set ([data](../data/change-types.js
 - An `on` or `becomes` follow-up the batch triggers (a concentration check after damage, a death save at maximum wounds) is stored in the returned character's `followUps`, and the output's `followUps` lists the ones this batch stored, as computeSheet's `offers` does. applyChanges never runs or applies them; the app decides ([engine-core.md](engine-core.md#follow-ups)). `dismissFollowUp` deletes one unrun; `clearFollowUp`, which startAction proposes for a run that takes one up, deletes it when the run's changes are applied.
 - `unchoose` removes the option's nested picks in the same change. Without `option` it removes every
   pick of the choice, with their nested picks; a choice with none is left unchanged, so a batch can
-  clear a choice and pick again without knowing what it held.
+  clear a choice and pick again without knowing what it held. An action may name the choice by
+  its owner (`choice: { owner, id }`); the engine proposes the path form, one per activation
+  with picks ([dice-and-actions.md](dice-and-actions.md#actions)).
 - `finishCreation` clears the character's `creating`. It is rejected with
   `creation-incomplete` while the character has rules issues or pending choices, which the
   failed result lists as `issues` (pending choices as `too-few-picks`).
 - `setHomebrew` replaces the character's own homebrew, or removes it
   with `null`; later changes in the batch see the new one
   ([engine-core.md](engine-core.md#applychanges)). Actions can't propose it.
+- `setField` sets a copy's own value of an item field its content type marks `perCopy`, or
+  removes it with `null` ([content.md](content.md#per-copy-fields)).
 - `setQuantity` and `adjustQuantity` change a copy's `quantity` (spending an arrow, buying ten more). It never goes below 0, and a copy at 0 stays: removing it is a separate `removeItem`.
-- `setState`, `adjustState`, `setQuantity`, `adjustQuantity`, `equip` and `removeItem` may name their copies with a query (`copies: { type, where }`) instead of one `entry`. The receiving character resolves it, so an action can aim one at its target's copies ([engine-core.md](engine-core.md#applychanges)).
+- `setState`, `adjustState`, `setField`, `setQuantity`, `adjustQuantity`, `equip` and `removeItem` may name their copies with a query (`copies: { type, where }`) instead of one `entry`. The receiving character resolves it, so an action can aim one at its target's copies ([engine-core.md](engine-core.md#applychanges)).
 - `adjust` may name who sent it (`from`, a character ID; actions and follow-ups fill it in for
   another character), which its field entries keep for `on` follow-ups (`change.from`) and
   `observe` ([engine-core.md](engine-core.md#who-sent-it)).
