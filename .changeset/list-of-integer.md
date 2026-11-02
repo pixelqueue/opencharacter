@@ -1,6 +1,6 @@
 ---
-'@opencharacter/spec': patch
-'@opencharacter/engine': patch
+'@opencharacter/spec': minor
+'@opencharacter/engine': minor
 ---
 
 A `list` item field may hold whole numbers, `of: integer` (#211): its value is a list of

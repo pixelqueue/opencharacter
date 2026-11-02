@@ -136,6 +136,11 @@ export class PackChecker {
   private readonly blocks = new Map<string, BlockScope>();
   private contentOwner: string | undefined;
   /**
+   * What `owner: self` names in an unchoose: the rules (none) in their actions, effects and
+   * follow-ups, a content item's local ID in its own; unknown for a content type's.
+   */
+  private choiceSelf: { rules: true } | { item: string } | undefined;
+  /**
    * Where an offered follow-up is looked for, as the engine looks: `own`, the content's (or its
    * type's) by local ID; then the rules of the action's pack, a local ID qualified against it. An
    * action of this pack's rules is this pack's; content may add to any visible pack's action.
@@ -208,10 +213,19 @@ export class PackChecker {
       this.report.error(file, `${where}: choice is for an unchoose without path or option`);
     if (to !== undefined && to !== 'self')
       this.report.error(file, `${where}: an unchoose by owner is for the actor's own choices`);
-    if (owner === 'self') return;
-    let entry = this.ruleset.item(owner, this.scope);
+    const self = this.choiceSelf;
+    if (owner === 'self' && self && 'rules' in self) {
+      this.report.error(
+        file,
+        `${where}: an unchoose of owner: self is for content; the rules have no choice of their own to name`,
+      );
+      return;
+    }
+    if (owner === 'self' && !self) return;
+    const named = owner === 'self' ? (self as { item: string }).item : owner;
+    let entry = this.ruleset.item(named, this.scope);
     if (!entry) {
-      this.report.error(file, `${where}: unknown content "${owner}"`);
+      this.report.error(file, `${where}: unknown content "${named}"`);
       return;
     }
     const seen = new Set<string>();
@@ -227,7 +241,7 @@ export class PackChecker {
       const parent: string | undefined = entry.item.extends ?? entry.item.override;
       entry = parent ? this.ruleset.item(parent, this.ruleset.scope(entry.pack)) : undefined;
     }
-    this.report.error(file, `${where}: "${owner}" declares no choice "${id}"`);
+    this.report.error(file, `${where}: "${named}" declares no choice "${id}"`);
   }
 
   /** Whether any loaded content type or item defines an inline action with this local ID. */
@@ -442,17 +456,21 @@ export class PackChecker {
     }
 
     this.offerable = { own: [], actionPacks: [this.packId] };
+    this.choiceSelf = { rules: true };
     for (const [, { def, at: file }] of rules.actions) this.action(def, file, `actions.${def.id}`);
+    this.choiceSelf = undefined;
     this.offerable = undefined;
     this.creation(rules.creation);
     // The rules' option and changes effects add to tagged steps, their options named `rules.options.<id>`.
     this.contentOwner = 'rules';
+    this.choiceSelf = { rules: true };
     for (const { def, at: file } of rules.effects) this.effect(def, file, 'rules effect', false);
     this.contentOwner = undefined;
     this.followUps(
       rules.followUps.map(({ def, at }) => ({ def, file: at })),
       'followUps',
     );
+    this.choiceSelf = undefined;
     for (const { def, at: file } of rules.choices.values()) this.choices([def], file, 'rules');
     // A slot's key may not be another rules-level choice's ID.
     for (const { def, at: file } of rules.choices.values())
@@ -519,8 +537,11 @@ export class PackChecker {
 
     for (const { file, doc } of pack.content) {
       this.contentOwner = doc.id ?? doc.override;
+      const self = doc.id ?? doc.override;
+      this.choiceSelf = self === undefined ? undefined : { item: self };
       this.item(doc, file);
       this.contentOwner = undefined;
+      this.choiceSelf = undefined;
     }
     this.formulas();
     this.upgradeScripts();
@@ -1389,7 +1410,7 @@ export class PackChecker {
       this.tag(value, file, where);
       this.memberTag(value, decl, file, where);
     }
-    if (!of || of === 'tag' || of === 'string') return;
+    if (!of || of === 'tag' || of === 'string' || of === 'integer') return;
     if (of === 'field') {
       if (!this.ruleset.field(value, this.scope))
         this.report.error(file, `${where}: unknown field "${value}"`);
