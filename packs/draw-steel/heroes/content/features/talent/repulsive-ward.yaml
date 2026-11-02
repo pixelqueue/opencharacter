@@ -4,3 +4,22 @@ fields:
   class: classes.talent
   level: 1
 tags: [talent.ward]
+# Damage offers the free triggered push; whether the damage came from an adjacent creature is the
+# player's to say. The push distance is in the outcome.
+actions:
+  - id: repel
+    tags: [ability]
+    available: '!stamina.dead'
+    participants:
+      target: { fields: creature, max: 1 }
+    results: [pushed]
+    steps:
+      - id: done
+        kind: outcome
+        result: "'pushed'"
+        data: { forcedMovement: "'push'", forcedDistance: characteristics.reason.score }
+followUps:
+  - id: repel
+    on: { field: stamina.current, tags: [damage], once: true }
+    when: change.taken < 0 && !stamina.dead
+    action: repel

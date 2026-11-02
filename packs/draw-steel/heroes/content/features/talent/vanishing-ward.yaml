@@ -4,3 +4,13 @@ fields:
   class: classes.talent
   level: 1
 tags: [talent.ward]
+# Taking damage makes the hero invisible until the end of their next turn.
+followUps:
+  - id: vanish
+    on: { field: stamina.current, tags: [damage], once: true }
+    when: change.taken < 0
+    required: true
+    changes:
+      - type: applyEffect
+        source: "'effects.talent.vanished'"
+        state: { duration: "'next-end'" }
