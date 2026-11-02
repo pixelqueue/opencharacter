@@ -30,6 +30,7 @@ contentTypes:
           default: none,
           open: true,
         }
+    effectsWhen: item.prison || !lair.lost
     effects:
       - id: scale-gang
         target: cohorts.claimed
@@ -63,9 +64,8 @@ fields:
   cohorts.trained:
     type: set
     of: string
-    formula: >-
-      lair.lost ? [] : filterList(keysOf('gang'), x in cohorts.claimed)
-  # The gang types the crew's claims give +1 scale, lair or not.
+    formula: filterList(keysOf('gang'), x in cohorts.claimed)
+  # The gang types the crew's claims give +1 scale.
   cohorts.claimed: { type: set, of: string }
 
   prison.dice: { type: integer, formula: 0 }
