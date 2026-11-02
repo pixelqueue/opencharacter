@@ -21,11 +21,11 @@ fields:
   t3Damage: 9
 effects:
   - { target: shadow.conditionalSurge, op: set, value: 'true' }
-  # The surge when an ally is adjacent to the target, gained before the power roll.
+  # The surge when an ally is adjacent to the target, gained before the ability's own surges
+  # are spent, so they can use it.
   - target: { steps: [ability.pay], from: self }
     op: changes
     when: situational.shadowConditionMet
-    # Set from the value before the step, so the surge can pay for this ability's own surges.
     value:
-      changes:
-        - { type: set, field: surges.current, value: 'max(0, surges.current + 1 - params.surges)' }
+      order: before
+      changes: [{ type: adjust, field: surges.current, by: 1 }]
