@@ -352,6 +352,13 @@ contentTypes:
     state:
       # An art whose Effort stays committed while it lasts.
       active: { type: boolean, default: false }
+    # The Effort its tradition has free, on the card of every art, granted ones too.
+    computed:
+      effortFree:
+        type: integer
+        formula: >-
+          item.tradition in keysOf('effortTrad')
+            ? fieldOf('effort.{effortTrad}.free', item.tradition) : 0
     actions:
       - { use: commit-effort, available: "item.effort != 'none'" }
       - { use: release-effort, available: "item.effort == 'ongoing'" }
