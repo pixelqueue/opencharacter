@@ -176,7 +176,7 @@
     {
       "id": "unknown-reference",
       "kind": "load",
-      "description": "Content refers to an ID that does not exist. Also raised when an action runs, for an addItem's item or an applyEffect's source that names no content or a template. A kept template (`keepsTemplates`) that names content other than a template is `unknown-reference` too, with kind `template`. A grant's preset `choices` naming a choice the granted content doesn't declare (or on a `scope: applied` grant) is kind `choice`; a literal preset option it doesn't offer, kind `option` or `content`."
+      "description": "Content refers to an ID that does not exist. Also raised when an action runs, for an addItem's item or an applyEffect's source that names no content or a template. A kept template (`keepsTemplates`) that names content other than a template is `unknown-reference` too, with kind `template`. A grant's preset `choices` naming a choice the granted content doesn't declare (or on a `scope: applied` grant) is kind `choice`; a literal preset option it doesn't offer, kind `option` or `content`. A situational choice's `offerFollowUp` naming no rules follow-up, or a derived (`while`) one, is kind `follow-up`."
     },
     {
       "id": "circular-formula",
@@ -227,6 +227,11 @@
       "id": "invalid-applied-change",
       "kind": "load",
       "description": "A change sent `to: applied` (by a step, an option, added changes, a roll effect's `then` or a follow-up) isn't a removeEffect, toggleEffect, setState or adjustState naming applied entries by query (`applied`), a follow-up `to: applied` has no `changes`, or an action declares a role named `applied` (a destination, not a role). Data: `type`, `followUp` or `action` and `role`, and `pack`."
+    },
+    {
+      "id": "invalid-situational-change",
+      "kind": "load",
+      "description": "A situational choice's `changes` can't apply: a `set` or `adjust` names a field that isn't an input field (reason `not-input`), an `adjust` a field that isn't numeric (`not-numeric`), or an `offerFollowUp` passes a parameter its follow-up's action neither declares nor is given by a `params` effect reaching it (`param`). Data: `situational`, `reason`, and `field`, or `followUp` and `param`."
     },
     {
       "id": "invalid-family",
@@ -286,7 +291,7 @@
     {
       "id": "situational-unavailable",
       "kind": "action",
-      "description": "A situational choice is selected (true, or a non-default value) while its `available` condition is false. Data: `situational`, its qualified ID. Also a runtime error from applyChanges, for a choice an `adjust` carries in `situational` that isn't offered or whose `incoming` doesn't match the change; it rejects the batch."
+      "description": "A situational choice is selected (true, or a non-default value) while its `available` condition is false. Data: `situational`, its qualified ID. Also a runtime error from applyChanges, for a choice an `adjust` carries in `situational` that isn't offered or whose `incoming` doesn't match the change, or a batch-scoped choice already selected on an earlier change of the batch; it rejects the batch."
     },
     {
       "id": "unknown-situational",

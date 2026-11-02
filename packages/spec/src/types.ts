@@ -2031,6 +2031,8 @@ export type ApplyChangesOutput =
               faces: number[];
               total: number;
             }[];
+            /** On the `requested` entry of an adjust a situational choice's `changes` made (its cost): the choice, `{ type: situational, id }`. */
+            source?: Source;
           }
         | {
             entry?: InstanceId;
@@ -3162,11 +3164,29 @@ export type SituationalChoice = {
     fields?: FieldRef[];
     tags?: Tags;
   };
+  /** Incoming changes only: how far a selection reaches. `change` (default): the change it is selected on. `batch`: selected on one change of a batch, its incoming-change effects reach that change and every later adjust of the batch its `incoming` matches (an attack's damage types), and each `add` among them is worked out once and spent over those changes, never past 0: what one change doesn't take carries to the next. */
+  scope?: 'change' | 'batch';
   /** When the choice is offered: a condition on the character (fields and `character`), checked before any roll. Absent means always. */
   available?: Condition;
   /** Effects that apply while this choice is selected (boolean) or non-default (integer, enum): its roll effects on a roll it is selected for, its incoming-change effects on a change it is selected for. The selected value is visible as `situational.<id>`. */
   effects?: Effect[];
+  /** Incoming changes only: what choosing it costs or gains (spend a resource, mark a once-a-scene use, offer a follow-up). Applied to the receiving character once per batch that selects it, however many changes do, after the batch's last change. Formulas see the character as the batch left it, `situational` and `batch`. */
+  changes?: SituationalChange[];
   label?: I18nKey;
+};
+
+/** A change a situational choice makes: `set` (`field`, `value`) or `adjust` (`field`, `by`, optional `tags`) of the character's input fields, or `offerFollowUp` of a rules follow-up (`followUp`, optional `params`). `when` skips it unless it holds. Its adjust is routed without incoming-change effects. */
+export type SituationalChange = {
+  type: 'set' | 'adjust' | 'offerFollowUp';
+  when?: Condition;
+  field?: FieldRef;
+  value?: Formula;
+  by?: Formula;
+  tags?: Tags;
+  /** A rules follow-up's ID, local or `<pack>:<id>`. */
+  followUp?: string;
+  /** Formulas for the follow-up's action parameters, replacing the declaration's own. */
+  params?: Record<string, Formula>;
 };
 
 /** Data, not code: moves a character file across a spec version that changed the file's shape. The spec's own upgrades are the items of `data/spec-upgrades.json`; `upgrade` runs each one between a character's `specVersion` and the engine's on the character, before the packs' upgrade scripts. */
@@ -3300,6 +3320,7 @@ export type ErrorCode =
   | 'invalid-clock-action'
   | 'invalid-aura'
   | 'invalid-applied-change'
+  | 'invalid-situational-change'
   | 'invalid-family'
   | 'invalid-extension'
   | 'link-start-mismatch'

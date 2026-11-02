@@ -1,0 +1,28 @@
+# Each part is halved (-3, -2); the cost is paid once, after the batch: 1 focus, reported with
+# the choice as its source, and the scene's use marked. The batch comes back as given.
+ok: true
+adjustments:
+  - { field: test-reactions:hp, by: -3, requested: -6, taken: -3, reason: requested }
+  - { field: test-reactions:hp, by: -2, requested: -4, taken: -2, reason: requested }
+  - field: test-reactions:focus
+    by: -1
+    requested: -1
+    taken: -1
+    reason: requested
+    source: { type: situational, id: test-reactions:shield }
+changes:
+  - type: adjust
+    field: test-reactions:hp
+    by: -6
+    tags: [attack, damage.slashing]
+    situational: { test-reactions:shield: true }
+  - type: adjust
+    field: test-reactions:hp
+    by: -4
+    tags: [attack, damage.fire]
+    situational: { test-reactions:shield: true }
+character:
+  values:
+    test-reactions:focus: 1
+    test-reactions:hp: 15
+    test-reactions:shieldUsed: true

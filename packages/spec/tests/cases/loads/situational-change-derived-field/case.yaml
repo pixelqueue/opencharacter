@@ -1,0 +1,24 @@
+description: "A situational choice's change sets or adjusts input fields only: a derived one is `invalid-situational-change`"
+specVersion: 0.1.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        tags: [damage]
+        fields:
+          hp: { type: integer, input: true, default: 10 }
+          guard: { type: integer, formula: 2 }
+        situational:
+          - id: parry
+            type: boolean
+            default: false
+            incoming: { fields: [hp], tags: [damage] }
+            changes:
+              - { type: adjust, field: guard, by: -1 }
+      content: []

@@ -640,11 +640,27 @@ export interface Situational {
   type: string;
   rolls?: string[];
   incoming?: { fields?: string[]; tags?: string[] };
+  /** `batch`: selected once, on one change, its effects reach the batch's later adjusts too. */
+  scope?: 'change' | 'batch';
   values?: string[];
   default?: Literal;
   effects?: Effect[];
+  /** Applied once per batch that selects it, after the batch's last change. */
+  changes?: SituationalChange[];
   available?: Formula;
   label?: string;
+}
+
+/** What choosing a situational choice on an incoming change costs or gains. */
+export interface SituationalChange {
+  type: 'set' | 'adjust' | 'offerFollowUp';
+  when?: Formula;
+  field?: string;
+  value?: Formula;
+  by?: Formula;
+  tags?: string[];
+  followUp?: string;
+  params?: Record<string, Formula>;
 }
 
 export interface DisplayGroup {

@@ -149,22 +149,24 @@ const tagsMeet = (a: string, b: string) =>
  * wins. Actions count by the pack that wrote them, reached over packs that meet on the target
  * tag (effects.md, Which packs a tag target reaches).
  */
+interface Added {
+  source: string;
+  pack: string;
+  tags: string[];
+  name: string;
+  decl: ValueDecl;
+  /**
+   * The content item carrying a `from: self` effect: it reaches its own runs and its holder
+   * copy's own actions.
+   */
+  self?: string;
+}
+
+/** Reports `invalid-added-param`; returns every parameter a `params` effect adds. */
 function checkAddedParams(
   ruleset: Ruleset,
   err: (code: string, data: Record<string, unknown>) => void,
-): void {
-  interface Added {
-    source: string;
-    pack: string;
-    tags: string[];
-    name: string;
-    decl: ValueDecl;
-    /**
-     * The content item carrying a `from: self` effect: it reaches its own runs and its holder
-     * copy's own actions.
-     */
-    self?: string;
-  }
+): Added[] {
   const added: Added[] = [];
   const walkChoices = (
     choices: readonly Choice[] | undefined,
@@ -207,7 +209,7 @@ function checkAddedParams(
   for (const e of ruleset.rules.effects) walk([e], `${e.pack}:rules`, e.pack);
   for (const choice of Object.values(ruleset.rules.choices))
     walkChoices([choice], `${choice.pack}:rules`, choice.pack);
-  if (added.length === 0) return;
+  if (added.length === 0) return added;
 
   const actions: { key: string; pack: string; def: ActionDef }[] = [
     ...Object.entries(ruleset.rules.actions).map(([key, def]) => ({ key, pack: def.pack, def })),
@@ -319,6 +321,7 @@ function checkAddedParams(
         err('invalid-added-param', { ...data, reason: 'conflict', other: other.source });
     }
   }
+  return added;
 }
 
 /** loadRuleset's steps, with options for layering a character's homebrew. */
@@ -1170,6 +1173,20 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
               }),
             }
           : {}),
+        ...(def.changes
+          ? {
+              changes: def.changes.map((c) => {
+                q.tags(c.tags, pid);
+                return {
+                  ...c,
+                  ...(c.field !== undefined ? { field: q.field(c.field, pid) } : {}),
+                  ...(c.followUp !== undefined
+                    ? { followUp: c.followUp.includes(':') ? c.followUp : `${pid}:${c.followUp}` }
+                    : {}),
+                };
+              }),
+            }
+          : {}),
       };
     }
     (r.effects ?? []).forEach((def, index) => {
@@ -1699,7 +1716,45 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
   for (const def of Object.values(ruleset.contentTypes)) situationalActions(def.actions, def.pack);
   for (const item of Object.values(ruleset.content)) situationalActions(item.actions, item.pack);
 
-  checkAddedParams(ruleset, err);
+  const added = checkAddedParams(ruleset, err);
+
+  // A situational choice's changes set or adjust input fields (numeric for adjust) and offer the
+  // rules' follow-ups, with parameters their action takes (its own or added to it).
+  for (const [situational, def] of Object.entries(ruleset.rules.situational))
+    for (const change of def.changes ?? []) {
+      const invalid = (data: Record<string, unknown>) =>
+        err('invalid-situational-change', { situational, ...data });
+      const field = change.field === undefined ? undefined : ruleset.fields[change.field];
+      if (field && !field.input) invalid({ reason: 'not-input', field: change.field });
+      else if (field && change.type === 'adjust' && !['integer', 'decimal'].includes(field.type))
+        invalid({ reason: 'not-numeric', field: change.field });
+      if (change.followUp === undefined) continue;
+      const offered = ruleset.rules.followUps.find(
+        (fu) => `${fu.pack}:${fu.id}` === change.followUp,
+      );
+      if (!offered || offered.while !== undefined) {
+        unknown('follow-up', change.followUp, def.pack);
+        continue;
+      }
+      const qid =
+        offered.action === undefined
+          ? undefined
+          : resolveAction(ruleset, offered.action, offered.pack);
+      const action = qid ? ruleset.rules.actions[qid] : undefined;
+      if (!action) continue;
+      const actionTags = writtenTags(action.tags);
+      const computed = (action.tags ?? []).some((t) => typeof t !== 'string');
+      for (const name of Object.keys(change.params ?? {})) {
+        if (Object.hasOwn(action.params ?? {}, name)) continue;
+        const reached = added.some(
+          (a) =>
+            a.name === name &&
+            a.self === undefined &&
+            (computed || tagsReach(ruleset, a.pack, action.pack, a.tags, actionTags)),
+        );
+        if (!reached) invalid({ reason: 'param', followUp: change.followUp, param: name });
+      }
+    }
 
   // 5. Check formulas: each must parse and type-check where it appears, as in the build.
   if (errors.length === 0) {

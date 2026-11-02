@@ -437,6 +437,28 @@ export class PackChecker {
           this.report.error(file, `situational ${id}: unknown field "${ref}"`);
       }
       for (const effect of def.effects ?? []) this.effect(effect, file, `situational ${id}`, false);
+      // Its changes: known fields and the rules' follow-ups (loadRuleset's invalid-situational-change
+      // covers derived fields and follow-up parameters).
+      for (const change of def.changes ?? []) {
+        const where = `situational ${id} change`;
+        this.tagList(change.tags, file, where);
+        if (change.field !== undefined && !this.ruleset.field(change.field, this.scope))
+          this.report.error(file, `${where}: unknown field "${change.field}"`);
+        if (change.followUp === undefined) continue;
+        const colon = change.followUp.indexOf(':');
+        const owner = colon < 0 ? this.packId : change.followUp.slice(0, colon);
+        const local = change.followUp.slice(colon + 1);
+        const offered = this.ruleset.rules
+          .get(owner)
+          ?.followUps.find(({ def: fu }) => fu.id === local)?.def;
+        if (!offered || !this.scope.includes(owner))
+          this.report.error(file, `${where}: offers unknown follow-up "${change.followUp}"`);
+        else if (offered.while !== undefined)
+          this.report.error(
+            file,
+            `${where}: follow-up "${change.followUp}" is derived (while), never offered`,
+          );
+      }
     }
 
     for (const name of rules.tallies.keys()) this.optionalKeys.add(`tallies.${name}.name`);

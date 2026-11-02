@@ -196,8 +196,21 @@ applyChanges(ruleset, rogue, [
 
 An attack split by damage type carries the choice on each of its changes. A choice that isn't
 offered, or doesn't match the change, rejects the batch (`situational-unavailable`). The choice
-stays on the change in `changes`, so log that: a replay halves it again. Spending the reaction
-is your app's.
+stays on the change in `changes`, so log that: a replay halves it again. Keeping track of the
+turn's one reaction is your app's.
+
+Two kinds of choice ask a little more of your app:
+
+- **A choice with a cost** (`changes` in its declaration: the null's discipline, a once-a-scene
+  use) pays it by itself, once per batch, after the batch's last change, however many of the
+  attack's changes carry it. The cost shows in `adjustments` with the choice as its `source`,
+  and a follow-up it offers is in `followUps`. Don't apply the cost yourself. The choice's
+  `available` says whether it can be paid; a cost past the field's minimum clamps.
+- **A batch-scoped choice** (`scope: batch`: 5E 5.2's Deflect Attacks, which reduces the attack's
+  total damage once) goes on the attack's first change only, and reaches the batch's later
+  changes its `incoming` matches. Apply one attack's changes as one batch, and log the batch as
+  returned: the rolled reduction's faces are on the change that rolled it. Replay a log batch by
+  batch, never change by change.
 
 ## What the rules call for next
 

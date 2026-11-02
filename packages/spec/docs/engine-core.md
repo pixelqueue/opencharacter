@@ -1004,12 +1004,13 @@ The old copy's picks, state and templates go with it.
 ### What the batch did
 
 applyChanges binds **`batch`** in the formulas it evaluates: a change aimed at
-copies or applied entries (`where`, `by`, `value`) and an `applyEffect`'s state value given as
-`{ formula }`. `batch.adjustments` lists the `adjustments` entries of the batch's earlier
-changes on this character that change a field, in order, each `{ field, by, requested, reason,
-clamped, tags }`, as an `on` follow-up's `change` has them (`requested` 0 and `clamped` false
-when absent). An action passes on a formula that reads `batch` (a state value as `{ formula }`),
-so it learns what its own earlier changes did to the target: 5E's wound holds the hit points
+copies or applied entries (`where`, `by`, `value`), an `applyEffect`'s state value given as
+`{ formula }`, an incoming-change effect's `when`, `value` and `then`, and a situational
+choice's `changes`. `batch.adjustments` lists the `adjustments` entries of the batch's earlier
+changes on this character that change a field, in order, each `{ field, by, requested, taken,
+reason, clamped, tags }`, as an `on` follow-up's `change` has them (`requested` and `taken` 0
+and `clamped` false when absent). A situational choice's `changes` see the whole batch's. An
+action passes on a formula that reads `batch` (a state value as `{ formula }`), so it learns what its own earlier changes did to the target: 5E's wound holds the hit points
 the target lost to the batch's damage, after its resistances and temporary hit points.
 
 An `applyEffect` state value `{ formula }` is evaluated with `item` the source's item, the
@@ -1191,7 +1192,10 @@ An `adjust` on field F with amount `by`, `tags` and optional `situational` choic
    `incoming`: `amount` is `by` as requested, before any effect, so every
    instance sees the same number; `field` is F's qualified ID; `tags` are the change's tags.
    They also see `situational`: the choices visible from the effect's pack, each with the value
-   the change gives, else its default.
+   the change gives (or a batch-scoped one an earlier change of the batch selected), else its
+   default; and `batch`, the batch's earlier field entries ([above](#what-the-batch-did)).
+   A batch-scoped choice's `add` is worked out once per batch and spent over its changes
+   ([below](#situational-choices-on-a-change)).
    An instance **counted** when its `when` held and stacking kept it.
 2. **Absorbing.** If the amount is negative, each field in F's `absorbedBy`, in order, takes as
    much of it as it can before reaching its minimum.
@@ -1216,7 +1220,9 @@ An `adjust` on field F with amount `by`, `tags` and optional `situational` choic
    otherwise the entry's state (for picked or granted content, the owning copy's). A change to a
    grant that is no longer active (an earlier `then` turned its `when` off) is skipped. A
    `removeEffect` (applied effects only) removes the applied entry. Their `value` and `by` are
-   evaluated with the instance's `item`, `self` and `incoming`, on the same sheet as step 1.
+   evaluated with the instance's `item`, `self`, `incoming` and `batch`, on the same sheet as
+   step 1; here `incoming` also has `taken`, the amount after step 1, and `rolled`, the total the
+   instance's own dice rolled (0 when it rolled none).
    They are checked like the same changes given to applyChanges, and a failure rejects the
    batch. Once an entry is removed, every later `then` change aimed at it in this step is
    skipped, so two effects of one ward that both counted remove it once. They are not adjusts,
@@ -1237,6 +1243,8 @@ Each step that changes a field is reported in `adjustments`, in order, as
    - `rolled` (only when an incoming-change effect rolled dice) lists each roll in instance order
      as `{ source, dice, faces, total }`: the effect's source with its effect ID, the dice as
      text, every face used, and the total.
+   - `source` (only on an adjust a situational choice's `changes` made) is the choice,
+     `{ type: situational, id }`.
    - With an overflow, `by` is the unclamped amount, so the value may briefly be past its bound.
 3. **`overflow`:** the adjust on `into`, followed by that field's own steps if it overflows in
    turn.
@@ -1274,6 +1282,34 @@ qualified IDs to values, such as 5E's Uncanny Dodge on one attack.
   choice order; its roll effects don't apply. A choice left at its default adds nothing.
 - The choices reach only this change: not its overflow (which skips incoming-change effects) and
   not the batch's other changes. An attack split into several adjusts carries them on each.
+- **Batch-scoped** choices (`scope: batch`) are the exception. One selected on an adjust also
+  reaches every later adjust of the batch that its `incoming` matches: its incoming-change effects
+  join their step 1 after that change's own choices, and every effect sees its value as
+  `situational.<id>`. Selecting it
+  on a later change of the same batch is `situational-unavailable`. Each of its counted `add`s
+  is worked out once, on the first change it counts on (a dice value rolled there, in instance
+  order, its faces on that adjust), and is then a budget: on each change, in its place among the
+  `add`s, it adds what moves the amount toward 0, at most the amount's size, and keeps the rest
+  for the next change; on an amount of 0, or of its own sign, it adds 0. Its other operations
+  apply to each change as usual.
+- **Changes.** After the batch's last change, each choice selected on any change of the batch
+  applies its `changes` once, in order of first selection, each change in order: `when`, if
+  given, must hold; `set` sets an input field to `value` (checked as a `set` change); `adjust`
+  routes `by` into an input field with its `tags`, skipping step 1, absorbed and clamped as
+  any adjust (a tag no loaded pack declares is `unknown-tag`), and its `requested` entry
+  carries `source: { type: situational, id }`; `offerFollowUp` offers the rules follow-up with
+  its `params` evaluated, after the batch's own offers ([follow-ups](#follow-ups)). Each formula
+  is evaluated in the choice's pack on the character as it is then, with `situational` (every
+  choice selected on the batch, defaults for the rest) and `batch` (all the batch's field
+  entries so far). A failure rejects the batch, its path the change that first selected the
+  choice. The returned `changes` don't list them: replaying the selecting change applies them
+  again, so a log replays batch by batch. A choice with `changes` selected on several changes of
+  a batch must have one value on all of them; another is `situational-unavailable`. A
+  follow-up the choice offers must be one the rules declare, not derived (`while`): otherwise
+  loadRuleset fails with `unknown-reference` (kind `follow-up`). A `set` or `adjust`
+  of a field that isn't an input field (or an `adjust` of one that isn't numeric), or a
+  follow-up parameter its action neither declares nor gets from a `params` effect reaching it,
+  is `invalid-situational-change`; a tag no visible pack declares is `unknown-tag`.
 - `changes` returns the adjust with its `situational`, so a logged batch replays the same.
 - An action never proposes `situational`: the target's player chooses, on the target's side.
 
@@ -1323,7 +1359,8 @@ until they are acted on or dismissed. The engine runs and applies neither.
    the character has with that `followUp` and `source`, as a stored one is found; with none, or a
    derived (`while`) one, nothing is stored. Otherwise it fires as a triggered one does (its
    `when` and action checked, below), its `params` the declaration's with the change's over them,
-   and no `cause`. Offered follow-ups come before the triggered ones.
+   and no `cause`. Then those a situational choice's `changes` offer, as offered ones
+   ([above](#situational-choices-on-a-change)). Offered follow-ups come before the triggered ones.
 3. **`on`.** After a successful batch (strict mode included): for each entry of `adjustments` on
    the follow-up's field, in order, whose tags include one of `on.tags` (a tag matches its
    subtags), or any such entry without `on.tags`. An entry's tags are the change's tags for

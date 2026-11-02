@@ -1,0 +1,24 @@
+description: "A situational choice's adjust carries declared tags only: another is `unknown-tag`"
+specVersion: 0.1.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        tags: [damage]
+        fields:
+          hp: { type: integer, input: true, default: 10 }
+          focus: { type: integer, input: true, default: 1 }
+        situational:
+          - id: parry
+            type: boolean
+            default: false
+            incoming: { fields: [hp], tags: [damage] }
+            changes:
+              - { type: adjust, field: focus, by: -1, tags: [strain] }
+      content: []

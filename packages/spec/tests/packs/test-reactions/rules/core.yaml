@@ -1,0 +1,90 @@
+tags: [attack, damage, damage.fire, damage.slashing]
+
+fields:
+  hp: { type: integer, input: true, default: 20, min: 0, max: 20 }
+  # Spent on the shield; a once-a-scene mark for it.
+  focus: { type: integer, input: true, default: 0, min: 0 }
+  shieldUsed: { type: boolean, input: true, default: false }
+  # Deflecting needs training; its flat part.
+  deflects: { type: boolean, input: true, default: false }
+  deflectBonus: { type: integer, formula: 2 }
+
+contentTypes:
+  ward:
+    carried: true
+    state:
+      soaked: { type: integer, default: 0, min: 0 }
+      lastTaken: { type: integer, default: 0 }
+    effects:
+      # The first damage of a batch only: soaks 1d4 and keeps what it rolled and what got through.
+      - id: soak
+        target: { incoming: { fields: [hp], tags: [damage] } }
+        op: add
+        value: 1d4
+        when: >-
+          incoming.amount < 0 && countList(batch.adjustments, x.reason == 'requested'
+            && x.requested < 0) == 0
+        then:
+          - { type: adjustState, entry: self, key: soaked, by: incoming.rolled }
+          - { type: setState, entry: self, key: lastTaken, value: incoming.taken }
+
+situational:
+  # Halves one attack's damage for 1 focus and the scene's use: paid once per batch, however many
+  # of the attack's changes select it.
+  - id: shield
+    type: boolean
+    default: false
+    incoming: { fields: [hp], tags: [attack] }
+    available: focus > 0 && !shieldUsed
+    effects:
+      - { target: { incoming: { fields: [hp], tags: [damage] } }, op: multiply, value: 0.5 }
+    changes:
+      - { type: adjust, field: focus, by: -1 }
+      - { type: set, field: shieldUsed, value: true }
+  # Stops as much of one attack's damage as the focus spent on it.
+  - id: brace
+    type: integer
+    default: 0
+    incoming: { fields: [hp], tags: [attack] }
+    available: focus > 0
+    effects:
+      - target: { incoming: { fields: [hp], tags: [damage] } }
+        op: add
+        value: situational.brace
+    changes:
+      - { type: adjust, field: focus, by: -situational.brace }
+  # Reduces the attack's total damage once by 1d6 + 2, over its changes in order. Stopping it all
+  # offers the redirect, with what was stopped.
+  - id: deflect
+    type: boolean
+    default: false
+    incoming: { fields: [hp], tags: [attack] }
+    scope: batch
+    available: deflects
+    effects:
+      - target: { incoming: { fields: [hp], tags: [damage] } }
+        op: add
+        value: 1d6 + deflectBonus
+        when: incoming.amount < 0
+    changes:
+      - type: offerFollowUp
+        followUp: redirect
+        when: >-
+          countList(batch.adjustments, x.field == 'test-reactions:hp' && x.reason == 'requested'
+            && x.taken < 0) == 0
+        params:
+          stopped: >-
+            -sumList(batch.adjustments, x.requested, x.field == 'test-reactions:hp'
+              && x.reason == 'requested')
+
+followUps:
+  - id: redirect
+    action: redirect
+
+actions:
+  - id: redirect
+    params:
+      stopped: { type: integer, default: 0 }
+    results: [redirected]
+    steps:
+      - { id: result, kind: outcome, result: "'redirected'" }
