@@ -66,8 +66,10 @@ computeSheet(ruleset, made.character).values['draw-steel-heroes:stamina.max']?.v
 
 ## What's modeled
 
-- **Creation:** a guided start (the book's Quick Build picks recommended) and a random one, at any
-  level from 1 to 10: ancestry with its point-buy traits, culture, career, class with its
+- **Creation:** a guided start and a random one, at any level from 1 to 10. The guided start
+  recommends the book's Quick Build picks for each class (subclass, kit, characteristics, skills,
+  perks, abilities); the book has none for ancestry, culture or career, so those recommend the
+  first option, for the player to change. Both cover ancestry with its point-buy traits, culture, career, class with its
   subclass, kit, characteristic array, skills, perks and every level's choices, and an optional
   complication.
 - **Power rolls:** 2d10 plus a characteristic, in three tiers. Edges and banes are roll tallies:
@@ -81,34 +83,47 @@ computeSheet(ruleset, made.character).values['draw-steel-heroes:stamina.max']?.v
   and content's own: Executioner's Blade against a winded target, The Harder They Fall against a
   large one), then pays the cost and Spend, so the Shadow's insight discount and an
   Elementalist's maintained abilities cost what they should, and a use that can't pay ends.
-  Damage adds the characteristic, surges and the kit's bonus for that tier; conditions and other
-  effects land behind potency; forced movement, a teleport and distance are in the outcome.
+  Damage adds the characteristic, surges (checked against those held, spent only on rolled
+  damage) and the kit's bonus for that tier; 2 more surges raise one target's potency by 1
+  (`potencySurge`); conditions and other effects land behind potency; forced movement, a teleport
+  and distance are in the outcome. A grabbed or taunted hero's bane counts when the grabber or
+  taunter isn't among the targets.
   Content adds to an ability's forced movement, potency and distance through roll tallies
   (Forceful, Growing Ferocity, the psi boosts, Prayer of Distance), sets them on a hit (Judgment's
   Paragon pull and Exorcist teleport, King's Roar) or replaces a condition ("instead": It Is
   Justice You Fear). Choices made on each use are parameters: the psi boosts and taking the
-  strain on any psionic ability, Hurl Element's and Dragon Breath's damage type. Abilities with
+  strain on any psionic ability (psi boosts are an extra cost paid with the use and counted by
+  strain; taking the strain outside combat costs 1d6), Hurl Element's and Dragon Breath's damage
+  type, Healing Grace's Spend enhancements (`graceRecoveries`, `graceStand`). Abilities with
   rules beyond the tier table (Strained, with its rolled damage, persistent abilities, Judgment,
   Mark, routines, edicts, prayers, summons' numbers) add them on tagged steps or their own
   actions. The uses are grouped by main action, maneuver and triggered action.
-- **Ability cards:** each tier's text names this hero's damage (characteristic and kit included)
-  and potency, from the ability's computed values, and the book's wording without a hero.
+- **Ability cards:** each tier's text names this hero's damage (characteristic and kit included),
+  potency and distance, from the ability's computed values, and the book's wording without a
+  hero. Range bonuses (Omnisensory, Remote Amplification, Prayer of Distance, the Elementalist's
+  distance features) are sheet fields the card reads, reaching abilities without a roll too; an
+  area's bonus goes to its range ("within"), not its size.
 - **Classes:** the nine classes with their subclasses, heroic resources (including the Talent's
   negative clarity and strain), resource gains from their triggers, Growing Ferocity and
   Discipline Mastery tables, 10th-level epic resources, and the Censor's use of the Conduit's
   domains: the Censor's domain grants the Conduit's domain features as the hero levels, and their
   text and numbers read the holder's class (Presence and My Life for Yours for a Censor,
-  Intuition and Healing Grace for a Conduit). Persistent Magic counts the damage taken in one
+  Intuition and Healing Grace for a Conduit). Talent wards: Repulsive Ward offers its push and
+  Vanishing Ward makes the hero invisible until the end of their next turn. Persistent Magic counts the damage taken in one
   turn (anyone's) until the turn changes, and 5 × Reason ends the maintained abilities.
 - **Stamina:** maximum from class, level and kit; winded, dying (and bleeding, unless a trait says
   otherwise) and dead; temporary Stamina (the greater kept); Recoveries, including Recoveries other
   heroes' abilities grant; damage immunity (by type, all damage, or "immunity all" to a type),
-  weakness, and damage that can't be reduced.
+  weakness (the highest that applies), and damage that can't be reduced. Immunities from
+  treasures, complications, titles and class features don't stack: the highest counts. A
+  revenant at the death threshold is inert, not dead (fire then destroys it), and a doomsight
+  hakaan turns to rubble.
 - **Conditions and effects:** the nine conditions and other lasting effects (Setup's damage
   weakness), with duration (EoT, save ends, end of encounter, until the start or end of the
   imposer's next turn, on anyone: the `turn-boundary` clock action ends them) and who imposed
   them; immunities keep them off the sheet; saving throws.
-- **Combat:** start of combat, rounds and turns, Victories, experience and level-up, respite.
+- **Combat:** start of combat, rounds and turns, Victories, experience and level-up, respite
+  (not for a dead hero).
 - **Marks:** the Tactician's marks are entries the tactician applied; a new Mark ends the earlier
   ones wherever they are, dying ends them all, and the tactician's own rolls find its marks among
   the targets (the edge, Warmaster, focus).
@@ -119,11 +134,12 @@ computeSheet(ruleset, made.character).values['draw-steel-heroes:stamina.max']?.v
 - **Kits:** the 21 kits and the 4 stormwight kits (with their animal forms' sizes); with two kits
   (Field Arsenal) one bonus of each kind counts, one kit's damage bonus across all three tiers.
 - **Ancestries, culture, careers, perks, complications, titles, treasures:** every trait, aspect,
-  career, perk, complication, title and treasure, with its numbers and choices. A career's
+  career, perk, complication, title and treasure (100), with its numbers and choices. Armor and
+  weapon treasures need a kit with a matching keyword (or Prayer of Soldier's Skill). A career's
   inciting incident is a choice of the book's six, each with its text. A treasure a complication
   hands you (Secret Twin, Cursed Weapon, …) is picked at creation and held as your own copy;
-  Dragon Dreams' traits work from 5 Victories; Following in the Footsteps records the heroic
-  ability you aim for (its cost reduction is the table's).
+  Dragon Dreams' traits work from 5 Victories; Following in the Footsteps records the idol's
+  heroic ability and the neglected one, and pays the discount and the extra cost in combat.
 
 ## Text-only, and why
 
@@ -141,8 +157,21 @@ no way to say them (each is a gap the project tracks):
   outcome, not a move.
 - **Choices made at the table in the middle of an ability:** Expanded and Shared psi boosts
   (area size, extra targets).
-- **Distance bonuses on abilities without a power roll** (the bonus rides on the roll), and
+- **Extended Power on abilities without a power roll** (that boost rides on the roll), and
   distances that grow with level (King's Roar).
+- **Talent:** Entropy Ward (it acts on the attacker's sheet) and Smolder's strained "can't use
+  triggered actions".
+- **Healing Grace:** ending an effect, and checking that the enhancements add up to the Spend.
+- **No Dying on My Watch** records the target as frightened of the tactician, not of the ally who
+  triggered it; **Inspiring Strike** offers only your own Recovery (the ally's, and the tier 3
+  edges, are the table's).
+- **Following in the Footsteps:** an ability's availability still checks its printed cost.
+- **Abilities a treasure grants** (King's Roar, Kuran'zoi Prismscale) aren't gated on the kit's
+  keywords, since a grant can't read picks.
+- **Ancestries:** the revenant's fall prone and 12-hour recovery, and a doomed hakaan's death at
+  the encounter's end.
+- **Eidetic Memory's** reset at each respite (the skill stays until re-picked), and **Knife of
+  Nine's** growing bonus (+1 a hit on the same target, at most 3).
 - **Typed damage on the card** of Hurl Element and Dragon Breath: their tier fields hold 0 and the
   damage comes from an effect tagged with the chosen type, since a roll effect can't retag the
   ability's own damage.
