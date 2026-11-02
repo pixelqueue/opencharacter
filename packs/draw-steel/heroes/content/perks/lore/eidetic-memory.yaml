@@ -8,6 +8,10 @@ choices:
       type: skill
       where: item.group == 'lore'
     eligible: '!(item.id in skills.known) || item.id in choice.picks'
+    # None to pick once every lore skill is known (Gods' Library).
+    pick:
+      min: min(1, countList([@skills.history, @skills.magic, @skills.monsters, @skills.nature, @skills.religion, @skills.society, @skills.culture, @skills.psionics, @skills.timescape, @skills.strategy, @skills.rumors, @skills.criminal-underworld], !(x in skills.known)))
+      max: 1
     recommend: filterList([@skills.history, @skills.magic, @skills.monsters, @skills.nature, @skills.religion, @skills.society, @skills.culture, @skills.psionics, @skills.timescape, @skills.strategy, @skills.rumors, @skills.criminal-underworld], !(x in skills.known))[0]
     activate: false
     effects:
