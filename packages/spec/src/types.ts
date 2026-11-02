@@ -154,7 +154,7 @@ export type ChoiceStep = {
     /** Integer formula: the picks needed before `#done` is offered (default 0). Evaluated once, before the first pick. */
     min?: Formula;
   };
-  /** Formula naming the recommended option ID; it may read `options`, the list of IDs the step's own source offers (`#done` and added options left out). Under an automatic policy the engine takes it. It may name `#done` while `#done` is offered, so declining is the default; added options are never recommended. Without it, a `content`, `copies` or `values` step recommends the candidate with the highest `prefer`; with neither, no option is recommended, so an automatic run pauses there. Over pending choices, it also sees `choice`, the choice being asked (`{ path, owner, id }`); without it, the option `listOptions` marks recommended is. */
+  /** Formula naming the recommended option ID; it may read `options`, the list of IDs the step's own source offers (`#done` and added options left out). Under an automatic policy the engine takes it. On a written, `content`, `copies` or `values` source it may name `#done` while `#done` is offered (a `repeat` step past `min`), so declining is the default, unless `random` draws instead; over pending choices `#done` is never recommended. Added options are never recommended. Without it, a `content`, `copies` or `values` step recommends the candidate with the highest `prefer`; with neither, no option is recommended, so an automatic run pauses there. Over pending choices, it also sees `choice`, the choice being asked (`{ path, owner, id }`); without it, the option `listOptions` marks recommended is. */
   recommend?: Formula;
   /** Boolean formula, evaluated before each pick with `options` (and, over pending choices, `choice`) bound as for `recommend`: when it holds, the engine draws one die with as many sides as the source's offered options (added options and `#done` left out; over pending choices, the asked choice's eligible options) and recommends option face − 1 instead of `recommend` and `prefer`. With one option nothing is drawn. The draw is a dice checkpoint at the step's path, following the dice policy for the step's tags: a pause is `needs.kind: dice` with one die and `draw`. A creation action says `random: params.random`. */
   random?: Formula;
@@ -1849,7 +1849,7 @@ export type ActionNeed = {
   summary?: RollSummary;
   /** The offered option IDs, in order: written option IDs, qualified content IDs or instance IDs. A repeated step that has its `min` picks offers the reserved `#done` last. */
   options?: string[];
-  /** The recommended option, if any; never `#done`. */
+  /** The recommended option, if any; `#done` when the step's `recommend` names it. */
   recommended?: string;
   /** Choice steps over values, and their random draws: the qualified ID of the content the action runs for (its `item`: the copy's item, the picked or granted content, an applied entry's source); absent for an action run without content. The app names each value `<content>.options.<value>.name` when the content's pack has it, else `<actionKey>.options.<value>.name`, else as it names a plain value. */
   content?: string;

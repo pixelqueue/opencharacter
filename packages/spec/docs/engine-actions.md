@@ -864,8 +864,8 @@ A choice step has one source of options (a fifth, pending choices, is
   (`has(steps.<id>)` is false); with it, `steps.<id>.picked` is `[]`.
 - **Recommending.** `recommend` is evaluated before each pick, with `options` bound to the IDs
   the step's own source offers (`#done` and added options left out); it recommends its value if
-  that is one of them, or `#done` while `#done` is offered (declining is then the default),
-  else nothing. Without `recommend`, a `content`, `copies` or `values` step
+  that is one of them, or `#done` while `#done` is offered (declining is then the default;
+  a `random` that holds draws instead), else nothing. Without `recommend`, a `content`, `copies` or `values` step
   recommends the candidate with the highest `prefer` (a number; ties go to the earlier
   candidate). A step with neither recommends nothing, whatever its source and however many
   candidates it offers: the first candidate is never recommended by default, so

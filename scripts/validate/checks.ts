@@ -2255,6 +2255,17 @@ export class PackChecker {
           if (step.prompt) this.requiredKeys.add(step.prompt);
           else if (!pendingSource(step)) this.requiredKeys.add(`${key}.steps.${step.id}.prompt`);
         }
+        // `#done` is offered only on a repeated step, and never asked over pending choices.
+        if (
+          step.kind === 'choice' &&
+          typeof step.recommend === 'string' &&
+          /^\s*(['"])#done\1\s*$/.test(step.recommend) &&
+          (step.repeat === undefined || pendingSource(step))
+        )
+          this.report.warn(
+            file,
+            `${where}: recommend names #done, which this step never recommends (it needs repeat, and not pending choices)`,
+          );
         if (step.kind === 'allocate') this.allocate(step, file, where);
         if (step.kind === 'roll') {
           if (step.label) this.requiredKeys.add(step.label);

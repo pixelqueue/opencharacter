@@ -1,0 +1,23 @@
+# The traits step (repeat, min 0) recommends `#done`: the engine takes it, so the weapon gets
+# the recommended group and type and no traits. Before `#done` could be recommended, this run
+# paused at the traits step.
+status: finished
+outcome: { result: re-forged }
+proposedChanges:
+  - to: self
+    step: apply
+    change:
+      type: applyTemplate
+      entry: blade
+      template: 'orc-sf-2e:templates.solar.group-sword'
+  - to: self
+    step: apply
+    change:
+      type: applyTemplate
+      entry: blade
+      template: 'orc-sf-2e:templates.solar.type-slashing'
+log:
+  - { step: weapon, kind: choice, by: engine, option: blade }
+  - { step: group, kind: choice, by: engine, option: sword }
+  - { step: type, kind: choice, by: engine, option: slashing }
+  - { step: traits, kind: choice, by: engine, option: '#done', index: 0 }

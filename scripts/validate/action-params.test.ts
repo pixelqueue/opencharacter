@@ -32,6 +32,23 @@ function validate(edit: Record<string, string> = {}) {
   }
 }
 
+/** A rules file with one action whose choice step recommends `#done`. */
+const step = (repeat: string) =>
+  [
+    'actions:',
+    '  - id: pick',
+    '    results: [done]',
+    '    steps:',
+    '      - id: choose',
+    '        kind: choice',
+    '        options: [{ id: a }]',
+    ...(repeat ? [`        ${repeat}`] : []),
+    `        recommend: "'#done'"`,
+    `      - { id: result, kind: outcome, result: "'done'" }`,
+  ].join('\n');
+
+const warned = (r: { warnings: string[] }) => r.warnings.filter((m) => m.includes('#done'));
+
 const added = (errors: string[]) => errors.filter((m) => m.startsWith('invalid-added-param'));
 
 describe('pnpm validate on params effects, computed action tags and a use with available', () => {
@@ -97,5 +114,10 @@ describe('pnpm validate on params effects, computed action tags and a use with a
       ].join('\n'),
     });
     expect(added(own.errors)).toEqual([]);
+  });
+
+  it('warns about a recommend naming #done on a step that never offers it', () => {
+    expect(warned(validate({ 'rules/extra.yaml': step('') }))).toHaveLength(1);
+    expect(warned(validate({ 'rules/extra.yaml': step('repeat: { max: 1 }') }))).toEqual([]);
   });
 });

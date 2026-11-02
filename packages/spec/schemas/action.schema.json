@@ -527,7 +527,7 @@
           "additionalProperties": false
         },
         "recommend": {
-          "description": "Formula naming the recommended option ID; it may read `options`, the list of IDs the step's own source offers (`#done` and added options left out). Under an automatic policy the engine takes it. It may name `#done` while `#done` is offered, so declining is the default; added options are never recommended. Without it, a `content`, `copies` or `values` step recommends the candidate with the highest `prefer`; with neither, no option is recommended, so an automatic run pauses there. Over pending choices, it also sees `choice`, the choice being asked (`{ path, owner, id }`); without it, the option `listOptions` marks recommended is.",
+          "description": "Formula naming the recommended option ID; it may read `options`, the list of IDs the step's own source offers (`#done` and added options left out). Under an automatic policy the engine takes it. On a written, `content`, `copies` or `values` source it may name `#done` while `#done` is offered (a `repeat` step past `min`), so declining is the default, unless `random` draws instead; over pending choices `#done` is never recommended. Added options are never recommended. Without it, a `content`, `copies` or `values` step recommends the candidate with the highest `prefer`; with neither, no option is recommended, so an automatic run pauses there. Over pending choices, it also sees `choice`, the choice being asked (`{ path, owner, id }`); without it, the option `listOptions` marks recommended is.",
           "$ref": "formula.schema.json"
         },
         "random": {
