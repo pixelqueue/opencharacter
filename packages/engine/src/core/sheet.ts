@@ -8,6 +8,7 @@ import type {
 } from '@opencharacter/spec';
 import * as f from '../formula/index.ts';
 import type { EngineError } from './load.ts';
+import { samePath } from './tree.ts';
 import type {
   ActionDef,
   ActionOrUse,
@@ -4064,6 +4065,27 @@ export class Sheet {
       if (a.item?.qid !== content) continue;
       for (const record of this.choicesOf.get(a) ?? [])
         if (record.choice.id === choice) out.push(...record.picks.map((p) => p.option));
+    }
+    return out;
+  }
+
+  /**
+   * The paths of a content's choice on every activation of it, in activation order, as
+   * `picksOf(content, choice)` reads them: those with picks, a choice a grant presets left out.
+   */
+  contentChoicePaths(content: string, choice: string): ChoicePath[] {
+    const out: ChoicePath[] = [];
+    for (const a of this.activations) {
+      if (a.item?.qid !== content) continue;
+      for (const record of this.choices)
+        if (
+          record.owner === a &&
+          record.choice.id === choice &&
+          !record.preset &&
+          record.picks.length > 0 &&
+          !out.some((p) => samePath(p, record.path))
+        )
+          out.push(record.path);
     }
     return out;
   }

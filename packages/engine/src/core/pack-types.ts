@@ -521,6 +521,8 @@ export interface ProposedChange {
   equipped?: Formula;
   template?: Formula;
   path?: ProposedPath;
+  /** unchoose: a content's choice by its owner (`self` or a content ID), on each activation. */
+  choice?: { owner: string; id: string };
   option?: Formula;
   followUp?: string;
   params?: Record<string, Formula>;

@@ -638,6 +638,11 @@ export type ProposedChange = {
     appliedBy?: 'self';
   };
   path?: ProposedPath;
+  /** unchoose only, instead of `path` and `option`: a content's choice by its owner, cleared (every pick removed, with its nested picks) on every activation of the content, as `picksOf(owner, id)` reads them. One unchoose is proposed per activation whose choice has picks, with its `path`; none is proposed when no activation has any. `owner` is `self` (the content carrying the effect that adds the change, else the content whose action it is; for the rules, `unknown-reference` when the action runs) or a content ID, qualified against the action's pack. `id` is the choice's ID (a slot's key for a slot). Only for the actor's own choices (`to: self`). A choice a grant presets is skipped. */
+  choice?: {
+    owner: string;
+    id: Slug;
+  };
   /** choose and unchoose: a formula naming the option (`picked.id`). An unchoose may leave it out to remove every pick of the choice. */
   option?: Formula;
   /** applyEffect: the new entry's instance ID (without it, applyChanges picks one); removeEffect and toggleEffect: the applied entry's. */

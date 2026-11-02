@@ -198,6 +198,38 @@ export class PackChecker {
     return false;
   }
 
+  /**
+   * An unchoose naming its choice by owner: for the actor's own choices, and a literal owner is
+   * content declaring the choice (a slot's key for a slotted one), itself or by `extends`.
+   */
+  private ownerChoice(change: ProposedChange, file: string, where: string, to?: Destination): void {
+    const { owner, id } = change.choice as { owner: string; id: string };
+    if (change.type !== 'unchoose' || change.path !== undefined || change.option !== undefined)
+      this.report.error(file, `${where}: choice is for an unchoose without path or option`);
+    if (to !== undefined && to !== 'self')
+      this.report.error(file, `${where}: an unchoose by owner is for the actor's own choices`);
+    if (owner === 'self') return;
+    let entry = this.ruleset.item(owner, this.scope);
+    if (!entry) {
+      this.report.error(file, `${where}: unknown content "${owner}"`);
+      return;
+    }
+    const seen = new Set<string>();
+    while (entry && !seen.has(entry.qid)) {
+      seen.add(entry.qid);
+      const declared = (entry.item.choices ?? []) as { id: string; slots?: unknown }[];
+      if (
+        declared.some(
+          (c) => c.id === id || (c.slots !== undefined && new RegExp(`^${c.id}-\\d+$`).test(id)),
+        )
+      )
+        return;
+      const parent: string | undefined = entry.item.extends ?? entry.item.override;
+      entry = parent ? this.ruleset.item(parent, this.ruleset.scope(entry.pack)) : undefined;
+    }
+    this.report.error(file, `${where}: "${owner}" declares no choice "${id}"`);
+  }
+
   /** Whether any loaded content type or item defines an inline action with this local ID. */
   private anyDefines(use: string): boolean {
     const defines = (def: { actions?: ActionOrUse[] }) =>
@@ -2347,7 +2379,8 @@ export class PackChecker {
     // A choice to pick in: choose and unchoose need a path, choose an option too (an unchoose
     // without one removes every pick); nothing else takes them.
     const picks = change.type === 'choose' || change.type === 'unchoose';
-    if (picks && change.path === undefined)
+    if (change.choice !== undefined) this.ownerChoice(change, file, where, to);
+    else if (picks && change.path === undefined)
       this.report.error(file, `${where}: ${change.type} needs a path`);
     if (change.type === 'choose' && change.option === undefined)
       this.report.error(file, `${where}: choose needs an option`);

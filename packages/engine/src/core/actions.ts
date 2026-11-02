@@ -4220,6 +4220,21 @@ function proposeOne(
   other = false,
 ): void {
   if (!test(ctx, frame, change.when, bound)) return;
+  if (change.choice) {
+    // A choice another of the content's activations already cleared in this step is cleared once.
+    const cleared = (at: ChoicePath) =>
+      ctx.proposed.some(
+        (p) =>
+          p.step === path &&
+          p.change.type === 'unchoose' &&
+          p.change.option === undefined &&
+          samePath(p.change.path, at),
+      );
+    for (const at of ownerChoicePaths(ctx, frame, change.choice, route))
+      if (!cleared(at))
+        ctx.proposed.push({ ...route, step: path, change: { type: 'unchoose', path: at } });
+    return;
+  }
   const tags = tagsOf(ctx, change.tags, (fm) => evaluate(ctx, frame, fm, bound));
   // A `by` that gives dice is rolled now: the change carries the total.
   const amount = (v: f.Value, field: unknown): unknown =>
@@ -4377,6 +4392,36 @@ function proposeOne(
   } else {
     ctx.proposed.push({ ...route, step: path, change: resolve({}, []) });
   }
+}
+
+/**
+ * An unchoose's `choice: { owner, id }`: the paths of the owner's choice on each of its
+ * activations on the actor's sheet that have picks. `self` is the content carrying the effect
+ * that adds the change, else the action's content.
+ */
+function ownerChoicePaths(
+  ctx: Ctx,
+  frame: Frame,
+  choice: { owner: string; id: string },
+  route: Route,
+): ChoicePath[] {
+  const fail = () => {
+    throw new ActionError('unknown-reference', {
+      kind: 'choice',
+      id: `${choice.owner}/${choice.id}`,
+    });
+  };
+  if (route.to !== 'self' || route.character !== undefined) fail();
+  const self =
+    frame.adder !== undefined
+      ? frame.adder.id !== undefined && ctx.ruleset.content[frame.adder.id]
+        ? frame.adder.id
+        : undefined
+      : frame.activation?.item?.qid;
+  const owner =
+    choice.owner === 'self' ? self : resolveContent(ctx.ruleset, choice.owner, frame.pack);
+  if (owner === undefined) return fail();
+  return ctx.sheet.contentChoicePaths(owner, choice.id);
 }
 
 /** `entry` as a change's (`self`, `picked`, an instance ID or `{ formula }`); `choice` a list. */

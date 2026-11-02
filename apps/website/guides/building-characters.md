@@ -244,7 +244,9 @@ playbook brings its special abilities), so compute the sheet again after each ba
 going until `pending` is empty, or the player stops.
 
 `unchoose` removes a pick and every pick nested under it, in the same all-or-nothing change.
-Changing a pick is `unchoose` then `choose` in one batch.
+Changing a pick is `unchoose` then `choose` in one batch. An action can propose an `unchoose` too
+(Draw Steel's Eidetic Memory clears its lore skill at each respite): once applied, the choice is
+pending again, so ask the player for the new pick as you would during creation.
 
 ## Levelling up
 
