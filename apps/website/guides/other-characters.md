@@ -91,7 +91,9 @@ while ('status' in cast && cast.status === 'paused' && cast.needs.kind === 'hand
 - **The log records each answer** (`kind: 'handoff'`), so a paused action replays exactly.
 - **Content can add handoffs to an action**: a feature's `action` effect can hand off its own
   save on a hit. Its `needs.step` is the hit step's path, then the content and the effect's ID
-  (`deal/<feature id>#stun[0]`); answer it like any other.
+  (`deal/<feature id>#stun[0]`); answer it like any other. Without a participant the added run
+  happens on the actor: its rolls and choices pause like any nested action's, at that path, so a
+  policy rule on `step` can target them.
 - **A handoff may name other characters for the run**: `needs.run.participants` lists IDs by
   role, the running character's own `id` included. Pass their views as the run's
   `participants`, as you would to any action. A Fate attack names the attacker this way, so the
@@ -219,37 +221,65 @@ A null's field, a paladin's aura, a banner: an aura puts effects on whoever is i
 creatures stand is your app's business, so the pack lists the auras and you place their entries.
 The holder's `computeSheet` lists what it projects now in `auras`; apply an entry of each to every
 creature inside that `affects` names, and remove it when they leave or the aura drops off the
-list:
+list. The creatures inside need the aura's pack in their own ruleset, so an ally statted with
+the same packs:
 
 ```ts
-const nullSheet = computeSheet(rulesetFor(nullHero), nullHero);
-// nullSheet.auras: [{ source: 'draw-steel-heroes:abilities.null.null-field', aura: 'field',
-//                     entry: 'null-field', size: 1, affects: 'enemies' }]
-for (const a of nullSheet.auras)
-  for (const enemy of enemiesWithin(nullHero, a.size))
-    applyChanges(rulesetFor(enemy), enemy, [
-      { type: 'applyEffect', source: a.source, aura: a.aura, appliedBy: nullHero.id },
+const paladinSheet = computeSheet(rulesetFor(paladin), paladin);
+// paladinSheet.auras: [{ source: '5e-srd-5.1:features.paladin.aura-of-protection',
+//                        aura: 'protection', entry: 'paladin', size: 10, affects: 'allies' }]
+// `entry` is the copy that holds it (here, the paladin class).
+for (const a of paladinSheet.auras)
+  for (const ally of alliesWithin(paladin, a.size)) {
+    const placed = applyChanges(rulesetFor(ally), ally, [
+      {
+        type: 'applyEffect',
+        id: `${a.aura}-${paladin.id}`,
+        source: a.source,
+        aura: a.aura,
+        appliedBy: paladin.id,
+      },
     ]);
+    if (placed.ok) save(ally.id, placed.character); // your app's storage
+  }
+// When the ally leaves: { type: 'removeEffect', id: `protection-${paladin.id}` }.
 ```
 
-The aura's effects read the holder's live state (the extra effect the null bought this round),
-so pass the holder's view as `appliers` whenever you compute or act for a creature inside:
+Give each entry an ID of your own, as above, so you can remove it later. Name the entry on the
+creature's sheet with the key `<source>.auras.<aura>.name` in the source's pack
+([Showing text](showing-text.md#effects-and-auras)).
+
+The aura's effects read the holder's live values (the paladin's Charisma modifier now), so pass
+the holder's view as `appliers` whenever you compute or act for a creature inside:
 
 ```ts
-const appliers = [view(nullHero, nullSheet)];
-const goblinSheet = computeSheet(rulesetFor(goblin), goblin, [], {}, appliers);
-startAction(rulesetFor(goblin), goblin, { action: { id: 'monster-attack' }, appliers });
+const appliers = [view(paladin, paladinSheet)];
+const allySheet = computeSheet(rulesetFor(tamsin), tamsin, [], {}, appliers);
+// allySheet.values['5e-srd-5.1:saves.wis'].value: 4 (2 without the view)
+startAction(rulesetFor(tamsin), tamsin, {
+  action: { id: '5e-srd-5.1:saving-throw' },
+  params: { ability: 'wis', dc: 15 },
+  appliers,
+});
 ```
 
-Without the view, the effects read the defaults the aura declares. Nothing in the goblin's file
-changes when the null's does: recompute it with the new view.
+Pass the same `appliers` to every call for that creature, since an effect that reads `applier`
+can run in any of them:
+
+- `applyChanges(ruleset, tamsin, changes, false, {}, undefined, appliers)`: the 7th argument,
+  after `strict`, `links` and `dice`.
+- `listOptions(ruleset, tamsin, path, {}, appliers)` and
+  `describeAction(ruleset, tamsin, action, {}, appliers)`.
+
+Without the view, the effects read the defaults the aura declares (a Charisma modifier of 1
+here). Nothing in the ally's file changes when the paladin's does: recompute it with the new view.
 
 An aura can also make whoever is inside immune to something (Aura of Courage: no one inside is
 frightened). The entry you placed blocks the matching condition on that creature, reported as
 the rules issue `immune`; you do nothing more.
 
-Some auras come from a cast rather than from what the character holds: Bless or Spirit Guardians
-around the caster. The cast puts the spell on the caster as an applied entry, and the caster's
+Some auras come from a cast rather than from what the character holds: orc-2e's bless or 5E's
+Spirit Guardians around the caster. The cast puts the spell on the caster as an applied entry, and the caster's
 `auras` lists the aura once per cast, with `entry` that applied entry's ID. Place and remove its
 entries as for any aura. Two casts are two listings, told apart by `entry`, and a cast's aura
 leaves the list when its entry ends (removed or turned off), wherever the spell was cast from.
@@ -285,7 +315,8 @@ function turnChange(everyone, ended, started) {
 }
 ```
 
-It needs nothing else from you and never pauses: every parameter has a default, no role is
+Pass each creature's `links` and `appliers` as for any call; an aura's effects can read the turn
+too. It needs nothing else from you and never pauses: every parameter has a default, no role is
 required, no step asks a choice, and its rolls roll with your dice function. The pack
 uses it to reset what lasts a turn and to end what the creature whose turn starts applied until
 then (its entries record it in `appliedBy`).
@@ -437,12 +468,20 @@ attacker's ID in `character`:
 
 ```ts
 const hit = applyChanges(rulesetFor(talent), talent, forTalent);
-for (const offer of hit.followUps) {
-  if (offer.to !== 'character') continue;
-  // offer.character: 'goblin-1'; offer.changes: an applyEffect, appliedBy the talent.
-  const other = byId[offer.character];
-  applyChanges(rulesetFor(other), other, offer.changes);
-  applyChanges(rulesetFor(talent), talent, [{ type: 'clearFollowUp', id: offer.id }]);
+if (hit.ok) {
+  talent = hit.character;
+  for (const offer of hit.followUps) {
+    if (offer.to !== 'character') continue;
+    // offer.character: 'goblin-1'; offer.changes: an applyEffect, appliedBy the talent.
+    const other = byId[offer.character];
+    const slowed = applyChanges(rulesetFor(other), other, offer.changes);
+    if (slowed.ok) save(other.id, slowed.character);
+    const cleared = applyChanges(rulesetFor(talent), talent, [
+      { type: 'clearFollowUp', id: offer.id },
+    ]);
+    if (cleared.ok) talent = cleared.character;
+  }
+  save(talent.id, talent);
 }
 ```
 
@@ -470,7 +509,9 @@ const observes = new Map(); // character ID -> the fields its follow-ups watch o
 
 function apply(c, changes) {
   const result = applyChanges(rulesetFor(c), c, changes);
-  if (result.ok) observes.set(c.id, computeSheet(rulesetFor(c), result.character).observes ?? []);
+  if (!result.ok) return result;
+  save(c.id, result.character);
+  observes.set(c.id, computeSheet(rulesetFor(c), result.character).observes ?? []);
   return result;
 }
 
@@ -481,13 +522,16 @@ function applyAndShare(target, changes) {
   for (const other of everyone) {
     if (other.id === target.id) continue;
     if (!(observes.get(other.id) ?? []).some((f) => fields.has(f))) continue;
-    const seen = applyChanges(rulesetFor(other), other, [result.observe]);
+    const seen = apply(other, [result.observe]); // its offers live in its file now
     // seen.followUps: the tactician's `mark-damaged` offer, say. Show it; don't run it here.
   }
   return result;
 }
 ```
 
+- **Save the observer's file.** The offers an `observe` fires are stored in the observer's
+  file, like any ephemeral offer, so keep the `character` its `applyChanges` returns, as `apply`
+  does above.
 - **Log it like any change.** The `observe` change is in the observer's change list, so
   replaying the list stores the same follow-ups. Routed events grow every observer's change log,
   so send them only where `observes` says they matter.
