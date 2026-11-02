@@ -13,9 +13,12 @@ choices:
   - id: power
     from: { type: technique, where: item.level <= 1 }
     waivePrerequisites: true
-    recommend: '@techniques.telekinetic-manipulation'
+    recommend: >-
+      @techniques.telekinetic-manipulation in options ? @techniques.telekinetic-manipulation
+        : options[0]
   - id: second
     when: self.level >= 2
     from: { type: technique, where: item.level <= 1 }
     waivePrerequisites: true
-    recommend: '@techniques.telekinetic-armory'
+    recommend: >-
+      @techniques.telekinetic-armory in options ? @techniques.telekinetic-armory : options[0]

@@ -6,4 +6,6 @@ choices:
   - id: partials
     pick: 2
     from: { type: partialClass }
-    recommend: 'choice.picks == [] ? @partial-classes.expert : @partial-classes.warrior'
+    recommend: >-
+      @partial-classes.expert in options ? @partial-classes.expert
+        : @partial-classes.warrior in options ? @partial-classes.warrior : options[0]

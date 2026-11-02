@@ -29,7 +29,7 @@ choices:
             work,
           ],
       }
-    recommend: "'fix'"
+    recommend: "'fix' in options ? 'fix' : options[0]"
     effects:
       - target: { fields: { where: "item.id == fieldId('skills.{skill}.dice', pick.value)" } }
         op: atLeast
