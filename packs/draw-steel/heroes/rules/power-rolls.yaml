@@ -89,7 +89,7 @@ actions:
         kind: branch
         cases:
           - when: 'true'
-            flags: { difficulty: params.difficulty }
+            flags: { difficulty: params.difficulty, improve: 0 }
       - id: roll
         kind: roll
         tags:
@@ -102,6 +102,21 @@ actions:
           - field: "'characteristics.' + params.characteristic + '.score'"
           - value: 2
             when: has(params.skill) && params.skill in skills.known
+      # A failed test can be improved by what content offers here, paid at once (Brawny, Lucky
+      # Dog: 1d6 + level Stamina for one tier); declining is the default.
+      - id: improve
+        kind: choice
+        tags: [test.improve]
+        when: "steps.roll.band in ['failure', 'failure-consequence']"
+        options: []
+        repeat: { max: 1 }
+        recommend: "'#done'"
+      - id: improved
+        kind: roll
+        of: roll
+        when: flags.improve > 0
+        tags: [test.improved]
+        bands: test
       - id: bleed
         kind: roll
         when: "conditions.bleeding && params.characteristic in ['might', 'agility']"
@@ -116,11 +131,11 @@ actions:
           - { type: adjust, field: stamina.current, by: -steps.bleed.total, tags: [stamina-loss] }
       - id: result
         kind: outcome
-        result: steps.roll.band
+        result: 'has(steps.improved) ? steps.improved.band : steps.roll.band'
         data:
           total: steps.roll.total
           natural: 'size(steps.roll.kept) >= 2 ? steps.roll.kept[0] + steps.roll.kept[1] : 0'
-          tier: steps.roll.bandValue
+          tier: 'has(steps.improved) ? steps.improved.bandValue : steps.roll.bandValue'
 
   # A saving throw against a save-ends effect; a success ends the applied entry `entry` names.
   - id: saving-throw
@@ -144,3 +159,10 @@ actions:
       - id: result
         kind: outcome
         result: steps.roll.band
+
+effects:
+  # A paid improvement after a test (Brawny, Lucky Dog) moves its tier.
+  - id: test-improved
+    target: { rolls: [test.improved], tally: tierShift }
+    op: add
+    value: flags.improve
