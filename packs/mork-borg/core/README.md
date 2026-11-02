@@ -322,6 +322,8 @@ A pack that depends on `mork-borg-core` can add content of its types, and it joi
 - **Gear:** the guided start offers each item the tables give as a pick among its type's
   content, add-on gear included; a picked weapon with `ammo` is followed by a pick among the
   ammunition of that kind (Presence + 10 of it). The random starts keep the book's tables.
+  An added weapon's, armor's or shield's effects count only while it is equipped, and a
+  shield's only while it is unbroken (the types' `effectsWhen`).
 - **Open enums** (values in the add-on's rules' `extendEnums`, named in its text under the
   core's key): `mork-borg-core:types.weapon.fields.ammo` and `mork-borg-core:types.ammo.fields.kind`
   (a new kind of ammunition, added to both), and `mork-borg-core:types.scroll.fields.kind` (a

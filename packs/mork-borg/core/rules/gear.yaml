@@ -31,17 +31,18 @@ contentTypes:
       fromFeature: { type: boolean, default: false }
     state:
       broken: { type: boolean, default: false }
+    effectsWhen: self.equipped
     effects:
       - id: blocks-powers
         target: powers.blocked
         op: add
         value: 1
-        when: self.equipped && has(item.blocksPowers) && item.blocksPowers
+        when: has(item.blocksPowers) && item.blocksPowers
       - id: defense-dr
         target: tests.defenseDr
         op: add
         value: item.defenseDrModifier
-        when: self.equipped && has(item.defenseDrModifier)
+        when: has(item.defenseDrModifier)
     actions:
       - use: attack
       # The Gutterborn Scum's, with a light one-handed weapon: neither two-handed nor ranged.
@@ -58,30 +59,28 @@ contentTypes:
       price: { type: integer, min: 0 }
     state:
       damage: { type: integer, default: 0, min: 0, max: 3 }
+    effectsWhen: self.equipped
     effects:
       - id: armor-tier
         target: armor.tier
         op: atLeast
         value: item.tier - self.damage
-        when: self.equipped
       - id: armor-base-tier
         target: armor.baseTier
         op: atLeast
         value: item.tier
-        when: self.equipped
       - id: armor-die
         target: { incoming: { fields: [hp.current], tags: [damage] } }
         op: add
         value: 'item.tier - self.damage >= 3 ? 1d6 : item.tier - self.damage == 2 ? 1d4 : 1d2'
         when: >-
-          self.equipped && item.tier - self.damage > 0 && !('damage.direct' in incoming.tags)
+          item.tier - self.damage > 0 && !('damage.direct' in incoming.tags)
             && !situational.shieldSacrifice
       - id: armor-floor
         target: { incoming: { fields: [hp.current], tags: [damage] } }
         op: atMost
         value: 0
-        when: >-
-          self.equipped && item.tier - self.damage > 0 && !('damage.direct' in incoming.tags)
+        when: item.tier - self.damage > 0 && !('damage.direct' in incoming.tags)
 
   shield:
     carried: true
@@ -90,29 +89,27 @@ contentTypes:
       price: { type: integer, min: 0 }
     state:
       broken: { type: boolean, default: false }
+    effectsWhen: self.equipped && !self.broken
     effects:
       - id: shield
         target: armor.shield
         op: atLeast
         value: 1
-        when: self.equipped && !self.broken
       - id: shield-block
         target: { incoming: { fields: [hp.current], tags: [damage] } }
         op: add
         value: 1
-        when: self.equipped && !self.broken && !('damage.direct' in incoming.tags)
+        when: "!('damage.direct' in incoming.tags)"
       - id: shield-floor
         target: { incoming: { fields: [hp.current], tags: [damage] } }
         op: atMost
         value: 0
-        when: self.equipped && !self.broken && !('damage.direct' in incoming.tags)
+        when: "!('damage.direct' in incoming.tags)"
       - id: shield-sacrifice
         target: { incoming: { fields: [hp.current], tags: [damage] } }
         op: multiply
         value: 0
-        when: >-
-          situational.shieldSacrifice && self.equipped && !self.broken
-            && !('damage.direct' in incoming.tags)
+        when: situational.shieldSacrifice && !('damage.direct' in incoming.tags)
         then:
           - { type: setState, entry: self, key: broken, value: true }
 
