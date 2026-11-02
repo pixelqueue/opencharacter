@@ -28,12 +28,13 @@ grants:
 effects:
   - { target: kit.recommended, op: set, value: '@kits.warrior-priest' }
 followUps:
-  # The first time each round the creature you judged damages you: 1 wrath. Damage can't name its
-  # source, so the offer comes with any damage while a creature is judged; dismiss it when the
-  # damage came from someone else.
+  # The first time each round the creature you judged damages you: 1 wrath.
   - id: wrath-from-judged
     on: { field: stamina.current, tags: [damage], once: true }
-    when: combat.active && censor.judged != '' && !censor.takenWrath && change.taken < 0
+    required: true
+    when: >-
+      combat.active && censor.judged != '' && change.from == censor.judged && !censor.takenWrath
+        && change.taken < 0
     changes:
       - { type: adjust, field: heroic.current, by: 1 }
       - { type: set, field: censor.takenWrath, value: 'true' }
