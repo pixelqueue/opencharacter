@@ -1,6 +1,6 @@
-# The damage type is the `element` parameter, chosen on each use, so the damage (2/4/6) is added
-# by the effect below with that type's tag; the tier fields hold 0, and the card's damage values
-# are the item's own.
+# The damage type is the `breathType` parameter, chosen on each use, so the damage (2/4/6) is
+# added by the effect below with that type's tag; the tier fields hold 0, and the card's damage
+# values are the item's own.
 id: abilities.ancestry.dragon-knight.dragon-breath
 type: ability
 tags: [kw.area, kw.magic]
@@ -25,11 +25,11 @@ effects:
   - target: { actions: [ability], from: self }
     op: params
     value:
-      element:
+      breathType:
         type: enum
         values: [acid, cold, corruption, fire, lightning, poison]
         default: fire
   - target: { rolls: [damage], from: self }
     op: add
     value: '[2, 4, 6][(flags.tier > 0 ? flags.tier : steps.roll.bandValue) - 1]'
-    tags: [{ formula: "'damage.' + params.element" }]
+    tags: [{ formula: "'damage.' + params.breathType" }]
