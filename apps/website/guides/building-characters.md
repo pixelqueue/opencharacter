@@ -143,6 +143,9 @@ After every change, `computeSheet` lists the choices that apply now and still ne
   special ability of a table's own playbook (the Bruiser of `fitd-ash.yaml`), under the playbook
   choice.
 - **`min`**, **`max`** and **`picked`** say how many picks it needs and has.
+- A rules-level choice's path stays bare (`{ choice: ['vice'] }`), but its issues name it with
+  its pack, `fitd-scoundrel:rules/vice`
+  ([Text and translation](text-and-translation.md#from-an-id-to-a-key)).
 - A choice ID with a slash (`5e-srd-5.1:features.wizard.spellcasting/cantrips`) belongs to
   content granted to the entry rather than to the entry's own item.
 
@@ -188,7 +191,10 @@ that applies, in the same order as `pending`, answered or not:
 - A pick of a choice that adds its pick as a copy ("a trinket of your choice") brings that copy
   into `inventory` or `features`: `choose` adds it and saves its instance ID as the pick's
   `entry`, and `unchoose` removes it. `removeItem` of that copy fails with `picked-copy`, so
-  offer to change the pick instead.
+  offer to change the pick instead. A saved link that doesn't hold (no `entry`, an entry that is
+  gone, of another item or named by an earlier pick) is the rules issue `picked-copy-invalid`
+  (`data.problem`: `missing`, `other-item`, `shared`, `not-held-as-copy`); the copy is then an
+  ordinary entry. Offer to pick again.
 
 Show each entry as a step. To change an answer, `unchoose` and `choose` in one batch; the next
 sheet lists the new answer's own choices where the old answer's were (after the choices of the
