@@ -1,0 +1,27 @@
+# The equipped shields give hardness 5 (the tower's, the best). Spent once over the attack: the
+# slashing part takes 4 of it (to 0), the fire part the last 1 (to -5). After the batch, the first
+# equipped shield (the buckler; the spare isn't equipped) takes the 10 requested less the 5 that
+# came off: 5 damage. Taking the buckler's own hardness (3) would give it 7. Every equipped shield
+# records the block. Both entries name the choice.
+ok: true
+adjustments:
+  - { field: test-reactions:hp, by: 0, requested: -4, taken: 0, reason: requested }
+  - { field: test-reactions:hp, by: -5, requested: -6, taken: -5, reason: requested }
+  - copies: [buckler]
+    source: { type: situational, id: test-reactions:shieldBlock }
+  - copies: [buckler, tower]
+    source: { type: situational, id: test-reactions:shieldBlock }
+followUps: []
+character:
+  values:
+    test-reactions:hp: 15
+  inventory:
+    - { id: spare, item: test-reactions:shields.buckler }
+    - id: buckler
+      item: test-reactions:shields.buckler
+      equipped: true
+      state: { damage: 5, blocked: true }
+    - id: tower
+      item: test-reactions:shields.tower
+      equipped: true
+      state: { damage: 2, blocked: true }

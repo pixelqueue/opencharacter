@@ -545,14 +545,15 @@ situational:
       - type: offerFollowUp
         followUp: deflect-redirect
         when: >-
-          countList(batch.adjustments, x.field == 'hp.current' && x.reason == 'requested'
+          countList(batch.adjustments, x.field == @hp.current && x.reason == 'requested'
             && x.taken < 0) == 0
 ```
 
 - **`changes`** are what choosing it costs or gains: `set` (`field`, `value`) and `adjust`
-  (`field`, `by`, optional `tags`) of the character's input fields, and `offerFollowUp` of a
-  rules follow-up (`followUp`, optional `params`, which its action must take), each with an
-  optional `when`. They apply
+  (`field`, `by`, optional `tags`) of the character's input fields, `setState` (`key`, `value`)
+  and `adjustState` (`key`, `by`) of held copies' state ([below](#a-held-copys-state)), and
+  `offerFollowUp` of a rules follow-up (`followUp`, optional `params`, which its action must
+  take), each with an optional `when`. They apply
   **once per batch** that selects the choice, however many of its changes do (an attack split by
   damage type pays once), after the batch's last change, in the order the choices were first
   selected. Their formulas see the character as the batch left it, `situational` (the batch's
@@ -565,7 +566,8 @@ situational:
   cost, gate the choice with `available` (`heroic.current >= 1`). A choice with `changes` is
   charged once per batch, so every change of the batch that selects it gives the same value;
   another is `situational-unavailable`.
-- A field that isn't an input field, or an `adjust` of one that isn't numeric, or a follow-up
+- A field that isn't an input field, or an `adjust` of one that isn't numeric, a state key the
+  content type doesn't declare (or an `adjustState` of one that isn't numeric), or a follow-up
   parameter its action doesn't take, is `invalid-situational-change` at load; an undeclared tag
   is `unknown-tag`.
 - **`scope: batch`** makes one selection reach the whole attack: selected on one adjust, the
@@ -580,6 +582,53 @@ situational:
 - **Replay a log as batches.** Costs apply at a batch's end and a batch-scoped choice spans its
   changes, so a logged batch replays as one batch, never change by change.
 - Without `scope` (or with `scope: change`) a choice reaches only the change it is selected on.
+
+#### A held copy's state
+
+A situational choice is the rules', so it has no copy of its own. A shield that takes the damage
+its block didn't stop is a held copy: `setState` and `adjustState` among the choice's `changes`
+name it with a `copies` query, as a [change aimed at copies](engine-core.md#applychanges) does.
+
+```yaml
+situational:
+  - id: shieldBlock
+    type: boolean
+    default: false
+    incoming: { fields: [hp.current], tags: [damage] }
+    scope: batch
+    available: shield.hardness > 0 && shield.raised
+    effects:
+      - target: { incoming: { fields: [hp.current], tags: [damage] } }
+        op: add
+        value: shield.hardness
+        when: incoming.amount < 0
+    changes:
+      - type: adjustState
+        copies: { type: shield, where: self.equipped }
+        limit: 1
+        key: damage
+        by: >-
+          min(item.hp - self.damage, max(0, -sumList(batch.adjustments, x.requested,
+            x.field == @hp.current && x.reason == 'requested') - shield.hardness))
+```
+
+- **`copies: { type, where }`** names the copies of the content type `type` (local or qualified)
+  whose `where` holds, inventory first, then features, each in file order; **`limit`** (an
+  integer ≥ 1) changes only the first that many. **`key`** is a state key the content type
+  declares.
+- `where`, `value` and `by` are evaluated **per matched copy**, with `item` (its item with its
+  templates), `self` (the copy), `situational` and `batch` bound, in the choice's pack. `when` is
+  evaluated once, before the query, without `item` or `self`.
+- Each applies at the batch's end with the choice's other changes, in their order, so `batch`
+  holds the whole attack: Shield Block's hardness comes off the attack once (`scope: batch`),
+  and the shield takes what is left of the total after its hardness.
+- Each match is checked as a `setState` or `adjustState` naming it. Unlike the choice's `adjust`
+  of a field, an `adjustState` **doesn't clamp**: past the key's `min` or `max` is
+  `out-of-range` and rejects the whole batch, so clamp in `by` (the shield's `damage` stops at
+  its Hit Points, `max: item.hp`). No match is not an error. Its `{ copies }` entry in
+  `adjustments` carries the choice as `source`.
+- `batch.adjustments` entries hold qualified field IDs: compare `x.field` with an ID literal
+  (`@hp.current`), not a local name.
 
 ## Link slots
 

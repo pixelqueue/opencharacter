@@ -324,6 +324,7 @@ class FormulaChecker<L> {
           this.withRoots(['situational', 'batch'], () => {
             for (const change of def.changes ?? []) {
               this.formula(change.when, at, label, BOOL);
+              if (change.copies) continue;
               this.formula(change.value, at, label, ANY);
               this.formula(change.by, at, label, NUMBER);
               for (const formula of Object.values(change.params ?? {}))
@@ -332,6 +333,27 @@ class FormulaChecker<L> {
           }),
         ),
       );
+      // A held copy's state change: its query and amounts are evaluated per matched copy.
+      for (const change of def.changes ?? []) {
+        if (!change.copies) continue;
+        const typeDef = this.contentTypeDef(change.copies.type);
+        this.typed(
+          {
+            item: this.itemOf(typeDef),
+            self: selfType(typeDef),
+            situational: this.situationalRoot(),
+            batch: BATCH,
+          },
+          () =>
+            this.at('content', () =>
+              this.withRoots(['situational', 'batch'], () => {
+                this.formula(change.copies?.where, at, label, BOOL);
+                this.formula(change.value, at, label, ANY);
+                this.formula(change.by, at, label, NUMBER);
+              }),
+            ),
+        );
+      }
     }
 
     for (const [set, { def, at }] of rules.bands) {

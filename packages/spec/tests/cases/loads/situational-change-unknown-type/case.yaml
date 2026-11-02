@@ -1,0 +1,29 @@
+description: "A situational choice's `setState` or `adjustState` names a known content type: another is `unknown-reference`"
+specVersion: 0.1.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.1.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        tags: [damage]
+        fields:
+          hp: { type: integer, input: true, default: 10 }
+        contentTypes:
+          shield:
+            carried: true
+            state:
+              damage: { type: integer, default: 0, min: 0 }
+              raised: { type: boolean, default: false }
+        situational:
+          - id: block
+            type: boolean
+            default: false
+            incoming: { fields: [hp], tags: [damage] }
+            changes:
+              - { type: setState, copies: { type: buckler }, key: damage, value: 0 }
+      content: []

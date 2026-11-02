@@ -216,6 +216,10 @@ describe('pnpm validate', () => {
         'a situational choice offering an unknown follow-up',
         /situational parry change: offers unknown follow-up "riposte"/,
       ],
+      [
+        "a situational choice changing an unknown content type's copies",
+        /situational parry change: unknown content type "buckler"/,
+      ],
       ['an item field without a name', /missing translation key "types.weapon.fields.skill.name"/],
       ['a template field without a name', /missing translation key "templateFields.edge.name"/],
       ['a declared result without a name', /missing translation key "actions.aim.results.ok.name"/],
