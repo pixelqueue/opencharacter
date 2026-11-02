@@ -70,6 +70,8 @@ const described = describeAction(ruleset, character, {
 - **A parameter the item's `use` fixes** has `fixed: true` and its `value`: don't ask for it.
 - **A parameter content adds** (a `params` effect: an ability's damage type chosen on each use,
   a feature's opt-in) comes after the action's own, with `addedBy`. Ask for it like the others.
+  Bounds content adds to a parameter are in its `addedBounds` (each with `addedBy`): every one
+  must hold, and an `out-of-range` error for one carries `boundBy`, the content that added it.
 - **Label each** with `text.param(definedBy, name)` (an added one with
   `text.addedParam(addedBy, name)`), or `text.lookup` with its own `label` key.
 - **`participants`** lists the action's roles with `min` and `max`

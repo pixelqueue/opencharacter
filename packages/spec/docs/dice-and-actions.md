@@ -127,16 +127,28 @@ chooses its damage type on each use, and a feature adds an opt-in to a rules act
 - Bounds, an action's own and added ones alike, are checked once every parameter has its value
   (the app's, a `use`'s fixed one, or the default), so one parameter bounds another. A bound reads
   values, never another bound, so bounds that read each other can't loop. An optional parameter
-  left out is absent: read it behind `has()` (`has(params.cap) ? params.cap : 10`). Healing Grace spends
-  one piety per enhancement:
+  left out is absent: read it behind `has()` (`has(params.cap) ? params.cap : 10`).
+- **Bounds on a parameter the run has.** An entry naming a parameter the run already has (the
+  action's own, or one another `params` effect adds) with only `min` and/or `max` (no `type`,
+  `default` or `optional`) adds those bounds to it instead of declaring it. They see the
+  effect's roots and `params`, as an added parameter's do, and are checked with the parameter's
+  own: every bound must hold. The `out-of-range` error names that parameter, with `min` and
+  `max` those of the failing bound and `boundBy` the content that added it; describeAction lists
+  them under the parameter's `addedBounds`, each with its `addedBy`. Two effects bounding one
+  parameter don't conflict. An entry with a `type` stays a declaration (`invalid-added-param`
+  when the action declares the name); one naming a parameter no action declares and no `params`
+  effect adds is `invalid-added-param` (reason `undeclared`). A bound on a parameter a run
+  doesn't have (an action its tags reach through computed tags that lacks it) is ignored.
+  Healing Grace spends one piety per enhancement, so the enhancements bound the ability's own
+  `spend`, and an overspend names `spend`:
 
   ```yaml
   - target: { actions: [ability], from: self }
     op: params
     value:
-      graceRecoveries:
-        { type: integer, default: 0, min: 0, max: 'params.spend - (params.graceStand ? 1 : 0)' }
+      graceRecoveries: { type: integer, default: 0, min: 0 }
       graceStand: { type: boolean, default: false }
+      spend: { min: 'params.graceRecoveries + (params.graceStand ? 1 : 0)' }
   ```
 
 - A `use` may fix an added parameter in its `params`, as its own.

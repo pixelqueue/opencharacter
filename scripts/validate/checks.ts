@@ -34,6 +34,7 @@ import {
   appliesQueries,
   enumAddress,
   innerSteps,
+  isAddedBound,
   stepArms,
   thenRule,
   thenToSelf,
@@ -1908,6 +1909,8 @@ export class PackChecker {
         );
       else
         for (const [name, decl] of Object.entries(effect.value as Record<string, ValueDecl>)) {
+          // An entry with only bounds adds to a parameter named elsewhere.
+          if (isAddedBound(decl)) continue;
           const key = `${this.contentOwner}.params.${name}`;
           this.requiredKeys.add(decl.label ?? `${key}.name`);
           this.optionalKeys.add(`${key}.description`);
@@ -2078,7 +2081,9 @@ export class PackChecker {
     const names = new Set<string>();
     const add = (effects: readonly Effect[] | undefined) => {
       for (const e of effects ?? [])
-        if (e.op === 'params') for (const name of Object.keys(e.value ?? {})) names.add(name);
+        if (e.op === 'params')
+          for (const [name, decl] of Object.entries((e.value ?? {}) as Record<string, ValueDecl>))
+            if (!isAddedBound(decl)) names.add(name);
     };
     for (const pid of this.scope) {
       const rules = this.ruleset.rules.get(pid);

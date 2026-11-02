@@ -222,14 +222,16 @@ the definition, wherever it lives: a rules action, one inline on an item or on i
 - `tags` are the action's tags for this listing, computed ones evaluated.
 - `params` lists the parameters in declaration order, then those `params` effects add
   ([effects.md](effects.md#targets)), each `{ name, type, of?, required, default?, fixed?,
-  value?, min?, max?, values?, options?, unique?, label?, addedBy? }`. An added one has
+  value?, min?, max?, addedBounds?, values?, options?, unique?, label?, addedBy? }`. An added one has
   `addedBy`, the content whose text names it (`<content id>`, `<pack>:types.<type>` or
   `<pack>:rules`; its key `<content key>.params.<name>.name`). `required` is
   true when the parameter is neither `optional`, defaulted nor fixed. A parameter a `use` fixes
   has `fixed: true` and its `value` as startAction evaluates it; the app's is ignored. `min` and
   `max` are evaluated as startAction evaluates them, with every situational choice at its
   default; one that fails, or that reads `params` (it depends on the values the app is yet to
-  give), is left out.
+  give), is left out. `addedBounds` lists the bounds `params` effects add to the parameter
+  ([dice-and-actions.md](dice-and-actions.md#actions)), each `{ addedBy, min?, max? }`
+  evaluated likewise.
 - `values` is an enum's values, those dependent packs add included. `options` lists every ID an
   `id`, `set` or `list` parameter of a content type, `field` or `tag` takes, its `where`
   applied: content in ruleset order (hidden items left out), fields in ruleset order, tags

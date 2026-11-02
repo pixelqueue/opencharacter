@@ -36,7 +36,7 @@ import {
   thenToSelf,
   type EnumAddress,
 } from './pack-types.ts';
-import { bandSet, innerSteps, stepArms } from './pack-types.ts';
+import { bandSet, innerSteps, isAddedBound, stepArms } from './pack-types.ts';
 import type { PackRelease } from './release.ts';
 import { expandFamilies } from './families.ts';
 import {
@@ -168,6 +168,8 @@ function checkAddedParams(
   err: (code: string, data: Record<string, unknown>) => void,
 ): Added[] {
   const added: Added[] = [];
+  // Entries with only `min` and `max`: bounds on a parameter the run has, not declarations.
+  const bounds: { source: string; name: string }[] = [];
   const walkChoices = (
     choices: readonly Choice[] | undefined,
     source: string,
@@ -193,7 +195,16 @@ function checkAddedParams(
       if (e.op !== 'params' || typeof e.target !== 'object' || !('actions' in e.target)) continue;
       const self = e.target.from === 'self' ? item : undefined;
       for (const [name, decl] of Object.entries((e.value ?? {}) as Record<string, ValueDecl>))
-        added.push({ source, pack, tags: e.target.actions, name, decl, ...(self ? { self } : {}) });
+        if (isAddedBound(decl)) bounds.push({ source, name });
+        else
+          added.push({
+            source,
+            pack,
+            tags: e.target.actions,
+            name,
+            decl,
+            ...(self ? { self } : {}),
+          });
     }
   };
   for (const type of Object.values(ruleset.contentTypes)) {
@@ -209,7 +220,7 @@ function checkAddedParams(
   for (const e of ruleset.rules.effects) walk([e], `${e.pack}:rules`, e.pack);
   for (const choice of Object.values(ruleset.rules.choices))
     walkChoices([choice], `${choice.pack}:rules`, choice.pack);
-  if (added.length === 0) return added;
+  if (added.length === 0 && bounds.length === 0) return added;
 
   const actions: { key: string; pack: string; def: ActionDef }[] = [
     ...Object.entries(ruleset.rules.actions).map(([key, def]) => ({ key, pack: def.pack, def })),
@@ -226,6 +237,13 @@ function checkAddedParams(
       ),
     ),
   ];
+  for (const { source, name } of bounds)
+    if (
+      !actions.some((a) => Object.hasOwn(a.def.params ?? {}, name)) &&
+      !added.some((a) => a.name === name)
+    )
+      err('invalid-added-param', { param: name, source, reason: 'undeclared' });
+  if (added.length === 0) return added;
   const literal = actions.map((a) => ({ ...a, tags: writtenTags(a.def.tags) }));
   // Whether an effect may reach an action: a target tag meets one of its literal tags, over packs
   // that meet on that target tag.

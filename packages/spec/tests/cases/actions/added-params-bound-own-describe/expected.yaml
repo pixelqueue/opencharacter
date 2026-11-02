@@ -1,0 +1,24 @@
+action:
+  definedBy: test-action-params:use-ability
+  tags: [ability, usage.maneuver, kw.psionic]
+  results: [used]
+  params:
+    - name: surges
+      type: integer
+      required: false
+      default: 0
+      min: 0
+      addedBounds:
+        - { addedBy: test-action-params:features.grace, max: 4 }
+    - name: graceStand
+      type: boolean
+      required: false
+      default: false
+      addedBy: test-action-params:features.grace
+    - name: graceEnd
+      type: boolean
+      required: false
+      default: false
+      addedBy: test-action-params:features.grace
+  participants:
+    - { role: target, min: 0, max: 1 }

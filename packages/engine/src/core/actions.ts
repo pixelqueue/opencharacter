@@ -31,6 +31,7 @@ import type {
 } from './pack-types.ts';
 import {
   innerSteps,
+  isAddedBound,
   optionQuery,
   pendingSource,
   stackPolicy,
@@ -949,6 +950,10 @@ function params(
 ): Record<string, unknown> {
   const out: Record<string, unknown> = {};
   const own = paramAction(frame);
+  const added =
+    frame.depth === 0
+      ? addedParams(ctx.sheet, frame.def, frame.pack, frame.declared, frame.roots, frame)
+      : { params: [], bounds: [] };
   const all: ParamSpec[] = [
     ...Object.entries(frame.def.params ?? {}).map(([name, decl]): ParamSpec => ({
       name,
@@ -957,10 +962,7 @@ function params(
       roots: frame.roots,
       at: own,
     })),
-    ...(frame.depth === 0
-      ? addedParams(ctx.sheet, frame.def, frame.pack, frame.declared, frame.roots, frame)
-      : []
-    ).map((p): ParamSpec => ({
+    ...added.params.map((p): ParamSpec => ({
       name: p.name,
       decl: p.decl,
       pack: p.pack,
@@ -968,8 +970,10 @@ function params(
       at: { ...own, addedBy: p.addedBy },
     })),
   ];
-  // Bounds read `params`, so they are checked once every parameter has its value.
+  // Bounds read `params`, so they are checked once every parameter has its value: each
+  // parameter's own, then those `params` effects add to it.
   const ranges: (() => void)[] = [];
+  const typedOf = new Map<string, { value: f.Value; at: Record<string, string> }>();
   for (const { name, decl, pack, roots, at } of all) {
     let value: unknown = raw[name];
     if (fixed[name] !== undefined) {
@@ -1030,7 +1034,18 @@ function params(
         return v.kind === 'int' || v.kind === 'decimal' ? v.value : undefined;
       }),
     );
+    typedOf.set(name, { value: typed, at });
     out[name] = rootValue(typed);
+  }
+  for (const bound of added.bounds) {
+    const param = typedOf.get(bound.name);
+    if (!param) continue;
+    ranges.push(() =>
+      paramRange(bound.name, { ...param.at, boundBy: bound.addedBy }, bound, param.value, (b) => {
+        const v = ctx.sheet.evaluate(b, bound.pack, { ...bound.roots, params: out });
+        return v.kind === 'int' || v.kind === 'decimal' ? v.value : undefined;
+      }),
+    );
   }
   for (const range of ranges) range();
   return out;
@@ -1048,11 +1063,21 @@ export interface AddedParam {
   roots: Record<string, unknown>;
 }
 
+/** Bounds a `params` effect adds to a parameter the run already has. */
+export interface AddedBound {
+  name: string;
+  min?: Formula;
+  max?: Formula;
+  pack: string;
+  addedBy: string;
+  roots: Record<string, unknown>;
+}
+
 /**
  * The parameters `params` effects add to an action as listed with these roots: each instance
  * whose target tags match the listing's tags, whose `from: self` (if any) names its entry and
  * whose `when` holds, in instance order. A name the action declares, or an earlier instance
- * added, is left out.
+ * added, is left out. An entry with only bounds goes to `bounds`, for the parameter it names.
  */
 export function addedParams(
   sheet: Sheet,
@@ -1061,8 +1086,9 @@ export function addedParams(
   declared: string,
   roots: Record<string, unknown>,
   owner: RunOwner,
-): AddedParam[] {
+): { params: AddedParam[]; bounds: AddedBound[] } {
   const out: AddedParam[] = [];
+  const bounds: AddedBound[] = [];
   let tags: string[] | undefined;
   for (const instance of sheet.instances) {
     const effect = instance.effect;
@@ -1089,12 +1115,23 @@ export function addedParams(
     }
     if (!holds) continue;
     for (const [name, decl] of Object.entries(effect.value as Record<string, ValueDecl>)) {
-      if (Object.hasOwn(def.params ?? {}, name) || out.some((p) => p.name === name)) continue;
       const by = addedBy(sheet.ruleset, instance);
+      if (isAddedBound(decl)) {
+        bounds.push({
+          name,
+          ...(decl.min !== undefined ? { min: decl.min } : {}),
+          ...(decl.max !== undefined ? { max: decl.max } : {}),
+          pack: instance.pack,
+          addedBy: by,
+          roots: own,
+        });
+        continue;
+      }
+      if (Object.hasOwn(def.params ?? {}, name) || out.some((p) => p.name === name)) continue;
       out.push({ name, decl, pack: instance.pack, addedBy: by, roots: own });
     }
   }
-  return out;
+  return { params: out, bounds };
 }
 
 /** The content an added option or parameter is named by: a type's own effects by the type. */
@@ -1162,7 +1199,7 @@ export function contentParamTakes(
 function paramRange(
   name: string,
   at: Record<string, string>,
-  decl: ValueDecl,
+  decl: { min?: Formula; max?: Formula },
   value: f.Value,
   boundOf: (bound: Formula) => number | undefined,
 ): void {

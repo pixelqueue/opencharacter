@@ -113,7 +113,9 @@ effects:
   actions and effects of packs that meet
   ([Which packs a tag target reaches](#which-packs-a-tag-target-reaches)). The action's own
   formulas only see the parameters it declares; content reads an added one as `params.<name>` in its roll, option and `changes`
-  effects. Text: `<content key>.params.<name>.name` (and `.values.<value>.name`), the content
+  effects. An entry naming a parameter the run already has, with only `min` and/or `max`, adds
+  bounds to it instead: every bound must hold, and the `out-of-range` error names that parameter
+  with `boundBy` ([dice-and-actions.md](dice-and-actions.md#actions)). Text: `<content key>.params.<name>.name` (and `.values.<value>.name`), the content
   key the item's, `types.<type>` for a content type's effect, `rules` for the rules'. Content
   items, templates, content types and the rules' effects add parameters, as for options. See
   [dice-and-actions.md](dice-and-actions.md#actions). Removing or retyping an added parameter

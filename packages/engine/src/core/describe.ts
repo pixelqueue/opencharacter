@@ -61,6 +61,7 @@ export function describeAction(
   };
 
   // The action's own, then those `params` effects add, their bounds seeing the effect's roots.
+  const added = addedParams(sheet, def, pack, declared, roots, { entry, source, activation });
   const all: {
     name: string;
     decl: ValueDecl;
@@ -69,7 +70,7 @@ export function describeAction(
     by?: string;
   }[] = [
     ...Object.entries(def.params ?? {}).map(([name, decl]) => ({ name, decl, pack, roots })),
-    ...addedParams(sheet, def, pack, declared, roots, { entry, source, activation }).map((p) => ({
+    ...added.params.map((p) => ({
       name: p.name,
       decl: p.decl,
       pack: p.pack,
@@ -95,6 +96,17 @@ export function describeAction(
     const max = number(decl.max, declPack, seen);
     if (min !== undefined) out.min = min;
     if (max !== undefined) out.max = max;
+    const bounds = added.bounds.filter((b) => b.name === name);
+    if (bounds.length > 0)
+      out.addedBounds = bounds.map((b) => {
+        const bmin = number(b.min, b.pack, b.roots);
+        const bmax = number(b.max, b.pack, b.roots);
+        return {
+          addedBy: b.addedBy,
+          ...(bmin !== undefined ? { min: bmin } : {}),
+          ...(bmax !== undefined ? { max: bmax } : {}),
+        };
+      });
     if (decl.values) out.values = [...decl.values];
     const options = paramOptions(ruleset, sheet, decl, declPack, roots);
     if (options) out.options = options;

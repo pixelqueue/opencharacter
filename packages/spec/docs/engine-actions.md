@@ -57,7 +57,10 @@ shape, an optional **dice function**.
      the action's `item` and `self`, `situational`, the character's fields and `params`, every
      parameter as the action's formulas will read it, but no `steps` or `flags`
      (`amount: { type: integer, min: 1, max: effort.free }`,
-     `recoveries: { max: params.spend }`). An optional parameter left out is absent, so a bound
+     `recoveries: { max: params.spend }`). Bounds a `params` effect adds to a parameter (an entry
+     with only `min` and `max`) are checked with its own, after them, each in its effect's pack
+     and roots; the error for one carries that bound's `min` and `max` and `boundBy`, the content
+     that added it. An optional parameter left out is absent, so a bound
      reads it behind `has()` (`max: 'has(params.cap) ? params.cap : 10'`). Every parameter's
      missing, type and option errors come first, as each takes its value; then the bounds are
      checked in order, the first out of range failing the action. A bound reads values, never

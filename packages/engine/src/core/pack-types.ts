@@ -845,6 +845,14 @@ export type { UpgradeScript as UpgradeDoc } from '@opencharacter/spec';
 export type { ChoicePick as Pick, ChoiceTree, Entry } from '@opencharacter/spec';
 export type { CharacterFile as CharacterDoc } from '@opencharacter/spec';
 
+/**
+ * A `params` effect's entry with no `type`, only `min` and `max`: bounds on a parameter the run
+ * already has, not a declaration.
+ */
+export function isAddedBound(decl: ValueDecl): boolean {
+  return (decl as { type?: string }).type === undefined;
+}
+
 export function appliesQueries(item: { appliesTo?: Query | Query[] | undefined }): Query[] {
   const a = item.appliesTo;
   return a === undefined ? [] : Array.isArray(a) ? a : [a];

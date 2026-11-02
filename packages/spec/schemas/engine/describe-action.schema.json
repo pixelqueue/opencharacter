@@ -79,6 +79,27 @@
           "description": "The `max` bound, evaluated likewise.",
           "type": "number"
         },
+        "addedBounds": {
+          "description": "Bounds `params` effects add to it (an entry with only `min` and `max`), in instance order, each with the content that added it. startAction checks every one with its own; a bound that reads `params` is left out, as for `min` and `max`.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["addedBy"],
+            "properties": {
+              "addedBy": {
+                "description": "The content that added it, as a parameter's `addedBy`.",
+                "type": "string"
+              },
+              "min": {
+                "type": "number"
+              },
+              "max": {
+                "type": "number"
+              }
+            },
+            "additionalProperties": false
+          }
+        },
         "values": {
           "description": "An enum's values, with those dependent packs add (`extendEnums`).",
           "type": "array",
