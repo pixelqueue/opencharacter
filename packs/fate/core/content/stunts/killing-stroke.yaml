@@ -1,3 +1,15 @@
 id: stunts.killing-stroke
 type: stunt
 fields: { shape: exception, skill: skills.fight, action: attack, limit: scene, fatePoint: true }
+# A Fight attack's forced consequence may be made worse, once a scene.
+effects:
+  - target: { steps: [attack.consequence] }
+    op: changes
+    when: has(params.skill) && params.skill.id == item.skill && self.used < item.uses
+    value: { flags: { strokeOffered: 'true' } }
+  - target: { steps: [attack.stroke] }
+    op: changes
+    when: has(params.skill) && params.skill.id == item.skill && self.used < item.uses
+    value:
+      changes:
+        - { type: adjustState, entry: self, key: used, by: 1 }

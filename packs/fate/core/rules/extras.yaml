@@ -17,6 +17,11 @@ contentTypes:
       permission: { type: string, default: '' }
       ranks: { type: integer, default: 1, min: 1, max: item.ranks }
       refresh: { type: integer, default: item.refresh, min: 0 }
+    # The per-rank numbers at the copy's ranks, for its card.
+    computed:
+      bonusTotal: { type: integer, formula: 'item.bonus * self.ranks' }
+      weaponTotal: { type: integer, formula: 'item.weapon * self.ranks' }
+      armorTotal: { type: integer, formula: 'item.armor * self.ranks' }
     effects:
       - id: bonus
         target: { rolls: [skill-roll] }

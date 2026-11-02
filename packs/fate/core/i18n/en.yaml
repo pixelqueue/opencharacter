@@ -452,11 +452,11 @@ extras.custom.description: An extra of your own. Set its name, its permission an
 extras.energy-blast.name: Energy Blast
 extras.energy-blast.description: Blast people with energy; +2 to attack and create advantages with Shoot this way, and Weapon:2 with Weapon and Armor ratings.
 extras.super-strength.name: Super-Strength
-extras.super-strength.description: +2 per rank to feats of raw strength with Physique, and Fight attacks at Weapon:2 per rank with Weapon and Armor ratings.
+extras.super-strength.description: '{has_self_bonusTotal, select, true {+{self_bonusTotal}} other {+2 per rank}} to feats of raw strength with Physique, and Fight attacks at Weapon:{has_self_weaponTotal, select, true {{self_weaponTotal}} other {2 per rank}} with Weapon and Armor ratings.'
 extras.super-speed.name: Super-Speed
 extras.super-speed.description: Always go first in a conflict, ignore aspects that slow movement, and +2 to defend with Athletics or to race in a contest of pure speed.
 extras.super-resilience.name: Super-Resilience
-extras.super-resilience.description: Armor:2 per rank against physical harm, with Weapon and Armor ratings.
+extras.super-resilience.description: 'Armor:{has_self_armorTotal, select, true {{self_armorTotal}} other {2 per rank}} against physical harm, with Weapon and Armor ratings.'
 extras.x-ray-vision.name: X-Ray Vision
 extras.x-ray-vision.description: See through solid objects without rolling, and +2 to Stealth to avoid detection.
 extras.demonbane.name: Demonbane, the Enchanted Sword
@@ -496,6 +496,8 @@ constraints.nameless-skills: A nameless NPC's best skill is Good (+3) at most
 constraints.mob-nameless: Only nameless NPCs form mobs
 
 # Stunts and outcomes that reach other sheets
+tags.attack.consequence.name: Consequence forced
+tags.attack.stroke.name: Consequence made worse
 actions.attack.steps.stroke.prompt: Spend a fate point to make the consequence worse (Killing Stroke)?
 actions.attack.options.keep.name: Leave it
 actions.attack.options.strike.name: Killing Stroke

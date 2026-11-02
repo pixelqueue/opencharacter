@@ -503,25 +503,29 @@ actions:
                     : 'second'
           - when: true
             flags: { lowest: "'none'", stroke: "'none'" }
+      # A consequence the hit forced may be made worse for a fate point: content that allows it
+      # (Killing Stroke) says so on the `attack.consequence` step and marks its use on
+      # `attack.stroke`.
+      - id: strokeDefault
+        kind: branch
+        cases:
+          - when: true
+            flags: { strokeOffered: 'false' }
+      - id: offer
+        kind: changes
+        tags: [attack.consequence]
+        when: flags.stroke != 'none'
       - id: stroke
         kind: choice
-        when: >-
-          flags.stroke != 'none' && @stunts.killing-stroke in stunts.held
-            && fatePoints.current > 0 && has(params.skill)
-            && params.skill.id == @skills.fight
-            && countCopies(copy.item == @stunts.killing-stroke && copy.state.used < 1) > 0
+        when: flags.strokeOffered && fatePoints.current > 0
         options: [{ id: keep }, { id: strike }]
         recommend: "'keep'"
       - id: strike
         kind: changes
+        tags: [attack.stroke]
         when: "has(steps.stroke) && steps.stroke.picked == 'strike'"
         changes:
           - { type: adjust, field: fatePoints.current, by: -1 }
-          - type: adjustState
-            copies: { type: stunt, where: 'item.id == @stunts.killing-stroke' }
-            limit: 1
-            key: used
-            by: 1
       - id: worsen
         kind: changes
         when: "has(steps.stroke) && steps.stroke.picked == 'strike' && flags.stroke != 'second'"

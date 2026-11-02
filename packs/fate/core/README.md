@@ -196,12 +196,16 @@ the player's choices and other characters.
     Pedal to the Metal turns a Drive tie into a victory in a contest of speed; Psychologist
     (`treat`) rolls Empathy against Fair, Good or Great and lowers the `patient`'s consequence a
     step; Tough as Nails (`ease`) eases a physical consequence; Killing Stroke, offered after
-    the target's `take-hit`, moves the least severe consequence up a slot; Ninja Vanish and
-    Trust Fund Baby add their boost.
+    the target's `take-hit`, moves the least severe consequence up a slot: the stunt's own
+    `changes` effects offer it on the attack's `attack.consequence` step (a Fight attack, its
+    use left this scene) and mark its use on `attack.stroke`; Ninja Vanish and Trust Fund Baby
+    add their boost.
 - **Extras:** an `extra` copy per power or piece of special gear: its permission (an aspect,
   `aspect` when it takes one of the character's aspect slots), its refresh per rank and its
   ranks. A stunt-like extra adds a bonus per rank to rolls with its skill and actions while the
-  situational choice `extra` is on. The SRD's examples: Energy Blast, Super-Strength,
+  situational choice `extra` is on. Each copy computes its bonus, Weapon and Armor at its ranks
+  (`bonusTotal`, `weaponTotal`, `armorTotal`), which Super-Strength's and Super-Resilience's
+  cards show. The SRD's examples: Energy Blast, Super-Strength,
   Super-Speed, Super-Resilience, X-Ray Vision, Demonbane and a legendary dueling pistol, plus
   `custom`. An extra that is a new skill is a setting pack's field tagged `skill`; a vehicle,
   location or organization with skills and stress of its own is its own character.
@@ -246,7 +250,9 @@ A pack that depends on `fate-core` (a setting pack) adds to it without changing 
   milestone's benefit, which every milestone runs) and `milestone.stunt` (its new stunt); for
   its `changes` effects: `creation.finish` (the last step of both starts), and `time.conflict`,
   `time.scene` and `time.session` (the ends of a conflict, scene and session; a longer one runs
-  the shorter ones' too).
+  the shorter ones' too). An added stunt that makes a forced consequence worse, as Killing
+  Stroke does, sets the `strokeOffered` flag on `attack.consequence` and marks its use on
+  `attack.stroke`.
 - **Open enum:** a stunt's `limit` (`fate-core:types.stunt.fields.limit`), a written stunt's
   or a custom stunt's own (`setField`). The core's `use` counts an added limit's uses as its
   own; the core's ends of a conflict, scene and session reset only theirs, so the add-on resets
@@ -277,6 +283,9 @@ A pack that depends on `fate-core` (a setting pack) adds to it without changing 
 ## Out of scope
 
 - The GM's tools (game creation, issues, scenarios), and character death beyond being taken out.
+- A GM fate point pool. The SRD's compel and invocation rules pay from and into "the GM's
+  infinite pool", so there's no finite pool to keep on a shared sheet; a pool by the table's
+  own rule would be a variant.
 - **Fate Accelerated, Fate Condensed and the Fate System Toolkit:** each would be its own pack.
 
 ## Sources
