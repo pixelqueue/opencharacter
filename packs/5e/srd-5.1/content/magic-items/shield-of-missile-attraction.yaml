@@ -3,8 +3,9 @@ type: template
 tags: [magic]
 appliesTo: { type: armor, where: "item.category == 'shield'" }
 fields: { rarity: rare, requiresAttunement: true }
+effectsWhen: self.attuned
 effects:
   - target: { incoming: { fields: [hp.current], tags: [ranged] } }
     op: multiply
     value: 0.5
-    when: self.equipped && self.attuned && 'weapon' in incoming.tags
+    when: self.equipped && 'weapon' in incoming.tags

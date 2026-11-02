@@ -10,11 +10,11 @@ state:
 grants:
   - { item: spells.magic-missile, when: self.equipped && self.attuned }
 effects:
-  - { target: { rolls: [save] }, op: add, value: 1, when: self.equipped && self.attuned }
+  - { target: { rolls: [save] }, op: add, value: 1, when: self.equipped }
   - target: { fields: { where: "'save' in item.tags" } }
     op: add
     value: 1
-    when: self.equipped && self.attuned
+    when: self.equipped
   - target: { choices: [spell-cost] }
     op: option
     when: >-

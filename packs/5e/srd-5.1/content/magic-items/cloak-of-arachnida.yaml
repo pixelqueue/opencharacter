@@ -6,15 +6,10 @@ fields:
   requiresAttunement: true
   spells: [spells.web]
 effects:
-  - {
-      target: combat.climbSpeed,
-      op: atLeast,
-      value: combat.speed,
-      when: self.equipped && self.attuned,
-    }
+  - { target: combat.climbSpeed, op: atLeast, value: combat.speed, when: self.equipped }
   - {
       target: { incoming: { fields: [hp.current], tags: [damage.poison] } },
       op: multiply,
       value: 0.5,
-      when: self.equipped && self.attuned,
+      when: self.equipped,
     }

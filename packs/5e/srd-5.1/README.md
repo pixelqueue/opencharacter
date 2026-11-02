@@ -331,7 +331,9 @@ processes:
   (`(self.startingClass && self.level == level.total) || item.id in multiclass.qualified`).
 - **Backgrounds** bring their starting equipment the same way (`startingKit` and a `kit` action).
 - **Magic items** and magic weapon or armor templates restricted to classes list them in
-  `attunementClasses`.
+  `attunementClasses`. A `magicItem` with `requiresAttunement` has its effects only while
+  attuned (the type's `effectsWhen`), so its effects needn't check `self.attuned`; a template that
+  needs attunement says `effectsWhen: self.attuned` itself.
 - **Metamagic options** are `metamagic` content and the Hunter's options `hunterTactic` content
   (`feature` names the choice that offers them). Containers add to `carrying.stowCapacity`,
   `carrying.stowUnlimited` or `carrying.quivers`, and content resets its uses on a rest with a

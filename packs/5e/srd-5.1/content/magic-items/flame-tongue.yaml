@@ -5,9 +5,10 @@ appliesTo: { type: weapon, where: "'sword' in item.tags" }
 fields: { rarity: rare, requiresAttunement: true }
 state:
   ignited: { type: boolean, default: false }
+effectsWhen: self.attuned
 effects:
   - target: { rolls: [damage], from: self }
     op: add
     value: 2d6
     tags: [damage.fire]
-    when: self.attuned && self.ignited
+    when: self.ignited

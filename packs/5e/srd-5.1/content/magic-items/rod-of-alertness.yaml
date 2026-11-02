@@ -25,37 +25,32 @@ effects:
       target: { rolls: [skill.perception] },
       op: rollModifier,
       value: { kind: advantage },
-      when: self.equipped && self.attuned,
+      when: self.equipped,
     }
   - {
       target: { rolls: [initiative] },
       op: rollModifier,
       value: { kind: advantage },
-      when: self.equipped && self.attuned,
+      when: self.equipped,
     }
   - {
       target: spells.atWill,
       op: grant,
       value: { item: spells.detect-evil-and-good },
-      when: self.equipped && self.attuned,
+      when: self.equipped,
     }
-  - {
-      target: spells.atWill,
-      op: grant,
-      value: { item: spells.detect-magic },
-      when: self.equipped && self.attuned,
-    }
+  - { target: spells.atWill, op: grant, value: { item: spells.detect-magic }, when: self.equipped }
   - {
       target: spells.atWill,
       op: grant,
       value: { item: spells.detect-poison-and-disease },
-      when: self.equipped && self.attuned,
+      when: self.equipped,
     }
   - {
       target: spells.atWill,
       op: grant,
       value: { item: spells.see-invisibility },
-      when: self.equipped && self.attuned,
+      when: self.equipped,
     }
   - { target: combat.ac, op: add, value: 1, scope: applied, stackKey: source }
   - { target: { rolls: [save] }, op: add, value: 1, scope: applied, stackKey: source }

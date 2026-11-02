@@ -24,23 +24,19 @@ grants:
   - { item: spells.magic-missile, when: self.equipped && self.attuned }
   - { item: spells.ray-of-enfeeblement, when: self.equipped && self.attuned }
   - { item: spells.wall-of-force, when: self.equipped && self.attuned }
+effectsWhen: self.attuned
 effects:
-  - { target: combat.ac, op: add, value: 2, when: self.equipped && self.attuned }
-  - { target: { rolls: [save] }, op: add, value: 2, when: self.equipped && self.attuned }
+  - { target: combat.ac, op: add, value: 2, when: self.equipped }
+  - { target: { rolls: [save] }, op: add, value: 2, when: self.equipped }
   - target: { fields: { where: "'save' in item.tags" } }
     op: add
     value: 2
-    when: self.equipped && self.attuned
-  - { target: { rolls: [attack.spell] }, op: add, value: 2, when: self.equipped && self.attuned }
-  - {
-      target: combat.hitOptions,
-      op: add,
-      value: 1,
-      when: self.equipped && self.attuned && self.charges > 0,
-    }
+    when: self.equipped
+  - { target: { rolls: [attack.spell] }, op: add, value: 2, when: self.equipped }
+  - { target: combat.hitOptions, op: add, value: 1, when: self.equipped && self.charges > 0 }
   - target: { choices: [weapon-hit] }
     op: option
-    when: action.self.id == self.id && self.attuned && self.charges >= 1
+    when: action.self.id == self.id && self.charges >= 1
     value:
       id: power-strike
       changes:

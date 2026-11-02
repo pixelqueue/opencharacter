@@ -3,14 +3,15 @@ type: template
 tags: [magic]
 appliesTo: { type: weapon, where: 'item.id == @weapons.longbow' }
 fields: { rarity: very-rare, requiresAttunement: true }
+effectsWhen: self.attuned
 effects:
-  - { target: items.swornEnemy, op: add, value: 1, when: self.equipped && self.attuned }
+  - { target: items.swornEnemy, op: add, value: 1, when: self.equipped }
   - target: { rolls: [attack], from: self }
     op: rollModifier
     value: { kind: advantage }
-    when: self.attuned && situational.swornEnemy
+    when: situational.swornEnemy
   - target: { rolls: [damage], from: self }
     op: add
     value: 3d6
     tags: [damage.piercing]
-    when: self.attuned && situational.swornEnemy
+    when: situational.swornEnemy

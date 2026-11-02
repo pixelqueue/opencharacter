@@ -3,9 +3,10 @@ type: template
 tags: [magic]
 appliesTo: { type: weapon, where: "'sword' in item.tags && item.damageType == 'slashing'" }
 fields: { rarity: very-rare, requiresAttunement: true }
+effectsWhen: self.attuned
 effects:
   - target: { rolls: [damage], from: self }
     op: add
     value: 4d6
     tags: [damage.slashing]
-    when: self.attuned && has(flags.natural20) && flags.natural20
+    when: has(flags.natural20) && flags.natural20

@@ -5,14 +5,14 @@ fields:
   rarity: uncommon
   requiresAttunement: true
 effects:
-  - { target: { rolls: [check] }, op: add, value: 1, when: self.equipped && self.attuned }
+  - { target: { rolls: [check] }, op: add, value: 1, when: self.equipped }
   - target: { fields: { where: "'skill' in item.tags" } }
     op: add
     value: 1
-    when: self.equipped && self.attuned
-  - { target: combat.initiative, op: add, value: 1, when: self.equipped && self.attuned }
-  - { target: { rolls: [save] }, op: add, value: 1, when: self.equipped && self.attuned }
+    when: self.equipped
+  - { target: combat.initiative, op: add, value: 1, when: self.equipped }
+  - { target: { rolls: [save] }, op: add, value: 1, when: self.equipped }
   - target: { fields: { where: "'save' in item.tags" } }
     op: add
     value: 1
-    when: self.equipped && self.attuned
+    when: self.equipped

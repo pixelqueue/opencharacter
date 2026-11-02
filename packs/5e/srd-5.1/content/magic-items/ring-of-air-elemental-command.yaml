@@ -20,11 +20,11 @@ effects:
   - target: { incoming: { fields: [hp.current], tags: [damage.lightning] } }
     op: multiply
     value: 0.5
-    when: self.equipped && self.attuned && self.elementalSlain
+    when: self.equipped && self.elementalSlain
   - target: combat.flySpeed
     op: atLeast
     value: combat.speed
-    when: self.equipped && self.attuned && self.elementalSlain
+    when: self.equipped && self.elementalSlain
   - target: { choices: [spell-cost] }
     op: option
     when: >-

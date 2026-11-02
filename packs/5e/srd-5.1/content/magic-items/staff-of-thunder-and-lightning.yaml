@@ -5,23 +5,24 @@ appliesTo: { type: weapon, where: 'item.id == @weapons.quarterstaff' }
 fields: { rarity: very-rare, requiresAttunement: true, attackBonus: 2, damageBonus: 2 }
 state:
   usedToday: { type: set, of: string, default: [] }
+effectsWhen: self.attuned
 effects:
   - target: combat.hitOptions
     op: add
     value: 1
     when: >-
-      self.equipped && self.attuned
+      self.equipped
         && (!('lightning' in self.usedToday) || !('thunder' in self.usedToday))
   - target: { choices: [weapon-hit] }
     op: option
-    when: action.self.id == self.id && self.attuned && !('lightning' in self.usedToday)
+    when: action.self.id == self.id && !('lightning' in self.usedToday)
     value:
       id: lightning
       changes:
         - { type: setState, entry: self, key: usedToday, value: "self.usedToday + ['lightning']" }
   - target: { choices: [weapon-hit] }
     op: option
-    when: action.self.id == self.id && self.attuned && !('thunder' in self.usedToday)
+    when: action.self.id == self.id && !('thunder' in self.usedToday)
     value:
       id: thunder
       changes:
