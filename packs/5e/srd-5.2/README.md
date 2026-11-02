@@ -144,7 +144,11 @@ Where the SRD is unclear or silent, the pack reads it this way:
   level 5 spell a level 2 one for its free casts.
 - **Class features:**
   - Rage Damage, Reckless Attack and Brutal Strike count any attack using Strength, thrown
-    weapons and Unarmed Strikes included.
+    weapons and Unarmed Strikes included. A Brutal Strike's blow is a parameter of the attack
+    (`brutalBlow`, and `brutalBlow2` at level 17), applied on the hit: Hamstring and Staggering
+    Blow put their effect on the target; Forceful Blow's push and Sundering Blow's +5 are the
+    player's. The parameter offers every blow; Staggering and Sundering need Improved Brutal
+    Strike.
   - Persistent Rage, Perfect Focus, Superior Inspiration, Evergreen Wild Shape and Boon of Fate
     act when Initiative is rolled (a hook on the `initiative` action); Uncanny Metabolism is its
     own action, since it rolls.
@@ -257,8 +261,8 @@ Where the SRD is unclear or silent, the pack reads it this way:
   conditions and defenses from its view and send damage to it split by type, tagged for its
   resistances and reactions. `take-damage`, `heal`, `gain-temporary-hit-points`, `fall`.
 - **Conditions:** the fourteen SRD conditions as applied content (Incapacitated ends
-  Concentration); Exhaustion as a field. Weapon mastery effects on a target are applied content
-  too.
+  Concentration); Exhaustion as a field. Weapon mastery effects and Brutal Strike's Hamstring and
+  Staggering Blows on a target are applied content too.
 - **Resting:** `short-rest`, `long-rest` (all hit points and Hit Point Dice, slots, Exhaustion −1),
   `spend-hit-die`, `death-save`, and every feature's recharge, hooked to the rest.
 - **Species, backgrounds and feats:** the nine species with their 24 lineages and ancestries

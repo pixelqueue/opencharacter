@@ -1,2 +1,27 @@
 id: features.barbarian.improved-brutal-strike-2
 type: feature
+# A second, different blow for each Brutal Strike (2d10 is `barbarian.brutalStrike`).
+effects:
+  - target: { actions: [attack] }
+    op: params
+    value:
+      brutalBlow2:
+        { type: enum, values: [forceful, hamstring, staggering, sundering], optional: true }
+  - target: { steps: [attack-hit] }
+    op: changes
+    when: >-
+      situational.brutalStrike && situational.recklessAttack && has(flags.ability)
+        && flags.ability == 'str' && has(params.brutalBlow2) && params.brutalBlow2 == 'hamstring'
+        && !(has(params.brutalBlow) && params.brutalBlow == 'hamstring')
+    value:
+      changes:
+        - { type: applyEffect, source: "'combat-effects.hamstrung'" }
+  - target: { steps: [attack-hit] }
+    op: changes
+    when: >-
+      situational.brutalStrike && situational.recklessAttack && has(flags.ability)
+        && flags.ability == 'str' && has(params.brutalBlow2) && params.brutalBlow2 == 'staggering'
+        && !(has(params.brutalBlow) && params.brutalBlow == 'staggering')
+    value:
+      changes:
+        - { type: applyEffect, source: "'combat-effects.staggered'" }

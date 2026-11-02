@@ -1,0 +1,13 @@
+# Improved Brutal Strike's Staggering Blow: Disadvantage on the next saving throw, which ends it.
+# No Opportunity Attacks until the start of the barbarian's next turn is the player's.
+id: combat-effects.staggered
+type: combatEffect
+effects:
+  - target: { rolls: [save] }
+    op: rollModifier
+    value: { kind: disadvantage }
+    scope: applied
+    then:
+      when: applied
+      changes:
+        - { type: removeEffect, entry: self }

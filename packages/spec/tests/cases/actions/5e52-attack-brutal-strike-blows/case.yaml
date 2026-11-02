@@ -1,0 +1,17 @@
+description: '5E 2024 Brutal Strike at level 17: the blows are parameters the features add to the attack; on the hit, 2d10 more damage, and the target is Hamstrung and Staggered'
+specVersion: 0.3.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/5e/srd-5.2
+input:
+  action: { id: 5e-srd-5.2:weapon-attack, entry: axe }
+  params: { brutalBlow: hamstring, brutalBlow2: staggering }
+  situational: { 5e-srd-5.2:recklessAttack: true, 5e-srd-5.2:brutalStrike: true }
+  participants:
+    target:
+      - id: ogre
+        values: { combat.ac: 11, creature.size: large, creature.type: giant }
+  policy:
+    dice: auto
+    choices: auto
+    allocations: auto

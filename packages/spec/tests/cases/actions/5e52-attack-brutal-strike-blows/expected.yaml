@@ -1,0 +1,20 @@
+status: finished
+# One d20 (Brutal Strike forgoes Reckless Attack's Advantage); the greataxe's 7, the 2d10 (5 + 9)
+# and Strength +5.
+proposedChanges:
+  - to: target
+    character: ogre
+    step: deal
+    change:
+      type: adjust
+      field: 5e-srd-5.2:hp.current
+      by: -26
+      tags: [damage, attack, weapon, melee, nonmagical, damage.slashing]
+  - to: target
+    character: ogre
+    step: deal
+    change: { type: applyEffect, source: 5e-srd-5.2:combat-effects.hamstrung, appliedBy: test }
+  - to: target
+    character: ogre
+    step: deal
+    change: { type: applyEffect, source: 5e-srd-5.2:combat-effects.staggered, appliedBy: test }

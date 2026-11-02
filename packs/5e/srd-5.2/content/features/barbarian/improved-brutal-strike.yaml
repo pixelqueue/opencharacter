@@ -1,2 +1,13 @@
 id: features.barbarian.improved-brutal-strike
 type: feature
+# Staggering Blow, picked as a Brutal Strike's blow (`brutalBlow`, or `brutalBlow2` at level 17).
+effects:
+  - target: { steps: [attack-hit] }
+    op: changes
+    when: >-
+      situational.brutalStrike && situational.recklessAttack && has(flags.ability)
+        && flags.ability == 'str'
+        && has(params.brutalBlow) && params.brutalBlow == 'staggering'
+    value:
+      changes:
+        - { type: applyEffect, source: "'combat-effects.staggered'" }
