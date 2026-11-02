@@ -6,10 +6,11 @@ effects:
   - target: { steps: [attack.consequence] }
     op: changes
     when: has(params.skill) && params.skill.id == item.skill && self.used < item.uses
-    value: { flags: { strokeOffered: 'true' } }
+    value: { flags: { strokeOffered: 'true', strokeBy: self.id } }
+  # Only the copy that offered it (the last, with two) marks its use.
   - target: { steps: [attack.stroke] }
     op: changes
-    when: has(params.skill) && params.skill.id == item.skill && self.used < item.uses
+    when: flags.strokeBy == self.id
     value:
       changes:
         - { type: adjustState, entry: self, key: used, by: 1 }

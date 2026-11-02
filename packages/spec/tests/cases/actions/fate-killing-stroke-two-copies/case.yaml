@@ -1,0 +1,23 @@
+description: 'Fate Core: with two Killing Stroke copies, a stroke marks the use of only the copy that offered it'
+specVersion: 0.3.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/fate/core
+input:
+  action: { id: fate-core:attack }
+  params: { skill: fate-core:skills.fight }
+  participants:
+    target: [{ id: duelist, values: {} }]
+  policy:
+    choices: auto
+    rules:
+      - { step: stroke, then: pause }
+answers:
+  # The duelist's app ran `defend` (opposition 5) and rolled a Mediocre (+0) defense.
+  - outcome: { result: fail, data: { total: 0 } }
+  # It then ran `take-hit` with 5 shifts: a mild consequence and the 3-point box.
+  - outcome:
+      result: absorbed
+      data: { shifts: 5, box: 3, consequences: 1, slots: [mild], unabsorbed: 0 }
+  # The attacker spends the fate point.
+  - option: strike

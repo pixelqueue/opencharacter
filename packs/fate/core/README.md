@@ -251,8 +251,8 @@ A pack that depends on `fate-core` (a setting pack) adds to it without changing 
   its `changes` effects: `creation.finish` (the last step of both starts), and `time.conflict`,
   `time.scene` and `time.session` (the ends of a conflict, scene and session; a longer one runs
   the shorter ones' too). An added stunt that makes a forced consequence worse, as Killing
-  Stroke does, sets the `strokeOffered` flag on `attack.consequence` and marks its use on
-  `attack.stroke`.
+  Stroke does, sets the `strokeOffered` flag on `attack.consequence`, names its copy in
+  `strokeBy`, and marks that copy's use on `attack.stroke`.
 - **Open enum:** a stunt's `limit` (`fate-core:types.stunt.fields.limit`), a written stunt's
   or a custom stunt's own (`setField`). The core's `use` counts an added limit's uses as its
   own; the core's ends of a conflict, scene and session reset only theirs, so the add-on resets

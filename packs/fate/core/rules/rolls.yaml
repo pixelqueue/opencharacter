@@ -504,13 +504,13 @@ actions:
           - when: true
             flags: { lowest: "'none'", stroke: "'none'" }
       # A consequence the hit forced may be made worse for a fate point: content that allows it
-      # (Killing Stroke) says so on the `attack.consequence` step and marks its use on
-      # `attack.stroke`.
+      # (Killing Stroke) says so on the `attack.consequence` step, naming its copy in `strokeBy`,
+      # and that copy marks its use on `attack.stroke`.
       - id: strokeDefault
         kind: branch
         cases:
           - when: true
-            flags: { strokeOffered: 'false' }
+            flags: { strokeOffered: 'false', strokeBy: "''" }
       - id: offer
         kind: changes
         tags: [attack.consequence]
