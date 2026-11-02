@@ -12,14 +12,14 @@ effects:
     op: add
     value: 'level >= 9 ? 3 : level >= 5 ? 2 : 1'
     stackKey: treasure-damage
-    when: self.equipped && countList(item.tags, x in kit.gear) > 0 && 'kw.weapon' in action.item.tags
+    when: self.equipped && 'kw.weapon' in action.item.tags
     tags:
       - damage.psychic
   - target:
       steps:
         - ability.hit
     op: changes
-    when: self.equipped && countList(item.tags, x in kit.gear) > 0 && 'kw.weapon' in action.item.tags && flags.tier == 3 && has(action.item.t1Damage)
+    when: self.equipped && 'kw.weapon' in action.item.tags && flags.tier == 3 && has(action.item.t1Damage)
     value:
       changes:
         - type: applyEffect

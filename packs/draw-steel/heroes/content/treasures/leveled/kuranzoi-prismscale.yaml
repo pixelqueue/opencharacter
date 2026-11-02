@@ -8,9 +8,10 @@ fields:
 grants:
   - item: abilities.treasure.kuranzoi-prismscale.capture-a-moment
     when: self.equipped
+    available: countList(item.tags, x in kit.gear) > 0
 effects:
   - target: stamina.bonus
     op: add
     value: 'level >= 9 ? 21 : level >= 5 ? 12 : 6'
     stackKey: treasure-stamina
-    when: self.equipped && countList(item.tags, x in kit.gear) > 0
+    when: self.equipped

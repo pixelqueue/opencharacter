@@ -15,6 +15,10 @@ contentTypes:
     fields:
       category: { type: enum, values: [armor, implement, weapon, other], required: true }
     texts: [level1, level5, level9]
+    # An armor or weapon treasure benefits the hero only with one of its keywords in a kit.
+    effectsWhen: >-
+      (item.category != 'armor' && item.category != 'weapon')
+        || countList(item.tags, x in kit.gear) > 0
   artifact:
     carried: true
     equippable: true
