@@ -128,6 +128,25 @@ actions:
         data:
           damage: bleeding.current
 
+  # The app runs it on every character at each turn change: a bleeding character loses its
+  # health as its own turn starts, once a round.
+  - id: turn-boundary
+    clock: turn-boundary
+    params:
+      ended: { type: string, optional: true }
+      started: { type: string, optional: true }
+    steps:
+      - id: boundary
+        kind: changes
+        tags: [turn.boundary]
+        to: self
+        changes:
+          - type: adjust
+            when: has(params.started) && params.started == character.id && bleeding.current > 0
+            field: health.current
+            by: -bleeding.current
+            tags: [bleeding]
+
 settings:
   rounding: floor
   rollModifiers:

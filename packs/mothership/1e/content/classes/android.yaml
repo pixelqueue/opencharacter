@@ -6,6 +6,14 @@ effects:
   - { target: stats.intellect, op: add, value: 20 }
   - { target: saves.fear, op: add, value: 60 }
   - { target: wounds.max, op: add, value: 1 }
+# Close crewmates make Fear saves at [-]: the app puts the aura on whoever it counts as close.
+auras:
+  - id: unease
+    affects: allies
+    effects:
+      - target: { rolls: [save.fear] }
+        op: rollModifier
+        value: { kind: disadvantage }
 grants:
   - item: skills.linguistics
   - item: skills.computers

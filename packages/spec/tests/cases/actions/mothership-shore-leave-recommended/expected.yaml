@@ -1,0 +1,13 @@
+# A critical success converts 5; Sanity 24 is the lowest save, so the recommendation puts all 5
+# there; stress is relieved to 2.
+status: finished
+outcome:
+  result: critical-success
+  data: { converted: 5 }
+proposedChanges:
+  - { to: self, step: improve, change: { type: adjust, field: mothership-1e:saves.sanity, by: 5 } }
+  - {
+      to: self,
+      step: relieve,
+      change: { type: set, field: mothership-1e:stress.current, value: 2 },
+    }

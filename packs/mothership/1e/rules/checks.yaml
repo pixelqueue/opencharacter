@@ -15,14 +15,6 @@ situational:
       - target: { rolls: [check, save, panic, wound] }
         op: rollModifier
         value: { kind: disadvantage }
-  - id: android
-    type: boolean
-    default: false
-    rolls: [save.fear]
-    effects:
-      - target: { rolls: [save.fear] }
-        op: rollModifier
-        value: { kind: disadvantage }
   - id: teamster
     type: boolean
     default: false
@@ -327,6 +319,11 @@ actions:
         when: flags.convert > 0
         fields: { type: field, where: "'save' in item.tags" }
         budget: flags.convert
+        # Every point to the lowest save, the first on a tie.
+        recommend:
+          saves.sanity: 'saves.sanity <= saves.fear && saves.sanity <= saves.body ? flags.convert : 0'
+          saves.fear: 'saves.fear < saves.sanity && saves.fear <= saves.body ? flags.convert : 0'
+          saves.body: 'saves.body < saves.sanity && saves.body < saves.fear ? flags.convert : 0'
       - id: relieve
         kind: changes
         when: "steps.check.result == 'success' || steps.check.result == 'critical-success'"

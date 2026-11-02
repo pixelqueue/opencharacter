@@ -110,8 +110,9 @@ for the player's choices and other characters.
     passes (who is close is the app's):
     - Marine: when it panics (a `panic-check`, or one a check or save runs), each close player's
       app runs a Fear `save` (a handoff).
-    - Android: a close player's Fear save is at [-] with the situational choice `android` (Fear
-      saves tag their roll `save.fear`).
+    - Android: the class projects an aura (`unease`, on allies) that puts a Fear save at [-]
+      (Fear saves tag their roll `save.fear`). The app puts it on whoever it counts as close and
+      takes it off as they leave.
     - Scientist: a failed Sanity save (`save` or `skill-check`) gives each close player 1 stress.
     - Teamster: the situational choice `teamster` gives a panic check [+], offered once until
       `end-session` (the app's clock) clears `trauma.used`.
@@ -135,8 +136,8 @@ for the player's choices and other characters.
     gives the amount the cap clamped away, and its action asks which stat or save (a ruling).
   - **Shore leave** (`shore-leave`, once the app has taken the port's cost): a Sanity `save`.
     - Success converts stress into save points up to the port's conversion die (`convert`;
-      `all` for a port that converts everything), split by the player, then relieves the rest
-      down to the minimum. Converting stops at the minimum stress, which the source leaves open.
+      `all` for a port that converts everything), split by the player (an unattended run puts
+      them all on the lowest save), then relieves the rest down to the minimum. Converting stops at the minimum stress, which the source leaves open.
     - An X-class port's [+] (situational `xClass`) rolls the whole conversion roll twice and keeps the better total.
     - A critical success converts the die's most; a failure relieves everything down to the
       minimum and adds 1; a critical failure converts and relieves nothing and makes a panic
@@ -157,14 +158,18 @@ for the player's choices and other characters.
     are all required follow-ups stored on the character until acted on or
     dismissed (the death save also until wounds drop below maximum); the app runs them. They
     trigger on the fields, so a plain edit of health fires them too.
-  - Bleeding, credits and high score are tracked as values. `bleed`, which the app runs each
-    round, takes 1 health per point of bleeding, ignoring armor and damage reduction.
+  - Bleeding, credits and high score are tracked as values. A bleeding character loses 1 health
+    per point of bleeding, ignoring armor and damage reduction, as its own turn starts: the
+    `turn-boundary` clock action, which the app runs on every character at each turn change.
+    `bleed` takes the same loss for an app without turns.
 - **Weapons (shape only):**
   - Fields: damage dice and/or a number of Wounds, an optional magazine, range, wound type,
     anti-armor.
   - Per-copy `shots` start full.
   - `shoot` (weapons with a magazine): spend a shot, then attack.
   - `attack` (weapons without one): a Combat check, then damage on a hit.
+  - The weapon type's `use` entries offer each by the magazine; the actions need the weapon
+    worn (and `shoot` a shot left).
 - **Armor (shape only):** AP, DR, bulky, and a per-copy `destroyed` flag. Worn bulky armor puts
   Speed checks at [-] (their rolls are tagged `check.speed`). On worn armor:
   - damage reduction (DR) comes first, and always: on destroyed armor too, and against
@@ -221,8 +226,9 @@ Still closed: a weapon's `range` and a skill's `tier` (the game's fixed sets).
   or add stress.
 - **Contractors.** Hirelings the Warden runs, with a sheet of their own (Combat, Instinct,
   Loyalty, maximum wounds, no health). Their numbers come from the Warden's contractor tables.
-- **Decided at the table or by the app:** who is close, for the trauma responses; when a round,
-  a day or a session ends (`bleed`, `natural-healing`, `end-session`); which stat or save
+- **Decided at the table or by the app:** who is close, for the trauma responses (the Android's
+  aura included); when turns change (`turn-boundary`), and when a day or a session ends
+  (`natural-healing`, `end-session`); which stat or save
   stress past 20 lowers (`excess-stress` asks).
 
 ## Sources

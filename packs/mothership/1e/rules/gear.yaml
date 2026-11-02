@@ -16,9 +16,12 @@ contentTypes:
         min: 0
         max: 'has(item.magazine) ? item.magazine : 0'
         default: 'has(item.magazine) ? item.magazine : 0'
+    # A weapon with a magazine shoots; one without attacks.
     actions:
       - use: shoot
+        available: has(item.magazine)
       - use: attack
+        available: '!has(item.magazine)'
 
   armor:
     carried: true
@@ -78,7 +81,7 @@ contentTypes:
 actions:
   - id: shoot
     tags: [attack]
-    available: 'self.equipped && has(item.magazine) && self.shots > 0'
+    available: 'self.equipped && self.shots > 0'
     results: { bands: check }
     steps:
       - id: spend
@@ -130,7 +133,7 @@ actions:
 
   - id: attack
     tags: [attack]
-    available: 'self.equipped && !has(item.magazine)'
+    available: self.equipped
     results: { bands: check }
     steps:
       - id: check
