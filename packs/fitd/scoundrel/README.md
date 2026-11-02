@@ -177,7 +177,8 @@ item's kind. Items tagged `standard` are held by every scoundrel.
 The crew is its own character file with `@opencharacter/fitd-crew`, linked through
 the `crew` slot. Its tier and Workshop feed acquiring an asset and crafting, its Mastery the
 rating cap (3, or 4), its tier and Quality upgrades item quality, and its Training upgrades
-training. Heat goes to the crew. What the crew gives its members is read from its `members.*`
+training. Heat goes to the crew, a shared sheet every member links: apply each member's heat as its
+own batch and recompute the crew before the next member acts. What the crew gives its members is read from its `members.*`
 fields and its Rigging: an extra stress or trauma box, the dot abilities (the choice `crew-dots`,
 each dot up to 3), bonus dice (resistance, asset rolls, recovery, gathering information, about
 the elite, passing as ordinary citizens, against the supernatural, at a claim's site),

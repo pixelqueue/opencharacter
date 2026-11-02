@@ -402,6 +402,10 @@ Run one spend at a time (a queue, or a lock on the shared sheet in a multiplayer
 stale view let through meets the pool's bounds and takes nothing; the next view shows the pool
 empty, so the action is no longer listed.
 
+The Forged in the Dark crew (`fitd-crew`) is the worked example: every scoundrel links the same
+crew file through `fitd-scoundrel:crew`, reads its tier and upgrades from the view, and sends heat
+to it with `to: { link: crew }`. Apply one scoundrel's heat, recompute the crew, then run the next.
+
 ## Damage dealt to a target
 
 The target's damage reaches it through its own `applyChanges`, so the target's rules decide what

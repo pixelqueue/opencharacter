@@ -1,5 +1,10 @@
 id: special-abilities.expertise
 type: specialAbility
+# The chosen action's rating, for the card.
+computed:
+  action:
+    type: string
+    formula: "size(picksOf('action')) > 0 ? 'fitd-scoundrel:ratings.' + picksOf('action')[0] : ''"
 choices:
   - id: action
     pick: 1

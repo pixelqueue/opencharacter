@@ -47,7 +47,16 @@ const sheet = computeSheet(scoundrelRules.ruleset, scoundrel, [], {
 
 The scoundrel pack reads the crew's tier, Mastery, Workshop, Training and Quality upgrades, its
 Rigging and `members.*` fields, and sends heat to it (`to: { link: crew }`, applied to the crew
-file). Neither pack depends on the other. A new crew starts with `create-crew` (the guided start
+file). Neither pack depends on the other.
+
+The crew is the format's reference
+[shared sheet](https://opencharacterformat.org/guides/other-characters/#a-pool-the-party-shares):
+one file every member links through the same `crew` slot. Make it once, save its `id` in each
+member's slot, and apply what a member's action sends to the crew (heat) as its own batch as soon
+as the action finishes, then recompute the crew and pass the new view to the next member's call.
+Two members' heat then never both read the old value. The crew's own actions reach its members
+the other way, as participants (the advance's `member` role, the incarceration roll's
+`prisoner`). A new crew starts with `create-crew` (the guided start
 `crew`, or `random`). The guide on
 [packs and rulesets](https://opencharacterformat.org/guides/packs-and-rulesets/) covers loading,
 and [other characters](https://opencharacterformat.org/guides/other-characters/) covers links.
