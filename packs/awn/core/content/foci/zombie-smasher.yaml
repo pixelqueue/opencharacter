@@ -1,2 +1,19 @@
 id: foci.zombie-smasher
 type: focus
+effects:
+  # Level 2, against a zombie: the attack roll counts as a natural 20, and a hit does 8 more
+  # damage.
+  - target: { actions: [attack] }
+    op: params
+    when: self.level >= 2
+    value:
+      zombie: { type: boolean, default: false }
+  - target: { steps: [attack.begin] }
+    op: changes
+    when: has(params.zombie) && params.zombie
+    value:
+      flags: { natural20: 'true' }
+  - target: { rolls: [damage] }
+    op: add
+    value: 8
+    when: has(params.zombie) && params.zombie

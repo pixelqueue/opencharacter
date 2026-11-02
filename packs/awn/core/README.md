@@ -87,6 +87,10 @@ const run = startAction(ruleset, blank, {
   weapons that can be thrown a `thrown` one; other weapons offer neither.
 - **Armsmaster and Deadeye** both reach thrown attacks; there the better of the two counts, on
   hit and damage together.
+- **Foes a focus is good against:** Apex Predator, Robot Whisperer and Zombie Smasher (level 2)
+  add `beast`, `robot` and `zombie` parameters to `attack`, set when the target is one: half the
+  level to damage and Shock, +4 to hit and damage, or a roll that counts as a natural 20 and 8
+  more damage.
 - **Encumbrance:** Readied (equipped) and Stowed loads against Strength, small items bundled
   three to one when stowed, and the slower moves of pushing past the limits. A start that brings
   more than its Strength can haul stows Readied items, then leaves Stowed ones behind, heaviest

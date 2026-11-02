@@ -3,3 +3,18 @@ type: focus
 fields:
   bonusSkill: [survive]
   bonusSkill2: [shoot]
+effects:
+  # Against a sub-sapient beast: half the level, rounded up, added to damage and Shock.
+  - target: { actions: [attack] }
+    op: params
+    value:
+      beast: { type: boolean, default: false }
+  - target: { rolls: [damage] }
+    op: add
+    value: ceil(level / 2)
+    when: has(params.beast) && params.beast
+  - target: { steps: [attack.begin] }
+    op: changes
+    when: has(params.beast) && params.beast
+    value:
+      flags: { shockBonus: flags.shockBonus + ceil(level / 2) }

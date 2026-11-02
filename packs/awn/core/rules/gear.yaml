@@ -92,7 +92,7 @@ contentTypes:
         when: "'thrown' in item.tags && !('grenade' in item.tags)"
         value:
           thrown: { type: boolean, default: false }
-      - target: { steps: [attack.fire], from: self }
+      - target: { steps: [attack.begin], from: self }
         op: changes
         value:
           flags:
@@ -191,17 +191,16 @@ constraints:
 
 resultBands:
   attack:
-    - {
-        id: hit,
-        when: 'roll.kept[0] == 20 || (roll.kept[0] != 1 && roll.total >= flags.ac)',
-        success: true,
-      }
+    - id: hit
+      when: 'roll.kept[0] == 20 || flags.natural20 || (roll.kept[0] != 1 && roll.total >= flags.ac)'
+      success: true
     - { id: miss, when: true }
 
 actions:
   # An attack with a weapon: a d20 plus the hit bonus against the target's AC (20 always hits,
-  # 1 always misses), damage on a hit, and Shock on a melee miss. The weapon's `fire` step spends
-  # its rounds (three for a burst) and sets `flags.thrown` for a thrown attack.
+  # 1 always misses), damage on a hit, and Shock on a melee miss. The `attack.begin` step spends
+  # the weapon's rounds (three for a burst); content's effects there set the flags: a thrown
+  # attack, a roll that counts as a natural 20, Shock added.
   - id: attack
     tags: [attack]
     available: self.equipped || item.id == @weapons.unarmed
@@ -223,9 +222,11 @@ actions:
               ac: 'has(params.targetAc) ? params.targetAc : 0'
               burst: 'false'
               thrown: "!self.close && 'thrown' in item.tags"
-      - id: fire
+              natural20: 'false'
+              shockBonus: 0
+      - id: begin
         kind: changes
-        tags: [attack.fire]
+        tags: [attack.begin]
         changes:
           - type: adjustState
             when: has(item.magazine) && self.shots > 0
@@ -253,7 +254,9 @@ actions:
         data:
           attack: steps.roll.total
           damage: >-
-            has(steps.damage) ? max(steps.damage.total, flags.thrown ? 0 : self.shockDamage) : 0
+            has(steps.damage) ? max(steps.damage.total,
+              flags.thrown || self.shockDamage == 0 ? 0 : self.shockDamage + flags.shockBonus) : 0
           shock: >-
             !has(steps.damage) && !flags.thrown && self.shockDamage > 0
-              && (self.shockAnyAc || flags.ac <= item.shockAc) ? self.shockDamage : 0
+              && (self.shockAnyAc || flags.ac <= item.shockAc) ? self.shockDamage + flags.shockBonus
+              : 0

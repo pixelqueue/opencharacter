@@ -2,3 +2,13 @@ id: foci.robot-whisperer
 type: focus
 fields:
   bonusSkill: [fix, program]
+effects:
+  # Against a robot: +4 to hit and damage.
+  - target: { actions: [attack] }
+    op: params
+    value:
+      robot: { type: boolean, default: false }
+  - target: { rolls: [attack, damage] }
+    op: add
+    value: 4
+    when: has(params.robot) && params.robot
