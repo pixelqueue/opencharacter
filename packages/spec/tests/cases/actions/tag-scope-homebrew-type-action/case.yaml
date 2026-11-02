@@ -1,0 +1,8 @@
+description: "An action is reached by the pack that wrote it, not the pack its formulas run in: a homebrew item of test-scope-core's `weapon` type swings with the type's action, which test-scope-other's rules effects don't reach, though the homebrew depends on both games"
+specVersion: 0.3.0
+call: startAction
+packs:
+  - path: ../../../packs/test-scope-core
+  - path: ../../../packs/test-scope-other
+input:
+  action: { id: 'homebrew:gear.blaster#swing', entry: blaster }

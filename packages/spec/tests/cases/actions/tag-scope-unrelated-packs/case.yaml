@@ -1,0 +1,8 @@
+description: "Tags aren't qualified, so unrelated packs loaded together may share one: an effect reaches only the rolls, choice steps and changes steps of packs that meet its own, so test-scope-other's rules effects on `attack`, `hit` and `cost` leave test-scope-core's attack alone"
+specVersion: 0.3.0
+call: startAction
+packs:
+  - path: ../../../packs/test-scope-core
+  - path: ../../../packs/test-scope-other
+input:
+  action: { id: 'test-scope-core:attack' }

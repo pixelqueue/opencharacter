@@ -1,0 +1,14 @@
+# 10 + 1 (the core) + 3 (Edge, with the `style` it adds given): not test-scope-other's +5. The
+# hit takes Edge's mark, and the cost is paid with Edge's option, the only one offered.
+status: finished
+outcome: { data: { total: 14, picked: 'test-scope-addon:features.edge#mark' } }
+proposedChanges:
+  - to: self
+    step: onHit
+    change: { type: adjust, field: test-scope-core:marks, by: 1 }
+  - to: self
+    step: pay
+    change: { type: adjust, field: test-scope-core:marks, by: 1 }
+log:
+  - { step: roll, action: 'test-scope-core:attack', kind: dice, by: engine, faces: [10], total: 14 }
+  - { step: pay, kind: choice, by: app, option: 'test-scope-addon:features.edge#mark' }

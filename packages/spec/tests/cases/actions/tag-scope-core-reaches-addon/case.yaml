@@ -1,0 +1,9 @@
+description: "A core's effects reach the tagged actions of packs that depend on it, with no opting in: the core's +1 on `attack` reaches the add-on's own blast, as the add-on's content does; an unrelated pack's doesn't"
+specVersion: 0.3.0
+call: startAction
+packs:
+  - path: ../../../packs/test-scope-core
+  - path: ../../../packs/test-scope-addon
+  - path: ../../../packs/test-scope-other
+input:
+  action: { id: 'test-scope-addon:blast' }

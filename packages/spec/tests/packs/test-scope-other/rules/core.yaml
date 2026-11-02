@@ -1,0 +1,24 @@
+tags: [attack, hit, cost]
+fields:
+  marks: { type: integer, input: true, default: 0 }
+effects:
+  # Another declaration of the add-on's `style`, and every other kind of tag target.
+  - target: { actions: [attack] }
+    op: params
+    value:
+      style: { type: integer, default: 0 }
+  - target: { rolls: [attack] }
+    op: add
+    value: 5
+  - target: { steps: [hit] }
+    op: changes
+    value:
+      to: self
+      changes:
+        - { type: adjust, field: marks, by: 1 }
+  - target: { choices: [cost] }
+    op: option
+    value:
+      id: mark
+      changes:
+        - { type: adjust, field: marks, by: 1 }

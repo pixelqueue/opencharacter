@@ -1,0 +1,12 @@
+actions:
+  # The add-on's own attack, tagged with the core's tag.
+  - id: blast
+    tags: [attack]
+    steps:
+      - id: roll
+        kind: roll
+        tags: [attack]
+        parts: [{ dice: 1d6 }]
+      - id: done
+        kind: outcome
+        data: { total: steps.roll.total }

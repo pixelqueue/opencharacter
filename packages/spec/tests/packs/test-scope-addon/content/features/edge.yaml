@@ -1,0 +1,24 @@
+# Reaches the core's attack: a parameter, a roll bonus reading it, a mark on the hit and a way
+# to pay the cost.
+id: features.edge
+type: feature
+effects:
+  - target: { actions: [attack] }
+    op: params
+    value:
+      style: { type: boolean, default: false }
+  - target: { rolls: [attack] }
+    op: add
+    value: 'params.style ? 3 : 2'
+  - target: { steps: [hit] }
+    op: changes
+    value:
+      to: self
+      changes:
+        - { type: adjust, field: marks, by: 1 }
+  - target: { choices: [cost] }
+    op: option
+    value:
+      id: mark
+      changes:
+        - { type: adjust, field: marks, by: 1 }

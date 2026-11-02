@@ -1,0 +1,59 @@
+description: "Two unrelated packs loaded together share the `attack` tag: a `params` effect of one never reaches the other's actions, so neither its declared names nor its other declarations are `invalid-added-param`, even with a third pack depending on both"
+specVersion: 0.3.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        id: game-one
+        version: 1.0.0
+        specVersion: 0.3.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        tags: [attack]
+        actions:
+          - id: attack
+            tags: [attack]
+            params:
+              range: { type: integer, default: 0 }
+            steps: [{ id: done, kind: outcome }]
+        effects:
+          # Adds `style` to its own attack.
+          - target: { actions: [attack] }
+            op: params
+            value:
+              style: { type: boolean, default: false }
+      content: []
+  - inline:
+      manifest:
+        id: game-two
+        version: 1.0.0
+        specVersion: 0.3.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        tags: [attack]
+        actions:
+          - id: attack
+            tags: [attack]
+            steps: [{ id: done, kind: outcome }]
+        effects:
+          # `range`, which game-one's attack declares, and `style` declared otherwise: game-two
+          # reaches only its own attack.
+          - target: { actions: [attack] }
+            op: params
+            value:
+              range: { type: integer, default: 1 }
+              style: { type: integer, default: 0 }
+      content: []
+  # A pack depending on both games: it meets each, yet no action may take both effects.
+  - inline:
+      manifest:
+        id: bridge-pack
+        version: 1.0.0
+        specVersion: 0.3.0
+        license: CC0-1.0
+        defaultLanguage: en
+        dependencies: { game-one: ^1.0.0, game-two: ^1.0.0 }
+      rules: {}
+      content: []

@@ -1,0 +1,56 @@
+description: "An add-on's `params` effect reaches its core's tagged actions: a name the core's action declares, and another declaration of a name the core's effect adds, are `invalid-added-param` (two add-ons of one core meet too)"
+specVersion: 0.3.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        id: core-pack
+        version: 1.0.0
+        specVersion: 0.3.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        tags: [attack]
+        actions:
+          - id: attack
+            tags: [attack]
+            params:
+              range: { type: integer, default: 0 }
+            steps: [{ id: done, kind: outcome }]
+      content: []
+  - inline:
+      manifest:
+        id: addon-pack
+        version: 1.0.0
+        specVersion: 0.3.0
+        license: CC0-1.0
+        defaultLanguage: en
+        dependencies: { core-pack: ^1.0.0 }
+      rules:
+        effects:
+          # `range` is the core's attack's own.
+          - target: { actions: [attack] }
+            op: params
+            value:
+              range: { type: integer, default: 1 }
+          - target: { actions: [attack] }
+            op: params
+            value:
+              style: { type: boolean, default: false }
+      content: []
+  - inline:
+      manifest:
+        id: other-addon
+        version: 1.0.0
+        specVersion: 0.3.0
+        license: CC0-1.0
+        defaultLanguage: en
+        dependencies: { core-pack: ^1.0.0 }
+      rules:
+        effects:
+          # Another add-on of the core: `style` declared otherwise meets addon-pack's.
+          - target: { actions: [attack] }
+            op: params
+            value:
+              style: { type: integer, default: 0 }
+      content: []

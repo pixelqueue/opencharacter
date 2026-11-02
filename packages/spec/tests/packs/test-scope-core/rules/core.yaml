@@ -1,0 +1,45 @@
+tags: [attack, hit, cost]
+fields:
+  marks: { type: integer, input: true, default: 0 }
+contentTypes:
+  feature: {}
+  # Every weapon swings with the type's own action, on whichever pack's item.
+  weapon:
+    carried: true
+    actions:
+      - id: swing
+        tags: [attack]
+        steps:
+          - id: roll
+            kind: roll
+            tags: [attack]
+            parts: [{ dice: 1d8 }]
+          - id: done
+            kind: outcome
+            data: { total: steps.roll.total }
+# +1 to every attack it reaches: the core's own and its add-ons'.
+effects:
+  - target: { rolls: [attack] }
+    op: add
+    value: 1
+actions:
+  # A roll, a hit content adds changes to, and a cost paid only with options content adds.
+  - id: attack
+    tags: [attack]
+    steps:
+      - id: roll
+        kind: roll
+        tags: [attack]
+        parts: [{ dice: 1d20 }]
+      - id: onHit
+        kind: changes
+        tags: [hit]
+      - id: pay
+        kind: choice
+        tags: [cost]
+        options: []
+      - id: done
+        kind: outcome
+        data:
+          total: steps.roll.total
+          picked: "has(steps.pay.picked) ? steps.pay.picked : 'none'"

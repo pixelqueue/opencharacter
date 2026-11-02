@@ -1,0 +1,32 @@
+description: "Any `fields` query reaches only fields of packs whose scopes share a pack with the effect's: game-one's penalty to every field tagged `check` leaves unrelated game-two's `check` field alone"
+specVersion: 0.3.0
+call: computeSheet
+packs:
+  - inline:
+      manifest:
+        id: game-one
+        version: 1.0.0
+        specVersion: 0.3.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        tags: [check]
+        fields:
+          perception: { type: integer, input: true, default: 5, tags: [check] }
+        effects:
+          - target: { fields: { where: "'check' in item.tags" } }
+            op: add
+            value: -1
+      content: []
+  - inline:
+      manifest:
+        id: game-two
+        version: 1.0.0
+        specVersion: 0.3.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        tags: [check]
+        fields:
+          notice: { type: integer, input: true, default: 5, tags: [check] }
+      content: []

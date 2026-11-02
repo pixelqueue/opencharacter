@@ -1,0 +1,55 @@
+description: "Two games built on one base pack meet only over the tags the base declares: game-a's bonus to `check` rolls reaches game-b's roll, the base declaring `check`, while its bonus to `attack`, a tag each game declares for itself, doesn't"
+specVersion: 0.3.0
+call: startAction
+packs:
+  - inline:
+      manifest:
+        id: base-pack
+        version: 1.0.0
+        specVersion: 0.3.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        tags: [check]
+      content: []
+  - inline:
+      manifest:
+        id: game-a
+        version: 1.0.0
+        specVersion: 0.3.0
+        license: CC0-1.0
+        defaultLanguage: en
+        dependencies: { base-pack: ^1.0.0 }
+      rules:
+        tags: [attack]
+        effects:
+          - target: { rolls: [check] }
+            op: add
+            value: 1
+          - target: { rolls: [attack] }
+            op: add
+            value: 5
+      content: []
+  - inline:
+      manifest:
+        id: game-b
+        version: 1.0.0
+        specVersion: 0.3.0
+        license: CC0-1.0
+        defaultLanguage: en
+        dependencies: { base-pack: ^1.0.0 }
+      rules:
+        tags: [attack]
+        actions:
+          - id: strike
+            steps:
+              - id: roll
+                kind: roll
+                tags: [attack, check]
+                parts: [{ dice: 1d20 }]
+              - id: done
+                kind: outcome
+                data: { total: steps.roll.total }
+      content: []
+input:
+  action: { id: 'game-b:strike' }
