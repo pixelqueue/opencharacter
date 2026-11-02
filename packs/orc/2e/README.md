@@ -14,7 +14,7 @@ planes and characters) is left out.
 pnpm add @opencharacter/engine @opencharacter/orc-2e
 ```
 
-This release needs spec 0.3: `@opencharacter/engine` 0.3.0 or later. An engine for an older
+This release needs spec 0.4: `@opencharacter/engine` 0.4.0 or later. An engine for an older
 spec refuses it (`spec-version-unsupported`).
 
 The package's default export is the built pack (a `PackRelease`), and `i18n/en` its English
@@ -77,55 +77,6 @@ reading is listed under [Rule readings](#rule-readings).
 - **Out of scope:** animal companions, familiars, eidolons and mounts as creatures of their own,
   GM Core's relics and vehicles, the setting's proper nouns, and anything from the pre-Remaster
   (OGL) books, such as Ancestry Paragon and dual-class characters; GM Core's level 0 characters.
-
-## Add-on packs
-
-A pack that depends on `orc-2e` can add to what it offers:
-
-- **Subclasses:** a feature whose `classOption` names a class's choice (`barbarian.instinct`,
-  `bard.muse`, `cleric.doctrine`, `wizard.school`, …) joins that choice, and Champion's Reaction
-  for causes.
-- **Domains:** a `domain` item joins Domain Initiate and Domain Acumen (an advanced one, with
-  `advanced: true`, Advanced Domain); an initial domain spell names its domain in its `domain`
-  field for Deity's Domain; a mystery grants its domains into `oracle.domains`.
-- **Gear:** tags, not IDs, mark Force Open's crowbar (`tool.crowbar`), Sense Direction's compass
-  (`tool.compass`) and shields against spells (`shield.against-spells`).
-- **Archetypes:** a new archetype declares its own `archetypes.<name>.feats` field tagged
-  `archetype-feats`; a feat for an existing archetype adds 1 to that archetype's field.
-- **Open enums** (`extendEnums`): the identity fields (`barbarian.instinct`, `bard.muse`,
-  `champion.cause`, `cleric.doctrine`, `druid.order`, `investigator.methodology`,
-  `oracle.mystery`, `ranger.edge`, `rogue.racket`, `sorcerer.bloodline`, `swashbuckler.style`,
-  `wizard.school`, `wizard.thesis`, `witch.patron`, `alchemist.field`, `stance.current`), which
-  a new subclass feature sets with its own effect (`{ target: barbarian.instinct, op: set,
-  value: "'thunder'" }`), as the core's do; weapon `group` and `damageType`, armor `group`,
-  consumable `category`, `damageType` and `persistentType`, spell damage types (`damageType`,
-  `damage2Type`, `persistentType` and the cast's `damageType` state), affliction and persistent
-  damage condition damage types, feat `category`, and the damage type parameters of
-  `bomb-strike` (`damageType`, `persistentType`), so an added bomb deals its type
-  (`orc-2e:actions.bomb-strike.params.damageType`). An added spell whose caster picks its damage
-  type or battle form declares the choice itself, as the core's do (below). A new damage type or group also needs its
-  tag (`damage.sonic`, `group.firearm`), declared and named in the add-on.
-- **Choices** (`extendChoices`): written value and inline option choices take additions: the
-  dedications' identity picks (Barbarian Dedication's `instinct`), the follow-up feats' inline
-  options (Order Explorer's `order`, Additional Lore's `lore`), and the 15- and 16-skill lists.
-- **Naming what an add-on adds:** it names each added value, option or key in its own text,
-  under the key this pack would use, and `createText` finds it there when the app passes the
-  ruleset's `enumOrigins`, `optionOrigins` and `familyOrigins`. For example,
-  `sonic` added to `orc-2e:types.weapon.fields.damageType` is
-  `types.weapon.fields.damageType.values.sonic.name: Sonic` (through `enumOrigins`), and an
-  Order Explorer option `stone` is
-  `feats.druid.order-explorer.choices.order.options.stone.name: Stone` (through
-  `optionOrigins`).
-- **Skills and Lores:** a choice of any skill reads `skills.offered` and one of any Lore
-  `skills.lores`; an add-on's Lore declares its fields (`skills.lore.<name>.rank`, `.mod`, …,
-  as `rules/lores.yaml` does) and grants its tag into both with a rules effect.
-- **Step tags** for rules-level `option` and `changes` effects: `creation.ancestry`,
-  `creation.heritage`, `creation.background`, `creation.class` and `creation.finish` (guided and
-  random creation), `level-up.gain`, and the actions' own (`strike.hit`, …).
-
-Still closed: attributes, proficiency ranks, saves, spell traditions (and a staff's
-`tradition`), weapon and armor categories, and physical damage types for `versatile` and
-`modular`, the game's fixed sets.
 
 ## License
 
@@ -433,7 +384,7 @@ Still closed: attributes, proficiency ranks, saves, spell traditions (and a staf
     feature); Furious Finish, Barreling Charge, Cleave, Mage Hunter, Shake It Off, Inner Strength and
     Wounded Rage are actions. Scars of Steel is a reaction the player selects on a critical hit
     (`scarsOfSteel`, once per attack: its resistance is spent over the attack's physical damage),
-    paid from a once-a-day field that daily preparations reset; Spiritual Guides is a reroll
+    paid from `barbarian.scarsOfSteelUsed`, which daily preparations reset; Spiritual Guides is a reroll
     option after a failed check.
 - **Stances, panache, stratagems and parries** are `effect` content, as Raging is: an
   action applies them to the character itself, and the app ends them when their duration does. Entering a stance removes every applied stance first, so one is applied at most; a
@@ -785,7 +736,7 @@ Still closed: attributes, proficiency ranks, saves, spell traditions (and a staf
   reaches allies through the caster's `spells.sphereResistance`. Only an entry the caster applied
   itself projects the aura, and `widen` is once a turn (the caster's next turn clears it). Bane
   stays a target's entry: its penalty needs each enemy's failed save, which an aura's entry can't
-  carry.
+  carry ([#253](https://github.com/pixelqueue/opencharacter/issues/253)).
 - **Spells:** the 41 Player Core cantrips (with the bard's compositions and the witch's hexes)
   and every 1st-, 2nd- and 3rd-rank spell (58, 55, 34), text in `i18n/en/spells.yaml`; the
   casters' 1st-rank focus spells (7 school, 37 domain, 10 bloodline and 5 order spells), text in
@@ -829,7 +780,7 @@ Still closed: attributes, proficiency ranks, saves, spell traditions (and a staf
   has a group; a template on a copy (a rune, automatic bonus progression's devastating
   attacks) shows with its copy.
 
-## Coverage
+### Coverage
 
 | Area                  | Built                                                                                                                                                                                            | Not modeled                                                             |
 | --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------- |
@@ -846,6 +797,55 @@ Still closed: attributes, proficiency ranks, saves, spell traditions (and a staf
 | Archetypes            | All 51 of Player Core and Player Core 2 (331 feats, 78 additional feats), the dedication rule                                                                                                    | Companions, familiars, mounts as creatures                              |
 | Equipment             | 99 weapons, 12 armors, 4 shields, 119 gear, 72 runes, 43 materials, 284 consumables, 106 alchemical items, 208 worn and held items, 54 staves, 53 wands, 60 specific items, 7 item curses, money | Companion items, GM Core's relics and vehicles                          |
 | Creation and leveling | Guided and random creation, level-up with boosts, increases and feat slots; Free Archetype, ABP, Proficiency without Level                                                                       | Level 0 characters (GM Core); not offered: Ancestry Paragon, dual-class |
+
+## Add-on packs
+
+A pack that depends on `orc-2e` can add to what it offers:
+
+- **Subclasses:** a feature whose `classOption` names a class's choice (`barbarian.instinct`,
+  `bard.muse`, `cleric.doctrine`, `wizard.school`, …) joins that choice, and Champion's Reaction
+  for causes.
+- **Domains:** a `domain` item joins Domain Initiate and Domain Acumen (an advanced one, with
+  `advanced: true`, Advanced Domain); an initial domain spell names its domain in its `domain`
+  field for Deity's Domain; a mystery grants its domains into `oracle.domains`.
+- **Gear:** tags, not IDs, mark Force Open's crowbar (`tool.crowbar`), Sense Direction's compass
+  (`tool.compass`) and shields against spells (`shield.against-spells`).
+- **Archetypes:** a new archetype declares its own `archetypes.<name>.feats` field tagged
+  `archetype-feats`; a feat for an existing archetype adds 1 to that archetype's field.
+- **Open enums** (`extendEnums`): the identity fields (`barbarian.instinct`, `bard.muse`,
+  `champion.cause`, `cleric.doctrine`, `druid.order`, `investigator.methodology`,
+  `oracle.mystery`, `ranger.edge`, `rogue.racket`, `sorcerer.bloodline`, `swashbuckler.style`,
+  `wizard.school`, `wizard.thesis`, `witch.patron`, `alchemist.field`, `stance.current`), which
+  a new subclass feature sets with its own effect (`{ target: barbarian.instinct, op: set,
+  value: "'thunder'" }`), as the core's do; weapon `group` and `damageType`, armor `group`,
+  consumable `category`, `damageType` and `persistentType`, spell damage types (`damageType`,
+  `damage2Type`, `persistentType` and the cast's `damageType` state), affliction and persistent
+  damage condition damage types, feat `category`, and the damage type parameters of
+  `bomb-strike` (`damageType`, `persistentType`), so an added bomb deals its type
+  (`orc-2e:actions.bomb-strike.params.damageType`). An added spell whose caster picks its damage
+  type or battle form declares the choice itself, as the core's do (below). A new damage type or group also needs its
+  tag (`damage.sonic`, `group.firearm`), declared and named in the add-on.
+- **Choices** (`extendChoices`): written value and inline option choices take additions: the
+  dedications' identity picks (Barbarian Dedication's `instinct`), the follow-up feats' inline
+  options (Order Explorer's `order`, Additional Lore's `lore`), and the 15- and 16-skill lists.
+- **Naming what an add-on adds:** it names each added value, option or key in its own text,
+  under the key this pack would use, and `createText` finds it there when the app passes the
+  ruleset's `enumOrigins`, `optionOrigins` and `familyOrigins`. For example,
+  `sonic` added to `orc-2e:types.weapon.fields.damageType` is
+  `types.weapon.fields.damageType.values.sonic.name: Sonic` (through `enumOrigins`), and an
+  Order Explorer option `stone` is
+  `feats.druid.order-explorer.choices.order.options.stone.name: Stone` (through
+  `optionOrigins`).
+- **Skills and Lores:** a choice of any skill reads `skills.offered` and one of any Lore
+  `skills.lores`; an add-on's Lore declares its fields (`skills.lore.<name>.rank`, `.mod`, …,
+  as `rules/lores.yaml` does) and grants its tag into both with a rules effect.
+- **Step tags** for rules-level `option` and `changes` effects: `creation.ancestry`,
+  `creation.heritage`, `creation.background`, `creation.class` and `creation.finish` (guided and
+  random creation), `level-up.gain`, and the actions' own (`strike.hit`, …).
+
+Still closed: attributes, proficiency ranks, saves, spell traditions (and a staff's
+`tradition`), weapon and armor categories, and physical damage types for `versatile` and
+`modular`, the game's fixed sets.
 
 ## Rule readings
 
@@ -920,7 +920,7 @@ reads it as below. These are the pack's provisional calls; a table may rule othe
 - **Left to the app:** turns (it runs `start-turn`, `end-turn` and `turn-boundary`), movement and reach, who is
   flanked or in cover (situational choices), when a condition is gained (`applyEffect`), daily
   preparations (the pack's `daily-preparations` and `prepare-spells` say what happens), rests; a
-  spell's duration, sustaining and dismissing it, its area and who is in it (an applied spell
+  spell's duration, sustaining (except bless's and protective wards' `widen`) and dismissing it, its area and who is in it (an applied spell
   stays until the app removes it, but one for the next roll, such as guidance, sure strike,
   true target or weapon surge, ends on the roll it changes; a spell on "you and your allies"
   takes the caster as an ally too); summoned creatures; onset, intervals and virulence of
@@ -937,6 +937,9 @@ reads it as below. These are the pack's provisional calls; a table may rule othe
   save; Multitalented's waiver for an aiuvarin; Ancient Elf's dedication (at creation the
   heritage's choice comes before any boost, so no dedication's attribute prerequisite could be
   met); charhide goblin's fire and Scar-Thick Skin's bleed persistent damage.
+- **Bane:** an enemy who enters the emanation after the cast gets the penalty only if the app
+  casts it on them too, as the spell's entry is each target's
+  ([#253](https://github.com/pixelqueue/opencharacter/issues/253)).
 - **Lore:** the Lores the backgrounds train (38, with six terrain Lores) and the 16 ancestry
   Lores are fields (`rules/lores.yaml`, `rules/lores-pc2.yaml`, `rules/ancestry-feats.yaml`);
   any other Lore is a homebrew increases input and a trained-by-increase input (tagged

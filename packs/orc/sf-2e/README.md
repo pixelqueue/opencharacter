@@ -14,7 +14,7 @@ cast spells, use skill actions, and buy, sell, implant and upgrade equipment. Th
 pnpm add @opencharacter/engine @opencharacter/orc-sf-2e
 ```
 
-This release needs spec 0.3: `@opencharacter/engine` 0.3.0 or later. An engine for an older
+This release needs spec 0.4: `@opencharacter/engine` 0.4.0 or later. An engine for an older
 spec refuses it (`spec-version-unsupported`).
 
 The package's default export is the built pack (a `PackRelease`), and `i18n/en` its English
@@ -74,7 +74,7 @@ leaves a rule open, the pack's reading is listed under [Rule readings](#rule-rea
   grades, upgrades, augmentations, solarian crystals, materials, gear, grenades, medical items,
   serums and magic items; credits and investiture. Details in [What's modeled](#whats-modeled).
 - **Text only:** the parts of options that are narrative or the app's (movement and positions,
-  areas and auras, time, other creatures' sheets, what the GM decides), and options whose effect
+  areas and who an aura reaches, time, other creatures' sheets, what the GM decides), and options whose effect
   the format can't hold; see [Limitations](#limitations).
 - **Out of scope:** GM Core; starship rules and starship roles; drones and companions as
   creatures of their own; the setting's proper nouns; the field agent archetype, whose every
@@ -89,47 +89,6 @@ began as a fork of that pack's rules files, but it doesn't depend on it. A depen
 offer fantasy content. The format can hide a dependency's content only item by item, and it
 would still be in the ruleset. Where the two books print the same rule or item, this pack's
 copy has the same shape as `orc-2e`'s, and the same text where the wording matches.
-
-## Add-on packs
-
-A pack that depends on `orc-sf-2e` can add to what it offers:
-
-- **Subclasses:** a feature whose `classOption` names a class's choice (`envoy.leadership-style`,
-  `mystic.connection`, `soldier.fighting-style`, `witchwarper.paradox`, `witchwarper.anchor`)
-  joins it, and gear tagged `tool.compass` counts for Sense Direction.
-- **Open enums** (`extendEnums`): `mystic.connection` and `witchwarper.paradox`, which a new
-  connection or paradox sets with its own effect, as the core's do; weapon `group`,
-  `damageType` and `ammoKind`, ammunition `kind`, armor `group`, consumable `category`,
-  `damageType` and `persistentType`, spell damage types, affliction and persistent damage
-  condition damage types and feat `category`. A spell whose caster picks its damage type or
-  battle form declares the choice as a parameter of its own cast (a `params` effect on
-  `spell-cast`, `damageType` or `form`, offering only the spell's own types or forms), setting
-  the cast's damage type or form at its `spell.chosen` step. A new damage type or group also needs its tag,
-  declared and named in the add-on.
-- **Choices** (`extendChoices`): written value and inline option choices take additions: the
-  operative's `specialization`, the epiphany feats' `spell` (Basic, New, Advanced, Greater and
-  Syncretic Epiphany), Additional Lore's `lore`, and the short skill lists. A new connection's
-  epiphany counts for New Epiphany, Syncretic Epiphany and Realized Epiphany through rules
-  effects on `mystic.otherExpertConnections`, `mystic.otherMasterEpiphanies` and
-  `mystic.connectionRank`.
-- **Naming what an add-on adds:** it names each added value, option or key in its own text,
-  under the key this pack would use, and `createText` finds it there when the app passes the
-  ruleset's `enumOrigins`, `optionOrigins` and `familyOrigins`. For example,
-  `void` added to `orc-sf-2e:mystic.connection` is
-  `fields.mystic.connection.values.void.name: Void` (through `enumOrigins`), and a Specialized
-  Operative option `saboteur` is
-  `feats.archetype.operative.specialized-operative.choices.specialization.options.saboteur.name: Saboteur`
-  (through `optionOrigins`).
-- **Skills and Lores:** a choice of any skill reads `skills.offered` and one of any Lore
-  `skills.lores`; an add-on's Lore declares its fields (`skills.lore.<name>.rank`, `.mod`, …,
-  as `rules/skills.yaml` does) and grants its tag into both with a rules effect.
-- **Step tags** for rules-level `option` and `changes` effects: `creation.ancestry`,
-  `creation.heritage`, `creation.background`, `creation.class` and `creation.finish` (guided and
-  random creation), `level-up.gain`, and the actions' own (`strike.hit`, …).
-
-Still closed: attributes, proficiency ranks, saves, spell traditions, weapon and armor
-categories, the solarian's attunement and physical damage types for `versatile`, the game's
-fixed sets.
 
 ## License
 
@@ -241,8 +200,10 @@ fixed sets.
   caster, whose entry projects its emanation as an applied aura (`auras`, one per cast) for the
   app to place on allies inside; Sustaining it to widen it is its `widen` action, once a turn;
   only an entry the caster applied itself projects the aura. Bane stays a target's entry (its
-  penalty needs each enemy's failed save). Anthem applies to the bonded creatures passed as
-  allies.
+  penalty needs each enemy's failed save, which an aura's entry can't carry
+  ([#253](https://github.com/pixelqueue/opencharacter/issues/253))). Anthem applies to the bonded
+  creatures passed as allies; its bonus to saves needs the `againstFascinatedOrConfused`
+  situational choice.
 - **Strikes:** the multiple attack penalty, every weapon trait the book uses (agile, analog,
   automatic, area, boost, deadly, fatal, kickback, modular, reload, unwieldy, volley …),
   magazines and ammunition, Area Fire and Auto-Fire with each target's basic Reflex save,
@@ -259,7 +220,55 @@ fixed sets.
   broken shields give no bonus. The Shield spell's block still applies to each damage change of
   an attack: its state lives on the applied spell, which a choice's `changes` can't reach yet
   ([#258](https://github.com/pixelqueue/opencharacter/issues/258)).
+- **Magic items:** an item with the invested trait works only while worn and invested (the
+  content type's `effectsWhen`).
+- **Hero Points:** an input, 1 to start, at most 3. A failed check (`check`, so skill actions,
+  Perception and saves) offers a Hero Point reroll after the roll (`check.reroll`); the second
+  result stands. The book allows a reroll after any result; the pack offers it only after a
+  failure or critical failure. Rerolling a Strike or spell attack and spending Hero Points to
+  avoid dying are the app's.
 - **Money:** credits, plus UPBs as a separate field; buying, selling and the starting credits.
+
+## Add-on packs
+
+A pack that depends on `orc-sf-2e` can add to what it offers:
+
+- **Subclasses:** a feature whose `classOption` names a class's choice (`envoy.leadership-style`,
+  `mystic.connection`, `soldier.fighting-style`, `witchwarper.paradox`, `witchwarper.anchor`)
+  joins it, and gear tagged `tool.compass` counts for Sense Direction.
+- **Open enums** (`extendEnums`): `mystic.connection` and `witchwarper.paradox`, which a new
+  connection or paradox sets with its own effect, as the core's do; weapon `group`,
+  `damageType` and `ammoKind`, ammunition `kind`, armor `group`, consumable `category`,
+  `damageType` and `persistentType`, spell damage types, affliction and persistent damage
+  condition damage types and feat `category`. A spell whose caster picks its damage type or
+  battle form declares the choice as a parameter of its own cast (a `params` effect on
+  `spell-cast`, `damageType` or `form`, offering only the spell's own types or forms), setting
+  the cast's damage type or form at its `spell.chosen` step. A new damage type or group also needs its tag,
+  declared and named in the add-on.
+- **Choices** (`extendChoices`): written value and inline option choices take additions: the
+  operative's `specialization`, the epiphany feats' `spell` (Basic, New, Advanced, Greater and
+  Syncretic Epiphany), Additional Lore's `lore`, and the short skill lists. A new connection's
+  epiphany counts for New Epiphany, Syncretic Epiphany and Realized Epiphany through rules
+  effects on `mystic.otherExpertConnections`, `mystic.otherMasterEpiphanies` and
+  `mystic.connectionRank`.
+- **Naming what an add-on adds:** it names each added value, option or key in its own text,
+  under the key this pack would use, and `createText` finds it there when the app passes the
+  ruleset's `enumOrigins`, `optionOrigins` and `familyOrigins`. For example,
+  `void` added to `orc-sf-2e:mystic.connection` is
+  `fields.mystic.connection.values.void.name: Void` (through `enumOrigins`), and a Specialized
+  Operative option `saboteur` is
+  `feats.archetype.operative.specialized-operative.choices.specialization.options.saboteur.name: Saboteur`
+  (through `optionOrigins`).
+- **Skills and Lores:** a choice of any skill reads `skills.offered` and one of any Lore
+  `skills.lores`; an add-on's Lore declares its fields (`skills.lore.<name>.rank`, `.mod`, …,
+  as `rules/skills.yaml` does) and grants its tag into both with a rules effect.
+- **Step tags** for rules-level `option` and `changes` effects: `creation.ancestry`,
+  `creation.heritage`, `creation.background`, `creation.class` and `creation.finish` (guided and
+  random creation), `level-up.gain`, and the actions' own (`strike.hit`, …).
+
+Still closed: attributes, proficiency ranks, saves, spell traditions, weapon and armor
+categories, the solarian's attunement and physical damage types for `versatile`, the game's
+fixed sets.
 
 ## Rule readings
 
@@ -303,8 +312,9 @@ reads it as below. These are the pack's provisional calls; a table may rule othe
 ## Limitations
 
 - **Left to the app:** turns (it runs `start-turn`, `end-turn` and `turn-boundary`), movement, reach, distances,
-  areas and auras (who is in a burst, a quantum field, a harmony's emanation or a bond's range is
-  the participants the app passes), cover and flanking (situational choices), when a condition
+  areas and auras (who is in a burst, a harmony's emanation or a bond's range is the participants
+  the app passes; who is inside an aura, such as bless or the precog quantum field, is the entries
+  the app places), cover and flanking (situational choices), when a condition
   is gained, daily preparations and rests, a spell's duration and sustaining (a spell or
   treatment for the next roll, such as guidance, sure strike or Treat Poison, ends on the roll it
   changes).
