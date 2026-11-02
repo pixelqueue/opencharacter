@@ -122,8 +122,10 @@ it with the core's, in the guided picks and the random draws:
   their d10 roll within it.
 - **Tagged steps** take an add-on's rules-level `option` and `changes` effects: `creation.kit`
   (the starting equipment option: an added option is another way to equip), `creation.mutation`
-  (how mutation points are spent), `creation.finish` (the last step of creation) and
-  `advancement.level` (each new level's level and skill points).
+  (how mutation points are spent), `creation.finish` (the last step of creation),
+  `advancement.level` (each new level's level and skill points) and `attack.begin` (an attack's
+  first step, whose flags `natural20` and `shockBonus` content may set, with a parameter it adds
+  to `attack`).
 
 - **Open enums:** the stigma fields (`stigma.part`, `stigma.part2`, `stigma.nature`,
   `stigma.detail`), for more suggestions to set by hand; the rolled tables keep the book's.
