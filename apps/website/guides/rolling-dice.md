@@ -122,7 +122,8 @@ Situational choices are things the rules care about that the character sheet doe
 advantage, cover, a GM's bonus, a FitD roll's position and effect. `computeSheet` lists the ones
 on offer in `situational`, and their definitions (type, default) are in
 `ruleset.rules.situational`. Show them as toggles or pickers next to the roll button, and pass the
-selected ones in `situational`. Omitted choices take their defaults.
+selected ones in `situational`. Omitted choices take their defaults. An ID the ruleset doesn't
+declare is `unknown-situational`, so a choice a pack update removed is reported, not dropped.
 
 ## Who rolls the dice
 

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { applyChanges, buildRelease, loadRuleset } from '../src/index.ts';
+import { applyChanges, buildRelease, loadRuleset, startAction } from '../src/index.ts';
 import type { Change } from '../src/core/changes.ts';
 import type { CharacterDoc } from '../src/core/pack-types.ts';
 
@@ -179,5 +179,19 @@ describe('follow-ups once per batch', () => {
     expect(result.ok && result.followUps.map((f) => f.params)).toEqual([
       { damage: 2, requested: 2 },
     ]);
+  });
+});
+
+describe('startAction situational', () => {
+  it('reports a choice the ruleset does not declare as unknown-situational', () => {
+    const result = startAction(ruleset, character, {
+      action: { id: 'test-pack:check' },
+      params: { damage: 1, requested: 1 },
+      situational: { 'test-pack:omenDamage': true },
+    });
+    expect(result).toEqual({
+      ok: false,
+      errors: [{ code: 'unknown-situational', data: { situational: 'test-pack:omenDamage' } }],
+    });
   });
 });

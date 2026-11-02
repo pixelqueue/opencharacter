@@ -65,7 +65,9 @@ shape, an optional **dice function**.
      match its `where` if it has one (`item` the candidate, the character's fields,
      `action.item` and `action.self` the action's own), is `invalid-option` (data: `param`,
      `option`). Formulas see `params.<name>` as the qualified ID.
-3. **Situational choices.** `situational` maps qualified situational IDs to values. Missing
+3. **Situational choices.** `situational` maps qualified situational IDs to values. An ID the
+   ruleset doesn't declare (a choice a newer release removed, a misspelling) is
+   `unknown-situational` (data: `situational`, the ID as given), never ignored. Missing
    choices take their `default`. Formulas see `situational.<id>` by local ID. A choice whose
    `available` is false must be left at its default (false for a boolean); selecting it is
    `situational-unavailable` (data: `situational`). Availability is checked once, when the
@@ -1157,6 +1159,7 @@ These follow from the rules above; they are spelled out because engines have to 
 
 - **Errors:** the result is `{ ok: false, errors }` with:
   - `unknown-action`, `missing-param`, `wrong-type`, `out-of-range`, `invalid-option`;
+  - `unknown-situational`, `situational-unavailable` (the app's `situational`);
   - `invalid-participants`, `duplicate-id`, `invalid-link-value` (participants);
   - `undeclared-result`;
   - `unknown-field`, `not-input-field` (a computed field; a roll part's `field`);

@@ -698,11 +698,12 @@ function startFrame(
   let fixedPack = '';
 
   if (depth === 0) {
-    // A selected situational choice must be offered; one left at its default is fine.
+    // A selected situational choice must be declared and offered; one left at its default is fine.
     const offered = new Set(sheet.situational());
     for (const [qid, value] of Object.entries(ctx.state.situational)) {
       const choice = ruleset.rules.situational[qid];
-      if (!choice || offered.has(qid) || value === situationalDefault(choice)) continue;
+      if (!choice) throw new ActionError('unknown-situational', { situational: qid });
+      if (offered.has(qid) || value === situationalDefault(choice)) continue;
       throw new ActionError('situational-unavailable', { situational: qid });
     }
     const available = sheet

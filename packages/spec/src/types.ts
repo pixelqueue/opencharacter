@@ -2528,7 +2528,7 @@ export type StartActionInput = {
     followUp?: string;
   };
   params?: Record<string, unknown>;
-  /** Selected situational choices by qualified ID. */
+  /** Selected situational choices by qualified ID. An ID the ruleset does not declare is `unknown-situational`; a selected choice not offered now is `situational-unavailable`. */
   situational?: Record<string, Literal>;
   policy?: ActionPolicy;
   links?: Links;
@@ -3270,6 +3270,7 @@ export type ErrorCode =
   | 'safety-limit-exceeded'
   | 'unknown-action'
   | 'situational-unavailable'
+  | 'unknown-situational'
   | 'missing-param'
   | 'invalid-participants'
   | 'undeclared-result'
