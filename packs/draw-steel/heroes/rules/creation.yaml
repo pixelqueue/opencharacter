@@ -121,7 +121,8 @@ actions:
         sheet: proposed
         random: params.random
         options: { pending: {} }
-      # An optional complication (not lycanthropy for a stormwight fury), then its own picks.
+      # An optional complication (not lycanthropy for a stormwight fury, not Gnoll-Mauled for a hero
+      # who can't be dazed), then its own picks.
       - id: complication
         kind: choice
         when: params.complication
@@ -131,8 +132,11 @@ actions:
           content:
             type: complication
             where: >-
-              item.id != @complications.slight-case-of-lycanthropy
-                || countPicks(pick.item == @subclasses.fury.stormwight) == 0
+              (item.id != @complications.slight-case-of-lycanthropy
+                || countPicks(pick.item == @subclasses.fury.stormwight) == 0)
+                && (item.id != @complications.gnoll-mauled
+                  || countPicks(pick.item == @ancestry-traits.high-elf.unstoppable-mind
+                    || pick.item == @ancestry-traits.time-raider.unstoppable-mind) == 0)
         recommend: options[0]
         changes: [{ type: addItem, entry: { item: picked.id } }]
       - id: complicationPicks
