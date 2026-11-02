@@ -10,7 +10,7 @@ import type { Reporter } from './report.ts';
 import type { Ruleset } from './ruleset.ts';
 
 /** Load errors the validator takes from the engine's own loadRuleset steps. */
-const SHARED = new Set(['invalid-added-param']);
+const SHARED = new Set(['invalid-added-param', 'invalid-situational-change']);
 
 let text: Text | undefined;
 /** The spec's English text, IDs left as written. */
@@ -35,8 +35,8 @@ function locate(ruleset: Ruleset, source: string): string | undefined {
 
 /**
  * Runs the engine's load steps over every pack together (formulas aside: the pack checks cover
- * them) and reports their `invalid-added-param` errors, so `pnpm validate` matches loadRuleset
- * on that code.
+ * them) and reports their `invalid-added-param` and `invalid-situational-change` errors, so
+ * `pnpm validate` matches loadRuleset on those codes.
  */
 export function checkEngineLoad(packs: LoadedPack[], ruleset: Ruleset, reporter: Reporter): void {
   let result: ReturnType<typeof loadPacks>;
@@ -57,7 +57,10 @@ export function checkEngineLoad(packs: LoadedPack[], ruleset: Ruleset, reporter:
   if (result.ok) return;
   for (const error of result.errors) {
     if (!SHARED.has(error.code)) continue;
-    const source = String((error.data as { source?: unknown } | undefined)?.source ?? '');
+    const data = (error.data ?? {}) as { source?: unknown; situational?: unknown };
+    // A situational choice is the rules' of its pack.
+    const choice = typeof data.situational === 'string' ? data.situational : '';
+    const source = String(data.source ?? (choice ? `${choice.split(':')[0]}:rules` : ''));
     reporter.error(locate(ruleset, source) ?? '', `${error.code}: ${specText().error(error)}`);
   }
 }
