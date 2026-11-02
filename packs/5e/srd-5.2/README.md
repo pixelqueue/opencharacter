@@ -133,6 +133,13 @@ Where the SRD is unclear or silent, the pack reads it this way:
   every creature at each turn change, ends Sap and Slow when the attacker's next turn starts and
   Vex (and Studied Attacks' Advantage) when it ends. Push and Cleave are reported in the outcome (`push`,
   `cleave`) for the app to resolve; Cleave's attack runs the weapon's attack with `cleave` set.
+- **Reacting to who hit you:** damage another creature sends names it (`change.from`), so
+  follow-ups offer the reaction to it. Hellish Rebuke's cast is offered when another creature
+  damages the caster, and Fire Shield's `erupt` when one hits it with a melee attack while the
+  shield is up (warm or chill as cast); within 5 feet, 60 feet and seen are the app's. Multiattack
+  Defense records each creature that hits the ranger with an attack roll in Defensive Tactics'
+  state (a required offer) and exposes it as `combat.multiattackDefense`, giving that creature's
+  other attack rolls against the ranger Disadvantage until the `turn-boundary` action clears it.
 - **Grapple and Shove:** the target saves with the better of Strength and Dexterity (its
   player's choice).
 - **Death saves:** damage at 0 hit points from a Critical Hit counts two failures.

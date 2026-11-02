@@ -1,0 +1,27 @@
+# Recording the hobgoblin on the pick is required: its later attacks this turn face +4 AC.
+ok: true
+followUps:
+  - id: hit-1
+    kind: ephemeral
+    followUp: 5e-srd-5.1:hunter-tactics.multiattack-defense#hit
+    to: self
+    required: true
+    source: { type: item, id: 5e-srd-5.1:hunter-tactics.multiattack-defense, entry: ranger }
+    changes:
+      - type: setState
+        path:
+          entry: ranger
+          choice: [ranger-archetype, 5e-srd-5.1:subclasses.hunter, defensive-tactics]
+        option: 5e-srd-5.1:hunter-tactics.multiattack-defense
+        key: hitBy
+        value: [hobgoblin-1]
+      - { type: clearFollowUp, id: hit-1 }
+    cause:
+      field: 5e-srd-5.1:hp.current
+      by: -6
+      requested: -6
+      taken: -6
+      reason: requested
+      clamped: false
+      tags: [damage, attack, melee, damage.slashing]
+      from: hobgoblin-1

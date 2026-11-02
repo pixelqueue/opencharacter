@@ -1,0 +1,27 @@
+# Recording the ogre in Defensive Tactics' grant state is required: its other attack rolls this
+# turn have Disadvantage.
+ok: true
+followUps:
+  - id: multiattack-defense-1
+    kind: ephemeral
+    followUp: 5e-srd-5.2:features.ranger.defensive-tactics#multiattack-defense
+    to: self
+    required: true
+    source: { type: item, id: 5e-srd-5.2:features.ranger.defensive-tactics, entry: class }
+    changes:
+      - type: setState
+        path: { entry: class, choice: [subclass] }
+        option: 5e-srd-5.2:subclasses.hunter
+        grant: 5e-srd-5.2:features.ranger.defensive-tactics
+        key: hitBy
+        value: [ogre-1]
+      - { type: clearFollowUp, id: multiattack-defense-1 }
+    cause:
+      field: 5e-srd-5.2:hp.current
+      by: -6
+      requested: -6
+      taken: -6
+      reason: requested
+      clamped: false
+      tags: [damage, attack, melee, damage.slashing]
+      from: ogre-1

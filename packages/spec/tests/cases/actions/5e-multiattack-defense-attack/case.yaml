@@ -1,0 +1,14 @@
+description: '5E: a goblin that already hit a Hunter with Multiattack Defense this turn attacks against +4 AC, as -4 on its roll'
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/5e/srd-5.1
+input:
+  action: { id: 5e-srd-5.1:monster-attack, entry: monsters-goblin-scimitar-1 }
+  participants:
+    target:
+      - id: tamsin
+        values:
+          5e-srd-5.1:combat.ac: 18
+          5e-srd-5.1:hp.current: 37
+          5e-srd-5.1:combat.multiattackDefense: [goblin]

@@ -295,6 +295,14 @@ Where the SRD is unclear or silent, the pack reads it this way:
   Each spell the character has carries its numbers as computed values (`castingClass`,
   `spellDc`, `spellAttack`, `spellMod`, in computeSheet's `activationValues`), which
   `cast-spell` reads and the spell card shows ("Save DC 14", "Spell attack +6").
+- **Reacting to who hit you:** damage another creature sends names it (`change.from`), so
+  follow-ups offer the reaction to it. Hellish Rebuke's cast is offered when another creature
+  damages the caster, and Fire Shield's `erupt` when one hits it with a melee attack while the
+  shield is up (warm or chill as cast); within 5 feet, 60 feet and seen are the app's. Multiattack
+  Defense records each creature that hits the ranger with an attack in the pick's state (a
+  required offer) and exposes it as `combat.multiattackDefense`, so that creature's later attack
+  rolls against the ranger take -4, which hits exactly when +4 AC would. The new `turn-boundary`
+  clock action, which the app runs on every creature at each turn change, clears it.
 - **Auras:** Aura of Protection, Aura of Courage (no frightened) and Aura of Devotion (no
   charmed), all in `aura.range` while the paladin is conscious, Protection reading its live
   Charisma modifier, are listed in computeSheet's `auras` for the app to place on whoever is
@@ -370,11 +378,11 @@ fixed sets.
 
 ## Limitations
 
-Of the 152 class and subclass features, 8 have no mechanics, nor do 16 other options and traits:
-six Hunter's tactics (Escape the Horde, Giant Killer, Horde Breaker, Multiattack Defense, Stand
-Against the Tide, Steel Will), two invocations (Eyes of the Rune Keeper, Gaze of Two Minds), the
-Protection and Two-Weapon Fighting styles, Pact of the Blade, four traits (Halfling Nimbleness,
-Naturally Stealthy, Trance, Nimble Escape) and Shelter of the Faithful: 24 files in all. 63 of
+Of the 152 class and subclass features, 8 have no mechanics, nor do 15 other options and traits:
+five Hunter's tactics (Escape the Horde, Giant Killer, Horde Breaker, Stand Against the Tide,
+Steel Will), two invocations (Eyes of the Rune Keeper, Gaze of Two Minds), the Protection and
+Two-Weapon Fighting styles, Pact of the Blade, four traits (Halfling Nimbleness, Naturally
+Stealthy, Trance, Nimble Escape) and Shelter of the Faithful: 23 files in all. 63 of
 the 318 magic items are text. Of the 319 spells, 163 do nothing on the sheet beyond spending the
 slot (no attack, save, damage, healing, condition, applied effect or action of their own): what
 they do is their SRD text, for the app and the table (detection, illusions, summoning, movement,

@@ -1,0 +1,37 @@
+# Both spells react to the goblin's melee hit, each offer's cause naming it.
+ok: true
+followUps:
+  - id: rebuke-1
+    kind: ephemeral
+    followUp: 5e-srd-5.1:spells.hellish-rebuke#rebuke
+    to: self
+    required: false
+    source: { type: item, id: 5e-srd-5.1:spells.hellish-rebuke, entry: warlock }
+    action:
+      id: 5e-srd-5.1:cast-spell
+      entry: warlock
+      source: 5e-srd-5.1:spells.hellish-rebuke
+      followUp: rebuke-1
+    params: {}
+    cause: &cause
+      field: 5e-srd-5.1:hp.current
+      by: -5
+      requested: -5
+      taken: -5
+      reason: requested
+      clamped: false
+      tags: [damage, attack, melee, damage.piercing]
+      from: goblin-1
+  - id: erupt-1
+    kind: ephemeral
+    followUp: 5e-srd-5.1:spells.fire-shield#erupt
+    to: self
+    required: false
+    source: { type: item, id: 5e-srd-5.1:spells.fire-shield, entry: warlock }
+    action:
+      id: 5e-srd-5.1:spells.fire-shield#erupt
+      entry: warlock
+      source: 5e-srd-5.1:spells.fire-shield
+      followUp: erupt-1
+    params: {}
+    cause: *cause

@@ -16,5 +16,12 @@ fields:
   damageType: fire
   damage: 2d10
   upcastDice: 1
+# Damage another creature dealt offers the Reaction, `change.from` naming the damager (whether
+# it is within 60 feet and seen is the app's).
+followUps:
+  - id: rebuke
+    on: { field: hp.current, tags: [damage], once: true }
+    when: change.from != '' && change.taken < 0
+    action: cast-spell
 actions:
   - use: cast-spell

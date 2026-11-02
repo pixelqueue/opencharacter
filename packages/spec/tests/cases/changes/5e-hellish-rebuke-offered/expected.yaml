@@ -1,0 +1,25 @@
+# The tiefling's Infernal Legacy holds the spell: its cast is offered, the cause's `from` naming
+# the orc that dealt the damage.
+ok: true
+followUps:
+  - id: rebuke-1
+    kind: ephemeral
+    followUp: 5e-srd-5.1:spells.hellish-rebuke#rebuke
+    to: self
+    required: false
+    source: { type: item, id: 5e-srd-5.1:spells.hellish-rebuke, entry: tiefling }
+    action:
+      id: 5e-srd-5.1:cast-spell
+      entry: tiefling
+      source: 5e-srd-5.1:spells.hellish-rebuke
+      followUp: rebuke-1
+    params: {}
+    cause:
+      field: 5e-srd-5.1:hp.current
+      by: -7
+      requested: -7
+      taken: -7
+      reason: requested
+      clamped: false
+      tags: [damage, attack, melee, damage.slashing]
+      from: orc-1
