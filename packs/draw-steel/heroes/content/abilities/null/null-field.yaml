@@ -10,6 +10,47 @@ fields:
   level: 1
   distanceKind: aura
   distance: 1
+# The field on each enemy inside: its potencies drop by 1 (once, however many nulls' fields hold
+# it), and with Synaptic Break bought, potencies used against it are 1 higher (it resists as if 1
+# lower). Inertial Anchor (no shifting for a creature who starts its turn inside) and Gravitic
+# Disruption (a slide on damage) need positions and turns, and stay the table's.
+auras:
+  - id: field
+    when: nullClass.fieldActive
+    size: nullClass.fieldSize
+    affects: enemies
+    fields:
+      nullClass.fieldEffect:
+        type: enum
+        values: [none, gravitic-disruption, inertial-anchor, synaptic-break]
+        default: none
+    effects:
+      - { target: potency.bonus, op: add, value: -1, stackKey: null-field }
+      - target: 'potency.resistBonus.might'
+        op: add
+        value: -1
+        stackKey: synaptic-break
+        when: applier.nullClass.fieldEffect == 'synaptic-break'
+      - target: 'potency.resistBonus.agility'
+        op: add
+        value: -1
+        stackKey: synaptic-break
+        when: applier.nullClass.fieldEffect == 'synaptic-break'
+      - target: 'potency.resistBonus.reason'
+        op: add
+        value: -1
+        stackKey: synaptic-break
+        when: applier.nullClass.fieldEffect == 'synaptic-break'
+      - target: 'potency.resistBonus.intuition'
+        op: add
+        value: -1
+        stackKey: synaptic-break
+        when: applier.nullClass.fieldEffect == 'synaptic-break'
+      - target: 'potency.resistBonus.presence'
+        op: add
+        value: -1
+        stackKey: synaptic-break
+        when: applier.nullClass.fieldEffect == 'synaptic-break'
 effects:
   - target: { steps: [ability.after], from: self }
     op: changes
