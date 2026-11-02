@@ -765,7 +765,8 @@ Still closed: attributes, proficiency ranks, saves, spell traditions (and a staf
   Points follow), spends the experience, gives a skill increase at 3rd and every odd level after
   (over the increases inputs, each within its `max`), and asks what the new level brings over the pending choices.
 - **Sheet layout**: field groups (character, attributes, defenses, saves,
-  skills, proficiencies, Bulk, the turn), action groups (Strikes, checks, reactions, turns,
+  skills, proficiencies, Bulk, the turn), action groups (Strikes, checks, reactions (a spell
+  cast as a reaction too, by a computed tag on `cast-spell`), turns,
   conditions and afflictions, class and feat actions, skill actions, exploration and downtime,
   spellcasting, inventory, advancement) and content groups (conditions and effects applied,
   ancestry, heritage, background, class, class features, feats by category, spells, weapons,
