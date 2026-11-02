@@ -172,18 +172,6 @@ contentTypes:
         op: atLeast
         value: item.hardness
         when: self.equipped && self.damage < item.hp
-      - id: block
-        target: { incoming: { fields: [hp.current], tags: [damage] } }
-        op: add
-        value: min(item.hardness, -incoming.amount)
-        when: >-
-          situational.shieldBlock && self.equipped && shield.raised && self.damage < item.hp
-            && incoming.amount < 0
-        then:
-          - type: adjustState
-            entry: self
-            key: damage
-            by: max(0, -incoming.amount - item.hardness)
 
   # Ammunition comes in tens: one copy, its quantity the bundles.
   gear:
@@ -320,7 +308,23 @@ situational:
     type: boolean
     default: false
     incoming: { fields: [hp.current], tags: [damage] }
+    scope: batch
     available: '@feats.general.shield-block in feats.held && shield.raised'
+    effects:
+      - target: { incoming: { fields: [hp.current], tags: [damage] } }
+        op: add
+        value: shield.hardness
+        when: incoming.amount < 0
+    # The shield takes what its hardness didn't stop of the whole attack, up to its Hit Points
+    # (destroyed at 0).
+    changes:
+      - type: adjustState
+        copies: { type: shield, where: 'self.equipped && self.damage < item.hp' }
+        limit: 1
+        key: damage
+        by: >-
+          min(item.hp - self.damage, max(0, -sumList(batch.adjustments, x.requested,
+            x.field == @hp.current && x.reason == 'requested') - shield.hardness))
 
 actions:
   - id: drink
