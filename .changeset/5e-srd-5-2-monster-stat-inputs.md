@@ -1,5 +1,6 @@
 ---
 '@opencharacter/5e-srd-5.2': minor
+'@opencharacter/spec': patch
 ---
 
 A monster's AC, senses, XP and Legendary Action uses are copied onto its sheet, so the whole stat
