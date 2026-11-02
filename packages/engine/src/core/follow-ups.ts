@@ -378,7 +378,8 @@ function declarations(ruleset: Ruleset, sheet: Sheet): Declared[] {
     out.push({ def, pack: def.pack, id, roots: sheet.rulesRoots(), key: id, sheet, offerId: id });
   }
   for (const a of sheet.activations) {
-    if (a.scope !== 'holder' || !a.item) continue;
+    // Content a grant's `available` holds back declares no follow-ups.
+    if (a.scope !== 'holder' || !a.item || !sheet.grantsAvailable(a)) continue;
     const item = a.item;
     const type = item.type !== 'template' ? ruleset.contentTypes[item.type] : undefined;
     const where = `${a.source.entry ?? ''}|${a.sourceId}|${JSON.stringify(a.path)}`;

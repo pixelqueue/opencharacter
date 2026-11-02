@@ -2028,10 +2028,11 @@ export class Sheet {
     }
     const type =
       item && item.type !== 'template' ? this.ruleset.contentTypes[item.type] : undefined;
-    // Its effects' shared condition: the item's, else its type's; an inline option keeps its
-    // owner's, which its choice effects and nested options read too.
+    // Its holder effects' shared condition: the item's, else its type's; an inline option keeps
+    // its owner's, which its choice effects and nested options read too. Applied effects, whose
+    // `self` is the entry, don't read it.
     if (item) activation.effectsWhen = this.effectsWhenOf(item);
-    const gate = activation.effectsWhen;
+    const gate = activation.scope === 'holder' ? activation.effectsWhen : undefined;
     // Picked or held granted content with state of its own: `then` writes there, as `self` reads.
     const owner =
       item &&
