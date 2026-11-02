@@ -67,6 +67,21 @@ conditions, downtime, rituals and crafting, and the crew rules. It has **no name
 lists** and no spirit playbooks, so the pack has none of those either. A table's own playbooks
 and items are homebrew (below).
 
+## License
+
+License metadata: `mechanics-only`. The pack takes only mechanics and names from the
+game's SRD, so it declares no text license. Its `credit` carries the SRD's attribution, which
+apps show with the pack:
+
+This work is based on Blades in the Dark (found at http://www.bladesinthedark.com/), product of
+One Seven Design, developed and authored by John Harper, and licensed for our use under the
+Creative Commons Attribution 3.0 Unported license (http://creativecommons.org/licenses/by/3.0/).
+
+[`LICENSE`](https://github.com/pixelqueue/opencharacter/blob/main/packs/fitd/scoundrel/LICENSE)
+gives the pack's terms: the contributors' own work in it is under CC0 1.0 (the repository's
+default for packs), and the SRD's material stays under CC-BY 3.0 with the attribution above. The
+pack has no other notices.
+
 ## Making a scoundrel
 
 There is no playbook by default. `create-scoundrel` (the guided start `scoundrel`, or the random
@@ -157,7 +172,7 @@ Focused, Fortitude, Shadow, Subterfuge, Mastermind, Warded); extra dice or effec
 situations (Bodyguard, Savage, Scout, Ambush, Daredevil, Trust in Me, Weaving the Web, Arcane
 Mind, Iron Will, Vigorous); result levels for crafting and downtime (Alchemist, Artificer,
 Strange Methods, Connected); Mule, Vigorous and Tough as Nails; Rook's Gambit (an action: the
-best rating for 2 stress); Expertise; Analyst's two ticks; A Little Something on the Side;
+best rating for 2 stress); Expertise (its card names the chosen action); Analyst's two ticks; A Little Something on the Side;
 Foresight; Devil's Footsteps, Not to Be Trifled With and Sharpshooter (a push for their benefit,
 which brings its die or effect); the Ritual ability. The rest are text only (the fiction's, or a
 factor the GM weighs): Arcane Fighter, Leader (read by the crew pack's
@@ -214,14 +229,6 @@ random start's draws and the sheet's groups as the core's do.
   options are those twelve), load levels, and the crafting kinds and downtime tracks the core's
   rules read.
 
-## Out of scope
-
-- Playbooks, items and the spirit playbooks: not in the SRD (a table's own are homebrew).
-- Who takes a consequence when a teammate protects another: the GM's ruling, so the app runs
-  `take-harm` on the protector.
-- Counting downtime activities, restoring armor at the next load, coin carried as load, pushing
-  to act while incapacitated: the app's or the player's.
-
 ## Rule readings
 
 - **SRD only:** the pack holds only what the SRD contains, so it has no named playbooks, no item
@@ -239,17 +246,10 @@ random start's draws and the sheet's groups as the core's do.
   effect (Arcane Fighter, Infiltrator), it is the action roll's `effect` choice, not a fixed
   bonus.
 
-## License
+## Limitations
 
-License metadata: `mechanics-only`. The pack takes only mechanics and names from the
-game's SRD, so it declares no text license. Its `credit` carries the SRD's attribution, which
-apps show with the pack:
-
-This work is based on Blades in the Dark (found at http://www.bladesinthedark.com/), product of
-One Seven Design, developed and authored by John Harper, and licensed for our use under the
-Creative Commons Attribution 3.0 Unported license (http://creativecommons.org/licenses/by/3.0/).
-
-[`LICENSE`](https://github.com/pixelqueue/opencharacter/blob/main/packs/fitd/scoundrel/LICENSE)
-gives the pack's terms: the contributors' own work in it is under CC0 1.0 (the repository's
-default for packs), and the SRD's material stays under CC-BY 3.0 with the attribution above. The
-pack has no other notices.
+- Playbooks, items and the spirit playbooks: not in the SRD (a table's own are homebrew).
+- Who takes a consequence when a teammate protects another: the GM's ruling, so the app runs
+  `take-harm` on the protector.
+- Counting downtime activities, restoring armor at the next load, coin carried as load, pushing
+  to act while incapacitated: the app's or the player's.

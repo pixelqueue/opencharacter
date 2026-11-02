@@ -42,6 +42,7 @@ const blank = {
 const run = startAction(ruleset, blank, {
   action: { id: 'cwn-srd:create-character' },
   params: { random: true },
+  policy: { dice: 'auto', choices: 'auto', allocations: 'auto' },
 });
 if (!('status' in run) || run.status !== 'finished') throw new Error('creation paused');
 const made = applyChanges(
@@ -52,7 +53,7 @@ const made = applyChanges(
 if (!made.ok) throw new Error('creation failed');
 
 const sheet = computeSheet(ruleset, made.character);
-sheet.values['cwn-srd:saves.physical']?.value; // 15 less the better of Str and Con
+sheet.values['cwn-srd:saves.physical']?.value; // 15 less the better of Str and Con modifiers
 ```
 
 The guided start, `guided` (the same action without `random`), pauses for every pick, each with
@@ -69,13 +70,14 @@ the player's choices and other characters.
   nothing; the document's author asks that works built on it not be presented as official or
   endorsed.
 
-## What it models
+## What's modeled
 
 - **Attributes:** the six scores (3d6 in order with one score made 14, or the array), their
   modifiers (Prodigy's +3, bonuses capped at +2, or +3 where the source says so), and cyberware
   that sets a score.
 - **Skills:** 19 skills, plus Cast and Summon for magic, from no skill (-1) to level-4; checks
-  are 2d6 plus skill and attribute, with Specialist's and Healer's extra dice. Skill levels are
+  are 2d6 plus skill and attribute, with Specialist's and Healer's extra dice. Specialist's and
+  Healer's extra dice don't add up: the larger pool applies. Skill levels are
   saved inputs: creation and advancement raise them, and skillplugs lift the level checks use.
 - **Creation:** a guided and a random start. Backgrounds with their free skill and Growth and
   Learning tables (three rolls split between them, or two Learning picks), the rule that a
@@ -100,7 +102,9 @@ the player's choices and other characters.
   miss (the `veteransLuck` situational choice on a weapon hit's damage, tagged `damage.weapon`
   as the attack deals it: the attack's batch takes none, Damage Soak untouched). Each weapon adds the
   parameters it uses: the attribute for a Str/Dex weapon, throwing for a melee weapon with a
-  range, burst fire for a burst weapon. Weapons track their magazines, and each weapon copy
+  range, burst fire for a burst weapon (three rounds for +2 to hit and damage; with fewer than
+  three loaded it fires one for no bonus). On a thrown weapon, Armsmaster's and Deadeye's skill
+  damage don't add up: the better counts. Weapons track their magazines, and each weapon copy
   computes its hit bonus, damage bonus and Shock as an attack with it starts (`hit`, `damage`,
   `shock`), which its block shows; a drone copy its pilot's attack bonus.
 - **Gear:** every weapon, armor, accessory, mod, mission gear, pharmaceutical, cyberdeck,
@@ -146,8 +150,12 @@ cyberware, `bars-cyber` for one that bars it (as All Natural does), `repeatable`
 - **Tagged steps** take an add-on's rules-level `option` and `changes` effects: `creation.item`
   (the free starting item's kind: an added option is another free item), `creation.gear` (the
   starting money and lifestyle), `creation.finish` (the last step of creation),
-  `advancement.level` (each new level), `rest.night` (a night's rest) and `rest.scene` (the end of
-  a scene).
+  `advancement.level` (each new level), `rest.night` (a night's rest), `rest.scene` (the end of
+  a scene), `attack.options` (an attack's step before the roll, where a weapon's parameters set
+  its flags), `attack.rolled` (after an attack's rolls, where content pays for them),
+  `spell.commit` (a spell's step before its Effort, where the spell's own `commit` parameter
+  sets `flags.commit`), `spell.effort` (the Effort a cast commits) and `spell.cast` (the cast
+  counted toward the scene's, where a spell adds its own cost).
 
 - **Skills** are the `skill` family: an add-on adds one (`families: { 'cwn-srd:skill': [<key>] }`)
   and declares its `skills.<key>.base` (tagged `skill-base` and `skill.<key>`), `.credit` and
@@ -159,16 +167,6 @@ cyberware, `bars-cyber` for one that bars it (as All Natural does), `repeatable`
 
 Still closed: the enums that are the rules' own: a program's `kind` (Verb or Subject), armor `kind`,
 cyberware `concealment`, a spell's `effort`, vehicle `size`, and the attributes.
-
-## Left to the table
-
-- Situational modifiers (cover, range, prone targets, snap attacks, charges, dual wielding) are
-  the attack's and checks' `modifier` parameters.
-- Execution Attacks, suppressive fire, grappling, drone and vehicle combat, chases, demons and
-  network architecture are text: the attack covers single and burst fire.
-- Once-per-scene and once-per-day abilities (rerolls, Enhanced Reflexes) are text, Veteran's
-  Luck aside; the cyber that costs System Strain to trigger has a trigger action.
-- Starting languages are a count and a free text field: the city's languages are the setting's.
 
 ## Rule readings
 
@@ -189,3 +187,13 @@ cyberware `concealment`, a spell's `effort`, vehicle `size`, and the attributes.
 - **Dermal plating, Skin of Steel and armor** don't stack: one source sets both base Armor
   Classes (the `base-ac` key spans the two fields), and the player picks it, the best Ranged and
   Melee AC together recommended.
+
+## Limitations
+
+- Situational modifiers (cover, range, prone targets, snap attacks, charges, dual wielding) are
+  the attack's and checks' `modifier` parameters.
+- Execution Attacks, suppressive fire, grappling, drone and vehicle combat, chases, demons and
+  network architecture are text: the attack covers single and burst fire.
+- Once-per-scene and once-per-day abilities (rerolls, Enhanced Reflexes) are text, Veteran's
+  Luck and Martial Instinct aside; the cyber that costs System Strain to trigger has a trigger action.
+- Starting languages are a count and a free text field: the city's languages are the setting's.

@@ -22,7 +22,7 @@ This release needs spec 0.4: `@opencharacter/engine` 0.4.0 or later. An engine f
 spec refuses it (`spec-version-unsupported`).
 
 The package's default export is the pack's release, ready for `loadRuleset`; its English text is
-`@opencharacter/wwn-srd/i18n/en`.
+`@opencharacter/wwn-srd/i18n/en` (also as JSON, `release.json` and `i18n/en.json`).
 
 ```ts
 import { applyChanges, computeSheet, loadRuleset, startAction } from '@opencharacter/engine';
@@ -51,8 +51,16 @@ const made = applyChanges(
   run.proposedChanges.map((p) => p.change),
 );
 if (!made.ok) throw new Error('creation failed');
-computeSheet(ruleset, made.character).values['wwn-srd:saves.physical']?.value; // 15 or so
+
+const sheet = computeSheet(ruleset, made.character);
+sheet.values['wwn-srd:saves.physical']?.value; // 15 less the better of Str and Con modifiers
 ```
+
+## License
+
+- **License:** `CC0-1.0`. The SRD is CC0, and so is this pack: [`LICENSE`](LICENSE).
+- **Notice:** `not-affiliated`, which apps show as they would a license notice. CC0 asks for
+  nothing; the notice says the pack is unofficial and not endorsed by Sine Nomine Publishing.
 
 ## What's modeled
 
@@ -60,7 +68,8 @@ computeSheet(ruleset, made.character).values['wwn-srd:saves.physical']?.value; /
   Modifiers from the score, with Focus bonuses capped at +2 (+3 where a Focus says so).
 - **Skills:** the 21 skills, -1 (untrained) to 4. `skill-check` rolls 2d6 (kept highest two, so
   a Specialist's or a Gifted Chirurgeon's extra dice drop the lowest) plus the skill and an
-  attribute modifier against a difficulty. No new character has a skill above level-1.
+  attribute modifier against a difficulty. Specialist's and Gifted Chirurgeon's extra dice don't
+  add up: the larger pool applies. No new character has a skill above level-1.
 - **Backgrounds:** the SRD's two, Artisan and Barbarian, each with its free skill and Growth and
   Learning tables. A table's own backgrounds are homebrew content of the same type.
 - **Classes:** Warrior (Killing Blow), Expert (Quick Learner's extra skill point), Mage (High
@@ -85,7 +94,8 @@ computeSheet(ruleset, made.character).values['wwn-srd:saves.physical']?.value; /
   asks whether it's thrown. Each weapon's card shows its numbers as wielded (computed values):
   hit bonus, damage bonus, Shock damage and the AC it reaches. Armsmaster's and Deadeye's
   bonuses are fields by use (`attack.<mode>.bonus`, `damage.<mode>.bonus`, `shock.melee.bonus`,
-  `shock.unarmed.bonus`; melee, thrown, ranged or unarmed), so they count on the cards too.
+  `shock.unarmed.bonus`; melee, thrown, ranged or unarmed), so they count on the cards too. On a
+  thrown weapon they don't add up: only the better skill damage counts.
   Unarmed Combatant, Natural Weaponry and Unarmed Might each give a whole unarmed attack: its
   die, Shock and Shock AC come from the one the player picks (the best die recommended), never
   mixed. Armor Class from armor, shields (+1 over armor as good) and the natural defenses some
@@ -144,10 +154,10 @@ backgrounds, foci, arts, spells, weapons, armor and gear.
   `types.spell.fields.list.values.stormcaller.name: Stormcaller` (through `enumOrigins`).
 - **Tagged steps** take an add-on's rules-level `option` and `changes` effects: `creation.purse`
   (the starting silver), `creation.finish` (the last step of creation), `advancement.level` (each
-  new level's level and skill points), `rest.night` (a night's rest) and `rest.scene` (the end of
-  a scene).
+  new level's level and skill points), `rest.night` (a night's rest), `rest.scene` (the end of
+  a scene), `spell.cast` (a spell's casting) and `art.commit` (an art committing its Effort).
 
-## Left to the app or the table
+## Limitations
 
 - **Text effects.** Most arts, Foci and spells change no number on the sheet; their names are
   here and their use is the table's. Those that commit Effort do so with `commit-effort`.

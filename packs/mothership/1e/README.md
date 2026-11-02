@@ -16,7 +16,7 @@ for this pack.
 pnpm add @opencharacter/mothership-1e @opencharacter/engine
 ```
 
-This release needs spec 0.3: `@opencharacter/engine` 0.3.0 or later. An engine for an older
+This release needs spec 0.4: `@opencharacter/engine` 0.4.0 or later. An engine for an older
 spec refuses it (`spec-version-unsupported`).
 
 The package's default export is the pack's release, ready for `loadRuleset`; its English text is
@@ -106,8 +106,8 @@ for the player's choices and other characters.
     and one more Trained; Teamster a Trained and an Expert. No pick offers a skill the
     character already has.
   - The Android's −10 and the Scientist's +5 to a stat are choices too.
-  - **Trauma responses** reach close friendly players, the `close` participants the app
-    passes (who is close is the app's):
+  - **Trauma responses** reach close friendly players (who is close is the app's): the Marine's
+    and Scientist's through the `close` participants the app passes, the Android's as an aura.
     - Marine: when it panics (a `panic-check`, or one a check or save runs), each close player's
       app runs a Fear `save` (a handoff).
     - Android: the class projects an aura (`unease`, on allies) that puts a Fear save at [-]
@@ -216,29 +216,6 @@ A pack that depends on `mothership-1e` can add content of its types, and it join
 
 Still closed: a weapon's `range` and a skill's `tier` (the game's fixed sets).
 
-## Text only, or the app's
-
-- **No items.** Weapon and armor lists, loadouts, trinkets and patches stay out of this pack (a
-  loadout taken at creation is recorded as `loadout.owed`).
-  The item shapes are here, so apps and homebrew can add items.
-- **Tables.** The panic, wound and death save tables are text. The actions return the roll for
-  the app to look up. The shore leave port table (each port class's cost and conversion die) is
-  a table too: the app passes the die.
-- **Conditions.** They come only from the panic and wound tables' results (text), and last
-  until medical care, which is the Warden's. So do the panic results that raise minimum stress
-  or add stress.
-- **Contractors.** Hirelings the Warden runs, with a sheet of their own (Combat, Instinct,
-  Loyalty, maximum wounds, no health). Their numbers come from the Warden's contractor tables.
-- **Decided at the table or by the app:** who is close, for the trauma responses (the Android's
-  aura included); when turns change (`turn-boundary`), and when a day or a session ends
-  (`natural-healing`, `end-session`); which stat or save
-  stress past 20 lowers (`excess-stress` asks).
-
-## Sources
-
-The mechanics were checked against the Player's Survival Guide v1.1 (facts only, as quoted by
-public copies) and its skill tree.
-
 ## Rule readings
 
 Where the guide is unclear or silent, the pack reads it this way:
@@ -263,3 +240,26 @@ Where the guide is unclear or silent, the pack reads it this way:
   stops at the minimum.
 - **Heavy armor:** the guide's heavy suits (Vaccsuit, Advanced Battle Dress) put Speed checks at
   [-], which is this pack's `bulky`.
+
+## Limitations
+
+- **No items.** Weapon and armor lists, loadouts, trinkets and patches stay out of this pack (a
+  loadout taken at creation is recorded as `loadout.owed`).
+  The item shapes are here, so apps and homebrew can add items.
+- **Tables.** The panic, wound and death save tables are text. The actions return the roll for
+  the app to look up. The shore leave port table (each port class's cost and conversion die) is
+  a table too: the app passes the die.
+- **Conditions.** They come only from the panic and wound tables' results (text), and last
+  until medical care, which is the Warden's. So do the panic results that raise minimum stress
+  or add stress.
+- **Contractors.** Hirelings the Warden runs, with a sheet of their own (Combat, Instinct,
+  Loyalty, maximum wounds, no health). Their numbers come from the Warden's contractor tables.
+- **Decided at the table or by the app:** who is close, for the trauma responses (the Android's
+  aura included); when turns change (`turn-boundary`), and when a day or a session ends
+  (`natural-healing`, `end-session`); which stat or save
+  stress past 20 lowers (`excess-stress` asks).
+
+## Sources
+
+The mechanics were checked against the Player's Survival Guide v1.1 (facts only, as quoted by
+public copies) and its skill tree.

@@ -18,8 +18,11 @@ pnpm add @opencharacter/awn-core @opencharacter/engine
 This release needs spec 0.4: `@opencharacter/engine` 0.4.0 or later. An engine for an older
 spec refuses it (`spec-version-unsupported`).
 
+The package's default export is the pack's release, ready for `loadRuleset`; its English text is
+`@opencharacter/awn-core/i18n/en` (also as JSON, `release.json` and `i18n/en.json`).
+
 ```ts
-import { applyChanges, loadRuleset, startAction } from '@opencharacter/engine';
+import { applyChanges, computeSheet, loadRuleset, startAction } from '@opencharacter/engine';
 import apocalypse from '@opencharacter/awn-core';
 
 const loaded = loadRuleset([apocalypse]);
@@ -38,6 +41,16 @@ const run = startAction(ruleset, blank, {
   params: { random: true },
   policy: { dice: 'auto', choices: 'auto', allocations: 'auto' },
 });
+if (!('status' in run) || run.status !== 'finished') throw new Error('creation paused');
+const made = applyChanges(
+  ruleset,
+  blank,
+  run.proposedChanges.map((p) => p.change),
+);
+if (!made.ok) throw new Error('creation failed');
+
+const sheet = computeSheet(ruleset, made.character);
+sheet.values['awn-core:saves.physical']?.value; // 15 less the better of Str and Con modifiers
 ```
 
 ## License
@@ -60,6 +73,7 @@ const run = startAction(ruleset, blank, {
   every edge, focus and mutation applies the book's caps.
 - **Skills:** the 19 skills at level −1 (untrained) to 4. A skill check rolls 2d6 (more dice,
   best two kept, with Specialist and Healer) plus an attribute modifier and the level.
+  Specialist's and Healer's extra dice don't add up: the larger pool applies.
 - **Creation** (`create-character`), in the book's order: attributes (3d6 in order and a 14, or
   the array), background (d20), its free skill, two picks or three Growth/Learning rolls, the
   underdog rule, two edges, mutations, foci, the edges', foci's and mutations' own picks, the free
@@ -83,7 +97,8 @@ const run = startAction(ruleset, blank, {
   `improve-attribute` with the book's costs and minimum levels.
 - **Gear:** armor, ranged, melee, high-tech and portable heavy weapons, survival gear, drugs and
   stims. Each weapon shows its hit bonus, damage bonus and Shock; `attack` rolls it. Burst
-  weapons add a `burst` parameter to `attack` (three rounds for +2 to hit and damage), and melee
+  weapons add a `burst` parameter to `attack` (three rounds for +2 to hit and damage; with fewer
+  than three left it fires one for no bonus), and melee
   weapons that can be thrown a `thrown` one; other weapons offer neither.
 - **Armsmaster and Deadeye** both reach thrown attacks; there the better of the two counts, on
   hit and damage together.
@@ -100,6 +115,10 @@ const run = startAction(ruleset, blank, {
   attack given its target's view (`participants.target`) rolls laser damage twice against Light
   Sensitivity, the higher kept.
 - **System strain and stress:** maximums with the edges, foci and mutations that change them.
+- **Situational choices** the app offers on a roll: `versus` on saves (`poison`, `disease`,
+  `radiation` or `other`: what the save resists, for Iron Stomach, Natural Immunity, Hardened
+  Genetics and Fragile System), `social` on checks (a social check, for Empathic Sensitivity and
+  Miasmic Stench), `grapple` and `foraging` on checks (above).
 
 ## Add-on packs
 
@@ -123,8 +142,8 @@ it with the core's, in the guided picks and the random draws:
 - **Tagged steps** take an add-on's rules-level `option` and `changes` effects: `creation.kit`
   (the starting equipment option: an added option is another way to equip), `creation.mutation`
   (how mutation points are spent), `creation.finish` (the last step of creation),
-  `advancement.level` (each new level's level and skill points) and `attack.begin` (an attack's
-  first step, whose flags `natural20` and `shockBonus` content may set, with a parameter it adds
+  `advancement.level` (each new level's level and skill points) and `attack.begin` (the attack's
+  step before the roll, whose flags `natural20` and `shockBonus` content may set, with a parameter it adds
   to `attack`).
 
 - **Open enums:** the stigma fields (`stigma.part`, `stigma.part2`, `stigma.nature`,
@@ -158,10 +177,9 @@ The near-future and wasteland d20 tables are the book's own tables.
 - **Stigma details:** the d12 column follows the nature (texture for size, amorphous and
   mineral changes).
 
-## Not modeled
+## Limitations
 
 Vehicles, mods, the high-tech loot tables (a placeholder item stands for them), psychic scars,
 traumatic hits beyond the trauma target, and the many once-per-scene or narrative powers, which
 are text only. Low Resistances (the day's first Physical, Mental or Evasion save rolled twice)
-is text only too: a roll effect can't end itself once it applies
-([#68](https://github.com/pixelqueue/opencharacter/issues/68)).
+is text only too: the pack tracks no days or rest, so nothing would reset it.

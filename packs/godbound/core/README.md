@@ -40,6 +40,7 @@ const blank = {
 const run = startAction(ruleset, blank, {
   action: { id: 'godbound-core:create-character' },
   params: { random: true },
+  policy: { dice: 'auto', choices: 'auto', allocations: 'auto' },
 });
 if (!('status' in run) || run.status !== 'finished') throw new Error('creation paused');
 const made = applyChanges(
@@ -48,7 +49,9 @@ const made = applyChanges(
   run.proposedChanges.map((p) => p.change),
 );
 if (!made.ok) throw new Error('creation failed');
-computeSheet(ruleset, made.character).values['godbound-core:effort.max']?.value; // 2
+
+const sheet = computeSheet(ruleset, made.character);
+sheet.values['godbound-core:effort.max']?.value; // 2, more with an Effort gift
 ```
 
 ## License
@@ -124,12 +127,12 @@ computeSheet(ruleset, made.character).values['godbound-core:effort.max']?.value;
     lesser gift of another Word 2 (1 once that Word is bound), a universal gift 1 (Effort of the
     Word 2 after the first), each Word past three 3. `gifts.points.spent` works it out from the
     sheet; spending past the total is a rules issue.
-- **Effort:** 2 plus 1 per level (more from gifts and divine fury). Commitments for the scene and
+- **Effort:** 2 at 1st level, plus 1 per level after (more from gifts and divine fury). Commitments for the scene and
   the day are counted in `effort.scene` and `effort.day`; `end-scene` and `new-day` return them
   (and, unless kept, the Effort gifts hold). `miracle` commits a day's Effort (two to mimic a gift
   that already commits for the day) and can hurt one target (1d8 per level) or several (1d6 per
   two levels), or give natural AC 3 for the scene.
-- **Influence and Dominion:** maximum Influence (2 plus 1 per level, more from gifts) and
+- **Influence and Dominion:** maximum Influence (2 at 1st level, plus 1 per level after; more from gifts) and
   committed Influence; Dominion held and spent; Wealth.
 - **Combat:** hit points (8 plus Constitution, then 4 plus half Constitution, rounded up, per
   level), attack bonus (the level), armor class (the better of natural and worn armor, less
@@ -198,5 +201,15 @@ Still closed, as the rules' own: a weapon's or gift's `attribute`, the saves, a 
 - **Healing gifts on others:** they propose the hit points and the day's Effort to the target.
 - **An artifact's Effort for the scene** comes back at dawn, with the day's.
 - **An artifact's free Effort** is its Effort less its `spent`; what its gifts hold on their
-  grants isn't taken off, since formulas can't sum saved grant state
-  ([#70](https://github.com/pixelqueue/opencharacter/issues/70)).
+  grants isn't taken off: `countGrants` counts held grants, but nothing sums their state or tells
+  which artifact holds one.
+
+## Limitations
+
+- Most gifts and invocations change no number on the sheet: the pack tracks their Effort
+  (`invoke-gift`, `cast-invocation`) and models the numeric ones above; what they do is the
+  table's.
+- An artifact's Defy the Iron isn't the `defyTheIron` choice, since it spends the artifact's
+  Effort: `invoke-gift` commits it, and negating the harm is the table's.
+- What Influence and Dominion buy (changes to the world, cults, projects) is the table's: the
+  pack tracks the points.
