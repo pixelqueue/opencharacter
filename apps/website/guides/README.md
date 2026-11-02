@@ -125,7 +125,8 @@ Read them in order the first time.
 - **[Rolling dice](rolling-dice.md):** actions, checkpoint policies, your own dice, paused
   actions and logs.
 - **[Other characters](other-characters.md):** attacks on a target, monsters and NPCs, effects
-  cast by one character on another, linked sheets such as a FitD crew.
+  cast on others, auras, turns, shared pools, linked sheets such as a FitD crew, and reacting to
+  other characters' events.
 
 ## Two kinds of app
 
