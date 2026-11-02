@@ -16,18 +16,18 @@ effects:
     tags:
       - formula: "action.item.damageType == 'untyped' ? [] : ['damage.' + action.item.damageType]"
   - target: immunity.cold
-    op: add
+    op: atLeast
     value: 10
     when: self.equipped && countList(item.tags, x in kit.gear) > 0 && level >= 9
   - target: immunity.fire
-    op: add
+    op: atLeast
     value: 10
     when: self.equipped && countList(item.tags, x in kit.gear) > 0 && level >= 9
   - target: immunity.lightning
-    op: add
+    op: atLeast
     value: 10
     when: self.equipped && countList(item.tags, x in kit.gear) > 0 && level >= 9
   - target: immunity.sonic
-    op: add
+    op: atLeast
     value: 10
     when: self.equipped && countList(item.tags, x in kit.gear) > 0 && level >= 9
