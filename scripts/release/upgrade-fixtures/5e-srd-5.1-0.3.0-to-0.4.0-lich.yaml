@@ -1,7 +1,8 @@
 # A 0.3.0 lich: the monster item granted its traits and actions, and Frightening Gaze's spent use
 # was saved as grant state. 0.4.0 copies the stat block: each granted trait and action becomes a
 # copy right after the monster, in grant order, keeping its state; Spellcasting is a trait now and
-# still grants its spells. Legendary Resistance was a copy already and stays as it was.
+# still grants its spells. Legendary Resistance was a copy already and stays as it was. Its AC,
+# truesight, XP and legendary actions, which the item set, are saved as inputs.
 pack: 5e-srd-5.1
 from: 0.3.0
 to: 0.4.0
@@ -17,10 +18,19 @@ expect:
   - { at: /features/9/id, value: legendary-resistance }
   - { at: /features/9/state, value: { usesLeft: 2 } }
   - { at: /features/10, absent: true }
+  - { at: /values/5e-srd-5.1:combat.printedAc, value: 17 }
+  - { at: /values/5e-srd-5.1:senses.truesight, value: 120 }
+  - { at: /values/5e-srd-5.1:senses.darkvision, value: 0 }
+  - { at: /values/5e-srd-5.1:challenge.xp, value: 33000 }
+  - { at: /values/5e-srd-5.1:legendary.actions, value: 3 }
 values:
   5e-srd-5.1:spellcasting.monster.dc: 20
   5e-srd-5.1:spellcasting.monster.attack: 12
   5e-srd-5.1:spellSlots.level9.max: 1
+  5e-srd-5.1:combat.ac: 17
+  5e-srd-5.1:senses.truesight: 120
+  5e-srd-5.1:challenge.xp: 33000
+  5e-srd-5.1:legendary.actions: 3
 character:
   specVersion: 0.3.0
   id: upgrade-5e-lich

@@ -1615,3 +1615,25 @@ steps:
     }
   - { op: changeContentType, id: monsters.zombie.undead-fortitude, from: trait, to: monsterAction }
   - { op: changeContentType, id: traits.nimble-escape, from: trait, to: monsterAction }
+  # The monster item set AC, senses, XP and legendary actions; they are inputs create-monster
+  # copies now. A saved monster keeps its stat block's values; a character with no monster gets 0.
+  - op: setDefault
+    field: combat.printedAc
+    value: "maxCopies(copy.fields.ac, copy.type == 'monster')"
+  - op: setDefault
+    field: senses.darkvision
+    value: "maxCopies(copy.fields.darkvision, copy.type == 'monster' && has(copy.fields.darkvision))"
+  - op: setDefault
+    field: senses.blindsight
+    value: "maxCopies(copy.fields.blindsight, copy.type == 'monster' && has(copy.fields.blindsight))"
+  - op: setDefault
+    field: senses.tremorsense
+    value: "maxCopies(copy.fields.tremorsense, copy.type == 'monster' && has(copy.fields.tremorsense))"
+  - op: setDefault
+    field: senses.truesight
+    value: "maxCopies(copy.fields.truesight, copy.type == 'monster' && has(copy.fields.truesight))"
+  - op: setDefault
+    field: senses.telepathy
+    value: "maxCopies(copy.fields.telepathy, copy.type == 'monster' && has(copy.fields.telepathy))"
+  - { op: setDefault, field: challenge.xp, value: 'sheet.monster ? challenge.xp : 0' }
+  - { op: setDefault, field: legendary.actions, value: legendary.actions }

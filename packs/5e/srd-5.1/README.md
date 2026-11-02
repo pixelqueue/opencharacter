@@ -250,12 +250,14 @@ Where the SRD is unclear or silent, the pack reads it this way:
   class. `create-monster` copies a `monster` item's stat block into the sheet: its numbers into
   the sheet's inputs, and each trait and action (the item's `entries`, in stat-block order) as
   its own `monsterAction` copy with its uses or recharge, so a GM can drop or change one on a
-  single monster. The item still sets AC, senses, XP and legendary actions. `monster-attack` and
+  single monster. AC, senses, XP and the legendary action count are inputs too; the printed AC
+  (`combat.printedAc`) competes with worn armor as any AC does. `monster-attack` and
   `monster-effect` resolve attacks and saving throws on each target's sheet. Multiattacks run
   the attacks they name; legendary actions spend their cost; Spellcasting and Innate
   Spellcasting are traits that cast with the printed numbers; the vampire's and the
   lycanthropes' forms grant their form's attacks. Monsters saved with 0.3.0 or earlier, whose
-  item granted its traits and actions, get them as copies on upgrade. Languages only monsters
+  item granted its traits and actions, get them as copies on upgrade, and their AC, senses, XP
+  and legendary actions as inputs. Languages only monsters
   speak aren't offered to players. A monster's sheet leaves out experience points, character
   level (at 0) and death saves, and shows carrying weight only once it carries something.
 - **Resting:** `death-save`, `spend-hit-die`, `short-rest` and `long-rest` (spent hit dice back

@@ -154,7 +154,6 @@ contentTypes:
       innateThricePerDay: { type: set, of: spell, default: [] }
       startingForm: { type: string }
     effects:
-      - { id: ac, target: combat.ac, op: set, value: item.ac }
       - id: fly
         target: combat.flySpeed
         op: atLeast
@@ -180,41 +179,6 @@ contentTypes:
         op: set
         value: true
         when: has(item.hover) && item.hover
-      - id: darkvision
-        target: senses.darkvision
-        op: atLeast
-        value: item.darkvision
-        when: has(item.darkvision)
-      - id: blindsight
-        target: senses.blindsight
-        op: atLeast
-        value: item.blindsight
-        when: has(item.blindsight)
-      - id: tremorsense
-        target: senses.tremorsense
-        op: atLeast
-        value: item.tremorsense
-        when: has(item.tremorsense)
-      - id: truesight
-        target: senses.truesight
-        op: atLeast
-        value: item.truesight
-        when: has(item.truesight)
-      - id: telepathy
-        target: senses.telepathy
-        op: atLeast
-        value: item.telepathy
-        when: has(item.telepathy)
-      - id: xp
-        target: challenge.xp
-        op: set
-        value: item.xp
-        when: has(item.xp)
-      - id: legendary
-        target: legendary.actions
-        op: set
-        value: item.legendaryActions
-        when: has(item.legendaryActions)
       - { id: str-max, target: abilities.str.max, op: atLeast, value: 30 }
       - { id: dex-max, target: abilities.dex.max, op: atLeast, value: 30 }
       - { id: con-max, target: abilities.con.max, op: atLeast, value: 30 }
@@ -433,21 +397,18 @@ contentTypes:
 
 fields:
   sheet.monster: { type: boolean, formula: "countCopies(copy.type == 'monster') > 0" }
-  challenge.xp:
-    type: integer
-    formula: >-
-      challenge.rating == 0 ? 10 : challenge.rating <= 0.125 ? 25 : challenge.rating <= 0.25 ? 50
-        : challenge.rating <= 0.5 ? 100
-        : [200, 450, 700, 1100, 1800, 2300, 2900, 3900, 5000, 5900, 7200, 8400, 10000, 11500,
-          13000, 15000, 18000, 20000, 22000, 25000, 33000, 41000, 50000, 62000, 75000, 90000,
-          105000, 120000, 135000, 155000][min(29, floor(challenge.rating) - 1)]
+  # create-monster copies the stat block's AC, senses, XP and legendary actions into inputs, so a
+  # GM can change one monster's.
+  challenge.xp: { type: integer, input: true, default: 0, min: 0 }
+  # The printed AC, which competes with worn armor and Mage Armor as any AC does; 0 for none.
+  combat.printedAc: { type: integer, input: true, default: 0, min: 0 }
   creature.form: { type: string, formula: "''" }
   combat.burrowSpeed: { type: integer, formula: 0, min: 0 }
   combat.hover: { type: boolean, formula: false }
-  senses.blindsight: { type: integer, formula: 0, min: 0 }
-  senses.tremorsense: { type: integer, formula: 0, min: 0 }
-  senses.truesight: { type: integer, formula: 0, min: 0 }
-  senses.telepathy: { type: integer, formula: 0, min: 0 }
+  senses.blindsight: { type: integer, input: true, default: 0, min: 0 }
+  senses.tremorsense: { type: integer, input: true, default: 0, min: 0 }
+  senses.truesight: { type: integer, input: true, default: 0, min: 0 }
+  senses.telepathy: { type: integer, input: true, default: 0, min: 0 }
   damage.resistances: { type: set, of: tag, input: true, default: [], members: *damage-members }
   damage.immunities: { type: set, of: tag, input: true, default: [], members: *damage-members }
   damage.vulnerabilities: { type: set, of: tag, input: true, default: [], members: *damage-members }
@@ -457,10 +418,17 @@ fields:
     { type: enum, values: [none, str, dex, con, int, wis, cha], formula: "'none'" }
   spellcasting.monster.level: { type: integer, formula: 0, min: 0 }
   spells.monsterAtWill: { type: set, of: spell }
-  legendary.actions: { type: integer, formula: 0, min: 0 }
+  legendary.actions: { type: integer, input: true, default: 0, min: 0 }
   legendary.spent: { type: integer, input: true, default: 0, min: 0 }
 
 effects:
+  - {
+      id: printed-ac,
+      target: combat.ac,
+      op: set,
+      value: combat.printedAc,
+      when: combat.printedAc > 0,
+    }
   # Immunity first: a multiplier of 0 leaves nothing for the others to change.
   - id: damage-immunity
     target: { incoming: { fields: [hp.current], tags: [damage] } }
@@ -563,6 +531,40 @@ actions:
           - { type: set, field: creature.type, value: steps.monster.item.creatureType }
           - { type: set, field: creature.alignment, value: steps.monster.item.alignment }
           - { type: set, field: combat.speed, value: steps.monster.item.speed }
+          - { type: set, field: combat.printedAc, value: steps.monster.item.ac }
+          - type: set
+            field: senses.darkvision
+            value: steps.monster.item.darkvision
+            when: has(steps.monster.item.darkvision)
+          - type: set
+            field: senses.blindsight
+            value: steps.monster.item.blindsight
+            when: has(steps.monster.item.blindsight)
+          - type: set
+            field: senses.tremorsense
+            value: steps.monster.item.tremorsense
+            when: has(steps.monster.item.tremorsense)
+          - type: set
+            field: senses.truesight
+            value: steps.monster.item.truesight
+            when: has(steps.monster.item.truesight)
+          - type: set
+            field: senses.telepathy
+            value: steps.monster.item.telepathy
+            when: has(steps.monster.item.telepathy)
+          - type: set
+            field: challenge.xp
+            value: >-
+              has(steps.monster.item.xp) ? steps.monster.item.xp
+                : steps.monster.item.cr == 0 ? 10 : steps.monster.item.cr <= 0.125 ? 25
+                : steps.monster.item.cr <= 0.25 ? 50 : steps.monster.item.cr <= 0.5 ? 100
+                : [200, 450, 700, 1100, 1800, 2300, 2900, 3900, 5000, 5900, 7200, 8400, 10000, 11500,
+                  13000, 15000, 18000, 20000, 22000, 25000, 33000, 41000, 50000, 62000, 75000, 90000,
+                  105000, 120000, 135000, 155000][min(29, floor(steps.monster.item.cr) - 1)]
+          - type: set
+            field: legendary.actions
+            value: steps.monster.item.legendaryActions
+            when: has(steps.monster.item.legendaryActions)
           - type: set
             field: proficiencies.saves
             value: steps.monster.item.saves
@@ -976,6 +978,7 @@ display:
   fields:
     sheet.monster: { hidden: true }
     challenge.xp: { groups: [summary], priority: 2, showWhen: sheet.monster }
+    combat.printedAc: { groups: [combat], priority: 3, showWhen: sheet.monster }
     combat.burrowSpeed:
       { unit: ft, groups: [combat], priority: 1, showWhen: combat.burrowSpeed > 0 }
     combat.hover: { groups: [combat], priority: 2, showWhen: combat.hover }
