@@ -16,6 +16,7 @@ import type {
   Formula,
   Literal,
   Situational,
+  SituationalChange,
   ThenChange,
   ValueDecl,
 } from './pack-types.ts';
@@ -73,6 +74,8 @@ export type Adjustment =
       clamped?: true;
       tags?: string[];
       rolled?: Rolled[];
+      /** On the `requested` entry of a situational choice's own adjust: the choice. */
+      source?: Source;
     }
   | { copies: string[] }
   | { applied: string[] }
@@ -188,7 +191,14 @@ export function applyBatch(
   const adjustments: Adjustment[] = [];
   const applied: Change[] = [];
   const offered: OfferFollowUp[] = [];
+  const choices: BatchChoices = {
+    selected: new Map(),
+    batch: new Map(),
+    left: new Map(),
+    index: 0,
+  };
   for (const [index, change] of changes.entries()) {
+    choices.index = index;
     if ((change as AnyChange).type === 'offerFollowUp') {
       const offer = change as OfferFollowUp;
       if (!declaresFollowUp(ruleset, offer.followUp))
@@ -217,7 +227,16 @@ export function applyBatch(
       // The copies picks hold now: a change that removes their picks removes them too.
       const held =
         pickLinks(next).size > 0 ? [...sheetOf(ruleset, next, views).pickedCopies().keys()] : [];
-      const patch = applyOne(ruleset, next, change as AnyChange, adjustments, views, dice, sheets);
+      const patch = applyOne(
+        ruleset,
+        next,
+        change as AnyChange,
+        adjustments,
+        views,
+        dice,
+        sheets,
+        choices,
+      );
       if (held.length > 0) dropUnpicked(next, held);
       // An adjust comes back with the faces it used, an applyEffect with its computed state.
       applied.push(patch ? ({ ...change, ...patch } as Change) : change);
@@ -231,6 +250,16 @@ export function applyBatch(
         ...(issues ? { issues: issues as RulesIssue[] } : {}),
       };
     }
+  }
+  // The situational choices' own changes, once per batch, after its last change.
+  try {
+    offered.push(...applyChoiceChanges(ruleset, next, choices, adjustments, views));
+  } catch (error) {
+    if (!(error instanceof ChangeError)) throw error;
+    return {
+      ok: false,
+      errors: [{ code: error.code, path: `/changes/${choices.index}`, data: error.data }],
+    };
   }
   let sheet = sheetOf(ruleset, next, views);
   if (dropDefaultStandard(ruleset, sheet, next)) sheet = sheetOf(ruleset, next, views);
@@ -451,6 +480,7 @@ function batchRoot(adjustments: Adjustment[]): { adjustments: unknown[] } {
               field: a.field,
               by: numberRoot(a.by),
               requested: numberRoot(a.requested ?? 0),
+              taken: numberRoot(a.taken ?? 0),
               reason: a.reason,
               clamped: a.clamped ?? false,
               tags: [...(entryTags.get(a) ?? [])],
@@ -779,6 +809,7 @@ function applyOne(
   views: Views,
   dice?: DiceFunction,
   sheets?: BatchSheets,
+  choices?: BatchChoices,
 ): Record<string, unknown> | undefined {
   const sheet =
     sheets && READ_FIRST.has(change.type)
@@ -838,7 +869,7 @@ function applyOne(
       const declared = declaredTags(ruleset);
       for (const tag of tags) if (!declared.has(tag)) throw new ChangeError('unknown-tag', { tag });
       const given = (change.situational ?? {}) as Record<string, unknown>;
-      const chosen = situationalOn(ruleset, sheet, qid, tags, given);
+      const chosen = situationalOn(ruleset, sheet, qid, tags, given, choices);
       const counted = route(
         ruleset,
         sheet,
@@ -1443,6 +1474,7 @@ function route(
   if (incoming) {
     const incomingRoot = { amount: by, field: qid, tags: [...tags] };
     const given = chosen?.given ?? {};
+    const batch = batchRoot(adjustments);
     const applicable = [...sheet.instances, ...(chosen?.instances ?? [])]
       .filter((i) => {
         const t = i.effect.target;
@@ -1454,6 +1486,7 @@ function route(
           ...i.roots,
           incoming: incomingRoot,
           situational: situationalRoot(ruleset, i.pack, given),
+          batch,
         },
       }))
       .filter((i) => {
@@ -1465,14 +1498,35 @@ function route(
       });
     const value = (i: EffectInstance) =>
       num(sheet.evaluate(i.effect.value as Formula, i.pack, i.roots)) ?? 0;
+    // A batch-scoped choice's add is worked out once and spent over the batch's changes.
+    const shared = (i: EffectInstance) => i.effect.op === 'add' && chosen?.shared.has(i.optionId);
+    const rolledBy = new Map<EffectInstance, number>();
     for (const op of ['set', 'add', 'multiply', 'atLeast', 'atMost']) {
       const ofOp = applicable.filter((x) => x.effect.op === op);
       const kept = sheet.applyStacking(qid, ofOp, false);
-      const rolls = op === 'add' ? rollIncoming(sheet, kept, rolling) : new Map();
+      const rolls =
+        op === 'add'
+          ? rollIncoming(
+              sheet,
+              kept.filter((i) => !(shared(i) && chosen?.left.has(i.optionId))),
+              rolling,
+            )
+          : new Map<EffectInstance, Rolled>();
       if (rolls.size > 0) rolledOn = [...rolls.values()];
       for (const i of kept) {
         counted.push(i);
-        const v = rolls.get(i)?.total ?? value(i);
+        const rolled = rolls.get(i)?.total;
+        if (rolled !== undefined) rolledBy.set(i, rolled);
+        let v: number;
+        if (chosen && shared(i)) {
+          const left = chosen.left.get(i.optionId) ?? rolled ?? value(i);
+          // Only toward 0, and at most the amount: the rest carries to the next change.
+          v =
+            Math.sign(left) === -Math.sign(amount)
+              ? Math.sign(left) * Math.min(Math.abs(left), Math.abs(amount))
+              : 0;
+          chosen.left.set(i.optionId, sixPlaces(left - v));
+        } else v = rolled ?? value(i);
         if (op === 'set') amount = v;
         else if (op === 'add') amount = sixPlaces(amount + v);
         else if (op === 'atLeast') amount = Math.max(amount, v);
@@ -1490,6 +1544,12 @@ function route(
         }
       }
     }
+    // `then` sees the amount taken and what its own dice rolled.
+    for (const i of counted)
+      i.roots = {
+        ...i.roots,
+        incoming: { ...incomingRoot, taken: amount, rolled: rolledBy.get(i) ?? 0 },
+      };
   }
 
   // A cascade reads what its earlier steps stored (an overflow into the same field twice, a carry).
@@ -1624,6 +1684,22 @@ interface Chosen {
   given: Record<string, unknown>;
   /** The selected choices' incoming-change effects, routed after the character's own. */
   instances: EffectInstance[];
+  /** The batch-scoped choices' adds, by option ID. */
+  shared: Set<string>;
+  /** What is left of each batch-scoped add once worked out, by option ID. */
+  left: Map<string, number>;
+}
+
+/** The situational choices selected on a batch's changes so far. */
+interface BatchChoices {
+  /** Each choice selected, in order of first selection, with the change that first did. */
+  selected: Map<string, { value: unknown; index: number }>;
+  /** The batch-scoped ones, which reach every later adjust. */
+  batch: Map<string, unknown>;
+  /** What is left of each batch-scoped add, by option ID. */
+  left: Map<string, number>;
+  /** The change being applied. */
+  index: number;
 }
 
 function situationalDefault(def: Situational): unknown {
@@ -1636,10 +1712,29 @@ function situationalOn(
   qid: string,
   tags: string[],
   given: Record<string, unknown>,
+  choices: BatchChoices = { selected: new Map(), batch: new Map(), left: new Map(), index: 0 },
 ): Chosen | undefined {
-  if (Object.keys(given).length === 0) return undefined;
+  if (Object.keys(given).length === 0 && choices.batch.size === 0) return undefined;
   let offered: Set<string> | undefined;
   const instances: EffectInstance[] = [];
+  const shared = new Set<string>();
+  const effectsOf = (id: string, def: Situational & { pack: string }, batch: boolean) =>
+    (def.effects ?? []).forEach((effect, index) => {
+      const t = effect.target;
+      if (typeof t === 'string' || !('incoming' in t)) return;
+      const optionId = `${id}#${effect.id ?? index}`;
+      if (batch && effect.op === 'add') shared.add(optionId);
+      instances.push({
+        effect,
+        pack: def.pack,
+        roots: {},
+        source: { type: 'situational', id },
+        optionId,
+        sourceId: id,
+        order: Number.MAX_SAFE_INTEGER,
+      });
+    });
+  const earlier = new Set(choices.batch.keys());
   for (const [id, value] of Object.entries(given)) {
     const def = ruleset.rules.situational[id];
     if (!def) throw new ChangeError('unknown-situational', { situational: id });
@@ -1660,23 +1755,104 @@ function situationalOn(
     const selected = def.type === 'boolean' ? value === true : value !== situationalDefault(def);
     if (!selected) continue;
     offered ??= new Set(sheet.situational());
-    if (!offered.has(id) || !def.incoming || !matchesIncoming(def.incoming, qid, tags))
+    // A batch-scoped choice is selected on one change of the batch.
+    if (
+      !offered.has(id) ||
+      !def.incoming ||
+      !matchesIncoming(def.incoming, qid, tags) ||
+      earlier.has(id)
+    )
       throw new ChangeError('situational-unavailable', { situational: id });
-    (def.effects ?? []).forEach((effect, index) => {
-      const t = effect.target;
-      if (typeof t === 'string' || !('incoming' in t)) return;
-      instances.push({
-        effect,
-        pack: def.pack,
-        roots: {},
-        source: { type: 'situational', id },
-        optionId: `${id}#${effect.id ?? index}`,
-        sourceId: id,
-        order: Number.MAX_SAFE_INTEGER,
-      });
-    });
+    if (!choices.selected.has(id)) choices.selected.set(id, { value, index: choices.index });
+    if (def.scope === 'batch') choices.batch.set(id, value);
+    else effectsOf(id, def, false);
   }
-  return { given, instances };
+  for (const id of choices.batch.keys()) {
+    const def = ruleset.rules.situational[id];
+    if (def) effectsOf(id, def, true);
+  }
+  return {
+    given: { ...given, ...Object.fromEntries(choices.batch) },
+    instances,
+    shared,
+    left: choices.left,
+  };
+}
+
+/**
+ * Each selected choice's `changes`, once per batch, in order of first selection, on the character
+ * after the batch's changes. Its adjusts skip incoming-change effects; its follow-ups are offered.
+ */
+function applyChoiceChanges(
+  ruleset: Ruleset,
+  c: CharacterDoc,
+  choices: BatchChoices,
+  adjustments: Adjustment[],
+  views: Views,
+): OfferFollowUp[] {
+  const offers: OfferFollowUp[] = [];
+  const values = Object.fromEntries([...choices.selected].map(([id, s]) => [id, s.value]));
+  for (const [id, { index }] of choices.selected) {
+    const def = ruleset.rules.situational[id];
+    if (!def?.changes) continue;
+    choices.index = index;
+    for (const change of def.changes as SituationalChange[]) {
+      const sheet = sheetOf(ruleset, c, views);
+      const roots = {
+        situational: situationalRoot(ruleset, def.pack, values),
+        batch: batchRoot(adjustments),
+      };
+      const evaluate = (formula: Formula): f.Value => {
+        try {
+          return sheet.evaluate(formula, def.pack, roots);
+        } catch (error) {
+          if (!(error instanceof Failure)) throw error;
+          throw new ChangeError(error.error.code, {
+            message: error.error.message,
+            ...error.error.data,
+          });
+        }
+      };
+      if (change.when !== undefined) {
+        const holds = evaluate(change.when);
+        if (holds.kind !== 'bool')
+          throw new ChangeError('type-mismatch', { message: 'a condition must be a bool' });
+        if (!holds.value) continue;
+      }
+      if (change.type === 'offerFollowUp') {
+        const params = Object.fromEntries(
+          Object.entries(change.params ?? {}).flatMap(([name, formula]) => {
+            const value = evaluate(formula);
+            return value.kind === 'null' ? [] : [[name, f.toData(value)]];
+          }),
+        );
+        offers.push({
+          type: 'offerFollowUp',
+          followUp: change.followUp as string,
+          ...(change.params ? { params } : {}),
+        } as OfferFollowUp);
+      } else if (change.type === 'set') {
+        const value = f.toData(evaluate(change.value as Formula));
+        applyOne(ruleset, c, { type: 'set', field: change.field, value }, adjustments, views);
+      } else {
+        const field = change.field as string;
+        const decl = inputField(ruleset, field);
+        const by = num(evaluate(change.by as Formula));
+        if (by === undefined || (decl.type !== 'integer' && decl.type !== 'decimal'))
+          throw new ChangeError('wrong-type', { target: field, expected: 'a number' });
+        const start = adjustments.length;
+        route(ruleset, sheet, c, field, by, change.tags ?? [], adjustments, false, 'requested', {
+          n: 0,
+          live: new Map(),
+        });
+        const entry = adjustments
+          .slice(start)
+          .find((a) => 'reason' in a && a.reason === 'requested');
+        if (entry && 'reason' in entry) entry.source = { type: 'situational', id };
+      }
+    }
+  }
+  return offers;
 }
 
 function situationalRoot(

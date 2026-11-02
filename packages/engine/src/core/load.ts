@@ -1170,6 +1170,17 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
               }),
             }
           : {}),
+        ...(def.changes
+          ? {
+              changes: def.changes.map((c) => ({
+                ...c,
+                ...(c.field !== undefined ? { field: q.field(c.field, pid) } : {}),
+                ...(c.followUp !== undefined
+                  ? { followUp: c.followUp.includes(':') ? c.followUp : `${pid}:${c.followUp}` }
+                  : {}),
+              })),
+            }
+          : {}),
       };
     }
     (r.effects ?? []).forEach((def, index) => {
@@ -1698,6 +1709,16 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
   for (const def of Object.values(ruleset.rules.actions)) situationalSteps(def.steps, def.pack);
   for (const def of Object.values(ruleset.contentTypes)) situationalActions(def.actions, def.pack);
   for (const item of Object.values(ruleset.content)) situationalActions(item.actions, item.pack);
+
+  // A situational choice's changes offer the rules' follow-ups.
+  for (const def of Object.values(ruleset.rules.situational))
+    for (const change of def.changes ?? []) {
+      if (change.followUp === undefined) continue;
+      const offered = ruleset.rules.followUps.find(
+        (fu) => `${fu.pack}:${fu.id}` === change.followUp,
+      );
+      if (!offered || offered.while !== undefined) unknown('follow-up', change.followUp, def.pack);
+    }
 
   checkAddedParams(ruleset, err);
 

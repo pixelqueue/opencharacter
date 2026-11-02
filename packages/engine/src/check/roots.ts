@@ -296,6 +296,10 @@ export const PICK: ObjectType = { object: { id: 'dyn', value: 'dyn' } };
 export const INCOMING: ObjectType = {
   object: { amount: 'decimal', field: 'string', tags: { list: 'string' } },
 };
+/** An incoming-change effect's `then` also sees the amount taken and its own dice total. */
+export const INCOMING_THEN: ObjectType = {
+  object: { ...INCOMING.object, taken: 'decimal', rolled: 'decimal' },
+};
 /** The field entries of the batch's earlier changes on the character. */
 export const BATCH: ObjectType = {
   object: {
@@ -305,6 +309,7 @@ export const BATCH: ObjectType = {
           field: 'string',
           by: 'decimal',
           requested: 'decimal',
+          taken: 'decimal',
           reason: 'string',
           clamped: 'bool',
           tags: { list: 'string' },

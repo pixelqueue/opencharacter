@@ -73,6 +73,7 @@ import {
   OWN_CHOICE,
   formulaTree,
   INCOMING,
+  INCOMING_THEN,
   itemType,
   KEPT_OWNER,
   linksType,
@@ -316,6 +317,21 @@ class FormulaChecker<L> {
             this.at('situational', () => this.effect(effect, at, `situational ${id}`)),
           );
       }
+      // Its changes see the character after the batch, the choices and the batch's entries.
+      const label = `situational ${id} change`;
+      this.at('field', () =>
+        this.typed({ situational: this.situationalRoot(), batch: BATCH }, () =>
+          this.withRoots(['situational', 'batch'], () => {
+            for (const change of def.changes ?? []) {
+              this.formula(change.when, at, label, BOOL);
+              this.formula(change.value, at, label, ANY);
+              this.formula(change.by, at, label, NUMBER);
+              for (const formula of Object.values(change.params ?? {}))
+                this.formula(formula, at, label, ANY);
+            }
+          }),
+        ),
+      );
     }
 
     for (const [set, { def, at }] of rules.bands) {
@@ -727,8 +743,10 @@ class FormulaChecker<L> {
         this.withRoots(['action'], () => this.effectBody(effect, at, where, kind)),
       );
     } else if (kind === 'incoming') {
-      this.typed({ incoming: INCOMING, situational: this.situationalRoot() }, () =>
-        this.withRoots(['incoming', 'situational'], () => this.effectBody(effect, at, where, kind)),
+      this.typed({ incoming: INCOMING, situational: this.situationalRoot(), batch: BATCH }, () =>
+        this.withRoots(['incoming', 'situational', 'batch'], () =>
+          this.effectBody(effect, at, where, kind),
+        ),
       );
     } else {
       this.effectBody(effect, at, where, kind);
@@ -839,10 +857,12 @@ class FormulaChecker<L> {
       for (const change of then.changes as ProposedChange[])
         this.proposedChange(change, at, `${label} then`);
     else
-      for (const change of (then?.changes ?? []) as ThenChange[]) {
-        this.formula(change.value, at, `${label} then`, ANY);
-        this.formula(change.by, at, `${label} then`, NUMBER);
-      }
+      this.typed(kind === 'incoming' ? { incoming: INCOMING_THEN } : {}, () => {
+        for (const change of (then?.changes ?? []) as ThenChange[]) {
+          this.formula(change.value, at, `${label} then`, ANY);
+          this.formula(change.by, at, `${label} then`, NUMBER);
+        }
+      });
   }
 
   private grantValue(value: GrantValue, at: L, where: string): void {
