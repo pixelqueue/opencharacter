@@ -5,8 +5,8 @@ fields:
   rarity: uncommon
   requiresAttunement: true
 effects:
-  - { target: combat.ac, op: add, value: 1, when: self.equipped && self.attuned }
+  - { target: combat.ac, op: add, value: 1, when: self.equipped }
   - target: { fields: { where: "'save' in item.tags" } }
     op: add
     value: 1
-    when: self.equipped && self.attuned
+    when: self.equipped

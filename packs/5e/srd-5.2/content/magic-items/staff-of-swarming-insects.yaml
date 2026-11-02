@@ -23,11 +23,12 @@ state:
 grants:
   - { item: spells.giant-insect, when: self.equipped && self.attuned }
   - { item: spells.insect-plague, when: self.equipped && self.attuned }
+effectsWhen: self.attuned
 effects:
   - target: { choices: [spell-cost] }
     op: option
     when: >-
-      action.self.id == self.id && self.attuned && action.item.id in [@spells.giant-insect, @spells.insect-plague]
+      action.self.id == self.id && action.item.id in [@spells.giant-insect, @spells.insect-plague]
         && self.charges >= [4, 5][indexOf([@spells.giant-insect, @spells.insect-plague], action.item.id)]
     value:
       id: charges

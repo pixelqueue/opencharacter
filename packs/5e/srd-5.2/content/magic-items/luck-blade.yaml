@@ -13,14 +13,14 @@ state:
   usedToday: { type: set, of: string, default: [] }
 grants:
   - { item: spells.wish, when: self.equipped && self.attuned && self.charges > 0 }
+effectsWhen: self.attuned
 effects:
   - target: { fields: { where: "'save' in item.tags" } }
     op: add
     value: 1
-    when: self.attuned
   - target: { choices: [failed-check, failed-save, failed-attack] }
     op: option
-    when: "self.attuned && !conditions.incapacitated && !('luck' in self.usedToday)"
+    when: "!conditions.incapacitated && !('luck' in self.usedToday)"
     value:
       id: luck
       flags: { retry: true }

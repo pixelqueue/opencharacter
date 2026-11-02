@@ -5,13 +5,13 @@ appliesTo: { type: weapon, where: 'item.id == @weapons.greatclub' }
 fields: { rarity: very-rare, requiresAttunement: true }
 state:
   usedToday: { type: set, of: string, default: [] }
+effectsWhen: self.attuned
 effects:
-  - { target: abilities.str.score, op: atLeast, value: 20, when: self.attuned }
+  - { target: abilities.str.score, op: atLeast, value: 20 }
   - target: { rolls: [damage.weapon], from: self }
     op: add
     value: 1d8
     tags: [damage.thunder]
-    when: self.attuned
 actions:
   - id: clap-of-thunder
     tags: [magic-item]

@@ -17,15 +17,16 @@ grants:
   - { item: spells.fog-cloud, when: self.equipped && self.attuned }
   - { item: spells.ice-storm, when: self.equipped && self.attuned }
   - { item: spells.wall-of-ice, when: self.equipped && self.attuned }
+effectsWhen: self.attuned
 effects:
   - target: damage.resistances
     op: grant
     value: { tag: damage.cold }
-    when: self.equipped && self.attuned
+    when: self.equipped
   - target: { choices: [spell-cost] }
     op: option
     when: >-
-      action.self.id == self.id && self.attuned && action.item.id in [@spells.cone-of-cold, @spells.fog-cloud, @spells.ice-storm, @spells.wall-of-ice]
+      action.self.id == self.id && action.item.id in [@spells.cone-of-cold, @spells.fog-cloud, @spells.ice-storm, @spells.wall-of-ice]
         && self.charges >= [5, 1, 4, 4][indexOf([@spells.cone-of-cold, @spells.fog-cloud, @spells.ice-storm, @spells.wall-of-ice], action.item.id)]
     value:
       id: charges

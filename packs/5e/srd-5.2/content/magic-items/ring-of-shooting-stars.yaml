@@ -18,14 +18,9 @@ effects:
       target: spells.atWill,
       op: grant,
       value: { item: spells.dancing-lights },
-      when: self.equipped && self.attuned,
+      when: self.equipped,
     }
-  - {
-      target: spells.atWill,
-      op: grant,
-      value: { item: spells.light },
-      when: self.equipped && self.attuned,
-    }
+  - { target: spells.atWill, op: grant, value: { item: spells.light }, when: self.equipped }
   - target: { choices: [spell-cost] }
     op: option
     when: >-

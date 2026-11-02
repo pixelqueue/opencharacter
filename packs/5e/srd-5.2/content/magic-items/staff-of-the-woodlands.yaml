@@ -23,12 +23,13 @@ grants:
   - { item: spells.speak-with-animals, when: self.equipped && self.attuned }
   - { item: spells.speak-with-plants, when: self.equipped && self.attuned }
   - { item: spells.wall-of-thorns, when: self.equipped && self.attuned }
+effectsWhen: self.attuned
 effects:
-  - { target: { rolls: [attack.spell] }, op: add, value: 2, when: self.equipped && self.attuned }
+  - { target: { rolls: [attack.spell] }, op: add, value: 2, when: self.equipped }
   - target: { choices: [spell-cost] }
     op: option
     when: >-
-      action.self.id == self.id && self.attuned && action.item.id in [@spells.animal-friendship, @spells.awaken, @spells.barkskin, @spells.locate-animals-or-plants, @spells.pass-without-trace, @spells.speak-with-animals, @spells.speak-with-plants, @spells.wall-of-thorns]
+      action.self.id == self.id && action.item.id in [@spells.animal-friendship, @spells.awaken, @spells.barkskin, @spells.locate-animals-or-plants, @spells.pass-without-trace, @spells.speak-with-animals, @spells.speak-with-plants, @spells.wall-of-thorns]
         && self.charges >= [1, 5, 2, 2, 2, 1, 3, 6][indexOf([@spells.animal-friendship, @spells.awaken, @spells.barkskin, @spells.locate-animals-or-plants, @spells.pass-without-trace, @spells.speak-with-animals, @spells.speak-with-plants, @spells.wall-of-thorns], action.item.id)]
     value:
       id: charges

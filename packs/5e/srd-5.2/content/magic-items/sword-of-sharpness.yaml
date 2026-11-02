@@ -7,9 +7,10 @@ appliesTo:
     where: 'item.id in [@weapons.glaive, @weapons.greatsword, @weapons.longsword, @weapons.scimitar]',
   }
 fields: { rarity: very-rare, requiresAttunement: true }
+effectsWhen: self.attuned
 effects:
   - target: { rolls: [damage.weapon], from: self }
     op: add
     value: 14
     tags: [damage.slashing]
-    when: self.attuned && has(steps.test) && steps.test.data.natural == 20
+    when: has(steps.test) && steps.test.data.natural == 20

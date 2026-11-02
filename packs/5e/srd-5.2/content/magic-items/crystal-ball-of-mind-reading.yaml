@@ -10,15 +10,10 @@ grants:
   - { item: spells.scrying, when: self.equipped && self.attuned }
   - { item: spells.detect-thoughts, when: self.equipped && self.attuned }
 effects:
-  - {
-      target: spells.atWill,
-      op: grant,
-      value: { item: spells.scrying },
-      when: self.equipped && self.attuned,
-    }
+  - { target: spells.atWill, op: grant, value: { item: spells.scrying }, when: self.equipped }
   - {
       target: spells.atWill,
       op: grant,
       value: { item: spells.detect-thoughts },
-      when: self.equipped && self.attuned,
+      when: self.equipped,
     }

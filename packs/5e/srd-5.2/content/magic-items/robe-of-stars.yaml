@@ -15,8 +15,8 @@ effects:
   - target: { fields: { where: "'save' in item.tags" } }
     op: add
     value: 1
-    when: self.equipped && self.attuned
-  - { target: { rolls: [save.death] }, op: add, value: 1, when: self.equipped && self.attuned }
+    when: self.equipped
+  - { target: { rolls: [save.death] }, op: add, value: 1, when: self.equipped }
   - target: { choices: [spell-cost] }
     op: option
     when: >-

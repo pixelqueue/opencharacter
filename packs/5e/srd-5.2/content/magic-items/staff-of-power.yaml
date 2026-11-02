@@ -24,18 +24,19 @@ grants:
   - { item: spells.magic-missile, when: self.equipped && self.attuned }
   - { item: spells.ray-of-enfeeblement, when: self.equipped && self.attuned }
   - { item: spells.wall-of-force, when: self.equipped && self.attuned }
+effectsWhen: self.attuned
 effects:
-  - { target: combat.ac, op: add, value: 2, when: self.equipped && self.attuned }
+  - { target: combat.ac, op: add, value: 2, when: self.equipped }
   - target: { fields: { where: "'save' in item.tags" } }
     op: add
     value: 2
-    when: self.equipped && self.attuned
-  - { target: { rolls: [save.death] }, op: add, value: 2, when: self.equipped && self.attuned }
-  - { target: { rolls: [attack.spell] }, op: add, value: 2, when: self.equipped && self.attuned }
+    when: self.equipped
+  - { target: { rolls: [save.death] }, op: add, value: 2, when: self.equipped }
+  - { target: { rolls: [attack.spell] }, op: add, value: 2, when: self.equipped }
   - target: { choices: [spell-cost] }
     op: option
     when: >-
-      action.self.id == self.id && self.attuned && action.item.id in [@spells.cone-of-cold, @spells.fireball, @spells.globe-of-invulnerability, @spells.hold-monster, @spells.levitate, @spells.lightning-bolt, @spells.magic-missile, @spells.ray-of-enfeeblement, @spells.wall-of-force]
+      action.self.id == self.id && action.item.id in [@spells.cone-of-cold, @spells.fireball, @spells.globe-of-invulnerability, @spells.hold-monster, @spells.levitate, @spells.lightning-bolt, @spells.magic-missile, @spells.ray-of-enfeeblement, @spells.wall-of-force]
         && self.charges >= [5, 5, 6, 5, 2, 5, 1, 1, 5][indexOf([@spells.cone-of-cold, @spells.fireball, @spells.globe-of-invulnerability, @spells.hold-monster, @spells.levitate, @spells.lightning-bolt, @spells.magic-missile, @spells.ray-of-enfeeblement, @spells.wall-of-force], action.item.id)]
     value:
       id: charges

@@ -34,49 +34,30 @@ grants:
   - { item: spells.light, when: self.equipped && self.attuned }
   - { item: spells.mage-hand, when: self.equipped && self.attuned }
   - { item: spells.protection-from-evil-and-good, when: self.equipped && self.attuned }
+effectsWhen: self.attuned
 effects:
-  - { target: { rolls: [attack.spell] }, op: add, value: 2, when: self.equipped && self.attuned }
-  - { target: items.spellSaveAdvantage, op: set, value: true, when: self.equipped && self.attuned }
-  - {
-      target: spells.atWill,
-      op: grant,
-      value: { item: spells.arcane-lock },
-      when: self.equipped && self.attuned,
-    }
-  - {
-      target: spells.atWill,
-      op: grant,
-      value: { item: spells.detect-magic },
-      when: self.equipped && self.attuned,
-    }
+  - { target: { rolls: [attack.spell] }, op: add, value: 2, when: self.equipped }
+  - { target: items.spellSaveAdvantage, op: set, value: true, when: self.equipped }
+  - { target: spells.atWill, op: grant, value: { item: spells.arcane-lock }, when: self.equipped }
+  - { target: spells.atWill, op: grant, value: { item: spells.detect-magic }, when: self.equipped }
   - {
       target: spells.atWill,
       op: grant,
       value: { item: spells.enlarge-reduce },
-      when: self.equipped && self.attuned,
+      when: self.equipped,
     }
-  - {
-      target: spells.atWill,
-      op: grant,
-      value: { item: spells.light },
-      when: self.equipped && self.attuned,
-    }
-  - {
-      target: spells.atWill,
-      op: grant,
-      value: { item: spells.mage-hand },
-      when: self.equipped && self.attuned,
-    }
+  - { target: spells.atWill, op: grant, value: { item: spells.light }, when: self.equipped }
+  - { target: spells.atWill, op: grant, value: { item: spells.mage-hand }, when: self.equipped }
   - {
       target: spells.atWill,
       op: grant,
       value: { item: spells.protection-from-evil-and-good },
-      when: self.equipped && self.attuned,
+      when: self.equipped,
     }
   - target: { choices: [spell-cost] }
     op: option
     when: >-
-      action.self.id == self.id && self.attuned && action.item.id in [@spells.conjure-elemental, @spells.dispel-magic, @spells.fireball, @spells.flaming-sphere, @spells.ice-storm, @spells.invisibility, @spells.knock, @spells.lightning-bolt, @spells.passwall, @spells.plane-shift, @spells.telekinesis, @spells.wall-of-fire, @spells.web]
+      action.self.id == self.id && action.item.id in [@spells.conjure-elemental, @spells.dispel-magic, @spells.fireball, @spells.flaming-sphere, @spells.ice-storm, @spells.invisibility, @spells.knock, @spells.lightning-bolt, @spells.passwall, @spells.plane-shift, @spells.telekinesis, @spells.wall-of-fire, @spells.web]
         && self.charges >= [7, 3, 7, 2, 4, 2, 2, 7, 5, 7, 5, 4, 2][indexOf([@spells.conjure-elemental, @spells.dispel-magic, @spells.fireball, @spells.flaming-sphere, @spells.ice-storm, @spells.invisibility, @spells.knock, @spells.lightning-bolt, @spells.passwall, @spells.plane-shift, @spells.telekinesis, @spells.wall-of-fire, @spells.web], action.item.id)]
     value:
       id: charges

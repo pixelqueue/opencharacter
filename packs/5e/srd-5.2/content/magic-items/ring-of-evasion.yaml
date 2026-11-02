@@ -12,7 +12,7 @@ effects:
   - target: { choices: [failed-save] }
     op: option
     when: >-
-      self.equipped && self.attuned && self.charges > 0 && params.ability == 'dex' && has(params.dc)
+      self.equipped && self.charges > 0 && params.ability == 'dex' && has(params.dc)
     value:
       id: evade
       flags: { addBonus: 'max(0, params.dc - flags.total)' }

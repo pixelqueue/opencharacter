@@ -29,7 +29,7 @@ contentTypes:
           values: [common, uncommon, rare, very-rare, legendary, artifact],
           required: true,
         }
-      requiresAttunement: { type: boolean }
+      requiresAttunement: { type: boolean, default: false }
       attunementClasses: { type: set, of: class }
       cost: { type: decimal }
       weight: { type: decimal }
@@ -49,6 +49,9 @@ contentTypes:
       attuned: { type: boolean, default: false }
       stowed: { type: boolean, default: false }
       usedToday: { type: set, of: string, default: [] }
+    # An item that needs attunement has its holder effects only while attuned. Applied effects
+    # (an item cast on someone) don't read it. Templates say it themselves.
+    effectsWhen: '!item.requiresAttunement || self.attuned'
     effects:
       # An attuned item for other classes than the character's (attunementClasses).
       - target: attunement.classUnmet

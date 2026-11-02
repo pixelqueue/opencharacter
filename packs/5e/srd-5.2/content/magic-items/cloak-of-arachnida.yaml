@@ -11,18 +11,8 @@ state:
 grants:
   - { item: spells.web, when: self.equipped && self.attuned }
 effects:
-  - {
-      target: damage.resistances,
-      op: grant,
-      value: { tag: damage.poison },
-      when: self.equipped && self.attuned,
-    }
-  - {
-      target: combat.climbSpeed,
-      op: atLeast,
-      value: combat.speed,
-      when: self.equipped && self.attuned,
-    }
+  - { target: damage.resistances, op: grant, value: { tag: damage.poison }, when: self.equipped }
+  - { target: combat.climbSpeed, op: atLeast, value: combat.speed, when: self.equipped }
   - target: { choices: [spell-cost] }
     op: option
     when: >-

@@ -16,11 +16,12 @@ grants:
   - { item: spells.cure-wounds, when: self.equipped && self.attuned }
   - { item: spells.lesser-restoration, when: self.equipped && self.attuned }
   - { item: spells.mass-cure-wounds, when: self.equipped && self.attuned }
+effectsWhen: self.attuned
 effects:
   - target: { choices: [spell-cost] }
     op: option
     when: >-
-      action.self.id == self.id && self.attuned && action.item.id == @spells.cure-wounds
+      action.self.id == self.id && action.item.id == @spells.cure-wounds
         && flags.slot >= 1 && flags.slot <= 4 && self.charges >= flags.slot
     value:
       id: cure-wounds
@@ -29,7 +30,7 @@ effects:
   - target: { choices: [spell-cost] }
     op: option
     when: >-
-      action.self.id == self.id && self.attuned && action.item.id in [@spells.lesser-restoration, @spells.mass-cure-wounds]
+      action.self.id == self.id && action.item.id in [@spells.lesser-restoration, @spells.mass-cure-wounds]
         && self.charges >= [2, 5][indexOf([@spells.lesser-restoration, @spells.mass-cure-wounds], action.item.id)]
     value:
       id: charges

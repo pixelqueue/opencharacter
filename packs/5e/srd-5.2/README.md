@@ -361,7 +361,9 @@ processes:
   (`(self.startingClass && self.level == level.total) || item.id in multiclass.qualified`).
 - **Backgrounds** bring their starting equipment the same way (`startingKit` and a `kit` action).
 - **Magic items** and magic weapon or armor templates restricted to classes list them in
-  `attunementClasses`.
+  `attunementClasses`. A `magicItem` with `requiresAttunement` has its effects only while
+  attuned (the type's `effectsWhen`), so its effects needn't check `self.attuned`; a template that
+  needs attunement says `effectsWhen: self.attuned` itself.
 - **Metamagic options** are `metamagic` content; containers add to `items.stowCapacity` or
   `items.stowUnlimited`, and content resets its uses with a `changes` effect on `rest.long`.
 - **Open enums** (`extendEnums`): weapon `damageType`, `ammunition` and `mastery`, feat

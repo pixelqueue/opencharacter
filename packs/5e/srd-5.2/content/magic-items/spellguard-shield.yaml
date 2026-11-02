@@ -3,9 +3,10 @@ type: template
 tags: [magic]
 appliesTo: { type: armor, where: "item.category == 'shield'" }
 fields: { rarity: very-rare, requiresAttunement: true }
+effectsWhen: self.attuned
 effects:
-  - { target: items.magicSaveAdvantage, op: set, value: true, when: self.equipped && self.attuned }
+  - { target: items.magicSaveAdvantage, op: set, value: true, when: self.equipped }
   - target: combat.spellAttackersDisadvantage
     op: set
     value: true
-    when: self.equipped && self.attuned
+    when: self.equipped

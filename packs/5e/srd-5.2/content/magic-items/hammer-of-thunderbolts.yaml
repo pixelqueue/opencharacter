@@ -13,6 +13,7 @@ fields:
   }
 state:
   charges: { type: integer, min: 0, max: item.maxCharges, default: item.maxCharges }
+effectsWhen: self.attuned
 effects:
   - target: abilities.str.score
     op: atLeast
@@ -27,7 +28,7 @@ effects:
           : copy.item == @magic-items.gauntlets-of-ogre-power ? 19 : 0,
         copy.equipped && has(copy.state.attuned) && copy.state.attuned))
     when: >-
-      self.attuned && countCopies(copy.equipped && has(copy.state.attuned) && copy.state.attuned
+      countCopies(copy.equipped && has(copy.state.attuned) && copy.state.attuned
         && (copy.item == @magic-items.gauntlets-of-ogre-power
           || copy.item in [@magic-items.belt-of-hill-giant-strength, @magic-items.belt-of-frost-giant-strength, @magic-items.belt-of-stone-giant-strength,
             @magic-items.belt-of-fire-giant-strength, @magic-items.belt-of-cloud-giant-strength, @magic-items.belt-of-storm-giant-strength])) > 0

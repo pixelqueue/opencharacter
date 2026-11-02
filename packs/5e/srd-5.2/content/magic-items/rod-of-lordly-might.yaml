@@ -6,27 +6,28 @@ fields: { rarity: legendary, requiresAttunement: true, attackBonus: 3, damageBon
 state:
   button: { type: integer, min: 0, max: 6, default: 0 }
   usedToday: { type: set, of: string, default: [] }
+effectsWhen: self.attuned
 effects:
   - target: { rolls: [damage.weapon], from: self }
     op: add
     value: 2d6
     tags: [damage.fire]
-    when: self.attuned && self.button == 1
+    when: self.button == 1
   - target: { rolls: [skill.athletics] }
     op: add
     value: 10
-    when: self.equipped && self.attuned && self.button == 5
+    when: self.equipped && self.button == 5
   # Drain Life and Paralyze: `drainLife` or `paralyze` on the rod's own attack, run on a melee hit
   # through item-power (a DC 17 Constitution save, once per dawn each). Drain Life heals half the
   # necrotic damage rolled.
   - target: { actions: [attack], from: self }
     op: params
-    when: "self.attuned && !('drain' in self.usedToday)"
+    when: "!('drain' in self.usedToday)"
     value:
       drainLife: { type: boolean, default: false }
   - target: { actions: [attack], from: self }
     op: params
-    when: "self.attuned && !('paralyze' in self.usedToday)"
+    when: "!('paralyze' in self.usedToday)"
     value:
       paralyze: { type: boolean, default: false }
   - target: { steps: [attack-hit], from: self }

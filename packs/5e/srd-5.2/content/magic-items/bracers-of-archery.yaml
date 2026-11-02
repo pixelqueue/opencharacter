@@ -15,17 +15,17 @@ effects:
         },
       ]
     when: >-
-      self.equipped && self.attuned && has(action.item) && has(action.item.damageType)
+      self.equipped && has(action.item) && has(action.item.damageType)
         && action.item.id in [@weapons.longbow, @weapons.shortbow]
   - {
       target: proficiencies.weapons,
       op: grant,
       value: { item: weapons.longbow },
-      when: self.equipped && self.attuned,
+      when: self.equipped,
     }
   - {
       target: proficiencies.weapons,
       op: grant,
       value: { item: weapons.shortbow },
-      when: self.equipped && self.attuned,
+      when: self.equipped,
     }

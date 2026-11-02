@@ -17,6 +17,7 @@ prerequisites:
       !self.attuned || creature.species == @species.dwarf
         || countCopies(copy.item == @magic-items.belt-of-dwarvenkind && has(copy.state.attuned)
           && copy.state.attuned) > 0
+effectsWhen: self.attuned
 effects:
   - target: { rolls: [damage.weapon], from: self }
     op: add
@@ -25,4 +26,4 @@ effects:
         && has(participants.target[0].creature.type)
         && participants.target[0].creature.type == 'giant' ? 2d8 : 1d8
     tags: [damage.force]
-    when: self.attuned && has(params.thrown) && params.thrown
+    when: has(params.thrown) && params.thrown
