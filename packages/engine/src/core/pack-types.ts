@@ -298,6 +298,8 @@ export interface Grant {
   /** Made once per element, with `x` bound; an activation formula. */
   forEach?: Formula;
   when?: Formula;
+  /** On the computed sheet: ANDed into the `available` of the granted content's actions. */
+  available?: Formula;
   scope?: 'holder' | 'applied';
   waivePrerequisites?: boolean;
   /** Values the granted content sees as `self.<key>`, each an activation formula. */
@@ -557,6 +559,8 @@ export interface CopyLimit {
 
 export interface ContentTypeDef {
   effects?: Effect[];
+  /** ANDed into every effect's `when`, evaluated as it is (the item's replaces its type's). */
+  effectsWhen?: Formula;
   followUps?: FollowUp[];
   grants?: Grant[];
   fields?: Record<string, ValueDecl>;
@@ -608,6 +612,8 @@ export interface ContentItem {
   /** A string state key whose non-empty value names each copy, replacing the type's. */
   nameFrom?: string;
   effects?: Effect[];
+  /** ANDed into every effect's `when`, evaluated as it is (the item's replaces its type's). */
+  effectsWhen?: Formula;
   followUps?: FollowUp[];
   actions?: ActionOrUse[];
   choices?: Choice[];

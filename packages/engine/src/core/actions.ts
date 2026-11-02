@@ -1042,16 +1042,18 @@ export function addedParams(
       ...(roots.self !== undefined ? { self: roots.self } : {}),
     };
     const own = { ...instance.roots, action };
-    if (effect.when !== undefined) {
-      let holds = false;
-      try {
+    let holds = false;
+    try {
+      holds = sheet.gateHolds(instance, own);
+      if (holds && effect.when !== undefined) {
         const v = sheet.evaluate(effect.when, instance.pack, own);
         holds = v.kind === 'bool' && v.value;
-      } catch (error) {
-        if (!(error instanceof Failure)) throw error;
       }
-      if (!holds) continue;
+    } catch (error) {
+      if (!(error instanceof Failure)) throw error;
+      holds = false;
     }
+    if (!holds) continue;
     for (const [name, decl] of Object.entries(effect.value as Record<string, ValueDecl>)) {
       if (Object.hasOwn(def.params ?? {}, name) || out.some((p) => p.name === name)) continue;
       const by = addedBy(sheet.ruleset, instance);
@@ -1976,6 +1978,7 @@ function rollStep(ctx: Ctx, frame: Frame, step: Step, path: string): void {
     roll: rollRoot,
   });
   const active = candidates.filter((c) => {
+    if (!sheet.gateHolds(c.instance, effectCtx(c))) return false;
     if (c.effect.when === undefined) return true;
     const v = sheet.evaluate(c.effect.when, c.pack, effectCtx(c));
     return v.kind === 'bool' && v.value;
@@ -2702,6 +2705,7 @@ function classifyAgain(ctx: Ctx, frame: Frame, step: Step, path: string, of: str
     tags.length === 0
       ? []
       : rollCandidates(ctx, frame, tags).filter((c) => {
+          if (!ctx.sheet.gateHolds(c.instance, ownRoots(c))) return false;
           if (c.effect.when === undefined) return true;
           const v = ctx.sheet.evaluate(c.effect.when, c.pack, ownRoots(c));
           return v.kind === 'bool' && v.value;
@@ -3180,12 +3184,10 @@ function addedOptions(
     const value = effect.value as OptionValue;
     const id = `${instance.source.id}#${value.id}`;
     if (out.some((c) => c.id === id)) continue;
+    const roots = context(optionFrame(frame, instance), { picks: counts.get(id) ?? 0, action });
+    if (!ctx.sheet.gateHolds(instance, roots)) continue;
     if (effect.when !== undefined) {
-      const v = ctx.sheet.evaluate(
-        effect.when,
-        instance.pack,
-        context(optionFrame(frame, instance), { picks: counts.get(id) ?? 0, action }),
-      );
+      const v = ctx.sheet.evaluate(effect.when, instance.pack, roots);
       if (v.kind !== 'bool' || !v.value) continue;
     }
     const key = effect.stackKey === 'source' ? `#source ${instance.sourceId}` : effect.stackKey;
@@ -3971,8 +3973,10 @@ function addedChanges(ctx: Ctx, frame: Frame, step: Step): AddedChanges[] {
     if (!tagsReach(ctx.ruleset, instance.pack, frame.declared, target.steps, tags)) continue;
     if (!addsToSteps(instance, frame, target.from)) continue;
     const added = optionFrame(frame, instance);
+    const roots = context(added, { action });
+    if (!ctx.sheet.gateHolds(instance, roots)) continue;
     if (effect.when !== undefined) {
-      const v = ctx.sheet.evaluate(effect.when, instance.pack, context(added, { action }));
+      const v = ctx.sheet.evaluate(effect.when, instance.pack, roots);
       if (v.kind !== 'bool' || !v.value) continue;
     }
     const value = effect.value as StepChanges;

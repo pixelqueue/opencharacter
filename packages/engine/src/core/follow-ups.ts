@@ -517,15 +517,18 @@ function startable(
   });
   const available = (formula: Formula | undefined, pack: string, roots: Record<string, unknown>) =>
     !check || holds(sheet, formula ?? true, pack, roots);
+  // Content's actions wait on the `available` of the grants it was reached through too.
+  const reachable = (a: Activation) => !check || sheet.grantsAvailable(a);
   if (!ref.includes(':')) {
     const def = list.find((a) => !('use' in a) && a.id === ref);
-    if (!def || !item || !activation || 'use' in def) return undefined;
+    if (!def || !item || !activation || 'use' in def || !reachable(activation)) return undefined;
     if (!available(def.available, activation.pack, sheet.actionRoots(activation))) return undefined;
     return fromContent(`${item.qid}#${ref}`);
   }
   const def = ruleset.rules.actions[ref];
   if (!def) return undefined;
   if (activation && list.some((a) => 'use' in a && a.use === ref)) {
+    if (!reachable(activation)) return undefined;
     if (!available(def.available, def.pack, sheet.actionRoots(activation))) return undefined;
     return fromContent(ref);
   }

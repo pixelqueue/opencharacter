@@ -289,6 +289,7 @@ class FormulaChecker<L> {
           // Run for each item of the type: its choices, known only then.
           this.owned(ANY_CHOICE, () => {
             this.computed(def.computed, at, where);
+            this.formula(def.effectsWhen, at, `${where} effectsWhen`, BOOL);
             for (const effect of def.effects ?? []) this.effect(effect, at, where);
             for (const fu of def.followUps ?? [])
               this.followUp(fu, at, `${where} follow-up ${fu.id}`);
@@ -465,6 +466,7 @@ class FormulaChecker<L> {
       this.declWhere(decl, at, `${owner} state ${key}`);
     }
     this.computed(item.computed, at, owner, ownType?.computed);
+    this.formula(item.effectsWhen, at, `${owner} effectsWhen`, BOOL);
     for (const effect of item.effects ?? []) this.effect(effect, at, owner);
     // An aura's `when` and `size` are the projector's; its effects and immunities see the applier's
     // view too.
@@ -945,6 +947,8 @@ class FormulaChecker<L> {
             }
         };
         presets(grant.choices);
+        // Evaluated on the computed sheet, as an action's `available` is: derived fields too.
+        this.computedSheet(() => this.formula(grant.available, at, `${where} available`, BOOL));
       }),
     );
   }
@@ -1506,6 +1510,17 @@ class FormulaChecker<L> {
 
   /** Activation conditions and item fields: evaluated before effects, so input fields only. */
   private inputOnly = false;
+
+  /** Inside an activation formula's place, a formula evaluated on the computed sheet. */
+  private computedSheet<T>(fn: () => T): T {
+    const previous = this.inputOnly;
+    this.inputOnly = false;
+    try {
+      return fn();
+    } finally {
+      this.inputOnly = previous;
+    }
+  }
 
   private activation<T>(fn: () => T): T {
     const previous = this.inputOnly;

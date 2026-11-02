@@ -178,6 +178,26 @@ export interface Activation {
   presets?: { tree: EvaluatedPresets; pack: string } | undefined;
   /** A holder grant: its `state` values, the defaults of the granted content's saved state. */
   grantDefaults?: Record<string, Literal> | undefined;
+  /**
+   * The `available` of the grants it was reached through (its own and those above it), each with
+   * its grant's roots: evaluated on the computed sheet, ANDed into its actions' `available`.
+   */
+  gates?: readonly Gate[] | undefined;
+  /** Its effects' shared condition: its item's `effectsWhen`, else its type's (an inline option's owner's). */
+  effectsWhen?: EffectsWhen | undefined;
+}
+
+/** A grant's `available`, with the grant's pack and roots. */
+export interface Gate {
+  formula: Formula;
+  pack: string;
+  roots: Record<string, unknown>;
+}
+
+/** A content item's or type's `effectsWhen`, in the pack that wrote it. */
+export interface EffectsWhen {
+  formula: Formula;
+  pack: string;
 }
 
 type EvaluatedPresets = Record<string, { option: string | number; choices?: EvaluatedPresets }[]>;
@@ -193,6 +213,8 @@ export interface ListedActivation {
   path?: ChoicePath;
   /** Its declared state keys not shown (display-hints.md, "Shown"); absent when none. */
   hiddenState?: string[];
+  /** A grant's `available` it was reached through doesn't hold: none of its actions is listed. */
+  unavailable?: true;
 }
 
 export interface ListedAction {
@@ -284,6 +306,8 @@ export interface EffectInstance {
    * keeps the state its `self` reads (where `then` writes those keys).
    */
   own?: Activation;
+  /** Its content's `effectsWhen`, ANDed into its `when` with the same roots. */
+  gate?: EffectsWhen;
 }
 
 interface FieldResult {
@@ -739,7 +763,11 @@ export class Sheet {
         const applier = by.get(a.applied);
         if (applier !== undefined && applier !== this.character.id) continue;
       }
+      // Content a grant's `available` holds back projects no aura.
+      if (!this.grantsAvailable(a)) continue;
       const pack = a.item.scopes?.auras ?? a.item.pack;
+      // A holder aura's `when` needs the item's `effectsWhen` too, as its effects would.
+      const gate = a.scope === 'holder' ? this.effectsWhenOf(a.item) : undefined;
       for (const aura of a.item.auras) {
         if ((aura.scope ?? 'holder') !== a.scope) continue;
         const entry = a.scope === 'applied' ? a.applied : a.entry?.id;
@@ -750,6 +778,7 @@ export class Sheet {
         }
         let at = 'when';
         try {
+          if (gate && !this.test(gate.formula, gate.pack, a.roots)) continue;
           if (!this.test(aura.when, pack, a.roots)) continue;
           at = 'size';
           const size =
@@ -936,6 +965,41 @@ export class Sheet {
     if (value.kind !== 'bool')
       throw new Failure({ code: 'type-mismatch', message: 'a condition must be a bool' });
     return value.value;
+  }
+
+  /**
+   * An effect instance's content's `effectsWhen`, with the roots its `when` sees there; true
+   * without one. Throws Failure as `test` does.
+   */
+  gateHolds(instance: EffectInstance, roots: Record<string, unknown> = instance.roots): boolean {
+    const gate = instance.gate;
+    return gate === undefined || this.test(gate.formula, gate.pack, roots);
+  }
+
+  /** An item's `effectsWhen`, else its content type's. */
+  effectsWhenOf(item: LoadedItem): EffectsWhen | undefined {
+    if (item.effectsWhen !== undefined)
+      return { formula: item.effectsWhen, pack: item.scopes?.effectsWhen ?? item.pack };
+    const type = item.type !== 'template' ? this.ruleset.contentTypes[item.type] : undefined;
+    return type?.effectsWhen === undefined
+      ? undefined
+      : { formula: type.effectsWhen, pack: type.pack };
+  }
+
+  /**
+   * Whether every grant `available` the activation was reached through holds on the computed
+   * sheet. One that fails counts as false.
+   */
+  grantsAvailable(a: Activation): boolean {
+    for (const gate of a.gates ?? []) {
+      try {
+        if (!this.test(gate.formula, gate.pack, gate.roots)) return false;
+      } catch (error) {
+        if (!(error instanceof Failure)) throw error;
+        return false;
+      }
+    }
+    return true;
   }
 
   // --- Standard copies ----------------------------------------------------------------------
@@ -1542,10 +1606,12 @@ export class Sheet {
       const where = `${a.sourceId} grant`;
       for (const roots of this.grantRoots(grant, pack, a.roots, where)) {
         if (!this.condition(grant.when, pack, roots, where)) continue;
+        const gates = withGate(a.gates, grant, pack, roots);
         for (const granted of this.grantedItems(grant, pack, roots, where))
           list.push({
             ...a,
             kind: 'grant',
+            gates,
             waived: false,
             item: granted,
             pack: granted.pack,
@@ -1962,6 +2028,10 @@ export class Sheet {
     }
     const type =
       item && item.type !== 'template' ? this.ruleset.contentTypes[item.type] : undefined;
+    // Its effects' shared condition: the item's, else its type's; an inline option keeps its
+    // owner's, which its choice effects and nested options read too.
+    if (item) activation.effectsWhen = this.effectsWhenOf(item);
+    const gate = activation.effectsWhen;
     // Picked or held granted content with state of its own: `then` writes there, as `self` reads.
     const owner =
       item &&
@@ -1983,6 +2053,7 @@ export class Sheet {
           `type.${effect.id ?? index}`,
           activation.applied,
           owner,
+          gate,
         );
       });
     }
@@ -1999,6 +2070,7 @@ export class Sheet {
         effect.id ?? String(index),
         activation.applied,
         owner,
+        gate,
       );
     });
     if (activation.scope === 'applied') {
@@ -2073,6 +2145,7 @@ export class Sheet {
       {
         ...activation,
         kind: 'grant',
+        gates: withGate(activation.gates, grant, pack, roots),
         waived: grant.waivePrerequisites === true,
         item: granted,
         inline: undefined as unknown as InlineOption,
@@ -2202,6 +2275,9 @@ export class Sheet {
               owner.source,
               `${owner.sourceId}/${choice.id}`,
               `${pick.option}/${effect.id ?? index}`,
+              undefined,
+              undefined,
+              owner.effectsWhen,
             );
           });
         const nested: Pick['choices'] = pick.choices ?? {};
@@ -2294,10 +2370,12 @@ export class Sheet {
     key: string,
     applied?: string,
     owner?: Activation,
+    gate?: EffectsWhen,
   ): void {
     const own = {
       ...(applied === undefined ? {} : { applied }),
       ...(owner === undefined ? {} : { own: owner }),
+      ...(gate === undefined ? {} : { gate }),
     };
     const target = effect.target;
     if (typeof target === 'object' && 'formula' in target) {
@@ -2318,6 +2396,7 @@ export class Sheet {
           key,
           applied,
           owner,
+          gate,
         );
       return;
     }
@@ -2414,7 +2493,8 @@ export class Sheet {
       const e = instance.effect;
       if (e.op !== 'add' || e.stackKey === undefined || this.suppressed.has(instance)) continue;
       try {
-        if (!this.test(e.when, instance.pack, instance.roots)) continue;
+        if (!this.gateHolds(instance) || !this.test(e.when, instance.pack, instance.roots))
+          continue;
         out.push({
           instance,
           value: this.evaluate(e.value as Formula, instance.pack, instance.roots),
@@ -2543,7 +2623,7 @@ export class Sheet {
 
     const active = (op: string) =>
       this.instancesOn(qid).filter(
-        (i) => i.effect.op === op && this.test(i.effect.when, i.pack, i.roots),
+        (i) => i.effect.op === op && this.gateHolds(i) && this.test(i.effect.when, i.pack, i.roots),
       );
 
     if (def.type === 'set') {
@@ -2802,7 +2882,8 @@ export class Sheet {
         if (!this.byField.get(qid)?.some(member)) continue;
         for (const i of this.instancesOn(qid)) {
           const e = i.effect;
-          if (e.op !== op || e.stackKey !== key || !this.test(e.when, i.pack, i.roots)) continue;
+          if (e.op !== op || e.stackKey !== key) continue;
+          if (!this.gateHolds(i) || !this.test(e.when, i.pack, i.roots)) continue;
           const value = this.evaluate(e.value as Formula, i.pack, i.roots);
           let option = options.get(spanSource(i));
           if (!option) options.set(spanSource(i), (option = { first: i, values: new Map() }));
@@ -3520,7 +3601,7 @@ export class Sheet {
       if (!this.reaches(i)) continue;
       let active = false;
       try {
-        active = this.test(e.when, i.pack, i.roots);
+        active = this.gateHolds(i) && this.test(e.when, i.pack, i.roots);
       } catch (error) {
         if (!(error instanceof Failure)) throw error;
       }
@@ -3628,6 +3709,8 @@ export class Sheet {
     ];
     const roots = this.actionRoots(a);
     const out: ActionListing[] = [];
+    // A grant's `available` holds for every action of the content it reaches.
+    if (!this.grantsAvailable(a)) return out;
     for (const [action, written, writer] of list) {
       if ((action.scope ?? 'holder') !== a.scope) continue;
       const used = 'use' in action ? this.ruleset.rules.actions[action.use] : undefined;
@@ -3840,6 +3923,7 @@ export class Sheet {
         (a.kind === 'grant' && a.scope === 'holder' && a.path.choice.length > 0)
           ? { path: a.path }
           : {}),
+        ...(this.grantsAvailable(a) ? {} : { unavailable: true as const }),
       };
     });
   }
@@ -4197,4 +4281,15 @@ function readsOnlyItem(where: string | number | boolean): boolean {
   let known = itemOnlyWhere.get(where);
   if (known === undefined) itemOnlyWhere.set(where, (known = isContentOnly(where)));
   return known;
+}
+
+/** An activation's grant gates with this grant's `available`, if it has one. */
+function withGate(
+  gates: readonly Gate[] | undefined,
+  grant: Grant,
+  pack: string,
+  roots: Record<string, unknown>,
+): readonly Gate[] | undefined {
+  if (grant.available === undefined) return gates;
+  return [...(gates ?? []), { formula: grant.available, pack, roots }];
 }

@@ -1458,7 +1458,7 @@ function route(
       }))
       .filter((i) => {
         try {
-          return sheet.test(i.effect.when, i.pack, i.roots);
+          return sheet.gateHolds(i) && sheet.test(i.effect.when, i.pack, i.roots);
         } catch {
           return false;
         }
