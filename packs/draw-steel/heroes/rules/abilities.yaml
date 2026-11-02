@@ -174,6 +174,10 @@ fields:
   abilities.edgeDiscount: { type: integer, formula: 0, min: 0 }
   # Abilities that cost nothing to use right now (an Elementalist's maintained abilities).
   abilities.free: { type: set, of: ability, formula: '[]' }
+  # The hero can't use triggered actions (dazed, an Entropy Ward's attacker, Smolder's strain).
+  abilities.noTriggered: { type: boolean, formula: conditions.dazed }
+  # Banes on ability rolls made against this creature (Blessing of Steel's aura).
+  powerRoll.banesAgainst: { type: integer, formula: 0, min: 0 }
   # Bonuses to the distance of ranged abilities: any, magic, psionic, and void magic ones. An
   # area's bonus goes to its range ("within"), not its size.
   abilities.rangeBonus: { type: integer, formula: 0 }
@@ -245,7 +249,8 @@ actions:
   - id: use-ability
     tags: [ability, { formula: "'usage.' + item.usage" }, { formula: item.tags }]
     available: >-
-      !stamina.dead && (item.cost == 0 || item.id in abilities.free
+      !stamina.dead && !(abilities.noTriggered && item.usage in ['triggered', 'free-triggered'])
+        && (item.cost == 0 || item.id in abilities.free
         || (combat.active
           ? heroic.current - max(0, item.cost - (item.kind == 'heroic' && size(item.rollChars) > 0 ? abilities.edgeDiscount : 0)) >= heroic.min
           : !(item.id in abilities.usedOutside)))

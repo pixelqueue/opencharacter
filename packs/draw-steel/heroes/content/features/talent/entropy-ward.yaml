@@ -4,3 +4,17 @@ fields:
   class: classes.talent
   level: 1
 tags: [talent.ward]
+# Whoever damages the talent is slowed by their Reason and can't use triggered actions until the
+# end of that creature's next turn. The app runs it on the attacker's sheet (`change.from`).
+followUps:
+  - id: entropy
+    on: { field: stamina.current, tags: [damage], once: true }
+    when: change.taken < 0 && change.from != '' && change.from != character.id
+    required: true
+    to: character
+    character: change.from
+    changes:
+      - type: applyEffect
+        source: "'effects.talent.entropy'"
+        appliedBy: change.from
+        state: { duration: "'next-end'", amount: characteristics.reason.score }

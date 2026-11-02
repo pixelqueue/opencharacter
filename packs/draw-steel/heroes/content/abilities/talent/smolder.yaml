@@ -85,7 +85,7 @@ effects:
       when: "self.type == 'fire'",
       scope: applied,
     }
-  # Strained: 1d6 damage (being unable to use triggered actions is the table's).
+  # Strained: 1d6 damage, and no triggered actions (save ends).
   - target: { steps: [ability.after], from: self }
     op: changes
     when: >-
@@ -94,6 +94,9 @@ effects:
     value:
       changes:
         - { type: adjust, field: stamina.current, by: -1d6, tags: [damage, talent.strain] }
+        - type: applyEffect
+          source: "'effects.talent.no-triggered'"
+          state: { duration: "'save'" }
 actions:
   - use: saving-throw
     scope: applied
