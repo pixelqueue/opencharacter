@@ -1092,7 +1092,9 @@ the action from the start, using recorded answers in order, until it finishes or
 checkpoint with no recorded answer. A repeated choice step consumes its recorded options in
 order, one per pick, and handoffs their recorded outcomes. A recorded option that is no longer offered when replayed is
 `answer-mismatch`. Replay is exact because the engine is deterministic given its
-answers. That is also what makes a whole run replayable from its inputs and answers (below).
+answers, against the same ruleset: replayed against a newer release, the action's inputs are
+checked again, so a situational choice the release no longer declares is `unknown-situational`
+and one it no longer offers `situational-unavailable`, and the app starts the action again. That is also what makes a whole run replayable from its inputs and answers (below).
 **PROVISIONAL** internal shape: `state` is plain JSON, and only its meaning is fixed.
 
 ## Replaying from answers

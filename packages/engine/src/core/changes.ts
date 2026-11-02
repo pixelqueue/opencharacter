@@ -1642,7 +1642,7 @@ function situationalOn(
   const instances: EffectInstance[] = [];
   for (const [id, value] of Object.entries(given)) {
     const def = ruleset.rules.situational[id];
-    if (!def) throw new ChangeError('unknown-id', { id });
+    if (!def) throw new ChangeError('unknown-situational', { situational: id });
     const typed =
       def.type === 'boolean'
         ? typeof value === 'boolean'

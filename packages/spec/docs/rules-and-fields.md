@@ -473,8 +473,9 @@ its dependencies' tallies. A roll step exposes every visible tally as `steps.<id
 - `rolls` lists the roll tags the choice is offered for. Tags match by prefix ([effects.md](effects.md#tag-matching)).
 - `incoming: { fields?, tags? }` offers the choice for incoming changes: an `adjust` whose field is one of `fields` and with a tag matching one of `tags`, each filter optional, as an incoming-change target matches ([effects.md](effects.md#targets)). A choice may have `rolls`, `incoming` or both. The receiving player selects it on the change itself (`situational` on an `adjust`, [below](#choices-on-incoming-changes)).
 - `effects` apply while the choice is selected (boolean) or non-default (integer, enum). Formulas see the value as `situational.<id>`. Roll items added by these effects have source `{ type: situational, id }`.
-- `available` is a condition on the character that says when the choice is offered: `omens.current > 0`, or a set field holding the content that grants the choice. Its formula sees the character's fields and `character`, as constraints do; there is no `item`, `self`, `steps` or `roll`, because it is decided before any roll. A choice without `available` is always offered. `computeSheet` lists the choices offered now in `situational`, and `startAction` rejects selecting one that isn't (`situational-unavailable`).
+- `available` is a condition on the character that says when the choice is offered: `omens.current > 0`, or a set field holding the content that grants the choice. Its formula sees the character's fields and `character`, as constraints do; there is no `item`, `self`, `steps` or `roll`, because it is decided before any roll. A choice without `available` is always offered. `computeSheet` lists the choices offered now in `situational`, and `startAction` rejects selecting one that isn't (`situational-unavailable`), and an ID the ruleset doesn't declare (`unknown-situational`).
 - Text: `situational.<id>.name`.
+- Releases: removing a choice, changing its `type` or dropping enum values is an interface change (`situational-removed`, `situational-type-changed`), and so is narrowing `available`, `rolls` or `incoming`, which needs a breaking bump the build can't check ([upgrades.md](upgrades.md#a-packs-interface)).
 
 ### Choices on incoming changes
 
@@ -501,8 +502,8 @@ situational:
   character's own, with source `{ type: situational, id }`. Every incoming-change effect, the
   character's own included, sees the values as `situational.<id>` (defaults for the rest).
 - The choices reach only that change: not its overflow and not the rest of the batch.
-- A selected choice that isn't offered, or whose `incoming` doesn't match the change, is
-  `situational-unavailable` and rejects the batch ([engine-core.md](engine-core.md#routing-an-adjust)).
+- An undeclared choice is `unknown-situational`. A selected choice that isn't offered, or whose
+  `incoming` doesn't match the change, is `situational-unavailable`. Either rejects the batch ([engine-core.md](engine-core.md#routing-an-adjust)).
 - An action never sets them: the target's player chooses, on the target's side. Spending the
   reaction is the app's.
 
