@@ -153,6 +153,21 @@ Where the SRD is unclear or silent, the pack reads it this way:
     (`brutalBlow`; from level 13 `improvedBlow`, which adds Staggering and Sundering Blow; and
     `brutalBlow2` at level 17), applied on the hit: Hamstring and Staggering Blow put their
     effect on the target; Forceful Blow's push and Sundering Blow's +5 are the player's.
+  - Cunning Strike's effects are parameters of the attack too (`cunningStrike`, and
+    `cunningStrike2` from Improved Cunning Strike): their dice come off the Sneak Attack, and on
+    a hit dealing Sneak Attack damage the target makes the effect's save at the rogue's DC as part
+    of the attack (an `action` effect on its `attack-hit` step), Poisoned, Prone, Unconscious or
+    Blinded on a failure. An effect the rogue doesn't know, Poison without a Poisoner's Kit, Trip
+    on a Huge or larger target, or effects costing more dice than the Sneak Attack has do nothing;
+    Withdraw, Daze's limit and Stealth Attack are the player's.
+  - Stunning Strike (`stunningStrike`, 1 Focus Point, Constitution or Stunned), Open Hand
+    Technique (`openHand`: Push's Strength save, Topple's Dexterity save or Prone), Hurl Through
+    Hell (`hurlThroughHell`: its use or a Pact Magic slot, then a Charisma save or 8d10 Psychic
+    damage unless a Fiend, and Incapacitated) and the Rod of Lordly Might's Drain Life and
+    Paralyze (`drainLife`, `paralyze`, on its own melee attack through `item-power`; Drain Life
+    heals half the Necrotic damage rolled) are parameters of the attack the same way, the save
+    handed to the target on the hit. Once per turn, Stunning Strike's success rider, the Push
+    itself, Addle, and Hurl Through Hell's return are the player's.
   - Persistent Rage, Perfect Focus, Superior Inspiration, Evergreen Wild Shape and Boon of Fate
     act when Initiative is rolled (a hook on the `initiative` action); Uncanny Metabolism is its
     own action, since it rolls.
@@ -279,7 +294,7 @@ Where the SRD is unclear or silent, the pack reads it this way:
   Metamagic options, Pact Magic and the 28 invocations, the spellbook, Arcane Recovery. Uses until
   a rest are state on the class copy, an invocation's on its pick (Gift of the Depths' `used`).
   Features carry the numbers their card needs as computed values (in computeSheet's
-  `activationValues`), which their actions read: Cunning Strike's `strikeDc`, Intimidating
+  `activationValues`), which their actions read: Cunning Strike's `strikeDc` (its saves' DC), Intimidating
   Presence's `presenceDc`, Relentless Rage's `rageDc`, Sacred Weapon's `weaponBonus`, Preserve
   Life's `healingPool`, and Breath Weapon's `breathDc` and `breathDice`.
   A species trait keeps its own uses as its grant's saved state (Breath Weapon, Draconic Flight,

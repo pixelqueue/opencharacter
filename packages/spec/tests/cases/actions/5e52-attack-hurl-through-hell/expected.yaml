@@ -1,0 +1,44 @@
+status: finished
+# The dagger's 3 and Dexterity +2; a Pact Magic slot pays for the spent use, and the ogre, failing
+# its save, takes 8d10 (1 through 8) Psychic damage and is Incapacitated.
+outcome:
+  result: hit
+  data: { critical: false, attack: 21, damage: 5, mastery: none, push: 0, cleave: false }
+proposedChanges:
+  - to: target
+    character: ogre
+    step: deal
+    change:
+      type: adjust
+      field: 5e-srd-5.2:hp.current
+      from: test
+      by: -5
+      tags: [damage, attack, weapon, melee, nonmagical, damage.piercing]
+  - to: self
+    step: deal/5e-srd-5.2:features.warlock.hurl-through-hell#slot/spend
+    change: { type: adjust, field: 5e-srd-5.2:pactSlots.used, by: 1 }
+  - to: target
+    character: ogre
+    step: deal
+    change:
+      type: adjust
+      field: 5e-srd-5.2:hp.current
+      from: test
+      by: -36
+      tags: [damage, magical, damage.psychic]
+  - to: target
+    character: ogre
+    step: deal
+    change:
+      type: applyEffect
+      source: 5e-srd-5.2:conditions.incapacitated
+      appliedBy: test
+      state: { by: humanoid, magical: true }
+log:
+  - { step: test/roll, kind: dice }
+  - { step: damage, kind: dice, faces: [3] }
+  - step: deal/5e-srd-5.2:features.warlock.hurl-through-hell#hurl[0]
+    kind: handoff
+    participant: { role: target, id: ogre }
+    outcome: { result: failure, data: { total: 8 } }
+  - { step: deal, kind: dice, faces: [1, 2, 3, 4, 5, 6, 7, 8] }

@@ -1,15 +1,26 @@
 id: features.monk.open-hand-technique
 type: feature
-actions:
-  - id: open-hand-technique
-    tags: [feature]
-    results: [prone, push, no-reactions]
-    params:
-      technique: { type: enum, values: [prone, push, no-reactions] }
-    steps:
-      - id: result
-        kind: outcome
-        result: params.technique
-        data:
-          dc: ki.saveDc
-          save: "params.technique == 'prone' ? 'dex' : params.technique == 'push' ? 'str' : ''"
+# `openHand` on an attack Flurry of Blows grants: on a hit, the target makes a Dexterity save
+# (prone on a failure) or a Strength save (the push of up to 15 feet is the player's) at the ki
+# save DC. No reactions has no save, and is the table's.
+effects:
+  - target: { actions: [attack] }
+    op: params
+    value:
+      openHand: { type: enum, values: [prone, push, no-reactions], optional: true }
+  - target: { steps: [attack-hit] }
+    op: action
+    when: has(params.openHand) && params.openHand != 'no-reactions'
+    value:
+      id: technique
+      use: saving-throw
+      each: target
+      as: participant
+      params:
+        ability: "params.openHand == 'push' ? 'str' : 'dex'"
+        dc: ki.saveDc
+      changes:
+        - type: applyEffect
+          when: run.result == 'failure' && params.openHand == 'prone'
+          source: "'conditions.prone'"
+          state: { by: creature.type }

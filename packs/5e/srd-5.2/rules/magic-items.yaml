@@ -335,3 +335,5 @@ actions:
           damage: 'has(steps.damage) ? steps.damage.total : 0'
           dc: 'has(params.dc) ? params.dc : 0'
           save: "has(params.save) ? params.save : ''"
+          failed: >-
+            has(steps.saves) && countList(steps.saves, x != null && x.result == 'failure') > 0

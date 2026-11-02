@@ -1,0 +1,35 @@
+status: finished
+# The rapier's 6, Dexterity +5 and the Sneak Attack's 7d6 less the 3d6 the two effects cost (1 + 2
+# + 3 + 4). The ogre fails the Trip save and falls Prone, and makes the Daze save.
+outcome:
+  result: hit
+  data: { critical: false, attack: 25, damage: 21, mastery: none, push: 0, cleave: false }
+proposedChanges:
+  - to: target
+    character: ogre
+    step: deal
+    change:
+      type: adjust
+      field: 5e-srd-5.2:hp.current
+      from: test
+      by: -21
+      tags: [damage, attack, weapon, melee, nonmagical, damage.piercing]
+  - to: target
+    character: ogre
+    step: deal
+    change:
+      type: applyEffect
+      source: 5e-srd-5.2:conditions.prone
+      appliedBy: test
+      state: { by: humanoid }
+log:
+  - { step: test/roll, kind: dice }
+  - { step: damage, kind: dice, faces: [6, 1, 2, 3, 4] }
+  - step: deal/5e-srd-5.2:features.rogue.cunning-strike#strike[0]
+    kind: handoff
+    participant: { role: target, id: ogre }
+    outcome: { result: failure, data: { total: 9 } }
+  - step: deal/5e-srd-5.2:features.rogue.cunning-strike#strike2[0]
+    kind: handoff
+    participant: { role: target, id: ogre }
+    outcome: { result: success, data: { total: 19 } }

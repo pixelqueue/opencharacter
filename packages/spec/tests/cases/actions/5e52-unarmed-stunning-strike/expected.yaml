@@ -1,0 +1,34 @@
+status: finished
+# The Martial Arts d8's 5 and Dexterity +3; the Focus Point is spent on the class copy, and the
+# ogre, failing its save, is Stunned.
+outcome:
+  result: hit
+  data: { critical: false, attack: 20, damage: 8 }
+proposedChanges:
+  - to: target
+    character: ogre
+    step: deal
+    change:
+      type: adjust
+      field: 5e-srd-5.2:hp.current
+      from: test
+      by: -8
+      tags: [damage, attack, melee, unarmed, damage.bludgeoning]
+  - to: self
+    step: deal
+    change: { type: adjustState, entry: class, key: focusSpent, by: 1 }
+  - to: target
+    character: ogre
+    step: deal
+    change:
+      type: applyEffect
+      source: 5e-srd-5.2:conditions.stunned
+      appliedBy: test
+      state: { by: humanoid }
+log:
+  - { step: test/roll, kind: dice }
+  - { step: damage, kind: dice, faces: [5] }
+  - step: deal/5e-srd-5.2:features.monk.stunning-strike#stun[0]
+    kind: handoff
+    participant: { role: target, id: ogre }
+    outcome: { result: failure, data: { total: 8 } }

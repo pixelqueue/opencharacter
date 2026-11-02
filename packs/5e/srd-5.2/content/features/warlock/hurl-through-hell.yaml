@@ -1,5 +1,9 @@
 id: features.warlock.hurl-through-hell
 type: feature
+# `hurlThroughHell` on an attack: on a hit, the feature's use (or, once used, a Pact Magic slot) is
+# spent and the target makes a Charisma save against the warlock's spell save DC. On a failure it
+# takes 8d10 Psychic damage unless it's a Fiend, and has the Incapacitated condition; its return at
+# the end of the warlock's next turn, and once per turn, are the table's.
 effects:
   - target: { steps: [rest.long] }
     op: changes
@@ -7,82 +11,42 @@ effects:
     value:
       changes:
         - { type: setState, entry: self, key: hurlThroughHellUsed, value: false }
-actions:
-  - id: hurl-through-hell
-    tags: [feature]
-    results: [no-slot, saved, hurled]
-    available: '!self.hurlThroughHellUsed || pactSlots.used < pactSlots.max'
-    participants:
-      target:
-        max: 1
-        fields: target
-    steps:
-      - id: slot
-        kind: action
-        when: self.hurlThroughHellUsed
-        use: spend-spell-slot
-        params:
-          slotType: "'pact'"
-      - id: noSlot
-        kind: outcome
-        when: has(steps.slot) && steps.slot.result != 'spent'
-        result: "'no-slot'"
-        data:
-          slot: steps.slot.data.slot
-      - id: spend
-        kind: changes
-        changes:
-          - { type: setState, entry: self, key: hurlThroughHellUsed, value: true }
-      - id: save
-        kind: action
-        each: target
-        as: participant
-        use: saving-throw
-        params:
-          ability: "'cha'"
-          dc: spellcasting.warlock.dc
-      - id: fail
-        kind: branch
-        cases:
-          - when: size(participants.target) == 0 || steps.save[0].result == 'failure'
-            flags:
-              hurled: true
-              fiend: size(participants.target) > 0 && participants.target[0].creature.type == 'fiend'
-        else:
-          flags: { hurled: false, fiend: false }
-      - id: saved
-        kind: outcome
-        when: '!flags.hurled'
-        result: "'saved'"
-        data:
-          dc: spellcasting.warlock.dc
-      - id: damage
-        kind: roll
-        when: '!flags.fiend'
-        tags: [damage]
-        parts:
-          - dice: 8d10
-            tags: [damage.psychic]
-      - id: deal
-        kind: changes
-        when: has(steps.damage)
-        to: target
-        changes:
-          - type: adjust
-            field: hp.current
-            split: { roll: damage, by: damage }
-            by: -max(0, part.total)
-            tags: [damage, magical]
-      - id: incapacitate
-        kind: changes
-        to: target
-        changes:
-          - type: applyEffect
-            source: "'conditions.incapacitated'"
-            state: { by: creature.type, magical: true }
-      - id: result
-        kind: outcome
-        result: "'hurled'"
-        data:
-          dc: spellcasting.warlock.dc
-          damage: 'has(steps.damage) ? steps.damage.total : 0'
+  - target: { actions: [attack] }
+    op: params
+    when: '!self.hurlThroughHellUsed || pactSlots.used < pactSlots.max'
+    value:
+      hurlThroughHell: { type: boolean, default: false }
+  - target: { steps: [attack-hit] }
+    op: changes
+    when: params.hurlThroughHell && !self.hurlThroughHellUsed
+    value:
+      to: self
+      changes:
+        - { type: setState, entry: self, key: hurlThroughHellUsed, value: true }
+  - target: { steps: [attack-hit] }
+    op: action
+    when: params.hurlThroughHell && self.hurlThroughHellUsed && pactSlots.used < pactSlots.max
+    value:
+      id: slot
+      use: spend-spell-slot
+      params: { slotType: "'pact'" }
+  - target: { steps: [attack-hit] }
+    op: action
+    when: >-
+      params.hurlThroughHell && (!self.hurlThroughHellUsed || pactSlots.used < pactSlots.max)
+    value:
+      id: hurl
+      use: saving-throw
+      each: target
+      as: participant
+      params: { ability: "'cha'", dc: spellcasting.warlock.dc }
+      changes:
+        - type: adjust
+          when: run.result == 'failure' && participant.creature.type != 'fiend'
+          field: hp.current
+          by: -8d10
+          tags: [damage, magical, damage.psychic]
+        - type: applyEffect
+          when: run.result == 'failure'
+          source: "'conditions.incapacitated'"
+          state: { by: creature.type, magical: true }

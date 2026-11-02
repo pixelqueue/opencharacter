@@ -274,7 +274,11 @@ Where the SRD is unclear or silent, the pack reads it this way:
   `breathDice`); per-roll bonuses are situational choices; lasting
   effects are boolean inputs; once per turn is the app's. Divine Smite is offered on a melee
   weapon hit (one option per spell slot level left, and the pact slot): it spends the slot and
-  adds its radiant dice to the hit's damage roll, doubled on a critical hit.
+  adds its radiant dice to the hit's damage roll, doubled on a critical hit. Stunning Strike
+  (`stunningStrike`, 1 ki on a melee hit) and Open Hand Technique (`openHand`) are parameters of
+  the attack: on the hit (the attacks' `attack-hit` step) the target makes its save at the ki
+  save DC as part of the attack, stunned or knocked prone on a failure; the push and No
+  reactions are the player's.
 - **Spellcasting:** all 319 SRD spells as mechanics (level, school, class lists, casting time,
   range, components, duration, attack or save, damage and healing); class DCs and attack bonuses;
   spell slots by the multiclass table; Pact Magic; `cast-spell` with upcasting and cantrip

@@ -5,6 +5,8 @@ fields:
   rogue.stealthAttack: { type: boolean, formula: false }
   rogue.uncannyDodge: { type: boolean, formula: false }
 
+# Cunning Strike's effects (the attack's `cunningStrike` and `cunningStrike2` parameters) spend
+# Sneak Attack dice.
 situational:
   - id: sneakAttack
     type: boolean
@@ -14,7 +16,9 @@ situational:
     effects:
       - target: { rolls: [damage.weapon] }
         op: add
-        value: (rogue.sneakAttack - situational.cunningStrike)d6
+        value: >-
+          (rogue.sneakAttack - ((has(params.cunningStrike) ? (params.cunningStrike == 'knock-out' ? 6 : params.cunningStrike == 'obscure' ? 3 : params.cunningStrike == 'daze' ? 2 : 1) : 0)
+            + (has(params.cunningStrike2) ? (params.cunningStrike2 == 'knock-out' ? 6 : params.cunningStrike2 == 'obscure' ? 3 : params.cunningStrike2 == 'daze' ? 2 : 1) : 0)))d6
         tags:
           [
             {
@@ -22,14 +26,10 @@ situational:
             },
           ]
         when: >-
-          situational.sneakAttack && rogue.sneakAttack > situational.cunningStrike
+          situational.sneakAttack && rogue.sneakAttack > (has(params.cunningStrike) ? (params.cunningStrike == 'knock-out' ? 6 : params.cunningStrike == 'obscure' ? 3 : params.cunningStrike == 'daze' ? 2 : 1) : 0)
+            + (has(params.cunningStrike2) ? (params.cunningStrike2 == 'knock-out' ? 6 : params.cunningStrike2 == 'obscure' ? 3 : params.cunningStrike2 == 'daze' ? 2 : 1) : 0)
             && has(roll.item) && has(roll.item.damageType)
             && (roll.item.range == 'ranged' || 'finesse' in roll.item.tags)
-  - id: cunningStrike
-    type: integer
-    default: 0
-    available: rogue.cunningStrikes > 0
-    rolls: [damage.weapon]
   - id: uncannyDodge
     type: boolean
     default: false

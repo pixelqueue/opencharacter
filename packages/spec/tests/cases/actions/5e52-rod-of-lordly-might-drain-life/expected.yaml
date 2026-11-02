@@ -1,0 +1,31 @@
+status: finished
+# The mace's 4, Strength +3 and the rod's +3; Drain Life marks the property used, the troll fails
+# its save and takes 4d6 (6 + 5 + 4 + 3) Necrotic damage, and the wielder regains 9.
+outcome:
+  result: hit
+  data: { critical: false, attack: 21, damage: 10, mastery: none, push: 0, cleave: false }
+proposedChanges:
+  - to: target
+    character: troll
+    step: deal
+    change:
+      type: adjust
+      field: 5e-srd-5.2:hp.current
+      from: test
+      by: -10
+      tags: [damage, attack, weapon, melee, magical, damage.bludgeoning]
+  - to: self
+    step: deal/5e-srd-5.2:magic-items.rod-of-lordly-might#drain-life/spend
+    change: { type: setState, entry: rod, key: usedToday, value: [drain] }
+  - to: target
+    character: troll
+    step: deal/5e-srd-5.2:magic-items.rod-of-lordly-might#drain-life/burn[0]
+    change:
+      type: adjust
+      field: 5e-srd-5.2:hp.current
+      from: test
+      by: -18
+      tags: [damage, save-negates, save.con, save-failure, damage.necrotic]
+  - to: self
+    step: deal
+    change: { type: adjust, field: 5e-srd-5.2:hp.current, by: 9, tags: [healing] }

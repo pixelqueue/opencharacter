@@ -1,0 +1,18 @@
+description: '5E 2024 Stunning Strike is a parameter of the attack: on an Unarmed Strike hit it spends 1 Focus Point, and the target fails its Constitution save at the monk DC and is Stunned'
+specVersion: 0.3.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/5e/srd-5.2
+input:
+  action: { id: 5e-srd-5.2:unarmed-strike }
+  params: { stunningStrike: true }
+  participants:
+    target:
+      - id: ogre
+        values: { combat.ac: 11, creature.size: large, creature.type: giant }
+  policy:
+    dice: auto
+    choices: auto
+    allocations: auto
+answers:
+  - outcome: { result: failure, data: { total: 8 } }
