@@ -20,3 +20,30 @@ actions:
         kind: changes
         changes: [{ type: set, field: quantum.active, value: false }]
       - { id: result, kind: outcome, result: "'dismissed'" }
+# The precog paradox's field (a witchwarper's, or an archetype's with Basic Quantum Field): auras
+# the app places on the creatures the witchwarper chooses inside, sized by `quantum.radius`.
+auras:
+  - id: precog-enemies
+    when: >-
+      quantum.active && witchwarper.paradox == 'precog'
+        && (class.has.witchwarper || @feats.archetype.witchwarper.basic-quantum-field in feats.held)
+    size: quantum.radius
+    affects: enemies
+    effects:
+      - target: { fields: { where: "'speed' in item.tags" } }
+        op: add
+        value: -5
+        stackKey: status-penalty
+        scope: applied
+  - id: precog-allies
+    when: >-
+      quantum.active && witchwarper.paradox == 'precog'
+        && (class.has.witchwarper || @feats.archetype.witchwarper.basic-quantum-field in feats.held)
+    size: quantum.radius
+    affects: allies
+    effects:
+      - target: { fields: { where: "'speed' in item.tags" } }
+        op: add
+        value: 5
+        stackKey: status-bonus
+        scope: applied

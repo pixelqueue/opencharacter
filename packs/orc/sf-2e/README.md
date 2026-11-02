@@ -216,7 +216,9 @@ fixed sets.
   - **Soldier:** fighting styles, Area Fire and Auto-Fire with suppressing fire and the primary
     target, Walking Armory, bulwark.
   - **Witchwarper:** paradoxes (tradition, skill, a paradox spell of each rank, warp focus
-    spells), anchors with their once-per-round anchoring effect, the quantum field.
+    spells), anchors with their once-per-round anchoring effect, the quantum field (the precog
+    paradox's field is two auras the app places while it's active, `quantum.radius` across:
+    enemies' Speeds −5, allies' +5, status).
 - **Archetypes:** the six multiclass archetypes, with the dedication rule (a second dedication
   only after two other feats of the first), their class feats at half level, resiliency Hit
   Points, class DCs and spellcasting sources (mystic and witchwarper).
@@ -230,7 +232,11 @@ fixed sets.
 - **Spellcasting:** spontaneous repertoires with slots, signature spells and heightening, focus
   points and Refocus, cantrips, innate spells, archetype sources, spell gems; 400 spells (36
   cantrips, 331 spells of 1st to 10th rank, 33 focus spells), 166 of them with mechanics beyond
-  their numbers (damage and healing, effects, battle forms); 19 rituals.
+  their numbers (damage and healing, effects, battle forms); 19 rituals. Bless is cast on the
+  caster, whose entry projects its emanation as an applied aura (`auras`, one per cast) for the
+  app to place on allies inside; Sustaining it to widen it is its `widen` action. Bane stays a
+  target's entry (its penalty needs each enemy's failed save). Anthem applies to the bonded
+  creatures passed as allies.
 - **Strikes:** the multiple attack penalty, every weapon trait the book uses (agile, analog,
   automatic, area, boost, deadly, fatal, kickback, modular, reload, unwieldy, volley …),
   magazines and ammunition, Area Fire and Auto-Fire with each target's basic Reflex save,
@@ -290,9 +296,10 @@ reads it as below. These are the pack's provisional calls; a table may rule othe
   treatment for the next roll, such as guidance, sure strike or Treat Poison, ends on the roll it
   changes).
 - **Text only:** critical specialization; the feats and features about movement, positions,
-  other creatures' sheets, starships and drones; most harmony and quantum field effects; skill
-  feats that change time or what the GM tells you; more than half the spells (utility,
-  summoning, counteracting, illusions, areas over time); the rituals' outcomes; services.
+  other creatures' sheets, starships and drones; the harmonies and the analyst, anomaly and lost
+  history quantum fields; skill feats that change time or what the GM tells you; more than half
+  the spells (utility, summoning, counteracting, illusions, areas over time); the rituals'
+  outcomes; services.
 - **Format gaps** (the pack works around it):
   - No upgrade step moves a pick from one choice to another, so saved picks can't follow a
     merged choice: the operative's specialization skill feat stays one copied choice per
