@@ -204,8 +204,9 @@ effects:
       [{ formula: "roll.item.damageType == 'untyped' ? [] : ['damage.' + roll.item.damageType]" }]
   # What each target brings to the power roll, on its own tier (`power-target`): an edge against
   # a prone target (melee), a restrained one, one frightened of the user or one a tactician
-  # marked; a bane when the user is frightened of the target, and on every target when the user
-  # is grabbed (a double bane when taunted) and the ability doesn't target the grabber (taunter).
+  # marked; a bane when the user is frightened of the target or the target brings banes against
+  # it (Blessing of Steel), and on every target when the user is grabbed (a double bane when
+  # taunted) and the ability doesn't target the grabber (taunter).
   - id: target-prone
     target: { rolls: [power-target], tally: edges }
     op: add
@@ -226,6 +227,11 @@ effects:
     op: add
     value: 1
     when: size(participant.tactician.markedBy) > 0
+  - id: target-banes
+    target: { rolls: [power-target], tally: banes }
+    op: add
+    value: participant.powerRoll.banesAgainst
+    when: participant.powerRoll.banesAgainst > 0
   - id: user-grabbed
     target: { rolls: [power-target], tally: banes }
     op: add

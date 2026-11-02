@@ -24,3 +24,29 @@ fields:
   t2AddsChar: false
   t3Damage: 9
   t3AddsChar: false
+# The aura is this ability applied to you until the end of your next turn (using it again to maintain
+# it renews it): each ally inside resists potencies as if each characteristic were 1 higher and has
+# +1 on saving throws.
+state:
+  duration: { type: string, default: next-end }
+reapply: { state: { duration: replace } }
+auras:
+  - id: spirits
+    scope: applied
+    size: item.distance
+    affects: allies
+    effects:
+      - { target: 'potency.resistBonus.might', op: add, value: 1, stackKey: swarm-of-spirits }
+      - { target: 'potency.resistBonus.agility', op: add, value: 1, stackKey: swarm-of-spirits }
+      - { target: 'potency.resistBonus.reason', op: add, value: 1, stackKey: swarm-of-spirits }
+      - { target: 'potency.resistBonus.intuition', op: add, value: 1, stackKey: swarm-of-spirits }
+      - { target: 'potency.resistBonus.presence', op: add, value: 1, stackKey: swarm-of-spirits }
+      - { target: { rolls: [saving-throw] }, op: add, value: 1, stackKey: swarm-of-spirits }
+effects:
+  - target: { steps: [ability.after], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: "'abilities.elementalist.swarm-of-spirits'"
+          state: { duration: "'next-end'" }
