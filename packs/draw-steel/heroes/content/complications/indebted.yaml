@@ -1,6 +1,8 @@
 id: complications.indebted
 type: complication
+# Starting Wealth is −5, whatever the career gives: the starting 1 and the career's Wealth are
+# taken back, and 5 more.
 effects:
   - target: wealth
     op: add
-    value: -6
+    value: "-6 - sumCopies(itemField(copy.item, 'wealth'), copy.type == 'career')"
