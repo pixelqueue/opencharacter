@@ -1,0 +1,22 @@
+# The hit roll of 3 misses Melee AC 13; the luck makes it a hit. Damage 4 + 1 + 1 for Armsmaster
+# + 1 for Killing Blow beats the Shock of 5, and the Trauma Die's 2 + 1 isn't Traumatic.
+status: finished
+outcome:
+  result: hit
+  data:
+    damage: 7
+    traumatic: false
+    shock: 5
+proposedChanges:
+  - to: self
+    step: luck
+    change: { type: set, field: cwn-srd:scene.veteransLuck, value: true }
+  - to: target
+    character: guard
+    step: deal
+    change:
+      type: adjust
+      field: cwn-srd:hp.current
+      by: -7
+      tags: [damage, damage.weapon]
+      from: example-cwn-srd-vex

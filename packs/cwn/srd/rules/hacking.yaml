@@ -24,6 +24,7 @@ contentTypes:
         value: min(item.shielding - self.shieldingUsed, -incoming.amount)
         when: >-
           self.equipped && item.shielding > self.shieldingUsed && incoming.amount < 0
+            && !situational.veteransLuck
         then:
           - type: adjustState
             entry: self

@@ -19,7 +19,9 @@ effects:
           - damage.cyberspace
     op: add
     value: 'min(3 * level - self.bufferUsed, -incoming.amount)'
-    when: '!self.damaged && 3 * level > self.bufferUsed && incoming.amount < 0'
+    when: >-
+      !self.damaged && 3 * level > self.bufferUsed && incoming.amount < 0
+        && !situational.veteransLuck
     then:
       - type: adjustState
         entry: self

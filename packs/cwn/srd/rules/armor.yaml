@@ -63,6 +63,7 @@ contentTypes:
         when: >-
           self.equipped && item.soak > self.soakUsed && incoming.amount < 0
             && !('damage.cyberspace' in incoming.tags) && !('damage.direct' in incoming.tags)
+            && !situational.veteransLuck
         then:
           - type: adjustState
             entry: self
