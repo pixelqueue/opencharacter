@@ -27,6 +27,8 @@ fields:
     values: [true-form, animal, hybrid]
     input: true
     default: true-form
+  # The hybrid form's 10 temporary Stamina (Boren, Vuken, 4th level) was gained this encounter.
+  fury.hybridStamina: { type: boolean, input: true, default: false }
   # A triggered action that halves the damage that triggers it (Unearthly Reflexes).
   fury.halfDamage: { type: boolean, formula: 'false' }
   # Primordial power, the 10th-level epic resource.
@@ -44,6 +46,13 @@ situational:
         op: multiply
         value: 0.5
 
+effects:
+  - id: hybrid-stamina-reset
+    target: { steps: [combat.end] }
+    op: changes
+    when: fury.hybridStamina
+    value: { changes: [{ type: set, field: fury.hybridStamina, value: 'false' }] }
+
 display:
   fields:
     fury.damagedThisRound: { hidden: true }
@@ -53,6 +62,7 @@ display:
     fury.autoTier3: { hidden: true }
     fury.stormwight: { hidden: true }
     fury.halfDamage: { hidden: true }
+    fury.hybridStamina: { hidden: true }
     fury.growing:
       groups: [resources]
       priority: 2

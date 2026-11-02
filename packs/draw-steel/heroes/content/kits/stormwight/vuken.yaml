@@ -11,6 +11,14 @@ fields:
   armor: [armor.none]
   weapons: [weapon.unarmed]
   signature: abilities.fury.unbalancing-attack
+# 4th level: the first time in an encounter the hero takes hybrid form, 10 temporary Stamina.
+followUps:
+  - id: hybrid-stamina
+    becomes: "combat.active && level >= 4 && fury.form == 'hybrid' && !fury.hybridStamina"
+    required: true
+    changes:
+      - { type: set, field: stamina.temp, value: 'max(stamina.temp, 10)' }
+      - { type: set, field: fury.hybridStamina, value: 'true' }
 effects:
   # Wolf form and hybrid form: size 1L.
   - { target: size.form, op: set, value: "'1l'", when: "fury.form != 'true-form'" }

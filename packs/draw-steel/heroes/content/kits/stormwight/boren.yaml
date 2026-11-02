@@ -8,6 +8,14 @@ fields:
   armor: [armor.none]
   weapons: [weapon.unarmed]
   signature: abilities.fury.bear-claws
+# 4th level: the first time in an encounter the hero takes hybrid form, 10 temporary Stamina.
+followUps:
+  - id: hybrid-stamina
+    becomes: "combat.active && level >= 4 && fury.form == 'hybrid' && !fury.hybridStamina"
+    required: true
+    changes:
+      - { type: set, field: stamina.temp, value: 'max(stamina.temp, 10)' }
+      - { type: set, field: fury.hybridStamina, value: 'true' }
 effects:
   # Bear form and hybrid form: size 2.
   - { target: size.form, op: set, value: "'2'", when: "fury.form != 'true-form'" }
