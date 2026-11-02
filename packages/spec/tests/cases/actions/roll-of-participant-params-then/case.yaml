@@ -1,0 +1,12 @@
+description: "A per-participant band's own effects read a parameter content adds to the action (`op: params`), and a `then` with a rolled amount rolls at that participant's step: two edges against the winded target, which loses 1d4 might"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../packs/test-power-rolls
+input:
+  action: { id: test-power-rolls:strike }
+  params: { fury: 2 }
+  participants:
+    target:
+      - { id: a, values: {} }
+      - { id: b, values: { test-power-rolls:winded: true } }

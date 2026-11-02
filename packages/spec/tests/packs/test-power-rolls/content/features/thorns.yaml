@@ -1,0 +1,16 @@
+# A parameter the feature adds to strikes: edges against a winded target, as many as the
+# player says. Each target it reaches loses 1d4 might.
+id: features.thorns
+type: feature
+effects:
+  - target: { actions: [strike] }
+    op: params
+    value: { fury: { type: integer, default: 0, min: 0, max: 2 } }
+  - target: { rolls: [target], tally: edges }
+    op: add
+    value: params.fury
+    when: participant.winded
+    then:
+      to: target
+      once: roll
+      changes: [{ type: adjust, field: might, by: -1d4 }]

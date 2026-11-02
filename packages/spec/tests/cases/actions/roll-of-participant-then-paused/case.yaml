@@ -1,0 +1,16 @@
+description: "Under a pausing dice policy, a rolled amount in a per-participant band's `then` pauses at that participant's step and continues: the power roll first, then the winded target's 1d4"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../packs/test-power-rolls
+input:
+  action: { id: test-power-rolls:strike }
+  params: { fury: 2 }
+  policy: { dice: pause }
+  participants:
+    target:
+      - { id: a, values: {} }
+      - { id: b, values: { test-power-rolls:winded: true } }
+answers:
+  - faces: [8, 5]
+  - faces: [3]

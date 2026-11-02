@@ -1,0 +1,22 @@
+# 15, tier 2. a: no edge. b: two edges, a double edge: 15, one tier up, tier 3; its thorns
+# roll 1d4 (3) at `tier[1]`.
+status: finished
+outcome:
+  result: tier2
+  data:
+    total: 15
+    targets: [a, b]
+    totals: [15, 15]
+    tiers: [2, 3]
+    edges: [0, 2]
+    banes: [0, 0]
+proposedChanges:
+  - to: target
+    character: b
+    step: 'tier[1]'
+    change: { type: adjust, field: test-power-rolls:might, by: -3 }
+log:
+  - { step: roll, kind: dice, by: engine, faces: [8, 5], total: 15, band: tier2 }
+  - { step: 'tier[0]', kind: dice, by: engine, of: roll, total: 15, band: tier2 }
+  - { step: 'tier[1]', kind: dice, by: engine, of: roll, total: 15, band: tier3 }
+  - { step: 'tier[1]', kind: dice, by: engine, faces: [3], total: -3 }
