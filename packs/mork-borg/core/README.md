@@ -249,7 +249,8 @@ start a character with `creating: true` and run one of the creation starts below
     armor and shields don't reduce them.
   - **A shield broken on purpose:** the character taking a hit may choose the
     situational choice `shieldSacrifice` on its damage adjust; the hit
-    does nothing, no armor die is rolled, and the worn shield breaks.
+    does nothing, no armor die is rolled, and one worn shield breaks (the first unbroken one,
+    once per blow, whatever the number of shields worn or changes the hit arrives as).
 - **Powers:** `use-power`, run from a scroll (unclean or sacred).
   - It spends a use and tests Presence against DR 12. A failure deals d2 damage to the reader;
     a fumble reports an arcane catastrophe.

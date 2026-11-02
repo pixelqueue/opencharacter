@@ -9,6 +9,21 @@ situational:
     default: false
     available: "countCopies(copy.type == 'shield' && copy.equipped && !copy.state.broken) > 0"
     incoming: { fields: [hp.current], tags: [damage] }
+    effects:
+      - target: { incoming: { fields: [hp.current], tags: [damage] } }
+        op: multiply
+        value: 0
+        when: "!('damage.direct' in incoming.tags)"
+    # One shield breaks per blow, and only for a blow it stopped.
+    changes:
+      - type: setState
+        copies: { type: shield, where: self.equipped && !self.broken }
+        limit: 1
+        key: broken
+        value: true
+        when: >-
+          countList(batch.adjustments, x.field == @hp.current && x.reason == 'requested'
+            && !('damage.direct' in x.tags)) > 0
 
 contentTypes:
   weapon:
@@ -105,13 +120,6 @@ contentTypes:
         op: atMost
         value: 0
         when: "!('damage.direct' in incoming.tags)"
-      - id: shield-sacrifice
-        target: { incoming: { fields: [hp.current], tags: [damage] } }
-        op: multiply
-        value: 0
-        when: situational.shieldSacrifice && !('damage.direct' in incoming.tags)
-        then:
-          - { type: setState, entry: self, key: broken, value: true }
 
   ammo:
     carried: true
