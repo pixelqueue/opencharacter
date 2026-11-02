@@ -108,11 +108,12 @@ sheet.values['swn-revised:saves.physical']?.value; // 15 less the better of Str 
   skill + the better of Wisdom and Constitution modifiers (at least 1); `commit-effort` commits
   it for the scene or the day, `sustain-technique` commits a point to a technique that lasts
   for as long as its Effort stays Committed (`sustained`: Cloak Powers, Concert of Minds,
-  Kinetic Transversal, Metamorph, Prophecy, Spatial Awareness, Stutterjump, Telekinetic Armory
-  and Telekinetic Flight), held on the technique's copy, the pick of a Wild Psychic Talent, or
-  an add-on's core technique's grant, until `release-technique` reclaims it, and `torch`
-  rolls the torching table for a free point. Cursed Luck's `curse` commits Effort for the scene
-  and applies the technique to its target: their attacks, damage, checks and saves roll twice
+  Kinetic Transversal, Metamorph, Neural Trap, Pressure Field (its shield for comrades),
+  Prophecy, Spatial Awareness, Stutterjump, Telekinetic Armory and Telekinetic Flight), held on
+  the technique's copy, the pick of a Wild Psychic Talent, or an add-on's core technique's
+  grant, until `release-technique` reclaims it, and `torch` rolls the torching table for a free
+  point. Cursed Luck's `curse` commits Effort for the scene and applies the technique to its
+  target: their attacks, damage, checks and saves roll twice
   and keep the worse, attacks and damage against them roll twice and keep the better, and their
   `throw-off` makes the Mental save that ends it. The psychic's `end-scene` and `rest` end it
   too, on whoever holds it (a removal `to: applied`, which the app applies to the characters the
