@@ -1,15 +1,16 @@
 id: features.barbarian.brutal-strike
 type: feature
 # The `brutalStrike` situational choice adds the dice; the blow is a parameter the feature adds to
-# each attack, applied when the Brutal Strike hits. Forceful Blow's push and Sundering Blow's +5
-# are the player's; Improved Brutal Strike applies Staggering Blow.
+# each attack, applied when the Brutal Strike hits. Forceful Blow's push is the player's. From
+# level 13 Improved Brutal Strike replaces the parameter with one that adds Staggering and
+# Sundering Blow.
 effects:
   - { target: barbarian.brutalStrike, op: set, value: 'self.level >= 17 ? 2 : 1' }
   - target: { actions: [attack] }
     op: params
+    when: self.level < 13
     value:
-      brutalBlow:
-        { type: enum, values: [forceful, hamstring, staggering, sundering], optional: true }
+      brutalBlow: { type: enum, values: [forceful, hamstring], optional: true }
   - target: { steps: [attack-hit] }
     op: changes
     when: >-

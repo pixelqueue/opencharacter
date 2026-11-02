@@ -1,13 +1,28 @@
 id: features.barbarian.improved-brutal-strike
 type: feature
-# Staggering Blow, picked as a Brutal Strike's blow (`brutalBlow`, or `brutalBlow2` at level 17).
+# From level 13 the blow is picked from all four (`improvedBlow`, in place of Brutal Strike's
+# `brutalBlow`; a second one, `brutalBlow2`, at level 17). Sundering Blow's +5 is the player's.
 effects:
+  - target: { actions: [attack] }
+    op: params
+    value:
+      improvedBlow:
+        { type: enum, values: [forceful, hamstring, staggering, sundering], optional: true }
   - target: { steps: [attack-hit] }
     op: changes
     when: >-
       situational.brutalStrike && situational.recklessAttack && has(flags.ability)
         && flags.ability == 'str'
-        && has(params.brutalBlow) && params.brutalBlow == 'staggering'
+        && has(params.improvedBlow) && params.improvedBlow == 'hamstring'
+    value:
+      changes:
+        - { type: applyEffect, source: "'combat-effects.hamstrung'" }
+  - target: { steps: [attack-hit] }
+    op: changes
+    when: >-
+      situational.brutalStrike && situational.recklessAttack && has(flags.ability)
+        && flags.ability == 'str'
+        && has(params.improvedBlow) && params.improvedBlow == 'staggering'
     value:
       changes:
         - { type: applyEffect, source: "'combat-effects.staggered'" }

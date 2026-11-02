@@ -12,7 +12,7 @@ effects:
     when: >-
       situational.brutalStrike && situational.recklessAttack && has(flags.ability)
         && flags.ability == 'str' && has(params.brutalBlow2) && params.brutalBlow2 == 'hamstring'
-        && !(has(params.brutalBlow) && params.brutalBlow == 'hamstring')
+        && !(has(params.improvedBlow) && params.improvedBlow == 'hamstring')
     value:
       changes:
         - { type: applyEffect, source: "'combat-effects.hamstrung'" }
@@ -21,7 +21,7 @@ effects:
     when: >-
       situational.brutalStrike && situational.recklessAttack && has(flags.ability)
         && flags.ability == 'str' && has(params.brutalBlow2) && params.brutalBlow2 == 'staggering'
-        && !(has(params.brutalBlow) && params.brutalBlow == 'staggering')
+        && !(has(params.improvedBlow) && params.improvedBlow == 'staggering')
     value:
       changes:
         - { type: applyEffect, source: "'combat-effects.staggered'" }

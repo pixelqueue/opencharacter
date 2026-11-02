@@ -150,10 +150,9 @@ Where the SRD is unclear or silent, the pack reads it this way:
 - **Class features:**
   - Rage Damage, Reckless Attack and Brutal Strike count any attack using Strength, thrown
     weapons and Unarmed Strikes included. A Brutal Strike's blow is a parameter of the attack
-    (`brutalBlow`, and `brutalBlow2` at level 17), applied on the hit: Hamstring and Staggering
-    Blow put their effect on the target; Forceful Blow's push and Sundering Blow's +5 are the
-    player's. The parameter offers every blow; Staggering and Sundering need Improved Brutal
-    Strike.
+    (`brutalBlow`; from level 13 `improvedBlow`, which adds Staggering and Sundering Blow; and
+    `brutalBlow2` at level 17), applied on the hit: Hamstring and Staggering Blow put their
+    effect on the target; Forceful Blow's push and Sundering Blow's +5 are the player's.
   - Persistent Rage, Perfect Focus, Superior Inspiration, Evergreen Wild Shape and Boon of Fate
     act when Initiative is rolled (a hook on the `initiative` action); Uncanny Metabolism is its
     own action, since it rolls.

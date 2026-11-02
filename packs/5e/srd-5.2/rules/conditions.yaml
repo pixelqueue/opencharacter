@@ -58,8 +58,8 @@ effects:
     when: conditions.exhaustionImmune
 
 actions:
-  # Run by the app on every creature at each turn change. Sap and Slow last until the start of
-  # their applier's next turn; Vex (and Studied Attacks) until the end of it, so its mark is armed
+  # Run by the app on every creature at each turn change. Sap, Slow and Hamstring Blow last until
+  # the start of their applier's next turn; Vex (and Studied Attacks) until the end of it, so its mark is armed
   # when that turn starts and ends when it ends.
   - id: turn-boundary
     clock: turn-boundary
@@ -81,7 +81,7 @@ actions:
             when: has(params.started)
             applied:
               where: >-
-                item.id in [@combat-effects.sapped, @combat-effects.slowed]
+                item.id in [@combat-effects.sapped, @combat-effects.slowed, @combat-effects.hamstrung]
                   && (self.appliedBy != '' ? self.appliedBy : self.attacker) == params.started
           - type: setState
             when: has(params.started)
