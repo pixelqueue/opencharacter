@@ -1,33 +1,11 @@
 id: complications.shattered-legacy
 type: complication
-state:
-  treasureTaken:
-    type: boolean
-    default: false
-actions:
-  - id: take-treasure
-    available: '!self.treasureTaken'
-    results:
-      - taken
-    steps:
-      - id: treasure
-        kind: choice
-        options:
-          content:
-            type: leveledTreasure
-        recommend: options[0]
-        changes:
-          - type: addItem
-            entry:
-              item: picked.id
-          - type: setState
-            entry: self
-            key: treasureTaken
-            value: 'true'
-      - id: done
-        kind: outcome
-        result: "'taken'"
 choices:
+  - id: treasure
+    from:
+      type: leveledTreasure
+    addAs: copy
+    recommend: options[0]
   - id: language
     from:
       type: language

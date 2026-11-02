@@ -1,33 +1,12 @@
 id: complications.betrothed
 type: complication
-state:
-  treasureTaken:
-    type: boolean
-    default: false
-actions:
-  - id: take-trinket
-    available: '!self.treasureTaken'
-    results:
-      - taken
-    steps:
-      - id: trinket
-        kind: choice
-        options:
-          content:
-            type: trinket
-            where: item.echelon == 1
-        recommend: options[0]
-        changes:
-          - type: addItem
-            entry:
-              item: picked.id
-          - type: setState
-            entry: self
-            key: treasureTaken
-            value: 'true'
-      - id: done
-        kind: outcome
-        result: "'taken'"
+choices:
+  - id: trinket
+    from:
+      type: trinket
+      where: 'item.echelon == 1'
+    addAs: copy
+    recommend: options[0]
 effects:
   - target: renown
     op: atMost
