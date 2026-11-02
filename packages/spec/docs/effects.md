@@ -3,27 +3,29 @@
 An **effect** ([`effect.schema.json`](../schemas/effect.schema.json)) is how active content changes the character. It applies while the content carrying it is active ([content.md](content.md#when-content-is-active)) and its `when` condition is true.
 
 ```yaml
-# Gauntlets of Ogre Power
+# Gauntlets of Ogre Power. Attunement is the magic-item type's `effectsWhen`
+# (content.md, A condition every effect needs).
 effects:
   - target: abilities.str.score
     op: atLeast
     value: 19
-    when: self.equipped && self.attuned
+    when: self.equipped
 ```
 
-| Property     | Meaning                                                                                                                           |
-| ------------ | --------------------------------------------------------------------------------------------------------------------------------- |
-| `id`         | Optional, unique within the item, so apps and issues can point at it                                                              |
-| `target`     | A field (by ID or a formula), a set of fields, rolls, incoming changes, or choice steps (see below)                               |
-| `op`         | One of the [effect operations](../data/effect-operations.json)                                                                    |
-| `value`      | A formula, a grant value, a roll modifier, or an option, depending on `op`                                                        |
-| `when`       | Condition. `self` is the copy carrying the effect. The item's or its type's `effectsWhen` must hold too                           |
-| `stackKey`   | See [Stacking](#stacking)                                                                                                         |
-| `rounding`   | Overrides the game's rounding for this effect's `multiply`                                                                        |
-| `tags`       | `add` on rolls only: tags for the roll item the effect adds (see below)                                                           |
-| `multiplied` | `add` on rolls only: `false` keeps `multiplyDice` and `multiply` off the items the effect adds (see below)                        |
-| `duration`   | Informational only: `{ amount, unit, concentration }`. Time tracking is the app's job; the engine never ends an effect by itself. |
-| `then`       | Incoming changes and rolls only: changes to the effect's own entry or state once it counted, or on rolls a rule (see below)       |
+| Property     | Meaning                                                                                                                                                                    |
+| ------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `id`         | Optional, unique within the item, so apps and issues can point at it                                                                                                       |
+| `target`     | A field (by ID or a formula), a set of fields, rolls, incoming changes, choice steps, changes steps or listed actions (see below)                                          |
+| `op`         | One of the [effect operations](../data/effect-operations.json)                                                                                                             |
+| `value`      | A formula, a grant value, a roll modifier, a list of tags, an option, changes, an action to run or parameters, by `op`                                                     |
+| `when`       | Condition. `self` is the copy carrying the effect. A holder effect also needs its item's or type's `effectsWhen` ([content.md](content.md#a-condition-every-effect-needs)) |
+| `stackKey`   | See [Stacking](#stacking)                                                                                                                                                  |
+| `rounding`   | Overrides the game's rounding for this effect's `multiply`                                                                                                                 |
+| `tags`       | `add` on rolls only: tags for the roll item the effect adds (see below)                                                                                                    |
+| `multiplied` | `add` on rolls only: `false` keeps `multiplyDice` and `multiply` off the items the effect adds (see below)                                                                 |
+| `duration`   | Informational only: `{ amount, unit, concentration }`. Time tracking is the app's job; the engine never ends an effect by itself.                                          |
+| `scope`      | `holder` (default) or `applied`: who the effect applies to ([Scope](#scope))                                                                                               |
+| `then`       | Incoming changes and rolls only: changes to the effect's own entry or state once it counted, or on rolls a rule (see below)                                                |
 
 ## Targets
 
@@ -93,7 +95,7 @@ effects:
 - **Rolls as they happen:** `target: { rolls: [attack, damage], from: self }`. The effect applies to any roll carrying one of the tags, in an action written by a pack that meets its own over that tag ([Which packs a tag target reaches](#which-packs-a-tag-target-reaches)). `from: self` limits it to rolls made by the item carrying the effect (a +1 weapon): the action's copy, and for an action run for content granted or picked under the copy (named by `source`) that content, so abilities a class grants that share their type's action each reach only their own rolls (a template is part of its copy, so its own action matches by the copy, as the copy's item's does; a nested `action` step keeps its `source`); `from: any` (the default) covers every matching roll the character makes (Bless). Roll effects add items to the itemized roll or modify its dice, and `atLeast` and `atMost` bound its total once it is rolled (see below). With `tally: <name>`, the effect adds to one of the roll's tallies instead (see below). With `band: value`, an `atLeast` or `atMost` bounds the value of the roll's band set instead (see below). With `parts: [<tag>]`, it reaches the roll's own parts carrying a matching tag instead of the whole roll: a `set` replaces them, a `tag` adds tags to them, and a `stepDie` or `setFaces` roll modifier changes only their dice (see [Replacing a roll's part](#replacing-a-rolls-part) and [Tagging a roll's part](#tagging-a-rolls-part)). Its formulas see `item` and `self` as the content carrying the effect, the roll as `roll`, the action's own item and copy as `action.item` and `action.self`, and the running action's `params` (those `params` effects add included), `situational`, `steps`, `flags`, `participants` and, in an `each` step, `participant`, so Bracers of Archery test their own copy while a bow attacks. `self` also holds the content's computed values, as for every effect that acts as an action runs (on rolls, choice and changes steps, listed actions and incoming changes), never a field effect ([content.md](content.md#computed-values)).
 - **Incoming changes:** `target: { incoming: { fields: [hp.current], tags: [damage.fire] } }`. The effect modifies the amount of an `adjust` change aimed at this character before it is applied, so apps don't apply resistances themselves. Both filters are optional; omitting both matches every incoming adjustment. After these effects, the change is routed through absorbing fields and overflow ([rules-and-fields.md](rules-and-fields.md#absorbing-and-overflow)). How a multiplied incoming amount rounds is a game setting (`settings.roundIncoming`). The effect's `when`, `value` and `then` see the change as `incoming` (see below), and the receiving player's [situational choices](rules-and-fields.md#choices-on-incoming-changes) on the change as `situational`. A situational choice's own incoming-change effects apply only to a change that selects it.
 - **Choice steps as actions run:** `target: { choices: [push-cost], from: self }`. The effect adds an option to every choice step of the character's actions that carries a matching tag; `from: self` limits it to the actions of the item carrying the effect, as for rolls. The only op is `option`.
-- **Changes steps as actions run:** `target: { steps: [strike.hit], from: self }`. The effect adds changes to every `changes` step of the character's actions that carries a matching tag, after the step's own, each time it runs (per participant in an `each` step); `from: self` limits it to the actions of the item carrying the effect, as for rolls. The only op is `changes`, whose value is `{ changes?, to?, flags?, order? }` (one of `changes` and `flags` at least): `flags` are set as the step runs, before its own changes (per participant in an `each` step; only flags the action sets elsewhere, checked at load, as an added option's), and `changes` are proposed after the step's own, or with `order: before` before them, `to` the value's `to`, else the step's. Its `when`, flags and changes see what an added option's do, with the action's `participants` (and `participant` in an `each` step) and no `picks`. Content items, templates, content types (for each active item of the type) and the rules' effects add changes, as for options (a build error on a situational choice's or a choice's). See [engine-actions.md](engine-actions.md#other-steps).
+- **Changes steps as actions run:** `target: { steps: [strike.hit], from: self }`. The effect adds changes to every `changes` step of the character's actions that carries a matching tag, after the step's own, each time it runs (per participant in an `each` step); `from: self` limits it to the actions of the item carrying the effect, as for rolls. The ops are `changes` and `action` (below); a `changes` effect's value is `{ changes?, to?, flags?, order? }` (one of `changes` and `flags` at least): `flags` are set as the step runs, before its own changes (per participant in an `each` step; only flags the action sets elsewhere, checked at load, as an added option's), and `changes` are proposed after the step's own, or with `order: before` before them, `to` the value's `to`, else the step's. Its `when`, flags and changes see what an added option's do, with the action's `participants` (and `participant` in an `each` step) and no `picks`. Content items, templates, content types (for each active item of the type) and the rules' effects add changes, as for options (a build error on a situational choice's or a choice's). See [engine-actions.md](engine-actions.md#other-steps).
 - **Actions run at changes steps:** the same target with op `action` runs a rules action at the step, after the step's changes and those `changes` effects add, each time it runs while the effect's `when` holds: a rider that needs a roll, often the target's saving throw. The value is `{ id, use, params?, participants?, each?, as?, changes?, to? }`. `use` (a rules action, resolved in the effect's pack) runs as an `action` step would, with the running action's entry, source and situational choices; `params` and `participants` are evaluated in the effect's context. With `each: <role>` it runs once per participant of the role (none for a role the action doesn't declare), `when` evaluated per participant; in an `each` step it runs for the step's current participant, and an `each` naming another role is `unknown-role`. With `as: participant` the run is handed off to the current participant (`unknown-role` without one). The value's `changes` are then proposed as a `changes` effect's, `to` its `to`, else the step's (a role's to the current participant only), reading the run's outcome as `run` (`run.result`, `run.data`). Its ID is `<content id>#<id>`, as an added option's; of the effects reaching one step with one ID, only the first to run at a path (its `when` holding there) runs there, and the run's path is `<step path>/<that ID>` (`[<i>]` per participant), so each feature's save is its own checkpoint. Its formulas see what a `changes` effect's do. See [engine-actions.md](engine-actions.md#other-steps).
 
 - **Actions as they are listed:** `target: { actions: [kw.psionic], from: self }`. The effect adds
@@ -190,20 +192,20 @@ that did, whatever keys they declare; content that isn't picked or granted that 
 armor, and only the excess gets through:
 
 ```yaml
-# mothership-1e, contentTypes.armor.effects
+# mothership-1e, contentTypes.armor (its `effectsWhen: self.equipped` gates every effect)
 - id: armor-points-hold
   target: { incoming: { fields: [health.current], tags: [damage] } }
   op: multiply
   value: 0
   when: >-
-    self.equipped && !self.destroyed && item.ap > 0
+    !self.destroyed && item.ap > 0
       && !('damage.anti-armor' in incoming.tags) && -incoming.amount < item.ap
 - id: armor-points-break
   target: { incoming: { fields: [health.current], tags: [damage] } }
   op: add
   value: item.ap
   when: >-
-    self.equipped && !self.destroyed && item.ap > 0
+    !self.destroyed && item.ap > 0
       && !('damage.anti-armor' in incoming.tags) && -incoming.amount >= item.ap
   then:
     - { type: setState, entry: self, key: destroyed, value: true }
@@ -211,6 +213,11 @@ armor, and only the excess gets through:
 
 A damage threshold alone (damage under it is ignored, otherwise all of it gets through) is the
 first effect without the second.
+
+A `then` runs per change. A cost paid once per attack, however many changes the attack arrives
+as (a shield taking the damage its block didn't stop), is a `scope: batch` situational choice
+whose `changes` set the shield copy's state instead
+([rules-and-fields.md](rules-and-fields.md#a-held-copys-state)).
 
 An applied effect that lasts until it does its job removes its entry. 5E's Death Ward leaves
 its target at 1 Hit Point the first time it would drop to 0, and ends:
@@ -294,8 +301,8 @@ situational choice's or a choice's (not `then-without-copy`):
 
 ```yaml
 # rules: advantage against a target this character vexed, which ends that Vexed. The `where`
-# is the target's to evaluate: action roots (`flags.me`, the attack's flag of the attacker's
-# ID) are filled in when it is proposed, `self` is then the target's entry.
+# is the target's to evaluate, with `self` its entry; `appliedBy: self` keeps it to the
+# entries this character applied.
 - target: { rolls: [attack] }
   op: rollModifier
   value: { kind: advantage }
@@ -305,7 +312,7 @@ situational choice's or a choice's (not `then-without-copy`):
     when: applied
     changes:
       - type: removeEffect
-        applied: { where: 'item.id == @combat-effects.vexed && self.appliedBy == flags.me' }
+        applied: { where: 'item.id == @combat-effects.vexed', appliedBy: self }
 ```
 
 The rule form is for roll effects; an incoming-change effect's `then` is a list (a schema
@@ -325,17 +332,17 @@ used into the batch it returns, so a replay never rolls
 every hit, and never heals:
 
 ```yaml
-# mork-borg-core, contentTypes.armor.effects
+# mork-borg-core, contentTypes.armor (its `effectsWhen: self.equipped` gates every effect)
 - id: armor-die
   target: { incoming: { fields: [hp.current], tags: [damage] } }
   op: add
   value: 'item.tier - self.damage >= 3 ? 1d6 : item.tier - self.damage == 2 ? 1d4 : 1d2'
-  when: self.equipped && item.tier - self.damage > 0 && !('damage.direct' in incoming.tags)
+  when: item.tier - self.damage > 0 && !('damage.direct' in incoming.tags)
 - id: armor-floor
   target: { incoming: { fields: [hp.current], tags: [damage] } }
   op: atMost
   value: 0
-  when: self.equipped && item.tier - self.damage > 0 && !('damage.direct' in incoming.tags)
+  when: item.tier - self.damage > 0 && !('damage.direct' in incoming.tags)
 ```
 
 **Tags on added roll items.** An `add` effect on rolls may carry `tags` for the roll item it adds, so the item's damage type is known: Flame Tongue adds `2d6` tagged `damage.fire`. Entries may be formulas (`{ formula: "'damage.' + roll.item.damageType" }`), each giving one tag or a list of tags. `tags` is only allowed on `add` effects that target rolls.
@@ -406,18 +413,19 @@ that declares that tag, or a tag below it.
 
 ## Operations
 
-| Op                   | Targets               | Value                                                                                                                     |
-| -------------------- | --------------------- | ------------------------------------------------------------------------------------------------------------------------- |
-| `set`                | field, roll parts     | formula: replaces the field's own formula or input; on a roll's parts, replaces them (dice or a number)                   |
-| `add`                | field, roll, incoming | formula. On a roll or an incoming change it may be dice: Bless is `op: add, value: 1d4`.                                  |
-| `multiply`           | field, incoming       | formula (0.5 halves, 2 doubles); the result is rounded                                                                    |
-| `atLeast` / `atMost` | field, roll, incoming | formula; on a roll, an integer bounding its total once rolled (below)                                                     |
-| `grant`              | `set` field, fields   | a formula/literal (one member) or `{ query }` (every match)                                                               |
-| `rollModifier`       | roll                  | a [roll modifier](../data/roll-modifiers.json): `advantage`, `disadvantage`, `noAdvantage`, `noDisadvantage`, `reroll`, … |
-| `tag`                | roll parts            | a list of tags (entries may be formulas): added to the matching parts' items (below)                                      |
-| `option`             | choice                | `{ id, changes?, to? }`: an option for a tagged choice step (above)                                                       |
-| `changes`            | step                  | `{ changes, to? }`: changes for a tagged changes step (above)                                                             |
-| `action`             | step                  | `{ id, use, params?, participants?, each?, as?, changes?, to? }`: an action run at a tagged changes step (above)          |
+| Op                   | Targets                       | Value                                                                                                                     |
+| -------------------- | ----------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| `set`                | field, roll parts             | formula: replaces the field's own formula or input; on a roll's parts, replaces them (dice or a number)                   |
+| `add`                | field, fields, roll, incoming | formula. On a roll or an incoming change it may be dice: Bless is `op: add, value: 1d4`.                                  |
+| `multiply`           | field, fields, incoming       | formula (0.5 halves, 2 doubles); the result is rounded                                                                    |
+| `atLeast` / `atMost` | field, fields, roll, incoming | formula; on a roll, an integer bounding its total once rolled (below)                                                     |
+| `grant`              | `set` field, fields           | a formula/literal (one member) or `{ query }` (every match)                                                               |
+| `rollModifier`       | roll                          | a [roll modifier](../data/roll-modifiers.json): `advantage`, `disadvantage`, `noAdvantage`, `noDisadvantage`, `reroll`, … |
+| `tag`                | roll parts                    | a list of tags (entries may be formulas): added to the matching parts' items (below)                                      |
+| `option`             | choice                        | `{ id, changes?, to?, flags? }`: an option for a tagged choice step (above)                                               |
+| `changes`            | step                          | `{ changes?, to?, flags?, order? }`: changes or flags for a tagged changes step (above)                                   |
+| `action`             | step                          | `{ id, use, params?, participants?, each?, as?, changes?, to? }`: an action run at a tagged changes step (above)          |
+| `params`             | action                        | `{ <name>: <declaration> }`: parameters added to a tagged listed action, or bounds on one it has (above)                  |
 
 There is no separate `addDice` operation: adding dice to a roll is `add` with a dice value. Roll modifiers are described in [dice-and-actions.md](dice-and-actions.md#roll-modifiers).
 
@@ -592,7 +600,7 @@ Picks reach only `computeSheet`. The other calls (`listOptions`, `applyChanges`,
 
 ## Stacking
 
-An effect with a `stackKey` is grouped with other effects that have the same key, target and operation. On a roll, `rollModifier` effects are grouped by kind too (`multiply` by `factor`, `stepDie` by `steps`, `poolDice` by `count`), and pool dice only with those adding to the same part. Each group is combined by the game's policy for that key (`settings.stacking.keys`, else `settings.stacking.default`):
+An effect with a `stackKey` is grouped with other effects that have the same key, target and operation. On a roll, `rollModifier` effects are grouped by kind too, and compared by their number (`multiply` by `factor`, `stepDie` by `steps`, `poolDice` by `count`); pool dice group only with those adding to the same part. Each group is combined by the game's policy for that key (`settings.stacking.keys`, else `settings.stacking.default`):
 
 | Policy          | Result                                             |
 | --------------- | -------------------------------------------------- |

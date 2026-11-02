@@ -785,7 +785,7 @@ export type CharacterFile = {
     /** Default true. */
     active?: boolean;
     state?: EntryState;
-    /** For an aura's entry: the ID of one of the source item's `auras`. The entry then runs only that aura's effects, reading its applier's view (`appliers`) as `applier`. */
+    /** For an aura's entry: the ID of one of the source item's `auras`. The entry then runs only that aura's effects and immunities, reading its applier's view (`appliers`) as `applier`. */
     aura?: Slug;
     /** The `id` of the character who applied the entry: the actor of the action or the character of the follow-up that proposed the `applyEffect`, or whoever the app names. Formulas read it as `self.appliedBy`; a change sent `to: applied` reaches only the entries its actor applied. */
     appliedBy?: string;
