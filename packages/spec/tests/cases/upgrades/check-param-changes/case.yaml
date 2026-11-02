@@ -1,4 +1,4 @@
-description: "An action parameter removed, retyped, narrowed or made required is an interface change: on a rules action, an item's or a content type's inline action, or added by a `params` effect. A new optional parameter is no change, and a removed action's parameters are its `action-removed` only"
+description: "An action parameter removed, retyped, narrowed or made required is an interface change: on a rules action, an item's or a content type's inline action, or added by a `params` effect (a choice option's included; each declaration of a name compared). An inline action or a `use` gone from a remaining item or content type is `action-removed`. A new optional parameter is no change, and a removed action's parameters are its `action-removed` only"
 specVersion: 0.2.0
 call: checkRelease
 previous:
@@ -6,7 +6,7 @@ previous:
     manifest:
       { id: test-pack, version: 0.1.0, specVersion: 0.2.0, license: CC0-1.0, defaultLanguage: en }
     rules:
-      tags: [kw, kw.psionic]
+      tags: [kw, kw.psionic, kw.magic]
       contentTypes:
         power:
           actions:
@@ -15,11 +15,23 @@ previous:
                 depth: { type: integer, default: 1 }
               steps:
                 - { id: result, kind: outcome, result: "'done'" }
+            - { use: strike }
+            - { use: retired }
       effects:
         - target: { actions: [kw.psionic] }
           op: params
           value:
             surge: { type: boolean, default: false }
+      choices:
+        - id: vow
+          from:
+            options:
+              - id: silence
+                effects:
+                  - target: { actions: [kw.magic] }
+                    op: params
+                    value:
+                      chant: { type: boolean, default: false }
       actions:
         - id: strike
           tags: [kw.psionic]
@@ -29,6 +41,10 @@ previous:
             reach: { type: integer, optional: true }
             power: { type: integer, optional: true }
             edge: { type: integer, default: 0 }
+          steps:
+            - { id: result, kind: outcome, result: "'done'" }
+        - id: spell
+          tags: [kw.magic]
           steps:
             - { id: result, kind: outcome, result: "'done'" }
         - id: retired
@@ -50,12 +66,26 @@ previous:
               level: { type: integer, default: 1 }
             steps:
               - { id: result, kind: outcome, result: "'done'" }
+          - id: vent
+            steps:
+              - { id: result, kind: outcome, result: "'done'" }
+      - id: powers.ward
+        type: power
+        effects:
+          - target: { actions: [kw.psionic] }
+            op: params
+            value:
+              guard: { type: integer, default: 0 }
+          - target: { actions: [kw.magic] }
+            op: params
+            value:
+              guard: { type: boolean, default: false }
 next:
   inline:
     manifest:
       { id: test-pack, version: 0.2.0, specVersion: 0.2.0, license: CC0-1.0, defaultLanguage: en }
     rules:
-      tags: [kw, kw.psionic]
+      tags: [kw, kw.psionic, kw.magic]
       contentTypes:
         power:
           actions:
@@ -64,11 +94,17 @@ next:
                 depth: { type: decimal, default: 1 }
               steps:
                 - { id: result, kind: outcome, result: "'done'" }
+            - { use: strike }
       effects:
         - target: { actions: [kw.psionic] }
           op: params
           value:
             surge: { type: integer, default: 0 }
+      choices:
+        - id: vow
+          from:
+            options:
+              - id: silence
       actions:
         - id: strike
           tags: [kw.psionic]
@@ -81,6 +117,10 @@ next:
             focus: { type: integer }
           steps:
             - { id: result, kind: outcome, result: "'done'" }
+        - id: spell
+          tags: [kw.magic]
+          steps:
+            - { id: result, kind: outcome, result: "'done'" }
     content:
       - id: powers.blast
         type: power
@@ -88,3 +128,10 @@ next:
           - id: overload
             steps:
               - { id: result, kind: outcome, result: "'done'" }
+      - id: powers.ward
+        type: power
+        effects:
+          - target: { actions: [kw.psionic] }
+            op: params
+            value:
+              guard: { type: integer, default: 0 }

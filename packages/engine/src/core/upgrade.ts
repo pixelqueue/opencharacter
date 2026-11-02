@@ -1175,18 +1175,28 @@ export function checkRelease(
   for (const action of previous.rules.actions ?? [])
     if (!nextActions.has(action.id))
       interfaceChanges.push({ kind: 'action-removed', id: action.id });
-  // Parameters of an action both releases define, and those a remaining declarer's effects add.
-  const prevParams = paramDecls(previous);
-  const nextParams = paramDecls(next);
-  for (const [id, { decl, owner }] of prevParams) {
-    if (!nextParams.owners.has(owner)) continue;
-    const now = nextParams.get(id);
+  const prevDecls = actionDecls(previous);
+  const nextDecls = actionDecls(next);
+  // An inline action or `use` gone from an item or content type that remains.
+  for (const [holder, actions] of prevDecls.inline) {
+    const kept = nextDecls.inline.get(holder);
+    if (kept)
+      for (const id of actions)
+        if (!kept.has(id)) interfaceChanges.push({ kind: 'action-removed', id });
+  }
+  // Parameters of an action both releases define, and those a remaining declarer's effects add:
+  // each earlier declaration needs a later one that takes what it took.
+  for (const [id, { decls, owner }] of prevDecls.params) {
+    if (!nextDecls.owners.has(owner)) continue;
+    const now = nextDecls.params.get(id)?.decls;
     if (!now) interfaceChanges.push({ kind: 'param-removed', id });
-    else if (narrowed(decl, now.decl) || (!required(decl) && required(now.decl)))
+    else if (
+      decls.some((was) => now.every((d) => narrowed(was, d) || (!required(was) && required(d))))
+    )
       interfaceChanges.push({ kind: 'param-type-changed', id });
   }
-  for (const [id, { decl, owner }] of nextParams)
-    if (!prevParams.has(id) && prevParams.owners.has(owner) && required(decl))
+  for (const [id, { decls, owner }] of nextDecls.params)
+    if (!prevDecls.params.has(id) && prevDecls.owners.has(owner) && decls.some(required))
       interfaceChanges.push({ kind: 'param-type-changed', id });
   const nextSituational = new Map((next.rules.situational ?? []).map((s) => [s.id, s]));
   for (const def of previous.rules.situational ?? []) {
@@ -1429,46 +1439,75 @@ function narrowed(
 
 const required = (decl: ValueDecl): boolean => !decl.optional && decl.default === undefined;
 
-/**
- * A release's action parameters by text-key address: an action's own
- * (`actions.<action>.params.<p>`, `<item>.actions.<action>.params.<p>`,
- * `types.<type>.<action>.params.<p>`), and those `params` effects add, by the declarer's
- * content key (`<item>.params.<p>`, `types.<type>.params.<p>`, `rules.params.<p>`). `owners`
- * holds every action and declarer, so a parameter is compared only where its owner remains.
- */
-function paramDecls(
-  release: PackRelease,
-): Map<string, { decl: ValueDecl; owner: string }> & { owners: Set<string> } {
-  const out = Object.assign(new Map<string, { decl: ValueDecl; owner: string }>(), {
-    owners: new Set<string>(),
-  });
-  const own = (key: string, def: ActionOrUse) => {
-    if ('use' in def) return;
-    const owner = `${key}${def.id}`;
+/** A release's actions and action parameters, by text-key address. */
+interface ActionDecls {
+  /**
+   * Parameters: an action's own (`actions.<a>.params.<p>`, `<item>.actions.<a>.params.<p>`,
+   * `types.<type>.<a>.params.<p>`), and those `params` effects add, by the declarer's content key
+   * (`<item>.params.<p>`, `types.<type>.params.<p>`, `rules.params.<p>`), each with every
+   * declaration its effects give it.
+   */
+  params: Map<string, { decls: ValueDecl[]; owner: string }>;
+  /** Every action address and declarer, so a parameter is compared only where its owner remains. */
+  owners: Set<string>;
+  /**
+   * Inline actions and `use` entries by holder (`<item>`, `types.<type>`): `<item>.actions.<a>`,
+   * `types.<type>.<a>`, a `use` by the used action's ID (local when the pack's own).
+   */
+  inline: Map<string, Set<string>>;
+}
+
+function actionDecls(release: PackRelease): ActionDecls {
+  const prefix = `${release.manifest.id}:`;
+  const out: ActionDecls = { params: new Map(), owners: new Set(), inline: new Map() };
+  const own = (key: string, def: ActionOrUse, holder?: string) => {
+    const id =
+      'use' in def ? (def.use.startsWith(prefix) ? def.use.slice(prefix.length) : def.use) : def.id;
+    const owner = `${key}${id}`;
     out.owners.add(owner);
+    if (holder !== undefined) out.inline.get(holder)?.add(owner);
+    if ('use' in def) return;
     for (const [name, decl] of Object.entries(def.params ?? {}))
-      out.set(`${owner}.params.${name}`, { decl, owner });
+      out.params.set(`${owner}.params.${name}`, { decls: [decl], owner });
   };
-  const addedBy = (key: string, effects: Effect[] | undefined) => {
+  const declare = (key: string, effects: Effect[] | undefined) => {
     out.owners.add(key);
     for (const effect of effects ?? []) {
       if (effect.op !== 'params' || typeof effect.value !== 'object') continue;
       for (const [name, decl] of Object.entries(effect.value as Record<string, ValueDecl>)) {
         const id = `${key}.params.${name}`;
-        if (!out.has(id)) out.set(id, { decl, owner: key });
+        const found = out.params.get(id);
+        if (found) found.decls.push(decl);
+        else out.params.set(id, { decls: [decl], owner: key });
       }
     }
   };
+  // A choice's and its inline options' effects add parameters as their owner's.
+  const choices = (key: string, list: Choice[] | undefined) => {
+    for (const choice of list ?? []) {
+      declare(key, choice.effects);
+      if ('options' in choice.from)
+        for (const o of choice.from.options) {
+          declare(key, o.effects);
+          choices(key, o.choices);
+        }
+    }
+  };
   for (const def of release.rules.actions ?? []) own('actions.', def);
-  addedBy('rules', release.rules.effects);
+  declare('rules', release.rules.effects);
+  choices('rules', release.rules.choices);
   for (const [name, type] of Object.entries(release.rules.contentTypes ?? {})) {
-    for (const def of type.actions ?? []) own(`types.${name}.`, def);
-    addedBy(`types.${name}`, type.effects);
+    const holder = `types.${name}`;
+    out.inline.set(holder, new Set());
+    for (const def of type.actions ?? []) own(`${holder}.`, def, holder);
+    declare(holder, type.effects);
   }
   for (const item of release.content) {
     if (item.id === undefined) continue;
-    for (const def of item.actions ?? []) own(`${item.id}.actions.`, def);
-    addedBy(item.id, item.effects);
+    out.inline.set(item.id, new Set());
+    for (const def of item.actions ?? []) own(`${item.id}.actions.`, def, item.id);
+    declare(item.id, item.effects);
+    choices(item.id, item.choices);
   }
   return out;
 }

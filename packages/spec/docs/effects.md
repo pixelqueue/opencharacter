@@ -112,7 +112,10 @@ effects:
   effects. Text: `<content key>.params.<name>.name` (and `.values.<value>.name`), the content
   key the item's, `types.<type>` for a content type's effect, `rules` for the rules'. Content
   items, templates, content types and the rules' effects add parameters, as for options. See
-  [dice-and-actions.md](dice-and-actions.md#actions).
+  [dice-and-actions.md](dice-and-actions.md#actions). Removing or retyping an added parameter
+  is an interface change of a pack's release (`param-removed`, `param-type-changed`), and
+  narrowing its effect's `when` or `target` needs a breaking bump too
+  ([upgrades.md](upgrades.md#a-packs-interface)).
 
 **Another item's fields.** An effect targets the character, never a content item's fields. To
 change those (a cantrip's range, a weapon that counts as magical), content keeps a template on
