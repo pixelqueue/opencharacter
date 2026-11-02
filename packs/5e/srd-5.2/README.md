@@ -13,7 +13,7 @@ is here. It is its own pack: it doesn't depend on or mix with `5e-srd-5.1` (the 
 pnpm add @opencharacter/engine @opencharacter/5e-srd-5.2
 ```
 
-This release needs spec 0.3: `@opencharacter/engine` 0.3.0 or later. An engine for an older
+This release needs spec 0.4: `@opencharacter/engine` 0.4.0 or later. An engine for an older
 spec refuses it (`spec-version-unsupported`).
 
 The package's default export is the built pack (a `PackRelease`), and `i18n/en` its English
@@ -69,7 +69,7 @@ automatic run finishes too; a `level` parameter starts higher. A monster is made
 - **Text only:** the parts of spells, features and items that are narrative or the app's (turns,
   space, durations, other creatures' sheets); see [Limitations](#limitations).
 - **Out of scope:** non-SRD content, services and lifestyle, and the 2014 rules; see
-  [Omitted](#omitted).
+  [Out of scope](#out-of-scope).
 
 ## License
 
@@ -89,6 +89,184 @@ automatic run finishes too; a `level` parameter starts higher. A monster is made
   monster. A spell's material component and a reaction's trigger are its named texts
   (`spells.<id>.texts.material`, `.texts.trigger`). Mounts, vehicles and trinkets have only names:
   the SRD lists them in tables.
+
+## What's modeled
+
+- **Abilities:** `abilities.<a>.base` (the saved input; increases capped at 20 add here),
+  `abilities.<a>.max` (20), `abilities.<a>.score` (what everything reads), modifiers, and
+  `saves.<a>`, the save modifier (always-on save bonuses go there).
+- **D20 Tests:** every ability check, saving throw and attack roll runs `d20-test`, tagged with
+  what it is (`check.str`, `skill.stealth`, `save.dex`, `attack.melee`, `ability.str`, …). Heroic
+  Inspiration, Exhaustion, Advantage and Disadvantage, and a hook after a failure (`failed-check`,
+  `failed-save`, `failed-attack`) where features add a die, a bonus, a reroll, a 20 or a hit
+  (Bardic Inspiration, Indomitable, Stroke of Luck, Peerless Aim, Legendary Resistance) act there.
+- **Creation:** `create-character` picks a class, a background (its ability increases, origin
+  feat, skills, tool and languages), a species and its lineage, the ability scores by the
+  standard array, point buy or rolling, then every pick they bring, the starting equipment (each
+  class's and background's "A or B", with their gold), a trinket and hit points. `random` draws
+  everything; `level` starts higher.
+- **Leveling up:** `xp.current` is an input and `xp.nextLevel` the SRD's table; while experience
+  reaches it, `level-up` is offered (or run any time for milestone play). It picks a class (one
+  the character has, or a new one whose primary abilities it meets, with every class it has),
+  adds the hit die (fixed or rolled) and asks what the level brings: a subclass, feats, spells,
+  weapon masteries, invocations.
+- **Core sheet:** level, proficiency bonus (from challenge rating for monsters), hit points,
+  Bloodied, size, creature type, speeds, senses, languages, proficiencies, carrying capacity by
+  size (Powerful Build counts one larger), coins.
+- **Skills, checks and tools:** all eighteen skills with proficiency and Expertise; ability,
+  skill and tool checks (a tool adds proficiency, and Advantage with the skill too); Initiative.
+- **Combat:** AC (armor, Unarmored Defense, Mage Armor and the like compete; the highest is
+  recommended; a Shield needs training; armor without training gives Disadvantage on Strength and
+  Dexterity tests and stops spellcasting); `weapon-attack` with finesse, thrown, versatile,
+  ammunition spent per attack, Heavy and long range, the Light property's extra attack and Two-
+  Weapon Fighting, and the eight mastery properties (Graze on a miss, Topple's save, Sap, Slow and
+  Vex on the target, Push and Cleave reported, Nick the app's); `unarmed-strike`, `grapple`,
+  `shove`, `escape-grapple`; critical hits double the dice. Attacks read the target's AC,
+  conditions and defenses from its view and send damage to it split by type, tagged for its
+  resistances and reactions. `take-damage`, `heal`, `gain-temporary-hit-points`, `fall`.
+- **Reacting to who hit you:** damage another creature sends names it (`change.from`), so
+  follow-ups offer the reaction to it. Hellish Rebuke's cast is offered when another creature
+  damages the caster, and Fire Shield's `erupt` when one hits it with a melee attack while the
+  shield is up (warm or chill as cast); within 5 feet, 60 feet and seen are the app's. Multiattack
+  Defense records each creature that hits the ranger with an attack roll in Defensive Tactics'
+  state (a required offer) and exposes it as `combat.multiattackDefense`, giving that creature's
+  other attack rolls against the ranger Disadvantage until the `turn-boundary` action clears it.
+- **Conditions:** the fourteen SRD conditions as applied content (Incapacitated ends
+  Concentration); Exhaustion as a field. Weapon mastery effects and Brutal Strike's Hamstring and
+  Staggering Blows on a target are applied content too.
+- **Resting:** `short-rest`, `long-rest` (all hit points and Hit Point Dice, slots, Exhaustion −1),
+  `spend-hit-die`, `death-save`, and every feature's recharge, hooked to the rest.
+- **Species, backgrounds and feats:** the nine species with their 24 lineages and ancestries
+  (breath weapons, lineage spells, Giant Ancestry powers, Large Form, …), the four backgrounds, and
+  the 17 origin, general, fighting style and epic boon feats.
+- **Classes:** all twelve classes and their twelve SRD subclasses, levels 1–20, feature by
+  feature: Weapon Mastery, Rage, Bardic Inspiration (a die given to another creature, used after
+  a failed test), Channel Divinity, Wild Shape, Fighting Styles, Martial Arts and Focus, Lay On
+  Hands and smites, Favored Enemy, Sneak Attack and Cunning Strike, Font of Magic and the ten
+  Metamagic options, Pact Magic and the 28 invocations, the spellbook, Arcane Recovery. Uses until
+  a rest are state on the class copy, an invocation's on its pick (Gift of the Depths' `used`).
+  Features carry the numbers their card needs as computed values (in computeSheet's
+  `activationValues`), which their actions read: Cunning Strike's `strikeDc` (its saves' DC; the
+  strike effects read it from the `rogue.strikeDc` field, since effects can't read computed values
+  yet ([#251](https://github.com/pixelqueue/opencharacter/issues/251))), Intimidating
+  Presence's `presenceDc`, Relentless Rage's `rageDc`, Sacred Weapon's `weaponBonus`, Preserve
+  Life's `healingPool`, and Breath Weapon's `breathDc` and `breathDice`.
+  A species trait keeps its own uses as its grant's saved state (Breath Weapon, Draconic Flight,
+  Stonecunning, the lineage spells, Giant Ancestry, Large Form, Adrenaline Rush, Relentless
+  Endurance); Stone's Endurance spends a Giant Ancestry use from its incoming-damage effect's
+  `then`, and is offered while one is left. Fire's Burn, Frost's Chill and Hill's Tumble are
+  options on a weapon or Unarmed Strike hit: their dice join the hit's damage roll (doubled on a
+  Critical Hit), and the use is spent with the damage; their own actions stay for other attack
+  rolls. Retaliation offers each melee weapon's attack, and an Unarmed Strike, as follow-ups
+  when the barbarian takes damage and stays up. Deflect Attacks is a batch-scoped situational
+  choice on an incoming attack (`deflectAttacks`, `scope: batch`): selected once, it reduces the
+  whole attack's Bludgeoning, Piercing and Slashing damage (every type with Deflect Energy) by one
+  roll of 1d10 plus the Dexterity modifier and Monk level. When it stops all the damage and a
+  Focus Point is left (`focus.spent`), its `changes` offer the `deflect-redirect` follow-up, which
+  runs the feature's `deflect-attacks` action: 1 Focus Point and the redirected damage (two
+  Martial Arts dice plus Dexterity, Dexterity save).
+- **Spellcasting:** each class's cantrips and prepared spells (the table's counts), always-
+  prepared subclass spells, the Multiclass Spellcaster slots, Pact Magic, the wizard's spellbook
+  and Ritual Adept, Magic Initiate and species spells with their own ability, `cast-spell` with
+  upcasting and cantrip upgrades, Concentration (checks at DC 10 or half the damage, up to 30;
+  when it ends, the `concentration-ends` follow-up ends the caster's concentration spells on every
+  creature holding one, `to: applied`),
+  196 of the 339 spells with mechanics beyond spending the slot. Each spell the character has
+  carries its numbers as computed values (`castingClass`, `spellDc`, `spellAttack`, `spellMod`,
+  in computeSheet's `activationValues`), which `cast-spell`, `spell-effect` and the spells' own
+  actions read.
+- **Auras:** Aura of Protection, Aura of Courage (Frightened immunity) and Aura of Devotion
+  (Charmed immunity), all allies in `paladin.auraRange`, down while the paladin is
+  Incapacitated, Protection reading its live Charisma modifier, are listed in computeSheet's
+  `auras` for the app to place on whoever is inside. So are the auras an applied entry holds up,
+  one per entry the creature applied itself (`scope: applied`), whatever the spell was cast from:
+  the Rod of Alertness's Protective Aura (60 feet, while planted), Aura of Life, Holy Aura and
+  Pass without Trace (cast with no target, on the caster), and Spirit Guardians (15 feet,
+  enemies' Speed halved; the cast puts the spell on the caster to hold it up, and its `guard`
+  action, like Moonbeam's `beam`, runs the save and damage at the caster's spell save DC without
+  a slot). A creature in two Auras of Protection, two Pass without Traces or two Rods of
+  Alertness' auras benefits from one, the highest (stackKey `source`), and the holder inside its
+  own aura counts it once.
+- **Equipment:** 38 weapons with their properties and mastery, 13 armors, 37 tools, 96 pieces of
+  gear (ammunition, spellcasting focuses, equipment packs that `unpack`, thrown flasks, the
+  Healer's Kit, Antitoxin, Basic Poison), 8 mounts, 12 vehicles and 100 trinkets, with cost (GP)
+  and weight (lb) per unit.
+- **Magic items:** the SRD 5.2.1 list as 323 files (variants split), 273 with mechanics: magic
+  weapons, armor and shields as templates, attunement (at most three; class and spellcaster
+  requirements), charges and recharge, daily powers, potions, scrolls, spells cast from items,
+  stored spells, resistances, set ability scores and situational advantages.
+- **Monsters:** all 330 SRD stat blocks, monsters and animals. A monster is a character with no
+  class:
+  `create-monster` copies a `monster` item's stat block into the sheet's inputs (AC, senses, XP
+  and Legendary Action uses among them, lair values too), and each trait and action becomes its
+  own copy with its uses or recharge, so a GM can change one monster's. The printed AC
+  (`combat.printedAc`) competes with worn armor as any AC does. Monsters saved with 0.3.0 get
+  their AC, senses, XP and Legendary Action uses as inputs on upgrade. `monster-attack` and `monster-effect` resolve
+  attacks and saving throws on each target's sheet; Multiattack, legendary actions (with lair
+  numbers), Legendary Resistance, Magic Resistance and Spellcasting work. A monster's sheet
+  leaves out experience points, character level (at 0), Heroic Inspiration and death saves, and
+  shows carrying weight and attunement slots only once it carries or attunes to something.
+- **Sheet layout:** display groups for fields, actions and content, units, and a headline
+  ("Level 3 Elf Wizard", "Goblin Warrior, CR 1/4").
+
+## Add-on packs
+
+A pack that depends on this one can add content of its types, and it flows into the same
+processes:
+
+- **Classes** take part in creation, random starts and multiclassing through item fields: a
+  `kit` action (`listed: false`, a `random` parameter) with `startingKit: true` gives the
+  starting equipment; `abilityPriority` lists a random start's abilities, best first (`abilities.str.score`, …);
+  `multiclassAll` and `multiclassAny` name the abilities multiclassing into it needs 13 in. Like a
+  core class, it carries the `multiclass` prerequisite
+  (`(self.startingClass && self.level == level.total) || item.id in multiclass.qualified`).
+- **Backgrounds** bring their starting equipment the same way (`startingKit` and a `kit` action).
+- **Magic items** and magic weapon or armor templates restricted to classes list them in
+  `attunementClasses`. A `magicItem` with `requiresAttunement` has its effects only while
+  attuned (the type's `effectsWhen`), so its effects needn't check `self.attuned`; a template that
+  needs attunement says `effectsWhen: self.attuned` itself. One whose rest reset must run while
+  unattuned sets `effectsWhen: true` and checks `self.attuned` in its other effects (the Ring of
+  X-ray Vision, the Hat of Many Spells).
+- **Metamagic options** are `metamagic` content; containers add to `items.stowCapacity` or
+  `items.stowUnlimited`, and content resets its uses with a `changes` effect on the `rest.long` or
+  `rest.short` step.
+- **Open enums** (`extendEnums`): weapon `damageType`, `ammunition` and `mastery`, feat
+  `category`, gear `category` and `ammunition`, tool, vehicle and magic item `category`, spell
+  `school` and damage types (and a lineage's `damageType`, the same list), monster `typeTag` and
+  monster action damage types, and the `spell-effect`, `item-power` and `throw-item` actions'
+  `damageType` (`5e-srd-5.2:actions.<action>.params.damageType`). A new damage type or mastery
+  also needs its tag (`damage.sonic`,
+  `mastery.pierce`), declared and named in the add-on; a new feat category is offered wherever a
+  choice asks for it (`item.category == 'dragonmark'`), and a fighting-style feat joins every
+  Fighting Style pick.
+- **Creature types:** a new one goes in `5e-srd-5.2:fields.creature.type`, the monster's
+  `creatureType`, a condition's `by` (`types.condition.state.by`) and the Ammunition of Slaying's
+  `slays` (`magic-items.ammunition-of-slaying.state.slays`); an attack reads the target's type
+  through an open view field, so a target of the added type is attacked as any other.
+- **Choices** (`extendChoices`): listed choices take items and values, and inline ones options:
+  Hunter's Prey (`features.ranger.hunters-prey`, `option`), a class's skills and expertise.
+  Choices over a type (subclasses, spells, feats, weapon mastery) offer the add-on's content
+  already.
+- **Naming what an add-on adds:** it names each added value, option or key in its own text,
+  under the key this pack would use, and `createText` finds it there when the app passes the
+  ruleset's `enumOrigins`, `optionOrigins` and `familyOrigins`. For example,
+  `sonic` added to `5e-srd-5.2:types.weapon.fields.damageType` is
+  `types.weapon.fields.damageType.values.sonic.name: Sonic` (through `enumOrigins`), and a
+  Hunter's Prey option `giant-killer` is
+  `features.ranger.hunters-prey.choices.option.options.giant-killer.name: Giant Killer` (through
+  `optionOrigins`).
+- **Step tags** for rules-level `option` and `changes` effects: `creation.class`,
+  `creation.background`, `creation.species`, `creation.method`, `creation.trinket` and
+  `creation.finish`, `level-up.class`, `level-up.hit-points` and `level-up.gain`, `rest.short`
+  and `rest.long`; the weapon attack's `ammunition`, `weapon-mastery`, `weapon-damage-type`,
+  `weapon-hit` and `weapon-mastery.rider` (a new mastery's effect: a `changes` effect with
+  `when: flags.mastery == '<mastery>'`); the Unarmed Strike's `unarmed-damage-type` and
+  `unarmed-hit`; and the attack's `attack-hit`. On-hit parameters use that one: a `params` effect
+  on the `attack-hit` action tag (`unarmed` for Unarmed Strikes only), and an `action` effect on
+  the `attack-hit` step, the one that deals the hit's damage.
+
+Still closed: abilities, skills, weapon and armor categories and conditions are the game's fixed
+sets.
 
 ## Rule readings
 
@@ -133,13 +311,6 @@ Where the SRD is unclear or silent, the pack reads it this way:
   every creature at each turn change, ends Sap and Slow when the attacker's next turn starts and
   Vex (and Studied Attacks' Advantage) when it ends. Push and Cleave are reported in the outcome (`push`,
   `cleave`) for the app to resolve; Cleave's attack runs the weapon's attack with `cleave` set.
-- **Reacting to who hit you:** damage another creature sends names it (`change.from`), so
-  follow-ups offer the reaction to it. Hellish Rebuke's cast is offered when another creature
-  damages the caster, and Fire Shield's `erupt` when one hits it with a melee attack while the
-  shield is up (warm or chill as cast); within 5 feet, 60 feet and seen are the app's. Multiattack
-  Defense records each creature that hits the ranger with an attack roll in Defensive Tactics'
-  state (a required offer) and exposes it as `combat.multiattackDefense`, giving that creature's
-  other attack rolls against the ranger Disadvantage until the `turn-boundary` action clears it.
 - **Grapple and Shove:** the target saves with the better of Strength and Dexterity (its
   player's choice).
 - **Death saves:** damage at 0 hit points from a Critical Hit counts two failures.
@@ -169,7 +340,9 @@ Where the SRD is unclear or silent, the pack reads it this way:
     has, do nothing and cost nothing, as does a Trip on a Huge or larger target. Withdraw,
     Daze's limit and Stealth Attack are the player's.
   - Stunning Strike (`stunningStrike`, 1 Focus Point, Constitution or Stunned), Open Hand
-    Technique (`openHand`, on an Unarmed Strike: Push's Strength save, Topple's Dexterity save or Prone), Hurl Through
+    Technique (`openHand`, on an Unarmed Strike: Push's Strength save, Topple's Dexterity save or
+    Prone; it is offered on every Unarmed Strike, and whether the strike is one of Flurry of
+    Blows' is the player's), Hurl Through
     Hell (`hurlThroughHell`: its use or a Pact Magic slot, then a Charisma save or 8d10 Psychic
     damage unless a Fiend, and Incapacitated) and the Rod of Lordly Might's Drain Life and
     Paralyze (`drainLife`, `paralyze`, on its own melee attack through `item-power`; Drain Life
@@ -180,7 +353,6 @@ Where the SRD is unclear or silent, the pack reads it this way:
     act when Initiative is rolled (a hook on the `initiative` action); Uncanny Metabolism is its
     own action, since it rolls.
   - Focus Points are capped at the monk's level; Wholeness of Body's uses are at least 1.
-  - Aura immunities (Courage, Devotion) lapse while the paladin is Incapacitated.
   - Holy Nimbus's restore is paying a level 5 slot; Superior Hunter's Defense halves damage only
     when not already resistant.
   - Reliable Talent counts a d20 below 10 as 10 on checks with proficiency; Stroke of Luck turns a
@@ -253,168 +425,6 @@ Where the SRD is unclear or silent, the pack reads it this way:
   words: "one Large or smaller creature" keeps a larger one out of the whole effect, while "if the
   target is Large or smaller" limits only the condition.
 
-## What's modeled
-
-- **Abilities:** `abilities.<a>.base` (the saved input; increases capped at 20 add here),
-  `abilities.<a>.max` (20), `abilities.<a>.score` (what everything reads), modifiers, and
-  `saves.<a>`, the save modifier (always-on save bonuses go there).
-- **D20 Tests:** every ability check, saving throw and attack roll runs `d20-test`, tagged with
-  what it is (`check.str`, `skill.stealth`, `save.dex`, `attack.melee`, `ability.str`, …). Heroic
-  Inspiration, Exhaustion, Advantage and Disadvantage, and a hook after a failure (`failed-check`,
-  `failed-save`, `failed-attack`) where features add a die, a bonus, a reroll, a 20 or a hit
-  (Bardic Inspiration, Indomitable, Stroke of Luck, Peerless Aim, Legendary Resistance) act there.
-- **Creation:** `create-character` picks a class, a background (its ability increases, origin
-  feat, skills, tool and languages), a species and its lineage, the ability scores by the
-  standard array, point buy or rolling, then every pick they bring, the starting equipment (each
-  class's and background's "A or B", with their gold), a trinket and hit points. `random` draws
-  everything; `level` starts higher.
-- **Leveling up:** `xp.current` is an input and `xp.nextLevel` the SRD's table; while experience
-  reaches it, `level-up` is offered (or run any time for milestone play). It picks a class (one
-  the character has, or a new one whose primary abilities it meets, with every class it has),
-  adds the hit die (fixed or rolled) and asks what the level brings: a subclass, feats, spells,
-  weapon masteries, invocations.
-- **Core sheet:** level, proficiency bonus (from challenge rating for monsters), hit points,
-  Bloodied, size, creature type, speeds, senses, languages, proficiencies, carrying capacity by
-  size (Powerful Build counts one larger), coins.
-- **Skills, checks and tools:** all eighteen skills with proficiency and Expertise; ability,
-  skill and tool checks (a tool adds proficiency, and Advantage with the skill too); Initiative.
-- **Combat:** AC (armor, Unarmored Defense, Mage Armor and the like compete; the highest is
-  recommended; a Shield needs training; armor without training gives Disadvantage on Strength and
-  Dexterity tests and stops spellcasting); `weapon-attack` with finesse, thrown, versatile,
-  ammunition spent per attack, Heavy and long range, the Light property's extra attack and Two-
-  Weapon Fighting, and the eight mastery properties (Graze on a miss, Topple's save, Sap, Slow and
-  Vex on the target, Push and Cleave reported, Nick the app's); `unarmed-strike`, `grapple`,
-  `shove`, `escape-grapple`; critical hits double the dice. Attacks read the target's AC,
-  conditions and defenses from its view and send damage to it split by type, tagged for its
-  resistances and reactions. `take-damage`, `heal`, `gain-temporary-hit-points`, `fall`.
-- **Conditions:** the fourteen SRD conditions as applied content (Incapacitated ends
-  Concentration); Exhaustion as a field. Weapon mastery effects and Brutal Strike's Hamstring and
-  Staggering Blows on a target are applied content too.
-- **Resting:** `short-rest`, `long-rest` (all hit points and Hit Point Dice, slots, Exhaustion −1),
-  `spend-hit-die`, `death-save`, and every feature's recharge, hooked to the rest.
-- **Species, backgrounds and feats:** the nine species with their 24 lineages and ancestries
-  (breath weapons, lineage spells, Giant Ancestry powers, Large Form, …), the four backgrounds, and
-  the 17 origin, general, fighting style and epic boon feats.
-- **Classes:** all twelve classes and their twelve SRD subclasses, levels 1–20, feature by
-  feature: Weapon Mastery, Rage, Bardic Inspiration (a die given to another creature, used after
-  a failed test), Channel Divinity, Wild Shape, Fighting Styles, Martial Arts and Focus, Lay On
-  Hands and smites, Favored Enemy, Sneak Attack and Cunning Strike, Font of Magic and the ten
-  Metamagic options, Pact Magic and the 28 invocations, the spellbook, Arcane Recovery. Uses until
-  a rest are state on the class copy, an invocation's on its pick (Gift of the Depths' `used`).
-  Features carry the numbers their card needs as computed values (in computeSheet's
-  `activationValues`), which their actions read: Cunning Strike's `strikeDc` (its saves' DC), Intimidating
-  Presence's `presenceDc`, Relentless Rage's `rageDc`, Sacred Weapon's `weaponBonus`, Preserve
-  Life's `healingPool`, and Breath Weapon's `breathDc` and `breathDice`.
-  A species trait keeps its own uses as its grant's saved state (Breath Weapon, Draconic Flight,
-  Stonecunning, the lineage spells, Giant Ancestry, Large Form, Adrenaline Rush, Relentless
-  Endurance); Stone's Endurance spends a Giant Ancestry use from its incoming-damage effect's
-  `then`, and is offered while one is left. Fire's Burn, Frost's Chill and Hill's Tumble are
-  options on a weapon or Unarmed Strike hit: their dice join the hit's damage roll (doubled on a
-  Critical Hit), and the use is spent with the damage; their own actions stay for other attack
-  rolls. Retaliation offers each melee weapon's attack, and an Unarmed Strike, as follow-ups
-  when the barbarian takes damage and stays up. Deflect Attacks is a batch-scoped situational
-  choice on an incoming attack (`deflectAttacks`, `scope: batch`): selected once, it reduces the
-  whole attack's Bludgeoning, Piercing and Slashing damage (every type with Deflect Energy) by one
-  roll of 1d10 plus the Dexterity modifier and Monk level. When it stops all the damage and a
-  Focus Point is left (`focus.spent`), its `changes` offer the `deflect-redirect` follow-up, which
-  runs the feature's `deflect-attacks` action: 1 Focus Point and the redirected damage (two
-  Martial Arts dice plus Dexterity, Dexterity save).
-- **Spellcasting:** each class's cantrips and prepared spells (the table's counts), always-
-  prepared subclass spells, the Multiclass Spellcaster slots, Pact Magic, the wizard's spellbook
-  and Ritual Adept, Magic Initiate and species spells with their own ability, `cast-spell` with
-  upcasting and cantrip upgrades, Concentration (checks at DC 10 or half the damage, up to 30;
-  when it ends, the `concentration-ends` follow-up ends the caster's concentration spells on every
-  creature holding one, `to: applied`),
-  196 of the 339 spells with mechanics beyond spending the slot. Each spell the character has
-  carries its numbers as computed values (`castingClass`, `spellDc`, `spellAttack`, `spellMod`,
-  in computeSheet's `activationValues`), which `cast-spell`, `spell-effect` and the spells' own
-  actions read.
-- **Auras:** Aura of Protection, Aura of Courage (Frightened immunity) and Aura of Devotion
-  (Charmed immunity), all allies in `paladin.auraRange`, down while the paladin is
-  Incapacitated, Protection reading its live Charisma modifier, are listed in computeSheet's
-  `auras` for the app to place on whoever is inside. So are the auras an applied entry holds up,
-  one per entry the creature applied itself (`scope: applied`), whatever the spell was cast from:
-  the Rod of Alertness's Protective Aura (60 feet, while planted), Aura of Life, Holy Aura and
-  Pass without Trace (cast with no target, on the caster), and Spirit Guardians (15 feet,
-  enemies' Speed halved; the cast puts the spell on the caster to hold it up, and its `guard`
-  action, like Moonbeam's `beam`, runs the save and damage at the caster's spell save DC without
-  a slot). A creature in two Auras of Protection benefits from the highest (stackKey `source`),
-  and the holder inside its own aura counts it once.
-- **Equipment:** 38 weapons with their properties and mastery, 13 armors, 37 tools, 96 pieces of
-  gear (ammunition, spellcasting focuses, equipment packs that `unpack`, thrown flasks, the
-  Healer's Kit, Antitoxin, Basic Poison), 8 mounts, 12 vehicles and 100 trinkets, with cost (GP)
-  and weight (lb) per unit.
-- **Magic items:** the SRD 5.2.1 list as 323 files (variants split), 273 with mechanics: magic
-  weapons, armor and shields as templates, attunement (at most three; class and spellcaster
-  requirements), charges and recharge, daily powers, potions, scrolls, spells cast from items,
-  stored spells, resistances, set ability scores and situational advantages.
-- **Monsters:** all 330 SRD stat blocks, monsters and animals. A monster is a character with no
-  class:
-  `create-monster` copies a `monster` item's stat block into the sheet's inputs (AC, senses, XP
-  and Legendary Action uses among them, lair values too), and each trait and action becomes its
-  own copy with its uses or recharge, so a GM can change one monster's. The printed AC
-  (`combat.printedAc`) competes with worn armor as any AC does. Monsters saved with 0.3.0 get
-  their AC, senses, XP and Legendary Action uses as inputs on upgrade. `monster-attack` and `monster-effect` resolve
-  attacks and saving throws on each target's sheet; Multiattack, legendary actions (with lair
-  numbers), Legendary Resistance, Magic Resistance and Spellcasting work. A monster's sheet
-  leaves out experience points, character level (at 0), Heroic Inspiration and death saves, and
-  shows carrying weight and attunement slots only once it carries or attunes to something.
-- **Sheet layout:** display groups for fields, actions and content, units, and a headline
-  ("Level 3 Elf Wizard", "Goblin Warrior, CR 1/4").
-
-## Add-on packs
-
-A pack that depends on this one can add content of its types, and it flows into the same
-processes:
-
-- **Classes** take part in creation, random starts and multiclassing through item fields: a
-  `kit` action (`listed: false`, a `random` parameter) with `startingKit: true` gives the
-  starting equipment; `abilityPriority` lists a random start's abilities, best first (`abilities.str.score`, …);
-  `multiclassAll` and `multiclassAny` name the abilities multiclassing into it needs 13 in. Like a
-  core class, it carries the `multiclass` prerequisite
-  (`(self.startingClass && self.level == level.total) || item.id in multiclass.qualified`).
-- **Backgrounds** bring their starting equipment the same way (`startingKit` and a `kit` action).
-- **Magic items** and magic weapon or armor templates restricted to classes list them in
-  `attunementClasses`. A `magicItem` with `requiresAttunement` has its effects only while
-  attuned (the type's `effectsWhen`), so its effects needn't check `self.attuned`; a template that
-  needs attunement says `effectsWhen: self.attuned` itself.
-- **Metamagic options** are `metamagic` content; containers add to `items.stowCapacity` or
-  `items.stowUnlimited`, and content resets its uses with a `changes` effect on `rest.long`.
-- **Open enums** (`extendEnums`): weapon `damageType`, `ammunition` and `mastery`, feat
-  `category`, gear `category` and `ammunition`, tool, vehicle and magic item `category`, spell
-  `school` and damage types (and a lineage's `damageType`, the same list), monster `typeTag` and
-  monster action damage types, and the `spell-effect`, `item-power` and `throw-item` actions'
-  `damageType` (`5e-srd-5.2:actions.<action>.params.damageType`). A new damage type or mastery
-  also needs its tag (`damage.sonic`,
-  `mastery.pierce`), declared and named in the add-on; a new feat category is offered wherever a
-  choice asks for it (`item.category == 'dragonmark'`), and a fighting-style feat joins every
-  Fighting Style pick.
-- **Creature types:** a new one goes in `5e-srd-5.2:fields.creature.type`, the monster's
-  `creatureType`, a condition's `by` (`types.condition.state.by`) and the Ammunition of Slaying's
-  `slays` (`magic-items.ammunition-of-slaying.state.slays`); an attack reads the target's type
-  through an open view field, so a target of the added type is attacked as any other.
-- **Choices** (`extendChoices`): listed choices take items and values, and inline ones options:
-  Hunter's Prey (`features.ranger.hunters-prey`, `option`), a class's skills and expertise.
-  Choices over a type (subclasses, spells, feats, weapon mastery) offer the add-on's content
-  already.
-- **Naming what an add-on adds:** it names each added value, option or key in its own text,
-  under the key this pack would use, and `createText` finds it there when the app passes the
-  ruleset's `enumOrigins`, `optionOrigins` and `familyOrigins`. For example,
-  `sonic` added to `5e-srd-5.2:types.weapon.fields.damageType` is
-  `types.weapon.fields.damageType.values.sonic.name: Sonic` (through `enumOrigins`), and a
-  Hunter's Prey option `giant-killer` is
-  `features.ranger.hunters-prey.choices.option.options.giant-killer.name: Giant Killer` (through
-  `optionOrigins`).
-- **Step tags** for rules-level `option` and `changes` effects: `creation.class`,
-  `creation.background`, `creation.species`, `creation.method`, `creation.trinket` and
-  `creation.finish`, `level-up.class`, `level-up.hit-points` and `level-up.gain`, `rest.long`,
-  and the weapon attack's `ammunition`, `weapon-mastery`, `weapon-damage-type`, `weapon-hit` and
-  `weapon-mastery.rider` (a new mastery's effect: a `changes` effect with
-  `when: flags.mastery == '<mastery>'`).
-
-Still closed: abilities, skills, weapon and armor categories and conditions are the game's fixed
-sets.
-
 ## Limitations
 
 Of the 339 spells, 143 do nothing on the sheet beyond spending the slot: what they do is their
@@ -430,8 +440,9 @@ as text are listed below.
 - **A spell on two spellcasting lists** (a cleric's spell also known through another class or a
   feat) is cast, and its card numbered, with the first spellcasting whose list has it.
 - **Aura parts that stay text:** Smite of Protection's Half
-  Cover, when Spirit Guardians' `guard` runs (once per turn per creature) and its unaffected
-  creatures, Aura of Life's Hit Point maximum and its 1 Hit Point at turn start, and
+  Cover, when Spirit Guardians' `guard` runs (once per turn per creature: an aura can't run a
+  per-creature save itself, [#253](https://github.com/pixelqueue/opencharacter/issues/253)) and its
+  unaffected creatures, Aura of Life's Hit Point maximum and its 1 Hit Point at turn start, and
   Holy Aura's blinding save.
 - **Spells left as text, by kind:** detection and divination, illusions, summoning and creation,
   movement and travel, wards and areas, utility, raising the dead, and spells that remake a weapon
@@ -439,6 +450,8 @@ as text are listed below.
   from higher slots, Enlarge/Reduce's size change, Chill Touch's no-regain, Beacon of Hope's
   maximum healing, Heroism's temporary hit points each turn, a second damage type for Transmuted
   Spell.
+- **Stone's Endurance** reduces each damage type of an attack separately and spends a use for
+  each.
 - **Metamagic:** Distant, Quickened and Subtle Spell are recorded in the cast's `data.metamagic`
   for the app.
 - **Monsters:** movement and sense traits, revival traits, reactions that change a roll (Parry),
@@ -447,7 +460,7 @@ as text are listed below.
   lycanthrope curses, vampire weaknesses and once-per-turn limits on legendary actions are text.
   Gear quantities and language dialects aren't stored.
 
-## Omitted
+### Out of scope
 
 - **Non-SRD content:** species, subclasses, backgrounds, feats, spells and items that aren't in
   the SRD 5.2.1. Each class has only its one SRD subclass.
