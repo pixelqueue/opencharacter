@@ -1,5 +1,6 @@
-# The damage type is the `hurlElementType` situational choice, so the damage (2/4/6 + Reason)
-# is added by the effect below with that type's tag; the tier fields hold 0.
+# The damage type is the `element` parameter, chosen on each use, so the damage (2/4/6 + Reason)
+# is added by the effect below with that type's tag; the tier fields hold 0, and the card's
+# damage values are the item's own.
 id: abilities.elementalist.hurl-element
 type: ability
 tags:
@@ -22,11 +23,21 @@ fields:
   t2AddsChar: false
   t3Damage: 0
   t3AddsChar: false
+computed:
+  damage1: { type: integer, formula: 2 + self.charScore }
+  damage2: { type: integer, formula: 4 + self.charScore }
+  damage3: { type: integer, formula: 6 + self.charScore }
 effects:
-  - { target: elementalist.hurlElement, op: set, value: 'true' }
+  - target: { actions: [ability], from: self }
+    op: params
+    value:
+      element:
+        type: enum
+        values: [acid, cold, corruption, fire, lightning, poison, sonic]
+        default: fire
   - target: { rolls: [damage], from: self }
     op: add
     value: >-
       [2, 4, 6][(flags.tier > 0 ? flags.tier : steps.roll.bandValue) - 1]
         + (flags.char == 'none' ? 0 : fieldOf('characteristics.{characteristic}.score', flags.char))
-    tags: [{ formula: "'damage.' + situational.hurlElementType" }]
+    tags: [{ formula: "'damage.' + params.element" }]

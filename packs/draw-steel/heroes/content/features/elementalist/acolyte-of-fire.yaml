@@ -12,10 +12,10 @@ effects:
     value: 1
     when: >-
       level < 10 && (('kw.fire' in action.item.tags && 'kw.magic' in action.item.tags)
-        || (action.item.id == @abilities.elementalist.hurl-element && situational.hurlElementType == 'fire'))
+        || (action.item.id == @abilities.elementalist.hurl-element && params.element == 'fire'))
     tags:
       [
         {
-          formula: "action.item.id == @abilities.elementalist.hurl-element ? ['damage.' + situational.hurlElementType] : action.item.damageType == 'untyped' ? [] : ['damage.' + action.item.damageType]",
+          formula: "action.item.id == @abilities.elementalist.hurl-element ? ['damage.' + params.element] : action.item.damageType == 'untyped' ? [] : ['damage.' + action.item.damageType]",
         },
       ]

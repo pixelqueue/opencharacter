@@ -53,8 +53,7 @@ fields:
   elementalist.tenfoldShields: { type: boolean, formula: 'false' }
   # Breath, the 10th-level epic resource: 1 breath becomes 3 essence.
   elementalist.breath: { type: integer, input: true, default: 0, min: 0 }
-  # Set by the abilities that offer the situational choices below.
-  elementalist.hurlElement: { type: boolean, formula: 'false' }
+  # Set by the ability that offers the situational choice below.
   elementalist.castleWalls: { type: boolean, formula: 'false' }
 
 constraints:
@@ -64,13 +63,6 @@ constraints:
     data: { upkeep: elementalist.upkeep }
 
 situational:
-  # Hurl Element: the damage type, chosen as the strike is made.
-  - id: hurlElementType
-    type: enum
-    values: [acid, cold, corruption, fire, lightning, poison, sonic]
-    default: fire
-    rolls: [power-roll.ability]
-    available: elementalist.hurlElement
   # Skin Like Castle Walls on the hero themself: the hero takes half the damage.
   - id: skinLikeCastleWalls
     type: boolean
@@ -96,5 +88,4 @@ display:
     elementalist.essenceThisRound: { hidden: true }
     elementalist.wardThisRound: { hidden: true }
     elementalist.tenfoldShields: { hidden: true }
-    elementalist.hurlElement: { hidden: true }
     elementalist.castleWalls: { hidden: true }
