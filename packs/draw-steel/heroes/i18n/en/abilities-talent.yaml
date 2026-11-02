@@ -228,13 +228,17 @@ abilities.talent.inertia-soak.texts.effect: >-
   Strained: You are weakened (save ends). While you are weakened this way, whenever you are force
   moved, the forced movement distance gains a +5 bonus.
 abilities.talent.smolder.name: Smolder
+abilities.talent.smolder.params.smolderType.name: Damage type
+abilities.talent.smolder.params.smolderType.values.acid.name: Acid
+abilities.talent.smolder.params.smolderType.values.corruption.name: Corruption
+abilities.talent.smolder.params.smolderType.values.fire.name: Fire
 abilities.talent.smolder.description: '*Smoke flows from your enemy like tears as their skin begins to blacken and flake.*'
 abilities.talent.smolder.texts.target: One creature
 abilities.talent.smolder.texts.distance: 'Ranged {has_self_distance, select, true {{self_distance}} other {10}}'
 abilities.talent.smolder.texts.roll: Power Roll + Reason
-abilities.talent.smolder.texts.tier1: '{has_self_damage1, select, true {{self_damage1}} other {3 + R}} damage; R < WEAK, the target has weakness 5 (save ends)'
-abilities.talent.smolder.texts.tier2: '{has_self_damage2, select, true {{self_damage2}} other {6 + R}} damage; R < AVERAGE, the target has weakness 5 (save ends)'
-abilities.talent.smolder.texts.tier3: '{has_self_damage3, select, true {{self_damage3}} other {9 + R}} damage; R < STRONG, the target has weakness equal to 5 + your Reason score (save ends)'
+abilities.talent.smolder.texts.tier1: '{has_self_damage1, select, true {{self_damage1}} other {3 + R}} damage; R < {has_self_potency1, select, true {{self_potency1}} other {WEAK}}, the target has weakness 5 (save ends)'
+abilities.talent.smolder.texts.tier2: '{has_self_damage2, select, true {{self_damage2}} other {6 + R}} damage; R < {has_self_potency2, select, true {{self_potency2}} other {AVERAGE}}, the target has weakness 5 (save ends)'
+abilities.talent.smolder.texts.tier3: '{has_self_damage3, select, true {{self_damage3}} other {9 + R}} damage; R < {has_self_potency3, select, true {{self_potency3}} other {STRONG}}, the target has weakness equal to 5 + your Reason score (save ends)'
 abilities.talent.smolder.texts.effect: 'Effect: Choose the damage type and the weakness for this
   ability from one of the following: acid, corruption, or fire. The target takes damage before this
   ability imposes any weakness.'

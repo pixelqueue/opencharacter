@@ -17,6 +17,85 @@ fields:
   rollChars:
     - reason
   damageType: untyped
-  t1Damage: 3
-  t2Damage: 6
-  t3Damage: 9
+  t1Damage: 0
+  t1AddsChar: false
+  t1PotencyChar: reason
+  t1Potency: weak
+  t2Damage: 0
+  t2AddsChar: false
+  t2PotencyChar: reason
+  t2Potency: average
+  t3Damage: 0
+  t3AddsChar: false
+  t3PotencyChar: reason
+  t3Potency: strong
+# The damage type and the weakness are the `smolderType` parameter, chosen on each use; the damage
+# (3/6/9 + Reason) comes from the effect below with that type's tag, so the tier fields hold 0.
+# The weakness is this ability applied to the target (save ends), behind a Reason potency.
+computed:
+  damage1: { type: integer, formula: 3 + self.charScore }
+  damage2: { type: integer, formula: 6 + self.charScore }
+  damage3: { type: integer, formula: 9 + self.charScore }
+state:
+  duration: { type: string, default: save }
+  type: { type: string, default: fire }
+  value: { type: integer, default: 5, min: 0 }
+reapply: { state: { duration: replace, value: highest } }
+effects:
+  - target: { actions: [ability], from: self }
+    op: params
+    value:
+      smolderType: { type: enum, values: [acid, corruption, fire], default: fire }
+  - target: { rolls: [damage], from: self }
+    op: add
+    value: >-
+      [3, 6, 9][(flags.tier > 0 ? flags.tier : steps.roll.bandValue) - 1]
+        + (flags.char == 'none' ? 0 : fieldOf('characteristics.{characteristic}.score', flags.char))
+    tags: [{ formula: "'damage.' + params.smolderType" }]
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    when: >-
+      flags.tier > 0
+        && participant.characteristics.reason.score + participant.potency.resistBonus.reason
+          < [potency.weak, potency.average, potency.strong][flags.tier - 1]
+    value:
+      changes:
+        - type: applyEffect
+          source: "'abilities.talent.smolder'"
+          state:
+            duration: "'save'"
+            type: params.smolderType
+            value: 'flags.tier == 3 ? 5 + characteristics.reason.score : 5'
+  - {
+      target: weakness.acid,
+      op: add,
+      value: self.value,
+      when: "self.type == 'acid'",
+      scope: applied,
+    }
+  - target: weakness.corruption
+    op: add
+    value: self.value
+    when: "self.type == 'corruption'"
+    scope: applied
+  - {
+      target: weakness.fire,
+      op: add,
+      value: self.value,
+      when: "self.type == 'fire'",
+      scope: applied,
+    }
+  # Strained: 1d6 damage (being unable to use triggered actions is the table's).
+  - target: { steps: [ability.after], from: self }
+    op: changes
+    when: >-
+      (combat.active && heroic.current - item.cost - params.spend - flags.extra < 0)
+        || (has(params.talentStrain) && params.talentStrain)
+    value:
+      changes:
+        - { type: adjust, field: stamina.current, by: -1d6, tags: [damage, talent.strain] }
+actions:
+  - use: saving-throw
+    scope: applied
+    available: "self.duration == 'save'"
+    params: { entry: self.id }
