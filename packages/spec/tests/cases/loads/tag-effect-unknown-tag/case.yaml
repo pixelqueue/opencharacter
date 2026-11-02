@@ -1,0 +1,22 @@
+description: "A `tag` roll effect's literal tag no pack declares is unknown-tag at load"
+specVersion: 0.3.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.3.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        tags: [damage, damage.fire, weapon]
+        contentTypes:
+          ability: {}
+      content:
+        - id: abilities.burn
+          type: ability
+          effects:
+            - target: { rolls: [damage], parts: [weapon] }
+              op: tag
+              value: [damage.fire, damage.frost]

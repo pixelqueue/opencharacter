@@ -10,3 +10,6 @@ action builds from the item's own fields (Draw Steel's Dragon Breath and Hurl El
 type chosen on each use), and later part targets, a `split` and incoming-change effects see the
 new tags. Every active `tag` effect counts; it takes no `stackKey`. `pnpm validate` checks its
 literal tags.
+
+`loadRuleset` reports a literal tag in a `tag` effect that no visible pack declares as
+`unknown-tag`.

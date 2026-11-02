@@ -1,4 +1,4 @@
-tags: [ability, ability.damage, kit, damage, damage.fire, damage.cold]
+tags: [ability, ability.damage, kit, chilled, damage, damage.fire, damage.cold]
 
 fields:
   hp: { type: integer, input: true, default: 30 }
@@ -12,6 +12,10 @@ contentTypes:
       damage: { type: dice, default: 1d6 }
     actions:
       - { use: use-ability }
+  # A charm records that it was in play on a roll.
+  charm:
+    state:
+      used: { type: boolean, default: false }
 
 effects:
   - target: { rolls: [ability], parts: [damage.fire] }

@@ -1,0 +1,22 @@
+# Breath's effect makes its damage part `damage.cold`. The frost charm's `tag` on
+# `parts: [damage.cold]` matched the part's tags as written (`ability.damage`), so it adds no
+# `chilled` and wasn't in play: no `setState` from its `then`.
+status: finished
+outcome: { data: { total: 10 } }
+proposedChanges:
+  - to: self
+    step: deal
+    change: { type: adjust, field: 'test-roll-tag:hp', by: -8, tags: [damage.cold] }
+  - to: self
+    step: deal
+    change: { type: adjust, field: 'test-roll-tag:hp', by: -2 }
+log:
+  - step: roll
+    action: 'test-roll-tag:use-ability'
+    kind: dice
+    by: engine
+    faces: [3, 5]
+    total: 10
+    items:
+      - { kind: dice, count: 2, sides: 6, value: 8, tags: [ability.damage, damage.cold] }
+      - { kind: flat, value: 2, tags: [kit] }

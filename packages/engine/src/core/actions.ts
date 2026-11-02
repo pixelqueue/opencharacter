@@ -2519,8 +2519,17 @@ function rollStep(ctx: Ctx, frame: Frame, step: Step, path: string): void {
     { active, roots: effectCtx, changed },
     action,
     rollRoot,
+    // `set` and `tag` matched the parts' tags before any `tag` effect added to them.
     (c) =>
-      !targets(c.effect)?.parts || items.some((i) => i.part !== undefined && onPart(c, i.tags)),
+      !targets(c.effect)?.parts ||
+      items.some(
+        (i) =>
+          i.part !== undefined &&
+          onPart(
+            c,
+            c.effect.op === 'set' || c.effect.op === 'tag' ? (partTags.get(i) ?? i.tags) : i.tags,
+          ),
+      ),
   );
 }
 

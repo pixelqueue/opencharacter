@@ -505,7 +505,8 @@ A `tag` effect adds tags to a roll's own parts, `target: { rolls: [<roll tags>],
 tags>] }`, so content types a part a shared action builds without restating its value: the
 item's own damage fields stay the item's, and the damage they roll carries the type chosen on
 each use. Its `value` is a list of tags; entries may be formulas, as an `add`'s `tags`, each a
-declared tag or a list of them:
+declared tag or a list of them (a literal tag no visible pack declares is `unknown-tag` at load,
+a computed one as the roll is built):
 
 ```yaml
 # Draw Steel's Dragon Breath: the ability's tier damage, typed by the element chosen on each use.
@@ -589,7 +590,7 @@ Picks reach only `computeSheet`. The other calls (`listOptions`, `applyChanges`,
 
 ## Stacking
 
-An effect with a `stackKey` is grouped with other effects that have the same key, target and operation. Each group is combined by the game's policy for that key (`settings.stacking.keys`, else `settings.stacking.default`):
+An effect with a `stackKey` is grouped with other effects that have the same key, target and operation. On a roll, `rollModifier` effects are grouped by kind too (`multiply` by `factor`, `stepDie` by `steps`, `poolDice` by `count`), and pool dice only with those adding to the same part. Each group is combined by the game's policy for that key (`settings.stacking.keys`, else `settings.stacking.default`):
 
 | Policy          | Result                                             |
 | --------------- | -------------------------------------------------- |
