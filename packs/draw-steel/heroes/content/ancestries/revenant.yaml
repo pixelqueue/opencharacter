@@ -25,8 +25,10 @@ choices:
         && slot <= 2 + (size(picksOf('former-life')) > 0
           && itemField(picksOf('former-life')[0], 'size', '1m') == '1s' ? 1 : 0)
     from: { type: ancestryTrait, where: '!item.signature' }
+    # Prismatic Scales needs Wyrmplate, which a revenant doesn't have.
     eligible: >-
       (item.ancestry == @ancestries.revenant || item.ancestry in picksOf('former-life'))
+        && item.id != @ancestry-traits.dragon-knight.prismatic-scales
         && item.cost <= 2 + (size(picksOf('former-life')) > 0
           && itemField(picksOf('former-life')[0], 'size', '1m') == '1s' ? 1 : 0) - (slot - 1)
     recommend: >-
