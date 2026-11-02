@@ -66,7 +66,8 @@ const described = describeAction(ruleset, character, {
 - **`params`** in declaration order: `required` (neither optional, defaulted nor fixed),
   `default`, `min` and `max` worked out on the sheet, an enum's `values` (an add-on's
   included), and for a field, content or tag parameter the `options` startAction takes, its
-  `where` applied. Offer those as the picker.
+  `where` applied. Offer those as the picker. A bound that reads other parameters
+  (`params.spend - 1`) isn't listed; startAction checks it once every parameter has its value.
 - **A parameter the item's `use` fixes** has `fixed: true` and its `value`: don't ask for it.
 - **A derived parameter** has `derived: true`: startAction works it out from the others (a
   Cunning Strike's cost in Sneak Attack dice). Don't ask for it; giving one is `invalid-param`.
@@ -111,7 +112,9 @@ Some actions take parameters: a target's AC, which skill to check, which rating 
 declared on the action, each with a type and whether it's `optional`;
 [`describeAction`](#describing-an-action) gives them for any listed action, with their options. A missing required one is the error `missing-param`; a number
 outside its `min`/`max` is `out-of-range` (the bounds may read the character: at most the Effort
-it has free).
+it has free). A derived parameter is never passed: startAction works it out, and a value for one
+is `invalid-param`. Participant errors (`invalid-participants`) come before parameter errors,
+since a derived parameter may read the participants.
 
 A **field parameter** (`type: id, of: field`) takes a field ID: a FitD action roll takes the
 rating to roll (`{ rating: 'ratings.skirmish' }`), and its `where` says which fields are allowed
@@ -285,7 +288,7 @@ It's never the recommendation, so an automatic run keeps the rules' choice. To a
 about every push, pause on the step's tag: `{ rules: [{ kind: 'choice', tags: ['push-cost'],
 then: 'pause' }] }`.
 
-A paid improvement after the roll (Draw Steel's Brawny, PF2e's Hero Points) is such a step with
+A paid improvement after the roll (Draw Steel's Brawny, orc-2e's Hero Points) is such a step with
 only added options and `#done`, and `#done` recommended: an automatic run declines, and an app
 that pauses on the step's tag offers the player the option and its cost. The step is skipped
 when the character has nothing to offer there.
@@ -362,7 +365,9 @@ when the action started, the inputs and every answer so far. So you can:
 - continue it on a different server.
 
 `continueAction` replays the action from the start with the recorded answers, so a paused action
-needs nothing from memory. Pass the paused result back exactly as you got it.
+needs nothing from memory. Pass the paused result back exactly as you got it, with the ruleset it
+started with. Against a newer pack release it may fail with `unknown-situational` or
+`situational-unavailable`: start the action again.
 
 ### Keeping only the answers
 
@@ -485,7 +490,8 @@ Each roll is a list of structured items, not a display string:
 
 Build your own labels from it: **27 = 17 (2d20, kept higher) + 4 Strength modifier + 2
 Proficiency bonus + 1 Longsword +1 + 3 Bless**. Each item has one source, so every number has
-exactly one name. The dice modifiers are a fixed set
+exactly one name. Each item also has `tags`, including those content added with a `tag` effect
+(Hurl Element's damage type), which `split` changes follow. The dice modifiers are a fixed set
 ([dice-modifiers.json](../../../packages/spec/data/dice-modifiers.json)), so you can describe them
 in words ("kept the higher die").
 
