@@ -427,7 +427,10 @@ Still closed: attributes, proficiency ranks, saves, spell traditions (and a staf
     Furious Footfalls, Juggernaut and Indomitable Will are effects. Feats: 31 of levels 1 to 6
     (Sudden Charge and Intimidating Strike are the fighter's, Reactive Strike grants the fighter's
     feature); Furious Finish, Barreling Charge, Cleave, Mage Hunter, Shake It Off, Inner Strength and
-    Wounded Rage are actions.
+    Wounded Rage are actions. Scars of Steel is a reaction the player selects on a critical hit
+    (`scarsOfSteel`, once per attack: its resistance is spent over the attack's physical damage),
+    paid from a once-a-day field that daily preparations reset; Spiritual Guides is a reroll
+    option after a failed check.
 - **Stances, panache, stratagems and parries** are `effect` content, as Raging is: an
   action applies them to the character itself, and the app ends them when their duration does. Entering a stance removes every applied stance first, so one is applied at most; a
   stance's unarmed attacks are its standard copies, so they exist while it's applied (an unarmed

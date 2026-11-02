@@ -1179,6 +1179,10 @@ actions:
             field: { formula: "'spellSlots.rank' + string(x) + '.used'" }
             value: 0
           - { type: set, when: focus.spent > 0, field: focus.spent, value: 0 }
+          - type: set
+            when: barbarian.scarsOfSteelUsed
+            field: barbarian.scarsOfSteelUsed
+            value: false
           - { type: setState, picks: { where: self.used }, key: used, value: false }
           - type: setState
             picks: { where: has(self.fanUses) && self.fanUses > 0 }

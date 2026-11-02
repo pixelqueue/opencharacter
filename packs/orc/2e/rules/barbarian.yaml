@@ -21,6 +21,8 @@ fields:
   rage.secondWind: { type: boolean, formula: false }
   rage.tempHpBlocked: { type: boolean, input: true, default: false }
   rage.largerWeapon: { type: boolean, input: true, default: false }
+  # Scars of Steel, once a day: spent when its reaction is chosen, reset by daily preparations.
+  barbarian.scarsOfSteelUsed: { type: boolean, input: true, default: false }
 
 actions:
   - id: rage
@@ -101,6 +103,25 @@ situational:
         value: 2
         stackKey: status-bonus
         when: situational.againstMagic && barbarian.instinct == 'superstition' && rage.active
+  # Scars of Steel: a reaction to a critical hit, resistance to its physical damage equal to the
+  # Constitution modifier plus half the level, spent over the whole attack (one batch).
+  - id: scarsOfSteel
+    type: boolean
+    default: false
+    incoming: { fields: [hp.current], tags: [damage.critical] }
+    scope: batch
+    available: >-
+      @feats.barbarian.scars-of-steel in feats.held && rage.active && !barbarian.scarsOfSteelUsed
+    effects:
+      - target:
+          incoming:
+            fields: [hp.current]
+            tags: [damage.bludgeoning, damage.piercing, damage.slashing]
+        op: add
+        stackKey: resistance
+        value: max(0, attributes.con.mod + floor(level / 2))
+        when: incoming.amount < 0
+    changes: [{ type: set, field: barbarian.scarsOfSteelUsed, value: true }]
 
 tags:
   - rage
@@ -131,6 +152,13 @@ display:
       members: { type: action, where: "'rage' in item.tags" }
   fields:
     rage.active: { groups: [summary], priority: 1, showWhen: class.has.barbarian }
+    barbarian.scarsOfSteelUsed:
+      {
+        groups: [turn],
+        priority: 3,
+        input: { widget: checkbox },
+        showWhen: '@feats.barbarian.scars-of-steel in feats.held',
+      }
     rage.tempHpBlocked:
       { groups: [turn], priority: 2, input: { widget: checkbox }, showWhen: class.has.barbarian }
     rage.largerWeapon:
