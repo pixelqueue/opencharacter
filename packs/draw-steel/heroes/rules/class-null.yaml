@@ -36,16 +36,22 @@ fields:
   nullClass.inertialShield: { type: boolean, formula: 'false' }
   nullClass.inertialAbsorption: { type: boolean, formula: 'false' }
   nullClass.synapticAnchor: { type: boolean, formula: 'false' }
+  # Elemental Buffer: 2 surges when damage immunity reduces elemental damage.
+  nullClass.elementalBuffer: { type: boolean, formula: 'false' }
 
-# The triggered abilities that halve damage, chosen on the damage as it arrives. Inertial Shield
-# also gives Elemental Absorption's immunity from 6th level. Paying for the heroic ones is their
-# ability's use.
+# The triggered abilities that halve damage, chosen on the first change of the attack that
+# triggers them (one selection halves the whole attack). Inertial Shield also gives Elemental
+# Absorption's immunity from 6th level, and with it Elemental Buffer's surges when the immunity is
+# the shield's alone (an immunity the hero has gains them by the feature's follow-up). The heroic
+# ones pay their discipline here; their `use-ability` is for a table that doesn't route incoming
+# choices (or Synaptic Anchor on an ally).
 situational:
   - id: inertialShield
     type: boolean
     default: false
     incoming: { fields: [stamina.current], tags: [damage] }
-    available: nullClass.inertialShield
+    scope: batch
+    available: nullClass.inertialShield && !abilities.noTriggered
     effects:
       - target: { incoming: { fields: [stamina.current], tags: [damage] } }
         op: multiply
@@ -59,24 +65,55 @@ situational:
           level >= 6 && incoming.amount < 0
             && countList(['acid', 'cold', 'corruption', 'fire', 'lightning', 'poison', 'sonic'],
               'damage.' + x in incoming.tags) > 0
+    changes:
+      - type: adjust
+        when: >-
+          nullClass.elementalBuffer && level >= 6 && characteristics.intuition.score > 0
+            && immunity.all == 0
+            && countList(batch.adjustments, x.field == @stamina.current && x.reason == 'requested'
+              && x.requested < 0
+              && !('damage.unreducible' in x.tags)
+              && (('damage.acid' in x.tags && immunity.acid == 0)
+                || ('damage.cold' in x.tags && immunity.cold == 0)
+                || ('damage.corruption' in x.tags && immunity.corruption == 0)
+                || ('damage.fire' in x.tags && immunity.fire == 0)
+                || ('damage.lightning' in x.tags && immunity.lightning == 0)
+                || ('damage.poison' in x.tags && immunity.poison == 0)
+                || ('damage.sonic' in x.tags && immunity.sonic == 0))) > 0
+        field: surges.current
+        by: 2
+  # Inertial Absorption (11 discipline): half the damage, and 3 surges.
   - id: inertialAbsorption
     type: boolean
     default: false
     incoming: { fields: [stamina.current], tags: [damage] }
-    available: nullClass.inertialAbsorption
+    scope: batch
+    available: >-
+      nullClass.inertialAbsorption && !abilities.noTriggered
+        && (!combat.active || heroic.current - 11 >= heroic.min)
     effects:
       - target: { incoming: { fields: [stamina.current], tags: [damage] } }
         op: multiply
         value: 0.5
+    changes:
+      - { type: adjust, when: combat.active, field: heroic.current, by: -11 }
+      - { type: adjust, field: surges.current, by: 3 }
+  # Synaptic Anchor (11 discipline) on the null: half the damage. Dazing the creature is the
+  # ability's use, against it.
   - id: synapticAnchor
     type: boolean
     default: false
     incoming: { fields: [stamina.current], tags: [damage] }
-    available: nullClass.synapticAnchor
+    scope: batch
+    available: >-
+      nullClass.synapticAnchor && !abilities.noTriggered
+        && (!combat.active || heroic.current - 11 >= heroic.min)
     effects:
       - target: { incoming: { fields: [stamina.current], tags: [damage] } }
         op: multiply
         value: 0.5
+    changes:
+      - { type: adjust, when: combat.active, field: heroic.current, by: -11 }
 
 display:
   fields:
@@ -102,3 +139,4 @@ display:
     nullClass.inertialShield: { hidden: true }
     nullClass.inertialAbsorption: { hidden: true }
     nullClass.synapticAnchor: { hidden: true }
+    nullClass.elementalBuffer: { hidden: true }
