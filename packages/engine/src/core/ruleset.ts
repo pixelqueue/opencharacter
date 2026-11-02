@@ -40,6 +40,8 @@ export interface RulesetPack {
   specVersion: string;
   /** The pack followed by its transitive dependencies, nearest first. */
   scope: string[];
+  /** The tags the pack itself declares, as written. */
+  tags?: string[];
 }
 
 /** A content item after loading: every reference qualified, `extends` and overrides applied. */
@@ -146,6 +148,64 @@ export function queryKey(pack: string, type: string, where: Formula | undefined)
 
 export function packOf(ruleset: Ruleset, id: string): RulesetPack | undefined {
   return ruleset.packs.find((p) => p.id === id);
+}
+
+interface PackScopes {
+  scope: Map<string, Set<string>>;
+  /** Each pack's own declared tags, with the tags above each. */
+  tags: Map<string, Set<string>>;
+}
+
+const scopeCache = new WeakMap<Ruleset, PackScopes>();
+
+function scopesOf(ruleset: Ruleset): PackScopes {
+  let cached = scopeCache.get(ruleset);
+  if (cached) return cached;
+  const tags = new Map<string, Set<string>>();
+  for (const p of ruleset.packs) {
+    const set = new Set<string>();
+    for (const tag of p.tags ?? []) {
+      const parts = tag.split('.');
+      for (let i = 1; i <= parts.length; i++) set.add(parts.slice(0, i).join('.'));
+    }
+    tags.set(p.id, set);
+  }
+  cached = { scope: new Map(ruleset.packs.map((p) => [p.id, new Set(p.scope)])), tags };
+  scopeCache.set(ruleset, cached);
+  return cached;
+}
+
+/**
+ * Whether packs `a` and `b` meet: their scopes (each pack with its dependencies) share a pack.
+ * With `tag`, a shared pack must declare it (or a tag below it), so a base pack that doesn't
+ * declare `attack` connects nothing over `attack` (effects.md, Which packs a tag target reaches).
+ */
+export function packsMeet(ruleset: Ruleset, a: string, b: string, tag?: string): boolean {
+  if (a === b) return true;
+  const { scope, tags } = scopesOf(ruleset);
+  const sa = scope.get(a) ?? new Set([a]);
+  for (const pid of scope.get(b) ?? [b])
+    if (sa.has(pid) && (tag === undefined || tags.get(pid)?.has(tag))) return true;
+  return false;
+}
+
+/**
+ * Whether an effect written in `effectPack` with target tags `targets` reaches something
+ * declared in `declaredIn` carrying `tags`: a target tag matches one of them (itself or a tag
+ * below it) and the packs meet over that target tag.
+ */
+export function tagsReach(
+  ruleset: Ruleset,
+  effectPack: string,
+  declaredIn: string,
+  targets: readonly string[],
+  tags: readonly string[],
+): boolean {
+  return targets.some(
+    (t) =>
+      tags.some((s) => s === t || s.startsWith(`${t}.`)) &&
+      packsMeet(ruleset, effectPack, declaredIn, t),
+  );
 }
 
 function find<T>(

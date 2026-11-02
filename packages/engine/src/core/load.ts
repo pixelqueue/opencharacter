@@ -42,6 +42,7 @@ import {
   admitsTag,
   itemStandard,
   type LoadedItem,
+  packsMeet,
   queryKey,
   rulesStandard,
   standardId,
@@ -54,6 +55,7 @@ import {
   resolveId,
   resolveType,
   type Ruleset,
+  tagsReach,
 } from './ruleset.ts';
 import { itemFieldDeclsOf, itemView, writtenTags } from './views.ts';
 
@@ -138,67 +140,84 @@ const tagsMeet = (a: string, b: string) =>
 /**
  * `params` effects: each added parameter is optional or has a default (nested runs and
  * startAction's other callers never give it), its name isn't one an action its literal target
- * tags reach declares, and no other effect adds it with another declaration over tags that meet.
+ * tags reach declares, and no other effect adds it with another declaration where both may reach
+ * one action. Actions count by the pack that wrote them, reached over packs that meet on the
+ * target tag (effects.md, Which packs a tag target reaches).
  */
 function checkAddedParams(
   ruleset: Ruleset,
   err: (code: string, data: Record<string, unknown>) => void,
 ): void {
-  const added: { source: string; tags: string[]; name: string; decl: ValueDecl }[] = [];
-  const walkChoices = (choices: readonly Choice[] | undefined, source: string): void => {
+  const added: { source: string; pack: string; tags: string[]; name: string; decl: ValueDecl }[] =
+    [];
+  const walkChoices = (
+    choices: readonly Choice[] | undefined,
+    source: string,
+    pack: string,
+  ): void => {
     for (const choice of choices ?? []) {
-      walk(choice.effects, source);
+      walk(choice.effects, source, pack);
       if ('options' in choice.from)
         for (const o of choice.from.options) {
-          walk(o.effects, source);
-          walkChoices(o.choices, source);
+          walk(o.effects, source, pack);
+          walkChoices(o.choices, source, pack);
         }
     }
   };
-  const walk = (effects: readonly Effect[] | undefined, source: string): void => {
+  const walk = (effects: readonly Effect[] | undefined, source: string, pack: string): void => {
     for (const e of effects ?? []) {
       if (e.op !== 'params' || typeof e.target !== 'object' || !('actions' in e.target)) continue;
       for (const [name, decl] of Object.entries((e.value ?? {}) as Record<string, ValueDecl>))
-        added.push({ source, tags: e.target.actions, name, decl });
+        added.push({ source, pack, tags: e.target.actions, name, decl });
     }
   };
   for (const type of Object.values(ruleset.contentTypes)) {
     const source = `${type.pack}:types.${type.name}`;
-    walk(type.effects, source);
+    walk(type.effects, source, type.pack);
   }
   for (const item of Object.values(ruleset.content)) {
-    walk(item.effects, item.qid);
-    walkChoices(item.choices, item.qid);
+    walk(item.effects, item.qid, item.scopes?.effects ?? item.pack);
+    walkChoices(item.choices, item.qid, item.scopes?.choices ?? item.pack);
   }
-  for (const e of ruleset.rules.effects) walk([e], `${e.pack}:rules`);
+  for (const e of ruleset.rules.effects) walk([e], `${e.pack}:rules`, e.pack);
   for (const choice of Object.values(ruleset.rules.choices))
-    walkChoices([choice], `${choice.pack}:rules`);
+    walkChoices([choice], `${choice.pack}:rules`, choice.pack);
   if (added.length === 0) return;
 
-  const actions: { key: string; def: ActionDef }[] = [
-    ...Object.entries(ruleset.rules.actions).map(([key, def]) => ({ key, def })),
+  const actions: { key: string; pack: string; def: ActionDef }[] = [
+    ...Object.entries(ruleset.rules.actions).map(([key, def]) => ({ key, pack: def.pack, def })),
     ...Object.entries(ruleset.contentTypes).flatMap(([name, type]) =>
-      (type.actions ?? []).flatMap((a) => ('use' in a ? [] : [{ key: `${name}#${a.id}`, def: a }])),
+      (type.actions ?? []).flatMap((a) =>
+        'use' in a ? [] : [{ key: `${name}#${a.id}`, pack: type.pack, def: a }],
+      ),
     ),
     ...Object.values(ruleset.content).flatMap((item) =>
       (item.actions ?? []).flatMap((a) =>
-        'use' in a ? [] : [{ key: `${item.qid}#${a.id}`, def: a }],
+        'use' in a
+          ? []
+          : [{ key: `${item.qid}#${a.id}`, pack: item.scopes?.actions ?? item.pack, def: a }],
       ),
     ),
   ];
+  const literal = actions.map((a) => ({ ...a, tags: writtenTags(a.def.tags) }));
+  // Whether an effect may reach an action: a target tag meets one of its literal tags, over packs
+  // that meet on that target tag.
+  const mayReach = (e: { pack: string; tags: string[] }, a: { pack: string; tags: string[] }) =>
+    e.tags.some(
+      (t) => a.tags.some((tag) => tagsMeet(t, tag)) && packsMeet(ruleset, e.pack, a.pack, t),
+    );
   for (const [i, p] of added.entries()) {
     const data = { param: p.name, source: p.source };
     if (!p.decl.optional && p.decl.default === undefined)
       err('invalid-added-param', { ...data, reason: 'required' });
-    for (const { key, def } of actions) {
+    for (const { key, pack, def, tags } of literal) {
       if (!Object.hasOwn(def.params ?? {}, p.name)) continue;
-      const own = writtenTags(def.tags);
-      if (p.tags.some((t) => own.some((tag) => tag === t || tag.startsWith(`${t}.`))))
+      if (tagsReach(ruleset, p.pack, pack, p.tags, tags))
         err('invalid-added-param', { ...data, reason: 'declared', action: key });
     }
     for (const other of added.slice(0, i)) {
       if (other.name !== p.name || JSON.stringify(other.decl) === JSON.stringify(p.decl)) continue;
-      if (p.tags.some((t) => other.tags.some((o) => tagsMeet(t, o))))
+      if (literal.some((a) => mayReach(p, a) && mayReach(other, a)))
         err('invalid-added-param', { ...data, reason: 'conflict', other: other.source });
     }
   }
@@ -312,6 +331,7 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
       ...(p.manifest.notices ? { notices: { ...p.manifest.notices } } : {}),
       specVersion: p.manifest.specVersion,
       scope: scopeOf(p.manifest.id),
+      ...(p.rules.tags?.length ? { tags: [...p.rules.tags] } : {}),
     })),
     tags: [],
     fields: {},

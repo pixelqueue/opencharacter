@@ -15,6 +15,7 @@ import {
   familyIn,
   type LoadedItem,
   localPart,
+  packsMeet,
   queryKey,
   resolveContent,
   resolveField,
@@ -681,8 +682,8 @@ export interface FieldSetMember {
 }
 
 /**
- * Resolved once per ruleset. A field with computed tags is listed with `computed` and matched
- * against its tags on each sheet.
+ * Resolved once per ruleset, over the fields of packs that meet the effect's. A field with
+ * computed tags is listed with `computed` and matched against its tags on each sheet.
  */
 export function fieldSet(
   ruleset: Ruleset,
@@ -704,8 +705,9 @@ export function fieldSet(
   out = [];
   for (const view of fieldViews(ruleset)) {
     if (sets ? view.type !== 'set' : view.type !== 'integer' && view.type !== 'decimal') continue;
-    if (hasComputedTags(ruleset.fields[view.id] as FieldDef))
-      out.push({ id: view.id, computed: true });
+    const def = ruleset.fields[view.id] as FieldDef & { pack: string };
+    if (pack !== undefined && !packsMeet(ruleset, pack, def.pack)) continue;
+    if (hasComputedTags(def)) out.push({ id: view.id, computed: true });
     else if (fieldSetMatches(where, view, picked, id)) out.push({ id: view.id, computed: false });
   }
   cache.set(key, out);

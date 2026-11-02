@@ -3571,13 +3571,18 @@ export class Sheet {
     if (!a.item) return [];
     const type = this.ruleset.contentTypes[a.item.type];
     const own = a.item.pack;
-    const list: [ActionOrUse, string][] = [
-      ...(type?.actions ?? []).map((x): [ActionOrUse, string] => [x, type?.pack ?? own]),
-      ...(a.item.actions ?? []).map((x): [ActionOrUse, string] => [x, own]),
+    const ownActions = a.item.scopes?.actions ?? own;
+    const list: [ActionOrUse, string, string][] = [
+      ...(type?.actions ?? []).map((x): [ActionOrUse, string, string] => [
+        x,
+        type?.pack ?? own,
+        type?.pack ?? own,
+      ]),
+      ...(a.item.actions ?? []).map((x): [ActionOrUse, string, string] => [x, own, ownActions]),
     ];
     const roots = this.actionRoots(a);
     const out: ActionListing[] = [];
-    for (const [action, written] of list) {
+    for (const [action, written, writer] of list) {
       if ((action.scope ?? 'holder') !== a.scope) continue;
       const used = 'use' in action ? this.ruleset.rules.actions[action.use] : undefined;
       const def = 'use' in action ? used : action;
@@ -3593,7 +3598,7 @@ export class Sheet {
       }
       if (!available) continue;
       const id = 'use' in action ? action.use : `${a.item.qid}#${action.id}`;
-      out.push({ id, action, def, pack, written, roots });
+      out.push({ id, action, def, pack, written, declared: used?.pack ?? writer, roots });
     }
     return out;
   }
@@ -4001,6 +4006,11 @@ export interface ActionListing {
   pack: string;
   /** The pack of the content or type that writes the action or `use`. */
   written: string;
+  /**
+   * The pack that wrote the action's definition: the used rules action's, the content type's, or
+   * the item's (its override's). Tag targets reach the action by this pack.
+   */
+  declared: string;
   roots: Record<string, unknown>;
 }
 

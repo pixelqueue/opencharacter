@@ -47,7 +47,7 @@ export function describeAction(
         },
       ],
     };
-  const { def, definedBy, pack, activation, fixed, fixedPack } = found;
+  const { def, definedBy, pack, declared, activation, fixed, fixedPack } = found;
   const roots: Record<string, unknown> = {
     ...ownerRoots(activation ? sheet.actionRoots(activation) : sheet.rulesRoots()),
     situational: situationalRoot(ruleset, pack, {}),
@@ -67,7 +67,7 @@ export function describeAction(
     by?: string;
   }[] = [
     ...Object.entries(def.params ?? {}).map(([name, decl]) => ({ name, decl, pack, roots })),
-    ...addedParams(sheet, def, pack, roots, { entry, source, activation }).map((p) => ({
+    ...addedParams(sheet, def, pack, declared, roots, { entry, source, activation }).map((p) => ({
       name: p.name,
       decl: p.decl,
       pack: p.pack,

@@ -46,6 +46,7 @@ import {
   resolveField,
   resolveType,
   type Ruleset,
+  tagsReach,
   unloadedPack,
 } from './ruleset.ts';
 import { withHomebrew } from './homebrew.ts';
@@ -553,6 +554,8 @@ interface Frame {
   /** `<item id>#<action id>` for an inline action. */
   qid: string;
   pack: string;
+  /** The pack that wrote the action: tag targets reach it by this pack, not `pack`. */
+  declared: string;
   activation?: Activation;
   sheet: Sheet;
   entry?: string;
@@ -689,6 +692,7 @@ function startFrame(
   let def: ActionDef | undefined;
   let definedBy = id;
   let pack = '';
+  let declared = '';
   let activation: Activation | undefined;
   let fixed: Record<string, Formula> = {};
   let fixedPack = '';
@@ -712,7 +716,7 @@ function startFrame(
       });
   }
   const found = findAction(sheet, ruleset, id, entry, source);
-  if (found) ({ def, definedBy, pack, activation, fixed, fixedPack } = found);
+  if (found) ({ def, definedBy, pack, declared, activation, fixed, fixedPack } = found);
   if (!def) throw new ActionError('unknown-action', { action: id });
 
   const ownerSource: Source = activation?.item
@@ -726,6 +730,7 @@ function startFrame(
     def,
     qid: definedBy,
     pack,
+    declared,
     ...(activation ? { activation } : {}),
     sheet,
     ...(entry !== undefined ? { entry } : {}),
@@ -759,6 +764,8 @@ export interface FoundAction {
   /** The rules action, or `<item id>#<action id>` for an inline one. */
   definedBy: string;
   pack: string;
+  /** The pack that wrote the action's definition. */
+  declared: string;
   activation?: Activation;
   /** The parameters a `use` fixes. */
   fixed: Record<string, Formula>;
@@ -776,6 +783,7 @@ export function findAction(
   let def: ActionDef | undefined;
   let definedBy = id;
   let pack = '';
+  let declared = '';
   let activation: Activation | undefined;
   let fixed: Record<string, Formula> = {};
   let fixedPack: string | undefined;
@@ -792,6 +800,7 @@ export function findAction(
         activation = a;
         def = listing.def;
         definedBy = listing.id;
+        declared = listing.declared;
         if ('use' in listing.action) {
           pack = listing.pack;
           fixed = listing.action.params ?? {};
@@ -803,6 +812,7 @@ export function findAction(
     if (!def && ruleset.rules.actions[id]) {
       def = ruleset.rules.actions[id];
       pack = ruleset.rules.actions[id]?.pack ?? '';
+      declared = pack;
       activation = sheet.activations.find((a) =>
         entry !== undefined
           ? entryOf(a) === entry &&
@@ -813,12 +823,14 @@ export function findAction(
   } else {
     def = ruleset.rules.actions[id];
     pack = def ? (ruleset.rules.actions[id]?.pack ?? '') : '';
+    declared = pack;
   }
   if (!def) return undefined;
   return {
     def,
     definedBy,
     pack,
+    declared,
     ...(activation ? { activation } : {}),
     fixed,
     fixedPack: fixedPack ?? pack,
@@ -910,7 +922,7 @@ function params(
       at: own,
     })),
     ...(frame.depth === 0
-      ? addedParams(ctx.sheet, frame.def, frame.pack, frame.roots, frame)
+      ? addedParams(ctx.sheet, frame.def, frame.pack, frame.declared, frame.roots, frame)
       : []
     ).map((p): ParamSpec => ({
       name: p.name,
@@ -1005,6 +1017,7 @@ export function addedParams(
   sheet: Sheet,
   def: ActionDef,
   pack: string,
+  declared: string,
   roots: Record<string, unknown>,
   owner: RunOwner,
 ): AddedParam[] {
@@ -1015,7 +1028,7 @@ export function addedParams(
     const target = effect.target;
     if (effect.op !== 'params' || typeof target !== 'object' || !('actions' in target)) continue;
     tags ??= sheet.actionTags(def, pack, roots);
-    if (!target.actions.some((tag) => matchesTag(tag, tags as string[]))) continue;
+    if (!tagsReach(sheet.ruleset, instance.pack, declared, target.actions, tags)) continue;
     if (!addsTo(instance, owner, target.from)) continue;
     const action = {
       ...(roots.item !== undefined ? { item: roots.item } : {}),
@@ -1833,7 +1846,7 @@ function rollCandidates(ctx: Ctx, frame: Frame, stepTags: string[]): RollCandida
   const candidates: RollCandidate[] = [];
   for (const instance of sheet.instances) {
     const t = targets(instance.effect);
-    if (!t || !t.rolls.some((tag) => matchesTag(tag, stepTags))) continue;
+    if (!t || !tagsReach(ruleset, instance.pack, frame.declared, t.rolls, stepTags)) continue;
     if (t.from === 'self' && !ownEffect(instance, frame)) continue;
     candidates.push({
       instance,
@@ -1853,7 +1866,7 @@ function rollCandidates(ctx: Ctx, frame: Frame, stepTags: string[]): RollCandida
     if (!selected) continue;
     (def.effects ?? []).forEach((effect, index) => {
       const t = targets(effect);
-      if (!t || !t.rolls.some((tag) => matchesTag(tag, stepTags))) return;
+      if (!t || !tagsReach(ruleset, def.pack, frame.declared, t.rolls, stepTags)) return;
       const instance: EffectInstance = {
         effect,
         pack: def.pack,
@@ -3125,7 +3138,7 @@ function addedOptions(
     const effect = instance.effect;
     const target = effect.target;
     if (effect.op !== 'option' || typeof target !== 'object' || !('choices' in target)) continue;
-    if (!target.choices.some((tag) => matchesTag(tag, tags))) continue;
+    if (!tagsReach(ctx.ruleset, instance.pack, frame.declared, target.choices, tags)) continue;
     if (!addsToSteps(instance, frame, target.from)) continue;
     const value = effect.value as OptionValue;
     const id = `${instance.source.id}#${value.id}`;
@@ -3854,7 +3867,7 @@ function addedChanges(ctx: Ctx, frame: Frame, step: Step): AddedChanges[] {
     const effect = instance.effect;
     const target = effect.target;
     if (effect.op !== 'changes' || typeof target !== 'object' || !('steps' in target)) continue;
-    if (!target.steps.some((tag) => matchesTag(tag, tags))) continue;
+    if (!tagsReach(ctx.ruleset, instance.pack, frame.declared, target.steps, tags)) continue;
     if (!addsToSteps(instance, frame, target.from)) continue;
     const added = optionFrame(frame, instance);
     if (effect.when !== undefined) {

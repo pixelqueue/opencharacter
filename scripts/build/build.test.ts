@@ -84,6 +84,12 @@ describe('pnpm build:packs on the repository packs', () => {
     }
   });
 
+  // The `@opencharacter/packs` bundle in one ruleset: unrelated games sharing tags never clash.
+  it('loads every pack into one ruleset', () => {
+    const loaded = loadRuleset(built.map((b) => b.release));
+    expect(loaded.ok ? [] : loaded.errors).toEqual([]);
+  });
+
   it('computes the example characters the same from releases as from sources', () => {
     const fromReleases = loadRuleset(built.map((b) => b.release));
     const fromSources = loadRuleset(built.map((b) => readPack(b.dir)));
