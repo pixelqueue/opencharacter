@@ -30,7 +30,7 @@ actions:
     tags: [ability]
     available: "!stamina.dead && censor.judged != ''"
     participants:
-      target: { max: 1 }
+      target: { fields: creature, max: 1 }
     results: [used]
     steps:
       - id: hit
@@ -63,7 +63,7 @@ actions:
     params:
       option: { type: enum, values: [strike, bane, potency, taunt], default: bane }
     participants:
-      target: { max: 1 }
+      target: { fields: creature, max: 1 }
     results: [used]
     steps:
       - id: pay
