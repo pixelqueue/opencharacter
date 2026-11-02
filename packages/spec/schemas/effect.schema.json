@@ -129,33 +129,55 @@
             "$ref": "#/$defs/actionTarget"
           },
           "value": {
-            "description": "The parameters added, declared as an action's own `params`: name to declaration.",
+            "description": "The parameters added, declared as an action's own `params`: name to declaration; or, for a name the run already has, only `min` and `max` bounds added to it.",
             "type": "object",
             "propertyNames": {
               "$ref": "common.schema.json#/$defs/name"
             },
             "additionalProperties": {
-              "description": "Optional or defaulted: only the run the app starts has it, and it may leave it out.",
-              "allOf": [
+              "anyOf": [
                 {
-                  "$ref": "content-type.schema.json#/$defs/valueDecl"
-                },
-                {
-                  "anyOf": [
+                  "description": "A parameter added: optional, defaulted or derived (`formula`), since only the run the app starts has it, and the app may leave it out.",
+                  "allOf": [
                     {
-                      "type": "object",
-                      "required": ["default"]
+                      "$ref": "content-type.schema.json#/$defs/valueDecl"
                     },
                     {
-                      "type": "object",
-                      "required": ["optional"],
-                      "properties": {
-                        "optional": {
-                          "const": true
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "required": ["default"]
+                        },
+                        {
+                          "type": "object",
+                          "required": ["optional"],
+                          "properties": {
+                            "optional": {
+                              "const": true
+                            }
+                          }
+                        },
+                        {
+                          "type": "object",
+                          "required": ["formula"]
                         }
-                      }
+                      ]
                     }
                   ]
+                },
+                {
+                  "description": "Bounds added to a parameter the run already has (the action's own or one another `params` effect adds): only `min` and/or `max`, read as a parameter's. They are checked with its own and every one must hold; the `out-of-range` error names the parameter, with `boundBy` the content that added the failing bound.",
+                  "type": "object",
+                  "properties": {
+                    "min": {
+                      "$ref": "formula.schema.json"
+                    },
+                    "max": {
+                      "$ref": "formula.schema.json"
+                    }
+                  },
+                  "additionalProperties": false,
+                  "minProperties": 1
                 }
               ]
             },

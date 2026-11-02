@@ -825,10 +825,21 @@ contentTypes:
   values: a computed value reads those declared **before** it, in declaration order (the
   type's, then the item's and each template's, a replacement keeping the replaced name's place).
   Later names, and its own, are `unknown-name` there. Picked or granted content's actions read
-  the owning copy's computed values too, its own over them by name. Field formulas, effects
-  (roll effects included), constraints, activation conditions, state formulas and a choice
-  step's candidate copies can't read them: there they are `unknown-name` at load, though `self`
-  is open. Since they are computed after everything they could feed, and each reads only
+  the owning copy's computed values too, its own over them by name.
+- **Effects that act as an action runs** read them too: the content's (and a type's or
+  template's) effects on rolls, choice steps, changes steps (`changes` and `action`), listed
+  actions (`params`, its bounds and derived parameters included) and incoming changes, in their
+  `when`, value and `then`, and its choices' and inline options' effects of those kinds. Their
+  `self` is what the content's actions see: the copy's computed values, then, for picked or
+  granted content (an inline option reads the content it was picked under), its own. These run
+  on the computed sheet, after every computed value, and never feed a field, so they can't
+  loop. A field effect (a field, a set of fields or a formula target), with its `when`, can't:
+  computed values read every field, so one feeding a field could loop. Nor can an applied
+  effect or an aura's, whose `self` is an applied entry. There, and in field formulas,
+  constraints, activation conditions (`effectsWhen` included), state formulas and a choice
+  step's candidate copies, `self.<name>` is `unknown-name` at load, though `self` is open. A
+  Cunning Strike's DC, a computed value, is then read by the strike's own `action` effect.
+- Since computed values are worked out after everything they could feed, and each reads only
   earlier ones, they can't loop. An earlier value that failed is absent (`has(self.<name>)` is
   false), so a later value reading it fails too, with its own `formula-error`.
   The copy aggregates (`countCopies`, `sumCopies`, `maxCopies`, `minCopies`) don't see them.

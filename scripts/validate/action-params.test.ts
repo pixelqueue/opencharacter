@@ -116,6 +116,36 @@ describe('pnpm validate on params effects, computed action tags and a use with a
     expect(added(own.errors)).toEqual([]);
   });
 
+  it('rejects a derived parameter given by a use or an action step, and a formula off a parameter', () => {
+    const { errors } = validate({
+      'rules/extra.yaml': [
+        'actions:',
+        '  - id: spend',
+        '    params:',
+        '      n: { type: integer, default: 0 }',
+        '      cost: { type: integer, formula: params.n * 2 }',
+        '    steps: [{ id: done, kind: outcome, result: "\'done\'" }]',
+        '    results: [done]',
+        '  - id: twice',
+        '    steps: [{ id: again, kind: action, use: spend, params: { cost: 1 } }]',
+        'contentTypes:',
+        '  charm:',
+        '    state:',
+        '      uses: { type: integer, formula: 1 }',
+        '    actions:',
+        '      - { use: spend, params: { cost: 1 } }',
+      ].join('\n'),
+    });
+    expect(errors.filter((m) => m.includes('derived'))).toEqual([
+      expect.stringContaining('formula (a derived value) is for action parameters'),
+      expect.stringContaining('parameter "cost" is derived'),
+      expect.stringContaining('parameter "cost" is derived'),
+    ]);
+    expect(errors.filter((m) => m.includes('actions.twice') && m.includes('derived'))).toEqual([
+      expect.stringContaining('parameter "cost" is derived'),
+    ]);
+  });
+
   it('warns about a recommend naming #done on a step that never offers it', () => {
     expect(warned(validate({ 'rules/extra.yaml': step('') }))).toHaveLength(1);
     expect(warned(validate({ 'rules/extra.yaml': step('repeat: { max: 1 }') }))).toEqual([]);

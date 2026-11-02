@@ -1606,7 +1606,7 @@ function route(
       .map((i): EffectInstance => ({
         ...i,
         roots: {
-          ...i.roots,
+          ...sheet.effectRoots(i),
           incoming: incomingRoot,
           situational: situationalRoot(ruleset, i.pack, given),
           batch,

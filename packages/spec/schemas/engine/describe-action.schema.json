@@ -64,6 +64,10 @@
         "default": {
           "$ref": "../common.schema.json#/$defs/literal"
         },
+        "derived": {
+          "description": "A derived parameter (its declaration's `formula`): startAction works it out, so the app never gives it (`invalid-param` if it does). Its value depends on the others, so none is listed.",
+          "const": true
+        },
         "fixed": {
           "description": "The item's `use` fixes it: startAction takes `value`, never the app's.",
           "const": true
@@ -78,6 +82,27 @@
         "max": {
           "description": "The `max` bound, evaluated likewise.",
           "type": "number"
+        },
+        "addedBounds": {
+          "description": "Bounds `params` effects add to it (an entry with only `min` and `max`), in instance order, each with the content that added it. startAction checks every one with its own; a bound that reads `params` is left out, as for `min` and `max`, so an entry whose bounds all read `params` has only `addedBy`: the parameter is bounded there, by values the app is yet to give.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["addedBy"],
+            "properties": {
+              "addedBy": {
+                "description": "The content that added it, as a parameter's `addedBy`.",
+                "type": "string"
+              },
+              "min": {
+                "type": "number"
+              },
+              "max": {
+                "type": "number"
+              }
+            },
+            "additionalProperties": false
+          }
         },
         "values": {
           "description": "An enum's values, with those dependent packs add (`extendEnums`).",

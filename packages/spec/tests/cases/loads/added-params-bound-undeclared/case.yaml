@@ -1,0 +1,25 @@
+description: "A `params` effect's entry with only bounds names a parameter no action declares and no `params` effect adds: `invalid-added-param` (reason `undeclared`)"
+specVersion: 0.3.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.3.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        tags: [attack]
+        actions:
+          - id: strike
+            tags: [attack]
+            params:
+              spend: { type: integer, default: 0 }
+            steps: [{ id: done, kind: outcome }]
+        effects:
+          - target: { actions: [attack] }
+            op: params
+            value:
+              spent: { min: 1 }
+      content: []

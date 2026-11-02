@@ -1,0 +1,26 @@
+description: "A copy's computed values are worked out after every field: its roll effect reads one, but its field effect can't (`unknown-name`), since a computed value feeding a field could loop"
+specVersion: 0.3.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.3.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        tags: [attack]
+        fields:
+          tier: { type: integer, input: true, default: 1 }
+          ac: { type: integer, formula: 10 }
+        contentTypes:
+          gear:
+            computed:
+              bonus: { type: integer, formula: tier + ac }
+      content:
+        - id: gear.blade
+          type: gear
+          effects:
+            - { target: { rolls: [attack] }, op: add, value: self.bonus }
+            - { target: ac, op: add, value: self.bonus }

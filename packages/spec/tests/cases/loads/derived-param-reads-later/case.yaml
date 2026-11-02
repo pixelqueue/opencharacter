@@ -1,0 +1,20 @@
+description: "A derived parameter reads only the derived parameters declared before it: two that read each other are a `formula-error` (`unknown-name`) at load, so they can't loop"
+specVersion: 0.3.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.3.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        actions:
+          - id: strike
+            params:
+              spend: { type: integer, default: 0 }
+              cost: { type: integer, formula: params.spend + params.total }
+              total: { type: integer, formula: params.cost + 1 }
+            steps: [{ id: done, kind: outcome }]
+      content: []

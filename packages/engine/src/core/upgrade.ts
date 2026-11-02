@@ -22,7 +22,7 @@ import type {
   Pick,
   ValueDecl,
 } from './pack-types.ts';
-import { appliesQueries } from './pack-types.ts';
+import { appliesQueries, isAddedBound } from './pack-types.ts';
 import type { PackRelease } from './release.ts';
 import type { Ruleset } from './ruleset.ts';
 import { homebrewFormulas, withHomebrew } from './homebrew.ts';
@@ -1191,7 +1191,15 @@ export function checkRelease(
     const now = nextDecls.params.get(id)?.decls;
     if (!now) interfaceChanges.push({ kind: 'param-removed', id });
     else if (
-      decls.some((was) => now.every((d) => narrowed(was, d) || (!required(was) && required(d))))
+      // A given parameter that becomes derived no longer takes the app's value.
+      decls.some((was) =>
+        now.every(
+          (d) =>
+            narrowed(was, d) ||
+            (!required(was) && required(d)) ||
+            (was.formula === undefined && d.formula !== undefined),
+        ),
+      )
     )
       interfaceChanges.push({ kind: 'param-type-changed', id });
   }
@@ -1437,7 +1445,8 @@ function narrowed(
   );
 }
 
-const required = (decl: ValueDecl): boolean => !decl.optional && decl.default === undefined;
+const required = (decl: ValueDecl): boolean =>
+  !decl.optional && decl.default === undefined && decl.formula === undefined;
 
 /** A release's actions and action parameters, by text-key address. */
 interface ActionDecls {
@@ -1475,6 +1484,7 @@ function actionDecls(release: PackRelease): ActionDecls {
     for (const effect of effects ?? []) {
       if (effect.op !== 'params' || typeof effect.value !== 'object') continue;
       for (const [name, decl] of Object.entries(effect.value as Record<string, ValueDecl>)) {
+        if (isAddedBound(decl)) continue;
         const id = `${key}.params.${name}`;
         const found = out.params.get(id);
         if (found) found.decls.push(decl);

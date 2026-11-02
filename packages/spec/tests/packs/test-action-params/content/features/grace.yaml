@@ -1,0 +1,12 @@
+# Healing Grace: each enhancement costs one surge, so the enhancements bound the shared action's
+# own `surges` (an entry with only bounds), and the feature's limit caps it.
+id: features.grace
+type: feature
+fields: { limit: 4 }
+effects:
+  - target: { actions: [ability] }
+    op: params
+    value:
+      graceStand: { type: boolean, default: false }
+      graceEnd: { type: boolean, default: false }
+      surges: { min: '(params.graceStand ? 1 : 0) + (params.graceEnd ? 1 : 0)', max: item.limit }

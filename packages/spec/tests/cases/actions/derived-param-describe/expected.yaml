@@ -1,0 +1,18 @@
+action:
+  definedBy: test-action-params:use-ability
+  tags: [ability, usage.maneuver, kw.psionic]
+  results: [used]
+  params:
+    - { name: surges, type: integer, required: false, default: 0, min: 0 }
+    - name: overload
+      type: boolean
+      required: false
+      default: false
+      addedBy: test-action-params:features.overload
+    - name: overloadCost
+      type: integer
+      required: false
+      derived: true
+      addedBy: test-action-params:features.overload
+  participants:
+    - { role: target, min: 0, max: 1 }

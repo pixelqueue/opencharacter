@@ -31,6 +31,7 @@ import type {
 } from './pack-types.ts';
 import {
   innerSteps,
+  isAddedBound,
   optionQuery,
   pendingSource,
   stackPolicy,
@@ -786,11 +787,12 @@ function startFrame(
     added: nested.added,
     situational: given,
   };
-  frame.roots.params = params(ctx, frame, rawParams, fixed, fixedPack);
+  // Participants first: a derived parameter reads them.
   const roles = def.participants ?? {};
   const passed = depth === 0 ? (ctx.state.participants ?? {}) : (nested.participants ?? {});
   frame.roots.participants = participantsRoot(roles, passed);
   for (const list of Object.values(passed)) for (const view of list) frame.views.set(view.id, view);
+  frame.roots.params = params(ctx, frame, rawParams, fixed, fixedPack);
   return frame;
 }
 
@@ -949,6 +951,10 @@ function params(
 ): Record<string, unknown> {
   const out: Record<string, unknown> = {};
   const own = paramAction(frame);
+  const added =
+    frame.depth === 0
+      ? addedParams(ctx.sheet, frame.def, frame.pack, frame.declared, frame.roots, frame)
+      : { params: [], bounds: [] };
   const all: ParamSpec[] = [
     ...Object.entries(frame.def.params ?? {}).map(([name, decl]): ParamSpec => ({
       name,
@@ -957,10 +963,7 @@ function params(
       roots: frame.roots,
       at: own,
     })),
-    ...(frame.depth === 0
-      ? addedParams(ctx.sheet, frame.def, frame.pack, frame.declared, frame.roots, frame)
-      : []
-    ).map((p): ParamSpec => ({
+    ...added.params.map((p): ParamSpec => ({
       name: p.name,
       decl: p.decl,
       pack: p.pack,
@@ -968,9 +971,20 @@ function params(
       at: { ...own, addedBy: p.addedBy },
     })),
   ];
-  // Bounds read `params`, so they are checked once every parameter has its value.
+  // Bounds read `params`, so they are checked once every parameter has its value: each
+  // parameter's own, then those `params` effects add to it.
   const ranges: (() => void)[] = [];
-  for (const { name, decl, pack, roots, at } of all) {
+  const typedOf = new Map<string, { value: f.Value; at: Record<string, string> }>();
+  const derived: ParamSpec[] = [];
+  for (const spec of all) {
+    const { name, decl, pack, roots, at } = spec;
+    // A derived parameter is worked out once every given one has its value.
+    if (decl.formula !== undefined) {
+      if (raw[name] !== undefined || fixed[name] !== undefined)
+        throw new ActionError('invalid-param', { param: name, reason: 'derived', ...at });
+      derived.push(spec);
+      continue;
+    }
     let value: unknown = raw[name];
     if (fixed[name] !== undefined) {
       const evaluated = ctx.sheet.evaluate(fixed[name] as Formula, fixedPack, frame.roots);
@@ -1030,7 +1044,41 @@ function params(
         return v.kind === 'int' || v.kind === 'decimal' ? v.value : undefined;
       }),
     );
+    typedOf.set(name, { value: typed, at });
     out[name] = rootValue(typed);
+  }
+  // In declaration order, each reading the given parameters and the derived ones before it.
+  for (const { name, decl, pack, roots, at } of derived) {
+    const value = ctx.sheet.evaluate(decl.formula as Formula, pack, {
+      ...roots,
+      participants: frame.roots.participants,
+      params: out,
+    });
+    const typed = typedValue(decl, f.toData(value));
+    if (typeof typed === 'string')
+      throw new ActionError('type-mismatch', {
+        message: `the derived parameter "${name}" must be ${decl.type}, not ${value.kind}`,
+        param: name,
+        ...at,
+      });
+    ranges.push(() =>
+      paramRange(name, at, decl, typed, (bound) => {
+        const v = ctx.sheet.evaluate(bound, pack, { ...roots, params: out });
+        return v.kind === 'int' || v.kind === 'decimal' ? v.value : undefined;
+      }),
+    );
+    typedOf.set(name, { value: typed, at });
+    out[name] = rootValue(typed);
+  }
+  for (const bound of added.bounds) {
+    const param = typedOf.get(bound.name);
+    if (!param) continue;
+    ranges.push(() =>
+      paramRange(bound.name, { ...param.at, boundBy: bound.addedBy }, bound, param.value, (b) => {
+        const v = ctx.sheet.evaluate(b, bound.pack, { ...bound.roots, params: out });
+        return v.kind === 'int' || v.kind === 'decimal' ? v.value : undefined;
+      }),
+    );
   }
   for (const range of ranges) range();
   return out;
@@ -1048,11 +1096,21 @@ export interface AddedParam {
   roots: Record<string, unknown>;
 }
 
+/** Bounds a `params` effect adds to a parameter the run already has. */
+export interface AddedBound {
+  name: string;
+  min?: Formula;
+  max?: Formula;
+  pack: string;
+  addedBy: string;
+  roots: Record<string, unknown>;
+}
+
 /**
  * The parameters `params` effects add to an action as listed with these roots: each instance
  * whose target tags match the listing's tags, whose `from: self` (if any) names its entry and
  * whose `when` holds, in instance order. A name the action declares, or an earlier instance
- * added, is left out.
+ * added, is left out. An entry with only bounds goes to `bounds`, for the parameter it names.
  */
 export function addedParams(
   sheet: Sheet,
@@ -1061,8 +1119,9 @@ export function addedParams(
   declared: string,
   roots: Record<string, unknown>,
   owner: RunOwner,
-): AddedParam[] {
+): { params: AddedParam[]; bounds: AddedBound[] } {
   const out: AddedParam[] = [];
+  const bounds: AddedBound[] = [];
   let tags: string[] | undefined;
   for (const instance of sheet.instances) {
     const effect = instance.effect;
@@ -1075,7 +1134,7 @@ export function addedParams(
       ...(roots.item !== undefined ? { item: roots.item } : {}),
       ...(roots.self !== undefined ? { self: roots.self } : {}),
     };
-    const own = { ...instance.roots, action };
+    const own = { ...sheet.effectRoots(instance), action };
     let holds = false;
     try {
       holds = sheet.gateHolds(instance, own);
@@ -1089,12 +1148,23 @@ export function addedParams(
     }
     if (!holds) continue;
     for (const [name, decl] of Object.entries(effect.value as Record<string, ValueDecl>)) {
-      if (Object.hasOwn(def.params ?? {}, name) || out.some((p) => p.name === name)) continue;
       const by = addedBy(sheet.ruleset, instance);
+      if (isAddedBound(decl)) {
+        bounds.push({
+          name,
+          ...(decl.min !== undefined ? { min: decl.min } : {}),
+          ...(decl.max !== undefined ? { max: decl.max } : {}),
+          pack: instance.pack,
+          addedBy: by,
+          roots: own,
+        });
+        continue;
+      }
+      if (Object.hasOwn(def.params ?? {}, name) || out.some((p) => p.name === name)) continue;
       out.push({ name, decl, pack: instance.pack, addedBy: by, roots: own });
     }
   }
-  return out;
+  return { params: out, bounds };
 }
 
 /** The content an added option or parameter is named by: a type's own effects by the type. */
@@ -1162,7 +1232,7 @@ export function contentParamTakes(
 function paramRange(
   name: string,
   at: Record<string, string>,
-  decl: ValueDecl,
+  decl: { min?: Formula; max?: Formula },
   value: f.Value,
   boundOf: (bound: Formula) => number | undefined,
 ): void {
@@ -1745,6 +1815,11 @@ function handoff(ctx: Ctx, frame: Frame, step: Step, path: string): NestedResult
     if (decl.type === 'id' && decl.of === 'field' && name in given)
       given[name] = fieldIdOf(given[name]);
     const value = given[name];
+    // A derived parameter is worked out when the participant's run starts.
+    if (decl.formula !== undefined) {
+      if (value === undefined) continue;
+      throw new ActionError('invalid-param', { param: name, reason: 'derived', action: qid });
+    }
     if (value === undefined) {
       if (decl.optional || decl.default !== undefined) continue;
       throw new ActionError('missing-param', { param: name, action: qid });
@@ -1925,7 +2000,7 @@ function rollCandidates(ctx: Ctx, frame: Frame, stepTags: string[]): RollCandida
       instance,
       effect: instance.effect,
       pack: instance.pack,
-      roots: instance.roots,
+      roots: sheet.effectRoots(instance),
     });
   }
   const situational = frame.roots.situational as Record<string, unknown>;
@@ -2625,7 +2700,7 @@ function proposeThens(
     if (rule.to !== 'self')
       proposeChanges(
         ctx,
-        optionFrame(frame, i),
+        optionFrame(ctx.sheet, frame, i),
         step,
         path,
         rule.to,
@@ -3188,7 +3263,7 @@ function actionRoot(
 }
 
 /** The action's frame with `item`, `self` and pack of the content carrying the effect. */
-function optionFrame(frame: Frame, instance: EffectInstance): Frame {
+function optionFrame(sheet: Sheet, frame: Frame, instance: EffectInstance): Frame {
   const roots = { ...frame.roots };
   delete roots.item;
   delete roots.self;
@@ -3196,7 +3271,7 @@ function optionFrame(frame: Frame, instance: EffectInstance): Frame {
   return {
     ...rest,
     pack: instance.pack,
-    roots: { ...roots, ...instance.roots },
+    roots: { ...roots, ...sheet.effectRoots(instance) },
     ...(instance.source.entry !== undefined ? { entry: instance.source.entry } : {}),
     adder: instance.source,
     owner: { activation: instance.own },
@@ -3258,7 +3333,10 @@ function addedOptions(
     const value = effect.value as OptionValue;
     const id = `${instance.source.id}#${value.id}`;
     if (out.some((c) => c.id === id)) continue;
-    const roots = context(optionFrame(frame, instance), { picks: counts.get(id) ?? 0, action });
+    const roots = context(optionFrame(ctx.sheet, frame, instance), {
+      picks: counts.get(id) ?? 0,
+      action,
+    });
     if (!ctx.sheet.gateHolds(instance, roots)) continue;
     if (effect.when !== undefined) {
       const v = ctx.sheet.evaluate(effect.when, instance.pack, roots);
@@ -3522,7 +3600,7 @@ function choiceStep(ctx: Ctx, given: Frame, step: Step, path: string): void {
     for (const [name, formula] of Object.entries(candidate.option?.flags ?? {}))
       frame.flags[name] = rootValue(evaluate(ctx, frame, formula, { picked }));
     if (candidate.added) {
-      const added = optionFrame(frame, candidate.added.instance);
+      const added = optionFrame(ctx.sheet, frame, candidate.added.instance);
       for (const [name, formula] of Object.entries(candidate.added.value.flags ?? {}))
         frame.flags[name] = rootValue(evaluate(ctx, added, formula, { picked, action }));
     }
@@ -3540,7 +3618,7 @@ function choiceStep(ctx: Ctx, given: Frame, step: Step, path: string): void {
     if (candidate.added)
       proposeChanges(
         ctx,
-        optionFrame(frame, candidate.added.instance),
+        optionFrame(ctx.sheet, frame, candidate.added.instance),
         step,
         path,
         candidate.added.value.to ?? 'self',
@@ -3976,7 +4054,7 @@ function addedRuns(ctx: Ctx, frame: Frame, step: Step, path: string): void {
     if (!addsToSteps(instance, frame, target.from)) continue;
     const value = effect.value as StepAction;
     const id = `${instance.source.id}#${value.id}`;
-    const added = optionFrame(frame, instance);
+    const added = optionFrame(ctx.sheet, frame, instance);
     const runs: { frame: Frame; path: string }[] = [];
     const role = value.each;
     if (frame.each) {
@@ -4050,7 +4128,7 @@ function addedChanges(ctx: Ctx, frame: Frame, step: Step): AddedChanges[] {
     if (effect.op !== 'changes' || typeof target !== 'object' || !('steps' in target)) continue;
     if (!tagsReach(ctx.ruleset, instance.pack, frame.declared, target.steps, tags)) continue;
     if (!addsToSteps(instance, frame, target.from)) continue;
-    const added = optionFrame(frame, instance);
+    const added = optionFrame(ctx.sheet, frame, instance);
     const roots = context(added, { action });
     if (!ctx.sheet.gateHolds(instance, roots)) continue;
     if (effect.when !== undefined) {

@@ -237,3 +237,64 @@ describe('parameter bounds that read params', () => {
     expect(described.action.params.find((p) => p.name === 'recoveries')).not.toHaveProperty('max');
   });
 });
+
+/** A character with these features of pack `p`. */
+const holding = (ids: string[]) => ({
+  specVersion: '0.3.0',
+  id: 'hero',
+  packs: [{ id: 'p', version: '1.0.0' }],
+  features: ids.map((id) => ({ id, item: `p:features.${id}` })),
+});
+
+describe('bounds a params effect adds to a parameter the run has', () => {
+  // Healing Grace: the enhancements bound the ability's own spend, so an overspend names it.
+  const grace = adds('ability', {
+    stand: { type: 'boolean', default: false },
+    recoveries: { type: 'integer', default: 0, min: 0 },
+    surges: { min: 'params.recoveries + (params.stand ? 1 : 0)' },
+  });
+  const capped = adds('ability', { surges: { max: 2 } });
+  const loaded = loadRuleset([pack({ grace: [grace], capped: [capped] })]);
+  if (!loaded.ok) throw new Error(JSON.stringify(loaded.errors));
+  const run = (ids: string[], params: Record<string, unknown>) => {
+    const result = startAction(loaded.ruleset, holding(ids), {
+      action: { id: 'p:use-ability' },
+      params,
+    });
+    return 'errors' in result && result.errors ? result.errors.map((e) => e.data) : 'ok';
+  };
+
+  it('load: a bound is no declaration, and two bounds on one name do not conflict', () => {
+    expect(reasons(pack({ grace: [grace], capped: [capped] }))).toEqual([]);
+  });
+
+  it('load: a bound on a name no action declares and no effect adds is undeclared', () => {
+    expect(reasons(pack({ a: [adds('ability', { spend: { min: 1 } })] }))).toEqual([
+      ['invalid-added-param', 'undeclared'],
+    ]);
+  });
+
+  it('every bound must hold; the error names the parameter and who added the bound', () => {
+    expect(run(['grace'], { surges: 2, recoveries: 1, stand: true })).toBe('ok');
+    expect(run(['grace'], { surges: 1, recoveries: 1, stand: true })).toEqual([
+      { target: 'surges', min: 2, action: 'p:use-ability', boundBy: 'p:features.grace' },
+    ]);
+    expect(run(['grace', 'capped'], { surges: 3, recoveries: 3 })).toEqual([
+      { target: 'surges', max: 2, action: 'p:use-ability', boundBy: 'p:features.capped' },
+    ]);
+    // Without the feature, no bound.
+    expect(run([], { surges: 3 })).toBe('ok');
+  });
+
+  it('describeAction lists them under the parameter', () => {
+    const described = describeAction(loaded.ruleset, holding(['grace', 'capped']), {
+      id: 'p:use-ability',
+    });
+    if (!('action' in described)) throw new Error(JSON.stringify(described));
+    expect(described.action.params.map((p) => p.name)).toEqual(['surges', 'stand', 'recoveries']);
+    expect(described.action.params[0]?.addedBounds).toEqual([
+      { addedBy: 'p:features.grace' },
+      { addedBy: 'p:features.capped', max: 2 },
+    ]);
+  });
+});

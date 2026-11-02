@@ -186,6 +186,8 @@ export interface Activation {
   gates?: readonly Gate[] | undefined;
   /** Its effects' shared condition: its item's `effectsWhen`, else its type's (an inline option's owner's). */
   effectsWhen?: EffectsWhen | undefined;
+  /** An inline option's: the content activation it was picked under, whose computed values it reads. */
+  holder?: Activation | undefined;
 }
 
 /** A grant's `available`, with the grant's pack and roots. */
@@ -309,6 +311,11 @@ export interface EffectInstance {
   own?: Activation;
   /** Its content's `effectsWhen`, ANDed into its `when` with the same roots. */
   gate?: EffectsWhen;
+  /**
+   * The holder activation whose computed values its `self` reads when it acts as an action runs
+   * (`effectRoots`); absent for the rules', applied content's and auras' effects.
+   */
+  holder?: Activation;
 }
 
 interface FieldResult {
@@ -2063,6 +2070,7 @@ export class Sheet {
       Object.keys(stateDecls(this.ruleset, item, [])).length > 0
         ? activation
         : undefined;
+    const holder = activation.scope === 'holder' ? this.computedHolder(activation) : undefined;
     if (type) {
       (type.effects ?? []).forEach((effect, index) => {
         if (effect.id !== undefined && item?.suppress?.includes(effect.id)) return;
@@ -2077,6 +2085,7 @@ export class Sheet {
           activation.applied,
           owner,
           gate,
+          holder,
         );
       });
     }
@@ -2094,6 +2103,7 @@ export class Sheet {
         activation.applied,
         owner,
         gate,
+        holder,
       );
     });
     if (activation.scope === 'applied') {
@@ -2301,6 +2311,7 @@ export class Sheet {
               undefined,
               undefined,
               owner.effectsWhen,
+              owner.scope === 'holder' ? this.computedHolder(owner) : undefined,
             );
           });
         const nested: Pick['choices'] = pick.choices ?? {};
@@ -2316,6 +2327,7 @@ export class Sheet {
             {
               ...owner,
               kind: 'inline',
+              holder: this.computedHolder(owner),
               waived: choice.waivePrerequisites === true,
               item: undefined as unknown as LoadedItem,
               inline,
@@ -2394,11 +2406,13 @@ export class Sheet {
     applied?: string,
     owner?: Activation,
     gate?: EffectsWhen,
+    holder?: Activation,
   ): void {
     const own = {
       ...(applied === undefined ? {} : { applied }),
       ...(owner === undefined ? {} : { own: owner }),
       ...(gate === undefined ? {} : { gate }),
+      ...(holder === undefined ? {} : { holder }),
     };
     const target = effect.target;
     if (typeof target === 'object' && 'formula' in target) {
@@ -2420,6 +2434,7 @@ export class Sheet {
           applied,
           owner,
           gate,
+          holder,
         );
       return;
     }
@@ -4129,6 +4144,32 @@ export class Sheet {
   /** The rules' roots: `picksOf` reads the rules' own choices there. */
   rulesRoots(): Record<string, unknown> {
     return (this.activations[0] as Activation).roots;
+  }
+
+  /**
+   * The activation whose computed values an activation's effects read: an inline option's content
+   * (the copy or content it was picked under), else itself.
+   */
+  private computedHolder(a: Activation): Activation {
+    return a.kind === 'inline' ? (a.holder ?? a) : a;
+  }
+
+  /**
+   * An effect's roots as it acts while an action runs (on rolls, choice and changes steps, listed
+   * actions, incoming changes): `self` also holds its holder's computed values, as its actions
+   * read them. A field effect keeps `roots`, since computed values are worked out after fields.
+   */
+  effectRoots(i: EffectInstance): Record<string, unknown> {
+    if (!i.holder) return i.roots;
+    const values = this.holderComputed(i.holder);
+    if (Object.keys(values).length === 0) return i.roots;
+    return { ...i.roots, self: { ...(i.roots.self as object), ...values } };
+  }
+
+  /** A holder activation's copy's computed values, then its own as picked or granted content. */
+  private holderComputed(a: Activation): Record<string, unknown> {
+    const copy = a.roots.self && a.entry ? (this.computedOf(a.entry.id) ?? {}) : {};
+    return { ...computedRoots(copy), ...computedRoots(this.contentComputedOf(a)) };
   }
 
   /**

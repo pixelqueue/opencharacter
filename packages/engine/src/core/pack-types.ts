@@ -49,6 +49,8 @@ export interface ValueDecl {
   min?: Formula;
   max?: Formula;
   label?: string;
+  /** Action parameters: a derived one, worked out as the action starts, never given. */
+  formula?: Formula;
 }
 
 export interface ComputedDecl {
@@ -844,6 +846,17 @@ export type { UpgradeScript as UpgradeDoc } from '@opencharacter/spec';
 
 export type { ChoicePick as Pick, ChoiceTree, Entry } from '@opencharacter/spec';
 export type { CharacterFile as CharacterDoc } from '@opencharacter/spec';
+
+/**
+ * A `params` effect's entry with no `type`, only `min` and `max`: bounds on a parameter the run
+ * already has, not a declaration.
+ */
+export function isAddedBound(decl: ValueDecl): boolean {
+  return (
+    (decl as { type?: string }).type === undefined &&
+    (decl.min !== undefined || decl.max !== undefined)
+  );
+}
 
 export function appliesQueries(item: { appliesTo?: Query | Query[] | undefined }): Query[] {
   const a = item.appliesTo;

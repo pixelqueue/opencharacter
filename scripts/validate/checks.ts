@@ -34,6 +34,7 @@ import {
   appliesQueries,
   enumAddress,
   innerSteps,
+  isAddedBound,
   stepArms,
   thenRule,
   thenToSelf,
@@ -300,7 +301,7 @@ export class PackChecker {
           `${where}: field IDs cannot start with the context root "${id.split('.')[0]}"`,
         );
       }
-      this.memberKind(def, file, where, { canOpen: true });
+      this.memberKind(def, file, where, { canOpen: true, formula: true });
       if (def.members && def.default !== undefined)
         for (const tag of [def.default].flat())
           this.memberTag(String(tag), def, file, `${where} default`);
@@ -588,8 +589,14 @@ export class PackChecker {
       for (const name of Object.keys(def.params ?? {}))
         if (!target.def.params?.[name])
           this.report.error(file, `${where}: action "${def.action}" has no parameter "${name}"`);
+        else this.derivedGiven(target.def, name, file, where);
       for (const [name, decl] of Object.entries(target.def.params ?? {}))
-        if (!decl.optional && decl.default === undefined && def.params?.[name] === undefined)
+        if (
+          !decl.optional &&
+          decl.default === undefined &&
+          decl.formula === undefined &&
+          def.params?.[name] === undefined
+        )
           this.report.error(file, `${where}: action "${def.action}" needs parameter "${name}"`);
       if (def.random) this.randomRun(target.def, target.qid, file, where, new Set());
       // A creation action's rolls are a wizard's cards: each needs its own name, or every card
@@ -1268,6 +1275,7 @@ export class PackChecker {
           file,
           `${where}: creation start "${create.start}"'s action has no parameter "${name}"`,
         );
+      else if (action) this.derivedGiven(action.def, name, file, where);
   }
 
   /**
@@ -1470,8 +1478,10 @@ export class PackChecker {
     decl: ValueDecl,
     file: string,
     where: string,
-    { canOpen = false, itemField = false, takesWhere = false } = {},
+    { canOpen = false, itemField = false, takesWhere = false, formula = false } = {},
   ): void {
+    if (decl.formula !== undefined && !formula)
+      this.report.error(file, `${where}: formula (a derived value) is for action parameters`);
     const refs =
       ['id', 'set', 'list'].includes(decl.type) &&
       decl.of !== undefined &&
@@ -1629,6 +1639,7 @@ export class PackChecker {
         this.report.error(file, `${where}: no parameter "${name}"`);
         continue;
       }
+      this.derivedGiven(target.def, name, file, where);
       const bad = (expected: string) =>
         this.report.error(
           file,
@@ -1896,6 +1907,7 @@ export class PackChecker {
         for (const name of Object.keys(value.params ?? {}))
           if (!used.def.params?.[name])
             this.report.error(file, `${label}: action "${value.use}" has no parameter "${name}"`);
+          else this.derivedGiven(used.def, name, file, label);
       for (const change of value.changes ?? [])
         this.proposedChange(change, file, label, false, new Set(), value.to);
     }
@@ -1908,8 +1920,12 @@ export class PackChecker {
         );
       else
         for (const [name, decl] of Object.entries(effect.value as Record<string, ValueDecl>)) {
+          // An entry with only bounds adds to a parameter named elsewhere.
+          if (isAddedBound(decl)) continue;
           const key = `${this.contentOwner}.params.${name}`;
-          this.requiredKeys.add(decl.label ?? `${key}.name`);
+          (decl.formula === undefined ? this.requiredKeys : this.optionalKeys).add(
+            decl.label ?? `${key}.name`,
+          );
           this.optionalKeys.add(`${key}.description`);
           if (decl.type === 'enum')
             for (const value of decl.values ?? [])
@@ -2072,13 +2088,21 @@ export class PackChecker {
 
   private addedNames: Set<string> | undefined;
 
+  /** A derived parameter is worked out by the engine: giving it is `invalid-param` at run time. */
+  private derivedGiven(def: ActionDef, name: string, file: string, where: string): void {
+    if (def.params?.[name]?.formula !== undefined)
+      this.report.error(file, `${where}: parameter "${name}" is derived (formula), never given`);
+  }
+
   /** Every parameter name a `params` effect in scope adds: a `use` may fix one. */
   private addedParamNames(): Set<string> {
     if (this.addedNames) return this.addedNames;
     const names = new Set<string>();
     const add = (effects: readonly Effect[] | undefined) => {
       for (const e of effects ?? [])
-        if (e.op === 'params') for (const name of Object.keys(e.value ?? {})) names.add(name);
+        if (e.op === 'params')
+          for (const [name, decl] of Object.entries((e.value ?? {}) as Record<string, ValueDecl>))
+            if (!isAddedBound(decl)) names.add(name);
     };
     for (const pid of this.scope) {
       const rules = this.ruleset.rules.get(pid);
@@ -2100,6 +2124,7 @@ export class PackChecker {
       for (const name of Object.keys(action.params ?? {})) {
         if (!target.def.params?.[name] && !this.addedParamNames().has(name))
           this.report.error(file, `action "${action.use}" has no parameter "${name}"`);
+        else this.derivedGiven(target.def, name, file, `${keyPrefix} use ${action.use}`);
       }
       return;
     }
@@ -2123,7 +2148,7 @@ export class PackChecker {
     for (const [name, decl] of Object.entries(action.params ?? {})) {
       if ((name === 'ended' || name === 'started') && decl.type !== 'string')
         this.report.error(file, `${key}: a clock action's ${name} is a string (a character ID)`);
-      else if (decl.default === undefined && !decl.optional)
+      else if (decl.default === undefined && !decl.optional && decl.formula === undefined)
         this.report.error(file, `${key}: a clock action's parameter ${name} needs a default`);
     }
     for (const [role, def] of Object.entries(action.participants ?? {}))
@@ -2220,8 +2245,11 @@ export class PackChecker {
     this.tagList(action.tags, file, key);
     for (const [name, decl] of Object.entries(action.params ?? {})) {
       // A content type's action is named per item, so its parameters stay closed.
-      this.memberKind(decl, file, key, { canOpen: !key.startsWith('types.') });
-      this.requiredKeys.add(decl.label ?? `${key}.params.${name}.name`);
+      this.memberKind(decl, file, key, { canOpen: !key.startsWith('types.'), formula: true });
+      // A derived parameter is never asked for: its name is for apps that show it.
+      (decl.formula === undefined ? this.requiredKeys : this.optionalKeys).add(
+        decl.label ?? `${key}.params.${name}.name`,
+      );
       this.optionalKeys.add(`${key}.params.${name}.description`);
       if (decl.type === 'enum')
         for (const value of decl.values ?? [])
@@ -2294,6 +2322,12 @@ export class PackChecker {
           !(step.source === undefined && step.entry !== undefined && this.anyDefines(step.use))
         ) {
           this.report.error(file, `${where}: unknown action "${step.use}"`);
+        }
+        if (step.kind === 'action' && step.use) {
+          const used = this.ruleset.action(step.use, this.scope);
+          if (used)
+            for (const name of Object.keys(step.params ?? {}))
+              this.derivedGiven(used.def, name, file, where);
         }
         // Roles: `each` and a role in `to` must be declared (`target` needn't be), and a handoff
         // needs an `each`.
