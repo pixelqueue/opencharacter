@@ -721,8 +721,10 @@ Still closed: attributes, proficiency ranks, saves, spell traditions (and a staf
   templates, one per curse whatever the kind of item (`content/item-curses`), bloodbiter's bleed with mechanics.
 - **Hero Points**: an input, 1 to start, at most 3. A failed check (`check`, so skill actions,
   Perception and saves) offers a Hero Point reroll after the roll (`check.reroll`, declining
-  recommended); the second result stands. Rerolling a Strike or spell attack and spending them
-  all to avoid dying are the app's.
+  recommended); the second result stands. Halfling Luck, Cat's Luck (the better result stands)
+  and Spiritual Guides offer their once-a-day rerolls there too, marking the feat used until
+  daily preparations. Rerolling a Strike or spell attack, the other fortune rerolls and spending
+  Hero Points to avoid dying are the app's.
 - **Creation**: a guided start, `standard`, and a random one,
   `random`. Guided: an ancestry and its heritage, a background and a class, then what each brings in the book's order: the ancestry's
   boosts and the heritage's choices, the background's boosts (and a scholar's skill), the four

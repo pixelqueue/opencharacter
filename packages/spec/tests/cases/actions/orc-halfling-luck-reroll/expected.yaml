@@ -1,0 +1,14 @@
+# Fortitude +5: 4 + 5 = 9 fails DC 18; the reroll, 16 + 5 = 21, stands.
+status: finished
+outcome:
+  result: success
+  data: { total: 21, dc: 18, natural: 16 }
+proposedChanges:
+  - to: self
+    step: reroll
+    change:
+      type: setState
+      key: used
+      path: { choice: [ancestry-feat-1] }
+      option: orc-2e:feats.ancestry.halfling-luck
+      value: true

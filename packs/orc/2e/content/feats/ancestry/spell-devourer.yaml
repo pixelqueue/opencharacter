@@ -9,7 +9,7 @@ effects:
     op: changes
     when: >-
       has(params.spellRank) && params.spellRank > 0
-        && (has(steps.rerolled) ? steps.rerolled.band : steps.roll.band) in ['success', 'critical-success']
+        && (flags.second ? steps.rerolled.band : steps.roll.band) in ['success', 'critical-success']
     value:
       changes:
         - type: set
