@@ -17,7 +17,6 @@ choices:
       options:
         - { id: bye-bye }
         - { id: laughs-at-locks }
-        - { id: slippery }
+        - id: slippery
+          immuneTo: [{ id: grab, items: [conditions.grabbed] }]
     recommend: "'slippery'"
-immuneTo:
-  - { id: slippery, items: [conditions.grabbed], when: "'slippery' in picksOf('benefit')" }

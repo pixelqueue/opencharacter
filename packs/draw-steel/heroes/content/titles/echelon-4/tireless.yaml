@@ -24,10 +24,9 @@ choices:
                 op: add,
                 value: floor(stamina.max / 2) - floor(stamina.max / 3),
               }
-        # Undying: no bleeding, even while dying (the immunity below).
+        # Undying: no bleeding, even while dying.
         - id: undying
           effects:
             - { target: stamina.dyingBleeds, op: set, value: 'false' }
+          immuneTo: [{ id: bleeding, items: [conditions.bleeding] }]
     recommend: "'reserves-of-strength'"
-immuneTo:
-  - { id: undying, items: [conditions.bleeding], when: "'undying' in picksOf('benefit')" }
