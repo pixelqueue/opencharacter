@@ -276,6 +276,15 @@ Where the SRD is unclear or silent, the pack reads it this way:
   (Hunter's Mark: the caster's weapon hits on a creature whose `huntersMark.markedBy` view
   holds the caster's ID deal an extra 1d6); racial spells;
   subclass spells; the wizard's spellbook (a spell only in the book is cast only as a ritual).
+- **Auras:** Aura of Protection (while the paladin is conscious, `aura.range`, reading its live
+  Charisma modifier), Countercharm (30 feet, while the bard performs), the Rod of Alertness's
+  Protective Aura (60 feet, while planted), Pass without Trace (30 feet, cast on the caster) and
+  Spirit Guardians (15 feet, enemies' speed halved; the cast puts the spell on the caster to hold
+  it up; the save and damage stay the cast's, run against each creature) are listed in computeSheet's `auras` for the app to place on whoever is inside. A creature
+  counts one Aura of Protection, Rod or Pass without Trace bonus (stackKey `source`), so the
+  holder inside its own aura, or an ally with an older `ally` entry, isn't counted twice. The
+  `ally` actions stay for apps that don't place auras. Aura of Courage and Aura of Devotion keep
+  their `ally` actions: an aura carries effects only, not immunities.
 - **Equipment:** every SRD weapon and armor, 135 gear items, 7 equipment packs, 35 tools, 8
   mounts and 11 vehicles, with cost (gp) and weight (lb) per unit. Extradimensional containers
   and the Efficient Quiver take what they hold out of carried weight.
@@ -347,7 +356,7 @@ utility).
 
 - **The app's:** turns and action economy (Cunning Action, Fast Hands, Vanish, Persistent Rage,
   Nimble Escape; once per turn), the clock (durations, dawn, rests, crafting time), space and
-  range (auras, areas, who is within reach), and other character files (summoned creatures,
+  range (who is inside an aura, areas, who is within reach), and other character files (summoned creatures,
   Wild Shape's beast, the vehicles that are creatures). Copying spells and crafting cost gold
   and days, the app's too.
 - **Narrative or the GM's:** both Timeless Bodies, Tongue of the Sun and Moon, Trance, Shelter
