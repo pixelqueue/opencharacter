@@ -279,6 +279,9 @@ Where the SRD is unclear or silent, the pack reads it this way:
   view holds the caster's ID deal an extra 1d6, and its `move` action ends the caster's mark
   wherever it is, `to: applied`, and marks the new target); racial spells;
   subclass spells; the wizard's spellbook (a spell only in the book is cast only as a ritual).
+  Each spell the character has carries its numbers as computed values (`castingClass`,
+  `spellDc`, `spellAttack`, `spellMod`, in computeSheet's `activationValues`), which
+  `cast-spell` reads and the spell card shows ("Save DC 14", "Spell attack +6").
 - **Auras:** Aura of Protection (while the paladin is conscious, `aura.range`, reading its live
   Charisma modifier), Countercharm (30 feet, while the bard performs), the Rod of Alertness's
   Protective Aura (60 feet, while planted), Pass without Trace (30 feet, cast on the caster) and
@@ -367,6 +370,8 @@ utility).
 - **Metamagic:** what most options change (Twinned Spell's second target, range, duration,
   casting time, components, Careful Spell's creatures) is reported in `data.metamagic` for the
   app.
+- **A spell on two spellcasting lists** (a cleric's spell also known through another class or a
+  feat) is cast, and its card numbered, with the first spellcasting whose list has it.
 - **Monster diseases:** the diseases a monster's attack gives (the diseased giant rat, the
   otyugh) are the attack's text. The hydra's bites per head are text: heads aren't tracked.
 

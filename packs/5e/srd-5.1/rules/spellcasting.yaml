@@ -115,10 +115,7 @@ actions:
           - when: true
             flags:
               me: character.id
-              cls: >-
-                countList(keysOf('caster'), item.id in fieldOf('spells.{caster}', x)) > 0
-                  ? filterList(keysOf('caster'), item.id in fieldOf('spells.{caster}', x))[0]
-                  : item.id in spells.wizardBook ? 'wizard' : 'none'
+              cls: self.castingClass
               slotType: >-
                 item.level == 0 || (has(params.ritual) && params.ritual) ? 'none'
                   : has(params.slotType) ? params.slotType
@@ -175,12 +172,9 @@ actions:
               slot: >-
                 item.level == 0 ? 0 : flags.stored ? self.slot : has(params.slot) ? params.slot
                   : flags.slotType == 'pact' ? pactSlots.level : item.level
-              dc: >-
-                flags.stored ? self.dc : flags.cls == 'none' ? 0 : fieldOf('spellcasting.{caster}.dc', flags.cls)
-              attackBonus: >-
-                flags.stored ? self.attack : flags.cls == 'none' ? 0 : fieldOf('spellcasting.{caster}.attack', flags.cls)
-              mod: >-
-                flags.stored ? self.mod : flags.cls == 'none' ? 0 : fieldOf('spellcasting.{caster}.mod', flags.cls)
+              dc: self.spellDc
+              attackBonus: self.spellAttack
+              mod: self.spellMod
       - id: scaling
         kind: branch
         cases:
@@ -236,25 +230,9 @@ actions:
         cases:
           - when: true
             flags:
-              dc: >-
-                sumCopies(has(copy.fields.saveDc) ? copy.fields.saveDc : 0, copy.id == self.id) > 0
-                  ? sumCopies(has(copy.fields.saveDc) ? copy.fields.saveDc : 0, copy.id == self.id)
-                  : flags.cls != 'none' ? flags.dc
-                  : max(spellcasting.bard.dc, spellcasting.cleric.dc, spellcasting.druid.dc,
-                    spellcasting.paladin.dc, spellcasting.ranger.dc, spellcasting.sorcerer.dc,
-                    spellcasting.warlock.dc, spellcasting.wizard.dc)
-              attackBonus: >-
-                sumCopies(has(copy.fields.spellAttackBonus) ? copy.fields.spellAttackBonus : 0, copy.id == self.id) > 0
-                  ? sumCopies(has(copy.fields.spellAttackBonus) ? copy.fields.spellAttackBonus : 0, copy.id == self.id)
-                  : flags.cls != 'none' ? flags.attackBonus
-                  : max(spellcasting.bard.attack, spellcasting.cleric.attack, spellcasting.druid.attack,
-                    spellcasting.paladin.attack, spellcasting.ranger.attack, spellcasting.sorcerer.attack,
-                    spellcasting.warlock.attack, spellcasting.wizard.attack)
-              mod: >-
-                flags.cls != 'none' ? flags.mod
-                  : max(spellcasting.bard.mod, spellcasting.cleric.mod, spellcasting.druid.mod,
-                    spellcasting.paladin.mod, spellcasting.ranger.mod, spellcasting.sorcerer.mod,
-                    spellcasting.warlock.mod, spellcasting.wizard.mod)
+              dc: self.spellDc
+              attackBonus: self.spellAttack
+              mod: self.spellMod
       - id: noSlot
         kind: outcome
         when: >-

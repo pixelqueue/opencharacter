@@ -86,7 +86,7 @@ types.spell.block: >-
   · {castingTime_name}{has_texts_trigger, select, true {, {texts_trigger}} other {}}
   · {rangeKind, select, ranged {{range} ft} other {{rangeKind_name}}}{has_areaShape, select, true { ({areaSize}-ft {areaShape_name})} other {}}
   · {verbal, select, true {V} other {}}{somatic, select, true {{verbal, select, true {, } other {}}S} other {}}{material, select, true {{verbal, select, true {, } other {{somatic, select, true {, } other {}}}}M{has_texts_material, select, true { ({texts_material})} other {}}} other {}}
-  · {concentration, select, true {Concentration, up to } other {}}{durationUnit, select, round {{durationAmount, plural, one {# round} other {# rounds}}} minute {{durationAmount, plural, one {# minute} other {# minutes}}} hour {{durationAmount, plural, one {# hour} other {# hours}}} day {{durationAmount, plural, one {# day} other {# days}}} other {{durationUnit_name}}}
+  · {concentration, select, true {Concentration, up to } other {}}{durationUnit, select, round {{durationAmount, plural, one {# round} other {# rounds}}} minute {{durationAmount, plural, one {# minute} other {# minutes}}} hour {{durationAmount, plural, one {# hour} other {# hours}}} day {{durationAmount, plural, one {# day} other {# days}}} other {{durationUnit_name}}}{has_self_spellDc, select, true {{self_spellDc, plural, =0 {} other {{has_save, select, true { · Save DC {self_spellDc}} other {}}{has_attack, select, true { · Spell attack +{self_spellAttack}} other {}}}}} other {}}
 types.spell.fields.school.values.abjuration.name: 'Abjuration'
 types.spell.fields.school.values.conjuration.name: 'Conjuration'
 types.spell.fields.school.values.divination.name: 'Divination'

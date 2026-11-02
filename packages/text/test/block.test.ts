@@ -141,6 +141,8 @@ describe('a synthetic pack', () => {
 describe('5E', () => {
   const { ruleset, text } = load('5e/srd-5.1');
   const card = (id: string) => text.contentBlock(item(ruleset, `5e-srd-5.1:${id}`));
+  const withValues = (id: string, computed: Record<string, unknown>) =>
+    text.contentBlock(item(ruleset, `5e-srd-5.1:${id}`), { computed });
 
   it('words a spell card', () => {
     expect(card('spells.fire-bolt')).toBe(
@@ -158,6 +160,16 @@ describe('5E', () => {
     const full = text.contentCard(item(ruleset, '5e-srd-5.1:spells.fire-bolt'))!;
     expect(full.split('\n\n')[0]).toBe(card('spells.fire-bolt'));
     expect(full.split('\n\n')[1]).toMatch(/^You hurl a mote of fire/);
+  });
+
+  it("adds the caster's save DC or spell attack from the spell's computed values", () => {
+    const values = { castingClass: 'wizard', spellDc: 14, spellAttack: 6, spellMod: 3 };
+    expect(withValues('spells.fire-bolt', values)).toBe(
+      '**Fire Bolt** — *Evocation cantrip* · 1 action · 120 ft · V, S · Instantaneous · Spell attack +6',
+    );
+    expect(withValues('spells.fireball', values)).toMatch(/ · Instantaneous · Save DC 14$/);
+    expect(withValues('spells.shield', values)).toMatch(/ · 1 round$/);
+    expect(withValues('spells.fireball', { ...values, spellDc: 0 })).toMatch(/ · Instantaneous$/);
   });
 
   it('words equipment', () => {
