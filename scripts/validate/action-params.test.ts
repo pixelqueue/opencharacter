@@ -32,6 +32,8 @@ function validate(edit: Record<string, string> = {}) {
   }
 }
 
+const added = (errors: string[]) => errors.filter((m) => m.startsWith('invalid-added-param'));
+
 describe('pnpm validate on params effects, computed action tags and a use with available', () => {
   it('accepts the pack', () => {
     expect(validate()).toEqual({ errors: [], warnings: [] });
@@ -62,5 +64,38 @@ describe('pnpm validate on params effects, computed action tags and a use with a
       ].join('\n'),
     });
     expect(errors.some((m) => m.includes('from: self'))).toBe(true);
+  });
+
+  it('reports the conflicting added parameters loadRuleset reports', () => {
+    // Another declaration of psi-boost's `boost`, over a tag actions carry only through formulas.
+    const { errors } = validate({
+      'content/features/surge-boost.yaml': [
+        'id: features.surge-boost',
+        'type: feature',
+        'effects:',
+        '  - target: { actions: [kw.psionic] }',
+        '    op: params',
+        '    value:',
+        '      boost: { type: integer, default: 0 }',
+      ].join('\n'),
+    });
+    expect(added(errors)).toEqual([
+      'invalid-added-param: test-action-params:features.surge-boost and test-action-params:features.psi-boost both add the parameter "boost", declared differently',
+    ]);
+    // Another ability's `from: self` element, with its own values: never on one run.
+    const own = validate({
+      'content/abilities/mind-spike.yaml': [
+        'id: abilities.mind-spike',
+        'type: ability',
+        'tags: [kw.psionic]',
+        'fields: { usage: maneuver, damage: 2 }',
+        'effects:',
+        '  - target: { actions: [ability], from: self }',
+        '    op: params',
+        '    value:',
+        '      element: { type: enum, values: [psychic], default: psychic }',
+      ].join('\n'),
+    });
+    expect(added(own.errors)).toEqual([]);
   });
 });

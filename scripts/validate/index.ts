@@ -1,6 +1,7 @@
 import { existsSync, readdirSync } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
 import { CharacterChecker, PackChecker } from './checks.ts';
+import { checkEngineLoad } from './engine-load.ts';
 import {
   loadCharacter,
   fileVersion,
@@ -293,6 +294,7 @@ function run(
     checker.run();
     requiredKeys.set(id, checker.requiredKeys);
   }
+  checkEngineLoad(packs, ruleset, reporter);
 
   const characters: string[] = [];
   const characterChecker = new CharacterChecker(ruleset, reporter);
