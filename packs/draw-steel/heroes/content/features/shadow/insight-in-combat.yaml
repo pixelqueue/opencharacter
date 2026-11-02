@@ -18,22 +18,6 @@ effects:
   - target: { steps: [round.start, combat.start, combat.end] }
     op: changes
     value: { changes: [{ type: set, field: shadow.surgeInsightGained, value: 'false' }] }
-  # A heroic ability with a power roll costs 1 less with an edge or double edge on it, against
-  # any one target: the edges and banes each target brings (as the use-ability edges step works
-  # them out) with the roll's own. Paid in full first, the insight comes back after the roll.
-  - target: { steps: [ability.after] }
-    op: changes
-    when: >-
-      combat.active && action.item.kind == 'heroic' && action.item.cost > 0 && has(steps.roll)
-        && (size(participants.target) == 0
-          ? min(2, steps.roll.tallies.edges) > min(2, steps.roll.tallies.banes)
-          : countList(participants.target,
-              min(2, steps.roll.tallies.edges
-                + ('kw.melee' in action.item.tags && flags.mode == 'melee' && x.conditions.prone ? 1 : 0)
-                + (x.conditions.restrained ? 1 : 0)
-                + (character.id in x.conditions.frightenedBy ? 1 : 0))
-              > min(2, steps.roll.tallies.banes
-                + (conditions.grabbed && !(x.id in conditions.grabbedBy) ? 1 : 0)
-                + (conditions.taunted && !(x.id in conditions.tauntedBy) ? 2 : 0)
-                + (x.id in conditions.frightenedBy ? 1 : 0))) > 0)
-    value: { changes: [{ type: adjust, field: heroic.current, by: 1 }] }
+  # A heroic ability with a power roll costs 1 less with an edge or double edge on it against
+  # any one target (use-ability pays after the roll).
+  - { target: abilities.edgeDiscount, op: add, value: 1 }

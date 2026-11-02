@@ -15,3 +15,8 @@ effects:
     when: self.equipped && 'kw.weapon' in action.item.tags
     tags:
       - damage.psychic
+  # 9th level: an edge against a winded target.
+  - target: { rolls: [power-target], tally: edges }
+    op: add
+    value: 1
+    when: self.equipped && level >= 9 && 'kw.weapon' in action.item.tags && participant.stamina.isWinded

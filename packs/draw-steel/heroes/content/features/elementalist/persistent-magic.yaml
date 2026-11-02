@@ -16,10 +16,8 @@ effects:
     value:
       changes:
         - { type: offerFollowUp, followUp: maintain, params: { ability: action.item.id } }
-  - target: { steps: [ability.pay] }
-    op: changes
-    when: combat.active && action.item.id in elementalist.maintained && action.item.cost > 0
-    value: { changes: [{ type: adjust, field: heroic.current, by: action.item.cost }] }
+  # Using a maintained ability again costs nothing.
+  - { target: abilities.free, op: set, value: 'combat.active ? elementalist.maintained : []' }
   - target: { steps: [combat.end] }
     op: changes
     value: { changes: [{ type: set, field: elementalist.maintained, value: '[]' }] }

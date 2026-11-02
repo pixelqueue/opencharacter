@@ -13,9 +13,8 @@ choices:
     eligible: item.id in skills.known
     recommend: filterList(skills.known, itemField(x, 'group') == 'crafting')[0]
 effects:
-  - target:
-      rolls:
-        - power-roll.test
+  # A tier 1 outcome on an easy or medium test with the skill is tier 2.
+  - target: { rolls: [power-roll.test], band: value }
     op: atLeast
-    value: 12
+    value: 2
     when: has(params.skill) && params.skill in picksOf('skill') && params.difficulty != 'hard'

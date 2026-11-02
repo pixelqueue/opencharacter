@@ -11,5 +11,5 @@ effects:
     when: >-
       params.surges > 0 && 'kw.strike' in action.item.tags && size(participants.target) > 0
         && participant.id == participants.target[0].id
-        && min(2, steps.roll.tallies.banes + flags.tBanes) <= min(2, steps.roll.tallies.edges + flags.tEdges)
+        && min(2, steps.tier.tallies.banes) <= min(2, steps.tier.tallies.edges)
     value: characteristics.highest

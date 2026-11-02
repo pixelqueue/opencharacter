@@ -83,12 +83,79 @@ contentTypes:
       # A non-condition effect the target gets instead of a condition, behind the same potency
       # and with the same duration ("R < WEAK, damage weakness 5 (save ends)").
       't{tier}Effect': { type: id, of: effect }
+    # What this hero's card shows: the characteristic rolled (the best of `rollChars`), each
+    # tier's damage with it and the kit's bonus, each tier's potency, and the distance with the
+    # kit's. `use-ability` reads the same values. Melee for an ability that can be either.
+    computed:
+      char:
+        type: string
+        formula: >-
+          size(item.rollChars) == 0 ? 'none'
+            : sortList(item.rollChars, -fieldOf('characteristics.{characteristic}.score', x))[0]
+      charScore:
+        type: integer
+        formula: "self.char == 'none' ? 0 : fieldOf('characteristics.{characteristic}.score', self.char)"
+      mode:
+        type: string
+        formula: >-
+          item.distanceKind == 'ranged' || ('kw.ranged' in item.tags && !('kw.melee' in item.tags))
+            ? 'ranged' : 'melee'
+      damage1:
+        type: integer
+        formula: >-
+          (has(item.t1Damage) ? item.t1Damage : 0) + (item.t1AddsChar ? self.charScore : 0)
+            + ('kw.weapon' in item.tags && 'kw.melee' in item.tags && self.mode == 'melee' ? kit.melee1
+              : 'kw.weapon' in item.tags && 'kw.ranged' in item.tags && self.mode == 'ranged' ? kit.ranged1 : 0)
+      damage2:
+        type: integer
+        formula: >-
+          (has(item.t2Damage) ? item.t2Damage : 0) + (item.t2AddsChar ? self.charScore : 0)
+            + ('kw.weapon' in item.tags && 'kw.melee' in item.tags && self.mode == 'melee' ? kit.melee2
+              : 'kw.weapon' in item.tags && 'kw.ranged' in item.tags && self.mode == 'ranged' ? kit.ranged2 : 0)
+      damage3:
+        type: integer
+        formula: >-
+          (has(item.t3Damage) ? item.t3Damage : 0) + (item.t3AddsChar ? self.charScore : 0)
+            + ('kw.weapon' in item.tags && 'kw.melee' in item.tags && self.mode == 'melee' ? kit.melee3
+              : 'kw.weapon' in item.tags && 'kw.ranged' in item.tags && self.mode == 'ranged' ? kit.ranged3 : 0)
+      potency1:
+        type: integer
+        formula: >-
+          has(item.t1PotencyValue) ? item.t1PotencyValue
+            : has(item.t1Potency) ? [potency.weak, potency.average, potency.strong][indexOf(['weak', 'average', 'strong'], item.t1Potency)] : 0
+      potency2:
+        type: integer
+        formula: >-
+          has(item.t2PotencyValue) ? item.t2PotencyValue
+            : has(item.t2Potency) ? [potency.weak, potency.average, potency.strong][indexOf(['weak', 'average', 'strong'], item.t2Potency)] : 0
+      potency3:
+        type: integer
+        formula: >-
+          has(item.t3PotencyValue) ? item.t3PotencyValue
+            : has(item.t3Potency) ? [potency.weak, potency.average, potency.strong][indexOf(['weak', 'average', 'strong'], item.t3Potency)] : 0
+      distance:
+        type: integer
+        formula: >-
+          item.distance + ('kw.weapon' in item.tags && item.distanceKind in ['melee', 'melee-or-ranged'] ? kit.meleeDistance
+            : 'kw.weapon' in item.tags && item.distanceKind == 'ranged' ? kit.rangedDistance : 0)
+      rangedDistance:
+        type: integer
+        formula: >-
+          item.rangedDistance == 0 ? 0
+            : item.rangedDistance + ('kw.weapon' in item.tags ? kit.rangedDistance : 0)
     actions:
       - use: use-ability
 
 # Every hero has the common abilities (free strikes, Charge, Defend, Catch Breath, …).
 standardCopies:
   - { type: ability, where: "'common' in item.tags" }
+
+fields:
+  # A heroic ability with a power roll costs this much less when the roll has an edge or double
+  # edge against any target (the Shadow's insight discount).
+  abilities.edgeDiscount: { type: integer, formula: 0, min: 0 }
+  # Abilities that cost nothing to use right now (an Elementalist's maintained abilities).
+  abilities.free: { type: set, of: ability, formula: '[]' }
 
 effects:
   # A kit's damage bonus for the tier each target got, on weapon abilities that deal damage.
@@ -104,17 +171,59 @@ effects:
     value: '[kit.ranged1, kit.ranged2, kit.ranged3][max(0, min(2, flags.tier - 1))]'
     tags:
       [{ formula: "roll.item.damageType == 'untyped' ? [] : ['damage.' + roll.item.damageType]" }]
+  # What each target brings to the power roll, on its own tier (`power-target`): an edge against
+  # a prone target (melee), a restrained one, one frightened of the user or one a tactician
+  # marked; a bane when the user is grabbed or frightened by someone else than the target, a
+  # double bane when taunted by someone else.
+  - id: target-prone
+    target: { rolls: [power-target], tally: edges }
+    op: add
+    value: 1
+    when: "'kw.melee' in action.item.tags && flags.mode == 'melee' && participant.conditions.prone"
+  - id: target-restrained
+    target: { rolls: [power-target], tally: edges }
+    op: add
+    value: 1
+    when: participant.conditions.restrained
+  - id: target-frightened
+    target: { rolls: [power-target], tally: edges }
+    op: add
+    value: 1
+    when: character.id in participant.conditions.frightenedBy
+  - id: target-marked
+    target: { rolls: [power-target], tally: edges }
+    op: add
+    value: 1
+    when: size(participant.tactician.markedBy) > 0
+  - id: user-grabbed
+    target: { rolls: [power-target], tally: banes }
+    op: add
+    value: 1
+    when: conditions.grabbed && !(participant.id in conditions.grabbedBy)
+  - id: user-taunted
+    target: { rolls: [power-target], tally: banes }
+    op: add
+    value: 2
+    when: conditions.taunted && !(participant.id in conditions.tauntedBy)
+  - id: user-frightened
+    target: { rolls: [power-target], tally: banes }
+    op: add
+    value: 1
+    when: participant.id in conditions.frightenedBy
 
 actions:
   # Using an ability. Pass the targets as `target` participants (their `creature` fields); each
   # gets its own tier from the one power roll, with the edges and banes that target brings.
-  # Tagged steps content adds to: `ability.pay` (costs), `ability.spend` (a "Spend" paid),
-  # `ability.hit` (per target, after damage and conditions), `ability.after` (once, at the end).
+  # The cost is paid after the roll, so a discount the roll earns counts; a use that can't pay
+  # ends there. Tagged steps content adds to: `ability.pay` (costs), `ability.spend` (a "Spend"
+  # paid), `ability.hit` (per target, after damage and conditions), `ability.after` (once, at the
+  # end). The action carries the ability's usage and keywords as tags.
   - id: use-ability
-    tags: [ability]
+    tags: [ability, { formula: "'usage.' + item.usage" }, { formula: item.tags }]
     available: >-
-      !stamina.dead && (item.cost == 0
-        || (combat.active ? heroic.current - item.cost >= heroic.min
+      !stamina.dead && (item.cost == 0 || item.id in abilities.free
+        || (combat.active
+          ? heroic.current - max(0, item.cost - (item.kind == 'heroic' && size(item.rollChars) > 0 ? abilities.edgeDiscount : 0)) >= heroic.min
           : !(item.id in abilities.usedOutside)))
     params:
       # The characteristic to roll, when the ability offers several (default: the best).
@@ -130,23 +239,16 @@ actions:
       downgrade: { type: boolean, default: false }
     participants:
       target: { fields: creature }
-    results: [used, tier1, tier2, tier3]
+    results: [used, unaffordable, tier1, tier2, tier3]
     steps:
       - id: setup
         kind: branch
         cases:
           - when: 'true'
             flags:
-              char: >-
-                has(params.characteristic) ? params.characteristic
-                  : size(item.rollChars) == 0 ? 'none'
-                  : sortList(item.rollChars, -fieldOf('characteristics.{characteristic}.score', x))[0]
-              mode: >-
-                has(params.mode) ? params.mode
-                  : item.distanceKind == 'ranged' || ('kw.ranged' in item.tags && !('kw.melee' in item.tags))
-                    ? 'ranged' : 'melee'
-              tEdges: 0
-              tBanes: 0
+              char: "has(params.characteristic) ? params.characteristic : self.char"
+              mode: "has(params.mode) ? params.mode : self.mode"
+              cost: 0
               tier: 0
               cond: "''"
               dur: "'until'"
@@ -157,23 +259,6 @@ actions:
               moveDistance: 0
               moveGated: 'false'
               resist: 0
-      - id: pay
-        kind: changes
-        tags: [ability.pay]
-        changes:
-          - type: adjust
-            when: combat.active && item.cost + params.spend > 0
-            field: heroic.current
-            by: -(item.cost + params.spend)
-          - type: set
-            when: '!combat.active && item.cost > 0'
-            field: abilities.usedOutside
-            value: abilities.usedOutside + [item.id]
-          - { type: adjust, when: params.surges > 0, field: surges.current, by: -params.surges }
-      - id: spend
-        kind: changes
-        when: params.spend > 0
-        tags: [ability.spend]
       - id: roll
         kind: roll
         when: flags.char != 'none' || item.rollBonus != 0
@@ -185,28 +270,14 @@ actions:
             when: flags.char != 'none'
           - value: item.rollBonus
             when: item.rollBonus != 0
-      # Edges and banes a target brings: prone (to melee), restrained, frightened of the user;
-      # banes from the user being grabbed or taunted by someone else, or frightened of the target.
-      - id: edges
-        kind: branch
-        each: target
-        cases:
-          - when: 'true'
-            flags:
-              tEdges: >-
-                ('kw.melee' in item.tags && flags.mode == 'melee' && participant.conditions.prone ? 1 : 0)
-                  + (participant.conditions.restrained ? 1 : 0)
-                  + (character.id in participant.conditions.frightenedBy ? 1 : 0)
-                  + (size(participant.tactician.markedBy) > 0 ? 1 : 0)
-              tBanes: >-
-                (conditions.grabbed && !(participant.id in conditions.grabbedBy) ? 1 : 0)
-                  + (conditions.taunted && !(participant.id in conditions.tauntedBy) ? 2 : 0)
-                  + (participant.id in conditions.frightenedBy ? 1 : 0)
+      # Each target's tier: the roll banded again with what that target brings (rules effects
+      # on `power-target`).
       - id: tier
         kind: roll
         each: target
         when: has(steps.roll)
         of: roll
+        tags: [power-target]
         bands: power
       - id: downgrade
         kind: choice
@@ -217,6 +288,41 @@ actions:
           - { id: tier2, when: "steps.tier.band == 'tier3'" }
           - { id: tier1 }
         recommend: "'keep'"
+      # The cost: nothing for a free ability, less by the edge discount for a heroic ability
+      # with an edge on any target.
+      - id: cost
+        kind: branch
+        cases:
+          - when: 'true'
+            flags:
+              cost: >-
+                item.cost == 0 || item.id in abilities.free ? 0
+                  : max(0, item.cost - (item.kind == 'heroic' && has(steps.roll)
+                      && (size(participants.target) == 0
+                        ? min(2, steps.roll.tallies.edges) > min(2, steps.roll.tallies.banes)
+                        : countList(steps.tier, min(2, x.tallies.edges) > min(2, x.tallies.banes)) > 0)
+                      ? abilities.edgeDiscount : 0))
+      - id: unaffordable
+        kind: outcome
+        when: combat.active && flags.cost + params.spend > 0 && heroic.current - flags.cost - params.spend < heroic.min
+        result: "'unaffordable'"
+      - id: pay
+        kind: changes
+        tags: [ability.pay]
+        changes:
+          - type: adjust
+            when: combat.active && flags.cost + params.spend > 0
+            field: heroic.current
+            by: -(flags.cost + params.spend)
+          - type: set
+            when: '!combat.active && item.cost > 0'
+            field: abilities.usedOutside
+            value: abilities.usedOutside + [item.id]
+          - { type: adjust, when: params.surges > 0, field: surges.current, by: -params.surges }
+      - id: spend
+        kind: changes
+        when: params.spend > 0
+        tags: [ability.spend]
       - id: outcome
         kind: branch
         each: target
@@ -349,15 +455,14 @@ actions:
             when: flags.landed
             source: flags.cond
             state: { duration: flags.dur, by: character.id }
-      # Damage when no target is given, for the card: the roll's own tier.
+      # Damage when no target is given: the roll's own tier, as the card shows it.
       - id: preview
         kind: roll
         when: size(participants.target) == 0 && has(steps.roll) && has(item.t1Damage)
         tags: [damage]
         parts:
-          - value: '[item.t1Damage, has(item.t2Damage) ? item.t2Damage : 0, has(item.t3Damage) ? item.t3Damage : 0][steps.roll.bandValue - 1]'
-          - field: "'characteristics.' + flags.char + '.score'"
-            when: "flags.char != 'none' && [item.t1AddsChar, item.t2AddsChar, item.t3AddsChar][steps.roll.bandValue - 1]"
+          - value: '[self.damage1, self.damage2, self.damage3][steps.roll.bandValue - 1]'
+            tags: [{ formula: "item.damageType == 'untyped' ? [] : ['damage.' + item.damageType]" }]
       # Bleeding: a main or triggered action, or a roll with Might or Agility, loses 1d6 + level.
       - id: bleed
         kind: roll
@@ -389,13 +494,10 @@ actions:
               && item.usage == 'main-action'
           tier: 'has(steps.roll) ? steps.roll.bandValue : 0'
           damage: 'has(steps.preview) ? steps.preview.total : 0'
-          distance: >-
-            item.distance + (has(steps.roll) ? steps.roll.tallies.distanceBonus : 0)
-              + ('kw.weapon' in item.tags && flags.mode == 'melee' && item.distanceKind in ['melee', 'melee-or-ranged'] ? kit.meleeDistance
-              : 'kw.weapon' in item.tags && flags.mode == 'ranged' && item.distanceKind == 'ranged' ? kit.rangedDistance : 0)
+          distance: 'self.distance + (has(steps.roll) ? steps.roll.tallies.distanceBonus : 0)'
           rangedDistance: >-
-            item.rangedDistance == 0 ? 0 : item.rangedDistance + (has(steps.roll) ? steps.roll.tallies.distanceBonus : 0)
-              + ('kw.weapon' in item.tags ? kit.rangedDistance : 0)
+            self.rangedDistance == 0 ? 0
+              : self.rangedDistance + (has(steps.roll) ? steps.roll.tallies.distanceBonus : 0)
           targetTiers: flags.tier
           forcedMovement: flags.move
           forcedDistance: flags.moveDistance

@@ -23,3 +23,9 @@ fields:
   t3Potency: strong
   t3Condition: conditions.prone
   t3Duration: save
+effects:
+  # An edge against a target of size 2 or larger.
+  - target: { rolls: [power-target], tally: edges, from: self }
+    op: add
+    value: 1
+    when: participant.size.rank >= 5
