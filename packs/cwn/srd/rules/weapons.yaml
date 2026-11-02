@@ -274,14 +274,8 @@ actions:
                   * (has(steps.trauma) && steps.trauma.band == 'traumatic' ? item.traumaRating : 1)
           - when: true
             flags: { traumatic: false, dealt: flags.shock }
-      # Martial Instinct: the bonus roll is spent once the roll it doubles is made.
-      - id: bonusRoll
-        kind: changes
-        when: >-
-          situational.bonusRoll != 'none' && arts.bonusRolls.used < arts.bonusRolls.max
-            && (situational.bonusRoll == 'hit' || flags.hit)
-        changes:
-          - { type: adjust, field: arts.bonusRolls.used, by: 1 }
+      # Once the rolls are made: where content pays for them (Martial Instinct).
+      - { id: rolled, kind: changes, tags: [attack.rolled] }
       - id: ammo
         kind: changes
         when: has(item.magazine)

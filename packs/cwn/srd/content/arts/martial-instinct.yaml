@@ -14,3 +14,10 @@ effects:
     op: rollModifier
     value: { kind: advantage, of: roll }
     when: "situational.bonusRoll == 'damage' && arts.bonusRolls.used < arts.bonusRolls.max"
+  # The bonus roll is spent once the roll it doubles is made.
+  - target: { steps: [attack.rolled] }
+    op: changes
+    when: >-
+      situational.bonusRoll != 'none' && arts.bonusRolls.used < arts.bonusRolls.max
+        && (situational.bonusRoll == 'hit' || flags.hit)
+    value: { changes: [{ type: adjust, field: arts.bonusRolls.used, by: 1 }] }
