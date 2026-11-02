@@ -9,6 +9,13 @@ grants:
   - { item: features.censor.demonologist, when: self.level >= 8 }
 effects:
   - { target: skills.known, op: grant, value: { item: skills.read-person } }
+  # Judgment Order Benefit: the first judgment on a turn lets you teleport up to twice your
+  # Presence score toward the judged creature.
+  - target: { steps: [ability.hit] }
+    op: changes
+    when: action.item.id == @abilities.censor.judgment && !censor.benefitUsed
+    value:
+      flags: { teleport: 2 * characteristics.presence.score }
 choices:
   - id: ability-2
     when: self.level >= 2

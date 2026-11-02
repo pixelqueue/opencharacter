@@ -33,11 +33,13 @@ fields:
   t3Condition: conditions.frightened
   t3Duration: save
 effects:
-  # A target already frightened takes psychic damage equal to twice your Presence score.
+  # A target already frightened takes psychic damage equal to twice your Presence score instead
+  # of being frightened.
   - target: { steps: [ability.hit], from: self }
     op: changes
     when: 'flags.landed && participant.conditions.frightened'
     value:
+      flags: { landed: 'false' }
       changes:
         - type: adjust
           field: stamina.current

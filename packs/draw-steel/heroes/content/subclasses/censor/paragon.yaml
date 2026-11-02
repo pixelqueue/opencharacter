@@ -9,6 +9,13 @@ grants:
   - { item: features.censor.vow, when: self.level >= 8 }
 effects:
   - { target: skills.known, op: grant, value: { item: skills.lead } }
+  # Judgment Order Benefit: the first judgment on a turn vertical pulls the judged creature up to
+  # twice your Presence score.
+  - target: { steps: [ability.hit] }
+    op: changes
+    when: action.item.id == @abilities.censor.judgment && !censor.benefitUsed
+    value:
+      flags: { move: "'vertical-pull'", moveDistance: 2 * characteristics.presence.score }
 choices:
   - id: ability-2
     when: self.level >= 2
