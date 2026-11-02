@@ -122,34 +122,6 @@ situational:
         value: 1
         when: "'kw.psionic' in action.item.tags"
 
-actions:
-  # Damage from a strained effect: `count` d6, which can't be reduced when `reducible` is false.
-  - id: talent-strain-damage
-    listed: false
-    params:
-      count: { type: integer, default: 1, min: 1, max: 3 }
-      reducible: { type: boolean, default: true }
-    results: [taken]
-    steps:
-      - id: roll
-        kind: roll
-        tags: [talent.strain]
-        parts:
-          - dice: (params.count)d6
-      - id: take
-        kind: changes
-        changes:
-          - type: adjust
-            field: stamina.current
-            by: -steps.roll.total
-            tags:
-              [
-                {
-                  formula: "params.reducible ? ['damage', 'talent.strain'] : ['damage', 'damage.unreducible', 'talent.strain']",
-                },
-              ]
-      - { id: done, kind: outcome, result: "'taken'", data: { damage: steps.roll.total } }
-
 display:
   fields:
     talent.strained:

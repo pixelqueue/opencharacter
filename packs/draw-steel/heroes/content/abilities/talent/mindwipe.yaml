@@ -20,3 +20,11 @@ fields:
   t1Damage: 12
   t2Damage: 17
   t3Damage: 23
+effects:
+  # Strained: 3d6 damage.
+  - target: { steps: [ability.after], from: self }
+    op: changes
+    when: (combat.active && heroic.current - item.cost - params.spend < 0) || situational.talentStrain
+    value:
+      changes:
+        - { type: adjust, field: stamina.current, by: -3d6, tags: [damage, talent.strain] }

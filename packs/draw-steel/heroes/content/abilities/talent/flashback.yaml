@@ -24,14 +24,12 @@ effects:
       || situational.talentStrain
     value:
       changes:
-        - type: offerFollowUp
-          followUp: strain-damage
-          params:
-            count: 1
+        - type: adjust
+          field: stamina.current
+          by: -1d6
+          tags: [damage, talent.strain]
         - type: applyEffect
           source: "'conditions.slowed'"
           state:
             duration: "'save'"
             by: character.id
-followUps:
-  - { id: strain-damage, action: talent-strain-damage }

@@ -24,9 +24,7 @@ effects:
       || situational.talentStrain
     value:
       changes:
-        - type: offerFollowUp
-          followUp: strain-damage
-          params:
-            count: 1
-followUps:
-  - { id: strain-damage, action: talent-strain-damage }
+        - type: adjust
+          field: stamina.current
+          by: -1d6
+          tags: [damage, talent.strain]

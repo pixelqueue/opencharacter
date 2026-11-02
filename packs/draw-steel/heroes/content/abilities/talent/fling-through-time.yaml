@@ -43,10 +43,10 @@ effects:
       || situational.talentStrain
     value:
       changes:
-        - type: offerFollowUp
-          followUp: strain-damage
-          params:
-            count: 2
+        - type: adjust
+          field: stamina.current
+          by: -2d6
+          tags: [damage, talent.strain]
   - target:
       steps:
         - ability.hit
@@ -61,5 +61,3 @@ effects:
           field: heroic.current
           by: 2
       to: self
-followUps:
-  - { id: strain-damage, action: talent-strain-damage }
