@@ -106,9 +106,9 @@ computeSheet(ruleset, made.character).values['draw-steel-heroes:stamina.max']?.v
     Visceral Roar and Deluge take the stormwight kit's primordial type (`fury.primordialType`),
     and Deluge's ignores immunity.
   - Healing Grace's Spend enhancements: `graceRecoveries`, `graceStand` and `graceEnd`, which
-    must fit in `spend`. `graceEndEntry` is the ID of the applied entry to end on the target;
-    without it, the first that a saving throw or the end of a turn ends. An overspend is
-    reported on `graceRecoveries` ([#252](https://github.com/pixelqueue/opencharacter/issues/252)).
+    must fit in `spend` (they bound it: an overspend is `out-of-range` on `spend`).
+    `graceEndEntry` is the ID of the applied entry to end on the target; without it, the first
+    that a saving throw or the end of a turn ends.
   - No Dying on My Watch's `adjacentEnemies`: the ally gains 5 temporary Stamina for each.
 
   An `ally` participant is the ally a triggered ability answers or an ability helps: No Dying on
