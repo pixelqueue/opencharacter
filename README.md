@@ -34,8 +34,9 @@ math: it loads packs, asks the engine, and draws the answers.
 
 - **Take it anywhere.** Packs, homebrew and characters move between every app that implements
   OCF: export from one, import into another.
-- **One integration, every game.** The 5E SRD, ORC Second Edition fantasy and science-fantasy, Forged in
-  the Dark, Fate, MÖRK BORG, Mothership and a growing list run through the same engine calls.
+- **One integration, every game.** The 5E SRD, ORC Second Edition fantasy and science-fantasy, Draw
+  Steel, the Without Number games and Godbound, Forged in the Dark, Fate, MÖRK BORG and Mothership
+  run through the same engine calls.
 - **The sheet can't disagree with the rules.** A character file holds only the player's choices;
   every value is computed, with a breakdown of where it came from.
 - **Your dice, your UI.** The engine says what to roll and pauses while your app animates the
@@ -43,8 +44,8 @@ math: it loads packs, asks the engine, and draws the answers.
 - **Fully internationalized.** The engine returns keys and codes, never English; text lives in
   translation files.
 - **Bring your own language.** The spec is JSON Schemas and a plain-data conformance suite, so an
-  engine can be written in Rust, Python, Go or anything else. Ours is TypeScript with no runtime
-  dependencies.
+  engine can be written in Rust, Python, Go or anything else. Ours is TypeScript and doesn't depend on
+  Node, so it runs in browsers too.
 
 ## Quick start
 
@@ -121,6 +122,7 @@ Building something on OCF?
 
 Packs, fixes and engine ports are welcome. Read [CONTRIBUTING.md](CONTRIBUTING.md), then
 [AGENTS.md](AGENTS.md) for a map of the repository (it's written for people and agents alike).
+You need pnpm 10 and Node 22 or later (we develop on 26).
 
 ## License
 
