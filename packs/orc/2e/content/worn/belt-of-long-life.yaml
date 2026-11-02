@@ -1,4 +1,5 @@
-# The temporary Hit Points come with every Invest an Item.
+# The temporary Hit Points come with every Invest an Item, before the belt is invested, so the
+# type's investiture gate is lifted and the attribute effects keep their own.
 id: worn.belt-of-long-life
 type: worn
 tags: [trait.apex, trait.invested, trait.magical]
@@ -8,9 +9,20 @@ fields:
   usage: belt
   activation: one
   frequency: once-per-day
+effectsWhen: 'true'
 effects:
-  - { target: attributes.con.mod, op: add, value: 1, when: 'self.apex' }
-  - { target: attributes.con.mod, op: atLeast, value: 4, when: 'self.apex' }
+  - {
+      target: attributes.con.mod,
+      op: add,
+      value: 1,
+      when: 'self.equipped && self.invested && self.apex',
+    }
+  - {
+      target: attributes.con.mod,
+      op: atLeast,
+      value: 4,
+      when: 'self.equipped && self.invested && self.apex',
+    }
   - target: { steps: [invest.item] }
     op: changes
     when: action.self.id == self.id
