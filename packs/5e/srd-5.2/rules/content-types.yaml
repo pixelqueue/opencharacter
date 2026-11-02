@@ -301,6 +301,42 @@ contentTypes:
       healAddsMod: { type: boolean }
       upcastHealDice: { type: integer }
       upcastHealBonus: { type: integer }
+    # The card's numbers for this character, as `cast-spell` works them out: the spellcasting it's
+    # cast with (the first whose spell list has it; a spellbook's is the wizard's), and its save DC,
+    # spell attack bonus and spellcasting modifier. A stored spell keeps the numbers it was stored
+    # with; a magic item's spell uses the item's own DC and attack bonus when it has them, else the
+    # spellcasting's, else the character's highest.
+    computed:
+      castingClass:
+        type: string
+        formula: >-
+          countList(keysOf('caster'), item.id in fieldOf('spells.{caster}', x)) > 0
+            ? filterList(keysOf('caster'), item.id in fieldOf('spells.{caster}', x))[0]
+            : item.id in spells.wizardBook ? 'wizard' : 'none'
+      spellDc:
+        type: integer
+        formula: >-
+          countCopies(copy.id == self.id && copy.type == 'storedSpell') > 0 ? self.dc
+            : countCopies(copy.id == self.id && (copy.type == 'magicItem' || 'magic' in copy.tags)) > 0
+                && sumCopies(has(copy.fields.saveDc) ? copy.fields.saveDc : 0, copy.id == self.id) > 0
+              ? sumCopies(has(copy.fields.saveDc) ? copy.fields.saveDc : 0, copy.id == self.id)
+            : self.castingClass != 'none' ? fieldOf('spellcasting.{caster}.dc', self.castingClass)
+            : maxList(keysOf('caster'), fieldOf('spellcasting.{caster}.dc', x))
+      spellAttack:
+        type: integer
+        formula: >-
+          countCopies(copy.id == self.id && copy.type == 'storedSpell') > 0 ? self.attack
+            : countCopies(copy.id == self.id && (copy.type == 'magicItem' || 'magic' in copy.tags)) > 0
+                && sumCopies(has(copy.fields.spellAttackBonus) ? copy.fields.spellAttackBonus : 0, copy.id == self.id) > 0
+              ? sumCopies(has(copy.fields.spellAttackBonus) ? copy.fields.spellAttackBonus : 0, copy.id == self.id)
+            : self.castingClass != 'none' ? fieldOf('spellcasting.{caster}.attack', self.castingClass)
+            : maxList(keysOf('caster'), fieldOf('spellcasting.{caster}.attack', x))
+      spellMod:
+        type: integer
+        formula: >-
+          countCopies(copy.id == self.id && copy.type == 'storedSpell') > 0 ? self.mod
+            : self.castingClass != 'none' ? fieldOf('spellcasting.{caster}.mod', self.castingClass)
+            : maxList(keysOf('caster'), fieldOf('spellcasting.{caster}.mod', x))
 
   trait:
     grantOnly: true

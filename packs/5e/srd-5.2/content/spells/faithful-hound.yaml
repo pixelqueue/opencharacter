@@ -25,16 +25,16 @@ actions:
         cases:
           - when: true
             flags:
-              cls: "countList(keysOf('caster'), item.id in fieldOf('spells.{caster}', x)) > 0 ? filterList(keysOf('caster'), item.id in fieldOf('spells.{caster}', x))[0] : 'none'"
+              cls: self.castingClass
               slot: 'has(params.slot) ? max(item.level, min(9, params.slot)) : item.level'
       - id: numbers
         kind: branch
         cases:
           - when: true
             flags:
-              dc: "flags.cls != 'none' ? fieldOf('spellcasting.{caster}.dc', flags.cls) : maxList(keysOf('caster'), fieldOf('spellcasting.{caster}.dc', x))"
-              attackBonus: "flags.cls != 'none' ? fieldOf('spellcasting.{caster}.attack', flags.cls) : maxList(keysOf('caster'), fieldOf('spellcasting.{caster}.attack', x))"
-              mod: "flags.cls != 'none' ? fieldOf('spellcasting.{caster}.mod', flags.cls) : maxList(keysOf('caster'), fieldOf('spellcasting.{caster}.mod', x))"
+              dc: self.spellDc
+              attackBonus: self.spellAttack
+              mod: self.spellMod
       - id: damage
         kind: roll
         tags: [damage.spell]

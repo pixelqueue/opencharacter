@@ -284,7 +284,10 @@ Where the SRD is unclear or silent, the pack reads it this way:
   upcasting and cantrip upgrades, Concentration (checks at DC 10 or half the damage, up to 30;
   when it ends, the `concentration-ends` follow-up ends the caster's concentration spells on every
   creature holding one, `to: applied`),
-  196 of the 339 spells with mechanics beyond spending the slot.
+  196 of the 339 spells with mechanics beyond spending the slot. Each spell the character has
+  carries its numbers as computed values (`castingClass`, `spellDc`, `spellAttack`, `spellMod`,
+  in computeSheet's `activationValues`), which `cast-spell`, `spell-effect` and the spells' own
+  actions read.
 - **Auras:** Aura of Protection (allies in `paladin.auraRange`, down while the paladin is
   Incapacitated, reading its live Charisma modifier), the Rod of Alertness's Protective Aura (60
   feet, while planted), Aura of Life, Holy Aura and Pass without Trace (cast with no target, on
@@ -374,6 +377,8 @@ as text are listed below.
   Sacred Weapon's and Holy Nimbus's timers kept as toggles), space and movement (who is inside
   an aura, pushes, teleports, areas, walls, Halfling Nimbleness), and other characters' sheets
   (summoned creatures, familiars, mounts and steeds, Wild Shape's beast).
+- **A spell on two spellcasting lists** (a cleric's spell also known through another class or a
+  feat) is cast, and its card numbered, with the first spellcasting whose list has it.
 - **Aura parts that stay text:** Aura of Courage's and Aura of Devotion's immunity for allies
   (an aura carries effects, not immunities; the paladin's own holds), Smite of Protection's Half
   Cover, Spirit Guardians' save and damage (run the cast against the creature) and its
