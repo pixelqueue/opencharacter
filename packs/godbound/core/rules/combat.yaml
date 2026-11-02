@@ -431,13 +431,13 @@ actions:
         tags: [turn.boundary]
         changes:
           - type: adjust
-            when: fury.active && has(params.ended) && params.ended == character.id
+            when: fury.active && fury.rounds > 0 && has(params.ended) && params.ended == character.id
             field: fury.rounds
             by: -1
           - type: set
             when: >-
               fury.active && has(params.ended) && params.ended == character.id
-                && fury.rounds <= 1
+                && fury.rounds == 1
             field: fury.active
             value: false
       - id: result

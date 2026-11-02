@@ -111,9 +111,9 @@ computeSheet(ruleset, made.character).values['godbound-core:effort.max']?.value;
     when the gift has none), on copies and on the gifts Apotheosis and artifacts grant.
   - Unerring Blade and Surge of Strength add a parameter to `attack` (melee attacks, and attacks
     Strength can modify) that commits the scene's Effort: Unerring Blade hits on anything but a
-    natural 1 and maximizes the damage, Surge of Strength maximizes it. While Rain of Sorrow is
-    held, a ranged attack offers `mob`: against a Mob, the damage is read straight plus the
-    level.
+    natural 1 and maximizes the damage, Surge of Strength maximizes it. Asked together with Effort
+    for only one, just one of them applies. While Rain of Sorrow is held, a ranged attack offers
+    `mob`: against a Mob, the damage is read straight plus the level.
   - Gift points: six, plus two per level. A lesser gift of a bound Word costs 1, a greater 2, a
     lesser gift of another Word 2 (1 once that Word is bound), a universal gift 1 (Effort of the
     Word 2 after the first), each Word past three 3. `gifts.points.spent` works it out from the
@@ -138,7 +138,8 @@ computeSheet(ruleset, made.character).values['godbound-core:effort.max']?.value;
   - `divine-fury` at zero hit points, once a level: half the hit points back and bonus Effort equal
     to the level for as many rounds as the level (`fury.rounds`). The app's `turn-boundary`
     clock action counts a round off as each of the hero's turns ends, and ends the fury after
-    the last; `end-fury` ends it early.
+    the last; `end-fury` ends it early. A fury saved without rounds left (`fury.rounds` 0) waits
+    for `end-fury`.
   - Burning Vitality, used on the hero, heals a hit point as each of the hero's turns ends,
     until at full health.
 - **Advancement:** the experience and Dominion-spent table to level 10; the `level-up` follow-up

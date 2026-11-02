@@ -15,6 +15,6 @@ effects:
       surgeOfStrength: { type: boolean, default: false }
   - target: { steps: [attack.boost] }
     op: changes
-    when: has(params.surgeOfStrength) && params.surgeOfStrength
+    when: has(params.surgeOfStrength) && params.surgeOfStrength && effort.free > flags.boosts
     value:
       flags: { maximize: true, boosts: flags.boosts + 1 }

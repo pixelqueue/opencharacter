@@ -15,6 +15,6 @@ effects:
       unerringBlade: { type: boolean, default: false }
   - target: { steps: [attack.boost] }
     op: changes
-    when: has(params.unerringBlade) && params.unerringBlade
+    when: has(params.unerringBlade) && params.unerringBlade && effort.free > flags.boosts
     value:
       flags: { sure: true, maximize: true, boosts: flags.boosts + 1 }
