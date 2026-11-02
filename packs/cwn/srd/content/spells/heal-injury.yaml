@@ -3,3 +3,10 @@ type: spell
 fields:
   effort: day
   duration: instant
+# The healing at the caster's level, with their Heal skill.
+computed:
+  healing:
+    type: string
+    formula: >-
+      string(ceil(level / 3)) + 'd6' + (skills.heal.level >= 0 ? '+' : '')
+        + string(skills.heal.level)

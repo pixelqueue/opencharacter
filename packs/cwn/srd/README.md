@@ -114,7 +114,8 @@ the player's choices and other characters.
 - **Magic:** Mage and Summoner Effort, cyber's cost to them, prepared spells, casting (a spell
   that Commits for the scene or the day asks which) and overcasting, summoning (each spirit's
   cost from its own powers and ritual), spirits and their powers, and Graced arts with their
-  points. Spells that deal damage per level compute it at the caster's level (`damage`), and
+  points. Spells that deal damage per level compute it at the caster's level (`damage`), Heal
+  Injury its healing (`healing`), and
   Skin of Steel its Armor Class (`ac`), which their text shows. Martial Instinct's bonus rolls (the `bonusRoll`
   situational choice on an attack) roll the hit or damage twice, the better kept, and refresh
   with rest; Occult Pavis rolls saves against magic (`versusMagic`) twice.
