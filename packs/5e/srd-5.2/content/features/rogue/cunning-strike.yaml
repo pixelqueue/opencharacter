@@ -1,24 +1,26 @@
 id: features.rogue.cunning-strike
 type: feature
-# The save DC: 8 + Dexterity modifier + Proficiency Bonus.
+# The save DC (`rogue.strikeDc`): 8 + Dexterity modifier + Proficiency Bonus, on the card too.
 computed:
-  strikeDc: { type: integer, formula: 8 + abilities.dex.mod + proficiency.bonus }
+  strikeDc: { type: integer, formula: rogue.strikeDc }
 # The effect is a parameter of each attack (`cunningStrike`; Improved Cunning Strike adds
-# `cunningStrike2`). Its dice come off the Sneak Attack (`rogue.sneakAttack`'s situational), and on
-# a hit that deals Sneak Attack damage the target saves against it. An effect the rogue doesn't
-# know yet, Poison without a Poisoner's Kit, a Trip against a Huge or larger target, or effects
-# costing more dice than the Sneak Attack has do nothing. Withdraw's movement and Stealth Attack's
-# Invisible condition are the player's.
+# `cunningStrike2`). Its dice come off the Sneak Attack (the rules' `sneakAttack` situational
+# choice), and on a hit that deals Sneak Attack damage the target saves
+# against it. An effect the rogue can't use (not in `rogue.strikeEffects`: one it doesn't know yet, or
+# Poison without a Poisoner's Kit), or effects together costing more dice than the Sneak Attack
+# has, do nothing and cost nothing. A Trip against a Huge or larger target does nothing, its die
+# spent. Withdraw's movement, Daze's limit and Stealth Attack are the player's.
 effects:
   - { target: rogue.cunningStrikes, op: atLeast, value: 1 }
-  - target: { actions: [attack] }
+  - { target: rogue.strikeDc, op: set, value: 8 + abilities.dex.mod + proficiency.bonus }
+  - target: { actions: [attack-hit] }
     op: params
     value:
       cunningStrike: &effect
         type: enum
         values: [poison, trip, withdraw, daze, knock-out, obscure, stealth-attack]
         optional: true
-  - target: { actions: [attack] }
+  - target: { actions: [attack-hit] }
     op: params
     when: rogue.cunningStrikes >= 2
     value:
@@ -27,14 +29,18 @@ effects:
     op: action
     when: >-
       has(params.cunningStrike)
-        && params.cunningStrike in ['poison', 'trip', 'daze', 'knock-out', 'obscure']
-        && situational.sneakAttack && has(action.item) && has(action.item.damageType)
+        && params.cunningStrike in ['poison', 'trip', 'knock-out', 'obscure', 'daze']
+        && params.cunningStrike in rogue.strikeEffects
+        && (params.cunningStrike == 'knock-out' ? 6 : params.cunningStrike == 'obscure' ? 3
+          : params.cunningStrike == 'daze' ? 2 : 1)
+          + (has(params.cunningStrike2) && params.cunningStrike2 in rogue.strikeEffects
+            ? (params.cunningStrike2 == 'knock-out' ? 6 : params.cunningStrike2 == 'obscure' ? 3
+              : params.cunningStrike2 == 'daze' ? 2 : 1) : 0)
+          <= rogue.sneakAttack
+        && situational.sneakAttack && has(action.item.damageType)
         && (action.item.range == 'ranged' || 'finesse' in action.item.tags)
-        && (has(params.cunningStrike) ? (params.cunningStrike == 'knock-out' ? 6 : params.cunningStrike == 'obscure' ? 3 : params.cunningStrike == 'daze' ? 2 : 1) : 0)
-          + (has(params.cunningStrike2) ? (params.cunningStrike2 == 'knock-out' ? 6 : params.cunningStrike2 == 'obscure' ? 3 : params.cunningStrike2 == 'daze' ? 2 : 1) : 0) <= rogue.sneakAttack
-        && (params.cunningStrike != 'poison' || countCopies(copy.item == @tools.poisoners-kit) > 0)
-        && (!(params.cunningStrike in ['daze', 'knock-out', 'obscure']) || rogue.deviousStrikes)
-        && (params.cunningStrike != 'trip' || !(participant.creature.size in ['huge', 'gargantuan']))
+        && (params.cunningStrike != 'trip'
+          || !(participant.creature.size in ['huge', 'gargantuan']))
     value:
       id: strike
       use: saving-throw
@@ -42,36 +48,31 @@ effects:
       as: participant
       params:
         ability: "params.cunningStrike in ['trip', 'obscure'] ? 'dex' : 'con'"
-        dc: 8 + abilities.dex.mod + proficiency.bonus
+        dc: rogue.strikeDc
       changes:
         - type: applyEffect
-          when: run.result == 'failure' && params.cunningStrike == 'poison'
-          source: "'conditions.poisoned'"
-          state: { by: creature.type }
-        - type: applyEffect
-          when: run.result == 'failure' && params.cunningStrike == 'trip'
-          source: "'conditions.prone'"
-          state: { by: creature.type }
-        - type: applyEffect
-          when: run.result == 'failure' && params.cunningStrike == 'knock-out'
-          source: "'conditions.unconscious'"
-          state: { by: creature.type }
-        - type: applyEffect
-          when: run.result == 'failure' && params.cunningStrike == 'obscure'
-          source: "'conditions.blinded'"
+          when: run.result == 'failure' && params.cunningStrike != 'daze'
+          source: >-
+            params.cunningStrike == 'poison' ? 'conditions.poisoned'
+              : params.cunningStrike == 'trip' ? 'conditions.prone'
+              : params.cunningStrike == 'knock-out' ? 'conditions.unconscious' : 'conditions.blinded'
           state: { by: creature.type }
   - target: { steps: [attack-hit] }
     op: action
     when: >-
       has(params.cunningStrike2)
-        && params.cunningStrike2 in ['poison', 'trip', 'daze', 'knock-out', 'obscure']
-        && situational.sneakAttack && has(action.item) && has(action.item.damageType)
+        && params.cunningStrike2 in ['poison', 'trip', 'knock-out', 'obscure', 'daze']
+        && params.cunningStrike2 in rogue.strikeEffects
+        && (params.cunningStrike2 == 'knock-out' ? 6 : params.cunningStrike2 == 'obscure' ? 3
+          : params.cunningStrike2 == 'daze' ? 2 : 1)
+          + (has(params.cunningStrike) && params.cunningStrike in rogue.strikeEffects
+            ? (params.cunningStrike == 'knock-out' ? 6 : params.cunningStrike == 'obscure' ? 3
+              : params.cunningStrike == 'daze' ? 2 : 1) : 0)
+          <= rogue.sneakAttack
+        && situational.sneakAttack && has(action.item.damageType)
         && (action.item.range == 'ranged' || 'finesse' in action.item.tags)
-        && (has(params.cunningStrike) ? (params.cunningStrike == 'knock-out' ? 6 : params.cunningStrike == 'obscure' ? 3 : params.cunningStrike == 'daze' ? 2 : 1) : 0)
-          + (has(params.cunningStrike2) ? (params.cunningStrike2 == 'knock-out' ? 6 : params.cunningStrike2 == 'obscure' ? 3 : params.cunningStrike2 == 'daze' ? 2 : 1) : 0) <= rogue.sneakAttack
-        && (params.cunningStrike2 != 'poison' || countCopies(copy.item == @tools.poisoners-kit) > 0)
-        && (!(params.cunningStrike2 in ['daze', 'knock-out', 'obscure']) || rogue.deviousStrikes)
-        && (params.cunningStrike2 != 'trip' || !(participant.creature.size in ['huge', 'gargantuan']))
+        && (params.cunningStrike2 != 'trip'
+          || !(participant.creature.size in ['huge', 'gargantuan']))
     value:
       id: strike2
       use: saving-throw
@@ -79,21 +80,12 @@ effects:
       as: participant
       params:
         ability: "params.cunningStrike2 in ['trip', 'obscure'] ? 'dex' : 'con'"
-        dc: 8 + abilities.dex.mod + proficiency.bonus
+        dc: rogue.strikeDc
       changes:
         - type: applyEffect
-          when: run.result == 'failure' && params.cunningStrike2 == 'poison'
-          source: "'conditions.poisoned'"
-          state: { by: creature.type }
-        - type: applyEffect
-          when: run.result == 'failure' && params.cunningStrike2 == 'trip'
-          source: "'conditions.prone'"
-          state: { by: creature.type }
-        - type: applyEffect
-          when: run.result == 'failure' && params.cunningStrike2 == 'knock-out'
-          source: "'conditions.unconscious'"
-          state: { by: creature.type }
-        - type: applyEffect
-          when: run.result == 'failure' && params.cunningStrike2 == 'obscure'
-          source: "'conditions.blinded'"
+          when: run.result == 'failure' && params.cunningStrike2 != 'daze'
+          source: >-
+            params.cunningStrike2 == 'poison' ? 'conditions.poisoned'
+              : params.cunningStrike2 == 'trip' ? 'conditions.prone'
+              : params.cunningStrike2 == 'knock-out' ? 'conditions.unconscious' : 'conditions.blinded'
           state: { by: creature.type }

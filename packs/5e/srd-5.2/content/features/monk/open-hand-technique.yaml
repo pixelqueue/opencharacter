@@ -1,10 +1,10 @@
 id: features.monk.open-hand-technique
 type: feature
-# `openHand` on an attack Flurry of Blows grants: on a hit, Push hands the target a Strength save
-# and Topple a Dexterity save, at the monk's DC; a failed Topple save leaves it Prone. Addle, and
-# moving a target that fails the Push save up to 15 feet, are the player's.
+# `openHand` on an Unarmed Strike, the attacks Flurry of Blows grants: on a hit, Push hands the
+# target a Strength save and Topple a Dexterity save, at the monk's DC; a failed Topple save leaves
+# it Prone. Addle, and moving a target that fails the Push save up to 15 feet, are the player's.
 effects:
-  - target: { actions: [attack] }
+  - target: { actions: [unarmed] }
     op: params
     value:
       openHand: { type: enum, values: [addle, push, topple], optional: true }

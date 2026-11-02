@@ -1,10 +1,10 @@
 id: features.monk.open-hand-technique
 type: feature
-# `openHand` on an attack Flurry of Blows grants: on a hit, the target makes a Dexterity save
-# (prone on a failure) or a Strength save (the push of up to 15 feet is the player's) at the ki
-# save DC. No reactions has no save, and is the table's.
+# `openHand` on an Unarmed Strike, the attacks Flurry of Blows grants: on a hit, the target makes a
+# Dexterity save (prone on a failure) or a Strength save (the push of up to 15 feet is the player's)
+# at the ki save DC. No reactions has no save, and is the table's.
 effects:
-  - target: { actions: [attack] }
+  - target: { actions: [unarmed] }
     op: params
     value:
       openHand: { type: enum, values: [prone, push, no-reactions], optional: true }

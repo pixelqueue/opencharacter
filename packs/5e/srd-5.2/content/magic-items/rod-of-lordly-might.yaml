@@ -20,12 +20,12 @@ effects:
   # Drain Life and Paralyze: `drainLife` or `paralyze` on the rod's own attack, run on a melee hit
   # through item-power (a DC 17 Constitution save, once per dawn each). Drain Life heals half the
   # necrotic damage rolled.
-  - target: { actions: [attack], from: self }
+  - target: { actions: [attack-hit], from: self }
     op: params
     when: "!('drain' in self.usedToday)"
     value:
       drainLife: { type: boolean, default: false }
-  - target: { actions: [attack], from: self }
+  - target: { actions: [attack-hit], from: self }
     op: params
     when: "!('paralyze' in self.usedToday)"
     value:

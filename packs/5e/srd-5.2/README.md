@@ -164,11 +164,12 @@ Where the SRD is unclear or silent, the pack reads it this way:
     `cunningStrike2` from Improved Cunning Strike): their dice come off the Sneak Attack, and on
     a hit dealing Sneak Attack damage the target makes the effect's save at the rogue's DC as part
     of the attack (an `action` effect on its `attack-hit` step), Poisoned, Prone, Unconscious or
-    Blinded on a failure. An effect the rogue doesn't know, Poison without a Poisoner's Kit, Trip
-    on a Huge or larger target, or effects costing more dice than the Sneak Attack has do nothing;
-    Withdraw, Daze's limit and Stealth Attack are the player's.
+    Blinded on a failure. An effect the rogue can't use (`rogue.strikeEffects`: not known yet, or
+    Poison without a Poisoner's Kit), or effects together costing more dice than the Sneak Attack
+    has, do nothing and cost nothing; a Trip on a Huge or larger target does nothing, its die
+    spent. Withdraw, Daze's limit and Stealth Attack are the player's.
   - Stunning Strike (`stunningStrike`, 1 Focus Point, Constitution or Stunned), Open Hand
-    Technique (`openHand`: Push's Strength save, Topple's Dexterity save or Prone), Hurl Through
+    Technique (`openHand`, on an Unarmed Strike: Push's Strength save, Topple's Dexterity save or Prone), Hurl Through
     Hell (`hurlThroughHell`: its use or a Pact Magic slot, then a Charisma save or 8d10 Psychic
     damage unless a Fiend, and Incapacitated) and the Rod of Lordly Might's Drain Life and
     Paralyze (`drainLife`, `paralyze`, on its own melee attack through `item-power`; Drain Life
@@ -311,13 +312,13 @@ Where the SRD is unclear or silent, the pack reads it this way:
   options on a weapon or Unarmed Strike hit: their dice join the hit's damage roll (doubled on a
   Critical Hit), and the use is spent with the damage; their own actions stay for other attack
   rolls. Retaliation offers each melee weapon's attack, and an Unarmed Strike, as follow-ups
-  when the barbarian takes damage and stays up. Deflect Attacks is a batch-scoped situational choice on an
-  incoming attack (`deflectAttacks`, `scope: batch`): selected once, it reduces the whole
-  attack's damage, every type it deals, by one roll of 1d10 plus the Dexterity modifier and Monk
-  level. Whether the attack deals Bludgeoning, Piercing or Slashing damage (any type with Deflect
-  Energy) is the player's call when selecting it. When it stops all the damage, its `changes`
-  offer the `deflect-redirect` follow-up, which runs the feature's `deflect-attacks` action: 1
-  Focus Point and the redirected damage (two Martial Arts dice plus Dexterity, Dexterity save).
+  when the barbarian takes damage and stays up. Deflect Attacks is a batch-scoped situational
+  choice on an incoming attack (`deflectAttacks`, `scope: batch`): selected once, it reduces the
+  whole attack's Bludgeoning, Piercing and Slashing damage (every type with Deflect Energy) by one
+  roll of 1d10 plus the Dexterity modifier and Monk level. When it stops all the damage and a
+  Focus Point is left (`focus.spent`), its `changes` offer the `deflect-redirect` follow-up, which
+  runs the feature's `deflect-attacks` action: 1 Focus Point and the redirected damage (two
+  Martial Arts dice plus Dexterity, Dexterity save).
 - **Spellcasting:** each class's cantrips and prepared spells (the table's counts), always-
   prepared subclass spells, the Multiclass Spellcaster slots, Pact Magic, the wizard's spellbook
   and Ritual Adept, Magic Initiate and species spells with their own ability, `cast-spell` with

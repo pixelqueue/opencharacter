@@ -320,7 +320,7 @@ resultBands:
 
 actions:
   - id: weapon-attack
-    tags: [attack]
+    tags: [attack, attack-hit]
     available: >-
       self.equipped && (!has(item.ammunition) || countCopies(copy.type == 'gear'
         && has(copy.fields.ammunition) && copy.fields.ammunition == item.ammunition
@@ -558,7 +558,7 @@ actions:
           attack: steps.attack.total
 
   - id: unarmed-strike
-    tags: [attack]
+    tags: [attack, attack-hit, unarmed]
     params:
       targetAc: { type: integer, optional: true }
     participants:

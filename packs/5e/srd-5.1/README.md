@@ -277,7 +277,7 @@ Where the SRD is unclear or silent, the pack reads it this way:
   effects are boolean inputs; once per turn is the app's. Divine Smite is offered on a melee
   weapon hit (one option per spell slot level left, and the pact slot): it spends the slot and
   adds its radiant dice to the hit's damage roll, doubled on a critical hit. Stunning Strike
-  (`stunningStrike`, 1 ki on a melee hit) and Open Hand Technique (`openHand`) are parameters of
+  (`stunningStrike`, 1 ki on a melee hit) and Open Hand Technique (`openHand`, on an unarmed strike) are parameters of
   the attack: on the hit (the attacks' `attack-hit` step) the target makes its save at the ki
   save DC as part of the attack, stunned or knocked prone on a failure; the push and No
   reactions are the player's.
