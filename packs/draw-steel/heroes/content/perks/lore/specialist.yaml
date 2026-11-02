@@ -13,10 +13,18 @@ choices:
     eligible: item.id in skills.known
     recommend: filterList(skills.known, itemField(x, 'group') == 'lore')[0]
 effects:
+  # A double edge on tests made to recall lore with the skill: whether a test recalls lore is a
+  # parameter of the test.
+  - target: { actions: [power-roll.test] }
+    op: params
+    value:
+      recallLore: { type: boolean, default: false }
   - target:
       rolls:
         - power-roll.test
       tally: edges
     op: add
     value: 2
-    when: has(params.skill) && params.skill in picksOf('skill')
+    when: >-
+      has(params.skill) && params.skill in picksOf('skill')
+        && has(params.recallLore) && params.recallLore
