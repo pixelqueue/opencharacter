@@ -3,5 +3,11 @@ type: feature
 fields:
   class: classes.talent
   level: 9
+immuneTo:
+  - { id: taunted, items: [conditions.taunted] }
+  - { id: frightened, items: [conditions.frightened] }
 effects:
   - { target: immunity.psychic, op: add, value: 10 }
+  # Reason and Intuition count 2 higher when resisting potencies.
+  - { target: potency.resistBonus.reason, op: add, value: 2 }
+  - { target: potency.resistBonus.intuition, op: add, value: 2 }
