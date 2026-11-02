@@ -36,7 +36,7 @@ effects:
         - ability.pay
       from: self
     op: changes
-    when: (combat.active && heroic.current - item.cost - params.spend < 0)
+    when: (combat.active && heroic.current - item.cost - params.spend - flags.extra < 0)
       || (has(params.talentStrain) && params.talentStrain)
     value:
       changes:
@@ -48,7 +48,7 @@ effects:
         - ability.after
       from: self
     op: changes
-    when: (combat.active && heroic.current - item.cost - params.spend < 0)
+    when: (combat.active && heroic.current - item.cost - params.spend - flags.extra < 0)
       || (has(params.talentStrain) && params.talentStrain)
     value:
       changes:

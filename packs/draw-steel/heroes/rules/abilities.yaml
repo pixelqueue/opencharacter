@@ -249,6 +249,7 @@ actions:
               char: 'has(params.characteristic) ? params.characteristic : self.char'
               mode: 'has(params.mode) ? params.mode : self.mode'
               cost: 0
+              extra: 0
               tier: 0
               cond: "''"
               dur: "'until'"
@@ -260,6 +261,11 @@ actions:
               moveGated: 'false'
               teleport: 0
               resist: 0
+      # An extra cost content adds to this use (psi boosts), as `flags.extra`; it is paid with the
+      # ability's, and strained effects count it.
+      - id: extra
+        kind: changes
+        tags: [ability.extra]
       - id: roll
         kind: roll
         when: flags.char != 'none' || item.rollBonus != 0
@@ -305,16 +311,18 @@ actions:
                       ? abilities.edgeDiscount : 0))
       - id: unaffordable
         kind: outcome
-        when: combat.active && flags.cost + params.spend > 0 && heroic.current - flags.cost - params.spend < heroic.min
+        when: >-
+          combat.active && flags.cost + flags.extra + params.spend > 0
+            && heroic.current - flags.cost - flags.extra - params.spend < heroic.min
         result: "'unaffordable'"
       - id: pay
         kind: changes
         tags: [ability.pay]
         changes:
           - type: adjust
-            when: combat.active && flags.cost + params.spend > 0
+            when: combat.active && flags.cost + flags.extra + params.spend > 0
             field: heroic.current
-            by: -(flags.cost + params.spend)
+            by: -(flags.cost + flags.extra + params.spend)
           - type: set
             when: '!combat.active && item.cost > 0'
             field: abilities.usedOutside

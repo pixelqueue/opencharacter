@@ -33,14 +33,14 @@ effects:
       from: self
     op: set
     value: 0
-    when: '!((combat.active && heroic.current - item.cost - params.spend <
+    when: '!((combat.active && heroic.current - item.cost - params.spend - flags.extra <
       0) || (has(params.talentStrain) && params.talentStrain))'
   - target:
       steps:
         - ability.hit
       from: self
     op: changes
-    when: ((combat.active && heroic.current - item.cost - params.spend <
+    when: ((combat.active && heroic.current - item.cost - params.spend - flags.extra <
       0) || (has(params.talentStrain) && params.talentStrain)) && flags.tier > 0
     value:
       changes:

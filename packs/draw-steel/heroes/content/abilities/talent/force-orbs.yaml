@@ -22,10 +22,10 @@ effects:
       changes:
         - type: set
           field: talent.forceOrbs
-          value: '((combat.active && heroic.current - item.cost - params.spend < 0) ||
+          value: '((combat.active && heroic.current - item.cost - params.spend - flags.extra < 0) ||
             (has(params.talentStrain) && params.talentStrain)) ? 5 : 3'
         - type: applyEffect
-          when: (combat.active && heroic.current - item.cost - params.spend < 0) || (has(params.talentStrain) && params.talentStrain)
+          when: (combat.active && heroic.current - item.cost - params.spend - flags.extra < 0) || (has(params.talentStrain) && params.talentStrain)
           source: "'conditions.weakened'"
           state: { duration: "'until'" }
   - { target: immunity.all, op: add, value: talent.forceOrbs }

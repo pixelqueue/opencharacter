@@ -31,7 +31,7 @@ effects:
         - ability.hit
       from: self
     op: changes
-    when: ((combat.active && heroic.current - item.cost - params.spend <
+    when: ((combat.active && heroic.current - item.cost - params.spend - flags.extra <
       0) || (has(params.talentStrain) && params.talentStrain)) && flags.tier >= 2
     value:
       changes:
@@ -44,7 +44,7 @@ effects:
         - ability.after
       from: self
     op: changes
-    when: ((combat.active && heroic.current - item.cost - params.spend <
+    when: ((combat.active && heroic.current - item.cost - params.spend - flags.extra <
       0) || (has(params.talentStrain) && params.talentStrain)) && has(steps.roll) && steps.roll.bandValue >= 2
     value:
       changes:

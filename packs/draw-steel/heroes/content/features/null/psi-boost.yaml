@@ -1,6 +1,6 @@
-# The psi boosts are the shared situational choices on a psionic ability's roll (declared with the
-# Talent's, which has the same boosts); this pays their discipline. From 10th level, Manifold
-# Resonance's 1 discipline pays for 1 of it.
+# The psi boosts are parameters of a psionic main action or maneuver (declared with the Talent's,
+# which has the same boosts); this adds their discipline to the ability's cost. From 10th level,
+# Manifold Resonance's 1 discipline pays for 1 of it.
 id: features.null.psi-boost
 type: feature
 fields:
@@ -8,20 +8,17 @@ fields:
   level: 7
 effects:
   - { target: talent.psiBoost, op: set, value: 'true' }
-  - target: { steps: [ability.pay] }
+  - target: { steps: [ability.extra] }
     op: changes
-    when: >-
-      combat.active && 'kw.psionic' in action.item.tags
-        && action.item.usage in ['main-action', 'maneuver']
-        && ((has(params.psiDynamic) && params.psiDynamic) || (has(params.psiExpanded) && params.psiExpanded) || (has(params.psiExtended) && params.psiExtended)
-          || (has(params.psiHeightened) && params.psiHeightened) || (has(params.psiMagnified) && params.psiMagnified) || (has(params.psiShared) && params.psiShared)
-          || (has(params.psiSharpened) && params.psiSharpened))
+    when: "'kw.psionic' in action.item.tags"
     value:
-      changes:
-        - type: adjust
-          field: heroic.current
-          by: >-
-            -max(0, ((has(params.psiDynamic) && params.psiDynamic) ? 1 : 0) + ((has(params.psiExpanded) && params.psiExpanded) ? 3 : 0)
-              + ((has(params.psiExtended) && params.psiExtended) ? 1 : 0) + ((has(params.psiHeightened) && params.psiHeightened) ? 1 : 0)
-              + ((has(params.psiMagnified) && params.psiMagnified) ? 5 : 0) + ((has(params.psiShared) && params.psiShared) ? 5 : 0)
-              + ((has(params.psiSharpened) && params.psiSharpened) ? 1 : 0) - (level >= 10 ? 1 : 0))
+      flags:
+        extra: >-
+          max(0, ((has(params.psiDynamic) && params.psiDynamic) ? 1 : 0)
+              + ((has(params.psiExpanded) && params.psiExpanded) ? 3 : 0)
+              + ((has(params.psiExtended) && params.psiExtended) ? 1 : 0)
+              + ((has(params.psiHeightened) && params.psiHeightened) ? 1 : 0)
+              + ((has(params.psiMagnified) && params.psiMagnified) ? 5 : 0)
+              + ((has(params.psiShared) && params.psiShared) ? 5 : 0)
+              + ((has(params.psiSharpened) && params.psiSharpened) ? 1 : 0)
+              - (level >= 10 ? 1 : 0))

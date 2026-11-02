@@ -4,7 +4,7 @@
 # the clarity left after paying the cost and any Spend is below 0; or, by the hero's choice,
 # through the `talentStrain` parameter (outside combat, where using a second clarity ability
 # within a minute strains, and with Psion at 10th level). Each ability tests
-#   (combat.active && heroic.current - item.cost - params.spend < 0) || (has(params.talentStrain) && params.talentStrain)
+#   (combat.active && heroic.current - item.cost - params.spend - flags.extra < 0) || (has(params.talentStrain) && params.talentStrain)
 # in its own effects, since the action's steps read the sheet before the cost is paid.
 fields:
   talent.strained: { type: boolean, formula: "heroic.kind == 'clarity' && heroic.current < 0" }
@@ -64,7 +64,7 @@ effects:
   - id: psi-boosts
     target: { actions: [kw.psionic] }
     op: params
-    when: talent.psiBoost
+    when: "talent.psiBoost && action.item.usage in ['main-action', 'maneuver']"
     value:
       psiDynamic: { type: boolean, default: false }
       psiExpanded: { type: boolean, default: false }
