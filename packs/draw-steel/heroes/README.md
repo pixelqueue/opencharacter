@@ -94,9 +94,11 @@ computeSheet(ruleset, made.character).values['draw-steel-heroes:stamina.max']?.v
   Justice You Fear). Choices made on each use are parameters: the psi boosts and taking the
   strain on any psionic ability (psi boosts are an extra cost paid with the use and counted by
   strain; taking the strain outside combat costs 1d6), the damage type of Hurl Element, Dragon
-  Breath and Smolder (it types the ability's own damage, so the card shows the real numbers),
-  Healing Grace's Spend enhancements (`graceRecoveries`, `graceStand`, `graceEnd`, which must fit
-  in the Spend). An `ally` participant is the ally a triggered ability answers or an ability
+  Breath and Smolder, and the stormwight's primordial type on Visceral Roar and Deluge (Deluge's
+  ignoring immunity), all typing the ability's own damage so the card shows the real numbers;
+  Healing Grace's Spend enhancements (`graceRecoveries`, `graceStand`, `graceEnd` with
+  `graceEndEntry` naming the effect, which must fit in the Spend; an overspend is reported on
+  `graceRecoveries`). An `ally` participant is the ally a triggered ability answers or an ability
   helps: No Dying on My Watch frightens the target of that ally and lets them spend a Recovery,
   Inspiring Strike lets them spend one. Abilities with
   rules beyond the tier table (Strained, with its rolled damage, persistent abilities, Judgment,
@@ -121,11 +123,14 @@ computeSheet(ruleset, made.character).values['draw-steel-heroes:stamina.max']?.v
   counts the damage taken in one turn (anyone's) until the turn changes, and 5 × Reason ends the
   maintained abilities.
 - **Reactions that reduce damage** are situational choices on the incoming damage, selected on
-  the attack's first change and reaching the whole attack: Unearthly Reflexes, Defensive Roll, In
-  All This Confusion, Draconian Guard, Resist the Unnatural, and the null's Inertial Shield,
-  Inertial Absorption and Synaptic Anchor, whose discipline (and Inertial Absorption's surges) the
-  choice pays. Elemental Buffer's surges come when immunity reduces elemental damage, Inertial
-  Shield's Elemental Absorption included.
+  the attack's first change and reaching the whole attack: Parry, Skin Like Castle Walls,
+  Unearthly Reflexes, Defensive Roll, In All This Confusion, Draconian Guard, Resist the
+  Unnatural, and the null's Inertial Shield, Inertial Absorption and Synaptic Anchor, whose
+  discipline (and Inertial Absorption's surges) the choice pays; outside combat they use the
+  ability up until a respite, as a heroic ability's use does. Damage is halved once however many
+  halve it, and weakness and immunity apply after the halving (immunity last). Elemental
+  Absorption's immunity meets each elemental change of the attack whole, and Elemental Buffer's
+  surges come when immunity reduces elemental damage, Elemental Absorption's included.
 - **Stamina:** maximum from class, level and kit; winded, dying (and bleeding, unless a trait says
   otherwise) and dead; temporary Stamina (the greater kept); Recoveries, including Recoveries other
   heroes' abilities grant; damage immunity (by type, all damage, or "immunity all" to a type),
@@ -159,7 +164,8 @@ computeSheet(ruleset, made.character).values['draw-steel-heroes:stamina.max']?.v
   career, perk, complication, title and treasure (100), with its numbers and choices. Armor and
   weapon treasures need a kit with a matching keyword (or Prayer of Soldier's Skill), abilities
   they grant (King's Roar, Kuran'zoi Prismscale) included. Brawny and Lucky Dog are offered after
-  a failed test they apply to: the hero loses 1d6 + level Stamina and the test improves one tier.
+  a failed test they apply to (both on one test): each loses 1d6 + level Stamina and improves the
+  test one tier.
   Eidetic Memory's lore skill is picked anew at each respite. A career's
   inciting incident is a choice of the book's six, each with its text. A treasure a complication
   hands you (Secret Twin, Cursed Weapon, …) is picked at creation and held as your own copy;

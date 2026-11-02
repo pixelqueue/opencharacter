@@ -25,7 +25,10 @@ fields:
   t3Damage: 15
   t3AddsChar: false
 effects:
-  # The damage is the stormwight kit's primordial damage type, so immunity and weakness see it.
+  # The damage is the stormwight kit's primordial damage type, so weakness sees it, and it ignores
+  # damage immunity.
   - target: { rolls: [damage], parts: [ability.damage], from: self }
     op: tag
-    value: [{ formula: "fury.primordialType == 'none' ? [] : ['damage.' + fury.primordialType]" }]
+    value:
+      - damage.unreducible
+      - { formula: "fury.primordialType == 'none' ? [] : ['damage.' + fury.primordialType]" }

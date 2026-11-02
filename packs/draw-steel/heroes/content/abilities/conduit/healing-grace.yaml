@@ -28,6 +28,8 @@ effects:
         max: 'params.spend - (params.graceStand ? 1 : 0) - (params.graceEnd ? 1 : 0)'
       graceStand: { type: boolean, default: false }
       graceEnd: { type: boolean, default: false }
+      # The applied entry to end (its ID on the target); without it, the first that qualifies.
+      graceEndEntry: { type: string, optional: true }
   # The target can spend a Recovery, and one more for each enhancement.
   - target: { steps: [ability.hit], from: self }
     op: changes
@@ -43,5 +45,7 @@ effects:
         - type: removeEffect
           when: params.graceEnd
           applied:
-            where: "has(self.duration) && self.duration in ['save', 'eot']"
+            where: >-
+              has(self.duration) && self.duration in ['save', 'eot']
+                && (!has(params.graceEndEntry) || self.id == params.graceEndEntry)
             limit: 1
