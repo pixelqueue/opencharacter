@@ -66,10 +66,13 @@ actions:
           - value: self.hit
           - value: 'flags.burst ? 2 : 0'
           - value: params.modifier
+      # A miss, with the Warrior's luck unspent: the class may turn it into a hit.
       - id: luck
         kind: choice
         tags: [missed-attack]
-        when: "steps.roll.band == 'miss'"
+        when: >-
+          steps.roll.band == 'miss' && countCopies(copy.item == @classes.warrior) > 0
+            && !scene.warriorLuck
         options: [{ id: accept }]
         recommend: "'accept'"
       - id: outcome
