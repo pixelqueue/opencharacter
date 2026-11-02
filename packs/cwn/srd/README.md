@@ -164,7 +164,9 @@ cyberware `concealment`, a spell's `effort`, vehicle `size`, and the attributes.
 - **Random start:** the attributes are rolled in order (one score made 14: the lowest, if under
   14), and the background's skills rolled, each roll's table drawn. Everything else is drawn
   among the eligible options.
-- **Guided recommendations:** the first eligible option, so an automatic run finishes; the
+- **Guided recommendations:** the first eligible option, so an automatic run finishes (level-up
+  too: Prodigy's, Specialist's, a skillplug's and All Natural's own picks recommend one, All
+  Natural the first attribute still under +3); the
   recommended Focus gear is the dearest vehicle or drone the budget buys, then the dearest that
   still fits, until the budget is spent.
 - **Physical skills** for skillplugs: Drive, Exert, Perform, Punch, Shoot, Sneak and Stab.
