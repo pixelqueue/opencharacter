@@ -6,3 +6,22 @@ fields:
 effects:
   # Up to three prayers at once (the class's prayer choice).
   - { target: conduit.prayers, op: set, value: 3 }
+actions:
+  # A maneuver: activate one of your domain effects without praying.
+  - id: domain-effect
+    tags: [ability, usage.maneuver]
+    available: combat.active && size(conduit.domainEffects) > 0
+    participants:
+      target: { fields: creature }
+    results: [activated]
+    steps:
+      - id: domain
+        kind: choice
+        options: { values: { formula: conduit.domainEffects } }
+        recommend: options[0]
+      - id: effect
+        kind: action
+        use: prayer-effect
+        source: steps.domain.value
+        participants: { target: participants.target }
+      - { id: done, kind: outcome, result: "'activated'" }
