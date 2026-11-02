@@ -1763,16 +1763,25 @@ function situationalOn(
       earlier.has(id)
     )
       throw new ChangeError('situational-unavailable', { situational: id });
-    if (!choices.selected.has(id)) choices.selected.set(id, { value, index: choices.index });
+    // A choice with a cost is charged once per batch: at one value.
+    const first = choices.selected.get(id);
+    if (first && def.changes && first.value !== value)
+      throw new ChangeError('situational-unavailable', { situational: id });
+    if (!first) choices.selected.set(id, { value, index: choices.index });
     if (def.scope === 'batch') choices.batch.set(id, value);
     else effectsOf(id, def, false);
   }
-  for (const id of choices.batch.keys()) {
+  // A batch-scoped choice reaches the later adjusts its `incoming` matches.
+  const reaching = [...choices.batch].filter(([id]) => {
+    const def = ruleset.rules.situational[id];
+    return def?.incoming !== undefined && matchesIncoming(def.incoming, qid, tags);
+  });
+  for (const [id] of reaching) {
     const def = ruleset.rules.situational[id];
     if (def) effectsOf(id, def, true);
   }
   return {
-    given: { ...given, ...Object.fromEntries(choices.batch) },
+    given: { ...given, ...Object.fromEntries(reaching) },
     instances,
     shared,
     left: choices.left,
@@ -1837,6 +1846,9 @@ function applyChoiceChanges(
       } else {
         const field = change.field as string;
         const decl = inputField(ruleset, field);
+        const declared = declaredTags(ruleset);
+        for (const tag of change.tags ?? [])
+          if (!declared.has(tag)) throw new ChangeError('unknown-tag', { tag });
         const by = num(evaluate(change.by as Formula));
         if (by === undefined || (decl.type !== 'integer' && decl.type !== 'decimal'))
           throw new ChangeError('wrong-type', { target: field, expected: 'a number' });
