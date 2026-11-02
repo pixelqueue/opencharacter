@@ -127,8 +127,8 @@ inventory:
 
 An applied entry has an `id` unique within the file too, its `source` (a content item, not a
 template), `active` (default true), `state`: values for keys declared by the source's content
-type or item, `aura` for an aura's entry (one of the source's `auras`, whose effects alone it
-runs; [content.md](content.md#auras)), and `appliedBy`: the `id` of the character who applied it, which an action fills in
+type or item, `aura` for an aura's entry (one of the source's `auras`, whose effects and immunities alone
+it runs; [content.md](content.md#auras)), and `appliedBy`: the `id` of the character who applied it, which an action fills in
 with its actor's (optional; a hand-made entry may name none). Formulas read it as
 `self.appliedBy` (`''` when absent; `appliedBy` is never a state key name), and changes reach every entry one character applied with
 `applied: { appliedBy }` ([engine-core.md](engine-core.md#applychanges)), so one creature's mark

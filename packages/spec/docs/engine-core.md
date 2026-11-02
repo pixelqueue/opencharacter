@@ -258,7 +258,7 @@ reads them and never computes the other character.
 
 **Appliers.** The same calls (and `describeAction`) take optional `appliers`: a list of views of
 the characters who applied the character's aura entries ([content.md](content.md#auras)). An
-aura entry's effects read the view whose `id` is the entry's `appliedBy` as `applier`, with the
+aura entry's effects and immunities read the view whose `id` is the entry's `appliedBy` as `applier`, with the
 aura's declared `fields` read as a link's are: passed value, else `default`, else absent. A value
 of the wrong type is `invalid-link-value` (data `applier`, `field`, `expected`), and two views with
 one `id` are `duplicate-id` (the first is read). A paused action keeps them, as it keeps its
@@ -370,7 +370,8 @@ applied content the character can't be affected by, as `items` or a `query`, wit
    written in.
 3. Of the `applied` entries with `active` not `false`, one whose source matches an active
    holder immunity is **blocked**. The others are **candidates**. A candidate's immunities are
-   its source's immunities with `scope: applied` whose `when` holds, and a candidate **blocks**
+   its source's immunities with `scope: applied` whose `when` holds (an aura's entry: its aura's
+   `immuneTo`, and none of its source's), and a candidate **blocks**
    every other applied entry (never itself) whose source one of them matches, whether that
    entry comes before or after it in `applied`.
 4. The candidates are decided in rounds until none is undecided. Each round:

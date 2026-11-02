@@ -1,0 +1,20 @@
+description: "An aura immunity with a `scope` other than `applied` is invalid-aura: it is the entry's"
+specVersion: 0.3.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        { id: test-pack, version: 1.0.0, specVersion: 0.3.0, license: CC0-1.0, defaultLanguage: en }
+      rules:
+        contentTypes:
+          feature: {}
+          condition: {}
+      content:
+        - id: conditions.frightened
+          type: condition
+        - id: features.courage
+          type: feature
+          auras:
+            - id: courage
+              immuneTo:
+                - { id: fearless, items: [conditions.frightened], scope: holder }

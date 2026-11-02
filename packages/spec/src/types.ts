@@ -1102,7 +1102,7 @@ export type ContentItem = {
   /** Computed values on this item's copies, added to the content type's or replacing one of them by name. A template's are added to the copies it is applied to. */
   computed?: Record<string, ComputedDecl>;
   effects?: Effect[];
-  /** Areas the holder projects, putting effects on whoever is inside: a field, a banner, a ward. Positions are the app's: computeSheet lists each aura that is up (`auras`), the app applies its entry to each creature as it enters (`applyEffect` with `source` this item, `aura` the aura's ID and `appliedBy` the holder) and removes it as the creature leaves or the aura ends. The entry runs only the aura's `effects`, whose formulas read the holder's live values as `applier.<field>` from the view the app passes (`appliers`). Text: `<contentId>.auras.<id>.name` (optional). */
+  /** Areas the holder, or the caster of an applied entry (`scope: applied`), projects, putting effects and immunities on whoever is inside: a field, a banner, a ward, a cast blessing. Positions are the app's: computeSheet lists each aura that is up (`auras`), the app applies its entry to each creature as it enters (`applyEffect` with `source` this item, `aura` the aura's ID and `appliedBy` the projecting character) and removes it as the creature leaves or the aura ends. The entry runs only the aura's `effects` and `immuneTo`, whose formulas read the projector's live values as `applier.<field>` from the view the app passes (`appliers`). Text: `<contentId>.auras.<id>.name` (optional). */
   auras?: Aura[];
   /** Follow-ups that apply while the character has this item's copy or pick, as effects do. Their formulas see `item` and `self`. */
   followUps?: FollowUp[];
@@ -1138,16 +1138,20 @@ export type ContentItem = {
 export type Aura = {
   /** Unique among the item's auras; an applied entry names it in `aura`. */
   id: Slug;
-  /** On the holder, with the item's `item` and `self`: whether the aura is up. Default true. */
+  /** What projects it. `holder` (default): each activation of the item the character has, as `self` the copy. `applied`: each active, unblocked applied entry of the item that the character applied itself (no `appliedBy`, or its own `id`), as `self` that entry, so one cast is one aura whatever the caster holds or cast it from; it ends with the entry. */
+  scope?: 'holder' | 'applied';
+  /** On the character projecting it, with the item's `item` and `self` (as `scope` says): whether the aura is up. Default true. */
   when?: Condition;
-  /** On the holder: how far it reaches, in the game's own unit (squares, feet), for the app's map. */
+  /** On the character projecting it, with `item` and `self` as `when`: how far it reaches, in the game's own unit (squares, feet), for the app's map. */
   size?: Formula;
   /** Whom the app puts it on: `all` (the default), `allies` or `enemies` of the holder, as the app's sides go. */
   affects?: 'all' | 'allies' | 'enemies';
   /** The holder's fields its effects read as `applier.<field>`, declared as a link slot's are (a value type and a literal `default`), by field ID without the pack. Without a view of the applier, each reads its default. */
   fields?: DeclaredFields;
   /** The effects on each creature inside, whose entry names this aura: `scope: applied` effects (a `scope` other than `applied` is `invalid-aura` at load), seeing `item` and `self` (the entry) as an applied entry's effects do, and `applier`. */
-  effects: Effect[];
+  effects?: Effect[];
+  /** Applied content each creature inside can't be affected by: the immunities of the aura's entry, run as `scope: applied` immunities (a `scope` other than `applied` is `invalid-aura` at load). A matching entry on the creature is blocked and reported `immune` with the ID `<item>#<aura>/<id>`. Their `when` and query `where` see `item`, `self` (the entry) and `applier`, as the aura's effects do. */
+  immuneTo?: Immunity[];
 };
 
 export type Grant = {
@@ -2199,12 +2203,12 @@ export type ComputeSheetOutput = {
   situational: QualifiedId[];
   /** Choices that apply and need picks, in a pre-order walk of the activations: the rules-level choices first, then each activation's own choices, each followed by those of what it picked, before those of the activations it grants. They are the `choices` entries with `open` true, with `picked` their number of picks. */
   pending: PendingChoice[];
-  /** The auras the character projects now: each `auras` entry of its active holder content whose `when` holds, in activation order. The app applies an entry of each (`applyEffect` with `source`, `aura` and `appliedBy` the character's `id`) to every creature inside it that `affects` names, and removes it as the creature leaves or the aura leaves this list. */
+  /** The auras the character projects now, in activation order, whose `when` holds: each holder aura of its active holder content, and each `scope: applied` aura of each active, unblocked applied entry it applied itself (no `appliedBy`, or its own `id`), once per entry. The app applies an entry of each (`applyEffect` with `source`, `aura` and `appliedBy` the character's `id`) to every creature inside it that `affects` names, and removes it as the creature leaves or the aura leaves this list. */
   auras?: {
     /** The content declaring the aura. */
     source: QualifiedId;
     aura: Slug;
-    /** The copy the content belongs to, if any. */
+    /** What projects it: for a holder aura, the copy the content belongs to, if any; for an applied aura, the applied entry, so the app tells two casts apart and ends the aura with its entry. */
     entry?: InstanceId;
     /** The aura's `size`, evaluated: how far it reaches in the game's unit. Absent when it declares none. */
     size?: number;

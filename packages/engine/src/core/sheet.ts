@@ -722,20 +722,33 @@ export class Sheet {
     );
   }
 
-  /** The auras the character projects now: each holder activation's whose `when` holds. */
+  /**
+   * The auras the character projects now, in activation order, whose `when` holds: each holder
+   * aura of a holder activation, and each applied aura of an applied activation (an entry's
+   * source, or content its applied grants reach) of an entry the character applied itself.
+   */
   auras(): ListedAura[] {
     const out: ListedAura[] = [];
+    const by = new Map((this.character.applied ?? []).map((e) => [e.id, e.appliedBy]));
     for (const a of this.activations) {
-      if (a.scope !== 'holder' || !a.item?.auras) continue;
+      if (!a.item?.auras || a.aura) continue;
+      if (a.scope === 'applied') {
+        if (a.applied === undefined) continue;
+        const applier = by.get(a.applied);
+        if (applier !== undefined && applier !== this.character.id) continue;
+      }
+      const pack = a.item.scopes?.auras ?? a.item.pack;
       for (const aura of a.item.auras) {
+        if ((aura.scope ?? 'holder') !== a.scope) continue;
         try {
-          if (!this.test(aura.when, a.item.pack, a.roots)) continue;
+          if (!this.test(aura.when, pack, a.roots)) continue;
           const size =
-            aura.size === undefined ? undefined : this.evaluate(aura.size, a.item.pack, a.roots);
+            aura.size === undefined ? undefined : this.evaluate(aura.size, pack, a.roots);
+          const entry = a.scope === 'applied' ? a.applied : a.entry?.id;
           out.push({
             source: a.item.qid,
             aura: aura.id,
-            ...(a.entry ? { entry: a.entry.id } : {}),
+            ...(entry !== undefined ? { entry } : {}),
             ...(size && (size.kind === 'int' || size.kind === 'decimal')
               ? { size: f.toData(size) as number }
               : {}),
@@ -1498,7 +1511,8 @@ export class Sheet {
     list = [];
     this.appliedChildren.set(a, list);
     const item = a.item;
-    if (!item) return list;
+    // An aura's entry grants nothing.
+    if (!item || a.aura) return list;
     const type = item.type !== 'template' ? this.ruleset.contentTypes[item.type] : undefined;
     const grantPack = item.scopes?.grants ?? item.pack;
     const grants = [
@@ -1807,7 +1821,17 @@ export class Sheet {
       return out;
     }
     const item = a.item;
-    if (!item || a.aura) return out;
+    if (!item) return out;
+    // An aura's entry has only the aura's immunities, named under the aura (`<item>#<aura>/<id>`).
+    if (a.aura) {
+      const pack = item.scopes?.auras ?? item.pack;
+      for (const def of a.aura.immuneTo ?? []) {
+        const id = `${item.qid}#${a.aura.id}/${def.id}`;
+        if (this.condition(def.when, pack, a.roots, `${id} immunity`))
+          out.push({ def, pack, owner: a, id, source: a.source });
+      }
+      return out;
+    }
     const pack = item.scopes?.immuneTo ?? item.pack;
     for (const def of item.immuneTo ?? []) {
       if ((def.scope ?? 'holder') !== a.scope) continue;
@@ -1901,10 +1925,10 @@ export class Sheet {
     const item = activation.item;
     // An aura's entry runs only the aura's effects.
     if (activation.aura) {
-      activation.aura.effects.forEach((effect, index) =>
+      (activation.aura.effects ?? []).forEach((effect, index) =>
         this.instance(
           effect,
-          item?.pack ?? activation.pack,
+          item?.scopes?.auras ?? item?.pack ?? activation.pack,
           activation.roots,
           activation.source,
           activation.sourceId,

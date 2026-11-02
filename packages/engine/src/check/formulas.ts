@@ -464,14 +464,16 @@ class FormulaChecker<L> {
     }
     this.computed(item.computed, at, owner, ownType?.computed);
     for (const effect of item.effects ?? []) this.effect(effect, at, owner);
-    // An aura's `when` and `size` are the holder's; its effects see the applier's view too.
+    // An aura's `when` and `size` are the projector's; its effects and immunities see the applier's
+    // view too.
     for (const aura of item.auras ?? []) {
       const where = `${owner} aura ${aura.id}`;
       this.formula(aura.when, at, `${where} when`, BOOL);
       this.formula(aura.size, at, `${where} size`, NUMBER);
       this.typed({ applier: viewType(aura.fields ?? {}) }, () =>
         this.withRoots(['applier'], () => {
-          for (const effect of aura.effects) this.effect(effect, at, where);
+          for (const effect of aura.effects ?? []) this.effect(effect, at, where);
+          for (const immunity of aura.immuneTo ?? []) this.immunity(immunity, at, where);
         }),
       );
     }

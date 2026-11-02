@@ -15,12 +15,14 @@ grants:
 choices:
   - { id: pick-one, from: { type: weapon, where: "item.damge == '1d6'" } }
 suppress: [nope]
-# An aura repeating its ID, with an effect on its holder.
+# An aura repeating its ID, with an effect and an immunity on its holder.
 auras:
   - id: dread
     fields: { nope: { type: integer, default: 0 } }
     effects: [{ target: combat.ac, op: add, value: -1 }]
   - id: dread
     effects: [{ target: combat.ac, op: add, value: 1, scope: holder }]
+    immuneTo:
+      - { id: calm, items: [weapons.nowhere], scope: holder, when: applier.missing > 0 }
 immuneTo:
   - { id: stun, items: [weapons.nothing] }

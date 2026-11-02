@@ -99,7 +99,7 @@
       }
     },
     "auras": {
-      "description": "Areas the holder projects, putting effects on whoever is inside: a field, a banner, a ward. Positions are the app's: computeSheet lists each aura that is up (`auras`), the app applies its entry to each creature as it enters (`applyEffect` with `source` this item, `aura` the aura's ID and `appliedBy` the holder) and removes it as the creature leaves or the aura ends. The entry runs only the aura's `effects`, whose formulas read the holder's live values as `applier.<field>` from the view the app passes (`appliers`). Text: `<contentId>.auras.<id>.name` (optional).",
+      "description": "Areas the holder, or the caster of an applied entry (`scope: applied`), projects, putting effects and immunities on whoever is inside: a field, a banner, a ward, a cast blessing. Positions are the app's: computeSheet lists each aura that is up (`auras`), the app applies its entry to each creature as it enters (`applyEffect` with `source` this item, `aura` the aura's ID and `appliedBy` the projecting character) and removes it as the creature leaves or the aura ends. The entry runs only the aura's `effects` and `immuneTo`, whose formulas read the projector's live values as `applier.<field>` from the view the app passes (`appliers`). Text: `<contentId>.auras.<id>.name` (optional).",
       "type": "array",
       "items": {
         "$ref": "#/$defs/aura"
@@ -292,18 +292,23 @@
   "$defs": {
     "aura": {
       "type": "object",
-      "required": ["id", "effects"],
+      "required": ["id"],
+      "anyOf": [{ "required": ["effects"] }, { "required": ["immuneTo"] }],
       "properties": {
         "id": {
           "description": "Unique among the item's auras; an applied entry names it in `aura`.",
           "$ref": "common.schema.json#/$defs/slug"
         },
+        "scope": {
+          "description": "What projects it. `holder` (default): each activation of the item the character has, as `self` the copy. `applied`: each active, unblocked applied entry of the item that the character applied itself (no `appliedBy`, or its own `id`), as `self` that entry, so one cast is one aura whatever the caster holds or cast it from; it ends with the entry.",
+          "enum": ["holder", "applied"]
+        },
         "when": {
-          "description": "On the holder, with the item's `item` and `self`: whether the aura is up. Default true.",
+          "description": "On the character projecting it, with the item's `item` and `self` (as `scope` says): whether the aura is up. Default true.",
           "$ref": "formula.schema.json#/$defs/condition"
         },
         "size": {
-          "description": "On the holder: how far it reaches, in the game's own unit (squares, feet), for the app's map.",
+          "description": "On the character projecting it, with `item` and `self` as `when`: how far it reaches, in the game's own unit (squares, feet), for the app's map.",
           "$ref": "formula.schema.json"
         },
         "affects": {
@@ -319,6 +324,14 @@
           "type": "array",
           "items": {
             "$ref": "effect.schema.json"
+          },
+          "minItems": 1
+        },
+        "immuneTo": {
+          "description": "Applied content each creature inside can't be affected by: the immunities of the aura's entry, run as `scope: applied` immunities (a `scope` other than `applied` is `invalid-aura` at load). A matching entry on the creature is blocked and reported `immune` with the ID `<item>#<aura>/<id>`. Their `when` and query `where` see `item`, `self` (the entry) and `applier`, as the aura's effects do.",
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/immunity"
           },
           "minItems": 1
         }

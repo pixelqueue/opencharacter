@@ -79,7 +79,10 @@ Besides these calls, `checkRelease` ([upgrades.md](upgrades.md#the-build-check),
 - `competing` lists competing options, one entry per competing group with its `op` and, for a stacking group, `stackKey` (see [effects.md](effects.md#competing-options)); a group of a key spanning fields also lists `fields`, and each option its `values` per field. The input's `competing` is a list of picked option IDs; each group applies its listed option, else its recommendation.
 - `auras` lists the auras the character projects now (`{ source, aura, entry?, size?, affects }`):
   the app applies an entry of each, `appliedBy` the character, to whoever is inside, and removes
-  it as they leave or the aura drops off this list ([content.md](content.md#auras)).
+  it as they leave or the aura drops off this list ([content.md](content.md#auras)). `entry` is
+  the copy a held aura's content belongs to, or the applied entry that projects a cast one
+  (`scope: applied`), so two casts are two listings; a cast's aura leaves the list when its entry
+  ends.
 - `issues` lists rules issues.
 - `copies` maps each copy's instance ID to its computed values (`{ <name>: value }`), for copies that have any.
 - `activationValues` lists the computed values of picked and granted content, as
@@ -162,7 +165,7 @@ takes none: it changes saved state only. See [engine-core.md](engine-core.md#lin
 
 The same calls, and `describeAction`, take optional `appliers`: views (`{ id, values }`) of the
 characters whose auras the character is in, from their own `computeSheet`. An aura entry's
-effects read the one whose `id` is the entry's `appliedBy` as `applier`
+effects and immunities read the one whose `id` is the entry's `appliedBy` as `applier`
 ([content.md](content.md#auras)); without it, the aura's declared defaults.
 
 ### listOptions

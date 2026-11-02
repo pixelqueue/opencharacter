@@ -237,6 +237,16 @@ startAction(rulesetFor(goblin), goblin, { action: { id: 'monster-attack' }, appl
 Without the view, the effects read the defaults the aura declares. Nothing in the goblin's file
 changes when the null's does: recompute it with the new view.
 
+An aura can also make whoever is inside immune to something (Aura of Courage: no one inside is
+frightened). The entry you placed blocks the matching condition on that creature, reported as
+the rules issue `immune`; you do nothing more.
+
+Some auras come from a cast rather than from what the character holds: Bless or Spirit Guardians
+around the caster. The cast puts the spell on the caster as an applied entry, and the caster's
+`auras` lists the aura once per cast, with `entry` that applied entry's ID. Place and remove its
+entries as for any aura. Two casts are two listings, told apart by `entry`, and a cast's aura
+leaves the list when its entry ends (removed or turned off), wherever the spell was cast from.
+
 ## Turns
 
 Your app keeps the clock, but some rules count another creature's turn: damage taken "in one

@@ -1,0 +1,11 @@
+# A spell whose cast projects an aura around the caster: one per cast, sized by the cast's rank,
+# ending with the cast's entry. Holding the spell projects nothing.
+id: spells.bless
+type: spell
+auras:
+  - id: blessing
+    scope: applied
+    size: 1 + self.rank
+    affects: allies
+    effects:
+      - { target: potency, op: add, value: 1 }

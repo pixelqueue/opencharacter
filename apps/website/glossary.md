@@ -11,7 +11,7 @@ One-line definitions of OCF terms, consistent with the [specification](../../pac
 - **App:** the program using the engine; it owns the experience (dice presentation, time, choices, storage, display).
 - **Applied effect:** an entry in the character's `applied` list that turns on the effects of content the character doesn't own (Bless from an ally); the app toggles it, and its own incoming-change effect's `then` can end it (oil that burns away).
 - **Applier (`appliedBy`):** the character who applied an entry, saved on it; actions fill it in. A change sent `to: applied` reaches every entry one character applied, on whichever character holds it.
-- **Aura:** an area content projects (`auras` on an item); computeSheet lists the holder's, the app applies its entry to whoever is inside (`aura`, `appliedBy`), and its effects read the holder's view passed as `appliers` (`applier`).
+- **Aura:** an area content projects (`auras` on an item), from its holder or, with `scope: applied`, from each cast of it (an applied entry the character applied); computeSheet lists them, the app applies its entry to whoever is inside (`aura`, `appliedBy`), and its effects and immunities read the projecting character's view passed as `appliers` (`applier`).
 - **Breakdown:** the list of effects that changed a field's value, in order, returned by computeSheet ("showing the work").
 - **Breaking bump:** a pack version bump that may change saved state or the pack's interface: the minor version while 0.x (0.1.4 → 0.2.0), the major version from 1.0.0 (1.4.2 → 2.0.0). Shape and interface changes need one.
 - **Change:** one edit to a character, from the fixed set of change types, applied by applyChanges.

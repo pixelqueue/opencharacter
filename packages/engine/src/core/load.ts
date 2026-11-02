@@ -969,7 +969,7 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
       out.auras = raw.auras.map((aura) => {
         if (seen.has(aura.id)) err('invalid-aura', { item: raw.id, aura: aura.id, pack });
         seen.add(aura.id);
-        for (const e of aura.effects)
+        for (const e of aura.effects ?? [])
           if ((e.scope ?? 'applied') !== 'applied')
             err('invalid-aura', { item: raw.id, aura: aura.id, pack });
         // The holder uses the item's pack, so each declared field is one of its fields.
@@ -978,7 +978,22 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
           if (!found || ruleset.fields[found]?.type !== decl.type)
             err('link-field-mismatch', { link: `${raw.id}#${aura.id}`, field, pack });
         }
-        return { ...aura, effects: aura.effects.map((e) => q.effect(e, pack)) };
+        // Its immunities are the entry's, so `scope: applied` too.
+        for (const im of aura.immuneTo ?? [])
+          if ((im.scope ?? 'applied') !== 'applied')
+            err('invalid-aura', { item: raw.id, aura: aura.id, pack });
+        return {
+          ...aura,
+          ...(aura.effects ? { effects: aura.effects.map((e) => q.effect(e, pack)) } : {}),
+          ...(aura.immuneTo
+            ? {
+                immuneTo: aura.immuneTo.map((im) => ({
+                  ...q.immunity(im, pack),
+                  scope: 'applied' as const,
+                })),
+              }
+            : {}),
+        };
       });
     }
     if (raw.followUps) {

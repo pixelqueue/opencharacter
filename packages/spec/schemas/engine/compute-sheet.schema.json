@@ -412,7 +412,7 @@
           }
         },
         "auras": {
-          "description": "The auras the character projects now: each `auras` entry of its active holder content whose `when` holds, in activation order. The app applies an entry of each (`applyEffect` with `source`, `aura` and `appliedBy` the character's `id`) to every creature inside it that `affects` names, and removes it as the creature leaves or the aura leaves this list.",
+          "description": "The auras the character projects now, in activation order, whose `when` holds: each holder aura of its active holder content, and each `scope: applied` aura of each active, unblocked applied entry it applied itself (no `appliedBy`, or its own `id`), once per entry. The app applies an entry of each (`applyEffect` with `source`, `aura` and `appliedBy` the character's `id`) to every creature inside it that `affects` names, and removes it as the creature leaves or the aura leaves this list.",
           "type": "array",
           "items": {
             "type": "object",
@@ -426,7 +426,7 @@
                 "$ref": "../common.schema.json#/$defs/slug"
               },
               "entry": {
-                "description": "The copy the content belongs to, if any.",
+                "description": "What projects it: for a holder aura, the copy the content belongs to, if any; for an applied aura, the applied entry, so the app tells two casts apart and ends the aura with its entry.",
                 "$ref": "../common.schema.json#/$defs/instanceId"
               },
               "size": {

@@ -564,12 +564,16 @@ export interface ContentTypeDef {
 /** An area the holder projects: effects on whoever is inside, applied by the app. */
 export interface Aura {
   id: string;
+  /** What projects it: each holder activation (default), or each applied entry the character applied. */
+  scope?: 'holder' | 'applied';
   when?: Formula;
   size?: Formula;
   affects?: 'all' | 'allies' | 'enemies';
   /** The holder's fields its effects read as `applier.<field>`. */
   fields?: Record<string, DeclaredField>;
-  effects: Effect[];
+  effects?: Effect[];
+  /** Applied content whoever is inside can't be affected by: the entry's `scope: applied` immunities. */
+  immuneTo?: Immunity[];
 }
 
 export interface ContentItem {

@@ -1040,11 +1040,18 @@ export class PackChecker {
         if (!found || found.def.type !== decl.type)
           this.report.error(file, `${where}: "${id}" is not a ${decl.type} field of this pack`);
       }
-      for (const effect of aura.effects) {
+      for (const effect of aura.effects ?? []) {
         if ((effect.scope ?? 'applied') !== 'applied')
           this.report.error(file, `${where}: an aura's effects are on whoever is inside (applied)`);
         this.effect(effect, file, where);
       }
+      for (const def of aura.immuneTo ?? [])
+        if ((def.scope ?? 'applied') !== 'applied')
+          this.report.error(
+            file,
+            `${where} immunity ${def.id}: an aura's immunities are on whoever is inside (applied)`,
+          );
+      this.immunities(aura.immuneTo ?? [], file, where);
     }
     this.followUps(
       (item.followUps ?? []).map((fu) => ({ def: fu, file })),

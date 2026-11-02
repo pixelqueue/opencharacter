@@ -10,7 +10,7 @@ Action definitions are in [dice-and-actions.md](dice-and-actions.md); call shape
 `startAction` input: `ruleset`, `character`, `action` (`id`, `entry?`, `source?`, `followUp?`), `params`, `situational`,
 `policy`, `links` (the views filling the link slots; [engine-core.md](engine-core.md#links)),
 `appliers` (the views of the characters whose auras the character is in, read by those auras'
-effects as `applier`; [engine-core.md](engine-core.md#links)), `participants` (the other characters taking part, by role; below), `answers` (answers to
+effects and immunities as `applier`; [engine-core.md](engine-core.md#links)), `participants` (the other characters taking part, by role; below), `answers` (answers to
 replay, one per pause; [Replaying from answers](#replaying-from-answers)) and, outside the JSON
 shape, an optional **dice function**.
 

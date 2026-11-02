@@ -281,6 +281,15 @@ describe('pnpm validate', () => {
       ['changes to an undeclared role', /step tip: to names undeclared role "accomplice"/],
       ['a repeated aura ID', /weapons.mace aura dread: duplicate aura id/],
       ['an aura effect on its holder', /aura dread: an aura's effects are on whoever is inside/],
+      [
+        'an aura immunity on its holder',
+        /aura dread immunity calm: an aura's immunities are on whoever is inside/,
+      ],
+      [
+        'an aura immunity to unknown content',
+        /aura dread immunity calm: unknown item "weapons.nowhere"/,
+      ],
+      ['an aura immunity reading an undeclared applier field', /aura dread immunity calm.*missing/],
       ['a clock action with a required parameter', /actions.tick: a clock action's parameter by/],
       ['an unlisted clock action', /actions.tick: a clock action is listed/],
       [

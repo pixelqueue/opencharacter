@@ -1,0 +1,9 @@
+# An aura that makes whoever is inside immune to being marked while its holder stands.
+id: features.steadfast
+type: feature
+auras:
+  - id: steadfast
+    fields:
+      hp.current: { type: integer, default: 10 }
+    immuneTo:
+      - { id: unmarked, items: [conditions.marked], when: applier.hp.current > 0 }
