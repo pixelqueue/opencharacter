@@ -1,0 +1,21 @@
+description: "5E: taking Fire Shield's eruption offer deals the chill shield's 2d8 cold damage to the attacker"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/5e/srd-5.1
+input:
+  action:
+    {
+      id: 5e-srd-5.1:spells.fire-shield#erupt,
+      entry: warlock,
+      source: 5e-srd-5.1:spells.fire-shield,
+      followUp: erupt-1,
+    }
+  participants:
+    target:
+      - id: goblin-1
+        values: {}
+  policy:
+    dice: auto
+    choices: auto
+    allocations: auto

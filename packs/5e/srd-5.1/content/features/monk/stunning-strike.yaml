@@ -1,18 +1,33 @@
 id: features.monk.stunning-strike
 type: feature
-actions:
-  - id: stunning-strike
-    tags: [feature]
-    results: [stunning]
-    available: self.kiSpent + 1 <= ki.points
-    steps:
-      - id: spend
-        kind: changes
-        changes:
-          - { type: adjustState, entry: self, key: kiSpent, by: 1 }
-      - id: result
-        kind: outcome
-        result: "'stunning'"
-        data:
-          dc: ki.saveDc
-          save: "'con'"
+# `stunningStrike` on an attack: on a melee hit it spends 1 ki point and the target makes a
+# Constitution save at the ki save DC or is stunned.
+effects:
+  - target: { actions: [attack-hit] }
+    op: params
+    when: self.kiSpent + 1 <= ki.points
+    value:
+      stunningStrike: { type: boolean, default: false }
+  - target: { steps: [attack-hit] }
+    op: changes
+    when: &strike >-
+      params.stunningStrike && self.kiSpent + 1 <= ki.points
+        && (!has(action.item.range) || action.item.range == 'melee')
+    value:
+      to: self
+      changes:
+        - { type: adjustState, entry: self, key: kiSpent, by: 1 }
+  - target: { steps: [attack-hit] }
+    op: action
+    when: *strike
+    value:
+      id: stun
+      use: saving-throw
+      each: target
+      as: participant
+      params: { ability: "'con'", dc: ki.saveDc }
+      changes:
+        - type: applyEffect
+          when: run.result == 'failure'
+          source: "'conditions.stunned'"
+          state: { by: creature.type }

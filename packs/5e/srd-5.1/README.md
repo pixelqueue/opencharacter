@@ -250,12 +250,14 @@ Where the SRD is unclear or silent, the pack reads it this way:
   class. `create-monster` copies a `monster` item's stat block into the sheet: its numbers into
   the sheet's inputs, and each trait and action (the item's `entries`, in stat-block order) as
   its own `monsterAction` copy with its uses or recharge, so a GM can drop or change one on a
-  single monster. The item still sets AC, senses, XP and legendary actions. `monster-attack` and
+  single monster. AC, senses, XP and the legendary action count are inputs too; the printed AC
+  (`combat.printedAc`) competes with worn armor as any AC does. `monster-attack` and
   `monster-effect` resolve attacks and saving throws on each target's sheet. Multiattacks run
   the attacks they name; legendary actions spend their cost; Spellcasting and Innate
   Spellcasting are traits that cast with the printed numbers; the vampire's and the
   lycanthropes' forms grant their form's attacks. Monsters saved with 0.3.0 or earlier, whose
-  item granted its traits and actions, get them as copies on upgrade. Languages only monsters
+  item granted its traits and actions, get them as copies on upgrade, and their AC, senses, XP
+  and legendary actions as inputs. Languages only monsters
   speak aren't offered to players. A monster's sheet leaves out experience points, character
   level (at 0) and death saves, and shows carrying weight only once it carries something.
 - **Resting:** `death-save`, `spend-hit-die`, `short-rest` and `long-rest` (spent hit dice back
@@ -274,7 +276,11 @@ Where the SRD is unclear or silent, the pack reads it this way:
   `breathDice`); per-roll bonuses are situational choices; lasting
   effects are boolean inputs; once per turn is the app's. Divine Smite is offered on a melee
   weapon hit (one option per spell slot level left, and the pact slot): it spends the slot and
-  adds its radiant dice to the hit's damage roll, doubled on a critical hit.
+  adds its radiant dice to the hit's damage roll, doubled on a critical hit. Stunning Strike
+  (`stunningStrike`, 1 ki on a melee hit) and Open Hand Technique (`openHand`, on an unarmed strike) are parameters of
+  the attack: on the hit (the attacks' `attack-hit` step) the target makes its save at the ki
+  save DC as part of the attack, stunned or knocked prone on a failure; the push and No
+  reactions are the player's.
 - **Spellcasting:** all 319 SRD spells as mechanics (level, school, class lists, casting time,
   range, components, duration, attack or save, damage and healing); class DCs and attack bonuses;
   spell slots by the multiclass table; Pact Magic; `cast-spell` with upcasting and cantrip
@@ -289,15 +295,26 @@ Where the SRD is unclear or silent, the pack reads it this way:
   Each spell the character has carries its numbers as computed values (`castingClass`,
   `spellDc`, `spellAttack`, `spellMod`, in computeSheet's `activationValues`), which
   `cast-spell` reads and the spell card shows ("Save DC 14", "Spell attack +6").
-- **Auras:** Aura of Protection (while the paladin is conscious, `aura.range`, reading its live
-  Charisma modifier), Countercharm (30 feet, while the bard performs), the Rod of Alertness's
+- **Reacting to who hit you:** damage another creature sends names it (`change.from`), so
+  follow-ups offer the reaction to it. Hellish Rebuke's cast is offered when another creature
+  damages the caster, and Fire Shield's `erupt` when one hits it with a melee attack while the
+  shield is up (warm or chill as cast); within 5 feet, 60 feet and seen are the app's. Multiattack
+  Defense records each creature that hits the ranger with an attack in the pick's state (a
+  required offer) and exposes it as `combat.multiattackDefense`, so that creature's later attack
+  rolls against the ranger take -4, which hits exactly when +4 AC would. The new `turn-boundary`
+  clock action, which the app runs on every creature at each turn change, clears it.
+- **Auras:** Aura of Protection, Aura of Courage (no frightened) and Aura of Devotion (no
+  charmed), all in `aura.range` while the paladin is conscious, Protection reading its live
+  Charisma modifier, are listed in computeSheet's `auras` for the app to place on whoever is
+  inside. So are the auras an applied entry holds up, one per entry the creature applied itself
+  (`scope: applied`): Countercharm (30 feet, while the bard performs), the Rod of Alertness's
   Protective Aura (60 feet, while planted), Pass without Trace (30 feet, cast on the caster) and
   Spirit Guardians (15 feet, enemies' speed halved; the cast puts the spell on the caster to hold
-  it up) are listed in computeSheet's `auras` for the app to place on whoever is inside. A creature
-  counts one Aura of Protection, Rod or Pass without Trace bonus (stackKey `source`), so the
-  holder inside its own aura, or an ally with an older `ally` entry, isn't counted twice. The
-  `ally` actions stay for apps that don't place auras. Aura of Courage and Aura of Devotion keep
-  their `ally` actions: an aura carries effects only, not immunities. Spirit Guardians' save and
+  it up), whatever the spell was cast from. A creature counts one Aura of Protection, Rod or Pass
+  without Trace bonus (stackKey `source`), so the holder inside its own aura, or an ally with an
+  older `ally` entry, isn't counted twice. Aura of Protection's `ally` action stays for apps that
+  don't place auras; Courage's and Devotion's are gone, though `ally` entries saved before keep
+  their immunity. Spirit Guardians' save and
   damage after the cast (a creature entering or starting its turn there) are the app's: running
   the cast again would spend another slot.
 - **Equipment:** every SRD weapon and armor, 135 gear items, 7 equipment packs, 35 tools, 8
@@ -324,7 +341,9 @@ processes:
   (`(self.startingClass && self.level == level.total) || item.id in multiclass.qualified`).
 - **Backgrounds** bring their starting equipment the same way (`startingKit` and a `kit` action).
 - **Magic items** and magic weapon or armor templates restricted to classes list them in
-  `attunementClasses`.
+  `attunementClasses`. A `magicItem` with `requiresAttunement` has its effects only while
+  attuned (the type's `effectsWhen`), so its effects needn't check `self.attuned`; a template that
+  needs attunement says `effectsWhen: self.attuned` itself.
 - **Metamagic options** are `metamagic` content and the Hunter's options `hunterTactic` content
   (`feature` names the choice that offers them). Containers add to `carrying.stowCapacity`,
   `carrying.stowUnlimited` or `carrying.quivers`, and content resets its uses on a rest with a
@@ -359,11 +378,11 @@ fixed sets.
 
 ## Limitations
 
-Of the 152 class and subclass features, 8 have no mechanics, nor do 16 other options and traits:
-six Hunter's tactics (Escape the Horde, Giant Killer, Horde Breaker, Multiattack Defense, Stand
-Against the Tide, Steel Will), two invocations (Eyes of the Rune Keeper, Gaze of Two Minds), the
-Protection and Two-Weapon Fighting styles, Pact of the Blade, four traits (Halfling Nimbleness,
-Naturally Stealthy, Trance, Nimble Escape) and Shelter of the Faithful: 24 files in all. 63 of
+Of the 152 class and subclass features, 8 have no mechanics, nor do 15 other options and traits:
+five Hunter's tactics (Escape the Horde, Giant Killer, Horde Breaker, Stand Against the Tide,
+Steel Will), two invocations (Eyes of the Rune Keeper, Gaze of Two Minds), the Protection and
+Two-Weapon Fighting styles, Pact of the Blade, four traits (Halfling Nimbleness, Naturally
+Stealthy, Trance, Nimble Escape) and Shelter of the Faithful: 23 files in all. 63 of
 the 318 magic items are text. Of the 319 spells, 163 do nothing on the sheet beyond spending the
 slot (no attack, save, damage, healing, condition, applied effect or action of their own): what
 they do is their SRD text, for the app and the table (detection, illusions, summoning, movement,

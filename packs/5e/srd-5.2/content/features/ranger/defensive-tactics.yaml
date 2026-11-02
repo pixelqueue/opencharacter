@@ -1,9 +1,32 @@
 id: features.ranger.defensive-tactics
 type: feature
+# Multiattack Defense: a creature that hits the ranger with an attack roll (`change.from`) is
+# recorded until the turn ends; its other attack rolls against the ranger this turn have
+# Disadvantage (the `target-multiattack-defense` roll effect).
+state:
+  hitBy: { type: set, of: string, default: [] }
 choices:
   - id: option
     recommend: options[0]
     from:
       options:
         - { id: escape-the-horde }
-        - { id: multiattack-defense }
+        - id: multiattack-defense
+          effects:
+            - { target: combat.multiattackDefense, op: set, value: self.hitBy }
+effects:
+  - target: { steps: [turn-boundary] }
+    op: changes
+    when: has(params.ended) && size(self.hitBy) > 0
+    value:
+      changes:
+        - { type: setState, grant: owner, key: hitBy, value: '[]' }
+followUps:
+  - id: multiattack-defense
+    on: { field: hp.current, tags: [attack], once: true }
+    when: >-
+      'multiattack-defense' in picksOf('option') && change.from != '' && change.from != character.id
+        && !(change.from in self.hitBy)
+    required: true
+    changes:
+      - { type: setState, grant: self, key: hitBy, value: 'self.hitBy + [change.from]' }

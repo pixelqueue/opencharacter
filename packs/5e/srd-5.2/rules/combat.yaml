@@ -36,6 +36,7 @@ viewFields:
     protection.evilAndGood: { type: boolean, default: false }
     sanctuary.dc: { type: integer, default: 0 }
     mastery.vexedBy: { type: set, of: string, default: [] }
+    combat.multiattackDefense: { type: set, of: string, default: [] }
     hex.cursedBy: { type: set, of: string, default: [] }
     huntersMark.markedBy: { type: set, of: string, default: [] }
 
@@ -70,6 +71,8 @@ fields:
   weapons.damageTypeChoice: { type: set, of: weapon }
   unarmed.damageTypeChoice: { type: boolean, formula: false }
   mastery.weapons: { type: set, of: weapon }
+  # Multiattack Defense: the creatures that hit this one with an attack roll this turn, by ID.
+  combat.multiattackDefense: { type: set, of: string, formula: '[]' }
   mastery.vexedBy:
     type: set
     of: string
@@ -188,6 +191,14 @@ effects:
             where: >-
               item.id == @combat-effects.vexed
                 && (self.appliedBy != '' ? self.appliedBy : self.attacker) == flags.me
+  - id: target-multiattack-defense
+    target: { rolls: [attack] }
+    op: rollModifier
+    value: { kind: disadvantage }
+    when: >-
+      has(participants.target) && size(participants.target) > 0
+        && has(participants.target[0].combat.multiattackDefense)
+        && character.id in participants.target[0].combat.multiattackDefense
   - id: target-elusive
     target: { rolls: [attack] }
     op: rollModifier
@@ -198,7 +209,7 @@ effects:
 
 actions:
   - id: weapon-attack
-    tags: [attack]
+    tags: [attack, attack-hit]
     available: >-
       self.equipped && (!has(item.ammunition) || countCopies(copy.type == 'gear'
         && has(copy.fields.ammunition) && copy.fields.ammunition == item.ammunition
@@ -461,7 +472,7 @@ actions:
           cleave: "flags.hit && flags.masteryUsed && flags.mastery == 'cleave' && flags.range == 'melee'"
 
   - id: unarmed-strike
-    tags: [attack]
+    tags: [attack, attack-hit, unarmed]
     params:
       targetAc: { type: integer, optional: true }
     participants:

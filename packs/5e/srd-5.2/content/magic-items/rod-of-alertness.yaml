@@ -22,30 +22,25 @@ effects:
   - target: { rolls: [skill.perception, initiative] }
     op: rollModifier
     value: { kind: advantage }
-    when: self.equipped && self.attuned
+    when: self.equipped
   - {
       target: spells.atWill,
       op: grant,
       value: { item: spells.detect-evil-and-good },
-      when: self.equipped && self.attuned,
+      when: self.equipped,
     }
-  - {
-      target: spells.atWill,
-      op: grant,
-      value: { item: spells.detect-magic },
-      when: self.equipped && self.attuned,
-    }
+  - { target: spells.atWill, op: grant, value: { item: spells.detect-magic }, when: self.equipped }
   - {
       target: spells.atWill,
       op: grant,
       value: { item: spells.detect-poison-and-disease },
-      when: self.equipped && self.attuned,
+      when: self.equipped,
     }
   - {
       target: spells.atWill,
       op: grant,
       value: { item: spells.see-invisibility },
-      when: self.equipped && self.attuned,
+      when: self.equipped,
     }
   - target: combat.ac
     op: add
@@ -69,9 +64,7 @@ effects:
 # source: a creature with an older `ally` entry, or the holder, counts each +1 once.
 auras:
   - id: protective-aura
-    when: >-
-      countList(character.applied, x.active && x.source == @magic-items.rod-of-alertness
-        && (x.appliedBy == '' || x.appliedBy == character.id)) > 0
+    scope: applied
     size: 60
     affects: allies
     effects:

@@ -28,6 +28,8 @@ actions:
       - id: result
         kind: outcome
         result: "has(steps.save) && steps.save.result == 'failure' ? 'exhausted' : 'seeing'"
+# Its rest reset counts whether or not it is attuned.
+effectsWhen: true
 effects:
   - target: { steps: [rest.long] }
     op: changes

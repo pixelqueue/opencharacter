@@ -7,12 +7,12 @@ appliesTo:
     where: 'item.id in [@weapons.glaive, @weapons.greatsword, @weapons.longsword, @weapons.rapier, @weapons.scimitar, @weapons.shortsword]',
   }
 fields: { rarity: rare, requiresAttunement: true }
+effectsWhen: self.attuned
 effects:
   - target: { rolls: [damage.weapon], from: self }
     op: add
     value: 2d6
     tags: [damage.necrotic]
-    when: self.attuned
 actions:
   - id: wound
     tags: [magic-item]

@@ -12,9 +12,7 @@ effects:
 # the performance drops the aura, so the app removes its entries.
 auras:
   - id: performance
-    when: >-
-      countList(character.applied, x.active && x.source == @features.bard.countercharm
-        && (x.appliedBy == '' || x.appliedBy == character.id)) > 0
+    scope: applied
     size: 30
     affects: allies
     effects:

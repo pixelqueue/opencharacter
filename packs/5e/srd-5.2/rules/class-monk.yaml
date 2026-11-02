@@ -1,6 +1,9 @@
 fields:
   focus.points: { type: integer, formula: 0 }
   focus.saveDc: { type: integer, formula: 0 }
+  # Focus Points spent since the last rest, over the monk's class copies.
+  focus.spent:
+    { type: integer, formula: 'sumCopies(copy.state.focusSpent, has(copy.state.focusSpent))' }
   slowFall.reduction: { type: integer, formula: 0 }
   superiorDefense.active: { type: boolean, input: true, default: false }
   # Deflect Attacks: the flat part of its reduction (Dexterity modifier plus Monk level), and
@@ -10,35 +13,65 @@ fields:
   deflectAttacks.anyType: { type: boolean, formula: false }
 
 situational:
-  # Deflect Attacks on an attack that hits: the change it is selected on is reduced by 1d10 plus
-  # the bonus, never below 0. The SRD reduces the attack's total once; a situational choice
-  # reaches only its own change, so the app selects it on one damage change (README,
-  # Limitations). The Reaction is the player's; redirecting is the `deflect-attacks` action's.
+  # Deflect Attacks on an attack that hits: one selection reaches the whole attack, reducing its
+  # Bludgeoning, Piercing and Slashing damage (any type with Deflect Energy) by 1d10 plus the
+  # bonus in all. The Reaction is the player's. Reduced to 0 with a Focus Point left, the redirect
+  # is offered.
   - id: deflectAttacks
     type: boolean
     default: false
     available: deflectAttacks.known
     incoming: { fields: [hp.current], tags: [attack] }
+    scope: batch
     effects:
       - target: { incoming: { fields: [hp.current], tags: [damage] } }
         op: add
         value: 1d10 + deflectAttacks.bonus
         when: >-
-          incoming.amount < 0
-            && (deflectAttacks.anyType || countList(['damage.bludgeoning', 'damage.piercing',
-              'damage.slashing'], x in incoming.tags) > 0)
-      - target: { incoming: { fields: [hp.current], tags: [damage] } }
-        op: atMost
-        value: 0
+          incoming.amount < 0 && (deflectAttacks.anyType || 'damage.bludgeoning' in incoming.tags
+            || 'damage.piercing' in incoming.tags || 'damage.slashing' in incoming.tags)
+    changes:
+      - type: offerFollowUp
+        followUp: deflect-redirect
         when: >-
-          incoming.amount < 0
-            && (deflectAttacks.anyType || countList(['damage.bludgeoning', 'damage.piercing',
-              'damage.slashing'], x in incoming.tags) > 0)
+          focus.spent < focus.points && countList(batch.adjustments, x.field == @hp.current
+            && x.reason == 'requested' && x.taken < 0) == 0
+
+# The redirect, offered when Deflect Attacks stops all of an attack's damage: the feature's own
+# action spends the Focus Point.
+followUps:
+  - id: deflect-redirect
+    action: deflect-redirect
+
+actions:
+  - id: deflect-redirect
+    tags: [feature]
+    available: deflectAttacks.known && focus.spent < focus.points
+    results: [redirected]
+    participants:
+      target:
+        max: 1
+        fields: target
+    steps:
+      - id: redirect
+        kind: action
+        source: "'features.monk.deflect-attacks'"
+        use: deflect-attacks
+        participants:
+          target: participants.target
+      - id: result
+        kind: outcome
+        result: "'redirected'"
+        data:
+          redirectDamage: steps.redirect.data.redirectDamage
+          dc: steps.redirect.data.dc
+          save: steps.redirect.data.save
 
 display:
   fields:
     focus.points: { groups: [class-features], priority: 1, showWhen: focus.points > 0 }
     focus.saveDc: { groups: [class-features], priority: 1, showWhen: focus.points > 0 }
+    focus.spent: { hidden: true }
     slowFall.reduction: { groups: [class-features], priority: 2, showWhen: slowFall.reduction > 0 }
     superiorDefense.active: { groups: [class-features], priority: 1, showWhen: focus.points >= 18 }
     deflectAttacks.known: { hidden: true }

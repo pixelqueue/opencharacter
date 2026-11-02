@@ -1,10 +1,18 @@
-description: '5E Stunning Strike: a monk spends 1 ki; the outcome gives the ki DC and the save'
-specVersion: 0.1.0
+description: '5E Stunning Strike is a parameter of the attack: on an unarmed strike hit the monk spends 1 ki, and the target fails its Constitution save at the ki save DC and is stunned'
+specVersion: 0.3.0
 call: startAction
 packs:
   - path: ../../../../../../packs/5e/srd-5.1
 input:
-  action:
-    id: '5e-srd-5.1:features.monk.stunning-strike#stunning-strike'
-    entry: monk
-    source: 5e-srd-5.1:features.monk.stunning-strike
+  action: { id: 5e-srd-5.1:unarmed-strike }
+  params: { stunningStrike: true }
+  participants:
+    target:
+      - id: ogre
+        values: { combat.ac: 11, creature.size: large, creature.type: giant }
+  policy:
+    dice: auto
+    choices: auto
+    allocations: auto
+answers:
+  - outcome: { result: failure, data: { total: 9 } }

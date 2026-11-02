@@ -3,9 +3,10 @@ type: template
 tags: [magic]
 appliesTo: { type: weapon, where: "'sword' in item.tags" }
 fields: { rarity: rare, requiresAttunement: true }
+effectsWhen: self.attuned
 effects:
-  - { target: combat.hitOptions, op: add, value: 1, when: self.equipped && self.attuned }
+  - { target: combat.hitOptions, op: add, value: 1, when: self.equipped }
   - target: { choices: [weapon-hit] }
     op: option
-    when: action.self.id == self.id && self.attuned
+    when: action.self.id == self.id
     value: { id: wound }

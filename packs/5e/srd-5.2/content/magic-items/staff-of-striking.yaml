@@ -13,28 +13,29 @@ fields:
   }
 state:
   charges: { type: integer, min: 0, max: item.maxCharges, default: item.maxCharges }
+effectsWhen: self.attuned
 effects:
   - target: combat.hitOptions
     op: add
     value: 1
-    when: self.equipped && self.attuned && self.charges > 0
+    when: self.equipped && self.charges > 0
   - target: { choices: [weapon-hit] }
     op: option
-    when: action.self.id == self.id && self.attuned && self.charges >= 1
+    when: action.self.id == self.id && self.charges >= 1
     value:
       id: strike-1
       changes:
         - { type: adjustState, entry: self, key: charges, by: -1 }
   - target: { choices: [weapon-hit] }
     op: option
-    when: action.self.id == self.id && self.attuned && self.charges >= 2
+    when: action.self.id == self.id && self.charges >= 2
     value:
       id: strike-2
       changes:
         - { type: adjustState, entry: self, key: charges, by: -2 }
   - target: { choices: [weapon-hit] }
     op: option
-    when: action.self.id == self.id && self.attuned && self.charges >= 3
+    when: action.self.id == self.id && self.charges >= 3
     value:
       id: strike-3
       changes:

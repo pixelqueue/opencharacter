@@ -1,0 +1,15 @@
+status: finished
+# 2d8 (3 + 5) cold, since the shield was cast chill; taking the offer clears it.
+proposedChanges:
+  - to: target
+    character: goblin-1
+    step: deal
+    change:
+      type: adjust
+      field: 5e-srd-5.1:hp.current
+      by: -8
+      tags: [damage, spell, magical, damage.cold]
+      from: test
+  - to: self
+    step: ''
+    change: { type: clearFollowUp, id: erupt-1 }

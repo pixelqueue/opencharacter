@@ -10,6 +10,7 @@ viewFields:
     protection.evilAndGood: { type: boolean, default: false }
     sanctuary.dc: { type: integer, default: 0 }
     huntersMark.markedBy: { type: set, of: string, default: [] }
+    combat.multiattackDefense: { type: set, of: string, default: [] }
     sanctuary.beastsAndPlantsDc: { type: integer, default: 0 }
     combat.noCriticals: { type: boolean, default: false }
     combat.attackersDisadvantage: { type: boolean, default: false }
@@ -66,6 +67,8 @@ fields:
     formula: >-
       mapList(filterList(character.applied, x.active && x.source == @spells.hunters-mark
         && x.appliedBy != ''), x.appliedBy)
+  # Multiattack Defense: the creatures that hit this one this turn, by character ID.
+  combat.multiattackDefense: { type: set, of: string, formula: '[]' }
   combat.elusive: { type: boolean, formula: false }
   combat.uncannyDodge: { type: boolean, formula: false }
   sanctuary.beastsAndPlantsDc: { type: integer, formula: 0, min: 0 }
@@ -287,6 +290,16 @@ effects:
     when: >-
       has(participants.target) && size(participants.target) > 0
         && participants.target[0].conditions.prone
+  # Multiattack Defense's +4 AC against a creature that already hit the target this turn, as -4 on
+  # that creature's attack roll: it hits exactly when it would against the higher AC.
+  - id: target-multiattack-defense
+    target: { rolls: [attack] }
+    op: add
+    value: -4
+    when: >-
+      has(participants.target) && size(participants.target) > 0
+        && has(participants.target[0].combat.multiattackDefense)
+        && character.id in participants.target[0].combat.multiattackDefense
   # Elusive removes advantage whatever gives it, the player's situational advantage included;
   # disadvantage still applies.
   - id: target-elusive
@@ -307,7 +320,7 @@ resultBands:
 
 actions:
   - id: weapon-attack
-    tags: [attack]
+    tags: [attack, attack-hit]
     available: >-
       self.equipped && (!has(item.ammunition) || countCopies(copy.type == 'gear'
         && has(copy.fields.ammunition) && copy.fields.ammunition == item.ammunition
@@ -444,6 +457,7 @@ actions:
             when: has(steps.ammo.item) && steps.ammo.item.damageBonus != 0
       - id: deal
         kind: changes
+        tags: [attack-hit]
         when: has(steps.damage)
         to: target
         changes:
@@ -544,7 +558,7 @@ actions:
           attack: steps.attack.total
 
   - id: unarmed-strike
-    tags: [attack]
+    tags: [attack, attack-hit, unarmed]
     params:
       targetAc: { type: integer, optional: true }
     participants:
@@ -636,6 +650,7 @@ actions:
             tags: [damage.bludgeoning]
       - id: deal
         kind: changes
+        tags: [attack-hit]
         when: has(steps.damage)
         to: target
         changes:

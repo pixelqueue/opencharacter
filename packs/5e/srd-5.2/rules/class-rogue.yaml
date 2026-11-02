@@ -3,8 +3,23 @@ fields:
   rogue.cunningStrikes: { type: integer, formula: 0 }
   rogue.deviousStrikes: { type: boolean, formula: false }
   rogue.stealthAttack: { type: boolean, formula: false }
+  # Cunning Strike: the save DC, and the effects the rogue can use now (Poison needs a Poisoner's
+  # Kit; Devious Strikes adds Daze, Knock Out and Obscure; Supreme Sneak, Stealth Attack).
+  rogue.strikeDc: { type: integer, formula: 0 }
+  rogue.strikeEffects:
+    type: set
+    of: string
+    formula: >-
+      rogue.cunningStrikes == 0 ? []
+        : (countCopies(copy.item == @tools.poisoners-kit) > 0 ? ['poison'] : [])
+          + ['trip', 'withdraw']
+          + (rogue.deviousStrikes ? ['daze', 'knock-out', 'obscure'] : [])
+          + (rogue.stealthAttack ? ['stealth-attack'] : [])
   rogue.uncannyDodge: { type: boolean, formula: false }
 
+# Cunning Strike's effects (the attack's `cunningStrike` and `cunningStrike2` parameters) spend
+# Sneak Attack dice: the ones the rogue can use, if together they fit in the Sneak Attack (else
+# none is used, and nothing is spent).
 situational:
   - id: sneakAttack
     type: boolean
@@ -14,7 +29,19 @@ situational:
     effects:
       - target: { rolls: [damage.weapon] }
         op: add
-        value: (rogue.sneakAttack - situational.cunningStrike)d6
+        value: >-
+          (rogue.sneakAttack - ((has(params.cunningStrike) && params.cunningStrike in rogue.strikeEffects
+                ? (params.cunningStrike == 'knock-out' ? 6 : params.cunningStrike == 'obscure' ? 3
+                  : params.cunningStrike == 'daze' ? 2 : 1) : 0)
+            + (has(params.cunningStrike2) && params.cunningStrike2 in rogue.strikeEffects
+                ? (params.cunningStrike2 == 'knock-out' ? 6 : params.cunningStrike2 == 'obscure' ? 3
+                  : params.cunningStrike2 == 'daze' ? 2 : 1) : 0) <= rogue.sneakAttack
+              ? (has(params.cunningStrike) && params.cunningStrike in rogue.strikeEffects
+                ? (params.cunningStrike == 'knock-out' ? 6 : params.cunningStrike == 'obscure' ? 3
+                  : params.cunningStrike == 'daze' ? 2 : 1) : 0)
+                + (has(params.cunningStrike2) && params.cunningStrike2 in rogue.strikeEffects
+                ? (params.cunningStrike2 == 'knock-out' ? 6 : params.cunningStrike2 == 'obscure' ? 3
+                  : params.cunningStrike2 == 'daze' ? 2 : 1) : 0) : 0))d6
         tags:
           [
             {
@@ -22,14 +49,15 @@ situational:
             },
           ]
         when: >-
-          situational.sneakAttack && rogue.sneakAttack > situational.cunningStrike
+          situational.sneakAttack
+            && rogue.sneakAttack != (has(params.cunningStrike) && params.cunningStrike in rogue.strikeEffects
+                ? (params.cunningStrike == 'knock-out' ? 6 : params.cunningStrike == 'obscure' ? 3
+                  : params.cunningStrike == 'daze' ? 2 : 1) : 0)
+              + (has(params.cunningStrike2) && params.cunningStrike2 in rogue.strikeEffects
+                ? (params.cunningStrike2 == 'knock-out' ? 6 : params.cunningStrike2 == 'obscure' ? 3
+                  : params.cunningStrike2 == 'daze' ? 2 : 1) : 0)
             && has(roll.item) && has(roll.item.damageType)
             && (roll.item.range == 'ranged' || 'finesse' in roll.item.tags)
-  - id: cunningStrike
-    type: integer
-    default: 0
-    available: rogue.cunningStrikes > 0
-    rolls: [damage.weapon]
   - id: uncannyDodge
     type: boolean
     default: false
@@ -47,4 +75,6 @@ display:
       { groups: [class-features], priority: 2, showWhen: rogue.cunningStrikes > 0 }
     rogue.deviousStrikes: { hidden: true }
     rogue.stealthAttack: { hidden: true }
+    rogue.strikeDc: { groups: [class-features], priority: 2, showWhen: rogue.cunningStrikes > 0 }
+    rogue.strikeEffects: { hidden: true }
     rogue.uncannyDodge: { hidden: true }

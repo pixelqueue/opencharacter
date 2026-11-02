@@ -1,0 +1,18 @@
+description: "5E 2024 Hurl Through Hell is a parameter of the attack: with the use spent, a dagger hit spends a Pact Magic slot instead, and the target, failing its Charisma save at the warlock's spell save DC, takes 8d10 Psychic damage and is Incapacitated"
+specVersion: 0.3.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/5e/srd-5.2
+input:
+  action: { id: 5e-srd-5.2:weapon-attack, entry: dagger }
+  params: { hurlThroughHell: true }
+  participants:
+    target:
+      - id: ogre
+        values: { combat.ac: 11, creature.size: large, creature.type: giant }
+  policy:
+    dice: auto
+    choices: auto
+    allocations: auto
+answers:
+  - outcome: { result: failure, data: { total: 8 } }

@@ -1,0 +1,18 @@
+description: "5E 2024 Rod of Lordly Might: Drain Life is a parameter of the rod's own attack; on the hit, item-power hands off the DC 17 Constitution save, the failing target takes 4d6 Necrotic damage, the wielder regains half of it, and the property is used until dawn"
+specVersion: 0.3.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/5e/srd-5.2
+input:
+  action: { id: 5e-srd-5.2:weapon-attack, entry: rod }
+  params: { drainLife: true }
+  participants:
+    target:
+      - id: troll
+        values: { combat.ac: 15, creature.size: large, creature.type: giant }
+  policy:
+    dice: auto
+    choices: auto
+    allocations: auto
+answers:
+  - outcome: { result: failure, data: { total: 12 } }

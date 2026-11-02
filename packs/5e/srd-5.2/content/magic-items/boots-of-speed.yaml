@@ -7,6 +7,8 @@ fields:
 state:
   active: { type: boolean, default: false }
   minutesUsed: { type: integer, min: 0, max: 10, default: 0 }
+# Its rest reset counts whether or not it is attuned, so the speed checks attunement itself.
+effectsWhen: true
 effects:
   - target: combat.speed
     op: multiply

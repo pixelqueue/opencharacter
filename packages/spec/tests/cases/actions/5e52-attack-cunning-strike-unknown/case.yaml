@@ -1,0 +1,19 @@
+description: "5E 2024 Improved Cunning Strike at rogue 11: Knock Out, which needs Devious Strikes, does nothing and costs no Sneak Attack die; Trip's 1d6 comes off and the target saves against it"
+specVersion: 0.3.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/5e/srd-5.2
+input:
+  action: { id: 5e-srd-5.2:weapon-attack, entry: rapier }
+  params: { cunningStrike: knock-out, cunningStrike2: trip }
+  situational: { 5e-srd-5.2:sneakAttack: true }
+  participants:
+    target:
+      - id: ogre
+        values: { combat.ac: 11, creature.size: large, creature.type: giant }
+  policy:
+    dice: auto
+    choices: auto
+    allocations: auto
+answers:
+  - outcome: { result: success, data: { total: 19 } }

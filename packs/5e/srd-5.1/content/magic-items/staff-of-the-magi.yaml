@@ -34,48 +34,29 @@ grants:
   - { item: spells.light, when: self.equipped && self.attuned }
   - { item: spells.mage-hand, when: self.equipped && self.attuned }
   - { item: spells.protection-from-evil-and-good, when: self.equipped && self.attuned }
+effectsWhen: self.attuned
 effects:
-  - { target: { rolls: [attack.spell] }, op: add, value: 2, when: self.equipped && self.attuned }
-  - { target: items.spellSave, op: add, value: 1, when: self.equipped && self.attuned }
+  - { target: { rolls: [attack.spell] }, op: add, value: 2, when: self.equipped }
+  - { target: items.spellSave, op: add, value: 1, when: self.equipped }
   - target: { rolls: [save] }
     op: rollModifier
     value: { kind: advantage }
-    when: self.equipped && self.attuned && situational.spellSave != 'none'
-  - {
-      target: spells.atWill,
-      op: grant,
-      value: { item: spells.arcane-lock },
-      when: self.equipped && self.attuned,
-    }
-  - {
-      target: spells.atWill,
-      op: grant,
-      value: { item: spells.detect-magic },
-      when: self.equipped && self.attuned,
-    }
+    when: self.equipped && situational.spellSave != 'none'
+  - { target: spells.atWill, op: grant, value: { item: spells.arcane-lock }, when: self.equipped }
+  - { target: spells.atWill, op: grant, value: { item: spells.detect-magic }, when: self.equipped }
   - {
       target: spells.atWill,
       op: grant,
       value: { item: spells.enlarge-reduce },
-      when: self.equipped && self.attuned,
+      when: self.equipped,
     }
-  - {
-      target: spells.atWill,
-      op: grant,
-      value: { item: spells.light },
-      when: self.equipped && self.attuned,
-    }
-  - {
-      target: spells.atWill,
-      op: grant,
-      value: { item: spells.mage-hand },
-      when: self.equipped && self.attuned,
-    }
+  - { target: spells.atWill, op: grant, value: { item: spells.light }, when: self.equipped }
+  - { target: spells.atWill, op: grant, value: { item: spells.mage-hand }, when: self.equipped }
   - {
       target: spells.atWill,
       op: grant,
       value: { item: spells.protection-from-evil-and-good },
-      when: self.equipped && self.attuned,
+      when: self.equipped,
     }
   - target: { choices: [spell-cost] }
     op: option

@@ -26,8 +26,7 @@ effects:
 # chooses within 30 feet gets the bonus while inside. stackKey source: one +10 however it came.
 auras:
   - id: veil
-    when: countList(character.applied, x.active && x.source == @spells.pass-without-trace
-      && (x.appliedBy == '' || x.appliedBy == character.id)) > 0
+    scope: applied
     size: 30
     affects: allies
     effects:

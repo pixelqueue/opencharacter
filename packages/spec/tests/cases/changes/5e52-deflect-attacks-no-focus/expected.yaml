@@ -1,0 +1,17 @@
+# 1d10 (5) + Dex (+3) + Monk level (3) is 11, spent over the attack: 6 off the slashing part, 4
+# off the piercing part, 1 left. All of it was stopped, but with no Focus
+# Point left the redirect isn't offered.
+ok: true
+adjustments:
+  - field: 5e-srd-5.2:hp.current
+    by: 0
+    requested: -6
+    taken: 0
+    reason: requested
+    rolled:
+      - source: { type: situational, id: 5e-srd-5.2:deflectAttacks }
+        dice: 1d10 + 6
+        faces: [5]
+        total: 11
+  - { field: 5e-srd-5.2:hp.current, by: 0, requested: -4, taken: 0, reason: requested }
+followUps: []

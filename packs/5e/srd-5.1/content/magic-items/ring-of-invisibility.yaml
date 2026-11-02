@@ -7,13 +7,8 @@ fields:
 state:
   invisible: { type: boolean, default: false }
 effects:
-  - {
-      target: conditions.invisible,
-      op: set,
-      value: true,
-      when: self.equipped && self.attuned && self.invisible,
-    }
+  - { target: conditions.invisible, op: set, value: true, when: self.equipped && self.invisible }
   - target: { rolls: [attack] }
     op: rollModifier
     value: { kind: advantage }
-    when: self.equipped && self.attuned && self.invisible
+    when: self.equipped && self.invisible

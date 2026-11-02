@@ -3,37 +3,25 @@ type: feature
 effects:
   - { target: deflectAttacks.known, op: set, value: true }
   - { target: deflectAttacks.bonus, op: set, value: abilities.dex.mod + self.level }
+# The reduction is the `deflectAttacks` situational choice; this is the redirect it offers when
+# it stops all of an attack's damage (the rules' `deflect-redirect` follow-up runs it): 1 Focus
+# Point, then two Martial Arts dice plus the Dexterity modifier against a Dexterity save.
 actions:
   - id: deflect-attacks
     tags: [feature]
-    results: [deflected, redirected]
-    params:
-      damage: { type: integer, min: 0 }
+    results: [redirected]
+    available: self.focusSpent + 1 <= focus.points
+    participants:
+      target:
+        max: 1
+        fields: target
     steps:
-      - id: setup
-        kind: branch
-        cases:
-          - when: true
-            flags: { redirect: false }
-      - id: reduce
-        kind: roll
-        parts:
-          - dice: 1d10
-          - field: "'abilities.dex.mod'"
-          - value: self.level
-      - id: redirect
-        kind: choice
-        when: steps.reduce.total >= params.damage && self.focusSpent + 1 <= focus.points
-        options:
-          - id: keep
-          - id: redirect
-            flags: { redirect: true }
-            changes:
-              - { type: adjustState, entry: self, key: focusSpent, by: 1 }
-        recommend: "'keep'"
+      - id: spend
+        kind: changes
+        changes:
+          - { type: adjustState, entry: self, key: focusSpent, by: 1 }
       - id: redirected
         kind: roll
-        when: flags.redirect
         tags: [damage]
         parts:
           - dice: martialArts.die
@@ -41,10 +29,8 @@ actions:
           - field: "'abilities.dex.mod'"
       - id: result
         kind: outcome
-        result: "flags.redirect ? 'redirected' : 'deflected'"
+        result: "'redirected'"
         data:
-          reduced: steps.reduce.total
-          remaining: max(0, params.damage - steps.reduce.total)
-          redirectDamage: 'has(steps.redirected) ? steps.redirected.total : 0'
+          redirectDamage: steps.redirected.total
           dc: focus.saveDc
           save: "'dex'"

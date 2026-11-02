@@ -2,3 +2,22 @@ id: hunter-tactics.multiattack-defense
 type: hunterTactic
 fields:
   feature: defensive-tactics
+# A creature that hits the ranger with an attack (`change.from`) is recorded until the turn ends;
+# its later attacks this turn are against +4 AC (the `target-multiattack-defense` roll effect).
+state:
+  hitBy: { type: set, of: string, default: [] }
+effects:
+  - { target: combat.multiattackDefense, op: set, value: self.hitBy }
+  - target: { steps: [turn-boundary] }
+    op: changes
+    when: has(params.ended) && size(self.hitBy) > 0
+    value:
+      changes:
+        - { type: setState, pick: owner, key: hitBy, value: '[]' }
+followUps:
+  - id: hit
+    on: { field: hp.current, tags: [attack], once: true }
+    when: change.from != '' && change.from != character.id && !(change.from in self.hitBy)
+    required: true
+    changes:
+      - { type: setState, pick: self, key: hitBy, value: 'self.hitBy + [change.from]' }

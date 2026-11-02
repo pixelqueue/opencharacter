@@ -7,9 +7,4 @@ fields:
 state:
   active: { type: boolean, default: false }
 effects:
-  - {
-      target: combat.flySpeed,
-      op: atLeast,
-      value: 60,
-      when: self.equipped && self.attuned && self.active,
-    }
+  - { target: combat.flySpeed, op: atLeast, value: 60, when: self.equipped && self.active }

@@ -1,0 +1,11 @@
+status: finished
+# Two Martial Arts d6s (4 + 6) and Dexterity +3; the Focus Point is spent on the class copy, and
+# taking the offer clears it.
+outcome: { result: redirected, data: { redirectDamage: 13, dc: 12, save: dex } }
+proposedChanges:
+  - to: self
+    step: redirect/spend
+    change: { type: adjustState, entry: class, key: focusSpent, by: 1 }
+  - to: self
+    step: ''
+    change: { type: clearFollowUp, id: deflect-redirect-1 }

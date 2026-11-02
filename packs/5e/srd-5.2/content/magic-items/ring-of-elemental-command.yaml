@@ -19,15 +19,10 @@ choices:
                 target: damage.resistances,
                 op: grant,
                 value: { tag: damage.lightning },
-                when: self.equipped && self.attuned,
+                when: self.equipped,
               }
-            - {
-                target: combat.flySpeed,
-                op: atLeast,
-                value: combat.speed,
-                when: self.equipped && self.attuned,
-              }
-            - { target: combat.hover, op: set, value: true, when: self.equipped && self.attuned }
+            - { target: combat.flySpeed, op: atLeast, value: combat.speed, when: self.equipped }
+            - { target: combat.hover, op: set, value: true, when: self.equipped }
           grants:
             - { item: spells.chain-lightning, when: self.equipped && self.attuned }
             - { item: spells.feather-fall, when: self.equipped && self.attuned }
@@ -39,7 +34,7 @@ choices:
                 target: damage.resistances,
                 op: grant,
                 value: { tag: damage.acid },
-                when: self.equipped && self.attuned,
+                when: self.equipped,
               }
           grants:
             - { item: spells.earthquake, when: self.equipped && self.attuned }
@@ -52,7 +47,7 @@ choices:
                 target: damage.immunities,
                 op: grant,
                 value: { tag: damage.fire },
-                when: self.equipped && self.attuned,
+                when: self.equipped,
               }
           grants:
             - { item: spells.burning-hands, when: self.equipped && self.attuned }
@@ -61,12 +56,7 @@ choices:
             - { item: spells.wall-of-fire, when: self.equipped && self.attuned }
         - id: water
           effects:
-            - {
-                target: combat.swimSpeed,
-                op: atLeast,
-                value: 60,
-                when: self.equipped && self.attuned,
-              }
+            - { target: combat.swimSpeed, op: atLeast, value: 60, when: self.equipped }
           grants:
             - { item: spells.create-or-destroy-water, when: self.equipped && self.attuned }
             - { item: spells.ice-storm, when: self.equipped && self.attuned }
@@ -78,7 +68,7 @@ effects:
     op: rollModifier
     value: { kind: advantage }
     when: >-
-      self.equipped && self.attuned && has(participants.target) && size(participants.target) > 0
+      self.equipped && has(participants.target) && size(participants.target) > 0
         && has(participants.target[0].creature.type)
         && participants.target[0].creature.type == 'elemental'
   - target: { choices: [spell-cost] }

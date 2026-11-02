@@ -75,3 +75,16 @@ effects:
     op: atMost
     value: 0
     when: conditions.exhaustion >= 5
+
+actions:
+  # Run by the app on every creature at each turn change (`ended`, `started`: whose turn). Content
+  # joins in through its `turn-boundary` step: Multiattack Defense forgets who hit it.
+  - id: turn-boundary
+    clock: turn-boundary
+    params:
+      ended: { type: string, optional: true }
+      started: { type: string, optional: true }
+    steps:
+      - id: boundary
+        kind: changes
+        tags: [turn-boundary]

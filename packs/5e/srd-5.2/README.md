@@ -133,6 +133,13 @@ Where the SRD is unclear or silent, the pack reads it this way:
   every creature at each turn change, ends Sap and Slow when the attacker's next turn starts and
   Vex (and Studied Attacks' Advantage) when it ends. Push and Cleave are reported in the outcome (`push`,
   `cleave`) for the app to resolve; Cleave's attack runs the weapon's attack with `cleave` set.
+- **Reacting to who hit you:** damage another creature sends names it (`change.from`), so
+  follow-ups offer the reaction to it. Hellish Rebuke's cast is offered when another creature
+  damages the caster, and Fire Shield's `erupt` when one hits it with a melee attack while the
+  shield is up (warm or chill as cast); within 5 feet, 60 feet and seen are the app's. Multiattack
+  Defense records each creature that hits the ranger with an attack roll in Defensive Tactics'
+  state (a required offer) and exposes it as `combat.multiattackDefense`, giving that creature's
+  other attack rolls against the ranger Disadvantage until the `turn-boundary` action clears it.
 - **Grapple and Shove:** the target saves with the better of Strength and Dexterity (its
   player's choice).
 - **Death saves:** damage at 0 hit points from a Critical Hit counts two failures.
@@ -153,6 +160,22 @@ Where the SRD is unclear or silent, the pack reads it this way:
     (`brutalBlow`; from level 13 `improvedBlow`, which adds Staggering and Sundering Blow; and
     `brutalBlow2` at level 17), applied on the hit: Hamstring and Staggering Blow put their
     effect on the target; Forceful Blow's push and Sundering Blow's +5 are the player's.
+  - Cunning Strike's effects are parameters of the attack too (`cunningStrike`, and
+    `cunningStrike2` from Improved Cunning Strike): their dice come off the Sneak Attack, and on
+    a hit dealing Sneak Attack damage the target makes the effect's save at the rogue's DC as part
+    of the attack (an `action` effect on its `attack-hit` step), Poisoned, Prone, Unconscious or
+    Blinded on a failure. An effect the rogue can't use (`rogue.strikeEffects`: not known yet, or
+    Poison without a Poisoner's Kit), or effects together costing more dice than the Sneak Attack
+    has, do nothing and cost nothing; a Trip on a Huge or larger target does nothing, its die
+    spent. Withdraw, Daze's limit and Stealth Attack are the player's.
+  - Stunning Strike (`stunningStrike`, 1 Focus Point, Constitution or Stunned), Open Hand
+    Technique (`openHand`, on an Unarmed Strike: Push's Strength save, Topple's Dexterity save or Prone), Hurl Through
+    Hell (`hurlThroughHell`: its use or a Pact Magic slot, then a Charisma save or 8d10 Psychic
+    damage unless a Fiend, and Incapacitated) and the Rod of Lordly Might's Drain Life and
+    Paralyze (`drainLife`, `paralyze`, on its own melee attack through `item-power`; Drain Life
+    heals half the Necrotic damage rolled) are parameters of the attack the same way, the save
+    handed to the target on the hit. Once per turn, Stunning Strike's success rider, the Push
+    itself, Addle, and Hurl Through Hell's return are the player's.
   - Persistent Rage, Perfect Focus, Superior Inspiration, Evergreen Wild Shape and Boon of Fate
     act when Initiative is rolled (a hook on the `initiative` action); Uncanny Metabolism is its
     own action, since it rolls.
@@ -279,7 +302,7 @@ Where the SRD is unclear or silent, the pack reads it this way:
   Metamagic options, Pact Magic and the 28 invocations, the spellbook, Arcane Recovery. Uses until
   a rest are state on the class copy, an invocation's on its pick (Gift of the Depths' `used`).
   Features carry the numbers their card needs as computed values (in computeSheet's
-  `activationValues`), which their actions read: Cunning Strike's `strikeDc`, Intimidating
+  `activationValues`), which their actions read: Cunning Strike's `strikeDc` (its saves' DC), Intimidating
   Presence's `presenceDc`, Relentless Rage's `rageDc`, Sacred Weapon's `weaponBonus`, Preserve
   Life's `healingPool`, and Breath Weapon's `breathDc` and `breathDice`.
   A species trait keeps its own uses as its grant's saved state (Breath Weapon, Draconic Flight,
@@ -289,10 +312,13 @@ Where the SRD is unclear or silent, the pack reads it this way:
   options on a weapon or Unarmed Strike hit: their dice join the hit's damage roll (doubled on a
   Critical Hit), and the use is spent with the damage; their own actions stay for other attack
   rolls. Retaliation offers each melee weapon's attack, and an Unarmed Strike, as follow-ups
-  when the barbarian takes damage and stays up. Deflect Attacks is a situational choice on an
-  incoming attack (`deflectAttacks`): the damage change it is selected on, if Bludgeoning,
-  Piercing or Slashing (any type with Deflect Energy), is reduced by 1d10 plus the Dexterity
-  modifier and Monk level, never below 0; the `deflect-attacks` action still redirects the force.
+  when the barbarian takes damage and stays up. Deflect Attacks is a batch-scoped situational
+  choice on an incoming attack (`deflectAttacks`, `scope: batch`): selected once, it reduces the
+  whole attack's Bludgeoning, Piercing and Slashing damage (every type with Deflect Energy) by one
+  roll of 1d10 plus the Dexterity modifier and Monk level. When it stops all the damage and a
+  Focus Point is left (`focus.spent`), its `changes` offer the `deflect-redirect` follow-up, which
+  runs the feature's `deflect-attacks` action: 1 Focus Point and the redirected damage (two
+  Martial Arts dice plus Dexterity, Dexterity save).
 - **Spellcasting:** each class's cantrips and prepared spells (the table's counts), always-
   prepared subclass spells, the Multiclass Spellcaster slots, Pact Magic, the wizard's spellbook
   and Ritual Adept, Magic Initiate and species spells with their own ability, `cast-spell` with
@@ -303,13 +329,16 @@ Where the SRD is unclear or silent, the pack reads it this way:
   carries its numbers as computed values (`castingClass`, `spellDc`, `spellAttack`, `spellMod`,
   in computeSheet's `activationValues`), which `cast-spell`, `spell-effect` and the spells' own
   actions read.
-- **Auras:** Aura of Protection (allies in `paladin.auraRange`, down while the paladin is
-  Incapacitated, reading its live Charisma modifier), the Rod of Alertness's Protective Aura (60
-  feet, while planted), Aura of Life, Holy Aura and Pass without Trace (cast with no target, on
-  the caster), and Spirit Guardians (15 feet, enemies' Speed halved; the cast puts the spell on
-  the caster to hold it up, and its `guard` action, like Moonbeam's `beam`, runs the save and
-  damage at the caster's spell save DC without a slot) are listed in computeSheet's `auras` for the app to place on whoever
-  is inside. A creature in two Auras of Protection benefits from the highest (stackKey `source`),
+- **Auras:** Aura of Protection, Aura of Courage (Frightened immunity) and Aura of Devotion
+  (Charmed immunity), all allies in `paladin.auraRange`, down while the paladin is
+  Incapacitated, Protection reading its live Charisma modifier, are listed in computeSheet's
+  `auras` for the app to place on whoever is inside. So are the auras an applied entry holds up,
+  one per entry the creature applied itself (`scope: applied`), whatever the spell was cast from:
+  the Rod of Alertness's Protective Aura (60 feet, while planted), Aura of Life, Holy Aura and
+  Pass without Trace (cast with no target, on the caster), and Spirit Guardians (15 feet,
+  enemies' Speed halved; the cast puts the spell on the caster to hold it up, and its `guard`
+  action, like Moonbeam's `beam`, runs the save and damage at the caster's spell save DC without
+  a slot). A creature in two Auras of Protection benefits from the highest (stackKey `source`),
   and the holder inside its own aura counts it once.
 - **Equipment:** 38 weapons with their properties and mastery, 13 armors, 37 tools, 96 pieces of
   gear (ammunition, spellcasting focuses, equipment packs that `unpack`, thrown flasks, the
@@ -321,8 +350,11 @@ Where the SRD is unclear or silent, the pack reads it this way:
   stored spells, resistances, set ability scores and situational advantages.
 - **Monsters:** all 330 SRD stat blocks, monsters and animals. A monster is a character with no
   class:
-  `create-monster` copies a `monster` item's stat block into the sheet, and each trait and action
-  becomes its own copy with its uses or recharge. `monster-attack` and `monster-effect` resolve
+  `create-monster` copies a `monster` item's stat block into the sheet's inputs (AC, senses, XP
+  and Legendary Action uses among them, lair values too), and each trait and action becomes its
+  own copy with its uses or recharge, so a GM can change one monster's. The printed AC
+  (`combat.printedAc`) competes with worn armor as any AC does. Monsters saved with 0.3.0 get
+  their AC, senses, XP and Legendary Action uses as inputs on upgrade. `monster-attack` and `monster-effect` resolve
   attacks and saving throws on each target's sheet; Multiattack, legendary actions (with lair
   numbers), Legendary Resistance, Magic Resistance and Spellcasting work. A monster's sheet
   leaves out experience points, character level (at 0), Heroic Inspiration and death saves, and
@@ -343,7 +375,9 @@ processes:
   (`(self.startingClass && self.level == level.total) || item.id in multiclass.qualified`).
 - **Backgrounds** bring their starting equipment the same way (`startingKit` and a `kit` action).
 - **Magic items** and magic weapon or armor templates restricted to classes list them in
-  `attunementClasses`.
+  `attunementClasses`. A `magicItem` with `requiresAttunement` has its effects only while
+  attuned (the type's `effectsWhen`), so its effects needn't check `self.attuned`; a template that
+  needs attunement says `effectsWhen: self.attuned` itself.
 - **Metamagic options** are `metamagic` content; containers add to `items.stowCapacity` or
   `items.stowUnlimited`, and content resets its uses with a `changes` effect on `rest.long`.
 - **Open enums** (`extendEnums`): weapon `damageType`, `ammunition` and `mastery`, feat
@@ -395,8 +429,7 @@ as text are listed below.
   (summoned creatures, familiars, mounts and steeds, Wild Shape's beast).
 - **A spell on two spellcasting lists** (a cleric's spell also known through another class or a
   feat) is cast, and its card numbered, with the first spellcasting whose list has it.
-- **Aura parts that stay text:** Aura of Courage's and Aura of Devotion's immunity for allies
-  (an aura carries effects, not immunities; the paladin's own holds), Smite of Protection's Half
+- **Aura parts that stay text:** Smite of Protection's Half
   Cover, when Spirit Guardians' `guard` runs (once per turn per creature) and its unaffected
   creatures, Aura of Life's Hit Point maximum and its 1 Hit Point at turn start, and
   Holy Aura's blinding save.
@@ -406,11 +439,6 @@ as text are listed below.
   from higher slots, Enlarge/Reduce's size change, Chill Touch's no-regain, Beacon of Hope's
   maximum healing, Heroism's temporary hit points each turn, a second damage type for Transmuted
   Spell.
-- **Deflect Attacks per change, not per attack:** a situational choice reaches only the adjust
-  it is selected on, and its rolled reduction can't carry to the batch's other changes. So an
-  attack of several damage types is reduced on each change the app selects it on, not once on
-  the total; select it on one change (the Bludgeoning, Piercing or Slashing one) to apply it
-  once, and the other types' damage isn't reduced.
 - **Metamagic:** Distant, Quickened and Subtle Spell are recorded in the cast's `data.metamagic`
   for the app.
 - **Monsters:** movement and sense traits, revival traits, reactions that change a roll (Parry),

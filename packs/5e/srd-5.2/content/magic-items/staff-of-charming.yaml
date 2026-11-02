@@ -25,10 +25,11 @@ grants:
   - { item: spells.charm-person, when: self.equipped && self.attuned }
   - { item: spells.command, when: self.equipped && self.attuned }
   - { item: spells.comprehend-languages, when: self.equipped && self.attuned }
+effectsWhen: self.attuned
 effects:
   - target: { choices: [failed-save] }
     op: option
-    when: "self.equipped && self.attuned && !('resist' in self.usedToday)"
+    when: "self.equipped && !('resist' in self.usedToday)"
     value:
       id: resist-enchantment
       flags: { addBonus: 'has(params.dc) ? max(0, params.dc - flags.total) : 0' }
@@ -37,7 +38,7 @@ effects:
   - target: { choices: [spell-cost] }
     op: option
     when: >-
-      action.self.id == self.id && self.attuned && action.item.id in [@spells.charm-person, @spells.command, @spells.comprehend-languages]
+      action.self.id == self.id && action.item.id in [@spells.charm-person, @spells.command, @spells.comprehend-languages]
         && self.charges >= [1, 1, 1][indexOf([@spells.charm-person, @spells.command, @spells.comprehend-languages], action.item.id)]
     value:
       id: charges

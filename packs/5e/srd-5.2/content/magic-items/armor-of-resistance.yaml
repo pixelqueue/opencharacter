@@ -3,6 +3,7 @@ type: template
 tags: [magic]
 appliesTo: { type: armor, where: "item.category != 'shield'" }
 fields: { rarity: rare, requiresAttunement: true }
+effectsWhen: self.attuned
 choices:
   - id: damage-type
     from:
@@ -11,4 +12,4 @@ choices:
       - target: damage.resistances
         op: grant
         value: { formula: "'damage.' + pick.value" }
-        when: self.equipped && self.attuned
+        when: self.equipped

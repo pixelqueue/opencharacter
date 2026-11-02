@@ -14,13 +14,8 @@ effects:
   - target: { rolls: [skill.stealth] }
     op: rollModifier
     value: { kind: advantage }
-    when: self.equipped && self.attuned
-  - {
-      target: combat.flySpeed,
-      op: atLeast,
-      value: 40,
-      when: self.equipped && self.attuned && self.flying,
-    }
+    when: self.equipped
+  - { target: combat.flySpeed, op: atLeast, value: 40, when: self.equipped && self.flying }
   - target: { choices: [spell-cost] }
     op: option
     when: >-

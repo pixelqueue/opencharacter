@@ -12,12 +12,7 @@ grants:
   - { item: spells.scrying, when: self.equipped && self.attuned }
   - { item: spells.suggestion, when: self.equipped && self.attuned }
 effects:
-  - {
-      target: spells.atWill,
-      op: grant,
-      value: { item: spells.scrying },
-      when: self.equipped && self.attuned,
-    }
+  - { target: spells.atWill, op: grant, value: { item: spells.scrying }, when: self.equipped }
   - target: { choices: [spell-cost] }
     op: option
     when: >-

@@ -3,13 +3,14 @@ type: template
 tags: [magic]
 appliesTo: { type: weapon, where: "'axe' in item.tags" }
 fields: { rarity: rare, requiresAttunement: true, attackBonus: 1, damageBonus: 1 }
+effectsWhen: self.attuned
 effects:
-  - { target: hp.max, op: add, value: level.total, when: self.attuned }
+  - { target: hp.max, op: add, value: level.total }
   - target: { rolls: [attack.melee, attack.ranged] }
     op: rollModifier
     value: { kind: disadvantage }
     when: >-
-      self.attuned && has(roll.item.damageType) && !('unarmed' in roll.tags)
+      has(roll.item.damageType) && !('unarmed' in roll.tags)
         && !(has(action.self) && action.self.id == self.id)
 followUps:
   - id: berserk

@@ -5,20 +5,21 @@ appliesTo: { type: weapon, where: 'item.id in [@weapons.longbow, @weapons.shortb
 fields: { rarity: very-rare, requiresAttunement: true }
 state:
   swornEnemy: { type: boolean, default: false }
+effectsWhen: self.attuned
 effects:
-  - { target: items.swornEnemy, op: set, value: true, when: self.equipped && self.attuned }
+  - { target: items.swornEnemy, op: set, value: true, when: self.equipped }
   - target: { rolls: [attack.ranged], from: self }
     op: rollModifier
     value: { kind: advantage }
-    when: self.attuned && situational.swornEnemy
+    when: situational.swornEnemy
   - target: { rolls: [damage.weapon], from: self }
     op: add
     value: 3d6
     tags: [damage.piercing]
-    when: self.attuned && situational.swornEnemy
+    when: situational.swornEnemy
   - target: { rolls: [attack] }
     op: rollModifier
     value: { kind: disadvantage }
     when: >-
-      self.attuned && self.swornEnemy && action.self.id != self.id
+      self.swornEnemy && action.self.id != self.id
         && has(action.item.category) && action.item.category in ['simple', 'martial']

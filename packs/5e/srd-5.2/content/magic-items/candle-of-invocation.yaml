@@ -14,17 +14,17 @@ effects:
   - target: { rolls: [d20-test] }
     op: rollModifier
     value: { kind: advantage }
-    when: self.attuned && self.lit
+    when: self.lit
   - target: spells.free
     op: grant
     value: { query: { type: spell, where: item.level == 1 } }
     when: >-
-      self.attuned && self.lit
+      self.lit
         && (@classes.cleric in classes.held || @classes.druid in classes.held)
   - target: { choices: [spell-cost] }
     op: option
     when: >-
-      self.attuned && self.lit && action.item.level == 1 && flags.cls in ['cleric', 'druid']
+      self.lit && action.item.level == 1 && flags.cls in ['cleric', 'druid']
     value:
       id: light
   - target: { choices: [spell-cost] }
