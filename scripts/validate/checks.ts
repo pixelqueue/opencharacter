@@ -2323,6 +2323,12 @@ export class PackChecker {
         ) {
           this.report.error(file, `${where}: unknown action "${step.use}"`);
         }
+        if (step.kind === 'action' && step.use) {
+          const used = this.ruleset.action(step.use, this.scope);
+          if (used)
+            for (const name of Object.keys(step.params ?? {}))
+              this.derivedGiven(used.def, name, file, where);
+        }
         // Roles: `each` and a role in `to` must be declared (`target` needn't be), and a handoff
         // needs an `each`.
         const declared = (role: string) => Object.hasOwn(action.participants ?? {}, role);

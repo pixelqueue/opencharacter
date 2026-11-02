@@ -110,11 +110,11 @@ isn't `optional`.
   and `self`, `situational`, the character's fields, the run's `participants` (which a bound
   doesn't see: Cunning Strike's Trip costs nothing against a Huge target), and `params` with the
   given parameters and the derived ones declared **before** it. A later derived parameter, and
-  its own, is `unknown-name` at load for an action's own (through a `params` effect, absent when
-  it runs), so derived parameters can't loop. Its bounds, and every other bound, see its value.
+  its own, is `unknown-name` at load (among an action's own, or one effect's; another effect's
+  is absent when it runs), so derived parameters can't loop. Its bounds, and every other bound, see its value.
 - **Never given:** a value for it from the app, a `use`, an `action` step or a handoff is
   `invalid-param` (reason `derived`); the build reports a `use`'s, a creation start's, a field
-  roll's and an `action` effect's. describeAction lists it with `derived: true` and
+  roll's, an `action` step's and an `action` effect's. describeAction lists it with `derived: true` and
   `required: false`. Its label (`<actionKey>.params.<name>.name`) is optional: it is for apps
   that show it.
 - A value of another type is `type-mismatch` as the action starts.

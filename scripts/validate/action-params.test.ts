@@ -116,7 +116,7 @@ describe('pnpm validate on params effects, computed action tags and a use with a
     expect(added(own.errors)).toEqual([]);
   });
 
-  it('rejects a derived parameter given by a use, and a formula off an action parameter', () => {
+  it('rejects a derived parameter given by a use or an action step, and a formula off a parameter', () => {
     const { errors } = validate({
       'rules/extra.yaml': [
         'actions:',
@@ -126,6 +126,8 @@ describe('pnpm validate on params effects, computed action tags and a use with a
         '      cost: { type: integer, formula: params.n * 2 }',
         '    steps: [{ id: done, kind: outcome, result: "\'done\'" }]',
         '    results: [done]',
+        '  - id: twice',
+        '    steps: [{ id: again, kind: action, use: spend, params: { cost: 1 } }]',
         'contentTypes:',
         '  charm:',
         '    state:',
@@ -136,6 +138,10 @@ describe('pnpm validate on params effects, computed action tags and a use with a
     });
     expect(errors.filter((m) => m.includes('derived'))).toEqual([
       expect.stringContaining('formula (a derived value) is for action parameters'),
+      expect.stringContaining('parameter "cost" is derived'),
+      expect.stringContaining('parameter "cost" is derived'),
+    ]);
+    expect(errors.filter((m) => m.includes('actions.twice') && m.includes('derived'))).toEqual([
       expect.stringContaining('parameter "cost" is derived'),
     ]);
   });

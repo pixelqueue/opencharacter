@@ -514,9 +514,13 @@ class FormulaChecker<L> {
       this.formula(aura.size, at, `${where} size`, NUMBER);
       this.typed({ applier: viewType(aura.fields ?? {}) }, () =>
         this.withRoots(['applier'], () => {
+          const outer = this.inAura;
           this.inAura = true;
-          for (const effect of aura.effects ?? []) this.effect(effect, at, where);
-          this.inAura = false;
+          try {
+            for (const effect of aura.effects ?? []) this.effect(effect, at, where);
+          } finally {
+            this.inAura = outer;
+          }
           for (const immunity of aura.immuneTo ?? []) this.immunity(immunity, at, where);
         }),
       );
@@ -884,6 +888,27 @@ class FormulaChecker<L> {
             this.formula(decl.formula, at, `${place} formula`, [fieldFormulaType(decl.type)]),
           ),
         );
+        // Of this effect's derived ones, it reads only those before it, so they can't loop.
+        const tree = decl.formula === undefined ? undefined : formulaTree(decl.formula);
+        if (tree?.ok) {
+          const entries = Object.entries(effect.value as Record<string, ValueDecl>);
+          const index = entries.findIndex(([n]) => n === name);
+          const later = new Set(
+            entries
+              .slice(index)
+              .filter(([, d]) => d.formula !== undefined)
+              .map(([n]) => `params.${n}`),
+          );
+          for (const ref of references(tree.value, new Set()))
+            if (later.has(ref) || [...later].some((l) => ref.startsWith(`${l}.`)))
+              this.problems.push({
+                at,
+                where: `${place} formula`,
+                formula: decl.formula as Formula,
+                code: 'unknown-name',
+                message: `"${ref}" is a derived parameter declared at or after "${name}": a derived parameter reads only those before it`,
+              });
+        }
         if (decl.where === undefined || decl.type !== 'id' || decl.of === undefined) continue;
         if (decl.of === 'field') this.query({ type: 'field', where: decl.where }, at, place);
         else if (decl.of !== 'tag' && decl.of !== 'string')

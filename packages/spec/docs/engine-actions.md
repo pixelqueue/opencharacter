@@ -48,8 +48,8 @@ shape, an optional **dice function**.
    takes no value (`invalid-param` if given); once every given parameter has its value, each
    derived one is evaluated in declaration order with what its bounds see, `participants` and `params` so far,
    and then the bounds are checked. So a derived parameter reads them, the participants
-   ([step 4](#starting-an-action)) are checked before the parameters: `invalid-participants`
-   comes first. Every parameter error (`missing-param`, `wrong-type`,
+   ([step 4](#starting-an-action)) are checked before the parameters: their errors
+   (`invalid-participants`, `duplicate-id`, `invalid-link-value`) come before any parameter's. Every parameter error (`missing-param`, `wrong-type`,
    `out-of-range`, `invalid-option`, `invalid-param`), here or at a handoff, also carries `action` (the qualified ID of the action
    the parameter belongs to; `<item ID>#<action ID>` for an item's inline action), for an added
    parameter `addedBy` (as describeAction gives it), and, for an

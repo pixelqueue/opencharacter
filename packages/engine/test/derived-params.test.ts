@@ -74,6 +74,10 @@ const run = (
     : result;
 };
 
+/** Loads the pack with a feature whose `params` effect adds these. */
+const added = (value: Record<string, unknown>) =>
+  loadRuleset([pack(own, [{ target: { actions: ['attack'] }, op: 'params', value }])]);
+
 describe('derived parameters', () => {
   it('are worked out from the given ones, and steps read them', () => {
     expect(run(pack(own), { spend: 3 })).toEqual([6]);
@@ -136,6 +140,23 @@ describe('derived parameters', () => {
     ]);
     expect(run(release, { spend: 2, extra: true })).toEqual([4, 4]);
     expect(run(release, { spend: 2 })).toEqual([4, 0]);
+  });
+
+  it("in one params effect, read only that effect's earlier ones", () => {
+    const later = added({
+      a: { type: 'integer', formula: 'params.b' },
+      b: { type: 'integer', formula: '1' },
+    });
+    expect(later.ok).toBe(false);
+    if (!later.ok)
+      expect(later.errors.map((e) => (e.data as { cause?: string }).cause)).toEqual([
+        'unknown-name',
+      ]);
+    const earlier = added({
+      b: { type: 'integer', formula: '1' },
+      a: { type: 'integer', formula: 'params.b' },
+    });
+    expect(earlier.ok).toBe(true);
   });
 
   it("read the run's participants", () => {
