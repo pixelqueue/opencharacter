@@ -282,8 +282,12 @@ Still closed: attributes, proficiency ranks, saves, spell traditions (and a staf
   `turn.boundary`. Persistent damage is each entry's own action: the damage,
   then a DC 15 flat check that ends it on a success. Sickened has its own Retch action.
 - **Shields:** `raise-shield` (and Reactive Shield) give the shield's circumstance bonus to AC;
-  Shield Block is a situational choice on incoming damage: the hardness comes off,
-  and the shield takes the rest in its `damage` state; broken shields give no bonus.
+  Shield Block is a situational choice on the whole attack (`scope: batch`): the hardness comes
+  off the attack's total once, however many damage types it splits into, and the raised shield
+  takes the rest in its `damage` state, up to its Hit Points (destroyed at 0, when its hardness
+  stops counting); broken shields give no bonus. The Shield spell's block and Fire Shield still
+  apply to each damage change of an attack: their state lives on the applied spell, which a
+  choice's `changes` can't reach yet ([#258](https://github.com/pixelqueue/opencharacter/issues/258)).
 - **Ancestries:** dwarf, elf, gnome, goblin, halfling, human, leshy and orc, with Hit Points, size,
   Speed, boosts and flaw, languages, senses and traits, and every Player Core heritage (45):
   resistances of half the level, senses, traits, trainings, Hit Points, a swim Speed, situational
@@ -861,7 +865,8 @@ reads it as below. These are the pack's provisional calls; a table may rule othe
   feats need skills the character lacks, with the dedication rule closing the others). It stays
   a pending choice the rules leave empty, not a rules issue.
 - **Core:** Shield Block applies to any damage while the shield is raised (the player says it's
-  physical); persistent damage applies the full roll, and its flat check is DC 15 for everyone;
+  physical), and the shield takes what is left of the damage after its hardness, before your own
+  resistances; persistent damage applies the full roll, and its flat check is DC 15 for everyone;
   skill increases come at odd levels from 3rd unless a class gives more; current Hit Points
   don't rise on a level-up; a skill increase on an untrained skill trains it, and that training
   counts as the player's choice; stunned's lost actions count toward slowed's; Bulk sums light

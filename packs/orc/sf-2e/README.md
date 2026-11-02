@@ -252,6 +252,13 @@ fixed sets.
   spell gems and ampoules, batteries and chem tanks, material ammunition), 58 augmentations
   (the implant limit, the one apex), 85 upgrades (templates, with the upgrade-slot limit), 21
   material templates, 41 worn and held magic items, 16 solarian crystals.
+- **Shields:** `raise-shield` gives the shield's circumstance bonus to AC. Shield Block is a
+  situational choice on the whole attack (`scope: batch`): the hardness comes off the attack's
+  total once, however many damage types it splits into, and the raised shield takes the rest in
+  its `damage` state, up to its Hit Points (destroyed at 0, when its hardness stops counting);
+  broken shields give no bonus. The Shield spell's block still applies to each damage change of
+  an attack: its state lives on the applied spell, which a choice's `changes` can't reach yet
+  ([#258](https://github.com/pixelqueue/opencharacter/issues/258)).
 - **Money:** credits, plus UPBs as a separate field; buying, selling and the starting credits.
 
 ## Rule readings
