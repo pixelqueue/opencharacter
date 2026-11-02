@@ -12,7 +12,7 @@ const pack = (effects: Record<string, unknown[]>, steps?: unknown[]): PackReleas
       defaultLanguage: 'en',
     },
     rules: {
-      tags: ['ability', 'ability.magic', 'turn'],
+      tags: ['ability', 'ability.magic', 'turn', 'aura', 'aura.fire'],
       fields: { n: { type: 'integer', input: true, default: 0 } },
       contentTypes: { feature: {} },
       actions: [
@@ -95,6 +95,39 @@ describe('params effects at load', () => {
         }),
       ),
     ).toEqual([]);
+  });
+
+  it('reports a conflict over tags no action carries yet', () => {
+    // No action carries `aura`: the targets still meet.
+    expect(
+      reasons(
+        pack({
+          a: [adds('aura.fire', { boost: { type: 'boolean', default: false } })],
+          b: [adds('aura', { boost: { type: 'integer', default: 0 } })],
+        }),
+      ),
+    ).toEqual([['invalid-added-param', 'conflict']]);
+  });
+
+  it("lets two items' from: self effects declare a name otherwise, not an item and a type", () => {
+    const self = (values: string[]) => ({
+      ...adds('ability', { element: { type: 'enum', values, optional: true } }),
+      target: { actions: ['ability'], from: 'self' },
+    });
+    expect(reasons(pack({ a: [self(['fire', 'cold'])], b: [self(['acid'])] }))).toEqual([]);
+    // One item's two effects can share a run.
+    expect(reasons(pack({ a: [self(['fire', 'cold']), self(['acid'])] }))).toEqual([
+      ['invalid-added-param', 'conflict'],
+    ]);
+    // Only one side self-scoped.
+    expect(
+      reasons(
+        pack({
+          a: [self(['fire', 'cold'])],
+          b: [adds('ability', { element: { type: 'enum', values: ['acid'], optional: true } })],
+        }),
+      ),
+    ).toEqual([['invalid-added-param', 'conflict']]);
   });
 });
 

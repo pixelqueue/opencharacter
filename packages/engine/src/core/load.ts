@@ -140,35 +140,52 @@ const tagsMeet = (a: string, b: string) =>
 /**
  * `params` effects: each added parameter is optional or has a default (nested runs and
  * startAction's other callers never give it), its name isn't one an action its literal target
- * tags reach declares, and no other effect adds it with another declaration where both may reach
- * one action. Actions count by the pack that wrote them, reached over packs that meet on the
- * target tag (effects.md, Which packs a tag target reaches).
+ * tags reach declares, and no other effect adds it with another declaration where both may apply:
+ * their target tags meet over packs that meet on the tag, or one action's literal tags reach
+ * both. Two `from: self` effects carried by different content items never apply to one run.
+ * Actions count by the pack that wrote them, reached over packs that meet on the target tag
+ * (effects.md, Which packs a tag target reaches).
  */
-function checkAddedParams(
+export function checkAddedParams(
   ruleset: Ruleset,
   err: (code: string, data: Record<string, unknown>) => void,
 ): void {
-  const added: { source: string; pack: string; tags: string[]; name: string; decl: ValueDecl }[] =
-    [];
+  interface Added {
+    source: string;
+    pack: string;
+    tags: string[];
+    name: string;
+    decl: ValueDecl;
+    /** The content item carrying a `from: self` effect: it reaches only that item's runs. */
+    self?: string;
+  }
+  const added: Added[] = [];
   const walkChoices = (
     choices: readonly Choice[] | undefined,
     source: string,
     pack: string,
+    item?: string,
   ): void => {
     for (const choice of choices ?? []) {
-      walk(choice.effects, source, pack);
+      walk(choice.effects, source, pack, item);
       if ('options' in choice.from)
         for (const o of choice.from.options) {
-          walk(o.effects, source, pack);
-          walkChoices(o.choices, source, pack);
+          walk(o.effects, source, pack, item);
+          walkChoices(o.choices, source, pack, item);
         }
     }
   };
-  const walk = (effects: readonly Effect[] | undefined, source: string, pack: string): void => {
+  const walk = (
+    effects: readonly Effect[] | undefined,
+    source: string,
+    pack: string,
+    item?: string,
+  ): void => {
     for (const e of effects ?? []) {
       if (e.op !== 'params' || typeof e.target !== 'object' || !('actions' in e.target)) continue;
+      const self = e.target.from === 'self' ? item : undefined;
       for (const [name, decl] of Object.entries((e.value ?? {}) as Record<string, ValueDecl>))
-        added.push({ source, pack, tags: e.target.actions, name, decl });
+        added.push({ source, pack, tags: e.target.actions, name, decl, ...(self ? { self } : {}) });
     }
   };
   for (const type of Object.values(ruleset.contentTypes)) {
@@ -176,8 +193,10 @@ function checkAddedParams(
     walk(type.effects, source, type.pack);
   }
   for (const item of Object.values(ruleset.content)) {
-    walk(item.effects, item.qid, item.scopes?.effects ?? item.pack);
-    walkChoices(item.choices, item.qid, item.scopes?.choices ?? item.pack);
+    // A template is part of each copy using it, so its effects may share a run with the copy's.
+    const self = item.type === 'template' ? undefined : item.qid;
+    walk(item.effects, item.qid, item.scopes?.effects ?? item.pack, self);
+    walkChoices(item.choices, item.qid, item.scopes?.choices ?? item.pack, self);
   }
   for (const e of ruleset.rules.effects) walk([e], `${e.pack}:rules`, e.pack);
   for (const choice of Object.values(ruleset.rules.choices))
@@ -206,6 +225,14 @@ function checkAddedParams(
     e.tags.some(
       (t) => a.tags.some((tag) => tagsMeet(t, tag)) && packsMeet(ruleset, e.pack, a.pack, t),
     );
+  // Whether two effects' target tags meet (one is the other or below it) over packs that meet on
+  // the broader tag.
+  const targetsMeet = (a: Added, b: Added) =>
+    a.tags.some((t) =>
+      b.tags.some(
+        (u) => tagsMeet(t, u) && packsMeet(ruleset, a.pack, b.pack, t.length <= u.length ? t : u),
+      ),
+    );
   for (const [i, p] of added.entries()) {
     const data = { param: p.name, source: p.source };
     if (!p.decl.optional && p.decl.default === undefined)
@@ -217,7 +244,8 @@ function checkAddedParams(
     }
     for (const other of added.slice(0, i)) {
       if (other.name !== p.name || JSON.stringify(other.decl) === JSON.stringify(p.decl)) continue;
-      if (literal.some((a) => mayReach(p, a) && mayReach(other, a)))
+      if (p.self !== undefined && other.self !== undefined && p.self !== other.self) continue;
+      if (targetsMeet(p, other) || literal.some((a) => mayReach(p, a) && mayReach(other, a)))
         err('invalid-added-param', { ...data, reason: 'conflict', other: other.source });
     }
   }
