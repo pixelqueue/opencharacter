@@ -82,6 +82,8 @@ followUps:
     when: change.by > 0 && !stamina.dead
     changes:
       - { type: adjust, field: stamina.current, by: recoveries.value * change.by, tags: [healing] }
+  # An ability or feature lets the hero spend a Recovery (Drain, The Lists of Heaven).
+  - { id: spend-recovery, action: spend-recovery }
 
 actions:
   # Spend a Recovery: regain Stamina equal to the recovery value.

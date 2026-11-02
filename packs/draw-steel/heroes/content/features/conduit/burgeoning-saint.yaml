@@ -11,8 +11,6 @@ effects:
     op: changes
     when: has(action.item.t1Damage) && size(participants.target) > 0 && recoveries.current > 0
     value: { changes: [{ type: offerFollowUp, followUp: spend-recovery }] }
-followUps:
-  - { id: spend-recovery, action: spend-recovery }
 choices:
   - id: immunity
     from: { values: [corruption, holy] }
