@@ -272,9 +272,10 @@ Where the SRD is unclear or silent, the pack reads it this way:
   scaling; concentration; 37 spells whose effects apply to their target's sheet, with the option
   picked per cast where the spell offers one (`castOptions`: Protection from Energy's damage
   type, Fire Shield's warm or chill shield, Enhance Ability's effect, Enlarge or Reduce,
-  Blindness or Deafness) read as the applied spell's `option`, and the caster as its `caster`
-  (Hunter's Mark: the caster's weapon hits on a creature whose `huntersMark.markedBy` view
-  holds the caster's ID deal an extra 1d6); racial spells;
+  Blindness or Deafness) read as the applied spell's `option`, and the caster as its
+  `appliedBy` (Hunter's Mark: the caster's weapon hits on a creature whose `huntersMark.markedBy`
+  view holds the caster's ID deal an extra 1d6, and its `move` action ends the caster's mark
+  wherever it is, `to: applied`, and marks the new target); racial spells;
   subclass spells; the wizard's spellbook (a spell only in the book is cast only as a ritual).
 - **Auras:** Aura of Protection (while the paladin is conscious, `aura.range`, reading its live
   Charisma modifier), Countercharm (30 feet, while the bard performs), the Rod of Alertness's

@@ -186,13 +186,12 @@ contentTypes:
 
   spell:
     texts: [material, trigger]
-    # The slot the spell was cast with: 0 when unknown, read as the spell's own level; the
-    # option picked when it was cast (its `castOptions`), '' for none; and the caster's
-    # character ID, '' when unknown (Hunter's Mark reads whose mark it is).
+    # The slot the spell was cast with: 0 when unknown, read as the spell's own level; and the
+    # option picked when it was cast (its `castOptions`), '' for none. Who cast it is the applied
+    # entry's `appliedBy` (Hunter's Mark reads whose mark it is).
     state:
       castSlot: { type: integer, default: 0, min: 0, max: 9 }
       option: { type: string, default: '' }
-      caster: { type: string, default: '' }
     fields:
       level: { type: integer, required: true, min: 0, max: 9 }
       school:

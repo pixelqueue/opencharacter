@@ -16,9 +16,30 @@ fields:
   applied: true
 actions:
   - use: cast-spell
+  # A later turn's bonus action, once the marked creature drops to 0 hit points (the player's
+  # call): the caster's mark ends wherever it is (the app sends it to whoever holds one), and the
+  # new creature is marked.
+  - id: move
+    tags: [spell]
+    participants: { target: { max: 1 } }
+    results: [moved]
+    steps:
+      - id: unmark
+        kind: changes
+        to: applied
+        changes:
+          - type: removeEffect
+            applied: { where: item.id == @spells.hunters-mark }
+      - id: mark
+        kind: changes
+        to: target
+        changes:
+          - { type: applyEffect, source: item.id }
+      - id: result
+        kind: outcome
+        result: "'moved'"
 # The caster's weapon hits on the creature it marked deal an extra 1d6, of the weapon's damage
-# type. Finding the quarry (advantage on Perception and Survival checks) and moving the mark are
-# the app's.
+# type. Finding the quarry (advantage on Perception and Survival checks) is the app's.
 effects:
   - target: { rolls: [damage.weapon] }
     op: add

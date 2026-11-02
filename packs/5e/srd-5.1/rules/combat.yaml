@@ -65,7 +65,7 @@ fields:
     of: string
     formula: >-
       mapList(filterList(character.applied, x.active && x.source == @spells.hunters-mark
-        && has(x.state.caster) && x.state.caster != ''), x.state.caster)
+        && x.appliedBy != ''), x.appliedBy)
   combat.elusive: { type: boolean, formula: false }
   combat.uncannyDodge: { type: boolean, formula: false }
   sanctuary.beastsAndPlantsDc: { type: integer, formula: 0, min: 0 }

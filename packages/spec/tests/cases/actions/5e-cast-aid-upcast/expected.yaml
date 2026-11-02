@@ -1,6 +1,6 @@
 # The slot is spent; each ally gets aid applied with `castSlot: 3`, no option and the caster's
-# ID (its hit point maximum +10 on its own sheet) and 10 more current hit points: 5, and 5 for
-# the slot above 2nd.
+# ID as `appliedBy` (its hit point maximum +10 on its own sheet) and 10 more current hit points:
+# 5, and 5 for the slot above 2nd.
 status: finished
 outcome:
   result: cast
@@ -26,7 +26,7 @@ proposedChanges:
       {
         type: applyEffect,
         source: 5e-srd-5.1:spells.aid,
-        state: { castSlot: 3, option: '', caster: test },
+        state: { castSlot: 3, option: '' },
         appliedBy: test,
       }
   - to: target
@@ -40,7 +40,7 @@ proposedChanges:
       {
         type: applyEffect,
         source: 5e-srd-5.1:spells.aid,
-        state: { castSlot: 3, option: '', caster: test },
+        state: { castSlot: 3, option: '' },
         appliedBy: test,
       }
   - to: target
