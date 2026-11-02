@@ -1,6 +1,6 @@
 # Rules and fields
 
-The rules layer is a set of **rules documents** ([`rules.schema.json`](../schemas/rules.schema.json)) per pack, merged by the build. This chapter covers fields, settings, constraints, result bands and situational choices. Content types are covered in [content.md](content.md), shared actions in [dice-and-actions.md](dice-and-actions.md), and display hints in [display-hints.md](display-hints.md).
+The rules layer is a set of **rules documents** ([`rules.schema.json`](../schemas/rules.schema.json)) per pack, merged by the build. This chapter covers fields (families, open enums), tags, settings, constraints, result bands and tallies, situational choices, link slots and shared sheets, follow-ups, creation starts, and the rules' always-on effects and character-level choices. Content types are covered in [content.md](content.md), shared actions in [dice-and-actions.md](dice-and-actions.md), and display hints in [display-hints.md](display-hints.md).
 
 ## Fields
 
@@ -507,8 +507,8 @@ situational:
 - An undeclared choice is `unknown-situational`. A selected choice that isn't offered, or whose
   `incoming` doesn't match the change, is `situational-unavailable`. Either rejects the batch ([engine-core.md](engine-core.md#routing-an-adjust)).
 - An action never sets them: the target's player chooses, on the target's side. Spending the
-  reaction itself (a turn's one reaction) is the app's; a cost the rules track is the choice's
-  `changes`.
+  reaction itself (a turn's one reaction) is the app's, unless the pack tracks it in a field
+  (`reaction.used` below); a cost the rules track is the choice's `changes`.
 
 ### Costs and whole attacks
 

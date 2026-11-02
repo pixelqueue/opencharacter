@@ -4,23 +4,26 @@
 
 Dice notation is the familiar VTT notation, written inside formulas:
 
-| Notation   | Meaning                          |
-| ---------- | -------------------------------- |
-| `NdS`      | N dice with faces 1..S (`1d8`)   |
-| `Nd%`      | percentile, same as d100         |
-| `NdF`      | Fate dice (−1, 0, +1)            |
-| `(expr)dS` | computed count (**PROVISIONAL**) |
+| Notation   | Meaning                             |
+| ---------- | ----------------------------------- |
+| `NdS`      | N dice with faces 1..S (`1d8`)      |
+| `Nd%`      | percentile, same as d100            |
+| `NdF`      | Fate dice (−1, 0, +1)               |
+| `NdSz`     | N dice with faces 0..S−1 (`1d100z`) |
+| `(expr)dS` | computed count (**PROVISIONAL**)    |
 
 The [die types](../data/die-types.json) and [dice modifiers](../data/dice-modifiers.json) are **fixed sets, versioned with the spec**. A game that needs a new modifier waits for a spec version that adds it. Apps need to know the set in order to display rolls ("kept the higher die").
 
-| Modifier                           | Notation        | Example     |
-| ---------------------------------- | --------------- | ----------- |
-| `keepHighest` / `keepLowest`       | `khN` / `klN`   | `2d20kh1`   |
-| `dropHighest` / `dropLowest`       | `dhN` / `dlN`   | `4d6dl1`    |
-| `explode` / `explodeCompound`      | `!` / `!!`      | `1d6!`      |
-| `reroll` / `rerollOnce`            | `rN` / `roN`    | `1d20r1`    |
-| `countSuccesses` / `countFailures` | `cs>=N` / `cfN` | `5d6cs>=5`  |
-| `minimum` / `maximum`              | `minN` / `maxN` | `1d20min10` |
+| Modifier                           | Notation                            | Example     |
+| ---------------------------------- | ----------------------------------- | ----------- |
+| `keepHighest` / `keepLowest`       | `khN` / `klN`                       | `2d20kh1`   |
+| `dropHighest` / `dropLowest`       | `dhN` / `dlN`                       | `4d6dl1`    |
+| `explode` / `explodeCompound`      | `!` / `!!`, or `!>=N` / `!!>=N`     | `1d6!`      |
+| `reroll` / `rerollOnce`            | `rN` / `roN`, or `r<=N` / `ro<=N`   | `1d20r1`    |
+| `countSuccesses` / `countFailures` | `csN` / `cfN`, or `cs>=N` / `cf<=N` | `5d6cs>=5`  |
+| `minimum` / `maximum`              | `minN` / `maxN`                     | `1d20min10` |
+
+A comparison is `=`, `<`, `<=`, `>` or `>=` before N; a bare N means `=N`.
 
 How to read a result (bands, success tiers) is game data ([result bands](rules-and-fields.md#result-bands)), not engine logic.
 
@@ -41,6 +44,7 @@ A roll is a list of **roll items**. Each item is structured data, not a display 
 - `faces` lists every die in order, including dropped, rerolled (`rerolled: true`) and exploded (`exploded: true`) dice.
 - `multiplied: false` marks an item added by an effect, or from a roll part, with `multiplied: false`, which `multiplyDice` and `multiply` left alone.
 - `factor` is the product of the `multiply` factors applied to the item, whose `value` is then the multiplied one.
+- `dropped`, `replaces` and `steppedFrom` record a field's keyed adds lost to a roll effect, the part a `set` replaced and a die's size before `stepDie` ([engine-actions.md](engine-actions.md#building-the-roll)); `sign` is -1 for subtracted dice and `zero` marks `dNz` dice.
 - `source.type` is one of `field`, `item`, `entry`, `template`, `effect`, `situational`, `rules`, `step` or `app`.
 - How a source got its value (proficiency is +2 because of level) is not part of the roll. An app that wants to explain it follows the field's breakdown.
 
@@ -48,24 +52,27 @@ A roll is a list of **roll items**. Each item is structured data, not a display 
 
 An **action** ([`action.schema.json`](../schemas/action.schema.json)) is a cascade of steps, such as attack roll → hit or miss → damage. Actions are declared on content types (every item of the type gets them), on items, or in the rules as shared actions that items `use` (optionally fixing `params`).
 
-| Property       | Meaning                                                                                                                                                                  |
-| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `tags`         | The action's tags; `{ formula }` entries are evaluated per listing, with its `item` and `self` (below)                                                                   |
-| `available`    | When the action is offered (`self.equipped`); a [grant's `available`](content.md#conditions-on-computed-values) holds for granted content's too                          |
-| `listed`       | `false`: computeSheet doesn't list it, so only other actions (and `startAction`) run it (below)                                                                          |
-| `clock`        | A rules action the app runs at a moment of its clock on every character: `turn-boundary` ([below](#turn-boundaries))                                                     |
-| `params`       | Values the app supplies (a target's AC, which stat to test), declared like state; `min`/`max` are enforced as the action starts ([engine-actions.md](engine-actions.md)) |
-| `participants` | Roles other characters fill (a target, a helper), each with `min`, `max` and declared `fields`                                                                           |
-| `steps`        | The cascade                                                                                                                                                              |
-| `results`      | The results its outcome can have: a list of IDs, or `{ bands: <set> }` for a band set's bands                                                                            |
+| Property       | Meaning                                                                                                                                                                                                                        |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `tags`         | The action's tags; `{ formula }` entries are evaluated per listing, with its `item` and `self` (below)                                                                                                                         |
+| `available`    | When the action is offered (`self.equipped`); a [grant's `available`](content.md#conditions-on-computed-values) holds for granted content's too                                                                                |
+| `listed`       | `false`: computeSheet doesn't list it, so only other actions (and `startAction`) run it (below)                                                                                                                                |
+| `clock`        | A rules action the app runs at a moment of its clock on every character: `turn-boundary` ([below](#turn-boundaries))                                                                                                           |
+| `params`       | Values the app supplies (a target's AC, which stat to test), declared like state; `min`/`max` are enforced as the action starts ([engine-actions.md](engine-actions.md)); one with a `formula` is derived, never given (below) |
+| `participants` | Roles other characters fill (a target, a helper), each with `min`, `max` and declared `fields`                                                                                                                                 |
+| `steps`        | The cascade                                                                                                                                                                                                                    |
+| `results`      | The results its outcome can have: a list of IDs, or `{ bands: <set> }` for a band set's bands                                                                                                                                  |
+| `scope`        | On content: `holder` (default) lists it for whoever has the content active, its copy as `self`; `applied` lists it for each applied entry of the content, the entry as `self` (`id` and its state keys)                        |
+| `label`        | A text key in place of `<actionKey>.name`                                                                                                                                                                                      |
 
-Formulas in an action see `item`, `self`, `params.<name>`, `situational.<id>`, `participants.<role>`, `steps.<id>.*` and `flags.<name>`. Where `item` and `self` mean something else (a choice step's candidates, a formula a change passes on), the action's own are `action.item` and `action.self`, and the current step is `action.step` (`id`, `tags`).
+Formulas in an action see `item`, `self`, `character`, `links`, `params.<name>`, `situational.<id>`, `participants.<role>` (and `participant` in an `each` step), `steps.<id>.*` and `flags.<name>`, and an `action` effect's changes see `run` ([engine-actions.md](engine-actions.md#starting-an-action)). `self` includes the content's computed values ([content.md](content.md#computed-values)). Where `item` and `self` mean something else (a choice step's candidates, a formula a change passes on), the action's own are `action.item` and `action.self`, and the current step is `action.step` (`id`, `tags`).
 
 **Text for an action**. Everything an action puts in front of the player has a
 translation key built from the action's key root, `<actionKey>` (`actions.<id>` for a rules
 action, `<contentId>.actions.<id>` for an action on an item; see [i18n.md](i18n.md)):
 
-- a choice step's question: `<actionKey>.steps.<step id>.prompt` (or the step's `prompt`);
+- a choice or allocate step's question: `<actionKey>.steps.<step id>.prompt` (or the step's
+  `prompt`);
 - a parameter's label: `<actionKey>.params.<name>.name` (or the parameter's `label`);
 - a roll step's name: `<actionKey>.steps.<step id>.name` (or the step's `label`), optional;
 - each declared result: `<actionKey>.results.<result>.name`, or `bands.<set>.<band>.name` for
@@ -182,12 +189,15 @@ chooses its damage type on each use, and a feature adds an opt-in to a rules act
     value:
       graceRecoveries: { type: integer, default: 0, min: 0 }
       graceStand: { type: boolean, default: false }
-      spend: { min: 'params.graceRecoveries + (params.graceStand ? 1 : 0)' }
+      graceEnd: { type: boolean, default: false }
+      spend:
+        { min: 'params.graceRecoveries + (params.graceStand ? 1 : 0) + (params.graceEnd ? 1 : 0)' }
   ```
 
 - A `use` may fix an added parameter in its `params`, as its own.
-- A name an action its literal target tags reach already declares, or one another `params`
-  effect adds with another declaration, is `invalid-added-param` at load. An action counts by the
+- A name already declared by an action the effect's literal target tags reach (unless the entry
+  only adds bounds, above), or one another `params` effect adds with another declaration, is
+  `invalid-added-param` at load. An action counts by the
   pack that wrote it, and only when the effect reaches it over packs that meet. Two effects
   conflict when their target tags meet (one is the other or below it) and their packs meet over
   that tag, or when one action's literal tags reach both
@@ -203,6 +213,9 @@ chooses its damage type on each use, and a feature adds an opt-in to a rules act
   copy, on the copy's own action), the first effect's declaration wins.
 - Text: `<content key>.params.<name>.name`: an item's or a template's own key,
   `types.<type>` for a content type's effect, `rules` for the rules'.
+- Releases: removing a parameter (the action's own or one a `params` effect adds), or changing
+  its type, is an interface change. Narrowing an action's `available` or a parameter's bounds
+  needs a breaking bump the build can't check ([upgrades.md](upgrades.md#a-packs-interface)).
 
 ```yaml
 # Hurl Element: the element is chosen on each use of the shared ability action.
@@ -561,7 +574,9 @@ run with nothing else the app makes up and never pause: every parameter has a de
 neither it nor a rules action its `action` steps run has a choice, allocate or handoff step, and
 only the rules declare one (`invalid-clock-action` at load). A parameter content adds with a
 `params` effect is optional, defaulted or derived already (`invalid-added-param` otherwise), so it keeps the
-action runnable. Its rolls roll with the app's dice function under the default policy. computeSheet lists it with `clock: turn-boundary`.
+action runnable. Content's `action` effects at its tagged `changes` steps must not pause it either:
+they may neither hand off (`as: participant`) nor run an action with a choice, allocate or
+handoff step. The build doesn't check them. Its rolls roll with the app's dice function under the default policy. computeSheet lists it with `clock: turn-boundary`.
 
 Content joins in through the action's tagged `changes` steps, as for any shared action:
 
@@ -727,7 +742,7 @@ participant, in order. With no participants, a change is proposed once without `
 before. The changes name the actor's own fields, as `to: target` changes do.
 
 **Who sent it.** Every `adjust` an action proposes for another character (a role, `target`, a
-link, `to: applied`) carries the actor's `id` as `from`. The receiving character's `on`
+link) carries the actor's `id` as `from`. The receiving character's `on`
 follow-ups read it as `change.from`: wrath when the creature you judged damages you, +4 AC
 against the creature that just hit you, a ward that slows whoever damaged you
 ([rules-and-fields.md](rules-and-fields.md#follow-ups)). Changes `to: self` carry none, nor does
@@ -794,8 +809,8 @@ what keeps the new mark.
 | `allocate` | Spends a budget across fields, or hands out a list of values, one per field ([below](#allocate-steps))                                                                                                            | `steps.<id>.amounts`                                                 |
 | `branch`   | Runs the first case whose `when` is true (else `else`), sets its `flags` and runs its `steps`                                                                                                                     | `flags.<name>`                                                       |
 | `group`    | Runs its `steps` once per pass, again while `repeat.while` holds, up to `repeat.max` passes ([below](#repeating-steps))                                                                                           | `steps.<id>[<n>].<step id>`                                          |
-| `changes`  | Proposes changes for the app to apply, `to: self` (default), `to: target`, `to: <role>` or `to: { link: <slot> }`; `release` proposes held ones; content adds to a tagged one (below)                             | `steps.<id>.added`                                                   |
-| `action`   | Runs another action (`use`, `params`, and `source`, `participants` and `tags` below), e.g. a panic check after a failed save; with `as: participant`, hands it off                                                | `steps.<id>.result`, `.data`                                         |
+| `changes`  | Proposes changes for the app to apply, `to: self` (default), `to: target`, `to: <role>`, `to: { link: <slot> }` or `to: applied`; `release` proposes held ones; content adds to a tagged one (below)              | `steps.<id>.added`                                                   |
+| `action`   | Runs another action (`use`, `params`, and the optional properties below), e.g. a panic check after a failed save; with `as: participant`, hands it off                                                            | `steps.<id>.result`, `.data`                                         |
 | `outcome`  | Ends the action with `result` and `data`                                                                                                                                                                          | —                                                                    |
 
 Every step may have `when`; a step whose `when` is false is skipped. Roll, choice, changes,
@@ -1216,6 +1231,10 @@ A roll **part** is exactly one of:
 
 A `value` that is a single field reference gets that field as its source. Otherwise the default source is the item, or the rules, the action belongs to.
 
+A part may also have an `id` (a `poolDice` modifier names it in `part`), `when` (a part whose
+`when` is false adds nothing), `source` (in place of the default), `tags` (its item's, computed
+entries allowed), `multiplied: false` and `ifEmpty` ([below](#pool-dice)).
+
 ### Repeating steps
 
 A `group` step runs a sequence of steps again and again: one **pass** of its `steps`, then
@@ -1239,6 +1258,7 @@ invoke-and-reroll: after the dice, pay to reroll, see the result, and maybe rero
       parts: [{ dice: 4dF }, { field: params.skill.id }]
 - id: done
   kind: outcome
+  result: "'rolled'"
   data: { total: 'has(steps.again) ? steps.again.total : steps.roll.total' }
 ```
 
@@ -1340,14 +1360,14 @@ default in an early branch:
         value: true
 ```
 
-| Property    | Meaning                                                                                                                                           |
-| ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `tags`      | The step's tags: content adds options to it, and policy rules match it, by tag                                                                    |
-| `recommend` | A formula giving the recommended option ID; it may read `options`, the source's offered IDs, so a roll can pick one                               |
-| `prefer`    | Content, copies or values: a number per candidate; without `recommend`, the highest is recommended; with neither, nothing is (0100)               |
-| `random`    | A condition: while it holds, each pick's recommendation is drawn uniformly with a die as large as the options (0108)                              |
-| `repeat`    | `{ max, min? }`: pick up to `max` times; after `min` picks the reserved `#done` is offered last and ends the step                                 |
-| `changes`   | Proposed after every pick, `to: self`; `picked` is `{ id }` (plus `item`, and `self` for copies; `value` for values); `entry: picked` is the copy |
+| Property    | Meaning                                                                                                                                                                                    |
+| ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `tags`      | The step's tags: content adds options to it, and policy rules match it, by tag                                                                                                             |
+| `recommend` | A formula giving the recommended option ID, or `'#done'` while `#done` is offered (declining is then the default); it may read `options`, the source's offered IDs, so a roll can pick one |
+| `prefer`    | Content, copies or values: a number per candidate; without `recommend`, the highest is recommended; with neither, nothing is                                                               |
+| `random`    | A condition: while it holds, each pick's recommendation is drawn uniformly with a die as large as the options                                                                              |
+| `repeat`    | `{ max, min? }`: pick up to `max` times; after `min` picks the reserved `#done` is offered last and ends the step                                                                          |
+| `changes`   | Proposed after every pick, `to: self`; `picked` is `{ id }` (plus `item`, and `self` for copies; `value` for values); `entry: picked` is the copy                                          |
 
 Over pending choices `recommend` also sees `choice` (`{ path, owner, id }`, the choice asked), and
 without it the choice's own recommendation applies; `picked` is `{ id, path }`, and the result
@@ -1512,6 +1532,9 @@ as `action.item` and `action.self`. It works in one of two ways:
   step proposes one `adjust` per field with a non-zero amount.
 - **Values** (`values`, a list of integer formulas): each value goes to a different field, and
   every value is used exactly once. The step proposes one `set` per field given a value.
+
+An allocate step's `tags` (computed entries allowed) let policy rules match it; the tags an
+`action` step adds don't reach it.
 
 `recommend` maps field IDs to integer formulas, or is one formula evaluated per offered field
 with `field` bound (`{ id, value }`), giving its amount or `null` for none. Entries for fields
@@ -1759,9 +1782,13 @@ policy:
 
 - A paused result (`status: paused`) says what it `needs` (dice with `count`/`sides`; a choice with `options` and `recommended`, `#done` ending a repeated choice; an allocation with its fields, budget or values; or a handoff with `participant` and `run`), at which `step`, and which `action` defines that step, and carries `state`. The state is plain JSON, so the app can continue minutes later, from another request, or on another machine, by passing it to `continueAction`. The shape of `state` is **PROVISIONAL** (engine-defined).
 - Every action keeps a **log** of every die face, choice, allocation and handoff outcome, which step and `action` it belongs to, and who supplied it (`engine` or `app`). Each pick of a repeated choice step is its own entry, numbered by `index`; a handoff's entry names its `participant` and `outcome`. Replaying an action from its inputs and answers MUST give the same result: startAction's `answers` takes the answers, one per pause, as continueAction does.
-- Reactions after a roll (Lucky, Inspiration, pushing a roll) are choice checkpoints.
-- A finished action (`status: finished`) returns its `outcome`, `proposedChanges` (`{ to, character?, step, change }`, fully resolved, with the path of the `changes` step that proposed each, or of the roll step whose effects' `then` did) and `log`. The engine never applies changes itself: the app applies `to: self` changes with `applyChanges`, applies a change for a role or a link to the character named by `character`, and routes a `to: target` change without one to the right character.
+- Improvements after a roll (Lucky, Inspiration, pushing a roll) are choice checkpoints
+  (paying to improve a finished roll, in [Choice steps](#choice-steps)). A reaction to an
+  incoming change (Uncanny Dodge, Shield Block) is a situational choice with `incoming` instead:
+  the receiving player selects it on the change and applyChanges applies it, with its cost once
+  per batch ([rules-and-fields.md](rules-and-fields.md#costs-and-whole-attacks)).
+- A finished action (`status: finished`) returns its `outcome`, `proposedChanges` (`{ to, character?, step, change }`, fully resolved, with the path of the `changes` step that proposed each, of the choice step whose picked option did, or of the roll step whose effects' `then` did) and `log`, where a rolled amount's dice are logged at that path. The engine never applies changes itself: the app applies `to: self` changes with `applyChanges`, applies a change for a role or a link to the character named by `character`, routes a `to: target` change without one to the right character, and applies a `to: applied` change to every character it holds whose `applied` names the actor in `appliedBy` ([Participants](#participants)).
 
 ## Safety limits
 
-Packs are untrusted, so every implementation enforces the [safety limits](../data/safety-limits.json): `maxExplosions`, `maxRerolls`, `maxDicePerItem`, `maxFormulaDepth`, `maxFormulaLength`, `maxChoiceDepth`, `maxActionSteps`, `maxActionDepth`, `maxGroupPasses`, `maxExtendsDepth` and `maxOverflowChain`. Reaching one is the error `safety-limit-exceeded`. The values are **PROVISIONAL**.
+Packs are untrusted, so every implementation enforces the [safety limits](../data/safety-limits.json): `maxExplosions`, `maxRerolls`, `maxDicePerItem`, `maxFormulaDepth`, `maxFormulaLength`, `maxChoiceDepth`, `maxActionSteps`, `maxActionDepth`, `maxGroupPasses`, `maxExtendsDepth`, `maxOverflowChain`, `maxFollowUps`, `maxHomebrewItems` and `maxHomebrewFormulas`. Reaching one is the error `safety-limit-exceeded`. The values are **PROVISIONAL**.

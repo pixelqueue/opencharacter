@@ -1,6 +1,6 @@
 # Open Character Format: specification
 
-**Spec version 0.3.0.** The shapes are in place and were checked against three hand-modeled games. The formula language and engine behavior (the core calls, actions and upgrades) are specified, and the shared test suite covers every call. Parts that are not final are marked **PROVISIONAL** or **PLACEHOLDER**.
+**Spec version 0.3.0.** The shapes are in place and are exercised by the official packs of a dozen games. The formula language and engine behavior (the core calls, actions and upgrades) are specified, and the shared test suite covers every call. Parts that are not final are marked **PROVISIONAL** or **PLACEHOLDER**.
 
 OCF is an open format for tabletop RPG character data. The spec covers three layers:
 
@@ -14,27 +14,27 @@ Core principle: **the engine knows the rules; the app owns the experience.** The
 
 ## Document map
 
-| Document                                   | Covers                                                                                                                        |
-| ------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------- |
-| [packs.md](packs.md)                       | Pack layout, manifest, IDs, dependencies, overrides, licensing metadata                                                       |
-| [rules-and-fields.md](rules-and-fields.md) | Fields, settings (rounding, stacking, competing), constraints, result bands, situational choices, link slots, creation starts |
-| [content.md](content.md)                   | Content types, items, per-copy state, templates, `extends`, queries, grants, prerequisites, choices                           |
-| [effects.md](effects.md)                   | Effect targets, operations and their order, competition, stacking, rounding, loops                                            |
-| [formulas.md](formulas.md)                 | The formula language: grammar, tree, types, functions, dice, errors                                                           |
-| [dice-and-actions.md](dice-and-actions.md) | Dice notation and modifiers, roll items, actions, checkpoints, logs, safety limits                                            |
-| [characters.md](characters.md)             | The character file, a character's own homebrew, creating a character, and exports                                             |
-| [engine-interface.md](engine-interface.md) | The calls, errors, rules issues, strict mode                                                                                  |
-| [engine-core.md](engine-core.md)           | How loadRuleset, computeSheet, listOptions and applyChanges behave: activation, field computation, stacking, issues, routing  |
-| [engine-actions.md](engine-actions.md)     | How startAction and continueAction run actions: building and rolling rolls, checkpoints, the log and replay                   |
-| [display-hints.md](display-hints.md)       | Groups, priorities, formats, `showWhen`                                                                                       |
-| [i18n.md](i18n.md)                         | Translation files and key conventions                                                                                         |
-| [upgrades.md](upgrades.md)                 | Upgrade scripts and spec upgrades                                                                                             |
-| [versioning.md](versioning.md)             | Spec, engine and pack versions                                                                                                |
+| Document                                   | Covers                                                                                                                                                                                  |
+| ------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [packs.md](packs.md)                       | Pack layout, manifest, IDs, dependencies, overrides, licensing metadata                                                                                                                 |
+| [rules-and-fields.md](rules-and-fields.md) | Fields, families, open enums, tags, settings (rounding, stacking, competing), constraints, result bands, situational choices, link slots and shared sheets, follow-ups, creation starts |
+| [content.md](content.md)                   | Content types, items, per-copy state, templates, `extends`, queries, grants, prerequisites, choices, computed values, auras, `effectsWhen`                                              |
+| [effects.md](effects.md)                   | Effect targets, operations and their order, competition, stacking, rounding, loops                                                                                                      |
+| [formulas.md](formulas.md)                 | The formula language: grammar, tree, types, functions, dice, errors                                                                                                                     |
+| [dice-and-actions.md](dice-and-actions.md) | Dice notation and modifiers, roll items, actions, checkpoints, logs, safety limits                                                                                                      |
+| [characters.md](characters.md)             | The character file, a character's own homebrew, creating a character, and exports                                                                                                       |
+| [engine-interface.md](engine-interface.md) | The calls, errors, rules issues, strict mode                                                                                                                                            |
+| [engine-core.md](engine-core.md)           | How loadRuleset, computeSheet, listOptions and applyChanges behave: activation, field computation, stacking, issues, routing                                                            |
+| [engine-actions.md](engine-actions.md)     | How startAction and continueAction run actions: building and rolling rolls, checkpoints, the log and replay                                                                             |
+| [display-hints.md](display-hints.md)       | Groups, priorities, formats, `showWhen`                                                                                                                                                 |
+| [i18n.md](i18n.md)                         | Translation files and key conventions                                                                                                                                                   |
+| [upgrades.md](upgrades.md)                 | Upgrade scripts and spec upgrades                                                                                                                                                       |
+| [versioning.md](versioning.md)             | Spec, engine and pack versions                                                                                                                                                          |
 
 ## Machine-readable parts
 
 - [`../schemas/`](../schemas/): JSON Schema (draft 2020-12) for every file format and every engine input and output. Each schema's `$id` is under `https://opencharacterformat.org/schemas/0.3/`, where the website serves the schemas, so each ID is also the schema's URL. Schema files that disagree with this prose are a spec bug. Until it is fixed, the stricter of the two applies.
-- [`../data/`](../data/): the **fixed sets** as JSON: effect operations, roll modifiers, dice modifiers, die types, change types, stacking policies, error codes, rules-issue codes, upgrade steps, spec upgrades, value types, rounding modes, display formats, safety limits and the provisional formula context. Each schema enum must equal the matching fixed set; the spec package's tests check this.
+- [`../data/`](../data/): the **fixed sets** as JSON: effect operations, roll modifiers, dice modifiers, die types, change types, stacking policies, error codes, rules-issue codes, upgrade steps, spec upgrades, value types, rounding modes, display formats, safety limits and the provisional formula context. Each schema enum must equal the matching fixed set; the spec package's tests check this. Each set's `specVersion` is the spec version that introduced the set; entries added later don't change it.
 - [`../i18n/en.yaml`](../i18n/en.yaml): standard English text for the spec's error and rules-issue codes.
 - [`../src/types.ts`](../src/types.ts): TypeScript types generated from the schemas (`pnpm types`), exported by `@opencharacter/spec`. The schemas are the source; the types are a convenience and are a little looser where a schema adds requirements conditionally.
 - [`../tests/`](../tests/): the shared test suite: plain-data cases for the formula language and every engine call.

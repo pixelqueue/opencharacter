@@ -5,7 +5,7 @@ A **pack** is a versioned bundle of rules and/or content: a game edition, a sour
 ## Layout
 
 In this repository, packs are grouped by game: `packs/<game>/<pack>/`. A game folder holds
-every pack for that game: its editions (`5e/srd-5.1`, later `srd/srd-5.2`) and any content-only
+every pack for that game: its editions (`5e/srd-5.1`, `5e/srd-5.2`) and any content-only
 or homebrew packs. A pack's ID is `<game>-<pack>` (`5e-srd-5.1`, `mothership-1e`,
 `fitd-scoundrel`), and the build rejects an ID that doesn't match its folders. Name pack
 folders after their source (`srd-5.1`, `1e`), not `v1`/`v2`. The edition is part of the ID; the
@@ -21,7 +21,7 @@ packs/<game>/<pack>/
   upgrades/<from>-to-<to>.yaml # upgrade scripts
 ```
 
-- **Rules documents** ([`rules.schema.json`](../schemas/rules.schema.json)) hold fields, link slots, content types, settings, situational choices, result bands, shared actions, always-on effects, character-level choices, constraints and display hints. Every section is optional. A pack may split its rules over any number of files; the build merges them, and an ID defined twice is an error.
+- **Rules documents** ([`rules.schema.json`](../schemas/rules.schema.json)) hold fields, tags, families, view fields, link slots, content types, template fields, settings, situational choices, result bands and tallies, shared actions, follow-ups, creation starts, standard copies, always-on effects and immunities, character-level choices, constraints, extensions and display hints. Every section is optional. A pack may split its rules over any number of files; the build merges them, and an ID defined twice is an error.
 - **Content items** ([`content-item.schema.json`](../schemas/content-item.schema.json)): exactly one item per file. The item's `id` MUST match its path: `content/weapons/longsword.yaml` holds `weapons.longsword`, and `content/magic-items/weapon-plus-one.yaml` holds `magic-items.weapon-plus-one`. Each directory segment becomes one dotted ID segment.
 - **Translations** ([`i18n.schema.json`](../schemas/i18n.schema.json)): see [i18n.md](i18n.md). Mechanics files contain no player-facing text.
 - **Upgrade scripts** ([`upgrade.schema.json`](../schemas/upgrade.schema.json)): see [upgrades.md](upgrades.md).
@@ -32,18 +32,18 @@ The build step turns these files into one **pack release** ([`pack-release.schem
 
 `pack.yaml` ([`pack.schema.json`](../schemas/pack.schema.json)):
 
-| Property          | Required       | Meaning                                                                                                                                                                                                                                           |
-| ----------------- | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `id`              | yes            | Pack ID: lowercase words joined by hyphens, dots allowed between them (`5e-srd-5.1`). Permanent. In this repository, `<game>-<pack folder>`.                                                                                                      |
-| `version`         | yes            | Semver, starting at 0.1.0. Each update gets a unique version; published versions never change.                                                                                                                                                    |
-| `specVersion`     | yes            | The **minimum** spec version the pack needs. `loadRuleset` refuses a pack that needs a newer spec (`spec-version-unsupported`). `pnpm release:check` refuses one lower than the features the pack uses ([versioning](versioning.md#3-each-pack)). |
-| `license`         | yes            | SPDX identifier (`CC-BY-4.0`, `CC0-1.0`), `ORC`, `OGL-1.0a`, or `mechanics-only`.                                                                                                                                                                 |
-| `credit`          | for CC-BY, ORC | The credit line (attribution) the license requires. Apps MUST pass it on to their users.                                                                                                                                                          |
-| `notices`         | for ORC, OGL   | Other notices the license requires, by name (a slug → its text), in order. Apps MUST pass each on after `credit`.                                                                                                                                 |
-| `defaultLanguage` | yes            | BCP 47 tag. The i18n file for it MUST exist.                                                                                                                                                                                                      |
-| `dependencies`    | no             | Pack ID → semver range.                                                                                                                                                                                                                           |
-| `hides`           | no             | Qualified IDs of dependency content to hide from the ruleset.                                                                                                                                                                                     |
-| `homepage`        | no             | URL.                                                                                                                                                                                                                                              |
+| Property          | Required                      | Meaning                                                                                                                                                                                                                                           |
+| ----------------- | ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `id`              | yes                           | Pack ID: lowercase words joined by hyphens, dots allowed between them (`5e-srd-5.1`). Permanent. In this repository, `<game>-<pack folder>`.                                                                                                      |
+| `version`         | yes                           | Semver, starting at 0.1.0. Each update gets a unique version; published versions never change.                                                                                                                                                    |
+| `specVersion`     | yes                           | The **minimum** spec version the pack needs. `loadRuleset` refuses a pack that needs a newer spec (`spec-version-unsupported`). `pnpm release:check` refuses one lower than the features the pack uses ([versioning](versioning.md#3-each-pack)). |
+| `license`         | yes                           | SPDX identifier (`CC-BY-4.0`, `CC0-1.0`), `ORC`, `OGL-1.0a`, `mechanics-only`, or `LicenseRef-<name>` for text used with the rights holder's permission.                                                                                          |
+| `credit`          | for CC-BY, ORC, `LicenseRef-` | The credit line (attribution) the license requires. Apps MUST pass it on to their users.                                                                                                                                                          |
+| `notices`         | for ORC, OGL                  | Other notices the license requires, by name (a slug → its text), in order. Apps MUST pass each on after `credit`.                                                                                                                                 |
+| `defaultLanguage` | yes                           | BCP 47 tag. The i18n file for it MUST exist.                                                                                                                                                                                                      |
+| `dependencies`    | no                            | Pack ID → semver range.                                                                                                                                                                                                                           |
+| `hides`           | no                            | Qualified IDs of dependency content to hide from the ruleset.                                                                                                                                                                                     |
+| `homepage`        | no                            | URL.                                                                                                                                                                                                                                              |
 
 The pack's display name is the translation key `pack.name`.
 
@@ -69,6 +69,11 @@ takes only mechanics and names from its source. Such a pack still carries what i
 it: the `credit` of an open license whose material it uses (a CC-BY SRD's attribution), and the
 `credit` and `notices` a third-party license it is published under requires (a copyright line, a
 not-affiliated statement). Apps pass them on as for any license.
+
+`LicenseRef-<name>` is a license that isn't open: text or mechanics used with the rights
+holder's permission, or under a creator license (`LicenseRef-draw-steel-creator-license`,
+`LicenseRef-sine-nomine-free-edition`). Such a pack MUST have a `credit` and a `permission`
+notice saying what the permission covers; other notices MAY follow.
 
 ## IDs
 
@@ -101,8 +106,8 @@ Bare field names in formulas resolve the same way as local content references: t
 - **Extensions:** a pack adds to its dependencies without overriding them, so add-ons don't
   collide: values to an open enum (`extendEnums`, [rules-and-fields.md](rules-and-fields.md#open-enums)),
   options to a choice (`extendChoices`, [content.md](content.md#adding-options-to-a-dependencys-choices)),
-  and, from its rules' `option`, `changes` and `action` effects, options, changes and action
-  runs to tagged action steps
+  and, from its rules' `option`, `changes`, `action` and `params` effects, options, changes and
+  action runs to tagged action steps and parameters to tagged actions
   ([effects.md](effects.md#targets)). Additions merge in load order and are applied after
   overrides.
 - **Hide:** `hides` in the manifest removes dependency content from the ruleset. Queries no longer match it. A character that owns hidden content gets a rules issue (`content-hidden`), not an error.
@@ -154,3 +159,6 @@ Besides schema validation, a conforming pack:
 - has a `credit` line and the notices `orc`, `reserved-material` and `expressly-designated` when the
   license is `ORC`.
 - has the notices `ogl-license` and `section-15` when the license is `OGL-1.0a`.
+
+The build doesn't check a `LicenseRef-` pack's `credit` and `permission` notice: the pack's
+author must.

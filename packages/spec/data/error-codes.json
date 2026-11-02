@@ -46,7 +46,7 @@
     {
       "id": "duplicate-id",
       "kind": "runtime",
-      "description": "An instance ID is already used in this character; or, in startAction, two participants share a view `id`; or an entry has a standard copy's ID but another item, and is skipped. loadRuleset reports it too when two standard items derive the same instance ID. Data: `id`."
+      "description": "An instance ID is already used in this character; or, in startAction, two participants share a view `id`; or an entry has a standard copy's ID but another item, and is skipped. In computeSheet and the calls that take `appliers`, two applier views share an `id` (the first is read). loadRuleset reports it too when two standard items derive the same instance ID, when one choice list repeats a choice key (a slot's `<id>-<slot>` included), and when a pack adds an inline option whose ID the choice has (data `owner` and `pack` too). Data: `id`."
     },
     {
       "id": "standard-copy",
@@ -171,12 +171,12 @@
     {
       "id": "duplicate-content-id",
       "kind": "load",
-      "description": "Two items in one pack share an ID."
+      "description": "Two content items in one pack share an ID: loadRuleset keeps the first. Data: `id` (the qualified ID), `pack`."
     },
     {
       "id": "unknown-reference",
       "kind": "load",
-      "description": "Content refers to an ID that does not exist. Also raised when an action runs, for an addItem's item or an applyEffect's source that names no content or a template. A kept template (`keepsTemplates`) that names content other than a template is `unknown-reference` too, with kind `template`. A grant's preset `choices` naming a choice the granted content doesn't declare (or on a `scope: applied` grant) is kind `choice`; a literal preset option it doesn't offer, kind `option` or `content`. A situational choice's `offerFollowUp` naming no rules follow-up, or a derived (`while`) one, is kind `follow-up`."
+      "description": "Content refers to an ID that does not exist. Also raised when an action runs, for an addItem's item or an applyEffect's source that names no content or a template. A kept template (`keepsTemplates`) that names content other than a template is `unknown-reference` too, with kind `template`. A grant's preset `choices` naming a choice the granted content doesn't declare (or on a `scope: applied` grant) is kind `choice`; a literal preset option it doesn't offer, kind `option` or `content`. A situational choice's `offerFollowUp` naming no rules follow-up, or a derived (`while`) one, is kind `follow-up`. An action's `unchoose` by owner (`choice: { owner, id }`) is kind `choice` when it runs: `owner: self` with no content (a rules action), an owner that names nothing, or a route other than the actor's own."
     },
     {
       "id": "circular-formula",

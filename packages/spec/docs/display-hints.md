@@ -69,7 +69,10 @@ display:
   **Templates show with their copy**: a template on a copy, saved or kept (an activation with
   `via: template`), is part of that copy's member, as its `item` already is, and the copy's name
   names it (`{base} +1`). It is never a member of its own, and never in "Other"; its actions and
-  choices are listed like any other. Applied entries (`applied`) aren't members unless the query says `from: applied` (below). As in a change aimed at
+  choices are listed like any other. An activation marked `unavailable` (its grant's `available`
+  fails) is still a member, which an app may show as had but unusable; its actions aren't listed,
+  so no actions group holds them ([content.md](content.md#conditions-on-computed-values)).
+  Applied entries (`applied`) aren't members unless the query says `from: applied` (below). As in a change aimed at
   copies, the character's fields are visible too. Only the character's own content is listed:
   content the character doesn't have (a shop, a class's spell list) is the app's catalog.
 - **Applied entries**: a content group's `members` may say `from: applied`

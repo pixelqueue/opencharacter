@@ -59,7 +59,8 @@ Input: pack releases in load order (later packs win). Output: a ruleset, or erro
    type name, field ID and action ID in the ruleset is qualified. This includes the values of
    `id`, `set` and `list` item fields of a content type or of `field`, and their declared defaults
    (resolved in the content type's pack). A template's values for its base type's fields and
-   for template fields resolve in the template's pack.
+   for template fields resolve in the template's pack. Two items of one pack with the same ID
+   are `duplicate-content-id` (data: `id`, the qualified ID, and `pack`).
    - **`extends`:** start from the parent item (itself resolved first; `circular-extends` on a
      loop, `maxExtendsDepth` at most). Then apply the item's own properties: scalars and objects
      key by key, arrays (`tags`, `effects`, `choices`, …) replaced whole.
@@ -311,7 +312,7 @@ and its scope (`holder` or `applied`):
 | A grant of active content, whose `when` holds       | the granting activation's owner                      | holder  |
 | A picked content option of an applicable choice¹    | the owner of the choice                              | holder  |
 | A picked inline option of an applicable choice¹     | the owner of the choice                              | holder  |
-| An `applied` entry with `active` not `false`        | none (`self` is the applied entry: `id` and `state`) | applied |
+| An `applied` entry with `active` not `false`³       | none (`self` is the applied entry: `id` and `state`) | applied |
 | A `scope: applied` grant of applied content²        | none (`self` is the granting entry)                  | applied |
 | The rules (always-on effects, rules-level choices)  | none                                                 | holder  |
 
@@ -324,6 +325,9 @@ inactive in turn, but none of their picks is active either).
 ² While its content is active as applied content, unless an immunity blocks it
 (below). A grant without `scope` (or `scope: holder`) of applied content isn't followed, and a
 `scope: applied` grant of held content isn't either.
+
+³ An entry with `aura` activates only that aura's `effects` and `immuneTo`, none of its source's
+effects, grants, actions or immunities ([content.md](content.md#auras)).
 
 An applied entry's `self` is `id` plus its state keys, read as in `character.applied`: declared
 keys by their type, with their `default` when unsaved.
@@ -420,7 +424,8 @@ blocked entry is reported as `immune`, once per matching immunity
 
 **Effects on a set of fields** ([effects.md](effects.md#targets)). An effect
 whose target is `{ fields: { where } }` is one instance per field its query matches, in ruleset
-field order, each with that field as its target. Everything on this page that says "an effect
+field order, among the fields of packs whose scopes share a pack with the effect's
+([effects.md](effects.md#which-packs-a-tag-target-reaches)), each with that field as its target. Everything on this page that says "an effect
 on a field" applies to each instance: stacking, competing (option ID `<…>@<field>`),
 breakdowns, `effects` and dependencies. A field whose tags are computed is
 matched when it is computed: its tags are evaluated first (a failure, an undeclared tag or a
@@ -640,14 +645,13 @@ For each activation's choices, and the rules-level choices:
 - `option-not-eligible`, for a picked option that no longer matches its choice's query, and
   for a picked value that fails its choice's `where` or that its formula no longer lists,
   and for a pick that fails its choice's `eligible`.
-- `content-hidden` covers hidden content picked in a choice with `activate: false` too; it
-  belongs to the choice's owner.
-- `content-hidden`, for owned or picked hidden content.
+- `content-hidden`, for owned or picked hidden content, a pick of a choice with
+  `activate: false` included (it belongs to the choice's owner).
 - `immune`, for each blocked `applied` entry and each active immunity its source matches: the
   holder's, then the active candidates' in `applied` order ([Activation](#activation)).
   - `id` is the immunity's qualified owner plus its ID
     (`5e-srd-5.1:features.monk.purity-of-body/poisoned`); for the rules', its pack plus its ID
-    (`5e-srd-5.1:listed`).
+    (`5e-srd-5.1:listed`); for an aura's, `<item>#<aura>/<id>`.
   - `source` is the immunity's activation (for the rules', `{ type: rules, id }` with the same
     `id`).
   - `data` is `{ entry, item }`: the applied entry's ID and its source.
@@ -724,9 +728,11 @@ one, its fixed `params` included. An available action with
 An item action written as `use` is listed under the used action's qualified ID. An action
 defined inline on an item is listed as `<item id>#<action id>`.
 
-**Tags:** each listing carries the action's tags, its `{ formula }` entries evaluated with the
+**Tags:** each listing has the action's tags, its `{ formula }` entries evaluated with the
 listing's `item` and `self` and the character's fields (only the written tags when one fails), so
 one shared action is tagged per item: display groups and `params` effects match these.
+computeSheet's `actions` doesn't output them; describeAction does
+([engine-interface.md](engine-interface.md#describeaction)).
 
 **Order:** content actions come first, in activation order, each activation's actions in the
 order above. Rules actions follow, in definition order: packs in load order, then each pack's rules
@@ -763,8 +769,11 @@ index in `activations`, in place of `entry`.
 `copies` maps each copy that has any computed values to `{ <name>: value }`, and
 `activationValues` lists each such activation that has any as `{ activation, values }`, in
 activation order. The same values are `self.<name>` in the copy's (or the content's) actions and
-follow-ups ([Copies and `self`](#copies-and-self)); picked or granted content's actions see its
-owning copy's values with its own over them by name. An engine may compute them on demand, with
+follow-ups ([Copies and `self`](#copies-and-self)), and in its effects that act as an action
+runs (on rolls, choice and changes steps, listed actions and incoming changes;
+[content.md](content.md#computed-values)); picked or granted content's see its owning copy's
+values with its own over them by name. Field effects, applied and aura effects, and every
+formula that feeds a field never read them. An engine may compute them on demand, with
 the same result.
 
 `copyNames` maps each copy whose item or content type has `nameFrom`
@@ -880,7 +889,7 @@ ruleset order (packs in load order, then declaration order), after activation:
   item is unknown counts for no type.
 - **`copyLimits`** has one entry per type: `{ type, max, perItem, count, entries }`, with `type`
   qualified, `max` and `perItem` as declared or, for a formula, its value on the
-  computed sheet (absent when not declared, or when the formula fails: a `formula-error` with
+  computed sheet (absent when not declared, or when the formula fails: the formula's error, with
   `where: '<type> copies <key>'`), `count` the number of copies
   and `entries` each copy as `{ entry, item }`.
 - **`too-many-copies`** when `count` exceeds `max`: `id` the qualified type, `source`
@@ -940,18 +949,38 @@ rules files in path order). A condition that fails to evaluate counts as false. 
 choices for rolls and for incoming changes alike; an app offers a choice for a
 change when its `incoming` matches the change.
 
+### Auras
+
+`auras` lists the auras the character projects now ([content.md](content.md#auras)), in
+activation order, each `{ source, aura, entry?, size?, affects }`: each holder aura of a holder
+activation whose item's `effectsWhen` and the aura's `when` hold, and each `scope: applied` aura
+of an active applied entry the character applied itself (no `appliedBy`, or its own `id`), once
+per entry. Content a grant's `available` holds back projects none. `size` is evaluated with the
+activation's `item` and `self`; a value that isn't a number leaves it out. A `when` or `size`
+that fails leaves the aura out, with the formula's error (`where: '<item>#<aura> when'` or
+`size`).
+
 ### Errors
 
 `computeSheet` never fails. Problems with the character file are listed in an `errors` array
-(the codes are runtime error codes), and the sheet is computed without the offending part:
+(runtime error codes, and `formula-error` for a formula that fails on this sheet), and the sheet
+is computed without the offending part:
 
-- An entry whose item is unknown (`unknown-id`) is skipped.
+- An entry whose item is unknown, or an applied entry whose `aura` its source doesn't declare
+  (`unknown-id`), is skipped.
 - A saved value for an unknown or derived field is ignored (`unknown-field`, `not-input-field`).
 - A wrong-typed input value is ignored, using the default (`wrong-type`).
 - Pinned versions that differ from the ruleset's are reported (`pack-version-mismatch`).
 - A link to an undeclared slot is ignored (`unknown-link`); a linked value of the wrong type
   reads the field's default (`invalid-link-value`).
-- A computed value whose formula fails is left out (`formula-error`).
+- A computed value whose formula fails is left out (`formula-error`, with `entry` for a copy's
+  value or `activation` for picked or granted content's).
+- An aura whose `when` or `size` fails is left out of `auras`, with the formula's error
+  (`where: '<item>#<aura> when'` or `size`; [Auras](#auras)).
+- A `max` or `perItem` formula of a content type that fails leaves the bound out of
+  `copyLimits`, with the formula's error (`where: '<type> copies <key>'`).
+- An applier view's field of the wrong type reads the declared default (`invalid-link-value`,
+  data `applier`); of two views with one `id`, the first is read (`duplicate-id`).
 - An entry with a standard copy's ID and another item is skipped (`duplicate-id`); the standard copy is unsaved.
 
 ## listOptions
@@ -1035,7 +1064,7 @@ successful result returns `changes`: the batch as applied, with the faces it rol
 | `setQuantity`, `adjustQuantity` | entry exists (`not-owned`); an integer (`wrong-type`); the new quantity not below 0 (`out-of-range`)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               | Sets `quantity`, or adds `by` to it (default 1). A copy at 0 stays                                                                                                                                   |
 | `applyTemplate`                 | entry exists; template is a template (`unknown-id`) whose `appliesTo` matches the item (`template-not-applicable`); not already applied (`duplicate-id`)                                                                                                                                                                                                                                                                                                                                                                                                                                           | Appends it                                                                                                                                                                                           |
 | `removeTemplate`                | applied (`not-picked`)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             | Removes it and its state values                                                                                                                                                                      |
-| `applyEffect`                   | ID unused when an entry is added (`duplicate-id`; without one, generated: below), source is content and not a template (`unknown-id`), state keys declared (`unknown-state-key`), typed (`wrong-type`) and within their `min`/`max` (`out-of-range`)                                                                                                                                                                                                                                                                                                                                               | Adds an `applied` entry, or merges into one (`reapply`, below)                                                                                                                                       |
+| `applyEffect`                   | ID unused when an entry is added (`duplicate-id`; without one, generated: below), source is content and not a template (`unknown-id`), `aura`, when given, an aura the source declares (`unknown-id`, data `id` `<source>#<aura>`), state keys declared (`unknown-state-key`), typed (`wrong-type`) and within their `min`/`max` (`out-of-range`)                                                                                                                                                                                                                                                  | Adds an `applied` entry, or merges into one (`reapply`, below)                                                                                                                                       |
 | `removeEffect`, `toggleEffect`  | entry exists (`not-owned`), or by query (below)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | Removes it, or sets `active`                                                                                                                                                                         |
 | `choose`                        | the path leads to a choice (`unknown-choice`) no grant presets (`preset-choice`); the option is one of its options (`invalid-option`; a `values` formula is evaluated on the sheet before the change) and not already picked (`duplicate-id`)                                                                                                                                                                                                                                                                                                                                                      | Appends the pick; for an `addAs: copy` choice, first adds its copy as `addItem` would, under the option's derived ID plus `_pick` (`_pick-2`, … when taken), and saves that ID as the pick's `entry` |
 | `unchoose`                      | the path leads to a choice (`unknown-choice`) no grant presets (`preset-choice`); the option is picked (`not-picked`). Without `option`: nothing                                                                                                                                                                                                                                                                                                                                                                                                                                                   | Removes the pick and its nested picks; without `option`, every pick and their nested picks (none to remove is no change). The choice keeps an empty list. Copies the removed picks held go too       |
@@ -1087,7 +1116,8 @@ match, the entry is added as usual. Replaying the batch gives the same result, s
 depends only on the character and the change. A merged entry takes the change's `appliedBy`, when
 it gives one, so the latest applier owns it; `match: [appliedBy]` compares the entries' appliers
 instead of a state key, so each applier keeps an entry of its own. An added entry saves the
-change's `appliedBy`.
+change's `appliedBy`. An entry with `aura` merges only into an entry of the same aura and the
+same `appliedBy`, so each applier's aura is an entry of its own.
 
 **Changes aimed at copies**. `setState`, `adjustState`, `setField`,
 `setQuantity`, `adjustQuantity`, `equip` and `removeItem` may give `copies: { type, where }`
@@ -1273,7 +1303,8 @@ An `adjust` may carry `situational`: the receiving player's
 [situational choices](rules-and-fields.md#choices-on-incoming-changes) for it, a map of
 qualified IDs to values, such as 5E's Uncanny Dodge on one attack.
 
-- An unknown ID is `unknown-id`; a value of the wrong type for the choice is `wrong-type`.
+- An ID the ruleset doesn't declare is `unknown-situational` (data: `situational`, the ID as
+  given); a value of the wrong type for the choice is `wrong-type`.
 - A choice is **selected** when it is a boolean that's true, or another type with a value other
   than its default. A selected choice must be offered on the character before the change
   (`available`, as computeSheet lists it) and have an `incoming` that matches the change (its

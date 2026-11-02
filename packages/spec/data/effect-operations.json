@@ -1,7 +1,7 @@
 {
   "set": "effect-operations",
   "specVersion": "0.1.0",
-  "description": "The fixed set of effect operations. Per field, effects apply in `order` (lower first); atLeast and atMost share the last stage.",
+  "description": "The fixed set of effect operations. Per field, effects apply in `order` (lower first; atLeast and atMost share a stage). `order` 0 is no field stage: grant comes with the field's own value, and the tag, choice, step and action ops have their own timing (effects.md).",
   "items": [
     {
       "id": "set",
@@ -55,7 +55,7 @@
       "id": "option",
       "order": 0,
       "targets": ["choice"],
-      "description": "Add an option to an action's choice steps with a matching tag: `{ id, changes, to? }`, offered after the step's own options while the effect's `when` holds, with ID `<content id>#<id>` (`<pack>:rules#<id>` for the rules' effects)."
+      "description": "Add an option to an action's choice steps with a matching tag: `{ id, changes?, to?, flags? }`, offered after the step's own options while the effect's `when` holds, with ID `<content id>#<id>` (`<pack>:rules#<id>` for the rules' effects)."
     },
     {
       "id": "changes",
@@ -73,7 +73,7 @@
       "id": "params",
       "order": 0,
       "targets": ["action"],
-      "description": "Add parameters to listed actions with a matching tag: `{ <name>: <declaration> }`, each optional or defaulted, after the action's own on the run the app starts while the effect's `when` holds. A name an action the literal tags reach declares, or another effect's other declaration of it, is a load error; through computed tags, the action's own and then the first effect's win."
+      "description": "Add parameters to listed actions with a matching tag: `{ <name>: <declaration> }`, each optional, defaulted or derived (`formula`), after the action's own on the run the app starts while the effect's `when` holds. Their `min` and `max` may read the action's `params`. An entry with only `min` and/or `max`, naming a parameter the run already has, adds bounds to it instead. A name an action the literal tags reach declares, or another effect's other declaration of it (not between `from: self` effects of different content items that no item holding both has an action both reach), is a load error; through computed tags, the action's own and then the first effect's win."
     }
   ]
 }

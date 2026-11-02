@@ -10,18 +10,21 @@ item values just recalculate. A version that changes the **shape** of saved stat
 Between two releases of a pack, these differences are **shape changes**, because a saved
 character could refer to something that no longer means the same:
 
-| Change                                                                           | `kind`                 | Covered by                                                  |
-| -------------------------------------------------------------------------------- | ---------------------- | ----------------------------------------------------------- |
-| A content item is removed                                                        | `content-removed`      | `renameContent` or `removeContent`                          |
-| An item's content type changes                                                   | `content-type-changed` | `changeContentType` or `removeContent`                      |
-| An input field is removed, or stops being an input                               | `field-removed`        | `renameField` or `removeField`                              |
-| An input field's type changes, or an enum loses values                           | `field-type-changed`   | `mapValues` or `removeField`                                |
-| A state key is removed or its type changes (on a content type, item or template) | `state-removed`        | `renameState`, `removeState`, `moveState` or `stateToField` |
-| A choice is removed                                                              | `choice-removed`       | `renameChoice` or `removeChoice`                            |
-| An option is removed from a `values` or inline-options choice                    | `option-removed`       | `renameOption`                                              |
-| A new required choice appears on existing content or in the rules                | `choice-added`         | `requireChoice`                                             |
-| An existing item becomes standard (a standard copies query now matches it)       | `standard-copy-added`  | `adoptStandard`                                             |
-| A remaining item stops granting content it granted                               | `grant-removed`        | `grantsToCopies` or `removeContent`                         |
+| Change                                                                           | `kind`                 | Covered by                                                   |
+| -------------------------------------------------------------------------------- | ---------------------- | ------------------------------------------------------------ |
+| A content item is removed                                                        | `content-removed`      | `renameContent` or `removeContent`                           |
+| An item's content type changes                                                   | `content-type-changed` | `changeContentType` or `removeContent`                       |
+| An input field is removed, or stops being an input                               | `field-removed`        | `renameField` or `removeField`                               |
+| An input field's type changes, or an enum loses values                           | `field-type-changed`   | `mapValues` or `removeField`                                 |
+| A state key is removed or its type changes (on a content type, item or template) | `state-removed`        | `renameState`, `removeState`, `moveState` or `stateToField`¹ |
+| A choice is removed                                                              | `choice-removed`       | `renameChoice` or `removeChoice`                             |
+| An option is removed from a `values` or inline-options choice                    | `option-removed`       | `renameOption`                                               |
+| A new required choice appears on existing content or in the rules                | `choice-added`         | `requireChoice`                                              |
+| An existing item becomes standard (a standard copies query now matches it)       | `standard-copy-added`  | `adoptStandard`                                              |
+| A remaining item stops granting content it granted                               | `grant-removed`        | `grantsToCopies` or `removeContent`                          |
+
+¹ A state step's `type` may be the content type's new name when the script renames it
+(`renameContentType`).
 
 `standard-copy-added` is for an item of the pack, in both releases with the same
 type, that the standard copies queries ([content.md](content.md#standard-copies)) match in the
@@ -62,6 +65,9 @@ Deprecating an item (it stays, marked `deprecated`) is not a shape change.
   (`<pack>:classes.operative/specialization/ghost/skill-feat`);
 - removed options: `<choice id>/<option>`.
 
+Unlike rules issue IDs (`<pack>:rules/<choice>`), change IDs name a rules-level choice without
+`rules/`.
+
 `changes` are listed in the table's order, then by ID. A field that stays but stops being an
 input counts as `field-removed`. A new required choice that an existing choice was renamed to is
 covered by that `renameChoice`.
@@ -99,24 +105,25 @@ so they are part of its public interface, like an API. There is no
 `public` flag: every definition counts. Between two releases, these differences are **interface
 changes**:
 
-| Change                                                                                               | `kind`                      | ID                        |
-| ---------------------------------------------------------------------------------------------------- | --------------------------- | ------------------------- |
-| A derived field is removed (homebrew formulas read derived fields)                                   | `field-removed`             | `<pack>:<field>`          |
-| A content type is removed                                                                            | `content-type-removed`      | `<pack>:<type>`           |
-| An item field is removed from a remaining type, or its `type` or `of` changes                        | `item-field-removed`        | `<pack>:<type>/<field>`   |
-| An enum item field loses values                                                                      | `item-field-values-removed` | `<pack>:<type>/<field>`   |
-| A tag the pack's rules declare is no longer declared                                                 | `tag-removed`               | `<pack>:<tag>`            |
-| A rules action is removed, or an inline action or `use` from a remaining item or content type        | `action-removed`            | `<pack>:<action>`         |
-| An action parameter is removed                                                                       | `param-removed`             | `<pack>:<param address>`  |
-| An action parameter's `type` or `of` changes, an enum one loses values, or it becomes required       | `param-type-changed`        | `<pack>:<param address>`  |
-| A situational choice is removed (`unknown-name` in formulas, `unknown-situational` from startAction) | `situational-removed`       | `<pack>:<situational>`    |
-| A situational choice's `type` changes, or an enum one loses values                                   | `situational-type-changed`  | `<pack>:<situational>`    |
-| An open enum stops being open (packs that add to it no longer load)                                  | `enum-closed`               | `<pack>:<enum address>`   |
-| A value or option the pack adds to a dependency's enum or choice is gone                             | `extension-removed`         | `<target>/<value>`        |
-| An existing choice gains or loses `addAs` (its saved picks' copy links no longer fit)                | `choice-copies-changed`     | `<pack>:<owner>/<choice>` |
+| Change                                                                                                    | `kind`                      | ID                        |
+| --------------------------------------------------------------------------------------------------------- | --------------------------- | ------------------------- |
+| A derived field is removed (homebrew formulas read derived fields)                                        | `field-removed`             | `<pack>:<field>`          |
+| A content type is removed                                                                                 | `content-type-removed`      | `<pack>:<type>`           |
+| An item field is removed from a remaining type, or its `type` or `of` changes                             | `item-field-removed`        | `<pack>:<type>/<field>`   |
+| An enum item field loses values                                                                           | `item-field-values-removed` | `<pack>:<type>/<field>`   |
+| A tag the pack's rules declare is no longer declared                                                      | `tag-removed`               | `<pack>:<tag>`            |
+| A rules action is removed, or an inline action or `use` from a remaining item or content type             | `action-removed`            | `<pack>:<action>`         |
+| An action parameter is removed                                                                            | `param-removed`             | `<pack>:<param address>`  |
+| An action parameter's `type` or `of` changes, an enum one loses values, or it becomes required or derived | `param-type-changed`        | `<pack>:<param address>`  |
+| A situational choice is removed (`unknown-name` in formulas, `unknown-situational` from startAction)      | `situational-removed`       | `<pack>:<situational>`    |
+| A situational choice's `type` changes, or an enum one loses values                                        | `situational-type-changed`  | `<pack>:<situational>`    |
+| An open enum stops being open (packs that add to it no longer load)                                       | `enum-closed`               | `<pack>:<enum address>`   |
+| A value or option the pack adds to a dependency's enum or choice is gone                                  | `extension-removed`         | `<target>/<value>`        |
+| An existing choice gains or loses `addAs` (its saved picks' copy links no longer fit)                     | `choice-copies-changed`     | `<pack>:<owner>/<choice>` |
 
 `checkRelease` lists them in `changes` after the shape changes, in this table's order, then by
-ID. An inline action's ID is its text key root: `<item>.actions.<action>`, or
+ID; a removed derived field is listed with the shape changes' `field-removed`, and needs no
+upgrade step. An inline action's ID is its text key root: `<item>.actions.<action>`, or
 `types.<type>.<action>` for a content type's; a `use` entry is named by the used action's ID in
 its place (local when it is the pack's own).
 
@@ -130,21 +137,29 @@ earlier declaration needs a later one that takes what it took. A parameter is co
 while its action, or its declarer, remains (a removed action is `action-removed`). Any change of
 `type` counts, widening `integer` to `decimal` included: a formula that reads it (a dependent
 pack's or homebrew's) may need an integer, such as a dice count. A parameter new on a remaining action that is required (neither
-`optional` nor defaulted) counts as `param-type-changed`, since apps that started the action
-before now fail with `missing-param`. A parameter moved between an action and a `params` effect
+`optional`, defaulted nor derived) counts as `param-type-changed`, since apps that started the action
+before now fail with `missing-param`. So does a given parameter that becomes derived
+([dice-and-actions.md](dice-and-actions.md#actions)): apps that give it now fail with
+`invalid-param`. A `params` entry that only adds bounds to a parameter the run has isn't a
+parameter of its declarer: adding or removing one is a narrowing (below). A parameter moved between an action and a `params` effect
 counts as removed, even when an unconditional effect adds it back to that same action.
 
 An `extension-removed` ID names the dependency's enum or choice as the extension's key does
 (`orc-2e:types.weapon.fields.damageType/sonic`), not the pack itself. A `choice-copies-changed` leaves saved picks of the choice without the copy links the
 new release expects (or with links it no longer holds): computing the upgraded character
-reports each as `picked-copy-invalid`, for the player to pick again. Each needs a breaking bump, but no upgrade script: no step can migrate a removed tag, and a
-character's homebrew that uses one is reported by `upgrade`. A step that renames the thing
+reports each as `picked-copy-invalid`, for the player to pick again.
+
+Each interface change needs a breaking bump, but no upgrade script: saved state doesn't refer to
+it. A character's homebrew that still uses one is reported by `upgrade` (`homebrew-error`). A
+step that renames the thing
 (`renameField`, `renameContentType`, `renameItemField`, `mapItemValues`, `renameTag`,
 `renameAction`) migrates homebrew that uses it.
 
 Narrowing a condition or a bound can't be compared statically: a situational choice's
-`available`, `rolls` or `incoming`; an action's or a `use`'s `available`; a `params` effect's
-`when` or `target`; a parameter's `min`, `max` or `where`, or a tag parameter's `members`. Each
+`available`, `rolls` or `incoming`; an action's or a `use`'s `available`; a grant's `available`
+(the granted content's actions are no longer listed); a `params` effect's `when` or `target`; a
+parameter's `min`, `max` or `where`, a bound a `params` effect adds to one, or a tag parameter's
+`members`. Each
 makes calls that worked fail (`situational-unavailable`, `unknown-action`, `out-of-range`,
 `invalid-option`) or drops a parameter from actions that had it, so it is an interface change
 too: the author gives it a breaking bump, which `checkRelease` doesn't check.
@@ -193,7 +208,10 @@ state can refer to what it names:
 | `renameOption`      | `owner?`, `choice`, `from`, `to?`                                             | Replaces a picked option of the choice (`from`) with `to`; without `to`, removes the pick and its nested picks                                                                                                                                                                                                                                   |
 | `requireChoice`     | `owner?`, `choice`                                                            | Records that a new required choice exists; the upgraded character reports it as pending. Listed in the report when the character holds `owner` (a copy or a pick of it, with picks of its own saved or not), always for a rules-level choice                                                                                                     |
 | `renameTag`         | `from`, `to`                                                                  | Replaces the tag in saved `set` values of `of: tag` input fields (and in the homebrew, below)                                                                                                                                                                                                                                                    |
-| `adoptStandard`     | `item`                                                                        | Renames the first entry holding the item (features, then inventory, in file order) to the item's standard copy ID, keeping its state, picks and templates; nothing when an entry has that ID                                                                                                                                                     |
+| `adoptStandard`     | `item`                                                                        | Renames the first entry holding the item (features, then inventory, in file order; not one a pick holds as its copy) to the item's standard copy ID, keeping its state, picks and templates; nothing when an entry has that ID                                                                                                                   |
+
+A step that removes a pick (`removeContent`, `removeChoice`, `renameOption` without `to`) also
+removes the copy the pick held (`addAs: copy`), as `unchoose` does.
 
 **Owners.** A choice step's `owner` is content (local or qualified), or the rules when absent.
 A choice nested in an inline option is named by a path, as its change ID writes it: the owner,

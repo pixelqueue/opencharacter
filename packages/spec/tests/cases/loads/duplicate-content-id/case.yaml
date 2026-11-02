@@ -1,0 +1,17 @@
+description: 'Two content items in one pack share an ID: `duplicate-content-id`'
+specVersion: 0.3.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.3.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        contentTypes:
+          gear: {}
+      content:
+        - { id: gear.rope, type: gear }
+        - { id: gear.rope, type: gear }

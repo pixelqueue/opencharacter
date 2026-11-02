@@ -45,7 +45,8 @@ Each engine library (the TypeScript reference engine and community ports) has it
    and links (schemas, docs, apps and tests), and the docs' statements of the current version
    (prose and the README badge). The `specVersion` of the example characters and of the docs'
    samples (Markdown) moves too, since they are samples of the current spec; other minimums and
-   records stay (a test case's, a character file's). A pack's `specVersion` moves only where its
+   records stay (a test case's, a character file's, a fixed set's in `data/`, the version that
+   introduced the set). A pack's `specVersion` moves only where its
    release isn't valid under the old spec (it uses the new spec's keys or functions, see above);
    that needs the spec release tags. Code samples can
    import `SPEC_VERSION` instead of a literal. The engine's `IMPLEMENTS_SPEC` follows
