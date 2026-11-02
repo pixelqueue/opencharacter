@@ -85,34 +85,39 @@ function actionName(qid: string) {
 
 The key conventions ([Translation](../../../packages/spec/docs/i18n.md#key-conventions)):
 
-| What                        | The engine gives you                                      | Key, in the ID's pack                                                |
-| --------------------------- | --------------------------------------------------------- | -------------------------------------------------------------------- |
-| The pack                    | `pack.id`                                                 | `pack.name`                                                          |
-| A content item              | `5e-srd-5.1:armor.shield`                                 | `armor.shield.name`, `armor.shield.description`                      |
-| A field                     | `5e-srd-5.1:combat.ac`                                    | `fields.combat.ac.name`, `fields.combat.ac.short`                    |
-| A content type              | `5e-srd-5.1:weapon`                                       | `types.weapon.name`                                                  |
-| A display group             | group `combat` (with its `pack`)                          | `groups.combat.label`                                                |
-| A rules action              | `5e-srd-5.1:weapon-attack`                                | `actions.weapon-attack.name`                                         |
-| An action on an item        | `5e-srd-5.1:features.fighter.second-wind#second-wind`     | `features.fighter.second-wind.actions.second-wind.name`              |
-| An action on a content type | `fate-core:stunts.psychologist#use`                       | `stunts.psychologist.actions.use.name`, else `types.stunt.use.name`  |
-| An action's choice option   | option `hit` of `weapon-attack`                           | `actions.weapon-attack.options.hit.name`                             |
-| An action's choice question | `needs` `{ action, step: 'hit/confirm' }`                 | `actions.weapon-attack.steps.confirm.prompt`                         |
-| An action's roll (optional) | `needs` or log `{ action, step: 'damage' }`               | `actions.weapon-attack.steps.damage.name`                            |
-| An action's parameter       | parameter `targetAc` of `weapon-attack`                   | `actions.weapon-attack.params.targetAc.name`                         |
-| An action's result          | `outcome.result: hit` of `weapon-attack`                  | `actions.weapon-attack.results.hit.name`                             |
-| Longer text (optional)      | an action, a field                                        | `actions.weapon-attack.description`, `fields.hp.current.description` |
-| A situational choice        | `5e-srd-5.1:advantage`                                    | `situational.advantage.name`                                         |
-| A result band               | log `band: success`, `bandSet: …:action`                  | `bands.action.success.name`                                          |
-| A named text (optional)     | a spell's type declares `texts: [material, trigger]`      | `spells.shield.texts.trigger`                                        |
-| A copy's value (optional)   | a cohort's computed `quality`, its state `harm`           | `types.cohort.computed.quality.name`, `types.cohort.state.harm.name` |
-| A tag (optional)            | tag `finesse` on a weapon                                 | `tags.finesse.name`, `tags.finesse.description`                      |
-| A card header (optional)    | a spell, `5e-srd-5.1:spells.fire-bolt`                    | `spells.fire-bolt.block`, else `types.spell.block`                   |
-| An enum value (optional)    | a spell's `school: evocation`                             | `types.spell.fields.school.values.evocation.name`                    |
-| The headline (optional)     | the character, "Level 3 Hill dwarf Wizard"                | `headline`; a member's piece `types.class.headline`                  |
-| A choice on content         | path `{ entry, choice: ['fighting-style'] }` on a fighter | `classes.fighter.choices.fighting-style.prompt`                      |
-| A rules-level choice        | path `{ choice: ['playbook'] }`                           | `rules.choices.playbook.prompt`                                      |
-| A prerequisite (issue `id`) | `5e-srd-5.1:classes.fighter/multiclass`                   | `classes.fighter.prerequisites.multiclass`                           |
-| A constraint (issue `id`)   | `5e-srd-5.1:attunement-limit`                             | `constraints.attunement-limit`                                       |
+| What                                | The engine gives you                                      | Key, in the ID's pack                                                                                       |
+| ----------------------------------- | --------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| The pack                            | `pack.id`                                                 | `pack.name`                                                                                                 |
+| A content item                      | `5e-srd-5.1:armor.shield`                                 | `armor.shield.name`, `armor.shield.description`                                                             |
+| A field                             | `5e-srd-5.1:combat.ac`                                    | `fields.combat.ac.name`, `fields.combat.ac.short`                                                           |
+| A content type                      | `5e-srd-5.1:weapon`                                       | `types.weapon.name`                                                                                         |
+| A display group                     | group `combat` (with its `pack`)                          | `groups.combat.label`                                                                                       |
+| A rules action                      | `5e-srd-5.1:weapon-attack`                                | `actions.weapon-attack.name`                                                                                |
+| An action on an item                | `5e-srd-5.1:features.fighter.second-wind#second-wind`     | `features.fighter.second-wind.actions.second-wind.name`                                                     |
+| An action on a content type         | `fate-core:stunts.psychologist#use`                       | `stunts.psychologist.actions.use.name`, else `types.stunt.use.name`                                         |
+| An action's choice option           | option `hit` of `weapon-attack`                           | `actions.weapon-attack.options.hit.name`                                                                    |
+| An action's choice question         | `needs` `{ action, step: 'hit/confirm' }`                 | `actions.weapon-attack.steps.confirm.prompt`                                                                |
+| An action's roll (optional)         | `needs` or log `{ action, step: 'damage' }`               | `actions.weapon-attack.steps.damage.name`                                                                   |
+| An action's parameter               | parameter `targetAc` of `weapon-attack`                   | `actions.weapon-attack.params.targetAc.name`                                                                |
+| A parameter content adds            | `element`, `addedBy` Hurl Element                         | `abilities.elementalist.hurl-element.params.element.name` (`types.<type>.…` a type's, `rules.…` the rules') |
+| An action's result                  | `outcome.result: hit` of `weapon-attack`                  | `actions.weapon-attack.results.hit.name`                                                                    |
+| Longer text (optional)              | an action, a field                                        | `actions.weapon-attack.description`, `fields.hp.current.description`                                        |
+| A situational choice                | `5e-srd-5.1:advantage`                                    | `situational.advantage.name`                                                                                |
+| A result band                       | log `band: success`, `bandSet: …:action`                  | `bands.action.success.name`                                                                                 |
+| A named text (optional)             | a spell's type declares `texts: [material, trigger]`      | `spells.shield.texts.trigger`                                                                               |
+| A copy's value (optional)           | a cohort's computed `quality`, its state `harm`           | `types.cohort.computed.quality.name`, `types.cohort.state.harm.name`                                        |
+| Content's computed value (optional) | a technique's `healBonus` in `activationValues`           | `techniques.psychic-succor.computed.healBonus.name`                                                         |
+| An aura (optional)                  | an aura entry's `source` and `aura`                       | `features.paladin.aura-of-protection.auras.protection.name`                                                 |
+| A tag (optional)                    | tag `finesse` on a weapon                                 | `tags.finesse.name`, `tags.finesse.description`                                                             |
+| A card header (optional)            | a spell, `5e-srd-5.1:spells.fire-bolt`                    | `spells.fire-bolt.block`, else `types.spell.block`                                                          |
+| An enum value (optional)            | a spell's `school: evocation`                             | `types.spell.fields.school.values.evocation.name`                                                           |
+| The headline (optional)             | the character, "Level 3 Hill dwarf Wizard"                | `headline`; a member's piece `types.class.headline`                                                         |
+| A choice on content                 | path `{ entry, choice: ['fighting-style'] }` on a fighter | `classes.fighter.choices.fighting-style.prompt`                                                             |
+| A rules-level choice                | path `{ choice: ['playbook'] }`                           | `rules.choices.playbook.prompt`                                                                             |
+| A rules-level choice's issue (`id`) | `fitd-scoundrel:rules/vice`                               | `rules.choices.vice.prompt`, in the pack the ID names                                                       |
+| An inline option                    | option `disavowed` of a career's `incident` choice        | `careers.agent.choices.incident.options.disavowed.name`, `.description` (optional)                          |
+| A prerequisite (issue `id`)         | `5e-srd-5.1:classes.fighter/multiclass`                   | `classes.fighter.prerequisites.multiclass`                                                                  |
+| A constraint (issue `id`)           | `5e-srd-5.1:attunement-limit`                             | `constraints.attunement-limit`                                                                              |
 
 Some details:
 
@@ -125,7 +130,9 @@ Some details:
   `playbooks.bruiser.choices.special-ability.prompt` in its homebrew text. A choice ID with a slash names its owner
   itself: `5e-srd-5.1:features.wizard.spellcasting/cantrips` (a choice of granted content) is
   `features.wizard.spellcasting.choices.cantrips.prompt`. A rules-level choice's ID in a path is bare;
-  find its pack from `ruleset.rules.choices`, whose keys are qualified.
+  find its pack from `ruleset.rules.choices`, whose keys are qualified. Issues name it qualified
+  (`<pack>:rules/<choice>`, and an inline option of one `<pack>:rules/<choice>/<option>`), so
+  take the pack from the ID.
 - **Result bands:** the log entry of a roll gives the band ID (`band`) and the band set's
   qualified ID (`bandSet`); the key is in the set's pack.
 - **Descriptions are Markdown** (CommonMark with GFM tables, never HTML). Render them, or show
@@ -136,7 +143,8 @@ Some details:
 - **Blocks** are an item's card header, an ICU template over its fields in Markdown
   ([Translation](../../../packages/spec/docs/i18n.md#blocks)): show the block, then the
   description. Fill one with the item's fields by name, `{<field>_name}` the value's name,
-  `{has_<field>}` whether it has one, `{texts_<text>}` and `{self_<key>}` a copy's state;
+  `{has_<field>}` whether it has one, `{texts_<text>}`, and `{self_<key>}` a copy's state or
+  computed value, or picked or granted content's computed value;
   `@opencharacter/text` does it for you ([Showing text](showing-text.md#content-cards)).
 - **The headline** is a one-line description of the character, the pack's `headline` template
   ([Translation](../../../packages/spec/docs/i18n.md#headlines)): show it under the
@@ -208,7 +216,10 @@ A few codes have text by their data: `out-of-range` with only a `min` or a `max`
 uses `errors.wrong-type.values`, its `values` named and joined as alternatives ("Scene or Day");
 `invalid-option` for a parameter, a character field, or an item field or state key uses
 `errors.invalid-option.param`, `.field` or `.target`, naming it; and `safety-limit-exceeded` uses
-`errors.safety-limit-exceeded.<limit>` when there is one. If a code has no text, or its message
+`errors.safety-limit-exceeded.<limit>` when there is one. A parameter's error (`invalid-param`
+for a value given to a derived parameter, among others) names it by `param` or `target`, and
+an `out-of-range` for a bound content added carries `boundBy`, that content's ID, which the
+spec's text leaves out: name it yourself if you want to say why. If a code has no text, or its message
 still misses an argument, show the error's `data.message` when it has one, else `errors.other`,
 rather than the template. `errors.other` gets `{ code }`, but the spec's English leaves it out:
 a code means nothing to a player, so log `code`, `path` and `data` for developers instead.

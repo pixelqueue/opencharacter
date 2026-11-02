@@ -53,6 +53,12 @@ no rules text by design, but may still have a credit and notices: the FitD packs
 SRD (CC-BY), and the MÖRK BORG pack carries what its third-party license requires. Show them the
 same way.
 
+A pack used with the rights holder's permission has a `LicenseRef-` license: Draw Steel Heroes
+under the DRAW STEEL Creator License (`LicenseRef-draw-steel-creator-license`), and the Sine
+Nomine packs (Stars Without Number, Godbound, Ashes Without Number) under the author's permission
+for their free editions (`LicenseRef-sine-nomine-free-edition`). Each carries a credit line and a
+`permission` notice; show both the same way.
+
 ## Loading: `loadRuleset`
 
 ```ts

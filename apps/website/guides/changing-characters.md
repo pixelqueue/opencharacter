@@ -26,27 +26,36 @@ There's a small, fixed set of generic change types
 ([change.schema.json](../../../packages/spec/schemas/change.schema.json)). What's inside a change (does
 this field exist, is 25 in range) is checked against the ruleset.
 
-| Type             | Does                                                                  | Example                                                                                         |
-| ---------------- | --------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
-| `set`            | Sets an input field                                                   | `{ type: 'set', field: '5e-srd-5.1:abilities.str.base', value: 16 }`                            |
-| `adjust`         | Adds to a numeric input field, through resistances                    | `{ type: 'adjust', field: '5e-srd-5.1:hp.current', by: -10, tags: ['damage.fire'] }`            |
-| `addItem`        | Adds a copy of content to `inventory` or `features`                   | `{ type: 'addItem', entry: { id: 'inv-6', item: '5e-srd-5.1:weapons.dagger' } }`                |
-| `removeItem`     | Removes a copy, with its picks (not a standard copy)                  | `{ type: 'removeItem', entry: 'inv-6' }`                                                        |
-| `equip`          | Equips or unequips a copy                                             | `{ type: 'equip', entry: 'inv-4', equipped: true }`                                             |
-| `setState`       | Sets a per-copy state value                                           | `{ type: 'setState', entry: 'inv-2', key: 'ignited', value: true }`                             |
-| `adjustState`    | Adds to a numeric per-copy state value                                | `{ type: 'adjustState', entry: 'fighter', key: 'level', by: 1 }`                                |
-| `setField`       | Sets a copy's own value of a `perCopy` item field (`null` removes it) | `{ type: 'setField', entry: 'stunt-1', key: 'limit', value: 'scene' }`                          |
-| `setQuantity`    | Sets a copy's quantity (not below 0; a copy at 0 stays)               | `{ type: 'setQuantity', entry: 'inv-3', value: 20 }`                                            |
-| `adjustQuantity` | Adds to a copy's quantity (spending an arrow)                         | `{ type: 'adjustQuantity', entry: 'inv-3', by: -1 }`                                            |
-| `applyTemplate`  | Applies a template to a copy                                          | `{ type: 'applyTemplate', entry: 'inv-6', template: '5e-srd-5.1:magic-items.weapon-plus-one' }` |
-| `removeTemplate` | Removes a template from a copy                                        | `{ type: 'removeTemplate', entry: 'inv-6', template: '…' }`                                     |
-| `applyEffect`    | Starts a temporary effect from content not owned                      | `{ type: 'applyEffect', id: 'bless-1', source: '5e-srd-5.1:spells.bless' }`                     |
-| `toggleEffect`   | Turns a temporary effect on or off                                    | `{ type: 'toggleEffect', id: 'bless-1', active: false }`                                        |
-| `removeEffect`   | Removes a temporary effect                                            | `{ type: 'removeEffect', id: 'bless-1' }`                                                       |
-| `choose`         | Picks an option for a choice                                          | `{ type: 'choose', path: { entry: 'fighter', choice: ['fighting-style'] }, option: '…' }`       |
-| `unchoose`       | Un-picks an option, and everything nested under it                    | `{ type: 'unchoose', path: { entry: 'fighter', choice: ['fighting-style'] }, option: '…' }`     |
-| `setExtension`   | Replaces your app's own data                                          | `{ type: 'setExtension', namespace: 'com.example.vtt', value: { … } }`                          |
-| `setHomebrew`    | Replaces (or, with `null`, removes) the character's own homebrew      | `{ type: 'setHomebrew', homebrew: { content: [ … ] } }`                                         |
+| Type              | Does                                                                                                    | Example                                                                                                   |
+| ----------------- | ------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| `set`             | Sets an input field                                                                                     | `{ type: 'set', field: '5e-srd-5.1:abilities.str.base', value: 16 }`                                      |
+| `adjust`          | Adds to a numeric input field, through resistances                                                      | `{ type: 'adjust', field: '5e-srd-5.1:hp.current', by: -10, tags: ['damage.fire'] }`                      |
+| `addItem`         | Adds a copy of content to `inventory` or `features`                                                     | `{ type: 'addItem', entry: { id: 'inv-6', item: '5e-srd-5.1:weapons.dagger' } }`                          |
+| `removeItem`      | Removes a copy, with its picks (not a standard copy)                                                    | `{ type: 'removeItem', entry: 'inv-6' }`                                                                  |
+| `equip`           | Equips or unequips a copy                                                                               | `{ type: 'equip', entry: 'inv-4', equipped: true }`                                                       |
+| `setState`        | Sets a per-copy state value                                                                             | `{ type: 'setState', entry: 'inv-2', key: 'ignited', value: true }`                                       |
+| `adjustState`     | Adds to a numeric per-copy state value                                                                  | `{ type: 'adjustState', entry: 'fighter', key: 'level', by: 1 }`                                          |
+| `setField`        | Sets a copy's own value of a `perCopy` item field (`null` removes it)                                   | `{ type: 'setField', entry: 'stunt-1', key: 'limit', value: 'scene' }`                                    |
+| `setQuantity`     | Sets a copy's quantity (not below 0; a copy at 0 stays)                                                 | `{ type: 'setQuantity', entry: 'inv-3', value: 20 }`                                                      |
+| `adjustQuantity`  | Adds to a copy's quantity (spending an arrow)                                                           | `{ type: 'adjustQuantity', entry: 'inv-3', by: -1 }`                                                      |
+| `applyTemplate`   | Applies a template to a copy                                                                            | `{ type: 'applyTemplate', entry: 'inv-6', template: '5e-srd-5.1:magic-items.weapon-plus-one' }`           |
+| `removeTemplate`  | Removes a template from a copy                                                                          | `{ type: 'removeTemplate', entry: 'inv-6', template: '…' }`                                               |
+| `applyEffect`     | Starts a temporary effect from content not owned (`appliedBy`: who applied it; `aura`: an aura's entry) | `{ type: 'applyEffect', id: 'bless-1', source: '5e-srd-5.1:spells.bless', appliedBy: 'cleric' }`          |
+| `toggleEffect`    | Turns a temporary effect on or off                                                                      | `{ type: 'toggleEffect', id: 'bless-1', active: false }`                                                  |
+| `removeEffect`    | Removes a temporary effect                                                                              | `{ type: 'removeEffect', id: 'bless-1' }`                                                                 |
+| `choose`          | Picks an option for a choice                                                                            | `{ type: 'choose', path: { entry: 'fighter', choice: ['fighting-style'] }, option: '…' }`                 |
+| `unchoose`        | Un-picks an option, and everything nested under it                                                      | `{ type: 'unchoose', path: { entry: 'fighter', choice: ['fighting-style'] }, option: '…' }`               |
+| `setExtension`    | Replaces your app's own data                                                                            | `{ type: 'setExtension', namespace: 'com.example.vtt', value: { … } }`                                    |
+| `setHomebrew`     | Replaces (or, with `null`, removes) the character's own homebrew                                        | `{ type: 'setHomebrew', homebrew: { content: [ … ] } }`                                                   |
+| `finishCreation`  | Ends creation (clears `creating`)                                                                       | `{ type: 'finishCreation' }`                                                                              |
+| `offerFollowUp`   | Stores an offer of a follow-up the character has (actions propose it)                                   | `{ type: 'offerFollowUp', followUp: 'draw-steel-heroes:features.conduit.piety-in-combat#domain-effect' }` |
+| `clearFollowUp`   | Clears an offer acted on                                                                                | `{ type: 'clearFollowUp', id: 'concentration-1' }`                                                        |
+| `dismissFollowUp` | Deletes an offer unrun                                                                                  | `{ type: 'dismissFollowUp', id: 'concentration-1' }`                                                      |
+| `observe`         | Another character's batch, for this one's follow-ups to react to                                        | the `observe` another `applyChanges` returned                                                             |
+
+`finishCreation` is covered in [Building characters](building-characters.md#three-ways-to-create-a-character),
+the follow-up changes in [What the rules call for next](#what-the-rules-call-for-next), and
+`observe` in [Reacting to other characters](other-characters.md#reacting-to-other-characters).
 
 Every field and content ID is **qualified** with its pack. Entries (copies) are named by the
 instance `id` you gave them.
@@ -179,7 +188,8 @@ Some choices are made by the character being hit, for that hit only: 5E's Uncann
 one attack's damage. The pack declares them as situational choices with `incoming`, and
 computeSheet lists the ones offered in `situational`. Before applying a change, show the
 receiving player the offered choices whose `incoming` matches it (its field and tags), and put
-the ones they pick on the change:
+the ones they pick on the change. Name each with `text.situational(id)`, and an enum choice's
+value with `text.situationalValue(id, value)` ([Showing text](showing-text.md#situational-choices)):
 
 ```ts
 applyChanges(ruleset, rogue, [
@@ -207,7 +217,9 @@ Two kinds of choice ask a little more of your app:
   and a follow-up it offers is in `followUps`. A cost may change a held copy's state too (Shield
   Block's shield takes the damage its hardness didn't stop): its `{ copies }` entry names the
   choice as `source`. Don't apply the cost yourself. The choice's
-  `available` says whether it can be paid; a cost past the field's minimum clamps.
+  `available` says whether it can be paid; a cost past the field's minimum clamps. A held copy's
+  state doesn't clamp: past its bound the whole batch fails (`out-of-range`), so packs clamp it
+  themselves.
 - **A batch-scoped choice** (`scope: batch`: 5E 5.2's Deflect Attacks, which reduces the attack's
   total damage once) goes on the attack's first change only, and reaches the batch's later
   changes its `incoming` matches. Apply one attack's changes as one batch, and log the batch as

@@ -9,15 +9,15 @@ OCF covers everything from a static stat block to a virtual tabletop's attack re
 app needs all of it on day one. Each level below builds on the one before, and each is a complete,
 useful app on its own. Most apps get real value at level 2 or 3.
 
-| Level                      | Your app                                                                     | Engine calls                    |
-| -------------------------- | ---------------------------------------------------------------------------- | ------------------------------- |
-| **1. Read-only sheet**     | Loads packs, computes a character, shows every value and where it came from  | `loadRuleset`, `computeSheet`   |
-| **2. Editable form**       | Turns the pack's input fields into a form and sends edits back as changes    | `applyChanges`                  |
-| **3. Content and choices** | Adds items and features, levels up, asks pending choices, creates characters | `listOptions`                   |
-| **4. Live rules**          | Turns conditions and spells on and off, shows competing options and issues   | the same calls, more output     |
-| **5. Rolls and actions**   | Runs attacks and checks, pausing for your own dice and animation             | `startAction`, `continueAction` |
-| **6. Many characters**     | Targets, helpers, monsters, linked sheets such as a FitD crew                | actions with participants       |
-| **7. Lifecycle**           | Pins pack versions, adds homebrew, upgrades saved characters                 | `upgrade`                       |
+| Level                      | Your app                                                                                             | Engine calls                                      |
+| -------------------------- | ---------------------------------------------------------------------------------------------------- | ------------------------------------------------- |
+| **1. Read-only sheet**     | Loads packs, computes a character, shows every value and where it came from                          | `loadRuleset`, `computeSheet`                     |
+| **2. Editable form**       | Turns the pack's input fields into a form and sends edits back as changes                            | `applyChanges`                                    |
+| **3. Content and choices** | Adds items and features, levels up, asks pending choices, creates characters                         | `listOptions`                                     |
+| **4. Live rules**          | Turns conditions and spells on and off, shows competing options and issues                           | the same calls, more output                       |
+| **5. Rolls and actions**   | Runs attacks and checks, pausing for your own dice and animation                                     | `describeAction`, `startAction`, `continueAction` |
+| **6. Many characters**     | Targets, helpers, monsters, linked and shared sheets, auras, turn changes, events between characters | actions with participants                         |
+| **7. Lifecycle**           | Pins pack versions, adds homebrew, upgrades saved characters                                         | `upgrade`                                         |
 
 ### 1. Read-only sheet
 
@@ -71,7 +71,9 @@ Read: [Rolling dice](rolling-dice.md), [Showing text](showing-text.md).
 
 An attack has a target, a group action has helpers, and a FitD crew is a sheet linked to its
 scoundrels. Other characters take part as participants, and the changes an action proposes say
-which character they're for.
+which character they're for. Your app routes what the engine can't see: who stands in an aura
+(`appliers`), whose turn it is (`turn-boundary`), and one character's batch to the characters
+that react to it (`observe`).
 
 Read: [Other characters](other-characters.md).
 
@@ -86,7 +88,7 @@ Read: [Packs and rulesets](packs-and-rulesets.md), [Upgrading characters](upgrad
 
 ## Where the engine runs
 
-The engine is a library with no runtime dependencies, so it runs wherever your code does. Where you
+The engine is a library that doesn't depend on Node, so it runs wherever your code does. Where you
 put it decides who is trusted and how characters sync.
 
 | Shape           | The engine runs       | Good for                                        | Watch for                                       |

@@ -110,7 +110,8 @@ interface Ecosystem {
 const LICENSES: Record<string, string> = {
   'mechanics-only': 'Mechanics only',
   ORC: 'ORC License',
-  'OGL-1.0a': 'OGL 1.0a',
+  'LicenseRef-draw-steel-creator-license': 'DRAW STEEL Creator License',
+  'LicenseRef-sine-nomine-free-edition': 'Free edition, with permission',
 };
 
 /** MDX text: escapes the characters MDX reads as JSX or expressions. */
@@ -170,6 +171,9 @@ function ecosystem(root: string): string {
     '',
     "_Mechanics only_: the game isn't openly licensed, so the pack holds its math and names, no",
     "rules text, and isn't affiliated with or endorsed by its publisher.",
+    '',
+    '_Free edition, with permission_ and _DRAW STEEL Creator License_: the rights holder allows',
+    "the pack's rules text; see the pack's credit and notices.",
     '',
     '</div>',
     '',
