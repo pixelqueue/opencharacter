@@ -724,7 +724,9 @@ Still closed: attributes, proficiency ranks, saves, spell traditions (and a staf
   templates, one per curse whatever the kind of item (`content/item-curses`), bloodbiter's bleed with mechanics.
 - **Hero Points**: an input, 1 to start, at most 3. A failed check (`check`, so skill actions,
   Perception and saves) offers a Hero Point reroll after the roll (`check.reroll`, declining
-  recommended); the second result stands. Halfling Luck, Cat's Luck (the better result stands)
+  recommended); the second result stands. The book allows a reroll after any result; the pack
+  offers it only after a failure or critical failure, where a reroll can help. Halfling Luck,
+  Cat's Luck (the better result stands: the better degree, or the higher total on the same one)
   and Spiritual Guides offer their once-a-day rerolls there too, marking the feat used until
   daily preparations. Rerolling a Strike or spell attack, the other fortune rerolls and spending
   Hero Points to avoid dying are the app's.
@@ -772,12 +774,14 @@ Still closed: attributes, proficiency ranks, saves, spell traditions (and a staf
   which sets the cast's damage type at its `spell.chosen` step; elemental toss and elemental blast take the elemental influence's type there, and
   dragon breath and flurry of claws the draconic exemplar's tradition's (force, spirit, mental or
   fire), unless the cast names one. Inner upheaval's and qi form's type is chosen once, as the
-  spell is cast, though the book lets inner upheaval choose it each Strike. Bless, protective wards
-  and protector's sphere are cast on the caster, whose entry projects the emanation as an
+  spell is cast, though the book lets inner upheaval choose it each Strike. Bless, protective
+  wards and protector's sphere are cast on the caster, whose entry projects the emanation as an
   applied aura (`auras`, one per cast) for the app to place on allies inside; Sustaining bless or
   protective wards to widen it is the spell's `widen` action, and the sphere's resistance by rank
-  reaches allies through the caster's `spells.sphereResistance`. Bane stays a target's entry:
-  its penalty needs each enemy's failed save, which an aura's entry can't carry.
+  reaches allies through the caster's `spells.sphereResistance`. Only an entry the caster applied
+  itself projects the aura, and `widen` is once a turn (the caster's next turn clears it). Bane
+  stays a target's entry: its penalty needs each enemy's failed save, which an aura's entry can't
+  carry.
 - **Spells:** the 41 Player Core cantrips (with the bard's compositions and the witch's hexes)
   and every 1st-, 2nd- and 3rd-rank spell (58, 55, 34), text in `i18n/en/spells.yaml`; the
   casters' 1st-rank focus spells (7 school, 37 domain, 10 bloodline and 5 order spells), text in

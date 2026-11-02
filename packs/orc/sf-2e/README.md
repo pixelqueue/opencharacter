@@ -64,9 +64,10 @@ leaves a rule open, the pack's reading is listed under [Rule readings](#rule-rea
 - **Covered:** Player Core, the player-facing book. GM Core is not covered.
 - **Modeled:** the core math (attributes, proficiency, checks and degrees of success, bonus
   types, resistances, weaknesses and immunities, conditions with the book's new ones, dying and
-  recovery, Bulk, Hero Points and their reroll of a failed check); all 10 ancestries with every
-  heritage (the two versatile ones included) and ancestry feat; all 39 backgrounds; all 6 classes from 1st to 20th level with
-  every class feat; the 6 multiclass archetypes with their feats; every general and skill feat;
+  recovery, Bulk, Hero Points and their reroll of a failed check, offered only after a failure);
+  all 10 ancestries with every heritage (the two versatile ones included) and ancestry feat; all
+  39 backgrounds; all 6 classes from 1st to 20th level with every class feat; the 6 multiclass
+  archetypes with their feats; every general and skill feat;
   the skill actions, with Computers and Piloting; spontaneous spellcasting (connections and
   paradoxes, focus spells, innate spells, archetype sources, spell gems) with every spell; guns
   (magazines, reloading, area fire, automatic fire, kickback, modular weapons), weapon and armor
@@ -220,8 +221,9 @@ fixed sets.
     target, Walking Armory, bulwark.
   - **Witchwarper:** paradoxes (tradition, skill, a paradox spell of each rank, warp focus
     spells), anchors with their once-per-round anchoring effect, the quantum field (the precog
-    paradox's field is two auras the app places while it's active, `quantum.radius` across:
-    enemies' Speeds −5, allies' +5, status).
+    paradox's field is two auras while it's active, `quantum.radius` across: enemies' Speeds −5,
+    allies' +5, status; where the field is and which creatures it affects are the app's, which
+    places the auras' entries).
 - **Archetypes:** the six multiclass archetypes, with the dedication rule (a second dedication
   only after two other feats of the first), their class feats at half level, resiliency Hit
   Points, class DCs and spellcasting sources (mystic and witchwarper).
@@ -237,9 +239,10 @@ fixed sets.
   cantrips, 331 spells of 1st to 10th rank, 33 focus spells), 166 of them with mechanics beyond
   their numbers (damage and healing, effects, battle forms); 19 rituals. Bless is cast on the
   caster, whose entry projects its emanation as an applied aura (`auras`, one per cast) for the
-  app to place on allies inside; Sustaining it to widen it is its `widen` action. Bane stays a
-  target's entry (its penalty needs each enemy's failed save). Anthem applies to the bonded
-  creatures passed as allies.
+  app to place on allies inside; Sustaining it to widen it is its `widen` action, once a turn;
+  only an entry the caster applied itself projects the aura. Bane stays a target's entry (its
+  penalty needs each enemy's failed save). Anthem applies to the bonded creatures passed as
+  allies.
 - **Strikes:** the multiple attack penalty, every weapon trait the book uses (agile, analog,
   automatic, area, boost, deadly, fatal, kickback, modular, reload, unwieldy, volley …),
   magazines and ammunition, Area Fire and Auto-Fire with each target's basic Reflex save,

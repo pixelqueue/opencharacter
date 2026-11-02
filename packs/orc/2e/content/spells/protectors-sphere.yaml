@@ -26,6 +26,8 @@ effects:
 auras:
   - id: sphere
     scope: applied
+    # Only the caster's own cast (an entry it applied itself) projects it.
+    when: self.appliedBy == character.id
     size: item.areaSize
     affects: allies
     fields:

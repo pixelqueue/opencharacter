@@ -10,7 +10,7 @@ tags:
     tradition.occult,
   ]
 # Cast on yourself: each cast projects its emanation, which the app places on allies inside.
-# Sustaining the spell to widen it is `widen`.
+# Sustaining the spell to widen it is `widen`, once a turn.
 fields:
   rank: 1
   cast: two
@@ -21,15 +21,29 @@ fields:
   applyTo: self
 state:
   widened: { type: integer, default: 0, min: 0 }
+  sustained: { type: boolean, default: false }
 effects:
   - target: { fields: { where: "'attack' in item.tags" } }
     op: add
     value: 1
     stackKey: status-bonus
     scope: applied
+  # Sustaining is once a turn: the caster's next turn clears it.
+  - target: { steps: [turn.start] }
+    op: changes
+    when: self.sustained
+    scope: applied
+    value:
+      changes:
+        - type: setState
+          applied: { where: 'item.id == @spells.bless && self.sustained' }
+          key: sustained
+          value: false
 auras:
   - id: blessing
     scope: applied
+    # Only the caster's own cast (an entry it applied itself) projects it.
+    when: self.appliedBy == character.id
     size: item.areaSize + 10 * self.widened
     affects: allies
     effects:
@@ -40,10 +54,12 @@ auras:
         scope: applied
 actions:
   - id: widen
-    tags: [spell]
+    tags: [trait.concentrate]
     scope: applied
-    available: self.appliedBy == '' || self.appliedBy == character.id
+    available: self.appliedBy == character.id && !self.sustained
     steps:
       - id: widen
         kind: changes
-        changes: [{ type: adjustState, entry: self, key: widened, by: 1 }]
+        changes:
+          - { type: adjustState, entry: self, key: widened, by: 1 }
+          - { type: setState, entry: self, key: sustained, value: true }

@@ -164,10 +164,13 @@ actions:
         kind: branch
         when: has(steps.rerolled)
         cases:
+          # The better result: the better degree, or on the same degree the higher total.
           - when: >-
               flags.reroll == 1 || indexOf(['critical-failure', 'failure', 'success',
-                'critical-success'], steps.rerolled.band) >= indexOf(['critical-failure', 'failure',
+                'critical-success'], steps.rerolled.band) > indexOf(['critical-failure', 'failure',
                 'success', 'critical-success'], steps.roll.band)
+                || (steps.rerolled.band == steps.roll.band
+                  && steps.rerolled.total > steps.roll.total)
             flags: { second: true }
       - id: after
         kind: changes
