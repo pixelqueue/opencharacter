@@ -197,8 +197,8 @@ effects:
       [{ formula: "roll.item.damageType == 'untyped' ? [] : ['damage.' + roll.item.damageType]" }]
   # What each target brings to the power roll, on its own tier (`power-target`): an edge against
   # a prone target (melee), a restrained one, one frightened of the user or one the user
-  # marked; a bane when the user is grabbed or frightened by someone else than the target, a
-  # double bane when taunted by someone else.
+  # marked; a bane when the user is frightened of the target, and on every target when the user
+  # is grabbed (a double bane when taunted) and the ability doesn't target the grabber (taunter).
   - id: target-prone
     target: { rolls: [power-target], tally: edges }
     op: add
@@ -223,12 +223,12 @@ effects:
     target: { rolls: [power-target], tally: banes }
     op: add
     value: 1
-    when: conditions.grabbed && !(participant.id in conditions.grabbedBy)
+    when: conditions.grabbed && countList(participants.target, x.id in conditions.grabbedBy) == 0
   - id: user-taunted
     target: { rolls: [power-target], tally: banes }
     op: add
     value: 2
-    when: conditions.taunted && !(participant.id in conditions.tauntedBy)
+    when: conditions.taunted && countList(participants.target, x.id in conditions.tauntedBy) == 0
   - id: user-frightened
     target: { rolls: [power-target], tally: banes }
     op: add
@@ -257,8 +257,11 @@ actions:
       mode: { type: enum, values: [melee, ranged], optional: true }
       # Extra heroic resource spent on the ability's "Spend" option.
       spend: { type: integer, default: 0, min: 0 }
-      # Surges spent for extra damage to one target (the first).
+      # Surges spent for extra damage to one target (the first), on an ability that deals rolled
+      # damage.
       surges: { type: integer, default: 0, min: 0, max: 3 }
+      # 2 surges spent to raise a potency by 1 against one target (the first).
+      potencySurge: { type: boolean, default: false }
       # Ask whether to downgrade each target's tier.
       downgrade: { type: boolean, default: false }
     participants:
@@ -274,6 +277,9 @@ actions:
               mode: 'has(params.mode) ? params.mode : self.mode'
               cost: 0
               extra: 0
+              surges: >-
+                (has(item.t1Damage) && (size(item.rollChars) > 0 || item.rollBonus != 0) && size(participants.target) > 0 ? params.surges : 0)
+                  + (params.potencySurge && size(participants.target) > 0 ? 2 : 0)
               tier: 0
               cond: "''"
               dur: "'until'"
@@ -336,8 +342,9 @@ actions:
       - id: unaffordable
         kind: outcome
         when: >-
-          combat.active && flags.cost + flags.extra + params.spend > 0
-            && heroic.current - flags.cost - flags.extra - params.spend < heroic.min
+          (combat.active && flags.cost + flags.extra + params.spend > 0
+            && heroic.current - flags.cost - flags.extra - params.spend < heroic.min)
+            || flags.surges > surges.current
         result: "'unaffordable'"
       - id: pay
         kind: changes
@@ -351,7 +358,7 @@ actions:
             when: '!combat.active && item.cost > 0'
             field: abilities.usedOutside
             value: abilities.usedOutside + [item.id]
-          - { type: adjust, when: params.surges > 0, field: surges.current, by: -params.surges }
+          - { type: adjust, when: flags.surges > 0, field: surges.current, by: -flags.surges }
       - id: spend
         kind: changes
         when: params.spend > 0
@@ -380,6 +387,7 @@ actions:
                 (has(item.t1PotencyValue) ? item.t1PotencyValue
                   : has(item.t1Potency) ? [potency.weak, potency.average, potency.strong][indexOf(['weak', 'average', 'strong'], item.t1Potency)]
                   : 0) + (has(steps.roll) ? steps.roll.tallies.potencyBonus : 0)
+                  + (params.potencySurge && participant.id == participants.target[0].id ? 1 : 0)
               move: "has(item.t1Move) ? (item.t1MoveVertical ? 'vertical-' : '') + item.t1Move : ''"
               moveDistance: >-
                 has(item.t1Move) ? (has(item.t1MoveDistance) ? item.t1MoveDistance : 0)
@@ -395,6 +403,7 @@ actions:
                 (has(item.t2PotencyValue) ? item.t2PotencyValue
                   : has(item.t2Potency) ? [potency.weak, potency.average, potency.strong][indexOf(['weak', 'average', 'strong'], item.t2Potency)]
                   : 0) + (has(steps.roll) ? steps.roll.tallies.potencyBonus : 0)
+                  + (params.potencySurge && participant.id == participants.target[0].id ? 1 : 0)
               move: "has(item.t2Move) ? (item.t2MoveVertical ? 'vertical-' : '') + item.t2Move : ''"
               moveDistance: >-
                 has(item.t2Move) ? (has(item.t2MoveDistance) ? item.t2MoveDistance : 0)
@@ -410,6 +419,7 @@ actions:
                 (has(item.t3PotencyValue) ? item.t3PotencyValue
                   : has(item.t3Potency) ? [potency.weak, potency.average, potency.strong][indexOf(['weak', 'average', 'strong'], item.t3Potency)]
                   : 0) + (has(steps.roll) ? steps.roll.tallies.potencyBonus : 0)
+                  + (params.potencySurge && participant.id == participants.target[0].id ? 1 : 0)
               move: "has(item.t3Move) ? (item.t3MoveVertical ? 'vertical-' : '') + item.t3Move : ''"
               moveDistance: >-
                 has(item.t3Move) ? (has(item.t3MoveDistance) ? item.t3MoveDistance : 0)
@@ -470,7 +480,7 @@ actions:
             when: "flags.char != 'none' && [item.t1AddsChar, item.t2AddsChar, item.t3AddsChar][flags.tier - 1]"
             tags: [{ formula: "item.damageType == 'untyped' ? [] : ['damage.' + item.damageType]" }]
           - value: params.surges * characteristics.highest
-            when: params.surges > 0 && participant.id == participants.target[0].id
+            when: flags.surges > 0 && params.surges > 0 && participant.id == participants.target[0].id
             tags: [{ formula: "item.damageType == 'untyped' ? [] : ['damage.' + item.damageType]" }]
       - id: hit
         kind: changes
