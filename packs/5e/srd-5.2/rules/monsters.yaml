@@ -116,7 +116,6 @@ contentTypes:
       spellsPerDay2: { type: set, of: spell, default: [] }
       spellsPerDay3: { type: set, of: spell, default: [] }
     effects:
-      - { id: ac, target: combat.ac, op: set, value: item.ac }
       - {
           id: initiative,
           target: combat.initiative,
@@ -152,43 +151,6 @@ contentTypes:
           value: true,
           when: has(item.hover) && item.hover,
         }
-      - id: darkvision
-        target: senses.darkvision
-        op: atLeast
-        value: item.darkvision
-        when: has(item.darkvision)
-      - id: blindsight
-        target: senses.blindsight
-        op: atLeast
-        value: item.blindsight
-        when: has(item.blindsight)
-      - id: tremorsense
-        target: senses.tremorsense
-        op: atLeast
-        value: item.tremorsense
-        when: has(item.tremorsense)
-      - id: truesight
-        target: senses.truesight
-        op: atLeast
-        value: item.truesight
-        when: has(item.truesight)
-      - id: telepathy
-        target: senses.telepathy
-        op: atLeast
-        value: item.telepathy
-        when: has(item.telepathy)
-      - id: xp
-        target: challenge.xp
-        op: set
-        value: 'legendary.inLair && has(item.xpLair) ? item.xpLair : item.xp'
-      - { id: lair, target: legendary.hasLair, op: set, value: true, when: has(item.xpLair) }
-      - id: legendary
-        target: legendary.actions
-        op: set
-        value: >-
-          legendary.inLair && has(item.legendaryActionsLair)
-            ? item.legendaryActionsLair : item.legendaryActions
-        when: has(item.legendaryActions)
       - { id: str-max, target: abilities.str.max, op: atLeast, value: 30 }
       - { id: dex-max, target: abilities.dex.max, op: atLeast, value: 30 }
       - { id: con-max, target: abilities.con.max, op: atLeast, value: 30 }
@@ -424,22 +386,40 @@ contentTypes:
 
 fields:
   initiative.score: { type: integer, formula: 10 + combat.initiative }
-  challenge.xp:
-    type: integer
-    formula: >-
-      challenge.rating == 0 ? 10 : challenge.rating <= 0.125 ? 25 : challenge.rating <= 0.25 ? 50
-        : challenge.rating <= 0.5 ? 100
-        : [200, 450, 700, 1100, 1800, 2300, 2900, 3900, 5000, 5900, 7200, 8400, 10000, 11500,
-          13000, 15000, 18000, 20000, 22000, 25000, 33000, 41000, 50000, 62000, 75000, 90000,
-          105000, 120000, 135000, 155000][min(29, floor(challenge.rating) - 1)]
-  senses.telepathy: { type: integer, formula: 0, min: 0 }
+  # create-monster copies the stat block's AC, senses, XP and Legendary Action uses into inputs,
+  # so a GM can change one monster's. The lair values (0 for none) replace them in its lair.
+  challenge.xp: { type: integer, input: true, default: 0, min: 0 }
+  challenge.xpLair: { type: integer, input: true, default: 0, min: 0 }
+  # The printed AC, which competes with worn armor and Mage Armor as any AC does; 0 for none.
+  combat.printedAc: { type: integer, input: true, default: 0, min: 0 }
+  senses.telepathy: { type: integer, input: true, default: 0, min: 0 }
   saves.magicResistance: { type: boolean, formula: false }
   spellcasting.monster.ability:
     { type: enum, values: [none, str, dex, con, int, wis, cha], formula: "'none'" }
   legendary.inLair: { type: boolean, input: true, default: false }
-  legendary.hasLair: { type: boolean, formula: false }
-  legendary.actions: { type: integer, formula: 0, min: 0 }
+  legendary.hasLair: { type: boolean, formula: challenge.xpLair > 0 }
+  legendary.actions: { type: integer, input: true, default: 0, min: 0 }
+  legendary.actionsLair: { type: integer, input: true, default: 0, min: 0 }
   legendary.spent: { type: integer, input: true, default: 0, min: 0 }
+
+effects:
+  - {
+      id: printed-ac,
+      target: combat.ac,
+      op: set,
+      value: combat.printedAc,
+      when: combat.printedAc > 0,
+    }
+  - id: lair-xp
+    target: challenge.xp
+    op: set
+    value: challenge.xpLair
+    when: legendary.inLair && challenge.xpLair > 0
+  - id: lair-legendary
+    target: legendary.actions
+    op: set
+    value: legendary.actionsLair
+    when: legendary.inLair && legendary.actionsLair > 0
 
 situational:
   - id: magicEffect
@@ -512,6 +492,40 @@ actions:
           - { type: set, field: creature.type, value: steps.monster.item.creatureType }
           - { type: set, field: creature.alignment, value: steps.monster.item.alignment }
           - { type: set, field: combat.speed, value: steps.monster.item.speed }
+          - { type: set, field: combat.printedAc, value: steps.monster.item.ac }
+          - type: set
+            field: senses.darkvision
+            value: steps.monster.item.darkvision
+            when: has(steps.monster.item.darkvision)
+          - type: set
+            field: senses.blindsight
+            value: steps.monster.item.blindsight
+            when: has(steps.monster.item.blindsight)
+          - type: set
+            field: senses.tremorsense
+            value: steps.monster.item.tremorsense
+            when: has(steps.monster.item.tremorsense)
+          - type: set
+            field: senses.truesight
+            value: steps.monster.item.truesight
+            when: has(steps.monster.item.truesight)
+          - type: set
+            field: senses.telepathy
+            value: steps.monster.item.telepathy
+            when: has(steps.monster.item.telepathy)
+          - { type: set, field: challenge.xp, value: steps.monster.item.xp }
+          - type: set
+            field: challenge.xpLair
+            value: steps.monster.item.xpLair
+            when: has(steps.monster.item.xpLair)
+          - type: set
+            field: legendary.actions
+            value: steps.monster.item.legendaryActions
+            when: has(steps.monster.item.legendaryActions)
+          - type: set
+            field: legendary.actionsLair
+            value: steps.monster.item.legendaryActionsLair
+            when: has(steps.monster.item.legendaryActionsLair)
           - { type: set, field: hp.base, value: flags.hp }
           - { type: set, field: hp.current, value: flags.hp }
           - type: set
@@ -1071,6 +1085,8 @@ display:
   fields:
     initiative.score: { groups: [combat], priority: 1, showWhen: sheet.monster }
     challenge.xp: { groups: [summary], priority: 2, showWhen: sheet.monster }
+    challenge.xpLair: { groups: [summary], priority: 3, showWhen: legendary.hasLair }
+    combat.printedAc: { groups: [combat], priority: 3, showWhen: sheet.monster }
     senses.telepathy: { unit: ft, groups: [summary], priority: 2, showWhen: senses.telepathy > 0 }
     saves.magicResistance: { groups: [saves], priority: 2, showWhen: saves.magicResistance }
     spellcasting.monster.ability:
@@ -1078,6 +1094,8 @@ display:
     legendary.inLair: { groups: [combat], priority: 1, showWhen: legendary.hasLair }
     legendary.hasLair: { hidden: true }
     legendary.actions: { groups: [combat], priority: 1, showWhen: legendary.actions > 0 }
+    legendary.actionsLair:
+      { groups: [combat], priority: 3, showWhen: legendary.hasLair && legendary.actionsLair > 0 }
     legendary.spent:
       {
         groups: [combat],

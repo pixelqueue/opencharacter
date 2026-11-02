@@ -339,8 +339,11 @@ Where the SRD is unclear or silent, the pack reads it this way:
   stored spells, resistances, set ability scores and situational advantages.
 - **Monsters:** all 330 SRD stat blocks, monsters and animals. A monster is a character with no
   class:
-  `create-monster` copies a `monster` item's stat block into the sheet, and each trait and action
-  becomes its own copy with its uses or recharge. `monster-attack` and `monster-effect` resolve
+  `create-monster` copies a `monster` item's stat block into the sheet's inputs (AC, senses, XP
+  and Legendary Action uses among them, lair values too), and each trait and action becomes its
+  own copy with its uses or recharge, so a GM can change one monster's. The printed AC
+  (`combat.printedAc`) competes with worn armor as any AC does. Monsters saved with 0.3.0 get
+  their AC, senses, XP and Legendary Action uses as inputs on upgrade. `monster-attack` and `monster-effect` resolve
   attacks and saving throws on each target's sheet; Multiattack, legendary actions (with lair
   numbers), Legendary Resistance, Magic Resistance and Spellcasting work. A monster's sheet
   leaves out experience points, character level (at 0), Heroic Inspiration and death saves, and

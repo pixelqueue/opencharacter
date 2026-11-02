@@ -1,0 +1,43 @@
+# A 0.3.0 adult red dragon in its lair: its monster item set its AC, senses, XP and Legendary
+# Action uses (the lair's, while in it). 0.4.0 saves the stat block's values as inputs, the lair
+# ones too, so the dragon in its lair still has 20,000 XP and 4 Legendary Action uses.
+pack: 5e-srd-5.2
+from: 0.3.0
+to: 0.4.0
+expect:
+  - { at: /values/5e-srd-5.2:combat.printedAc, value: 19 }
+  - { at: /values/5e-srd-5.2:senses.darkvision, value: 120 }
+  - { at: /values/5e-srd-5.2:senses.blindsight, value: 60 }
+  - { at: /values/5e-srd-5.2:senses.truesight, value: 0 }
+  - { at: /values/5e-srd-5.2:challenge.xp, value: 18000 }
+  - { at: /values/5e-srd-5.2:challenge.xpLair, value: 20000 }
+  - { at: /values/5e-srd-5.2:legendary.actions, value: 3 }
+  - { at: /values/5e-srd-5.2:legendary.actionsLair, value: 4 }
+values:
+  5e-srd-5.2:combat.ac: 19
+  5e-srd-5.2:senses.darkvision: 120
+  5e-srd-5.2:senses.blindsight: 60
+  5e-srd-5.2:challenge.xp: 20000
+  5e-srd-5.2:legendary.actions: 4
+  5e-srd-5.2:legendary.hasLair: true
+character:
+  specVersion: 0.3.0
+  id: upgrade-5e52-adult-red-dragon
+  values:
+    5e-srd-5.2:abilities.str.base: 27
+    5e-srd-5.2:abilities.dex.base: 10
+    5e-srd-5.2:abilities.con.base: 25
+    5e-srd-5.2:abilities.int.base: 16
+    5e-srd-5.2:abilities.wis.base: 13
+    5e-srd-5.2:abilities.cha.base: 23
+    5e-srd-5.2:challenge.rating: 17
+    5e-srd-5.2:creature.size: huge
+    5e-srd-5.2:creature.type: dragon
+    5e-srd-5.2:creature.alignment: chaotic-evil
+    5e-srd-5.2:combat.speed: 40
+    5e-srd-5.2:hp.base: 256
+    5e-srd-5.2:hp.current: 256
+    5e-srd-5.2:legendary.inLair: true
+  features:
+    - id: monster
+      item: 5e-srd-5.2:monsters.adult-red-dragon
