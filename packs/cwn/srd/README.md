@@ -116,7 +116,8 @@ the player's choices and other characters.
   cost from its own powers and ritual), spirits and their powers, and Graced arts with their
   points. Spells that deal damage per level compute it at the caster's level (`damage`), Heal
   Injury its healing (`healing`), and
-  Skin of Steel its Armor Class (`ac`), which their text shows. Martial Instinct's bonus rolls (the `bonusRoll`
+  Skin of Steel its Armor Class (`ac`), which their text shows. Spells count their casts in the
+  scene: Blast's and Blastwave's System Strain and a second Stun's day Effort are added. Martial Instinct's bonus rolls (the `bonusRoll`
   situational choice on an attack) roll the hit or damage twice, the better kept, and refresh
   with rest; Occult Pavis rolls saves against magic (`versusMagic`) twice.
 - **Contacts**, named by the player, as Acquaintances or Friends.

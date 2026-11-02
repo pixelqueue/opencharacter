@@ -6,3 +6,9 @@ fields:
 # The damage at the caster's level.
 computed:
   damage: { type: string, formula: "string(level) + 'd6'" }
+effects:
+  # A second cast in a scene Commits Effort for the day.
+  - target: { steps: [spell.effort], from: self }
+    op: changes
+    when: self.sceneCasts >= 1
+    value: { flags: { commit: "'day'" } }

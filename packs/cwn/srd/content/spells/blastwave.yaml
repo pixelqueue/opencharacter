@@ -6,3 +6,8 @@ fields:
 # The damage at the caster's level.
 computed:
   damage: { type: string, formula: "string(level) + 'd6'" }
+effects:
+  # Each cast adds one System Strain.
+  - target: { steps: [spell.cast], from: self }
+    op: changes
+    value: { changes: [{ type: adjust, field: strain.temporary, by: 1 }] }
