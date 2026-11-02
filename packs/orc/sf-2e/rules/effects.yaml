@@ -2,6 +2,10 @@ contentTypes:
   effect:
     state:
       value: { type: integer, default: 0, min: 0 }
+      # How long it lasts on another creature, by its applier's turns (`turn-boundary`): until
+      # the start of the applier's next turn, the end of its next turn, or the end of its
+      # current turn (the next turn has begun). `none`: as the rules or the app end it.
+      duration: { type: enum, values: [none, next-start, next-end, end], default: none }
 
 tags:
   - class-action

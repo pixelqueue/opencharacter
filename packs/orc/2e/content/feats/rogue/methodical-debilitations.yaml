@@ -11,11 +11,19 @@ effects:
       id: no-flanking
       to: target
       changes:
-        - { type: applyEffect, source: "'classes.rogue.debilitations.no-flanking'" }
+        - {
+            type: applyEffect,
+            source: "'classes.rogue.debilitations.no-flanking'",
+            state: { debilitation: true, duration: "'next-end'" },
+          }
   - target: { choices: [debilitation] }
     op: option
     value:
       id: no-cover
       to: target
       changes:
-        - { type: applyEffect, source: "'classes.rogue.debilitations.no-cover'" }
+        - {
+            type: applyEffect,
+            source: "'classes.rogue.debilitations.no-cover'",
+            state: { debilitation: true, duration: "'next-end'" },
+          }

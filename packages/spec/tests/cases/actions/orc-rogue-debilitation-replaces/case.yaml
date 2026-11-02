@@ -1,0 +1,15 @@
+description: "orc-2e: a 9th-level rogue's Debilitating Strike first ends the rogue's earlier debilitations wherever they are (to: applied), then makes the target enfeebled 1 as a debilitation lasting until the end of the rogue's next turn"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/orc/2e
+input:
+  action:
+    id: orc-2e:classes.rogue.debilitating-strike#debilitate
+    entry: class
+    source: orc-2e:classes.rogue.debilitating-strike
+  participants:
+    target:
+      - id: ogre
+answers:
+  - option: enfeebled

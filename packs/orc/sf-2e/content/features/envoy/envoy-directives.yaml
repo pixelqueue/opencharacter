@@ -15,17 +15,22 @@ actions:
     participants: { target: { min: 1, max: 1 }, ally: {} }
     results: { bands: degree }
     steps:
+      # A new Get 'Em! ends the envoy's earlier one, on the envoy and on every ally.
+      - id: earlier
+        kind: changes
+        to: applied
+        changes:
+          - type: removeEffect
+            applied: { where: 'item.id == @effects.get-em' }
       - id: mark
         kind: changes
         changes:
-          - type: removeEffect
-            when: 'countList(character.applied, x.source == @effects.get-em) > 0'
-            applied: { where: 'item.id == @effects.get-em' }
           - type: applyEffect
             source: "'effects.get-em'"
             state:
               target: 'participants.target[0].id'
               value: 'has(params.actions) && params.actions == 2 ? 1 + floor(level / 5) : 0'
+              duration: "'next-start'"
       - id: allies
         kind: changes
         each: ally
@@ -36,6 +41,7 @@ actions:
             state:
               target: 'participants.target[0].id'
               value: 'has(params.actions) && params.actions == 2 ? 1 + floor(level / 5) : 0'
+              duration: "'next-start'"
       - id: weapon
         kind: choice
         when: 'has(params.actions) && params.actions == 2'

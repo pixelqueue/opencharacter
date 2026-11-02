@@ -1,0 +1,14 @@
+- type: setState
+  key: duration
+  value: "'end'"
+  applied:
+    where: has(self.duration) && self.duration == 'next-end' && self.appliedBy ==
+      'example-orc-pip'
+- type: removeEffect
+  applied:
+    where: has(self.duration) && self.duration == 'next-start' && self.appliedBy ==
+      'someone'
+- type: removeEffect
+  applied:
+    where: has(self.debilitation) && self.debilitation
+    appliedBy: someone

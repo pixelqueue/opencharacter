@@ -11,11 +11,19 @@ effects:
       id: weakness
       to: target
       changes:
-        - { type: applyEffect, source: "'classes.rogue.debilitations.weakness'" }
+        - {
+            type: applyEffect,
+            source: "'classes.rogue.debilitations.weakness'",
+            state: { debilitation: true, duration: "'next-end'" },
+          }
   - target: { choices: [debilitation] }
     op: option
     value:
       id: clumsy
       to: target
       changes:
-        - { type: applyEffect, source: "'conditions.clumsy'", state: { value: 1 } }
+        - {
+            type: applyEffect,
+            source: "'conditions.clumsy'",
+            state: { value: 1, debilitation: true, duration: "'next-end'" },
+          }

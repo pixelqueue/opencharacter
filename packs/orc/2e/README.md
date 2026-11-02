@@ -274,7 +274,12 @@ Still closed: attributes, proficiency ranks, saves, spell traditions (and a staf
 - **Turns** (the app runs them): `start-turn` resets the turn's attacks and flourishes, a
   raised shield and Dueling Parry, takes stunned's actions, makes a dying character's recovery
   check and reports the actions this turn (3, + quickened, − slowed and stunned); `end-turn`
-  lowers frightened. Persistent damage is each entry's own action: the damage,
+  lowers frightened. `turn-boundary` (`clock: turn-boundary`: the app runs it on every creature
+  at each turn change, with whose turn ended and whose starts) ends what a creature applied by
+  that creature's turns, whoever holds it: a condition or effect's `duration` state lasts until
+  the start of its applier's next turn (`next-start`) or the end of it (`next-end`, armed as
+  `end` when that turn starts); the entry knows its applier (`appliedBy`). Content joins in on
+  `turn.boundary`. Persistent damage is each entry's own action: the damage,
   then a DC 15 flat check that ends it on a success. Sickened has its own Retch action.
 - **Shields:** `raise-shield` (and Reactive Shield) give the shield's circumstance bonus to AC;
   Shield Block is a situational choice on incoming damage: the hardness comes off,
@@ -387,7 +392,10 @@ Still closed: attributes, proficiency ranks, saves, spell traditions (and a staf
   Strikes against an off-guard target: the target's view, the player's `offGuardTarget`, or a
   feat's Strike given it (Twin Feint); agile, finesse and ranged weapons, or a ruffian's
   small-die weapons. A thief adds Dexterity for Strength on finesse melee damage. Debilitating
-  Strike sends a debilitation (an applied effect) or enfeebled 1 to the target, two from 15th.
+  Strike sends a debilitation (an applied effect) or enfeebled 1 to the target, two from 15th,
+  until the end of the rogue's next turn (`duration: next-end`); it first ends the rogue's
+  earlier debilitations wherever they are (`to: applied`, the entries marked `debilitation`), as
+  do the racket feats' debilitations.
   Evasive Reflexes, Rogue Resilience and Agile Mind turn successes into critical successes. Feats:
   33 of levels 1 to 6; Twin Feint, Underhanded Assault, Head Stomp, Mug and Twist the Knife are
   actions, Nimble Dodge a toggle (the start of the turn clears it), Trap Finder a situational
@@ -865,7 +873,7 @@ reads it as below. These are the pack's provisional calls; a table may rule othe
   relics and vehicles, Ancestry Paragon and dual-class characters (their only source is the
   pre-Remaster Gamemastery Guide), and GM Core's level 0 characters (`level` may be 0 and
   `creation.needsClass` is a hook a variant pack may use).
-- **Left to the app:** turns (it runs `start-turn` and `end-turn`), movement and reach, who is
+- **Left to the app:** turns (it runs `start-turn`, `end-turn` and `turn-boundary`), movement and reach, who is
   flanked or in cover (situational choices), when a condition is gained (`applyEffect`), daily
   preparations (the pack's `daily-preparations` and `prepare-spells` say what happens), rests; a
   spell's duration, sustaining and dismissing it, its area and who is in it (an applied spell

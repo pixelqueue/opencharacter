@@ -1,0 +1,27 @@
+status: finished
+outcome: {}
+proposedChanges:
+  - to: self
+    step: ended
+    change:
+      type: removeEffect
+      applied:
+        where: has(self.duration) && self.duration == 'end' && self.appliedBy ==
+          'someone'
+  - to: self
+    step: started
+    change:
+      type: removeEffect
+      applied:
+        where: has(self.duration) && self.duration == 'next-start' && self.appliedBy ==
+          'example-orc-pip'
+  - to: self
+    step: started
+    change:
+      type: setState
+      key: duration
+      applied:
+        where: has(self.duration) && self.duration == 'next-end' && self.appliedBy ==
+          'example-orc-pip'
+      value: "'end'"
+log: []

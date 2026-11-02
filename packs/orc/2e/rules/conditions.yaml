@@ -5,6 +5,12 @@ contentTypes:
       # Grapple sets it, so a release or an Escape from one creature ends only that creature's
       # conditions.
       by: { type: string, default: '' }
+      # How long it lasts on another creature, by its applier's turns (`turn-boundary`): until
+      # the start of the applier's next turn, the end of its next turn, or the end of its
+      # current turn (the next turn has begun). `none`: as the rules or the app end it.
+      duration: { type: enum, values: [none, next-start, next-end, end], default: none }
+      # Put on by a rogue's Debilitating Strike: a new debilitation ends it.
+      debilitation: { type: boolean, default: false }
       damage: { type: dice, default: 1d6 }
       damageType:
         open: true
@@ -225,3 +231,38 @@ actions:
       - id: content
         kind: changes
         tags: [turn.end]
+
+  # Run by the app on every character at each turn change, with who ended and who starts a turn:
+  # what a creature applied ends by its own turns, whoever holds it (`duration`).
+  - id: turn-boundary
+    clock: turn-boundary
+    tags: [turn]
+    params:
+      ended: { type: string, optional: true }
+      started: { type: string, optional: true }
+    steps:
+      - id: ended
+        kind: changes
+        when: has(params.ended)
+        changes:
+          - type: removeEffect
+            applied:
+              where: "has(self.duration) && self.duration == 'end' && self.appliedBy == params.ended"
+      - id: started
+        kind: changes
+        when: has(params.started)
+        changes:
+          - type: removeEffect
+            applied:
+              where: >-
+                has(self.duration) && self.duration == 'next-start'
+                  && self.appliedBy == params.started
+          - type: setState
+            applied:
+              where: >-
+                has(self.duration) && self.duration == 'next-end' && self.appliedBy == params.started
+            key: duration
+            value: "'end'"
+      - id: content
+        kind: changes
+        tags: [turn.boundary]

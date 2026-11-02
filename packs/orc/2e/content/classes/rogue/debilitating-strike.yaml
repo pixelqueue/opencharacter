@@ -19,6 +19,13 @@ actions:
         options:
           - { id: speed, when: "steps.first.picked != 'speed'" }
           - { id: enfeebled, when: "steps.first.picked != 'enfeebled'" }
+      # A new debilitation ends the rogue's earlier ones, wherever they are.
+      - id: earlier
+        kind: changes
+        to: applied
+        changes:
+          - type: removeEffect
+            applied: { where: has(self.debilitation) && self.debilitation }
       - id: apply
         kind: changes
         to: target
@@ -27,12 +34,13 @@ actions:
             when: >-
               steps.first.picked == 'speed' || (has(steps.second) && steps.second.picked == 'speed')
             source: "'classes.rogue.debilitations.speed'"
+            state: { debilitation: true, duration: "'next-end'" }
           - type: applyEffect
             when: >-
               steps.first.picked == 'enfeebled'
                 || (has(steps.second) && steps.second.picked == 'enfeebled')
             source: "'conditions.enfeebled'"
-            state: { value: 1 }
+            state: { value: 1, debilitation: true, duration: "'next-end'" }
       - id: result
         kind: outcome
         result: "'debilitated'"

@@ -200,7 +200,9 @@ fixed sets.
   resistances, Speeds, senses, skill trainings, granted feats) are effects.
 - **Backgrounds:** boosts, two trainings (a skill and a Lore) and a skill feat.
 - **Classes:**
-  - **Envoy:** directives (Get 'Em and the others, with Lead by Example), leadership styles,
+  - **Envoy:** directives (Get 'Em and the others, with Lead by Example; a new Get 'Em ends the
+    envoy's earlier one on the envoy and every ally, `to: applied`, and each lasts until the
+    start of the envoy's next turn, ended by `turn-boundary`), leadership styles,
     expertise, improvised mastery.
   - **Mystic:** connections (tradition, skill, a granted spell of each rank, epiphany focus
     spells), the vitality network (a pool of Hit Points with Transfer Vitality, regained each
@@ -277,7 +279,7 @@ reads it as below. These are the pack's provisional calls; a table may rule othe
 
 ## Limitations
 
-- **Left to the app:** turns (it runs `start-turn` and `end-turn`), movement, reach, distances,
+- **Left to the app:** turns (it runs `start-turn`, `end-turn` and `turn-boundary`), movement, reach, distances,
   areas and auras (who is in a burst, a quantum field, a harmony's emanation or a bond's range is
   the participants the app passes), cover and flanking (situational choices), when a condition
   is gained, daily preparations and rests, a spell's duration and sustaining (a spell or
