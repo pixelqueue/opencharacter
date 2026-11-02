@@ -289,7 +289,7 @@ situational choice's or a choice's (not `then-without-copy`):
     when: applied
     changes:
       - type: removeEffect
-        applied: { where: 'item.id == @combat-effects.vexed && self.attacker == flags.me' }
+        applied: { where: 'item.id == @combat-effects.vexed && self.appliedBy == flags.me' }
 ```
 
 The rule form is for roll effects; an incoming-change effect's `then` is a list (a schema

@@ -8,3 +8,5 @@ Sap, Slow and Vex (and Studied Attacks' Vex) read who applied them from the entr
 Hex and Hunter's Mark: `hex.cursedBy` and `huntersMark.markedBy` name each applied spell's `appliedBy` (the `caster` state is no longer written, and is still read for entries saved without an applier), and each spell has a `move` action that ends the caster's curse or mark wherever it is (`removeEffect` `to: applied`) and puts it on the new target (Hex asks its ability again). Conformance suite: `5e52-hex-move` and `5e52-hex-cursed-by`; `5e52-cast-enhance-ability-per-target` no longer expects `caster` on the applied spell.
 
 When concentration ends, the new required follow-up `concentration-ends` ends the caster's concentration spells on every creature holding one (`removeEffect` `to: applied`, by the entries' `appliedBy`; entries saved without an applier stay the app's). Conformance suite: `5e52-concentration-ends`.
+
+effects.md: the Vexed example reads the entry's `appliedBy`.
