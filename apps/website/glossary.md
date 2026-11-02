@@ -5,7 +5,9 @@ One-line definitions of OCF terms, consistent with the [specification](../../pac
 - **absorbedBy:** fields that drain first when a numeric input field takes an incoming decrease (temporary hit points before hit points).
 - **Action:** something a character can do that needs dice or decisions, defined as a cascade of steps (roll, choice, allocate, branch, group, changes, action, outcome).
 - **Action log:** the record of every die face and choice in an action, and who supplied it; replaying it gives the same result.
+- **Activation:** one piece of active content as computeSheet lists it in `activations`: what it is, the copy or pick it belongs to, and how it was reached.
 - **Active content:** content whose effects, grants and choices currently apply: owned features, inventory, picked options, granted content, applied effects and templates on active copies.
+- **Added parameter:** a parameter a `params` effect adds to the actions it targets (an ability's damage type chosen on each use), named by `addedBy` in describeAction; an entry with only `min` and `max` on a parameter the action already has adds bounds instead (`addedBounds`; an `out-of-range` for one names its content in `boundBy`).
 - **Aggregate:** a formula macro that counts, sums or takes the highest or lowest of something over the character's copies (`countCopies`), its saved picks or active grants (`countPicks`, `countGrants`), the ruleset's fields (`countFields`) or a list (`countList`), with a root (`copy`, `pick`, `grant`, `f`, `x`) bound to each element, and over a list `i`, its position.
 - **Allocate step:** an action step that spends a budget across fields (FitD's creation dots, 5E point buy) or hands out a list of values, one per field (the standard array); a checkpoint answered with amounts.
 - **App:** the program using the engine; it owns the experience (dice presentation, time, choices, storage, display).
@@ -42,7 +44,7 @@ One-line definitions of OCF terms, consistent with the [specification](../../pac
 - **Display hint:** optional presentation data (groups, priority, format, unit, `showWhen`, hidden) that never affects calculations. A display group holds fields, actions or content.
 - **Effect:** a change active content makes to a field, a roll or an incoming change, with an operation, value and condition.
 - **effectsWhen:** a condition on a content type or item that every effect of its items needs (5E attunement: `'!item.requiresAttunement || self.attuned'`), ANDed into each holder effect's `when` and read as it is (not applied effects); an item's replaces its type's.
-- **Effect operation:** one of the fixed set: add, set, multiply, atLeast, atMost, grant, rollModifier, tag (tags added to a roll's parts), and, for tagged action steps, option (an extra choice option) and changes (extra proposed changes, or flags set), and, for tagged actions, params (extra parameters).
+- **Effect operation:** one of the fixed set: add, set, multiply, atLeast, atMost, grant, rollModifier, tag (tags added to a roll's parts), and, for tagged action steps, option (an extra choice option), changes (extra proposed changes, or flags set) and action (a nested run, such as the target's saving throw on a hit), and, for tagged actions, params (extra parameters).
 - **Effect scope:** whether an effect applies to a character who has the content (`holder`) or one it is applied to (`applied`).
 - **Engine:** an implementation of the spec's calls; the TypeScript one is the reference engine, others are ports.
 - **Entry (copy):** the character's copy of a content item: base item, templates, equipped flag, quantity, state, picks, and the state of content it grants.
@@ -61,14 +63,14 @@ One-line definitions of OCF terms, consistent with the [specification](../../pac
 - **Grant `available`:** a condition on the computed sheet that a grant's content's actions, follow-ups and auras wait on (a treasure's ability, usable only with a matching kit); the content stays active, marked `unavailable` in computeSheet's `activations`.
 - **Grant-only content:** content held only through what grants or picks it (a class feature, a subclass), marked `grantOnly` on its content type or item; `addItem` of it is `not-addable`, and apps leave it out of add-item catalogs.
 - **Group step:** an action step that runs its steps again and again, one pass at a time, while its `repeat.while` holds and up to `repeat.max` passes (a reroll, see the result, reroll again). Each pass's steps are at `<group>[<n>]/<step>`.
-- **Handoff:** an action step (`as: participant`) run on a participant's own character by the app, which answers the paused action with that run's outcome.
+- **Handoff:** an action step, or an `action` effect content adds to a step, run with `as: participant` on a participant's own character by the app, which answers the paused action with that run's outcome.
 - **Homebrew:** a character's own content and rules additions, saved in its file and loaded on top of its pinned packs as the pack `homebrew` (`homebrew:<id>`); it may add, never override, and upgrades rewrite it with the saved state.
 - **I18n key:** the permanent key under which player-facing text is looked up in translation files.
 - **Immunity:** applied content a character can't be affected by, declared by content or the rules (`immuneTo`); a matching `applied` entry is blocked and reported as the rules issue `immune`. A query can read the candidate entry as `entry`, and any activation condition the raw `character.applied` list.
 - **Incoming change:** a change about to be applied to a character (damage), which effects can modify first (resistance).
 - **Inline option:** an option defined inside a choice rather than as separate content, with a name and an optional description in the pack's text.
 - **Input field:** a field whose value the player supplies and the character file saves.
-- **Interface change:** a difference between two pack releases that can break a character's homebrew (a removed derived field, content type, item field, enum value, tag or rules action); it needs a breaking bump but no upgrade script.
+- **Interface change:** a difference between two pack releases that can break a character's homebrew (a removed derived field, content type, item field, enum value, tag, action or action parameter, a parameter retyped or made required or derived, a removed or retyped situational choice, a choice gaining or losing `addAs`); it needs a breaking bump but no upgrade script.
 - **Item field:** a typed property declared by a content type and set on each item (damage, weight).
 - **List item field:** an item field of type `list`: members in the order written (a spell's cast options, a class's ability priority), duplicates allowed unless `unique`; a `set` is sorted instead.
 - **Limits:** bounds on a field's final value, after effects; a value outside them is the rules issue `out-of-limits`.
@@ -92,7 +94,7 @@ One-line definitions of OCF terms, consistent with the [specification](../../pac
 - **Prerequisite:** a condition for having content; a false one is a rules issue.
 - **Preset choice:** a choice of granted content that the grant answers (`choices`); never pending, and `choose` and `unchoose` refuse it (`preset-choice`).
 - **Priority:** a display hint ordering groups and fields; whole numbers, 0 highest.
-- **Proposed change:** a change an action returns for the app to apply, to the acting character, a target or a linked character.
+- **Proposed change:** a change an action returns for the app to apply, to the acting character, a role's participant, a linked character, or whoever holds what the actor applied (`to: applied`).
 - **Proposed sheet:** the character with the changes an action has proposed so far `to: self` applied, which a step with `sheet: proposed` reads; built afresh in each call, never stored.
 - **Query:** a link to a set of things written as a rule: a content type plus a `where` condition.
 - **Result band:** a named range of roll results (6− / 7–9 / 10+), declared in a game's rules data. A band set may work out a `value` once, which its bands read (`roll.value`), and an effective `total` the roll reports.
@@ -105,10 +107,11 @@ One-line definitions of OCF terms, consistent with the [specification](../../pac
 - **Roll effect `then`:** changes a roll effect proposes after a roll step it changed (or, with `when: applied`, was in play on), once per action run or, with `once: roll`, per roll: ending a condition, spending a use, or, `to` another character, ending the target's entry.
 - **Safety limit:** a spec-defined cap (exploding dice, nesting depth, action steps) protecting engines from untrusted packs.
 - **Sender (`from`):** the character whose action or follow-up proposed an adjust for someone else, carried on the adjust; an `on` follow-up reads it as `change.from` (the creature that damaged you).
-- **Shape change:** a difference between two pack releases that changes what saved state means (removed content, field, state key, choice or option; a new required choice); it needs a breaking bump and an upgrade script that covers it.
+- **Shape change:** a difference between two pack releases that changes what saved state means (removed content, field, state key, choice or option; content that changes type, stops being granted or becomes standard; a new required choice); it needs a breaking bump and an upgrade script that covers it.
 - **Shape error:** input that doesn't match the spec's JSON Schema, rejected before running.
+- **Shared action:** a rules action that items list with `use` (optionally fixing `params`), so one `cast-spell` runs every spell; content joins in through its tagged steps (`option`, `changes` and `action` effects).
 - **Shared sheet:** a character file holding a pool several characters spend from (hero tokens, the Director's Malice, a crew), linked from each through one slot; the app applies each one's spend in turn.
-- **Situational choice:** a roll-time choice declared in game data (advantage, cover, push yourself), or a choice the receiving player makes on one incoming change (Uncanny Dodge) or one batch of them (Deflect Attacks), which may carry its own cost (`changes`).
+- **Situational choice:** a roll-time choice declared in game data (advantage, cover, push yourself), or a choice the receiving player makes on one incoming change (Uncanny Dodge) or one batch of them (Deflect Attacks), which may carry its own cost (`changes`: a field, or a held copy's state such as a shield's damage).
 - **Source:** where a value, roll item or issue came from (field, item, entry, template, effect, situational, rules, step, app).
 - **Spec upgrade:** data shipped with the spec that moves a character file across a spec version that changed the file's shape; `upgrade` runs the ones between the character's `specVersion` and the engine's, then writes the engine's version.
 - **Spec version:** the version of the OCF formats and behavior, which is the `@opencharacter/spec` package version; packs declare the minimum they need, and an engine lists the major.minor versions it implements (`IMPLEMENTS_SPEC`).
