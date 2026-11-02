@@ -94,7 +94,10 @@ computeSheet(ruleset, made.character).values['wwn-srd:saves.physical']?.value; /
   casting limits for full, partial, dual partial and Invoker casters (spell points), the arts
   of every class with the Effort they commit, each class's own Effort pool, and the arts its
   class grants or teaches by level. `cast-spell`, `commit-effort`, `rest` and `end-scene`.
-  Every art's card, a class's granted arts included, shows its tradition's free Effort.
+  Every art's card, a class's granted arts included, shows its tradition's free Effort. Retain
+  Sorcery's Effort gives back the day's last casting (not an Invoker's spell points). The
+  casting and committing steps are tagged `spell.cast` and `art.commit` for content's `changes`
+  effects.
 - **Advancement:** experience on the fast or slow track, `level-up` (hit points, skill points,
   a Focus at 2, 5, 7 and 10 with three skill points toward its skill, arts and spells), and
   `improve` to spend skill points on skills and attribute boosts at their level minimums.

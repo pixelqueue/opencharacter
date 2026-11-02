@@ -3,3 +3,13 @@ type: art
 fields:
   tradition: highmage
   effort: day
+effects:
+  # Used after a cast: that cast doesn't count against the day's castings.
+  - target: { steps: [art.commit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: adjust
+          when: "spells.castsUsed > 0 && spells.mode != 'invoker' && spells.mode != 'partial-invoker'"
+          field: spells.castsUsed
+          by: -1
