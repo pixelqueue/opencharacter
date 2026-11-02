@@ -61,3 +61,30 @@ effects:
     duration: { amount: 1, unit: hour, concentration: true }
 actions:
   - use: cast-spell
+  - id: move
+    tags: [spell]
+    participants: { target: { max: 1 } }
+    results: [moved]
+    steps:
+      - id: ability
+        kind: choice
+        options: { values: { formula: item.castOptions } }
+      # Ends the caster's curse wherever it is (the app sends it to whoever holds one), then curses
+      # the new creature.
+      - id: uncurse
+        kind: changes
+        to: applied
+        changes:
+          - type: removeEffect
+            applied: { where: item.id == @spells.hex }
+      - id: curse
+        kind: changes
+        to: target
+        changes:
+          - type: applyEffect
+            source: item.id
+            state: { option: steps.ability.value }
+      - id: result
+        kind: outcome
+        result: "'moved'"
+        data: { ability: steps.ability.value }

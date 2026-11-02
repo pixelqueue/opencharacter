@@ -174,7 +174,8 @@ Where the SRD is unclear or silent, the pack reads it this way:
 - **Spells:**
   - A spell's option (Hex's ability, Fire Shield's warmth, a resistance's type) is picked at the
     cast for each target, so Calm Emotions and an upcast Enhance Ability can differ per creature,
-    and is kept on the applied spell. Only Alter Self's can be replaced later.
+    and is kept on the applied spell. Only Alter Self's can be replaced later, and Hex's when the
+    curse moves.
   - Enlarge/Reduce: only an unwilling target saves.
   - Black Tentacles' 3d6 is on a failed save only; a spell whose area is a wall or a square has
     no area shape.
@@ -189,7 +190,10 @@ Where the SRD is unclear or silent, the pack reads it this way:
   - A smite is an option on a hit with a melee weapon or an Unarmed Strike: picking it casts the
     spell (the slot level asked on the attack) and adds its damage to the attack's, doubled on a
     Critical Hit. Hex's and Hunter's Mark's extra damage joins the caster's attack damage when the
-    target's view names the caster (`hex.cursedBy`, `huntersMark.markedBy`), and Precise Hunter's
+    target's view names the caster (`hex.cursedBy`, `huntersMark.markedBy`: the applied spell's
+    `appliedBy`), and each spell's `move` action ends the caster's curse or mark wherever it is
+    (`to: applied`) and puts it on the new target; whether the old target dropped to 0 Hit Points
+    is the player's. Precise Hunter's
     Advantage applies against a target so marked (its `preciseHunter` situational choice stays for
     an attack without the target's view). Divine Favor doesn't add to Unarmed Strikes.
   - Power Word Kill and Power Word Stun read the target's current Hit Points from its view

@@ -1,0 +1,18 @@
+status: finished
+outcome:
+  result: moved
+  data: { ability: wis }
+proposedChanges:
+  - to: applied
+    step: uncurse
+    change:
+      type: removeEffect
+      applied: { where: "item.id == '5e-srd-5.2:spells.hex'", appliedBy: test }
+  - to: target
+    character: ogre
+    step: curse
+    change:
+      type: applyEffect
+      source: 5e-srd-5.2:spells.hex
+      appliedBy: test
+      state: { option: wis }

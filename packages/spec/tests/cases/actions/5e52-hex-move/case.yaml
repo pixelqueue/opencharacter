@@ -1,0 +1,13 @@
+description: "5E 2024 Hex moved to a new creature: the warlock's curse ends wherever it is (`to: applied`) and the new target is cursed, with the ability picked again"
+specVersion: 0.3.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/5e/srd-5.2
+input:
+  action: { id: '5e-srd-5.2:spells.hex#move', entry: class, source: 5e-srd-5.2:spells.hex }
+  participants:
+    target:
+      - { id: ogre }
+  policy: { dice: auto, choices: pause, allocations: auto }
+answers:
+  - { option: wis }

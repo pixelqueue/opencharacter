@@ -16,6 +16,27 @@ fields:
   applied: true
 actions:
   - use: cast-spell
+  - id: move
+    tags: [spell]
+    participants: { target: { max: 1 } }
+    results: [moved]
+    steps:
+      # Ends the caster's mark wherever it is (the app sends it to whoever holds one), then marks
+      # the new creature.
+      - id: unmark
+        kind: changes
+        to: applied
+        changes:
+          - type: removeEffect
+            applied: { where: item.id == @spells.hunters-mark }
+      - id: mark
+        kind: changes
+        to: target
+        changes:
+          - { type: applyEffect, source: item.id }
+      - id: result
+        kind: outcome
+        result: "'moved'"
 effects:
   - target: { rolls: [damage] }
     op: add
