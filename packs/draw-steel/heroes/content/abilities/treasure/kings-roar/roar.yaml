@@ -7,6 +7,10 @@ fields: { usage: maneuver, kind: treasure, distanceKind: melee, distance: 1 }
 effects:
   - target: { steps: [ability.hit], from: self }
     op: changes
+    value:
+      flags: { move: "'push'", moveDistance: 'level >= 9 ? 5 : level >= 5 ? 4 : 3' }
+  - target: { steps: [ability.hit], from: self }
+    op: changes
     when: level >= 9
     value:
       changes:
