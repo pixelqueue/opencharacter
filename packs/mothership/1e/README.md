@@ -138,7 +138,8 @@ for the player's choices and other characters.
     - Success converts stress into save points up to the port's conversion die (`convert`;
       `all` for a port that converts everything), split by the player (an unattended run puts
       them all on the lowest save), then relieves the rest down to the minimum. Converting stops at the minimum stress, which the source leaves open.
-    - An X-class port's [+] (situational `xClass`) rolls the whole conversion roll twice and keeps the better total.
+    - An X-class port's [+] (situational `xClass`) rolls the whole conversion roll twice and
+      keeps the better total.
     - A critical success converts the die's most; a failure relieves everything down to the
       minimum and adds 1; a critical failure converts and relieves nothing and makes a panic
       check (the save's own).
@@ -161,7 +162,8 @@ for the player's choices and other characters.
   - Bleeding, credits and high score are tracked as values. A bleeding character loses 1 health
     per point of bleeding, ignoring armor and damage reduction, as its own turn starts: the
     `turn-boundary` clock action, which the app runs on every character at each turn change.
-    `bleed` takes the same loss for an app without turns.
+    `bleed` takes the same loss for an app without turns. Run one or the other each round,
+    never both, or bleeding counts twice.
 - **Weapons (shape only):**
   - Fields: damage dice and/or a number of Wounds, an optional magazine, range, wound type,
     anti-armor.
