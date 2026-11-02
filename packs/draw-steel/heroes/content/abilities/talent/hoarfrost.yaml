@@ -37,7 +37,7 @@ effects:
       from: self
     op: changes
     when: (combat.active && heroic.current - item.cost - params.spend < 0)
-      || params.talentStrain
+      || (has(params.talentStrain) && params.talentStrain)
     value:
       changes:
         - type: applyEffect
@@ -50,7 +50,7 @@ effects:
       from: self
     op: changes
     when: ((combat.active && heroic.current - item.cost - params.spend <
-      0) || params.talentStrain) && flags.landed
+      0) || (has(params.talentStrain) && params.talentStrain)) && flags.landed
     value:
       changes:
         - type: applyEffect

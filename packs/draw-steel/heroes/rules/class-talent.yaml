@@ -4,7 +4,7 @@
 # the clarity left after paying the cost and any Spend is below 0; or, by the hero's choice,
 # through the `talentStrain` parameter (outside combat, where using a second clarity ability
 # within a minute strains, and with Psion at 10th level). Each ability tests
-#   (combat.active && heroic.current - item.cost - params.spend < 0) || params.talentStrain
+#   (combat.active && heroic.current - item.cost - params.spend < 0) || (has(params.talentStrain) && params.talentStrain)
 # in its own effects, since the action's steps read the sheet before the cost is paid.
 fields:
   talent.strained: { type: boolean, formula: "heroic.kind == 'clarity' && heroic.current < 0" }
@@ -77,17 +77,17 @@ effects:
     target: { rolls: [power-roll.ability], tally: moveBonus }
     op: add
     value: "potency.char == 'none' ? 0 : fieldOf('characteristics.{characteristic}.score', potency.char)"
-    when: "'kw.psionic' in action.item.tags && params.psiDynamic"
+    when: "'kw.psionic' in action.item.tags && (has(params.psiDynamic) && params.psiDynamic)"
   - id: psi-extended
     target: { rolls: [power-roll.ability], tally: distanceBonus }
     op: add
     value: "flags.mode == 'ranged' ? (potency.char == 'none' ? 0 : fieldOf('characteristics.{characteristic}.score', potency.char)) : 2"
-    when: "'kw.psionic' in action.item.tags && params.psiExtended"
+    when: "'kw.psionic' in action.item.tags && (has(params.psiExtended) && params.psiExtended)"
   - id: psi-heightened
     target: { rolls: [damage] }
     op: add
     value: "potency.char == 'none' ? 0 : fieldOf('characteristics.{characteristic}.score', potency.char)"
-    when: "'kw.psionic' in action.item.tags && params.psiHeightened"
+    when: "'kw.psionic' in action.item.tags && (has(params.psiHeightened) && params.psiHeightened)"
     tags:
       - {
           formula: "action.item.damageType == 'untyped' ? [] : ['damage.' + action.item.damageType]",
@@ -96,12 +96,12 @@ effects:
     target: { rolls: [power-roll.ability], tally: potencyBonus }
     op: add
     value: "potency.char == 'none' ? 0 : fieldOf('characteristics.{characteristic}.score', potency.char)"
-    when: "'kw.psionic' in action.item.tags && params.psiMagnified"
+    when: "'kw.psionic' in action.item.tags && (has(params.psiMagnified) && params.psiMagnified)"
   - id: psi-sharpened
     target: { rolls: [power-roll.ability], tally: edges }
     op: add
     value: 1
-    when: "'kw.psionic' in action.item.tags && params.psiSharpened"
+    when: "'kw.psionic' in action.item.tags && (has(params.psiSharpened) && params.psiSharpened)"
 
 display:
   fields:

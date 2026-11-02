@@ -13,15 +13,15 @@ effects:
     when: >-
       combat.active && 'kw.psionic' in action.item.tags
         && action.item.usage in ['main-action', 'maneuver']
-        && (params.psiDynamic || params.psiExpanded || params.psiExtended
-          || params.psiHeightened || params.psiMagnified || params.psiShared
-          || params.psiSharpened)
+        && ((has(params.psiDynamic) && params.psiDynamic) || (has(params.psiExpanded) && params.psiExpanded) || (has(params.psiExtended) && params.psiExtended)
+          || (has(params.psiHeightened) && params.psiHeightened) || (has(params.psiMagnified) && params.psiMagnified) || (has(params.psiShared) && params.psiShared)
+          || (has(params.psiSharpened) && params.psiSharpened))
     value:
       changes:
         - type: adjust
           field: heroic.current
           by: >-
-            -max(0, (params.psiDynamic ? 1 : 0) + (params.psiExpanded ? 3 : 0)
-              + (params.psiExtended ? 1 : 0) + (params.psiHeightened ? 1 : 0)
-              + (params.psiMagnified ? 5 : 0) + (params.psiShared ? 5 : 0)
-              + (params.psiSharpened ? 1 : 0) - (level >= 10 ? 1 : 0))
+            -max(0, ((has(params.psiDynamic) && params.psiDynamic) ? 1 : 0) + ((has(params.psiExpanded) && params.psiExpanded) ? 3 : 0)
+              + ((has(params.psiExtended) && params.psiExtended) ? 1 : 0) + ((has(params.psiHeightened) && params.psiHeightened) ? 1 : 0)
+              + ((has(params.psiMagnified) && params.psiMagnified) ? 5 : 0) + ((has(params.psiShared) && params.psiShared) ? 5 : 0)
+              + ((has(params.psiSharpened) && params.psiSharpened) ? 1 : 0) - (level >= 10 ? 1 : 0))

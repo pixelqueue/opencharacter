@@ -32,7 +32,7 @@ effects:
       from: self
     op: changes
     when: ((combat.active && heroic.current - item.cost - params.spend <
-      0) || params.talentStrain) && flags.tier >= 2
+      0) || (has(params.talentStrain) && params.talentStrain)) && flags.tier >= 2
     value:
       changes:
         - type: applyEffect
@@ -45,7 +45,7 @@ effects:
       from: self
     op: changes
     when: ((combat.active && heroic.current - item.cost - params.spend <
-      0) || params.talentStrain) && has(steps.roll) && steps.roll.bandValue >= 2
+      0) || (has(params.talentStrain) && params.talentStrain)) && has(steps.roll) && steps.roll.bandValue >= 2
     value:
       changes:
         - type: applyEffect

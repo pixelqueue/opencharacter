@@ -24,7 +24,7 @@ effects:
   # Strained: 3d6 damage.
   - target: { steps: [ability.after], from: self }
     op: changes
-    when: (combat.active && heroic.current - item.cost - params.spend < 0) || params.talentStrain
+    when: (combat.active && heroic.current - item.cost - params.spend < 0) || (has(params.talentStrain) && params.talentStrain)
     value:
       changes:
         - { type: adjust, field: stamina.current, by: -3d6, tags: [damage, talent.strain] }
