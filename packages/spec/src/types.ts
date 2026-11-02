@@ -3164,7 +3164,7 @@ export type SituationalChoice = {
     fields?: FieldRef[];
     tags?: Tags;
   };
-  /** Incoming changes only: how far a selection reaches. `change` (default): the change it is selected on. `batch`: selected on one change of a batch, its incoming-change effects reach that change and every later adjust of the batch (an attack's damage types), and each `add` among them is worked out once and spent over those changes, never past 0: what one change doesn't take carries to the next. */
+  /** Incoming changes only: how far a selection reaches. `change` (default): the change it is selected on. `batch`: selected on one change of a batch, its incoming-change effects reach that change and every later adjust of the batch its `incoming` matches (an attack's damage types), and each `add` among them is worked out once and spent over those changes, never past 0: what one change doesn't take carries to the next. */
   scope?: 'change' | 'batch';
   /** When the choice is offered: a condition on the character (fields and `character`), checked before any roll. Absent means always. */
   available?: Condition;
@@ -3320,6 +3320,7 @@ export type ErrorCode =
   | 'invalid-clock-action'
   | 'invalid-aura'
   | 'invalid-applied-change'
+  | 'invalid-situational-change'
   | 'invalid-family'
   | 'invalid-extension'
   | 'link-start-mismatch'

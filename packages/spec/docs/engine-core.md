@@ -1009,8 +1009,8 @@ copies or applied entries (`where`, `by`, `value`), an `applyEffect`'s state val
 choice's `changes`. `batch.adjustments` lists the `adjustments` entries of the batch's earlier
 changes on this character that change a field, in order, each `{ field, by, requested, taken,
 reason, clamped, tags }`, as an `on` follow-up's `change` has them (`requested` and `taken` 0
-and `clamped` false when absent). A situational choice's `changes` see the whole batch's. An action passes on a formula that reads `batch` (a state value as `{ formula }`),
-so it learns what its own earlier changes did to the target: 5E's wound holds the hit points
+and `clamped` false when absent). A situational choice's `changes` see the whole batch's. An
+action passes on a formula that reads `batch` (a state value as `{ formula }`), so it learns what its own earlier changes did to the target: 5E's wound holds the hit points
 the target lost to the batch's damage, after its resistances and temporary hit points.
 
 An `applyEffect` state value `{ formula }` is evaluated with `item` the source's item, the
@@ -1283,8 +1283,9 @@ qualified IDs to values, such as 5E's Uncanny Dodge on one attack.
 - The choices reach only this change: not its overflow (which skips incoming-change effects) and
   not the batch's other changes. An attack split into several adjusts carries them on each.
 - **Batch-scoped** choices (`scope: batch`) are the exception. One selected on an adjust also
-  reaches every later adjust of the batch: its incoming-change effects join their step 1 after
-  that change's own choices, and every effect sees its value as `situational.<id>`. Selecting it
+  reaches every later adjust of the batch that its `incoming` matches: its incoming-change effects
+  join their step 1 after that change's own choices, and every effect sees its value as
+  `situational.<id>`. Selecting it
   on a later change of the same batch is `situational-unavailable`. Each of its counted `add`s
   is worked out once, on the first change it counts on (a dice value rolled there, in instance
   order, its faces on that adjust), and is then a budget: on each change, in its place among the
@@ -1294,15 +1295,21 @@ qualified IDs to values, such as 5E's Uncanny Dodge on one attack.
 - **Changes.** After the batch's last change, each choice selected on any change of the batch
   applies its `changes` once, in order of first selection, each change in order: `when`, if
   given, must hold; `set` sets an input field to `value` (checked as a `set` change); `adjust`
-  routes `by` into an input field with its `tags`, skipping step 1, and its `requested` entry
+  routes `by` into an input field with its `tags`, skipping step 1, absorbed and clamped as
+  any adjust (a tag no loaded pack declares is `unknown-tag`), and its `requested` entry
   carries `source: { type: situational, id }`; `offerFollowUp` offers the rules follow-up with
   its `params` evaluated, after the batch's own offers ([follow-ups](#follow-ups)). Each formula
   is evaluated in the choice's pack on the character as it is then, with `situational` (every
   choice selected on the batch, defaults for the rest) and `batch` (all the batch's field
   entries so far). A failure rejects the batch, its path the change that first selected the
   choice. The returned `changes` don't list them: replaying the selecting change applies them
-  again. A follow-up the choice offers must be one the rules declare, not derived (`while`):
-  otherwise loadRuleset fails with `unknown-reference` (kind `follow-up`).
+  again, so a log replays batch by batch. A choice with `changes` selected on several changes of
+  a batch must have one value on all of them; another is `situational-unavailable`. A
+  follow-up the choice offers must be one the rules declare, not derived (`while`): otherwise
+  loadRuleset fails with `unknown-reference` (kind `follow-up`). A `set` or `adjust`
+  of a field that isn't an input field (or an `adjust` of one that isn't numeric), or a
+  follow-up parameter its action neither declares nor gets from a `params` effect reaching it,
+  is `invalid-situational-change`; a tag no visible pack declares is `unknown-tag`.
 - `changes` returns the adjust with its `situational`, so a logged batch replays the same.
 - An action never proposes `situational`: the target's player chooses, on the target's side.
 

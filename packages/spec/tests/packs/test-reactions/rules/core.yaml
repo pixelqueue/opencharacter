@@ -41,6 +41,18 @@ situational:
     changes:
       - { type: adjust, field: focus, by: -1 }
       - { type: set, field: shieldUsed, value: true }
+  # Stops as much of one attack's damage as the focus spent on it.
+  - id: brace
+    type: integer
+    default: 0
+    incoming: { fields: [hp], tags: [attack] }
+    available: focus > 0
+    effects:
+      - target: { incoming: { fields: [hp], tags: [damage] } }
+        op: add
+        value: situational.brace
+    changes:
+      - { type: adjust, field: focus, by: -situational.brace }
   # Reduces the attack's total damage once by 1d6 + 2, over its changes in order. Stopping it all
   # offers the redirect, with what was stopped.
   - id: deflect

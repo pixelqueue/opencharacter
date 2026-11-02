@@ -149,6 +149,11 @@ makes calls that worked fail (`situational-unavailable`, `unknown-action`, `out-
 `invalid-option`) or drops a parameter from actions that had it, so it is an interface change
 too: the author gives it a breaking bump, which `checkRelease` doesn't check.
 
+Changing what a logged batch does on replay is one too. A situational choice that becomes
+batch-scoped (`scope: batch`), or that gains or changes `changes`, replays a logged adjust that
+selects it differently: its effects reach other changes, or a cost is paid that wasn't. Give it a
+breaking bump, which `checkRelease` doesn't check either.
+
 ## Upgrade scripts
 
 Upgrade scripts are **data, not code** ([`upgrade.schema.json`](../schemas/upgrade.schema.json)),

@@ -1,5 +1,6 @@
-# 1d6 + 2 rolls 3 + 2 = 5, once: the slashing part takes 3 of it (to 0), the fire part the 2 left
-# (-4 to -2), and the last change nothing. Not all of it was stopped, so no redirect is offered.
+# 1d6 + 2 rolls 6 + 2 = 8, once: the slashing part takes 3 of it (to 0), the fire part 4 (to 0),
+# 1 left. The last change isn't the attack's (its tags don't match the choice's `incoming`), so
+# it isn't reached: -2. Not all the batch's damage was stopped, so no redirect is offered.
 ok: true
 adjustments:
   - field: test-reactions:hp
@@ -10,12 +11,12 @@ adjustments:
     rolled:
       - source: { type: situational, id: test-reactions:deflect }
         dice: 1d6 + 2
-        faces: [3]
-        total: 5
-  - { field: test-reactions:hp, by: -2, requested: -4, taken: -2, reason: requested }
+        faces: [6]
+        total: 8
+  - { field: test-reactions:hp, by: 0, requested: -4, taken: 0, reason: requested }
   - { field: test-reactions:hp, by: -2, requested: -2, taken: -2, reason: requested }
 followUps: []
 character:
   values:
     test-reactions:deflects: true
-    test-reactions:hp: 16
+    test-reactions:hp: 18

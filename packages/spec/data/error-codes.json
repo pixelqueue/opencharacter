@@ -121,7 +121,7 @@
     {
       "id": "homebrew-error",
       "kind": "runtime",
-      "description": "The character's homebrew doesn't load on top of the ruleset, so the call computes nothing. One error per load error. Data: `cause` (the load error code: `unknown-reference`, `formula-error`, `homebrew-not-allowed`, `missing-dependency`, `safety-limit-exceeded`, \u2026) and `detail` (that error's data); `path` points into the character (`/homebrew/content/0`). upgrade reports it in `report.errors` for homebrew that doesn't load on the new ruleset."
+      "description": "The character's homebrew doesn't load on top of the ruleset, so the call computes nothing. One error per load error. Data: `cause` (the load error code: `unknown-reference`, `formula-error`, `homebrew-not-allowed`, `missing-dependency`, `safety-limit-exceeded`, …) and `detail` (that error's data); `path` points into the character (`/homebrew/content/0`). upgrade reports it in `report.errors` for homebrew that doesn't load on the new ruleset."
     },
     {
       "id": "invalid-link-value",
@@ -176,7 +176,7 @@
     {
       "id": "unknown-reference",
       "kind": "load",
-      "description": "Content refers to an ID that does not exist. Also raised when an action runs, for an addItem's item or an applyEffect's source that names no content or a template. A kept template (`keepsTemplates`) that names content other than a template is `unknown-reference` too, with kind `template`. A grant's preset `choices` naming a choice the granted content doesn't declare (or on a `scope: applied` grant) is kind `choice`; a literal preset option it doesn't offer, kind `option` or `content`."
+      "description": "Content refers to an ID that does not exist. Also raised when an action runs, for an addItem's item or an applyEffect's source that names no content or a template. A kept template (`keepsTemplates`) that names content other than a template is `unknown-reference` too, with kind `template`. A grant's preset `choices` naming a choice the granted content doesn't declare (or on a `scope: applied` grant) is kind `choice`; a literal preset option it doesn't offer, kind `option` or `content`. A situational choice's `offerFollowUp` naming no rules follow-up, or a derived (`while`) one, is kind `follow-up`."
     },
     {
       "id": "circular-formula",
@@ -227,6 +227,11 @@
       "id": "invalid-applied-change",
       "kind": "load",
       "description": "A change sent `to: applied` (by a step, an option, added changes, a roll effect's `then` or a follow-up) isn't a removeEffect, toggleEffect, setState or adjustState naming applied entries by query (`applied`), a follow-up `to: applied` has no `changes`, or an action declares a role named `applied` (a destination, not a role). Data: `type`, `followUp` or `action` and `role`, and `pack`."
+    },
+    {
+      "id": "invalid-situational-change",
+      "kind": "load",
+      "description": "A situational choice's `changes` can't apply: a `set` or `adjust` names a field that isn't an input field (reason `not-input`), an `adjust` a field that isn't numeric (`not-numeric`), or an `offerFollowUp` passes a parameter its follow-up's action neither declares nor is given by a `params` effect reaching it (`param`). Data: `situational`, `reason`, and `field`, or `followUp` and `param`."
     },
     {
       "id": "invalid-family",
@@ -351,7 +356,7 @@
     {
       "id": "overflow",
       "kind": "formula",
-      "description": "An int result is outside \u00b1(2^53 \u2212 1), or a decimal result is not finite."
+      "description": "An int result is outside ±(2^53 − 1), or a decimal result is not finite."
     },
     {
       "id": "no-such-key",

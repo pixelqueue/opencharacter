@@ -476,7 +476,7 @@ its dependencies' tallies. A roll step exposes every visible tally as `steps.<id
 - `scope` and `changes` are for choices with `incoming`: how far one selection reaches, and what choosing it costs ([below](#costs-and-whole-attacks)).
 - `available` is a condition on the character that says when the choice is offered: `omens.current > 0`, or a set field holding the content that grants the choice. Its formula sees the character's fields and `character`, as constraints do; there is no `item`, `self`, `steps` or `roll`, because it is decided before any roll. A choice without `available` is always offered. `computeSheet` lists the choices offered now in `situational`, and `startAction` rejects selecting one that isn't (`situational-unavailable`), and an ID the ruleset doesn't declare (`unknown-situational`).
 - Text: `situational.<id>.name`.
-- Releases: removing a choice, changing its `type` or dropping enum values is an interface change (`situational-removed`, `situational-type-changed`), and so is narrowing `available`, `rolls` or `incoming`, which needs a breaking bump the build can't check ([upgrades.md](upgrades.md#a-packs-interface)).
+- Releases: removing a choice, changing its `type` or dropping enum values is an interface change (`situational-removed`, `situational-type-changed`), and so is narrowing `available`, `rolls` or `incoming`, which needs a breaking bump the build can't check ([upgrades.md](upgrades.md#a-packs-interface)). So is making an existing choice `scope: batch` or giving it `changes` (or changing them): a logged batch that selects it replays differently.
 
 ### Choices on incoming changes
 
@@ -551,7 +551,8 @@ situational:
 
 - **`changes`** are what choosing it costs or gains: `set` (`field`, `value`) and `adjust`
   (`field`, `by`, optional `tags`) of the character's input fields, and `offerFollowUp` of a
-  rules follow-up (`followUp`, optional `params`), each with an optional `when`. They apply
+  rules follow-up (`followUp`, optional `params`, which its action must take), each with an
+  optional `when`. They apply
   **once per batch** that selects the choice, however many of its changes do (an attack split by
   damage type pays once), after the batch's last change, in the order the choices were first
   selected. Their formulas see the character as the batch left it, `situational` (the batch's
@@ -560,15 +561,24 @@ situational:
   carries the choice as `source`. They are never added to the returned `changes`: the change that
   carries the selection brings them back on replay. A failure rejects the batch, at the change
   that first selected the choice.
+- A cost **clamps** like any adjust: spending 3 focus from 1 takes the 1. To require the full
+  cost, gate the choice with `available` (`heroic.current >= 1`). A choice with `changes` is
+  charged once per batch, so every change of the batch that selects it gives the same value;
+  another is `situational-unavailable`.
+- A field that isn't an input field, or an `adjust` of one that isn't numeric, or a follow-up
+  parameter its action doesn't take, is `invalid-situational-change` at load; an undeclared tag
+  is `unknown-tag`.
 - **`scope: batch`** makes one selection reach the whole attack: selected on one adjust, the
-  choice's incoming-change effects apply to that adjust and every later adjust of the batch
-  (their targets pick which), and the character's own effects see it as `situational.<id>` on
-  them all. Each `add` among its effects is worked out once, on the first change it counts on
+  choice's incoming-change effects apply to that adjust and every later adjust of the batch that
+  its `incoming` matches (their targets pick among those), and the character's own effects see it
+  as `situational.<id>` on them. Each `add` among its effects is worked out once, on the first change it counts on
   (its dice rolled there, the faces on that adjust), and spent over the changes in order: it
   moves each amount toward 0, by at most the amount, and what is left carries to the next change;
   it never moves an amount away from 0. Its other operations apply to each change it reaches. It
   can be selected on one change of a batch: a second is `situational-unavailable`. An app routes
   one attack's damage as one batch and selects the choice on its first change.
+- **Replay a log as batches.** Costs apply at a batch's end and a batch-scoped choice spans its
+  changes, so a logged batch replays as one batch, never change by change.
 - Without `scope` (or with `scope: change`) a choice reaches only the change it is selected on.
 
 ## Link slots
