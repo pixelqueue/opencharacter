@@ -2,3 +2,21 @@ id: feats.champion.expand-aura
 type: feat
 tags: [trait.concentrate]
 fields: { level: 6, category: class, class: classes.champion }
+actions:
+  - id: expand-aura
+    tags: [feat-action]
+    results: [expanded]
+    steps:
+      - id: expand
+        kind: changes
+        changes:
+          - type: removeEffect
+            applied: { where: 'item.id == @effects.expand-aura' }
+          # Until the start of your next turn; for 1 minute at 10th level, until dismissed at 16th
+          # (the app's to end).
+          - type: applyEffect
+            source: "'effects.expand-aura'"
+            state: { duration: "level >= 10 ? 'none' : 'next-start'" }
+      - id: result
+        kind: outcome
+        result: "'expanded'"

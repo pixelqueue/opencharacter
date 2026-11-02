@@ -19,6 +19,8 @@ fields:
   champion.reactionDamage: { type: integer, input: true, default: 0, min: 0 }
   champion.smiteTarget: { type: string, input: true, default: '' }
   champion.allyResistance: { type: integer, formula: 2 + level }
+  # The champion's aura's radius in feet: 15, or 30 while Expand Aura is up.
+  champion.auraSize: { type: integer, formula: 15, min: 0 }
 
 tags:
   - strike.blessed-counterstrike
@@ -80,3 +82,4 @@ display:
     champion.reactionDamage: { groups: [turn], priority: 2, showWhen: champion.reactionDamage > 0 }
     champion.smiteTarget: { hidden: true }
     champion.allyResistance: { hidden: true }
+    champion.auraSize: { hidden: true }

@@ -4,3 +4,15 @@ tags: [trait.uncommon]
 fields: { level: 4, category: class, class: classes.champion }
 prerequisites:
   - { id: unholy, when: "champion.sanctification == 'unholy'" }
+# Enemies in the aura take a -1 circumstance penalty to saves against fear.
+auras:
+  - id: despair
+    size: champion.auraSize
+    affects: enemies
+    effects:
+      - target: { rolls: [save] }
+        op: add
+        value: -1
+        stackKey: circumstance-penalty
+        when: situational.againstFear
+        scope: applied

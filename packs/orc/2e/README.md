@@ -558,7 +558,13 @@ Still closed: attributes, proficiency ranks, saves, spell traditions (and a staf
   of the void, shields of the spirit, spectral advance, champion's sacrifice, hero's defiance),
   the blessing of the devoted (armament, shield or swiftness, whose Speed applies; the runes are
   text), and the features by level
-  to Hero's Defiance.
+  to Hero's Defiance. The aura feats are auras the app places (`auras`, sized by
+  `champion.auraSize`: 15 feet, 30 while Expand Aura's effect is up, which lasts until the start
+  of the champion's next turn below 10th level): Aura of Courage lowers an ally's frightened at
+  the end of the champion's turn (`turn-boundary`), Aura of Despair gives enemies −1 to saves
+  against fear, Aura of Determination and Aura of Life give allies their bonuses and resistance
+  (and Aura of Life the champion its +1 to saves against void). Aura of Faith and Aura of
+  Righteousness are text.
 - **The alchemist** (Player Core 2): Intelligence, versatile vials (`vials`, refilled by
   daily preparations), formulas (`formulas`, a set the book picks fill), advanced alchemy (one
   infused item per vial, its level the alchemist's), quick alchemy (a vial into an item), the

@@ -7,3 +7,25 @@ effects:
     stackKey: resistance
     value: min(-incoming.amount, 5)
     when: incoming.amount < 0
+  - target: { rolls: [save] }
+    op: add
+    value: 1
+    stackKey: status-bonus
+    when: situational.againstVoid
+auras:
+  - id: life
+    size: champion.auraSize
+    affects: allies
+    effects:
+      - target: { incoming: { fields: [hp.current], tags: [damage.void] } }
+        op: add
+        stackKey: resistance
+        value: min(-incoming.amount, 5)
+        when: incoming.amount < 0
+        scope: applied
+      - target: { rolls: [save] }
+        op: add
+        value: 1
+        stackKey: status-bonus
+        when: situational.againstVoid
+        scope: applied

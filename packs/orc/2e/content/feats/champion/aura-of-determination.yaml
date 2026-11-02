@@ -7,3 +7,14 @@ effects:
     value: 1
     stackKey: status-bonus
     when: situational.againstMental
+auras:
+  - id: determination
+    size: champion.auraSize
+    affects: allies
+    effects:
+      - target: { rolls: [save] }
+        op: add
+        value: 1
+        stackKey: status-bonus
+        when: situational.againstMental
+        scope: applied

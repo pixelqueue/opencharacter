@@ -3,3 +3,22 @@ type: feat
 fields: { level: 4, category: class, class: classes.champion }
 prerequisites:
   - { id: holy, when: "champion.sanctification == 'holy'" }
+# At the end of the champion's turn, each ally in the aura lowers its frightened value by 1: the
+# aura's entry joins the turn change that ends the champion's turn.
+auras:
+  - id: courage
+    size: champion.auraSize
+    affects: allies
+    effects:
+      - target: { steps: [turn.boundary] }
+        op: changes
+        when: has(params.ended) && params.ended == self.appliedBy
+        value:
+          changes:
+            - type: adjustState
+              applied: { where: 'item.id == @conditions.frightened' }
+              key: value
+              by: -1
+            - type: removeEffect
+              applied: { where: 'item.id == @conditions.frightened && self.value <= 0' }
+        scope: applied

@@ -1,0 +1,25 @@
+status: finished
+outcome: {}
+proposedChanges:
+  - to: self
+    step: ended
+    change:
+      type: removeEffect
+      applied:
+        where: has(self.duration) && self.duration == 'end' && self.appliedBy ==
+          'example-orc-aldric'
+  - to: self
+    step: content
+    change:
+      type: adjustState
+      key: value
+      applied:
+        where: item.id == 'orc-2e:conditions.frightened'
+      by: -1
+  - to: self
+    step: content
+    change:
+      type: removeEffect
+      applied:
+        where: item.id == 'orc-2e:conditions.frightened' && self.value <= 0
+log: []
