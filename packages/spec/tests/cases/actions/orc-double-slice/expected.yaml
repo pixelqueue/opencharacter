@@ -15,11 +15,25 @@ proposedChanges:
   - to: target
     character: goblin
     step: strike1/deal
-    change: { type: adjust, field: orc-2e:hp.current, by: -10, tags: [damage, damage.slashing] }
+    change:
+      {
+        type: adjust,
+        field: orc-2e:hp.current,
+        by: -10,
+        tags: [damage, damage.slashing],
+        from: example-orc-valeria,
+      }
   - to: target
     character: goblin
     step: strike2/deal
-    change: { type: adjust, field: orc-2e:hp.current, by: -7, tags: [damage, damage.bludgeoning] }
+    change:
+      {
+        type: adjust,
+        field: orc-2e:hp.current,
+        by: -7,
+        tags: [damage, damage.bludgeoning],
+        from: example-orc-valeria,
+      }
 log:
   - step: first
     action: 'orc-2e:feats.fighter.double-slice#double-slice'

@@ -1,4 +1,10 @@
-import type { Change, ListedFollowUp, OfferFollowUp, StoredFollowUp } from '@opencharacter/spec';
+import type {
+  Change,
+  ListedFollowUp,
+  Observe,
+  OfferFollowUp,
+  StoredFollowUp,
+} from '@opencharacter/spec';
 import * as f from '../formula/index.ts';
 import type {
   ActionOrUse,
@@ -43,7 +49,7 @@ interface Declared {
 }
 
 interface Resolved {
-  to: 'self' | 'applied' | { link: string };
+  to: 'self' | 'applied' | 'character' | { link: string };
   character?: string;
   action?: NonNullable<ListedFollowUp['action']>;
   params?: Record<string, unknown>;
@@ -52,6 +58,14 @@ interface Resolved {
 }
 
 type Cause = NonNullable<StoredFollowUp['cause']>;
+
+/** An `on` follow-up's matching entry: its own, or another character's from an `observe`. */
+interface Matched {
+  entry: Partial<FieldEntry>;
+  own: readonly string[];
+  from?: string;
+  observed?: { character: string; applied: string[] };
+}
 
 /** Thrown when one batch stores more follow-ups than `maxFollowUps`. */
 export class TooManyFollowUps extends Error {}
@@ -72,6 +86,8 @@ export function storeFollowUps(
   tags: WeakMap<object, string[]>,
   links: Links,
   offeredBy: readonly OfferFollowUp[] = [],
+  senders: WeakMap<object, string> = new WeakMap(),
+  observed: readonly Observe[] = [],
 ): ListedFollowUp[] {
   const declared = declarations(ruleset, after);
   // A stored `becomes` follow-up ends with its condition, before any is stored again.
@@ -121,18 +137,50 @@ export function storeFollowUps(
   for (const d of declared) {
     const { def } = d;
     if (def.on) {
-      const { field, tags: wanted } = def.on;
-      const matched: { entry: Partial<FieldEntry>; own: string[] }[] = [];
-      for (const raw of entries) {
-        const entry = raw as Partial<FieldEntry>;
-        if (entry.field !== field) continue;
-        const own = tags.get(raw as object) ?? [];
-        if (wanted && !wanted.some((w) => own.some((t) => t === w || t.startsWith(`${w}.`))))
-          continue;
-        matched.push({ entry, own });
+      const { field, tags: wanted, from } = def.on;
+      const matched: Matched[] = [];
+      const wants = (own: readonly string[]) =>
+        !wanted || wanted.some((w) => own.some((t) => t === w || t.startsWith(`${w}.`)));
+      if (from === undefined) {
+        for (const raw of entries) {
+          const entry = raw as Partial<FieldEntry>;
+          if (entry.field !== field) continue;
+          const own = tags.get(raw as object) ?? [];
+          if (!wants(own)) continue;
+          const sender = senders.get(raw as object);
+          matched.push({ entry, own, ...(sender !== undefined ? { from: sender } : {}) });
+        }
+      } else {
+        // Another character's entries, from the batch's `observe` changes.
+        const me = after.file.id;
+        for (const o of observed) {
+          if (o.character === me) continue;
+          const mine = [
+            ...new Set((o.applied ?? []).filter((a) => a.appliedBy === me).map((a) => a.source)),
+          ];
+          if (from === 'applied' && mine.length === 0) continue;
+          if (typeof from === 'object' && after.linkedId(from.link) !== o.character) continue;
+          for (const entry of o.adjustments) {
+            if (entry.field !== field) continue;
+            const own = entry.tags ?? [];
+            if (!wants(own)) continue;
+            matched.push({
+              entry: entry as Partial<FieldEntry>,
+              own,
+              ...(entry.from !== undefined ? { from: entry.from } : {}),
+              observed: { character: o.character, applied: mine },
+            });
+          }
+        }
       }
       const first = matched[0];
       const causes: Cause[] = [];
+      const about = (m: Matched, sender = m.from) => ({
+        ...(sender !== undefined ? { from: sender } : {}),
+        ...(m.observed
+          ? { character: m.observed.character, applied: [...m.observed.applied] }
+          : {}),
+      });
       if (def.on.once && first) {
         const sum = (key: 'by' | 'requested' | 'taken') =>
           matched.reduce((n, m) => n + (m.entry[key] ?? 0), 0);
@@ -144,17 +192,19 @@ export function storeFollowUps(
           reason: first.entry.reason ?? 'requested',
           clamped: matched.some((m) => m.entry.clamped === true),
           tags: [...new Set(matched.flatMap((m) => m.own))],
+          ...about(first, matched.find((m) => m.from !== undefined)?.from),
         });
       } else if (!def.on.once) {
-        for (const { entry, own } of matched)
+        for (const m of matched)
           causes.push({
             field,
-            by: entry.by ?? 0,
-            requested: entry.requested ?? 0,
-            taken: entry.taken ?? 0,
-            reason: entry.reason ?? 'requested',
-            clamped: entry.clamped ?? false,
-            tags: [...own],
+            by: m.entry.by ?? 0,
+            requested: m.entry.requested ?? 0,
+            taken: m.entry.taken ?? 0,
+            reason: m.entry.reason ?? 'requested',
+            clamped: m.entry.clamped ?? false,
+            tags: [...m.own],
+            ...about(m),
           });
       }
       for (const cause of causes) {
@@ -217,6 +267,14 @@ export function offers(ruleset: Ruleset, sheet: Sheet): ListedFollowUp[] {
   return out;
 }
 
+/** The fields whose entries on other characters the character's follow-ups react to. */
+export function observes(ruleset: Ruleset, sheet: Sheet): string[] {
+  const fields = new Set<string>();
+  for (const d of declarations(ruleset, sheet))
+    if (d.def.on?.from !== undefined) fields.add(d.def.on.field);
+  return [...fields].toSorted();
+}
+
 /** Whether the character is offered `id` now (startAction's `action.followUp`). */
 export function offered(
   ruleset: Ruleset,
@@ -245,7 +303,7 @@ function ephemeral(
   const def = d?.def;
   if (def?.action !== undefined) {
     const action =
-      typeof to === 'object'
+      typeof to === 'object' || to === 'character'
         ? { id: def.action }
         : startable(ruleset, sheet, def.action, d?.activation, false);
     if (action) resolved.action = action;
@@ -368,6 +426,9 @@ function changeRoot(cause: Cause): Record<string, unknown> {
     reason: cause.reason,
     clamped: cause.clamped,
     tags: [...cause.tags],
+    from: cause.from ?? '',
+    character: cause.character ?? '',
+    applied: [...(cause.applied ?? [])],
   };
 }
 
@@ -430,6 +491,12 @@ function resolve(
       const character = sheet.linkedId((def.to as { link: string }).link);
       if (character !== undefined) out.character = character;
     }
+    // A named character: the ID is fixed when the follow-up fires.
+    if (def.to === 'character' && check) {
+      const id = sheet.evaluate(def.character ?? 'null', pack, roots);
+      if (id.kind !== 'string' || id.value === '') return undefined;
+      out.character = id.value;
+    }
     if (def.create) {
       // A linked character to make: the start's pack is the new file's.
       const { link, start } = def.create;
@@ -440,9 +507,10 @@ function resolve(
         params: evaluateParams(sheet, def.create.params, pack, roots),
       };
     } else if (def.action !== undefined) {
-      const action = linked
-        ? { id: def.action }
-        : startable(ruleset, sheet, def.action, activation, true);
+      const action =
+        linked || def.to === 'character'
+          ? { id: def.action }
+          : startable(ruleset, sheet, def.action, activation, true);
       if (!action) return undefined;
       out.action = action;
       out.params = evaluateParams(sheet, def.params, pack, roots);
@@ -469,6 +537,7 @@ function resolve(
             activation,
             linked,
             def.to === 'applied',
+            (def.to ?? 'self') !== 'self',
           );
           return resolved ? [resolved] : [];
         });
@@ -578,6 +647,7 @@ function resolveChange(
   activation: Activation | undefined,
   linked: boolean,
   applied = false,
+  other = false,
 ): Change | undefined {
   if (!sheet.test(change.when, pack, roots)) return undefined;
   const evaluate = (formula: Formula) => sheet.evaluate(formula, pack, roots);
@@ -624,6 +694,8 @@ function resolveChange(
   }
   // The character applies what its follow-up proposes; `to: applied` reaches only its entries.
   if (change.type === 'applyEffect') out.appliedBy = sheet.file.id;
+  // An adjust for someone else says who sent it.
+  if (change.type === 'adjust' && other) out.from = sheet.file.id;
   if (change.active !== undefined) {
     const active = evaluate(change.active);
     if (active.kind !== 'bool')

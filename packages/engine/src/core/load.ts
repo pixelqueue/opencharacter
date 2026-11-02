@@ -735,7 +735,17 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
     followUp(def: FollowUp, pack: string, own: ReadonlySet<string> = new Set()): FollowUp {
       const out: FollowUp = {
         ...def,
-        ...(def.on ? { on: { ...def.on, field: q.field(def.on.field, pack) } } : {}),
+        ...(def.on
+          ? {
+              on: {
+                ...def.on,
+                field: q.field(def.on.field, pack),
+                ...(typeof def.on.from === 'object'
+                  ? { from: q.to(def.on.from, pack).to as { link: string } }
+                  : {}),
+              },
+            }
+          : {}),
         ...(def.changes ? { changes: q.changes(def.changes, pack, def.to) } : {}),
       };
       if (def.to === 'applied' && def.changes === undefined)

@@ -316,6 +316,7 @@ describe('pnpm validate', () => {
       ['an applyTemplate of unknown content', /step oil: unknown content "templates.nothing"/],
       ['an equip without equipped', /step oil: equip needs equipped/],
       ['a follow-up naming an unknown action', /follow-up followUps.shout: unknown action "shout"/],
+      ['an observed undeclared link', /follow-up followUps.watch-ghost: unknown link "phantom"/],
       ['change in a becomes follow-up', /follow-up notice: formula "change.by > 0": unknown-name/],
       ['entry: self in a rules follow-up', /followUps.mark: entry: self is only for follow-ups/],
       ['a creation start naming no action', /creation ghost: unknown action "haunt"/],

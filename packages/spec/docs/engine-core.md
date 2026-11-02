@@ -1008,8 +1008,8 @@ copies or applied entries (`where`, `by`, `value`), an `applyEffect`'s state val
 `{ formula }`, an incoming-change effect's `when`, `value` and `then`, and a situational
 choice's `changes`. `batch.adjustments` lists the `adjustments` entries of the batch's earlier
 changes on this character that change a field, in order, each `{ field, by, requested, taken,
-reason, clamped, tags }`, as an `on` follow-up's `change` has them (`requested` and `taken` 0
-and `clamped` false when absent). A situational choice's `changes` see the whole batch's. An
+reason, clamped, tags, from }`, as an `on` follow-up's `change` has them (`requested` and `taken`
+0, `clamped` false and `from` `''` when absent). A situational choice's `changes` see the whole batch's. An
 action passes on a formula that reads `batch` (a state value as `{ formula }`), so it learns what its own earlier changes did to the target: 5E's wound holds the hit points
 the target lost to the batch's damage, after its resistances and temporary hit points.
 
@@ -1343,6 +1343,36 @@ The [proposed sheet](engine-actions.md#the-proposed-sheet) applies its batch wit
 function, so a step that reads it after a proposed adjust that would roll fails with
 `proposed-changes-failed`.
 
+### Who sent it
+
+An `adjust` may carry `from`, the ID of the character whose action or follow-up proposed it.
+Actions fill it in on every adjust they send to another character (a target, a role, a link, a
+holder `to: applied`), and follow-ups on every adjust for another character; a character's own
+changes have none. Each field entry the adjust makes (its `requested` entry, the absorbing and
+overflow entries it causes) keeps it, so an `on` follow-up reads it as `change.from` and stores
+it in its `cause`; `adjustments` doesn't report it, as it doesn't report tags.
+
+### Observing another character's batch
+
+A successful batch that made field entries returns **`observe`**: an `observe` change, ready to
+pass on, that other characters' follow-ups react to ([rules-and-fields.md](rules-and-fields.md#other-characters-events)):
+
+- `character`: this character's `id`;
+- `adjustments`: each field entry of the batch, in order, as `{ field, by, requested?, taken?,
+  reason, clamped?, tags?, from? }`: what `adjustments` lists, with the entry's tags (as an `on`
+  follow-up's `change.tags` has them; left out when none), `clamped` only when true, and who
+  sent it;
+- `applied`: the applied entries that name an applier, on the character before the batch and
+  then after it, each `{ source, appliedBy }`, once per pair; left out when none. A creature
+  whose mark the damage ended still names its marker.
+
+An `observe` change applied to another character changes nothing there and is kept in the
+returned `changes` as given. After the batch, each `on` follow-up with `from` matches its
+entries (below). An app routes it only to characters whose computeSheet lists one of its
+fields in `observes`: the qualified IDs of the fields the character's `from` follow-ups name,
+sorted, absent when there are none. A batch that is only `observe` changes makes no field
+entries, so it returns no `observe` of its own.
+
 ### Follow-ups
 
 Follow-ups ([rules-and-fields.md](rules-and-fields.md#follow-ups)) are of two kinds: **derived**
@@ -1366,13 +1396,22 @@ until they are acted on or dismissed. The engine runs and applies neither.
    subtags), or any such entry without `on.tags`. An entry's tags are the change's tags for
    `requested` and `absorbed` entries, the overflow's `tags` for `overflow` entries, and none for
    `reset` entries; `adjustments` doesn't report them. `change` is `{ by, requested, taken,
-   reason, clamped, tags }`, `requested` and `taken` 0 and `clamped` false when the entry lacks
-   them.
+   reason, clamped, tags, from, character, applied }`, `requested` and `taken` 0, `clamped`
+   false and `from` `''` when the entry lacks them, `character` `''` and `applied` `[]` for the
+   character's own entries.
+   - **`from`**: the follow-up matches the entries of the batch's `observe` changes instead, in
+     change order and then entry order, and never the character's own. An observe change whose
+     `character` is this character's `id` is skipped, as is one that `from` rejects: with
+     `applied`, one whose `applied` names no entry this character applied (`appliedBy` its
+     `id`); with `{ link }`, one whose `character` isn't the slot's linked ID. An observed
+     entry's tags are its `tags`. `change.character` is the observe change's `character`, and
+     `change.applied` the distinct `source`s of its `applied` pairs whose `appliedBy` is this
+     character's `id`, in order.
    - **`once`**: the follow-up fires at most once per batch, when at least one
      entry matches, and `change` is the matching entries summed: `by`, `requested` and `taken`
      the sums (absent parts counting 0), `tags` the union in entry order, `reason` the first
-     entry's, `clamped` true if any entry's is. `when` and every formula are evaluated once, on
-     the sum.
+     entry's, `clamped` true if any entry's is, `from` the first that has one, `character` and
+     `applied` the first entry's. `when` and every formula are evaluated once, on the sum.
 4. **`becomes`.** The condition is evaluated on the character after the batch and, for the same
    declaration (the rules', or the same content on the same copy and choice path), on the
    character before it, with the same links. It fires when it holds after and not before.
@@ -1387,11 +1426,13 @@ until they are acted on or dismissed. The engine runs and applies neither.
    - `followUp`: `<pack>:<id>` for the rules', `<qualified content or type ID>#<id>` for
      content's, with `source` naming the content and copy as computeSheet's sources do;
    - `to`: for a follow-up to a link, `{ link }` with the qualified slot, and `character` the
-     linked character's ID when the slot is filled. It is stored on this character, since one
-     applyChanges writes one file;
+     linked character's ID when the slot is filled; for `to: character`, `character` and the ID
+     its formula gave (a follow-up whose formula gives `null`, `''` or a non-string isn't
+     stored). It is stored on this character, since one applyChanges writes one file;
    - `params`: for an action, the evaluated parameters it fixes, leaving out any whose formula
      gives `null`;
-   - `cause`: for `on`, the `change` it fired on (with `once`, the sum) and its `field`.
+   - `cause`: for `on`, the `change` it fired on (with `once`, the sum) and its `field`, with
+     `from` when the entry had a sender, and `character` and `applied` for an observed entry.
 6. **Not stored:** a follow-up whose `when` is false, whose action isn't available after the
    batch (its `available` is false; for a link the action isn't checked), or whose formulas fail
    to evaluate.
@@ -1456,8 +1497,9 @@ required, cause? }`:
   action), with `followUp: <id>` for the character's own offer; `params` with it.
 - `changes`: resolved, ready for applyChanges; for the character's own ephemeral offer they end
   with `{ type: clearFollowUp, id }`.
-- An offer to a link has no `followUp` in its action and no clearing change: the app runs it on
-  the linked character and clears it here.
+- An offer to a link, to `applied` or to a named character (`to: character`) has no `followUp`
+  in its action and no clearing change: the app runs or applies it on the other character (or
+  characters) and clears it here. Its action is named as declared, unchecked here.
 - `create`: `{ link, start, pack, params }`, a new character for an empty slot,
   with no `action` or `changes`. `link` is the qualified slot; `start` the creation start as
   `<pack>:<id>` (the ruleset's `creation` entry with that `pack` and `id`); `pack` the start's

@@ -1,0 +1,78 @@
+tags: [damage, healing]
+
+fields:
+  hp.current: { type: integer, input: true, default: 10, min: 0 }
+  # Gained when the judged creature damages you, and when a creature you marked is damaged.
+  wrath: { type: integer, input: true, default: 0, min: 0 }
+  focus: { type: integer, input: true, default: 0, min: 0 }
+  # The creature this character judges (its character ID), '' when none.
+  judged: { type: string, input: true, default: '' }
+  # Each slowed entry takes its amount off.
+  speed: { type: integer, formula: 6 }
+
+# A companion with a sheet of its own.
+links:
+  companion:
+    pack: test-events
+    fields:
+      hp.current: { type: integer, default: 10 }
+
+contentTypes:
+  condition:
+    carried: false
+    state:
+      amount: { type: integer, default: 0, min: 0 }
+  feature:
+    carried: false
+
+actions:
+  # Deals 3 damage to the target.
+  - id: strike
+    participants:
+      target: { max: 1 }
+    steps:
+      - id: hit
+        kind: changes
+        to: target
+        changes:
+          - { type: adjust, field: hp.current, by: -3, tags: [damage] }
+  # Marks the target.
+  - id: mark
+    participants:
+      target: { max: 1 }
+    steps:
+      - id: mark
+        kind: changes
+        to: target
+        changes:
+          - { type: applyEffect, source: "'conditions.marked'" }
+  # Gains 1 focus: the app runs it when a creature this character marked is damaged.
+  - id: gain-focus
+    steps:
+      - id: gain
+        kind: changes
+        changes:
+          - { type: adjust, field: focus, by: 1 }
+
+followUps:
+  # The creature you judge damages you: 1 wrath.
+  - id: wrath
+    on: { field: hp.current, tags: [damage] }
+    when: judged != '' && change.from == judged
+    changes:
+      - { type: adjust, field: wrath, by: 1 }
+  # Someone else damages a creature you marked: gain focus, once per batch.
+  - id: mark-damaged
+    on: { field: hp.current, tags: [damage], from: applied, once: true }
+    when: '@conditions.marked in change.applied && change.from != character.id'
+    action: gain-focus
+  # Any creature heals: 1 wrath.
+  - id: someone-healed
+    on: { field: hp.current, tags: [healing], from: any }
+    changes:
+      - { type: adjust, field: wrath, by: 1 }
+  # Your companion is damaged: 1 focus.
+  - id: companion-hurt
+    on: { field: hp.current, tags: [damage], from: { link: companion } }
+    changes:
+      - { type: adjust, field: focus, by: 1 }

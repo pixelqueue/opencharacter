@@ -423,8 +423,63 @@ to it with `to: { link: crew }`. Apply one scoundrel's heat, recompute the crew,
 
 The target's damage reaches it through its own `applyChanges`, so the target's rules decide what
 follows: a concentration check, a failed death save, a wound roll. Apply the attacker's proposed
-changes to the target and look at the target's `offers` (its stored follow-ups). Follow-ups never go to an action's
-other participants: `applyChanges` doesn't know which action caused a change.
+changes to the target and look at the target's `offers` (its stored follow-ups).
+
+Every adjust an action proposes for another character names its sender in `from` (the actor's
+`id`). Apply it as it comes; the target's follow-ups read it as `change.from`. A censor gains
+wrath when the creature they judge damages them, and a talent's Entropy Ward slows whoever hit
+them. That follow-up is for the attacker (`to: 'character'`), stored on the talent with the
+attacker's ID in `character`:
+
+```ts
+const hit = applyChanges(rulesetFor(talent), talent, forTalent);
+for (const offer of hit.followUps) {
+  if (offer.to !== 'character') continue;
+  // offer.character: 'goblin-1'; offer.changes: an applyEffect, appliedBy the talent.
+  const other = byId[offer.character];
+  applyChanges(rulesetFor(other), other, offer.changes);
+  applyChanges(rulesetFor(talent), talent, [{ type: 'clearFollowUp', id: offer.id }]);
+}
+```
+
+An offer with an `action` is run on that character with startAction, as a link's is.
+
+## Reacting to other characters
+
+Some rules fire on what happens to someone else: a tactician gains focus when an ally damages a
+creature they marked, a troubadour when any hero falls. The engine sees one character per call,
+so your app carries the event. It's opt-in: an app that skips it only loses these reactions.
+
+1. Every `applyChanges` that changed a field returns `observe`, a ready-made change describing
+   the batch: whose it was, what each field took (with tags and who sent it), and whose entries
+   the character held (`applied`).
+2. Pass it to every other character whose `computeSheet` lists one of its fields in
+   `observes`. It changes nothing on them; it fires their follow-ups that watch others, which
+   land in their `offers` as usual.
+
+```ts
+function applyAndShare(target, changes) {
+  const result = applyChanges(rulesetFor(target), target, changes);
+  if (!result.ok || !result.observe) return result;
+  const fields = new Set(result.observe.adjustments.map((e) => e.field));
+  for (const other of everyone) {
+    if (other.id === target.id) continue;
+    const sheet = computeSheet(rulesetFor(other), other);
+    if (!(sheet.observes ?? []).some((f) => fields.has(f))) continue;
+    const seen = applyChanges(rulesetFor(other), other, [result.observe]);
+    // seen.followUps: the tactician's `mark-damaged` offer, say.
+  }
+  return result;
+}
+```
+
+- **Log it like any change.** The `observe` change is in the observer's change list, so
+  replaying the list stores the same follow-ups.
+- **No echoes.** A batch of only `observe` changes changes no field, so it returns no `observe`
+  of its own. Running the offer it fired (gaining focus) is a new batch, with its own `observe`.
+- **Who did it.** The follow-up reads the observed character as `change.character` and the
+  dealer as `change.from`, so a tactician's own strikes (which count focus themselves) can be
+  left out.
 
 ## Group actions
 

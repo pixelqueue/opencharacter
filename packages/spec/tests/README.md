@@ -145,7 +145,9 @@ input: # any other call inputs (action, params, situational, policy, strict, lin
   bonus on every tier), `test-content-values`, computed values on picked and granted content,
   and `test-cross`, effects that cross between characters (who
   applied an entry, changes `to: applied`, clock actions, auras, a pool spent through a link),
-  with `test-party`, the shared party sheet it links.
+  with `test-party`, the shared party sheet it links, and `test-events`, follow-ups on other
+  characters' events (who dealt the damage, `observe` changes, follow-ups `to: character`, an
+  applier named by formula).
 - **How outputs compare.** Only what `expected.yaml` lists is compared. A key the call doesn't
   define, in `case.yaml` or `expected.yaml`, is a mistake in the case: runners fail it rather
   than ignore it, so a case never seems to test something it doesn't.
@@ -176,6 +178,7 @@ input: # any other call inputs (action, params, situational, policy, strict, lin
     - `copyLimits`: the exact list of `{ type, max, perItem, count, entries }`.
     - `groups`: the exact list of `{ id, shown, fields, actions, items }`.
     - `offers`: the exact list.
+    - `observes`: the exact list; `null` means absent.
   - **`listOptions`:**
     - `options`: the exact list, in order. Each is compared as
       `{ option, eligible, picked, recommended }`, with `reasons` as the list of `{ code, id }`, in
@@ -189,6 +192,7 @@ input: # any other call inputs (action, params, situational, policy, strict, lin
     - `adjustments`: the exact list.
     - `followUps`: the exact list of the follow-ups the batch stored.
     - `changes`: the exact batch as applied, with the faces it rolled.
+    - `observe`: exact; `null` means absent.
     - `character`: listed top-level keys, each compared in full; `null` means the key is absent
       (a file with no stored follow-ups left).
 - **`startAction` / `continueAction`** cases put the call inputs in `case.yaml` `input`

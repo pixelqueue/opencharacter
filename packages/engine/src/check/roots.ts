@@ -313,6 +313,7 @@ export const BATCH: ObjectType = {
           reason: 'string',
           clamped: 'bool',
           tags: { list: 'string' },
+          from: 'string',
         },
       },
     },
@@ -326,6 +327,9 @@ export const CHANGE: ObjectType = {
     reason: 'string',
     clamped: 'bool',
     tags: { list: 'string' },
+    from: 'string',
+    character: 'string',
+    applied: { list: 'string' },
   },
 };
 export const PART: ObjectType = { object: { total: 'int', tag: 'dyn' } };

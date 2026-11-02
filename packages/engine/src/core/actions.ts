@@ -4306,6 +4306,8 @@ function proposeOne(
       out.source = contentRef(ctx, frame, change.source, extra, linked, other);
     // The actor applies what it proposes, and a change `to: applied` reaches only its own entries.
     if (change.type === 'applyEffect') out.appliedBy = ctx.state.character.id;
+    // An adjust for someone else says who sent it.
+    if (change.type === 'adjust' && route.to !== 'self') out.from = ctx.state.character.id;
     if (change.active !== undefined) {
       const active = evaluate(ctx, frame, change.active, extra);
       if (active.kind !== 'bool')

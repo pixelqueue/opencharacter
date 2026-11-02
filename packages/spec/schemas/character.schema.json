@@ -306,7 +306,7 @@
           "$ref": "common.schema.json#/$defs/source"
         },
         "to": {
-          "description": "For a follow-up to another character, stored here, on the character whose change triggered it, since one applyChanges writes one file: `{ link }` with the qualified slot ID, for the character filling the slot (the app shows it to whoever runs that character); `applied`, for every character holding an entry this one applied (its changes reach only those entries). Absent for the character's own.",
+          "description": "For a follow-up to another character, stored here, on the character whose change triggered it, since one applyChanges writes one file: `{ link }` with the qualified slot ID, for the character filling the slot (the app shows it to whoever runs that character); `applied`, for every character holding an entry this one applied (its changes reach only those entries); `character`, for the character named in `character`. Absent for the character's own.",
           "anyOf": [
             {
               "type": "object",
@@ -320,11 +320,14 @@
             },
             {
               "const": "applied"
+            },
+            {
+              "const": "character"
             }
           ]
         },
         "character": {
-          "description": "For a follow-up to a link: the ID of the character filling the slot when it was triggered.",
+          "description": "For a follow-up to a link: the ID of the character filling the slot when it was triggered. For `to: character`: the ID its `character` formula gave.",
           "type": "string"
         },
         "params": {
@@ -332,7 +335,7 @@
           "type": "object"
         },
         "cause": {
-          "description": "What triggered an `on` moment: the adjustment entry as the follow-up's formulas saw it as `change` (with `once`, the matching entries summed), and its field.",
+          "description": "What triggered an `on` moment: the adjustment entry as the follow-up's formulas saw it as `change` (with `once`, the matching entries summed), and its field. For another character's entry (`on.from`), also `character`, the observed character, and `applied`, the content IDs of its entries this character applied.",
           "type": "object",
           "required": ["field", "by", "requested", "taken", "reason", "clamped", "tags"],
           "properties": {
@@ -358,6 +361,21 @@
               "type": "array",
               "items": {
                 "$ref": "common.schema.json#/$defs/tag"
+              }
+            },
+            "from": {
+              "description": "Who sent the adjust that made the entry (the adjust's `from`); with `once`, the first matching entry's that has one.",
+              "type": "string"
+            },
+            "character": {
+              "description": "For an observed entry: the observed character's ID.",
+              "type": "string"
+            },
+            "applied": {
+              "description": "For an observed entry: the content IDs of the observed character's entries this character applied, in order.",
+              "type": "array",
+              "items": {
+                "$ref": "common.schema.json#/$defs/qualifiedId"
               }
             }
           },

@@ -1,0 +1,10 @@
+# Whoever damages you is slowed by 2.
+id: features.entropy-ward
+type: feature
+followUps:
+  - id: ward
+    on: { field: hp.current, tags: [damage] }
+    to: character
+    character: change.from
+    changes:
+      - { type: applyEffect, source: "'conditions.slowed'", state: { amount: 2 } }

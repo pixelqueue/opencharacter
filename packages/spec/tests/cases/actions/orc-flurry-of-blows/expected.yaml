@@ -14,14 +14,28 @@ proposedChanges:
   - to: target
     character: goblin
     step: strike1/deal
-    change: { type: adjust, field: orc-2e:hp.current, by: -6, tags: [damage, damage.bludgeoning] }
+    change:
+      {
+        type: adjust,
+        field: orc-2e:hp.current,
+        by: -6,
+        tags: [damage, damage.bludgeoning],
+        from: example-orc-ren,
+      }
   - to: self
     step: strike2/count
     change: { type: adjust, field: orc-2e:turn.attacks, by: 1, tags: [attack-count] }
   - to: target
     character: goblin
     step: strike2/deal
-    change: { type: adjust, field: orc-2e:hp.current, by: -7, tags: [damage, damage.slashing] }
+    change:
+      {
+        type: adjust,
+        field: orc-2e:hp.current,
+        by: -7,
+        tags: [damage, damage.slashing],
+        from: example-orc-ren,
+      }
   - to: self
     step: flourish
     change: { type: adjust, field: orc-2e:turn.flourishes, by: 1 }

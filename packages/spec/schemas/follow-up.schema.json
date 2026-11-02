@@ -11,7 +11,7 @@
       "$ref": "common.schema.json#/$defs/slug"
     },
     "on": {
-      "description": "An ephemeral offer: fires once for each entry of the batch's `adjustments` on `field` whose tags include any of `tags` (a tag matches its subtags), or any entry on the field when `tags` is left out. Overflow entries count. In `when`, `params` and `changes`, `change` is that entry. With `once: true` it fires at most once per batch, when at least one entry matches, and `change` is the matching entries summed.",
+      "description": "An ephemeral offer: fires once for each entry of the batch's `adjustments` on `field` whose tags include any of `tags` (a tag matches its subtags), or any entry on the field when `tags` is left out. Overflow entries count. With `from`, it fires on another character's entries instead, passed in by an `observe` change. In `when`, `params`, `character` and `changes`, `change` is that entry. With `once: true` it fires at most once per batch, when at least one entry matches, and `change` is the matching entries summed.",
       "type": "object",
       "required": ["field"],
       "properties": {
@@ -28,6 +28,24 @@
         "once": {
           "description": "Fire at most once per batch, on the matching entries summed: `by`, `requested` and `taken` the sums (an absent part counting 0), `tags` the union in entry order, `reason` the first entry's, `clamped` true if any entry's is. `when` is evaluated once, on the sum. A batch is one action's changes as the app applies them, so this is once per source when each attack is its own batch. Default false.",
           "type": "boolean"
+        },
+        "from": {
+          "description": "Whose entries it fires on: without it, this character's own; with it, another character's, from the batch's `observe` changes (the app passes on what the other character's applyChanges returned). `any`: any other character; `applied`: one holding an entry this character applied (the observe change's `applied` names this character as an applier); `{ link: <slot> }`: the character filling one of this character's link slots. `field` names the observed character's field, resolved in this pack's scope as usual. `change.character` is the observed character's ID and `change.applied` the content IDs of its entries this character applied.",
+          "anyOf": [
+            {
+              "enum": ["any", "applied"]
+            },
+            {
+              "type": "object",
+              "required": ["link"],
+              "properties": {
+                "link": {
+                  "$ref": "common.schema.json#/$defs/name"
+                }
+              },
+              "additionalProperties": false
+            }
+          ]
         }
       },
       "additionalProperties": false
@@ -45,13 +63,16 @@
       "$ref": "formula.schema.json#/$defs/condition"
     },
     "to": {
-      "description": "Whose follow-up it is: `self` (the default, the character the batch changed), `{ link: <slot> }`, the character filling one of its link slots, or `applied`, every character holding an entry this character applied (`changes` only, each a removeEffect, toggleEffect, setState or adjustState naming applied entries by query, which then reaches only the entries this character applied). A follow-up to a link names the linked character's action, fields and content by qualified ID.",
+      "description": "Whose follow-up it is: `self` (the default, the character the batch changed), `{ link: <slot> }`, the character filling one of its link slots, `applied`, every character holding an entry this character applied (`changes` only, each a removeEffect, toggleEffect, setState or adjustState naming applied entries by query, which then reaches only the entries this character applied), or `character`, the character whose ID the `character` formula gives (the creature that dealt the damage, `change.from`). A follow-up to a link names the linked character's action, fields and content by qualified ID; one to `applied` or `character` names them in this pack's scope, as the other character shares the game.",
       "anyOf": [
         {
           "const": "self"
         },
         {
           "const": "applied"
+        },
+        {
+          "const": "character"
         },
         {
           "type": "object",
@@ -64,6 +85,10 @@
           "additionalProperties": false
         }
       ]
+    },
+    "character": {
+      "description": "With `to: character`: a string formula giving the ID of the character the follow-up is for, evaluated when it fires: `change.from` (who sent the damage), `change.character` (the observed character), `self.appliedBy`. A formula that gives `null` or `''`, or fails, leaves the follow-up out.",
+      "$ref": "formula.schema.json"
     },
     "action": {
       "description": "The action to run: a rules action (local or qualified ID) or, on content, also the content's own action.",
@@ -149,6 +174,25 @@
       },
       "then": {
         "required": ["changes"]
+      }
+    },
+    {
+      "description": "`character` exactly with `to: character`.",
+      "if": {
+        "required": ["to"],
+        "properties": {
+          "to": {
+            "const": "character"
+          }
+        }
+      },
+      "then": {
+        "required": ["character"]
+      },
+      "else": {
+        "not": {
+          "required": ["character"]
+        }
       }
     },
     {

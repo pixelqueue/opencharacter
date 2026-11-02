@@ -30,7 +30,8 @@
         "setHomebrew",
         "dismissFollowUp",
         "clearFollowUp",
-        "offerFollowUp"
+        "offerFollowUp",
+        "observe"
       ]
     }
   },
@@ -217,6 +218,14 @@
       },
       "then": {
         "$ref": "#/$defs/offerFollowUp"
+      }
+    },
+    {
+      "if": {
+        "$ref": "#/$defs/is/observe"
+      },
+      "then": {
+        "$ref": "#/$defs/observe"
       }
     }
   ],
@@ -405,6 +414,14 @@
           }
         },
         "type": "object"
+      },
+      "observe": {
+        "properties": {
+          "type": {
+            "const": "observe"
+          }
+        },
+        "type": "object"
       }
     },
     "set": {
@@ -454,6 +471,12 @@
           "additionalProperties": {
             "$ref": "common.schema.json#/$defs/literal"
           }
+        },
+        "from": {
+          "description": "The `id` of the character whose action or follow-up proposed the change, when it is another character: actions and follow-ups fill it in on every adjust they send to someone else (a target, a role, a link, a named character). Its field entries carry it, so an `on` follow-up reads who dealt the damage as `change.from`. Absent on a character's own changes.",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2048
         }
       },
       "additionalProperties": false,
@@ -1177,14 +1200,14 @@
       "required": ["type"],
       "properties": {
         "type": {
-          "description": "Any change type but setHomebrew, dismissFollowUp and clearFollowUp.",
+          "description": "Any change type but setHomebrew, dismissFollowUp, clearFollowUp and observe.",
           "allOf": [
             {
               "$ref": "#/properties/type"
             },
             {
               "not": {
-                "enum": ["setHomebrew", "dismissFollowUp", "clearFollowUp"]
+                "enum": ["setHomebrew", "dismissFollowUp", "clearFollowUp", "observe"]
               }
             }
           ]
@@ -1616,6 +1639,82 @@
         }
       },
       "additionalProperties": false
+    },
+    "observe": {
+      "description": "Another character's batch, for this character's follow-ups to react to: what its fields took, as that character's applyChanges returned it in `observe`. It changes nothing on this character; each `on` follow-up with `from` matches its entries (an ally damaged a creature you marked, a creature fell). The app passes it on as given, so a replay stores the same follow-ups. One whose `character` is this character's own matches nothing.",
+      "required": ["character", "adjustments"],
+      "properties": {
+        "type": true,
+        "character": {
+          "description": "The observed character's `id`.",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2048
+        },
+        "adjustments": {
+          "description": "The observed batch's field entries, in order, each as an `on` follow-up's `change` reads one, with its tags and who sent it.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["field", "by", "reason"],
+            "properties": {
+              "field": {
+                "description": "The field's qualified ID on the observed character.",
+                "$ref": "common.schema.json#/$defs/qualifiedId"
+              },
+              "by": {
+                "type": "number"
+              },
+              "requested": {
+                "type": "number"
+              },
+              "taken": {
+                "type": "number"
+              },
+              "reason": {
+                "enum": ["requested", "absorbed", "overflow", "reset", "carry"]
+              },
+              "clamped": {
+                "type": "boolean"
+              },
+              "tags": {
+                "type": "array",
+                "items": {
+                  "$ref": "common.schema.json#/$defs/tag"
+                }
+              },
+              "from": {
+                "description": "Who sent the adjust that made the entry, as the adjust's `from`.",
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 2048
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "applied": {
+          "description": "The observed character's applied entries that name an applier, before the batch and those it applied, each as its `source` and `appliedBy`, once per pair, in that order. `from: applied` reads it.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["source", "appliedBy"],
+            "properties": {
+              "source": {
+                "$ref": "common.schema.json#/$defs/qualifiedId"
+              },
+              "appliedBy": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 2048
+              }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false,
+      "type": "object"
     }
   }
 }

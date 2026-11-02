@@ -1,4 +1,4 @@
-import type { Change, OfferFollowUp } from '@opencharacter/spec';
+import type { Change, Observe, OfferFollowUp } from '@opencharacter/spec';
 import * as f from '../formula/index.ts';
 import type { DiceFunction } from './actions.ts';
 import {
@@ -110,6 +110,7 @@ export type ApplyResult =
       issues: RulesIssue[];
       adjustments: Adjustment[];
       followUps: ListedFollowUp[];
+      observe?: Observe;
     }
   | { ok: false; errors: EngineError[]; issues?: RulesIssue[] };
 
@@ -136,6 +137,9 @@ class OutOfFaces extends Error {}
 
 /** Each field entry's tags, for follow-ups; `adjustments` doesn't report them. */
 const entryTags = new WeakMap<object, string[]>();
+
+/** Who sent the adjust that made each field entry (its `from`), when someone else did. */
+const entrySenders = new WeakMap<object, string>();
 
 /** applyChanges: packages/spec/docs/engine-core.md. */
 export function applyChanges(
@@ -197,8 +201,15 @@ export function applyBatch(
     left: new Map(),
     index: 0,
   };
+  const observed: Observe[] = [];
   for (const [index, change] of changes.entries()) {
     choices.index = index;
+    // Another character's batch changes nothing here: only follow-ups read it.
+    if ((change as AnyChange).type === 'observe') {
+      observed.push(change as Observe);
+      applied.push(change);
+      continue;
+    }
     if ((change as AnyChange).type === 'offerFollowUp') {
       const offer = change as OfferFollowUp;
       if (!declaresFollowUp(ruleset, offer.followUp))
@@ -277,6 +288,8 @@ export function applyBatch(
       entryTags,
       links,
       offered,
+      entrySenders,
+      observed,
     );
   } catch (error) {
     if (!(error instanceof TooManyFollowUps)) throw error;
@@ -285,7 +298,60 @@ export function applyBatch(
       errors: [{ code: 'safety-limit-exceeded', data: { limit: 'maxFollowUps' } }],
     };
   }
-  return { ok: true, character: next, changes: applied, issues, adjustments, followUps: listed };
+  const observe = observeOf(character, next, adjustments);
+  return {
+    ok: true,
+    character: next,
+    changes: applied,
+    issues,
+    adjustments,
+    followUps: listed,
+    ...(observe ? { observe } : {}),
+  };
+}
+
+/**
+ * The batch as other characters' follow-ups see it: its field entries with their tags and
+ * senders, and the applied entries naming an applier, before the batch and then after it.
+ */
+function observeOf(
+  before: CharacterDoc,
+  after: CharacterDoc,
+  adjustments: Adjustment[],
+): Observe | undefined {
+  const entries = adjustments.flatMap((a) => {
+    if (!('field' in a && 'reason' in a)) return [];
+    const tags = entryTags.get(a) ?? [];
+    const from = entrySenders.get(a);
+    return [
+      {
+        field: a.field,
+        by: a.by,
+        ...(a.requested !== undefined ? { requested: a.requested } : {}),
+        ...(a.taken !== undefined ? { taken: a.taken } : {}),
+        reason: a.reason,
+        ...(a.clamped ? { clamped: true } : {}),
+        ...(tags.length > 0 ? { tags: [...tags] } : {}),
+        ...(from !== undefined ? { from } : {}),
+      },
+    ];
+  });
+  if (entries.length === 0) return undefined;
+  const seen = new Set<string>();
+  const applied: { source: string; appliedBy: string }[] = [];
+  for (const a of [...(before.applied ?? []), ...(after.applied ?? [])]) {
+    if (a.appliedBy === undefined) continue;
+    const key = JSON.stringify([a.source, a.appliedBy]);
+    if (seen.has(key)) continue;
+    seen.add(key);
+    applied.push({ source: a.source, appliedBy: a.appliedBy });
+  }
+  return {
+    type: 'observe',
+    character: after.id,
+    adjustments: entries,
+    ...(applied.length > 0 ? { applied } : {}),
+  } as Observe;
 }
 
 /** Rejected with `homebrew-error`, or `unknown-id` while the file names content it would lose. */
@@ -484,6 +550,7 @@ function batchRoot(adjustments: Adjustment[]): { adjustments: unknown[] } {
               reason: a.reason,
               clamped: a.clamped ?? false,
               tags: [...(entryTags.get(a) ?? [])],
+              from: entrySenders.get(a) ?? '',
             },
           ]
         : [],
@@ -870,6 +937,7 @@ function applyOne(
       for (const tag of tags) if (!declared.has(tag)) throw new ChangeError('unknown-tag', { tag });
       const given = (change.situational ?? {}) as Record<string, unknown>;
       const chosen = situationalOn(ruleset, sheet, qid, tags, given, choices);
+      const start = adjustments.length;
       const counted = route(
         ruleset,
         sheet,
@@ -889,6 +957,9 @@ function applyOne(
           supplied: supplied.length,
           used: rolling.next,
         });
+      // Its field entries remember who sent it, for follow-ups and `observe`.
+      if (typeof change.from === 'string')
+        for (const entry of adjustments.slice(start)) entrySenders.set(entry, change.from);
       applyThen(ruleset, sheet, c, counted, adjustments, views);
       return rolling.used.length > 0 ? { faces: rolling.used } : undefined;
     }

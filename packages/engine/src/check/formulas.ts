@@ -1298,6 +1298,7 @@ class FormulaChecker<L> {
     this.typed({ change: CHANGE }, () =>
       this.withRoots(def.on ? ['change'] : [], () => {
         this.formula(def.when, at, where, BOOL);
+        this.formula(def.character, at, where, ['string']);
         for (const value of Object.values(def.params ?? {}))
           this.formula(value, at, where, ANY, true);
         // A linked character's start parameters.

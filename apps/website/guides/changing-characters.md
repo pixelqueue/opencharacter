@@ -283,8 +283,10 @@ prompt.
   `followUps.<id>.name` and `followUps.<id>.description` (with `followUp`'s local ID, or
   `<contentId>.followUps.<id>.…` for one on content, with `source` naming it) give your dialog its
   words.
-- `to` says whose follow-up it is: `self`, or a linked character (`{ link }`, with its ID in
-  `character`). Show it to whoever controls that character.
+- `to` says whose follow-up it is: `self`, a linked character (`{ link }`, with its ID in
+  `character`), every holder of what this character applied (`applied`), or another character by
+  ID (`character`: the creature that damaged it, say). Show it to whoever controls that
+  character ([Other characters](other-characters.md#damage-dealt-to-a-target)).
 
 **Apply each attack or effect as its own batch.** Some follow-ups fire once per batch, on the
 batch's damage summed: a 5E hit with a Flame Tongue is two changes (slashing and fire) but one

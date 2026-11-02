@@ -444,6 +444,13 @@
             "additionalProperties": false
           }
         },
+        "observes": {
+          "description": "The qualified IDs of the fields whose entries on other characters this character's `on` follow-ups with `from` react to, sorted. The app passes another character's `observe` (from its applyChanges) to this character when it names one of them. Absent when there are none.",
+          "type": "array",
+          "items": {
+            "$ref": "../common.schema.json#/$defs/qualifiedId"
+          }
+        },
         "offers": {
           "description": "What the rules offer the character now: its stored ephemeral follow-ups in file order, then its derived offers whose condition holds, the rules' in declaration order and then content's in instance order. Derived from the character file alone, so every app, a reload and an import see the same list. An app runs any entry with startAction and its ID, and dismisses only ephemeral ones.",
           "type": "array",

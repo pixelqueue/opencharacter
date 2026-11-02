@@ -25,13 +25,16 @@
           "$ref": "../common.schema.json#/$defs/source"
         },
         "to": {
-          "description": "`self`, `{ link }` with the qualified slot ID, or `applied`: every character holding an entry this one applied, which the app applies the offer's `changes` to (they reach only those entries).",
+          "description": "`self`, `{ link }` with the qualified slot ID, `applied` (every character holding an entry this one applied, which the app applies the offer's `changes` to; they reach only those entries) or `character` (the character named in `character`).",
           "anyOf": [
             {
               "const": "self"
             },
             {
               "const": "applied"
+            },
+            {
+              "const": "character"
             },
             {
               "type": "object",
@@ -46,7 +49,7 @@
           ]
         },
         "character": {
-          "description": "For `to: { link }`: the ID of the character filling the slot, absent when it is empty.",
+          "description": "For `to: { link }`: the ID of the character filling the slot, absent when it is empty. For `to: character`: the ID of the character it is for.",
           "type": "string"
         },
         "action": {
@@ -93,7 +96,7 @@
           "type": "boolean"
         },
         "cause": {
-          "description": "For an ephemeral offer from `on`: the adjustment entry that triggered it, as the follow-up's formulas saw it as `change` (with `once`, the matching entries summed), and its field. Absent for `becomes` and derived offers.",
+          "description": "For an ephemeral offer from `on`: the adjustment entry that triggered it, as the follow-up's formulas saw it as `change` (with `once`, the matching entries summed), and its field; `from` when the adjust named who sent it; for another character's entry (`on.from`), `character` and `applied`. Absent for `becomes` and derived offers.",
           "type": "object",
           "required": ["field", "by", "requested", "taken", "reason", "clamped", "tags"],
           "properties": {
@@ -119,6 +122,21 @@
               "type": "array",
               "items": {
                 "$ref": "../common.schema.json#/$defs/tag"
+              }
+            },
+            "from": {
+              "description": "Who sent the adjust that made the entry.",
+              "type": "string"
+            },
+            "character": {
+              "description": "For an observed entry: the observed character's ID.",
+              "type": "string"
+            },
+            "applied": {
+              "description": "For an observed entry: the content IDs of the observed character's entries this character applied.",
+              "type": "array",
+              "items": {
+                "$ref": "../common.schema.json#/$defs/qualifiedId"
               }
             }
           },
@@ -344,6 +362,10 @@
               "items": {
                 "$ref": "#/$defs/followUp"
               }
+            },
+            "observe": {
+              "description": "What other characters' follow-ups may react to, ready to pass on: an `observe` change with this character's `id`, the batch's field entries (with their tags and who sent them) and the applied entries it held that name an applier. Present when the batch changed a field. An app that routes events applies it to the other characters whose computeSheet lists one of its fields in `observes`; one that doesn't can ignore it.",
+              "$ref": "../change.schema.json#/$defs/observe"
             }
           },
           "additionalProperties": false

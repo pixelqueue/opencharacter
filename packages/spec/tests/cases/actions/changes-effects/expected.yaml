@@ -7,14 +7,14 @@ proposedChanges:
   - to: target
     character: orc
     step: strike/deal[0]
-    change: { type: adjust, field: test-pack:hp, by: -3 }
+    change: { type: adjust, field: test-pack:hp, by: -3, from: hero }
   - to: self
     step: strike/onHit[0]
     change: { type: adjust, field: test-pack:hits, by: 1 }
   - to: target
     character: orc
     step: strike/onHit[0]
-    change: { type: adjust, field: test-pack:hp, by: -1, tags: [bleed] }
+    change: { type: adjust, field: test-pack:hp, by: -1, tags: [bleed], from: hero }
   - to: self
     step: strike/onHit[0]
     change: { type: adjustState, entry: sword, key: uses, by: 1 }

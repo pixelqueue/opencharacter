@@ -680,6 +680,12 @@ a step's changes to the role's characters. Each proposed change names its partic
 participant, in order. With no participants, a change is proposed once without `character`, as
 before. The changes name the actor's own fields, as `to: target` changes do.
 
+**Who sent it.** Every `adjust` an action proposes for another character (a role, `target`, a
+link, `to: applied`) carries the actor's `id` as `from`. The receiving character's `on`
+follow-ups read it as `change.from`: wrath when the creature you judged damages you, +4 AC
+against the creature that just hit you, a ward that slows whoever damaged you
+([rules-and-fields.md](rules-and-fields.md#follow-ups)). Changes `to: self` carry none.
+
 **Who applied it.** Every `applyEffect` an action proposes, to any character, carries the actor's
 `id` as `appliedBy`, and applyChanges saves it on the entry
 ([characters.md](characters.md#entries)). The entry's formulas read it as `self.appliedBy`, so

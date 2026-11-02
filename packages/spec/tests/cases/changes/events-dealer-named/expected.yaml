@@ -1,0 +1,32 @@
+ok: true
+followUps:
+  - id: wrath-1
+    kind: ephemeral
+    followUp: test-events:wrath
+    to: self
+    required: false
+    changes:
+      - { type: adjust, field: test-events:wrath, by: 1 }
+      - { type: clearFollowUp, id: wrath-1 }
+    cause:
+      field: test-events:hp.current
+      by: -3
+      requested: -3
+      taken: -3
+      reason: requested
+      clamped: false
+      tags: [damage]
+      from: goblin
+observe:
+  type: observe
+  character: censor
+  adjustments:
+    - field: test-events:hp.current
+      by: -3
+      requested: -3
+      taken: -3
+      reason: requested
+      tags: [damage]
+      from: goblin
+  applied:
+    - { source: test-events:conditions.marked, appliedBy: tactician }

@@ -1,0 +1,20 @@
+- type: observe
+  character: goblin
+  adjustments:
+    - field: test-events:hp.current
+      by: -3
+      requested: -3
+      taken: -3
+      reason: requested
+      tags: [damage]
+      from: fighter
+    - field: test-events:hp.current
+      by: -2
+      requested: -2
+      taken: -2
+      reason: requested
+      tags: [damage]
+      from: fighter
+  applied:
+    - { source: test-events:conditions.marked, appliedBy: tactician }
+    - { source: test-events:conditions.frightened, appliedBy: censor }

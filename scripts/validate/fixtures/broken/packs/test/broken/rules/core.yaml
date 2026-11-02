@@ -239,6 +239,10 @@ followUps:
   - id: mark
     on: { field: abilities.str.score }
     changes: [{ type: setState, entry: self, key: broken, value: true }]
+  # Another character's entries, from an undeclared slot.
+  - id: watch-ghost
+    on: { field: abilities.str.score, from: { link: phantom } }
+    changes: [{ type: adjust, field: abilities.str.score, by: 1 }]
   # A derived offer, which a character never stores.
   - id: strong
     while: abilities.str.score > 18
