@@ -120,8 +120,10 @@ sheet.values['swn-revised:saves.physical']?.value; // 15 less the better of Str 
   A focus's bonus skill taken on advancement is three points toward that skill; what doesn't buy
   a level is saved as the skill's `credit`, which `raise-skill` spends first.
 - **Combat:** attack bonus, `attack` (d20 + attack bonus + combat skill, −2 untrained, +
-  modifier, +1 for energy weapons, +2 for burst fire) against the target's AC, damage, Shock on
-  a miss, ammunition and `reload`; Armor Class from the best armor, a shield and Dexterity.
+  modifier, +1 for energy weapons) against the target's AC, damage, Shock on a miss, ammunition
+  and `reload`; Armor Class from the best armor, a shield and Dexterity. Burst fire is a `burst`
+  parameter of a burst weapon's own attacks: with three rounds left it spends them for +2 to hit
+  and damage, else it fires one.
 - **System Strain:** permanent from cyberware, temporary from drugs; `use-drug`,
   `trigger-cyberware` and Psychic Succor (given the target's `strain.total` and `strain.max`)
   refuse what would pass Constitution. `rest` restores hit points, Strain,
@@ -160,7 +162,8 @@ with the core content alone):
   ruleset's `enumOrigins`, `optionOrigins` and `familyOrigins`. For example,
   `spikes` added to `swn-revised:types.weapon.fields.ammo` is
   `types.weapon.fields.ammo.values.spikes.name: Spike magazine` (through `enumOrigins`).
-- **Tagged steps** take an add-on's rules-level `option` and `changes` effects: `creation.kit`
+- **Tagged steps** take an add-on's rules-level `option` and `changes` effects: `attack.fire`
+  (an attack's first step, which sets `flags.burst`), `creation.kit`
   (the starting package pick: an added option replaces the package), `creation.focus` and
   `level-up.focus` (a focus pick at creation or on advancement: an added option is taken instead
   of a focus), `creation.finish` (the last changes of both creation actions, before creation

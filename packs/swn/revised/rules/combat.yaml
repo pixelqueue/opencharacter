@@ -34,8 +34,11 @@ actions:
               bonus: >-
                 item.skill == 'punch' ? max(0, skills.punch.level)
                   : item.skill == 'stab' ? damage.melee : damage.ranged
-              burst: situational.burst && item.burst && self.loaded >= 3
+              burst: false
               hit: false
+      # Burst fire: a burst weapon's own `burst` parameter sets `flags.burst` here when three
+      # rounds are left (rules/gear.yaml).
+      - { id: fire, kind: changes, tags: [attack.fire] }
       - id: target
         kind: branch
         cases:

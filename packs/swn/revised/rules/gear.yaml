@@ -125,6 +125,17 @@ contentTypes:
         min: 0
         max: 'has(item.magazine) ? item.magazine : 0'
         default: 'has(item.magazine) ? item.magazine : 0'
+    effects:
+      # Burst fire, offered on a burst weapon's own attacks: three rounds for +2 to hit and
+      # damage, only with three rounds left.
+      - target: { actions: [attack], from: self }
+        op: params
+        value: { burst: { type: boolean, default: false } }
+        when: item.burst
+      - target: { steps: [attack.fire], from: self }
+        op: changes
+        value: { flags: { burst: params.burst && self.loaded >= 3 } }
+        when: item.burst
     actions:
       - use: attack
       - use: reload
