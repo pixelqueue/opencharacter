@@ -1,0 +1,34 @@
+description: "Two spells' `from: self` effects add `damageType` to the spell type's shared cast action, each with its own values: each reaches only its own spell's runs, so they don't conflict"
+specVersion: 0.3.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.3.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        tags: [spell]
+        contentTypes:
+          spell:
+            actions:
+              - id: cast
+                tags: [spell]
+                steps: [{ id: done, kind: outcome }]
+      content:
+        - id: spells.resist-energy
+          type: spell
+          effects:
+            - target: { actions: [spell], from: self }
+              op: params
+              value:
+                damageType: { type: enum, values: [acid, cold, fire], optional: true }
+        - id: spells.falling-stars
+          type: spell
+          effects:
+            - target: { actions: [spell], from: self }
+              op: params
+              value:
+                damageType: { type: enum, values: [cold, sonic], optional: true }

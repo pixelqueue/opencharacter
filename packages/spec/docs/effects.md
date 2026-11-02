@@ -104,9 +104,10 @@ effects:
   and the character's fields), each is a parameter of the action after its own, checked by
   startAction like them (on the run the app starts only, never a nested one) and listed by
   describeAction with `addedBy`. Each is `optional` or has a `default`; a name an action its
-  literal tags reach declares, or another effect's other declaration of the name, is the load
-  error `invalid-added-param` ([dice-and-actions.md](dice-and-actions.md#actions)), counting
-  only actions and effects of packs that meet
+  literal tags reach declares, or another effect's other declaration of the name (except
+  between `from: self` effects of different content items), is the load error
+  `invalid-added-param` ([dice-and-actions.md](dice-and-actions.md#actions)), counting only
+  actions and effects of packs that meet
   ([Which packs a tag target reaches](#which-packs-a-tag-target-reaches)). The action's own
   formulas only see the parameters it declares; content reads an added one as `params.<name>` in its roll, option and `changes`
   effects. Text: `<content key>.params.<name>.name` (and `.values.<value>.name`), the content
@@ -378,10 +379,12 @@ that declares that tag, or a tag below it.
   needs no opt-in for its dependents: depending on a pack takes up its tag vocabulary.
 - **Load checks:** `invalid-added-param` ([dice-and-actions.md](dice-and-actions.md#actions))
   counts an action by the pack that wrote it. A name is `declared` when an action the effect
-  reaches by its literal tags declares it; two `params` effects `conflict` only when one action
-  may take both: its literal tags meet a target tag of each (one is the other or below it), over
-  packs that meet on that tag. So one game's `params` effect never clashes with an unrelated
-  game's action or effect, even when a third pack depends on both.
+  reaches by its literal tags declares it. Two `params` effects `conflict` when their target
+  tags meet (one is the other or below it) over packs that meet on that tag, or when one action
+  may take both: its literal tags meet a target tag of each, over packs that meet on that tag;
+  two `from: self` effects of different content items never do. So one game's `params` effect
+  never clashes with an unrelated game's action or effect, even when a third pack depends on
+  both, while two add-ons of one core clash whether or not an action carries the tag yet.
 - **Not scoped:** incoming changes. A change carries tags, never a pack: the receiving sheet's
   incoming-change effects and situational choices match its tags whichever character or action
   sent it, the tags being ones the receiving ruleset declares (an undeclared one is

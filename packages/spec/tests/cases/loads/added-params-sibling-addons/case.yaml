@@ -1,0 +1,45 @@
+description: "Two add-ons of one core add `style` with other declarations over the core's `attack` tag, which no action carries yet: their targets meet over a pack declaring the tag, so they conflict"
+specVersion: 0.3.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        id: core-pack
+        version: 1.0.0
+        specVersion: 0.3.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        tags: [attack, attack.melee]
+      content: []
+  - inline:
+      manifest:
+        id: addon-pack
+        version: 1.0.0
+        specVersion: 0.3.0
+        license: CC0-1.0
+        defaultLanguage: en
+        dependencies: { core-pack: ^1.0.0 }
+      rules:
+        effects:
+          - target: { actions: [attack] }
+            op: params
+            value:
+              style: { type: boolean, default: false }
+      content: []
+  - inline:
+      manifest:
+        id: other-addon
+        version: 1.0.0
+        specVersion: 0.3.0
+        license: CC0-1.0
+        defaultLanguage: en
+        dependencies: { core-pack: ^1.0.0 }
+      rules:
+        effects:
+          # Below the other add-on's target tag.
+          - target: { actions: [attack.melee] }
+            op: params
+            value:
+              style: { type: integer, default: 0 }
+      content: []

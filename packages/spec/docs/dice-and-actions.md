@@ -125,12 +125,17 @@ chooses its damage type on each use, and a feature adds an opt-in to a rules act
   candidate as `item` and the listing's as `action`, as an action's own does.
 - A `use` may fix an added parameter in its `params`, as its own.
 - A name an action its literal target tags reach already declares, or one another `params`
-  effect adds with another declaration over target tags that meet, is `invalid-added-param` at
-  load. An action counts by the pack that wrote it, and only when the effect reaches it over
-  packs that meet; two effects conflict only when one action may take both
+  effect adds with another declaration, is `invalid-added-param` at load. An action counts by the
+  pack that wrote it, and only when the effect reaches it over packs that meet. Two effects
+  conflict when their target tags meet (one is the other or below it) and their packs meet over
+  that tag, or when one action's literal tags reach both
   ([effects.md](effects.md#which-packs-a-tag-target-reaches)), so an unrelated game loaded beside
-  it never clashes. An action reached only through computed tags keeps its own
-  parameter, and the first effect's declaration wins.
+  it never clashes, while two add-ons of one core or two effects of one pack do even before an
+  action carries the tag. Two `from: self` effects carried by different content items never
+  conflict: each spell may offer its own `damageType` values on the shared cast action. An
+  action reached only through computed tags keeps its own parameter, and where two declarations
+  still reach one run (content granted or picked under a copy, on the copy's own action) the
+  first effect's declaration wins.
 - Text: `<content key>.params.<name>.name`: an item's or a template's own key,
   `types.<type>` for a content type's effect, `rules` for the rules'.
 

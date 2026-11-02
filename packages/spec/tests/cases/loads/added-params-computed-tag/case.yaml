@@ -1,0 +1,29 @@
+description: "Two effects of one pack add `style` with other declarations to `attack`, which the pack's only action carries through a formula: their targets meet, so they conflict"
+specVersion: 0.3.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.3.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        tags: [attack]
+        fields:
+          armed: { type: boolean, input: true, default: true }
+        actions:
+          - id: strike
+            tags: [{ formula: "armed ? ['attack'] : []" }]
+            steps: [{ id: done, kind: outcome }]
+        effects:
+          - target: { actions: [attack] }
+            op: params
+            value:
+              style: { type: boolean, default: false }
+          - target: { actions: [attack] }
+            op: params
+            value:
+              style: { type: integer, default: 0 }
+      content: []
