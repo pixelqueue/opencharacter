@@ -864,13 +864,16 @@ A choice step has one source of options (a fifth, pending choices, is
   (`has(steps.<id>)` is false); with it, `steps.<id>.picked` is `[]`.
 - **Recommending.** `recommend` is evaluated before each pick, with `options` bound to the IDs
   the step's own source offers (`#done` and added options left out); it recommends its value if
-  that is one of them, else nothing. Without `recommend`, a `content`, `copies` or `values` step
+  that is one of them, or `#done` while `#done` is offered (declining is then the default),
+  else nothing. Without `recommend`, a `content`, `copies` or `values` step
   recommends the candidate with the highest `prefer` (a number; ties go to the earlier
   candidate). A step with neither recommends nothing, whatever its source and however many
   candidates it offers: the first candidate is never recommended by default, so
   `needs.recommended` is absent and an automatic run pauses there. A pack that wants the first
-  says so with `recommend: options[0]`. `#done` and added options are never recommended, so a
-  step offering only added options pauses.
+  says so with `recommend: options[0]`. Added options are never recommended, and `#done` only
+  by `recommend`, so a step offering only added options pauses unless its `recommend` names
+  `#done`. A written list may be empty (`options: []`): the step then offers only what
+  `option` effects add, and is skipped when they add nothing.
 - **Random picks**. `random`, a condition, is evaluated before each pick in the
   same context as `recommend` (with `options`). When it holds and the source offers two options
   or more, the engine **draws**: one die with as many sides as the source's offered options

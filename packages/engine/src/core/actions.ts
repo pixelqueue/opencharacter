@@ -3351,7 +3351,10 @@ function preferRoots(
   return candidateRoots(frame, candidate, picks, action);
 }
 
-/** Without `recommend`, the highest `prefer` (ties to the earlier), else nothing; never `#done`. */
+/**
+ * `recommend`'s value if offered (`#done` too, while offered), else the highest `prefer` (ties to
+ * the earlier), else nothing.
+ */
 function recommendation(
   ctx: Ctx,
   frame: Frame,
@@ -3359,11 +3362,12 @@ function recommendation(
   candidates: Candidate[],
   counts: ReadonlyMap<string, number>,
   action: Record<string, unknown>,
+  done: boolean,
 ): string | undefined {
   const ids = candidates.map((c) => c.id);
   if (step.recommend !== undefined) {
     const v = f.toData(evaluate(ctx, frame, step.recommend as Formula, { options: ids }));
-    return typeof v === 'string' && ids.includes(v) ? v : undefined;
+    return typeof v === 'string' && (ids.includes(v) || (done && v === DONE)) ? v : undefined;
   }
   if ((!optionQuery(step) && !valueSource(step)) || step.prefer === undefined) return undefined;
   let best: { id: string; score: number } | undefined;
@@ -3420,7 +3424,7 @@ function choiceStep(ctx: Ctx, given: Frame, step: Step, path: string): void {
     const recommended =
       own.length > 0 && randomHolds(ctx, frame, step, { options: ownIds })
         ? ownIds[draw(ctx, frame, path, tags, ownIds, named)]
-        : recommendation(ctx, frame, step, own, counts, action);
+        : recommendation(ctx, frame, step, own, counts, action, options.includes(DONE));
     const [answer] = takeAnswers(ctx, path, 'choice');
     let pick: string;
     let by: 'engine' | 'app' = 'engine';

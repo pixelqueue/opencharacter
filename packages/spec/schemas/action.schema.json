@@ -396,7 +396,7 @@
           "$ref": "common.schema.json#/$defs/tagList"
         },
         "options": {
-          "description": "Where the options come from: exactly one source. A written list offers the options whose `when` holds (option ID: the written `id`; name: `<actionKey>.options.<id>.name`). `{ content }` offers the ruleset's content of a type, in content order (option ID: the qualified content ID; name: the item's name). `{ copies }` offers the character's copies of a type, inventory then features (option ID: the instance ID; name: the copy's item name). `{ values }` offers plain values, written out or from a list formula (option ID: the value as a string; name: `<actionKey>.options.<value>.name` when the pack has it, else the app names it). `{ pending }` asks the choices still pending on the proposed sheet, one pick at a time (option ID: the option as `listOptions` names it; name: the choice's own text). On a step with `tags`, matching `option` effects add options after these.",
+          "description": "Where the options come from: exactly one source. A written list offers the options whose `when` holds (an empty list offers only what `option` effects add) (option ID: the written `id`; name: `<actionKey>.options.<id>.name`). `{ content }` offers the ruleset's content of a type, in content order (option ID: the qualified content ID; name: the item's name). `{ copies }` offers the character's copies of a type, inventory then features (option ID: the instance ID; name: the copy's item name). `{ values }` offers plain values, written out or from a list formula (option ID: the value as a string; name: `<actionKey>.options.<value>.name` when the pack has it, else the app names it). `{ pending }` asks the choices still pending on the proposed sheet, one pick at a time (option ID: the option as `listOptions` names it; name: the choice's own text). On a step with `tags`, matching `option` effects add options after these.",
           "oneOf": [
             {
               "type": "array",
@@ -429,8 +429,7 @@
                   }
                 },
                 "additionalProperties": false
-              },
-              "minItems": 1
+              }
             },
             {
               "type": "object",
@@ -528,7 +527,7 @@
           "additionalProperties": false
         },
         "recommend": {
-          "description": "Formula naming the recommended option ID; it may read `options`, the list of IDs the step's own source offers (`#done` and added options left out). Under an automatic policy the engine takes it. `#done` and added options are never recommended. Without it, a `content`, `copies` or `values` step recommends the candidate with the highest `prefer`; with neither, no option is recommended, so an automatic run pauses there. Over pending choices, it also sees `choice`, the choice being asked (`{ path, owner, id }`); without it, the option `listOptions` marks recommended is.",
+          "description": "Formula naming the recommended option ID; it may read `options`, the list of IDs the step's own source offers (`#done` and added options left out). Under an automatic policy the engine takes it. It may name `#done` while `#done` is offered, so declining is the default; added options are never recommended. Without it, a `content`, `copies` or `values` step recommends the candidate with the highest `prefer`; with neither, no option is recommended, so an automatic run pauses there. Over pending choices, it also sees `choice`, the choice being asked (`{ path, owner, id }`); without it, the option `listOptions` marks recommended is.",
           "$ref": "formula.schema.json"
         },
         "random": {

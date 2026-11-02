@@ -1308,8 +1308,9 @@ offered after the source's options as `<content id>#<option id>` and named
 `<content id>.options.<option id>.name`; the rules' effects add them too, as
 `<pack>:rules#<option id>` named `rules.options.<option id>.name`, so an add-on pack offers its
 own option in a dependency's tagged step. They are never recommended, so an automatic run keeps
-the rules' choice. A picked option's own `changes` are proposed before the step's. Pushing
-yourself in FitD costs 2 stress, or Battleborn's special armor:
+the rules' choice (or declines them, on a repeated step whose `recommend` names `#done`). A
+picked option's own `changes` are proposed before the step's. Pushing yourself in FitD costs 2
+stress, or Battleborn's special armor:
 
 ```yaml
 # rules/rolls.yaml, action-roll
@@ -1365,6 +1366,48 @@ chooses:
   prefer: self.hitDiceSpent - picks # recommend the class with the most dice still spent
   changes:
     - { type: adjustState, entry: picked, key: hitDiceSpent, by: -1 }
+```
+
+**Paying to improve a finished roll**. A choice step after the roll, tagged and offering
+only what content adds, is where content offers a paid improvement: Draw Steel's Brawny and
+Lucky Dog (lose 1d6 + level Stamina to improve a failed test one tier), PF2e's Hero Points, 5E's
+Lucky. A written list may be empty (`options: []`), so the step is skipped when nothing adds an
+option; `repeat: { max: 1 }` offers `#done`, and a `recommend` naming `#done` makes declining
+the default, so an automatic run doesn't pause. A picked option sets a flag the outcome reads
+(or a reclassifying step, `of`, reads as a tally), and its `changes` pay the cost, a dice
+`by` rolled at once:
+
+```yaml
+# rules: a test, improved after the roll.
+- id: setup
+  kind: branch
+  cases: [{ when: 'true', flags: { improve: 0 } }]
+- id: roll
+  kind: roll
+  tags: [power-roll.test]
+  bands: test
+  parts: [{ dice: 2d10 }, { field: "'characteristics.' + params.characteristic + '.score'" }]
+- id: improve
+  kind: choice # actions.test.steps.improve.prompt
+  tags: [test.improve]
+  when: "steps.roll.band in ['failure', 'failure-consequence']"
+  options: []
+  repeat: { max: 1 }
+  recommend: "'#done'"
+- id: improved
+  kind: roll
+  of: roll
+  when: flags.improve > 0
+  tags: [test.improved] # a rules effect adds flags.improve to the tierShift tally
+  bands: test
+# content/perks/exploration/brawny.yaml: perks.exploration.brawny.options.push-through.name
+effects:
+  - target: { choices: [test.improve] }
+    op: option
+    value:
+      id: push-through
+      flags: { improve: 1 }
+      changes: [{ type: adjust, field: stamina.current, by: '-(1d6 + level)' }]
 ```
 
 **Random picks**. While a choice step's `random` holds, the engine draws each

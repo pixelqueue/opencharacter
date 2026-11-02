@@ -1,0 +1,8 @@
+description: 'Without content adding an option, the improvement step after the roll offers nothing and is skipped, even with `#done` recommended'
+specVersion: 0.3.0
+call: startAction
+packs:
+  - path: ../../../packs/test-improve-roll
+input:
+  action: { id: 'test-improve-roll:test' }
+  policy: { rules: [{ kind: choice, tags: [test.improve], then: pause }] }

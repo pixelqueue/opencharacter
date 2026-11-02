@@ -1,0 +1,8 @@
+description: "Paused at the improvement step, the app sees the perk's option and `#done`, which is recommended"
+specVersion: 0.3.0
+call: startAction
+packs:
+  - path: ../../../packs/test-improve-roll
+input:
+  action: { id: 'test-improve-roll:test' }
+  policy: { rules: [{ kind: choice, tags: [test.improve], then: pause }] }

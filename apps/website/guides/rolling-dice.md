@@ -281,6 +281,11 @@ It's never the recommendation, so an automatic run keeps the rules' choice. To a
 about every push, pause on the step's tag: `{ rules: [{ kind: 'choice', tags: ['push-cost'],
 then: 'pause' }] }`.
 
+A paid improvement after the roll (Draw Steel's Brawny, PF2e's Hero Points) is such a step with
+only added options and `#done`, and `#done` recommended: an automatic run declines, and an app
+that pauses on the step's tag offers the player the option and its cost. The step is skipped
+when the character has nothing to offer there.
+
 ### Showing a pause
 
 Every pause names its `step` (the path, `hit/confirm`) and the `action` that defines that step
