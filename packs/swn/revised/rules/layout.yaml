@@ -138,6 +138,11 @@ display:
       priority: 1
       showWhen: 'countCopies(copy.item == @classes.warrior) > 0'
       input: { widget: checkbox }
+    scene.succor:
+      groups: [psionics]
+      priority: 1
+      showWhen: 'skills.biopsionics.level >= 0 || scene.succor'
+      input: { widget: checkbox }
     ac.value: { groups: [combat], priority: 0, visibility: primary }
     ac.advanced: { groups: [combat], priority: 1 }
     combat.attackBonus: { groups: [combat], priority: 0, visibility: primary }
@@ -163,6 +168,7 @@ display:
     psionics.discipline:
       { groups: [psionics], priority: 1, showWhen: "psionics.discipline != 'none'" }
     psionics.training: { hidden: true }
+    psionics.masteredSuccor: { hidden: true }
     effort.bonus: { hidden: true }
     effort.wild: { hidden: true }
     class.focus.combat: { hidden: true }

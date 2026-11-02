@@ -116,7 +116,9 @@ sheet.values['swn-revised:saves.physical']?.value; // 15 less the better of Str 
   and keep the worse, attacks and damage against them roll twice and keep the better, and their
   `throw-off` makes the Mental save that ends it. The psychic's `end-scene` and `rest` end it
   too, on whoever holds it (a removal `to: applied`, which the app applies to the characters the
-  psychic cursed).
+  psychic cursed). Psychic Succor's `succor` Commits Effort for the day on its first use in a
+  scene (`scene.succor` marks it paid; none with Mastered Succor) and shows its healing at the
+  biopsion's level on the technique (`healDice` d6 + `healBonus`).
 - **Advancement:** the experience table (a `level-up` follow-up to 10th level; later levels are
   the GM's call). `level-up` rolls the hit dice, grants three skill points (one psychic for a
   psychic, plus the Expert's), and a focus level at 2nd, 5th, 7th and 10th. `raise-skill`,

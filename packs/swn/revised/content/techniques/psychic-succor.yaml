@@ -4,12 +4,22 @@ fields:
   discipline: biopsionics
   level: 0
   core: true
+# The healing at the biopsion's Biopsionics level, shown on the technique: none at level-0, which
+# only stabilizes.
+computed:
+  healDice:
+    type: integer
+    formula: '[0, 1, 2, 2, 3][max(0, min(4, skills.biopsionics.level))]'
+  healBonus:
+    type: integer
+    formula: '[0, 1, 2, 6, 8][max(0, min(4, skills.biopsionics.level))]'
 actions:
-  # Heals by Biopsionics level (level-0 only stabilizes) and adds System Strain to the target:
-  # two points if they were mortally wounded. The Effort is the app's to Commit. A target whose
-  # System Strain can't take it isn't helped.
+  # Heals and adds System Strain to the target: two points if they were mortally wounded. The
+  # first use in a scene Commits Effort for the day (none with Mastered Succor); later uses in
+  # the scene are free. A target whose System Strain can't take it isn't helped.
   - id: succor
     tags: [psionics]
+    available: psionics.masteredSuccor || scene.succor || effort.available > 0
     params:
       mortallyWounded: { type: boolean, default: false }
     participants:
@@ -28,14 +38,28 @@ actions:
             && participants.target[0].strain.total + (params.mortallyWounded ? 2 : 1)
               > participants.target[0].strain.max
         result: "'failed'"
+      # Torched Effort lasts only for the scene, whatever it is Committed for.
+      - id: source
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              pay: '!psionics.masteredSuccor && !scene.succor'
+              day: effort.max - effort.scene - effort.day - effort.active > 0
+      - id: commit
+        kind: changes
+        when: flags.pay
+        changes:
+          - { type: adjust, field: effort.day, by: 1, when: flags.day }
+          - { type: adjust, field: effort.scene, by: 1, when: '!flags.day' }
+          - { type: set, field: scene.succor, value: true }
       - id: heal
         kind: roll
-        when: skills.biopsionics.level >= 1
+        when: self.healDice > 0
         tags: [healing]
         parts:
-          - dice: >-
-              skills.biopsionics.level >= 4 ? 3d6 + 8 : skills.biopsionics.level == 3 ? 2d6 + 6
-                : skills.biopsionics.level == 2 ? 2d6 + 2 : 1d6 + 1
+          - dice: (self.healDice)d6
+          - value: self.healBonus
       - id: apply
         kind: changes
         to: target
