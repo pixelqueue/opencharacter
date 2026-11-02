@@ -125,6 +125,38 @@ contentTypes:
         min: 0
         max: 'has(item.magazine) ? item.magazine : 0'
         default: 'has(item.magazine) ? item.magazine : 0'
+    # What its attacks add, shown on the weapon.
+    computed:
+      # The attribute modifier: the better of Strength and Dexterity for `str-dex`.
+      attributeMod:
+        type: integer
+        formula: >-
+          !has(item.attribute) ? 0
+            : item.attribute == 'str-dex' ? max(attributes.str.mod, attributes.dex.mod)
+            : fieldOf('attributes.{attr}.mod', item.attribute)
+      # To hit, before burst fire: attack bonus, combat skill (-2 untrained), attribute modifier,
+      # and +1 for an energy weapon.
+      hit:
+        type: integer
+        formula: >-
+          combat.attackBonus + (fieldOf('skills.{skill}.level', item.skill) < 0 ? -2
+            : fieldOf('skills.{skill}.level', item.skill)) + self.attributeMod
+            + (item.energy ? 1 : 0)
+      # Added to the damage die: the attribute modifier, and the Punch skill for fists or a
+      # focus's bonus to melee or ranged damage.
+      damage:
+        type: integer
+        formula: >-
+          self.attributeMod + (item.skill == 'punch' ? max(0, skills.punch.level)
+            : item.skill == 'stab' ? damage.melee : damage.ranged)
+      # Shock damage on a miss, 0 for none.
+      shock:
+        type: integer
+        formula: >-
+          has(item.shock) && item.shock > 0
+            ? max(0, item.shock + self.attributeMod + shock.bonus
+              + (item.skill == 'stab' ? damage.melee : 0))
+            : 0
     effects:
       # Burst fire, offered on a burst weapon's own attacks: three rounds for +2 to hit and
       # damage, only with three rounds left.

@@ -121,7 +121,8 @@ sheet.values['swn-revised:saves.physical']?.value; // 15 less the better of Str 
   a level is saved as the skill's `credit`, which `raise-skill` spends first.
 - **Combat:** attack bonus, `attack` (d20 + attack bonus + combat skill, −2 untrained, +
   modifier, +1 for energy weapons) against the target's AC, damage, Shock on a miss, ammunition
-  and `reload`; Armor Class from the best armor, a shield and Dexterity. Burst fire is a `burst`
+  and `reload`; Armor Class from the best armor, a shield and Dexterity. Each weapon shows its hit
+  bonus, damage bonus and Shock damage as computed values. Burst fire is a `burst`
   parameter of a burst weapon's own attacks: with three rounds left it spends them for +2 to hit
   and damage, else it fires one.
 - **System Strain:** permanent from cyberware, temporary from drugs; `use-drug`,

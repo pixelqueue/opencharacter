@@ -23,17 +23,9 @@ actions:
         cases:
           - when: true
             flags:
-              skill: "fieldOf('skills.{skill}.level', item.skill)"
-              attr: >-
-                !has(item.attribute) ? 0
-                  : item.attribute == 'str-dex' ? max(attributes.str.mod, attributes.dex.mod)
-                  : fieldOf('attributes.{attr}.mod', item.attribute)
               advanced: >-
                 item.advanced || (item.skill == 'stab' && combat.meleeAdvanced)
                   || (item.skill == 'punch' && combat.punchAdvanced)
-              bonus: >-
-                item.skill == 'punch' ? max(0, skills.punch.level)
-                  : item.skill == 'stab' ? damage.melee : damage.ranged
               burst: false
               hit: false
       # Burst fire: a burst weapon's own `burst` parameter sets `flags.burst` here when three
@@ -55,10 +47,7 @@ actions:
         bands: attack
         parts:
           - dice: 1d20
-          - value: combat.attackBonus
-          - value: 'flags.skill < 0 ? -2 : flags.skill'
-          - value: flags.attr
-          - value: 'item.energy ? 1 : 0'
+          - value: self.hit
           - value: 'flags.burst ? 2 : 0'
           - value: params.modifier
       - id: luck
@@ -74,19 +63,16 @@ actions:
             flags:
               landed: "steps.roll.band == 'hit' || flags.hit"
               shock: >-
-                has(item.shock) && item.shock > 0 && flags.ac >= 0
+                self.shock > 0 && flags.ac >= 0
                   && ((shock.anyAc && item.skill != 'shoot') || flags.ac <= item.shockAc)
-                  ? max(0, item.shock + flags.attr + shock.bonus
-                    + (item.skill == 'stab' ? damage.melee : 0))
-                  : 0
+                  ? self.shock : 0
       - id: damage
         kind: roll
         when: flags.landed
         tags: [damage]
         parts:
           - dice: item.damage
-          - value: flags.attr
-          - value: flags.bonus
+          - value: self.damage
           - value: 'flags.burst ? 2 : 0'
       - id: missDamage
         kind: roll
