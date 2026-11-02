@@ -7,9 +7,9 @@ fields:
 effects:
   - target: { choices: [test.improve] }
     op: option
-    when: has(params.skill) && itemField(params.skill, 'group', '') == 'intrigue'
+    when: has(params.skill) && itemField(params.skill, 'group', '') == 'intrigue' && picks == 0
     value:
       id: push-your-luck
-      flags: { improve: 1 }
+      flags: { improve: flags.improve + 1 }
       changes:
         - { type: adjust, field: stamina.current, by: '-(1d6 + level)', tags: [stamina-loss] }

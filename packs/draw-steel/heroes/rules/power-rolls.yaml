@@ -103,13 +103,13 @@ actions:
           - value: 2
             when: has(params.skill) && params.skill in skills.known
       # A failed test can be improved by what content offers here, paid at once (Brawny, Lucky
-      # Dog: 1d6 + level Stamina for one tier); declining is the default.
+      # Dog: 1d6 + level Stamina for one tier each, both on one test); declining is the default.
       - id: improve
         kind: choice
         tags: [test.improve]
         when: "steps.roll.band in ['failure', 'failure-consequence']"
         options: []
-        repeat: { max: 1 }
+        repeat: { max: 2 }
         recommend: "'#done'"
       - id: improved
         kind: roll
