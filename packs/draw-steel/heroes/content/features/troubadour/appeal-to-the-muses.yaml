@@ -4,11 +4,16 @@ fields:
   class: classes.troubadour
   level: 2
 effects:
+  # Making the appeal is a choice as the turn starts.
+  - target: { actions: [turn.start] }
+    op: params
+    when: "heroic.kind == 'drama'"
+    value: { appeal: { type: boolean, default: false } }
   # The appeal: on the d3, a 1 gives 1 more drama (the Director gains 1d3 Malice), a 2 one Heroic
   # Resource (the Director gains 1 Malice), a 3 two. What goes to allies is theirs to gain.
   - target: { steps: [turn.start] }
     op: changes
-    when: troubadour.appeal && has(steps.gain) && size(steps.gain.kept) > 0
+    when: params.appeal && has(steps.gain) && size(steps.gain.kept) > 0
     value:
       changes:
         - type: adjust

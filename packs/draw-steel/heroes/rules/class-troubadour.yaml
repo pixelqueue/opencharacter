@@ -29,8 +29,7 @@ fields:
   troubadour.performance: { type: string, input: true, default: '' }
   troubadour.performance2: { type: string, input: true, default: '' }
   troubadour.maxPerformances: { type: integer, formula: 1 }
-  # Appeal to the Muses: make the appeal when rolling for drama at the start of the turn.
-  troubadour.appeal: { type: boolean, input: true, default: false }
+  # Appeal to the Muses: extra drama from the appeal (Dramaturgy).
   troubadour.appealBonus: { type: integer, formula: 0 }
   # Scene Partner bonds active (at most your level).
   troubadour.bonds: { type: integer, input: true, default: 0, min: 0, max: level }
@@ -90,11 +89,6 @@ display:
     troubadour.bonds: { groups: [resources], priority: 2, showWhen: "heroic.kind == 'drama'" }
     troubadour.applause:
       { groups: [resources], priority: 1, showWhen: "heroic.kind == 'drama' && level >= 10" }
-    troubadour.appeal:
-      groups: [resources]
-      priority: 3
-      showWhen: "heroic.kind == 'drama' && combat.active"
-      input: { widget: checkbox }
     'troubadour.drama.{troubadourEvent}': { hidden: true }
     troubadour.events: { hidden: true }
     troubadour.maxPerformances: { hidden: true }
