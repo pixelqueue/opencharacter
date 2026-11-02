@@ -578,10 +578,10 @@ one slot. The format has no other kind of shared state.
   character's change to it calls for may name the slot (`to: { link }`).
 
 ```yaml
-# The heroes' pack: the party's hero tokens, spent to regain Stamina.
+# draw-steel-heroes: the party sheet's hero tokens, spent to regain Stamina.
 links:
   party:
-    pack: draw-steel-party
+    pack: draw-steel-heroes
     fields:
       heroTokens: { type: integer, default: 0 }
 actions:
@@ -592,7 +592,7 @@ actions:
         kind: changes
         to: { link: party }
         changes:
-          - { type: adjust, field: draw-steel-party:heroTokens, by: -1 }
+          - { type: adjust, field: draw-steel-heroes:heroTokens, by: -1 }
       - id: regain
         kind: changes
         changes:
