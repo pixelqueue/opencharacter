@@ -602,9 +602,13 @@ For each activation's choices, and the rules-level choices:
   follow the same order.
 - **`pending`** is the open entries of [the choice list](#the-choice-list), in
   the same order, each as `{ path, min, max, picked, slot }`, `picked` the number of picks.
-- **Choice issue IDs:** `choice-not-applicable`, `too-many-picks` and `option-not-eligible`
-  carry `id: <owner>/<choice id>`, where the owner is the content ID of the item that declares
-  the choice (or `rules`), and `source` is the owner's activation.
+- **Choice issue IDs:** `choice-not-applicable`, `too-many-picks`, `too-few-picks`,
+  `option-not-eligible`, `already-picked`, `no-eligible-option` and `picked-copy-invalid` carry
+  `id: <owner>/<choice id>`, where the owner is qualified: the content ID of the item that declares
+  the choice, `<pack>:rules` for a rules-level choice (the pack that declares it, as
+  `needs.choice.owner` names it), and for a choice of an inline option the option's source ID
+  (`<owner>/<choice>/<option>`, so `<pack>:rules/<choice>/<option>` under a rules-level choice).
+  `source` is the owner's activation.
 - **Slots**: a slotted choice is one choice per slot, each keyed `<id>-<slot>`
   and gathered in list order where the choice is declared, with `slot` bound in its formulas
   ([content.md](content.md#choice-slots)). Each is pending, applicable or not, and reported on its

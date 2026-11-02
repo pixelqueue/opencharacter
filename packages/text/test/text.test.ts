@@ -912,14 +912,14 @@ describe('FitD crew factions', () => {
       choices: { ...ravens.choices, rigging: [{ option: 'tools' }, { option: 'weapons' }] },
     } as CharacterDoc;
     const issue = computeSheet(ruleset, doc).issues.find((i) => i.code === 'too-many-picks');
-    expect(issue).toMatchObject({ id: 'rules/rigging', data: { max: 0 } });
+    expect(issue).toMatchObject({ id: 'fitd-crew:rules/rigging', data: { max: 0 } });
     expect(text.issue(issue!)).toBe(
       'Choose two kinds of item for the Rigging: too many options are picked (at most 0).',
     );
     // A choice without a prompt keeps the plain text.
-    expect(text.issue({ code: 'too-many-picks', id: 'rules/nothing', data: { max: 1 } })).toBe(
-      'Too many options are picked (at most 1).',
-    );
+    expect(
+      text.issue({ code: 'too-many-picks', id: 'fitd-crew:rules/nothing', data: { max: 1 } }),
+    ).toBe('Too many options are picked (at most 1).');
   });
 });
 

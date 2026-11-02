@@ -2274,7 +2274,7 @@ export class Sheet {
               pack,
               { ...roots, ...pickRoot },
               owner.source,
-              `${owner.sourceId}/${choice.id}`,
+              `${choiceOwnerId(owner, pack)}/${choice.id}`,
               `${pick.option}/${effect.id ?? index}`,
               undefined,
               undefined,
@@ -2287,7 +2287,7 @@ export class Sheet {
         if ('options' in from) {
           const inline = from.options.find((o) => o.id === pick.option);
           if (!inline) continue;
-          const sourceId = `${owner.sourceId}/${choice.id}/${inline.id}`;
+          const sourceId = `${choiceOwnerId(owner, pack)}/${choice.id}/${inline.id}`;
           const textId = `${owner.textId ?? owner.sourceId}/${slot?.choice ?? choice.id}/${inline.id}`;
           this.pickedContent(
             record,
@@ -4172,7 +4172,15 @@ function computedValue(type: string, value: f.Value): f.Value | undefined {
 }
 
 function choiceId(owner: Activation, choice: Choice): string {
-  return `${owner.sourceId}/${choice.id}`;
+  return `${choiceOwnerId(owner, (choice as Choice & { pack?: string }).pack ?? owner.pack)}/${choice.id}`;
+}
+
+/**
+ * The qualified ID of a choice's owner, as choice issue IDs and inline options' source IDs name it:
+ * the activation's source ID, `<pack>:rules` for the rules (`pack` declares the choice).
+ */
+export function choiceOwnerId(owner: Activation, pack: string): string {
+  return owner.kind === 'rules' ? `${pack}:rules` : owner.sourceId;
 }
 
 const cachedParse = f.parseCached;
