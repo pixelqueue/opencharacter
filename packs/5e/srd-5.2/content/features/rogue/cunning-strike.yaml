@@ -1,18 +1,18 @@
 id: features.rogue.cunning-strike
 type: feature
-# The save DC (`rogue.strikeDc`): 8 + Dexterity modifier + Proficiency Bonus, on the card too.
+# The save DC: 8 + Dexterity modifier + Proficiency Bonus, on the card too.
 computed:
-  strikeDc: { type: integer, formula: rogue.strikeDc }
+  strikeDc: { type: integer, formula: 8 + abilities.dex.mod + proficiency.bonus }
 # The effect is a parameter of each attack (`cunningStrike`; Improved Cunning Strike adds
 # `cunningStrike2`). Its dice come off the Sneak Attack (the rules' `sneakAttack` situational
-# choice), and on a hit that deals Sneak Attack damage the target saves
-# against it. An effect the rogue can't use (not in `rogue.strikeEffects`: one it doesn't know yet, or
-# Poison without a Poisoner's Kit), or effects together costing more dice than the Sneak Attack
-# has, do nothing and cost nothing; so does a Trip against a Huge or larger target. Withdraw's
+# choice reads `cunningStrikeCost`), and on a hit that deals Sneak Attack damage the target saves
+# against it. An effect the rogue can't use (not in `rogue.strikeEffects`: one it doesn't know yet,
+# or Poison without a Poisoner's Kit), or effects together costing more dice than the Sneak Attack
+# has, do nothing and cost nothing; so does a Trip against a Huge or larger target (the cost reads
+# the first target's size: one value per attack, and an attack has one target). Withdraw's
 # movement, Daze's limit and Stealth Attack are the player's.
 effects:
   - { target: rogue.cunningStrikes, op: atLeast, value: 1 }
-  - { target: rogue.strikeDc, op: set, value: 8 + abilities.dex.mod + proficiency.bonus }
   - target: { actions: [attack-hit] }
     op: params
     value:
@@ -20,6 +20,37 @@ effects:
         type: enum
         values: [poison, trip, withdraw, daze, knock-out, obscure, stealth-attack]
         optional: true
+      # The Sneak Attack dice the effects spend: those the rogue can use on this target, if
+      # together they fit in the Sneak Attack, else none.
+      cunningStrikeCost:
+        type: integer
+        formula: >-
+          (has(params.cunningStrike) && params.cunningStrike in rogue.strikeEffects
+              && !(params.cunningStrike == 'trip' && has(participants.target)
+                && size(participants.target) > 0 && has(participants.target[0].creature.size)
+                && participants.target[0].creature.size in ['huge', 'gargantuan'])
+            ? (params.cunningStrike == 'knock-out' ? 6 : params.cunningStrike == 'obscure' ? 3
+              : params.cunningStrike == 'daze' ? 2 : 1) : 0)
+            + (has(params.cunningStrike2) && params.cunningStrike2 in rogue.strikeEffects
+              && !(params.cunningStrike2 == 'trip' && has(participants.target)
+                && size(participants.target) > 0 && has(participants.target[0].creature.size)
+                && participants.target[0].creature.size in ['huge', 'gargantuan'])
+            ? (params.cunningStrike2 == 'knock-out' ? 6 : params.cunningStrike2 == 'obscure' ? 3
+              : params.cunningStrike2 == 'daze' ? 2 : 1) : 0)
+          <= rogue.sneakAttack
+            ? (has(params.cunningStrike) && params.cunningStrike in rogue.strikeEffects
+                && !(params.cunningStrike == 'trip' && has(participants.target)
+                  && size(participants.target) > 0 && has(participants.target[0].creature.size)
+                  && participants.target[0].creature.size in ['huge', 'gargantuan'])
+              ? (params.cunningStrike == 'knock-out' ? 6 : params.cunningStrike == 'obscure' ? 3
+                : params.cunningStrike == 'daze' ? 2 : 1) : 0)
+              + (has(params.cunningStrike2) && params.cunningStrike2 in rogue.strikeEffects
+                && !(params.cunningStrike2 == 'trip' && has(participants.target)
+                  && size(participants.target) > 0 && has(participants.target[0].creature.size)
+                  && participants.target[0].creature.size in ['huge', 'gargantuan'])
+              ? (params.cunningStrike2 == 'knock-out' ? 6 : params.cunningStrike2 == 'obscure' ? 3
+                : params.cunningStrike2 == 'daze' ? 2 : 1) : 0)
+            : 0
   - target: { actions: [attack-hit] }
     op: params
     when: rogue.cunningStrikes >= 2
@@ -31,13 +62,7 @@ effects:
       has(params.cunningStrike)
         && params.cunningStrike in ['poison', 'trip', 'knock-out', 'obscure', 'daze']
         && params.cunningStrike in rogue.strikeEffects
-        && (params.cunningStrike == 'knock-out' ? 6 : params.cunningStrike == 'obscure' ? 3
-          : params.cunningStrike == 'daze' ? 2 : 1)
-          + (has(params.cunningStrike2) && params.cunningStrike2 in rogue.strikeEffects
-              && !(params.cunningStrike2 == 'trip' && participant.creature.size in ['huge', 'gargantuan'])
-            ? (params.cunningStrike2 == 'knock-out' ? 6 : params.cunningStrike2 == 'obscure' ? 3
-              : params.cunningStrike2 == 'daze' ? 2 : 1) : 0)
-          <= rogue.sneakAttack
+        && params.cunningStrikeCost > 0
         && situational.sneakAttack && has(action.item.damageType)
         && (action.item.range == 'ranged' || 'finesse' in action.item.tags)
         && (params.cunningStrike != 'trip'
@@ -49,7 +74,7 @@ effects:
       as: participant
       params:
         ability: "params.cunningStrike in ['trip', 'obscure'] ? 'dex' : 'con'"
-        dc: rogue.strikeDc
+        dc: self.strikeDc
       changes:
         - type: applyEffect
           when: run.result == 'failure' && params.cunningStrike != 'daze'
@@ -64,13 +89,7 @@ effects:
       has(params.cunningStrike2)
         && params.cunningStrike2 in ['poison', 'trip', 'knock-out', 'obscure', 'daze']
         && params.cunningStrike2 in rogue.strikeEffects
-        && (params.cunningStrike2 == 'knock-out' ? 6 : params.cunningStrike2 == 'obscure' ? 3
-          : params.cunningStrike2 == 'daze' ? 2 : 1)
-          + (has(params.cunningStrike) && params.cunningStrike in rogue.strikeEffects
-              && !(params.cunningStrike == 'trip' && participant.creature.size in ['huge', 'gargantuan'])
-            ? (params.cunningStrike == 'knock-out' ? 6 : params.cunningStrike == 'obscure' ? 3
-              : params.cunningStrike == 'daze' ? 2 : 1) : 0)
-          <= rogue.sneakAttack
+        && params.cunningStrikeCost > 0
         && situational.sneakAttack && has(action.item.damageType)
         && (action.item.range == 'ranged' || 'finesse' in action.item.tags)
         && (params.cunningStrike2 != 'trip'
@@ -82,7 +101,7 @@ effects:
       as: participant
       params:
         ability: "params.cunningStrike2 in ['trip', 'obscure'] ? 'dex' : 'con'"
-        dc: rogue.strikeDc
+        dc: self.strikeDc
       changes:
         - type: applyEffect
           when: run.result == 'failure' && params.cunningStrike2 != 'daze'
