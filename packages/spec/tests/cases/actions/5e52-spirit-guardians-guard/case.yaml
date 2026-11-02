@@ -1,0 +1,27 @@
+description: '5E 2024 Spirit Guardians cast with a 4th-level slot, a goblin ends its turn in it: 4d8 radiant at the cleric spell save DC, half on a success, no slot spent'
+specVersion: 0.3.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/5e/srd-5.2
+input:
+  action:
+    id: '5e-srd-5.2:spells.spirit-guardians#guard'
+    entry: class
+    source: 5e-srd-5.2:spells.spirit-guardians
+  params: { slot: 4 }
+  participants:
+    target:
+      - id: goblin
+        values:
+          combat.ac: 15
+          creature.size: small
+          creature.type: humanoid
+  policy:
+    dice: auto
+    choices: auto
+    allocations: auto
+answers:
+  - outcome:
+      result: success
+      data:
+        total: 16

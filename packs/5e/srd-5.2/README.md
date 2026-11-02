@@ -307,7 +307,8 @@ Where the SRD is unclear or silent, the pack reads it this way:
   Incapacitated, reading its live Charisma modifier), the Rod of Alertness's Protective Aura (60
   feet, while planted), Aura of Life, Holy Aura and Pass without Trace (cast with no target, on
   the caster), and Spirit Guardians (15 feet, enemies' Speed halved; the cast puts the spell on
-  the caster to hold it up) are listed in computeSheet's `auras` for the app to place on whoever
+  the caster to hold it up, and its `guard` action, like Moonbeam's `beam`, runs the save and
+  damage at the caster's spell save DC without a slot) are listed in computeSheet's `auras` for the app to place on whoever
   is inside. A creature in two Auras of Protection benefits from the highest (stackKey `source`),
   and the holder inside its own aura counts it once.
 - **Equipment:** 38 weapons with their properties and mastery, 13 armors, 37 tools, 96 pieces of
@@ -396,8 +397,8 @@ as text are listed below.
   feat) is cast, and its card numbered, with the first spellcasting whose list has it.
 - **Aura parts that stay text:** Aura of Courage's and Aura of Devotion's immunity for allies
   (an aura carries effects, not immunities; the paladin's own holds), Smite of Protection's Half
-  Cover, Spirit Guardians' save and damage (run the cast against the creature) and its
-  unaffected creatures, Aura of Life's Hit Point maximum and its 1 Hit Point at turn start, and
+  Cover, when Spirit Guardians' `guard` runs (once per turn per creature) and its unaffected
+  creatures, Aura of Life's Hit Point maximum and its 1 Hit Point at turn start, and
   Holy Aura's blinding save.
 - **Spells left as text, by kind:** detection and divination, illusions, summoning and creation,
   movement and travel, wards and areas, utility, raising the dead, and spells that remake a weapon

@@ -21,9 +21,63 @@ fields:
   upcastDice: 1
 actions:
   - use: cast-spell
+  # The save and damage when the Emanation enters a creature's space, or a creature enters it or
+  # ends its turn there (once per turn, which is the app's), without spending a slot: `slot` is the
+  # slot it was cast with, `necrotic` the evil caster's damage type.
+  - id: guard
+    tags: [spell]
+    available: concentration.active
+    params:
+      slot: { type: integer, optional: true }
+      necrotic: { type: boolean, optional: true }
+    participants: { target: { fields: target } }
+    results: [save]
+    steps:
+      - id: setup
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              slot: 'has(params.slot) ? max(item.level, min(9, params.slot)) : item.level'
+              dc: self.spellDc
+              damageType: "has(params.necrotic) && params.necrotic ? 'necrotic' : 'radiant'"
+      - id: damage
+        kind: roll
+        tags: [damage.spell]
+        parts:
+          - dice: (3 + 1 * (flags.slot - item.level))d8
+            tags: [{ formula: "'damage.' + flags.damageType" }]
+      - id: saves
+        kind: action
+        each: target
+        as: participant
+        use: saving-throw
+        params: { ability: "'wis'", dc: flags.dc, spell: true }
+      - id: harm
+        kind: changes
+        each: target
+        to: target
+        changes:
+          - type: adjust
+            field: hp.current
+            split: { roll: damage, by: damage }
+            by: "steps.saves.result == 'success' ? -floor(max(0, part.total) / 2) : -max(0, part.total)"
+            tags:
+              - damage
+              - spell
+              - magical
+              - save-half
+              - save.wis
+              - formula: "steps.saves.result == 'success' ? 'save-success' : 'save-failure'"
+      - id: result
+        kind: outcome
+        result: "'save'"
+        data:
+          slot: flags.slot
+          dc: flags.dc
+          save: "'wis'"
 # Casting it puts the spell on the caster too, which holds the aura up: affected creatures in the
-# area have their speed halved. The save and damage on entering or at turn start or end stay the
-# app's (run the cast against them); designating unaffected creatures is the app's too.
+# area have their Speed halved. Designating unaffected creatures is the app's.
 effects:
   - target: { steps: [spell.concentrate], from: self }
     op: changes
@@ -33,7 +87,8 @@ effects:
         - { type: applyEffect, source: item.id }
 auras:
   - id: guardians
-    when: countList(character.applied, x.active && x.source == @spells.spirit-guardians) > 0
+    when: countList(character.applied, x.active && x.source == @spells.spirit-guardians
+      && (x.appliedBy == '' || x.appliedBy == character.id)) > 0
     size: 15
     affects: enemies
     effects:

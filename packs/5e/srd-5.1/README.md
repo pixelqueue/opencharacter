@@ -293,11 +293,13 @@ Where the SRD is unclear or silent, the pack reads it this way:
   Charisma modifier), Countercharm (30 feet, while the bard performs), the Rod of Alertness's
   Protective Aura (60 feet, while planted), Pass without Trace (30 feet, cast on the caster) and
   Spirit Guardians (15 feet, enemies' speed halved; the cast puts the spell on the caster to hold
-  it up; the save and damage stay the cast's, run against each creature) are listed in computeSheet's `auras` for the app to place on whoever is inside. A creature
+  it up) are listed in computeSheet's `auras` for the app to place on whoever is inside. A creature
   counts one Aura of Protection, Rod or Pass without Trace bonus (stackKey `source`), so the
   holder inside its own aura, or an ally with an older `ally` entry, isn't counted twice. The
   `ally` actions stay for apps that don't place auras. Aura of Courage and Aura of Devotion keep
-  their `ally` actions: an aura carries effects only, not immunities.
+  their `ally` actions: an aura carries effects only, not immunities. Spirit Guardians' save and
+  damage after the cast (a creature entering or starting its turn there) are the app's: running
+  the cast again would spend another slot.
 - **Equipment:** every SRD weapon and armor, 135 gear items, 7 equipment packs, 35 tools, 8
   mounts and 11 vehicles, with cost (gp) and weight (lb) per unit. Extradimensional containers
   and the Efficient Quiver take what they hold out of carried weight.
