@@ -15,8 +15,9 @@ settings:
       kit-speed: playerChooses
       kit-stability: playerChooses
       kit-disengage: playerChooses
-      kit-melee: playerChooses
-      kit-ranged: playerChooses
+      # A kit's damage bonus counts as a whole: one kit's on all three tiers.
+      kit-melee: { policy: playerChooses, spansFields: true, score: { field: kit.melee3 } }
+      kit-ranged: { policy: playerChooses, spansFields: true, score: { field: kit.ranged3 } }
       kit-melee-distance: playerChooses
       kit-ranged-distance: playerChooses
       # Only the best of these counts: saving throw thresholds, a treasure's damage or Stamina bonus.
