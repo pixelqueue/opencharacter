@@ -465,8 +465,9 @@ one whose turn starts (each left out when there is none, at the start or end of 
 run with nothing else the app makes up and never pause: every parameter has a default or is
 `optional` (`ended` and `started` are strings), no role has a `min`, it isn't `listed: false`,
 neither it nor a rules action its `action` steps run has a choice, allocate or handoff step, and
-only the rules declare one (`invalid-clock-action` at load). Its rolls roll with the app's dice
-function under the default policy. computeSheet lists it with `clock: turn-boundary`.
+only the rules declare one (`invalid-clock-action` at load). A parameter content adds with a
+`params` effect is optional or defaulted already (`invalid-added-param` otherwise), so it keeps the
+action runnable. Its rolls roll with the app's dice function under the default policy. computeSheet lists it with `clock: turn-boundary`.
 
 Content joins in through the action's tagged `changes` steps, as for any shared action:
 
