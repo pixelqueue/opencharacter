@@ -10,30 +10,57 @@ fields:
   deflectAttacks.anyType: { type: boolean, formula: false }
 
 situational:
-  # Deflect Attacks on an attack that hits: the change it is selected on is reduced by 1d10 plus
-  # the bonus, never below 0. The SRD reduces the attack's total once; a situational choice
-  # reaches only its own change, so the app selects it on one damage change (README,
-  # Limitations). The Reaction is the player's; redirecting is the `deflect-attacks` action's.
+  # Deflect Attacks on an attack that hits: one selection reaches the whole attack (every damage
+  # type it deals), reducing its total by 1d10 plus the bonus. Whether the attack deals
+  # Bludgeoning, Piercing or Slashing damage (any type with Deflect Energy) is the player's call
+  # when selecting it, as is the Reaction. Reduced to 0, the redirect is offered.
   - id: deflectAttacks
     type: boolean
     default: false
     available: deflectAttacks.known
     incoming: { fields: [hp.current], tags: [attack] }
+    scope: batch
     effects:
       - target: { incoming: { fields: [hp.current], tags: [damage] } }
         op: add
         value: 1d10 + deflectAttacks.bonus
+        when: incoming.amount < 0
+    changes:
+      - type: offerFollowUp
+        followUp: deflect-redirect
         when: >-
-          incoming.amount < 0
-            && (deflectAttacks.anyType || countList(['damage.bludgeoning', 'damage.piercing',
-              'damage.slashing'], x in incoming.tags) > 0)
-      - target: { incoming: { fields: [hp.current], tags: [damage] } }
-        op: atMost
-        value: 0
-        when: >-
-          incoming.amount < 0
-            && (deflectAttacks.anyType || countList(['damage.bludgeoning', 'damage.piercing',
-              'damage.slashing'], x in incoming.tags) > 0)
+          countList(batch.adjustments, x.field == @hp.current
+            && x.reason == 'requested' && x.taken < 0) == 0
+
+# The redirect, offered when Deflect Attacks stops all of an attack's damage: the feature's own
+# action spends the Focus Point.
+followUps:
+  - id: deflect-redirect
+    action: deflect-redirect
+
+actions:
+  - id: deflect-redirect
+    tags: [feature]
+    available: deflectAttacks.known
+    results: [redirected]
+    participants:
+      target:
+        max: 1
+        fields: target
+    steps:
+      - id: redirect
+        kind: action
+        source: "'features.monk.deflect-attacks'"
+        use: deflect-attacks
+        participants:
+          target: participants.target
+      - id: result
+        kind: outcome
+        result: "'redirected'"
+        data:
+          redirectDamage: steps.redirect.data.redirectDamage
+          dc: steps.redirect.data.dc
+          save: steps.redirect.data.save
 
 display:
   fields:
