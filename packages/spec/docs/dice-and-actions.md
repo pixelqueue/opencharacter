@@ -345,8 +345,11 @@ activation of the content, as `picksOf(owner, id)` reads them, proposed as one `
 `path` for each activation whose choice has picks (none for one without; a choice a grant presets
 is left alone; one another activation already cleared in the step, once). `owner` is a content ID,
 qualified against the action's pack, or `self`: the content carrying the effect that adds the
-change, else the content whose action it is (in a rules action, `unknown-reference` when the action
-runs). It is for the actor's own choices only (`to: self`). A follow-up's `self` is its content.
+change, else the content whose action it is. A follow-up's `self` is its content. The rules have
+no content of their own: `owner: self` in a rules action, a rules effect or a rules follow-up is
+`unknown-reference` when the action runs (a follow-up isn't offered), and the validator reports it,
+as it does an owner (`self` included) that doesn't declare the choice. It is for the actor's own
+choices only (`to: self`).
 Draw Steel's Eidetic Memory picks a lore skill anew at each respite:
 
 ```yaml

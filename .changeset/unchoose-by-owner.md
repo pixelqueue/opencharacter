@@ -1,6 +1,6 @@
 ---
-'@opencharacter/spec': patch
-'@opencharacter/engine': patch
+'@opencharacter/spec': minor
+'@opencharacter/engine': minor
 ---
 
 A proposed `unchoose` may name a content's choice by its owner, `choice: { owner, id }`, instead of
