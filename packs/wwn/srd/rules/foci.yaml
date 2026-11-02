@@ -1,7 +1,12 @@
 settings:
   # Armsmaster's and Deadeye's skill damage on a thrown weapon don't stack: the best applies.
+  # The unarmed attacks Unarmed Combatant, Natural Weaponry and Unarmed Might give are one
+  # source each: die, Shock and Shock AC come from the one the player picks, the best die
+  # recommended.
   stacking:
-    keys: { skill-damage: highestOnly }
+    keys:
+      skill-damage: highestOnly
+      unarmed: { policy: playerChooses, spansFields: true, score: { field: unarmed.die } }
 
 contentTypes:
   focus:
