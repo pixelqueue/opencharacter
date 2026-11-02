@@ -14,13 +14,7 @@ effects:
     op: add
     value: 2
     stackKey: item-bonus
-    when: 'self.equipped && self.invested'
-  - {
-      target: spells.innate,
-      op: grant,
-      value: { item: spells.guidance },
-      when: 'self.equipped && self.invested',
-    }
+  - { target: spells.innate, op: grant, value: { item: spells.guidance } }
   - target: { choices: [spell-cost] }
     op: option
     when: 'action.self.id == self.id && action.item.id == @spells.dream-message && self.used < 1'

@@ -16,13 +16,7 @@ effects:
     op: add
     value: 1
     stackKey: item-bonus
-    when: 'self.equipped && self.invested'
-  - {
-      target: spells.innate,
-      op: grant,
-      value: { item: spells.figment },
-      when: 'self.equipped && self.invested',
-    }
+  - { target: spells.innate, op: grant, value: { item: spells.figment } }
   - target: { choices: [spell-cost] }
     op: option
     when: 'action.self.id == self.id && action.item.id == @spells.invisibility && self.used < 1'

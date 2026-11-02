@@ -8,23 +8,12 @@ fields:
   activation: one
   frequency: once-per-day
 effects:
-  - {
-      target: attributes.dex.mod,
-      op: add,
-      value: 1,
-      when: 'self.equipped && self.invested && self.apex',
-    }
-  - {
-      target: attributes.dex.mod,
-      op: atLeast,
-      value: 4,
-      when: 'self.equipped && self.invested && self.apex',
-    }
+  - { target: attributes.dex.mod, op: add, value: 1, when: 'self.apex' }
+  - { target: attributes.dex.mod, op: atLeast, value: 4, when: 'self.apex' }
   - target: skills.acrobatics.mod
     op: add
     value: 3
     stackKey: item-bonus
-    when: 'self.equipped && self.invested'
   - target: speed.fly
     op: atLeast
     value: 30

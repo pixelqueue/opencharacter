@@ -9,18 +9,8 @@ fields:
   activation: one
   frequency: once-per-day
 effects:
-  - {
-      target: attributes.con.mod,
-      op: add,
-      value: 1,
-      when: 'self.equipped && self.invested && self.apex',
-    }
-  - {
-      target: attributes.con.mod,
-      op: atLeast,
-      value: 4,
-      when: 'self.equipped && self.invested && self.apex',
-    }
+  - { target: attributes.con.mod, op: add, value: 1, when: 'self.apex' }
+  - { target: attributes.con.mod, op: atLeast, value: 4, when: 'self.apex' }
   - target: { steps: [invest.item] }
     op: changes
     when: action.self.id == self.id

@@ -6,14 +6,9 @@ fields:
   price: 700
   usage: eyepiece
 effects:
-  - {
-      target: senses,
-      op: grant,
-      value: { tag: sense.low-light-vision },
-      when: 'self.equipped && self.invested',
-    }
+  - { target: senses, op: grant, value: { tag: sense.low-light-vision } }
   - target: { rolls: [perception] }
     op: add
     value: 2
     stackKey: item-bonus
-    when: 'self.equipped && self.invested && situational.usingSight'
+    when: 'situational.usingSight'

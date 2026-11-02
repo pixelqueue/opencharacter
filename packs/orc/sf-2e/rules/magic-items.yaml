@@ -50,6 +50,8 @@ contentTypes:
       apex: { type: boolean, default: false }
       used: { type: integer, default: 0, min: 0 }
       container: { type: string, default: '' }
+    # An item with the invested trait works only while worn and invested.
+    effectsWhen: "!('trait.invested' in item.tags) || (self.equipped && self.invested)"
     actions:
       - use: invest
       - use: divest
@@ -81,6 +83,8 @@ contentTypes:
       invested: { type: boolean, default: false }
       used: { type: integer, default: 0, min: 0 }
       container: { type: string, default: '' }
+    # An item with the invested trait works only while worn and invested.
+    effectsWhen: "!('trait.invested' in item.tags) || (self.equipped && self.invested)"
     actions:
       - use: invest
       - use: divest
