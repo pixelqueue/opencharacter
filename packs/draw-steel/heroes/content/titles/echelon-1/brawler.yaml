@@ -8,12 +8,19 @@ choices:
       options:
         - { id: duck }
         - { id: furniture-fighter }
-        # Free strikes ignore the bane restrained imposes (an edge cancels it).
+        # Free strikes ignore the bane restrained or grabbed imposes (an edge cancels each: the
+        # restrained bane is on the roll, the grabbed one on each target's tier).
         - id: headbutt
           effects:
             - target: { rolls: [power-roll.ability], tally: edges }
               op: add
               value: 1
               when: "conditions.restrained && action.item.kind == 'free-strike'"
+            - target: { rolls: [power-target], tally: edges }
+              op: add
+              value: 1
+              when: >-
+                conditions.grabbed && !(participant.id in conditions.grabbedBy)
+                  && action.item.kind == 'free-strike'
         - { id: if-i-wanted-you-dead-youd-be-dead }
     recommend: "'headbutt'"
