@@ -26,9 +26,11 @@ families:
 settings:
   rounding: floor
   # Armsmaster and Deadeye on a thrown attack: the better focus counts, on hit and damage both.
+  # Healer's and a Heal Specialist's extra dice don't add: the larger pool applies.
   stacking:
     keys:
       thrown-focus: { policy: highestOnly, spansFields: true }
+      skill-dice: highestOnly
 
 fields:
   level: { type: integer, input: true, default: 1, min: 1, max: 10 }
