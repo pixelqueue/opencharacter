@@ -1,0 +1,6 @@
+# Following in the Footsteps: the idol's heroic ability costs 2 less, to a minimum of 1.
+id: templates.complications.footsteps-idol
+type: template
+appliesTo: { type: ability }
+fields:
+  cost: 'prior.cost == 0 ? 0 : max(1, prior.cost - 2)'

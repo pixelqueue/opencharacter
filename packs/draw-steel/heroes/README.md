@@ -139,8 +139,9 @@ computeSheet(ruleset, made.character).values['draw-steel-heroes:stamina.max']?.v
   weapon treasures need a kit with a matching keyword (or Prayer of Soldier's Skill). A career's
   inciting incident is a choice of the book's six, each with its text. A treasure a complication
   hands you (Secret Twin, Cursed Weapon, …) is picked at creation and held as your own copy;
-  Dragon Dreams' traits work from 5 Victories; Following in the Footsteps records the idol's
-  heroic ability and the neglected one, and pays the discount and the extra cost in combat.
+  Dragon Dreams' traits work from 5 Victories; Following in the Footsteps keeps a template on the
+  idol's heroic ability (2 less, at least 1) and the neglected one (1 more), so cards, availability
+  and the cost paid show it.
 
 ## Text-only, and why
 
@@ -166,7 +167,6 @@ no way to say them (each is a gap the project tracks):
 - **No Dying on My Watch** records the target as frightened of the tactician, not of the ally who
   triggered it; **Inspiring Strike** offers only your own Recovery (the ally's, and the tier 3
   edges, are the table's).
-- **Following in the Footsteps:** an ability's availability still checks its printed cost.
 - **Abilities a treasure grants** (King's Roar, Kuran'zoi Prismscale) aren't gated on the kit's
   keywords, since a grant can't read picks.
 - **Ancestries:** the revenant's fall prone and 12-hour recovery, and a doomed hakaan's death at

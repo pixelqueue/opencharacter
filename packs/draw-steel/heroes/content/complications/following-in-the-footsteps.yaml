@@ -24,16 +24,9 @@ choices:
     pick: { min: "countCopies(copy.type == 'class') > 0 ? 1 : 0", max: 1 }
     recommend: options[0]
     activate: false
-effects:
-  - target: { steps: [ability.pay] }
-    op: changes
-    when: combat.active && action.item.id in picksOf('technique') && action.item.cost > 1
-    value:
-      changes:
-        - { type: adjust, field: heroic.current, by: 'min(2, action.item.cost - 1)' }
-  - target: { steps: [ability.pay] }
-    op: changes
-    when: combat.active && action.item.id in picksOf('neglected') && action.item.cost > 0
-    value:
-      changes:
-        - { type: adjust, field: heroic.current, by: -1 }
+# The cost changes ride on the abilities themselves, so cards and availability show them.
+keepsTemplates:
+  - template: templates.complications.footsteps-idol
+    content: { type: ability, where: "item.id in picksOf('technique')" }
+  - template: templates.complications.footsteps-neglected
+    content: { type: ability, where: "item.id in picksOf('neglected')" }
