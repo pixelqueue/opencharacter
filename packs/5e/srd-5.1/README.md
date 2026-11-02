@@ -258,6 +258,8 @@ Where the SRD is unclear or silent, the pack reads it this way:
 - **Follow-ups:** concentration checks, a failed death save from damage at 0 hit points,
   Relentless Rage, Relentless Endurance, Undead Fortitude, Retaliation and the Berserker Axe's
   save, each once per batch of damage; a batch is one attack or spell as the app applies it.
+  When concentration ends, `concentration-ends` ends the caster's concentration spells on every
+  creature holding one (`to: applied`, by the entries' `appliedBy`).
 - **Races and backgrounds:** the nine SRD races, four subraces and ten draconic ancestries, the
   Acolyte and the Grappler feat.
 - **Classes:** all twelve classes and their twelve SRD subclasses, feature by feature. Uses

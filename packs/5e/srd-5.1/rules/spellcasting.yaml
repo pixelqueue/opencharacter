@@ -75,6 +75,15 @@ followUps:
     action: concentration-check
     params:
       damage: -change.taken
+  # When concentration ends, the spells the caster concentrates on end wherever it put them (the
+  # app applies this to every creature holding one of its applied spells, the caster included).
+  - id: concentration-ends
+    becomes: '!concentration.active'
+    required: true
+    to: applied
+    changes:
+      - type: removeEffect
+        applied: { where: has(item.concentration) && item.concentration }
 
 actions:
   # Without `slotType`, a spell slot is spent when one of that level is left and a pact slot when

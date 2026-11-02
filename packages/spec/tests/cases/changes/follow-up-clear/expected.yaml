@@ -1,5 +1,15 @@
-# The file has no follow-ups left, so the key is gone.
+# The stored concentration check is gone; losing concentration stores the follow-up that ends the
+# caster's concentration spells wherever they are.
 ok: true
-followUps: []
+followUps:
+  - id: concentration-ends-1
+    kind: ephemeral
+    followUp: 5e-srd-5.1:concentration-ends
+    to: applied
+    required: true
+    changes:
+      - type: removeEffect
+        applied: { where: has(item.concentration) && item.concentration, appliedBy: test }
 character:
-  followUps: null
+  followUps:
+    - { id: concentration-ends-1, followUp: 5e-srd-5.1:concentration-ends, to: applied }

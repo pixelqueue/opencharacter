@@ -1,0 +1,13 @@
+ok: true
+followUps:
+  - id: concentration-ends-1
+    kind: ephemeral
+    followUp: 5e-srd-5.2:concentration-ends
+    to: applied
+    required: true
+    changes:
+      - type: removeEffect
+        applied: { where: has(item.concentration) && item.concentration, appliedBy: test }
+character:
+  followUps:
+    - { id: concentration-ends-1, followUp: 5e-srd-5.2:concentration-ends, to: applied }

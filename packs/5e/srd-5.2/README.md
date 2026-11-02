@@ -281,7 +281,9 @@ Where the SRD is unclear or silent, the pack reads it this way:
 - **Spellcasting:** each class's cantrips and prepared spells (the table's counts), always-
   prepared subclass spells, the Multiclass Spellcaster slots, Pact Magic, the wizard's spellbook
   and Ritual Adept, Magic Initiate and species spells with their own ability, `cast-spell` with
-  upcasting and cantrip upgrades, Concentration (checks at DC 10 or half the damage, up to 30),
+  upcasting and cantrip upgrades, Concentration (checks at DC 10 or half the damage, up to 30;
+  when it ends, the `concentration-ends` follow-up ends the caster's concentration spells on every
+  creature holding one, `to: applied`),
   196 of the 339 spells with mechanics beyond spending the slot.
 - **Auras:** Aura of Protection (allies in `paladin.auraRange`, down while the paladin is
   Incapacitated, reading its live Charisma modifier), the Rod of Alertness's Protective Aura (60
