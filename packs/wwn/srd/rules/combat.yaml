@@ -80,7 +80,9 @@ contentTypes:
       bundle: { type: integer, default: 1, min: 1 }
       wornFree: { type: boolean, default: false }
     actions:
-      - use: attack
+      # Only a throwable weapon asks whether it's thrown.
+      - { use: attack, available: "'throwable' in item.tags" }
+      - { use: attack, params: { thrown: 'false' } }
 
   armor:
     carried: true

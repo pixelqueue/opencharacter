@@ -353,8 +353,8 @@ contentTypes:
       # An art whose Effort stays committed while it lasts.
       active: { type: boolean, default: false }
     actions:
-      - use: commit-effort
-      - use: release-effort
+      - { use: commit-effort, available: "item.effort != 'none'" }
+      - { use: release-effort, available: "item.effort == 'ongoing'" }
 
 constraints:
   - id: spells-prepared
@@ -412,7 +412,7 @@ actions:
   - id: commit-effort
     tags: [art]
     available: >-
-      item.effort != 'none' && level >= item.minLevel && !(item.effort == 'ongoing' && self.active)
+      level >= item.minLevel && !(item.effort == 'ongoing' && self.active)
         && item.tradition in keysOf('effortTrad')
         && fieldOf('effort.{effortTrad}.free', item.tradition) > 0
         && !(item.tradition in keysOf('armorTrad') && magic.hindered)
@@ -446,7 +446,7 @@ actions:
   # Reclaim the Effort an art keeps committed, ending it.
   - id: release-effort
     tags: [art]
-    available: "item.effort == 'ongoing' && self.active"
+    available: self.active
     results: [released]
     steps:
       - id: release
