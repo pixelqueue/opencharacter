@@ -87,209 +87,35 @@ actions:
             forEach: steps.class.item.primaries
             field: { formula: "fieldId('characteristics.{characteristic}.base', x)" }
             value: 2
-      # The array for the characteristics that aren't primary, one step per set of primaries so
-      # each recommends exactly the fields it offers: the array, highest first, in the class's
-      # `arrayPriority` order (which must list every characteristic that isn't primary).
-      - id: restMightAgility
+      # The array goes to the characteristics that aren't primary, highest first in the class's
+      # `arrayPriority` order (which must list every characteristic that isn't primary). One step
+      # for each array length: a step hands out each of its values exactly once.
+      - id: rest
         kind: allocate
-        when: has(steps.class) && has(steps.array) && sortList(steps.class.item.primaries) == ['agility', 'might']
+        when: has(steps.array) && size(steps.class.item.primaries) == 2
         random: params.random
         fields:
           type: field
           where: >-
-            'characteristic-base.reason' in item.tags || 'characteristic-base.intuition' in item.tags || 'characteristic-base.presence' in item.tags
+            'characteristic-base' in item.tags
+              && countList(steps.class.item.primaries, ('characteristic-base.' + x) in item.tags) == 0
         values: ['flags.array[0]', 'flags.array[1]', 'flags.array[2]']
-        recommend:
-          characteristics.reason.base: "flags.array[indexOf(filterList(steps.class.item.arrayPriority, !(x in steps.class.item.primaries)), 'reason')]"
-          characteristics.intuition.base: "flags.array[indexOf(filterList(steps.class.item.arrayPriority, !(x in steps.class.item.primaries)), 'intuition')]"
-          characteristics.presence.base: "flags.array[indexOf(filterList(steps.class.item.arrayPriority, !(x in steps.class.item.primaries)), 'presence')]"
-      - id: restMightReason
+        recommend: >-
+          flags.array[indexOf(mapList(filterList(steps.class.item.arrayPriority, !(x in steps.class.item.primaries)),
+            fieldId('characteristics.{characteristic}.base', x)), field.id)]
+      - id: restOne
         kind: allocate
-        when: has(steps.class) && has(steps.array) && sortList(steps.class.item.primaries) == ['might', 'reason']
+        when: has(steps.array) && size(steps.class.item.primaries) == 1
         random: params.random
         fields:
           type: field
           where: >-
-            'characteristic-base.agility' in item.tags || 'characteristic-base.intuition' in item.tags || 'characteristic-base.presence' in item.tags
-        values: ['flags.array[0]', 'flags.array[1]', 'flags.array[2]']
-        recommend:
-          characteristics.agility.base: "flags.array[indexOf(filterList(steps.class.item.arrayPriority, !(x in steps.class.item.primaries)), 'agility')]"
-          characteristics.intuition.base: "flags.array[indexOf(filterList(steps.class.item.arrayPriority, !(x in steps.class.item.primaries)), 'intuition')]"
-          characteristics.presence.base: "flags.array[indexOf(filterList(steps.class.item.arrayPriority, !(x in steps.class.item.primaries)), 'presence')]"
-      - id: restMightIntuition
-        kind: allocate
-        when: has(steps.class) && has(steps.array) && sortList(steps.class.item.primaries) == ['intuition', 'might']
-        random: params.random
-        fields:
-          type: field
-          where: >-
-            'characteristic-base.agility' in item.tags || 'characteristic-base.reason' in item.tags || 'characteristic-base.presence' in item.tags
-        values: ['flags.array[0]', 'flags.array[1]', 'flags.array[2]']
-        recommend:
-          characteristics.agility.base: "flags.array[indexOf(filterList(steps.class.item.arrayPriority, !(x in steps.class.item.primaries)), 'agility')]"
-          characteristics.reason.base: "flags.array[indexOf(filterList(steps.class.item.arrayPriority, !(x in steps.class.item.primaries)), 'reason')]"
-          characteristics.presence.base: "flags.array[indexOf(filterList(steps.class.item.arrayPriority, !(x in steps.class.item.primaries)), 'presence')]"
-      - id: restMightPresence
-        kind: allocate
-        when: has(steps.class) && has(steps.array) && sortList(steps.class.item.primaries) == ['might', 'presence']
-        random: params.random
-        fields:
-          type: field
-          where: >-
-            'characteristic-base.agility' in item.tags || 'characteristic-base.reason' in item.tags || 'characteristic-base.intuition' in item.tags
-        values: ['flags.array[0]', 'flags.array[1]', 'flags.array[2]']
-        recommend:
-          characteristics.agility.base: "flags.array[indexOf(filterList(steps.class.item.arrayPriority, !(x in steps.class.item.primaries)), 'agility')]"
-          characteristics.reason.base: "flags.array[indexOf(filterList(steps.class.item.arrayPriority, !(x in steps.class.item.primaries)), 'reason')]"
-          characteristics.intuition.base: "flags.array[indexOf(filterList(steps.class.item.arrayPriority, !(x in steps.class.item.primaries)), 'intuition')]"
-      - id: restAgilityReason
-        kind: allocate
-        when: has(steps.class) && has(steps.array) && sortList(steps.class.item.primaries) == ['agility', 'reason']
-        random: params.random
-        fields:
-          type: field
-          where: >-
-            'characteristic-base.might' in item.tags || 'characteristic-base.intuition' in item.tags || 'characteristic-base.presence' in item.tags
-        values: ['flags.array[0]', 'flags.array[1]', 'flags.array[2]']
-        recommend:
-          characteristics.might.base: "flags.array[indexOf(filterList(steps.class.item.arrayPriority, !(x in steps.class.item.primaries)), 'might')]"
-          characteristics.intuition.base: "flags.array[indexOf(filterList(steps.class.item.arrayPriority, !(x in steps.class.item.primaries)), 'intuition')]"
-          characteristics.presence.base: "flags.array[indexOf(filterList(steps.class.item.arrayPriority, !(x in steps.class.item.primaries)), 'presence')]"
-      - id: restAgilityIntuition
-        kind: allocate
-        when: has(steps.class) && has(steps.array) && sortList(steps.class.item.primaries) == ['agility', 'intuition']
-        random: params.random
-        fields:
-          type: field
-          where: >-
-            'characteristic-base.might' in item.tags || 'characteristic-base.reason' in item.tags || 'characteristic-base.presence' in item.tags
-        values: ['flags.array[0]', 'flags.array[1]', 'flags.array[2]']
-        recommend:
-          characteristics.might.base: "flags.array[indexOf(filterList(steps.class.item.arrayPriority, !(x in steps.class.item.primaries)), 'might')]"
-          characteristics.reason.base: "flags.array[indexOf(filterList(steps.class.item.arrayPriority, !(x in steps.class.item.primaries)), 'reason')]"
-          characteristics.presence.base: "flags.array[indexOf(filterList(steps.class.item.arrayPriority, !(x in steps.class.item.primaries)), 'presence')]"
-      - id: restAgilityPresence
-        kind: allocate
-        when: has(steps.class) && has(steps.array) && sortList(steps.class.item.primaries) == ['agility', 'presence']
-        random: params.random
-        fields:
-          type: field
-          where: >-
-            'characteristic-base.might' in item.tags || 'characteristic-base.reason' in item.tags || 'characteristic-base.intuition' in item.tags
-        values: ['flags.array[0]', 'flags.array[1]', 'flags.array[2]']
-        recommend:
-          characteristics.might.base: "flags.array[indexOf(filterList(steps.class.item.arrayPriority, !(x in steps.class.item.primaries)), 'might')]"
-          characteristics.reason.base: "flags.array[indexOf(filterList(steps.class.item.arrayPriority, !(x in steps.class.item.primaries)), 'reason')]"
-          characteristics.intuition.base: "flags.array[indexOf(filterList(steps.class.item.arrayPriority, !(x in steps.class.item.primaries)), 'intuition')]"
-      - id: restReasonIntuition
-        kind: allocate
-        when: has(steps.class) && has(steps.array) && sortList(steps.class.item.primaries) == ['intuition', 'reason']
-        random: params.random
-        fields:
-          type: field
-          where: >-
-            'characteristic-base.might' in item.tags || 'characteristic-base.agility' in item.tags || 'characteristic-base.presence' in item.tags
-        values: ['flags.array[0]', 'flags.array[1]', 'flags.array[2]']
-        recommend:
-          characteristics.might.base: "flags.array[indexOf(filterList(steps.class.item.arrayPriority, !(x in steps.class.item.primaries)), 'might')]"
-          characteristics.agility.base: "flags.array[indexOf(filterList(steps.class.item.arrayPriority, !(x in steps.class.item.primaries)), 'agility')]"
-          characteristics.presence.base: "flags.array[indexOf(filterList(steps.class.item.arrayPriority, !(x in steps.class.item.primaries)), 'presence')]"
-      - id: restReasonPresence
-        kind: allocate
-        when: has(steps.class) && has(steps.array) && sortList(steps.class.item.primaries) == ['presence', 'reason']
-        random: params.random
-        fields:
-          type: field
-          where: >-
-            'characteristic-base.might' in item.tags || 'characteristic-base.agility' in item.tags || 'characteristic-base.intuition' in item.tags
-        values: ['flags.array[0]', 'flags.array[1]', 'flags.array[2]']
-        recommend:
-          characteristics.might.base: "flags.array[indexOf(filterList(steps.class.item.arrayPriority, !(x in steps.class.item.primaries)), 'might')]"
-          characteristics.agility.base: "flags.array[indexOf(filterList(steps.class.item.arrayPriority, !(x in steps.class.item.primaries)), 'agility')]"
-          characteristics.intuition.base: "flags.array[indexOf(filterList(steps.class.item.arrayPriority, !(x in steps.class.item.primaries)), 'intuition')]"
-      - id: restIntuitionPresence
-        kind: allocate
-        when: has(steps.class) && has(steps.array) && sortList(steps.class.item.primaries) == ['intuition', 'presence']
-        random: params.random
-        fields:
-          type: field
-          where: >-
-            'characteristic-base.might' in item.tags || 'characteristic-base.agility' in item.tags || 'characteristic-base.reason' in item.tags
-        values: ['flags.array[0]', 'flags.array[1]', 'flags.array[2]']
-        recommend:
-          characteristics.might.base: "flags.array[indexOf(filterList(steps.class.item.arrayPriority, !(x in steps.class.item.primaries)), 'might')]"
-          characteristics.agility.base: "flags.array[indexOf(filterList(steps.class.item.arrayPriority, !(x in steps.class.item.primaries)), 'agility')]"
-          characteristics.reason.base: "flags.array[indexOf(filterList(steps.class.item.arrayPriority, !(x in steps.class.item.primaries)), 'reason')]"
-      - id: restMight
-        kind: allocate
-        when: has(steps.class) && has(steps.array) && sortList(steps.class.item.primaries) == ['might']
-        random: params.random
-        fields:
-          type: field
-          where: >-
-            'characteristic-base.agility' in item.tags || 'characteristic-base.reason' in item.tags || 'characteristic-base.intuition' in item.tags || 'characteristic-base.presence' in item.tags
+            'characteristic-base' in item.tags
+              && countList(steps.class.item.primaries, ('characteristic-base.' + x) in item.tags) == 0
         values: ['flags.array[0]', 'flags.array[1]', 'flags.array[2]', 'flags.array[3]']
-        recommend:
-          characteristics.agility.base: "flags.array[indexOf(filterList(steps.class.item.arrayPriority, !(x in steps.class.item.primaries)), 'agility')]"
-          characteristics.reason.base: "flags.array[indexOf(filterList(steps.class.item.arrayPriority, !(x in steps.class.item.primaries)), 'reason')]"
-          characteristics.intuition.base: "flags.array[indexOf(filterList(steps.class.item.arrayPriority, !(x in steps.class.item.primaries)), 'intuition')]"
-          characteristics.presence.base: "flags.array[indexOf(filterList(steps.class.item.arrayPriority, !(x in steps.class.item.primaries)), 'presence')]"
-      - id: restAgility
-        kind: allocate
-        when: has(steps.class) && has(steps.array) && sortList(steps.class.item.primaries) == ['agility']
-        random: params.random
-        fields:
-          type: field
-          where: >-
-            'characteristic-base.might' in item.tags || 'characteristic-base.reason' in item.tags || 'characteristic-base.intuition' in item.tags || 'characteristic-base.presence' in item.tags
-        values: ['flags.array[0]', 'flags.array[1]', 'flags.array[2]', 'flags.array[3]']
-        recommend:
-          characteristics.might.base: "flags.array[indexOf(filterList(steps.class.item.arrayPriority, !(x in steps.class.item.primaries)), 'might')]"
-          characteristics.reason.base: "flags.array[indexOf(filterList(steps.class.item.arrayPriority, !(x in steps.class.item.primaries)), 'reason')]"
-          characteristics.intuition.base: "flags.array[indexOf(filterList(steps.class.item.arrayPriority, !(x in steps.class.item.primaries)), 'intuition')]"
-          characteristics.presence.base: "flags.array[indexOf(filterList(steps.class.item.arrayPriority, !(x in steps.class.item.primaries)), 'presence')]"
-      - id: restReason
-        kind: allocate
-        when: has(steps.class) && has(steps.array) && sortList(steps.class.item.primaries) == ['reason']
-        random: params.random
-        fields:
-          type: field
-          where: >-
-            'characteristic-base.might' in item.tags || 'characteristic-base.agility' in item.tags || 'characteristic-base.intuition' in item.tags || 'characteristic-base.presence' in item.tags
-        values: ['flags.array[0]', 'flags.array[1]', 'flags.array[2]', 'flags.array[3]']
-        recommend:
-          characteristics.might.base: "flags.array[indexOf(filterList(steps.class.item.arrayPriority, !(x in steps.class.item.primaries)), 'might')]"
-          characteristics.agility.base: "flags.array[indexOf(filterList(steps.class.item.arrayPriority, !(x in steps.class.item.primaries)), 'agility')]"
-          characteristics.intuition.base: "flags.array[indexOf(filterList(steps.class.item.arrayPriority, !(x in steps.class.item.primaries)), 'intuition')]"
-          characteristics.presence.base: "flags.array[indexOf(filterList(steps.class.item.arrayPriority, !(x in steps.class.item.primaries)), 'presence')]"
-      - id: restIntuition
-        kind: allocate
-        when: has(steps.class) && has(steps.array) && sortList(steps.class.item.primaries) == ['intuition']
-        random: params.random
-        fields:
-          type: field
-          where: >-
-            'characteristic-base.might' in item.tags || 'characteristic-base.agility' in item.tags || 'characteristic-base.reason' in item.tags || 'characteristic-base.presence' in item.tags
-        values: ['flags.array[0]', 'flags.array[1]', 'flags.array[2]', 'flags.array[3]']
-        recommend:
-          characteristics.might.base: "flags.array[indexOf(filterList(steps.class.item.arrayPriority, !(x in steps.class.item.primaries)), 'might')]"
-          characteristics.agility.base: "flags.array[indexOf(filterList(steps.class.item.arrayPriority, !(x in steps.class.item.primaries)), 'agility')]"
-          characteristics.reason.base: "flags.array[indexOf(filterList(steps.class.item.arrayPriority, !(x in steps.class.item.primaries)), 'reason')]"
-          characteristics.presence.base: "flags.array[indexOf(filterList(steps.class.item.arrayPriority, !(x in steps.class.item.primaries)), 'presence')]"
-      - id: restPresence
-        kind: allocate
-        when: has(steps.class) && has(steps.array) && sortList(steps.class.item.primaries) == ['presence']
-        random: params.random
-        fields:
-          type: field
-          where: >-
-            'characteristic-base.might' in item.tags || 'characteristic-base.agility' in item.tags || 'characteristic-base.reason' in item.tags || 'characteristic-base.intuition' in item.tags
-        values: ['flags.array[0]', 'flags.array[1]', 'flags.array[2]', 'flags.array[3]']
-        recommend:
-          characteristics.might.base: "flags.array[indexOf(filterList(steps.class.item.arrayPriority, !(x in steps.class.item.primaries)), 'might')]"
-          characteristics.agility.base: "flags.array[indexOf(filterList(steps.class.item.arrayPriority, !(x in steps.class.item.primaries)), 'agility')]"
-          characteristics.reason.base: "flags.array[indexOf(filterList(steps.class.item.arrayPriority, !(x in steps.class.item.primaries)), 'reason')]"
-          characteristics.intuition.base: "flags.array[indexOf(filterList(steps.class.item.arrayPriority, !(x in steps.class.item.primaries)), 'intuition')]"
+        recommend: >-
+          flags.array[indexOf(mapList(filterList(steps.class.item.arrayPriority, !(x in steps.class.item.primaries)),
+            fieldId('characteristics.{characteristic}.base', x)), field.id)]
       - id: picks
         kind: choice
         sheet: proposed
