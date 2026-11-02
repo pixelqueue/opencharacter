@@ -9,10 +9,10 @@ fields:
   applyTo: self
 effects:
   # The battle form is chosen on each cast: a parameter the spell adds to its own cast.
-  - target: { actions: [spell], from: self }
+  - target: { actions: [spell-cast], from: self }
     op: params
     value:
-      dinosaurForm:
+      form:
         {
           type: enum,
           values:
@@ -21,7 +21,7 @@ effects:
         }
   - target: { steps: [spell.chosen], from: self }
     op: changes
-    value: { flags: { form: "has(params.dinosaurForm) ? params.dinosaurForm : ''" } }
+    value: { flags: { form: "has(params.form) ? params.form : ''" } }
   - { target: battleForm.active, op: set, value: true, scope: applied }
   - {
       target: battleForm.acBase,

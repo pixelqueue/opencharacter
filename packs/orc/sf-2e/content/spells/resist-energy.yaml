@@ -18,13 +18,13 @@ fields:
   damageType: fire
 effects:
   # The damage type is chosen on each cast: a parameter the spell adds to its own cast.
-  - target: { actions: [spell], from: self }
+  - target: { actions: [spell-cast], from: self }
     op: params
     value:
-      resistType: { type: enum, values: [acid, cold, electricity, fire, sonic], optional: true }
+      damageType: { type: enum, values: [acid, cold, electricity, fire, sonic], optional: true }
   - target: { steps: [spell.chosen], from: self }
     op: changes
-    value: { flags: { damageType: 'has(params.resistType) ? params.resistType : item.damageType' } }
+    value: { flags: { damageType: 'has(params.damageType) ? params.damageType : item.damageType' } }
   - target: { incoming: { fields: [hp.current] } }
     op: add
     stackKey: resistance

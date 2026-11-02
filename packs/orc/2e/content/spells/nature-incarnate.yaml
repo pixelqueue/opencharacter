@@ -10,13 +10,13 @@ fields:
   tempHp: 30
 effects:
   # The battle form is chosen on each cast: a parameter the spell adds to its own cast.
-  - target: { actions: [spell], from: self }
+  - target: { actions: [spell-cast], from: self }
     op: params
     value:
-      incarnation: { type: enum, values: [green-man, kaiju], optional: true }
+      form: { type: enum, values: [green-man, kaiju], optional: true }
   - target: { steps: [spell.chosen], from: self }
     op: changes
-    value: { flags: { form: "has(params.incarnation) ? params.incarnation : ''" } }
+    value: { flags: { form: "has(params.form) ? params.form : ''" } }
   - { target: battleForm.active, op: set, value: true, scope: applied }
   - { target: battleForm.acBase, op: set, value: '25', scope: applied }
   - { target: battleForm.formAttacks, op: set, value: true, scope: applied }

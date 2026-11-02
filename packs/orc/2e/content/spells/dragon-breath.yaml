@@ -16,16 +16,16 @@ effects:
   # The exemplar's type follows its tradition (the draconic exemplar sets the spellcasting
   # tradition): force (arcane), spirit (divine), mental (occult) or fire (primal). A parameter
   # the spell adds to its cast names another, for an exemplar the sheet doesn't hold.
-  - target: { actions: [spell], from: self }
+  - target: { actions: [spell-cast], from: self }
     op: params
     value:
-      exemplarType: { type: enum, values: [fire, force, mental, spirit], optional: true }
+      damageType: { type: enum, values: [fire, force, mental, spirit], optional: true }
   - target: { steps: [spell.chosen], from: self }
     op: changes
     value:
       flags:
         damageType: >-
-          has(params.exemplarType) ? params.exemplarType
+          has(params.damageType) ? params.damageType
             : spellcasting.tradition == 'arcane' ? 'force'
             : spellcasting.tradition == 'divine' ? 'spirit'
             : spellcasting.tradition == 'occult' ? 'mental'

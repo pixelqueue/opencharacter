@@ -10,13 +10,13 @@ fields:
   damageType: force
 effects:
   # The damage type is chosen on each cast: a parameter the spell adds to its own cast.
-  - target: { actions: [spell], from: self }
+  - target: { actions: [spell-cast], from: self }
     op: params
     value:
-      qiType: { type: enum, values: [force, spirit, vitality, void], optional: true }
+      damageType: { type: enum, values: [force, spirit, vitality, void], optional: true }
   - target: { steps: [spell.chosen], from: self }
     op: changes
-    value: { flags: { damageType: 'has(params.qiType) ? params.qiType : item.damageType' } }
+    value: { flags: { damageType: 'has(params.damageType) ? params.damageType : item.damageType' } }
   - { target: speed.fly, op: atLeast, value: speed.land, scope: applied }
   - target:
       rolls: [damage.strike]

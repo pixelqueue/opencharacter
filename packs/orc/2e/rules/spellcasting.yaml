@@ -490,8 +490,9 @@ contentTypes:
 
 actions:
   - id: cast-spell
-    # A spell cast as a reaction is listed with the reactions.
-    tags: [spell, { formula: "item.cast == 'reaction' ? ['reaction'] : []" }]
+    # A spell cast as a reaction is listed with the reactions. Spells add their cast's
+    # parameters at spell-cast, a tag no other action meets.
+    tags: [spell, spell-cast, { formula: "item.cast == 'reaction' ? ['reaction'] : []" }]
     params:
       rank: { type: integer, optional: true, min: 1, max: 10 }
       actions: { type: integer, optional: true, min: 1, max: 3 }

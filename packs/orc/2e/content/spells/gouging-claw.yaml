@@ -26,10 +26,10 @@ fields:
   persistentScales: true
 effects:
   # The damage type is chosen on each cast: a parameter the spell adds to its own cast.
-  - target: { actions: [spell], from: self }
+  - target: { actions: [spell-cast], from: self }
     op: params
     value:
-      clawType: { type: enum, values: [piercing, slashing], optional: true }
+      damageType: { type: enum, values: [piercing, slashing], optional: true }
   - target: { steps: [spell.chosen], from: self }
     op: changes
-    value: { flags: { damageType: 'has(params.clawType) ? params.clawType : item.damageType' } }
+    value: { flags: { damageType: 'has(params.damageType) ? params.damageType : item.damageType' } }

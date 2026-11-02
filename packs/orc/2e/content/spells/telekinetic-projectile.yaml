@@ -21,11 +21,10 @@ fields:
   heightenDice: 1
 effects:
   # The damage type is chosen on each cast: a parameter the spell adds to its own cast.
-  - target: { actions: [spell], from: self }
+  - target: { actions: [spell-cast], from: self }
     op: params
     value:
-      physicalType: { type: enum, values: [bludgeoning, piercing, slashing], optional: true }
+      damageType: { type: enum, values: [bludgeoning, piercing, slashing], optional: true }
   - target: { steps: [spell.chosen], from: self }
     op: changes
-    value:
-      { flags: { damageType: 'has(params.physicalType) ? params.physicalType : item.damageType' } }
+    value: { flags: { damageType: 'has(params.damageType) ? params.damageType : item.damageType' } }

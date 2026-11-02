@@ -12,10 +12,10 @@ fields:
   heightenTempHp: 5
 effects:
   # The battle form is chosen on each cast: a parameter the spell adds to its own cast.
-  - target: { actions: [spell], from: self }
+  - target: { actions: [spell-cast], from: self }
     op: params
     value:
-      animalForm:
+      form:
         {
           type: enum,
           values: [ape, bear, bull, canine, cat, deer, frog, shark, snake],
@@ -23,7 +23,7 @@ effects:
         }
   - target: { steps: [spell.chosen], from: self }
     op: changes
-    value: { flags: { form: "has(params.animalForm) ? params.animalForm : ''" } }
+    value: { flags: { form: "has(params.form) ? params.form : ''" } }
   - { target: battleForm.active, op: set, value: true, scope: applied }
   - {
       target: battleForm.acBase,

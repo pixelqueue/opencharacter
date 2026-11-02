@@ -13,13 +13,13 @@ fields:
   heightenTempHp: 12
 effects:
   # The battle form is chosen on each cast: a parameter the spell adds to its own cast.
-  - target: { actions: [spell], from: self }
+  - target: { actions: [spell-cast], from: self }
     op: params
     value:
-      plantForm: { type: enum, values: [arboreal, flytrap], optional: true }
+      form: { type: enum, values: [arboreal, flytrap], optional: true }
   - target: { steps: [spell.chosen], from: self }
     op: changes
-    value: { flags: { form: "has(params.plantForm) ? params.plantForm : ''" } }
+    value: { flags: { form: "has(params.form) ? params.form : ''" } }
   - { target: battleForm.active, op: set, value: true, scope: applied }
   - { target: battleForm.acBase, op: set, value: 'self.rank >= 6 ? 22 : 19', scope: applied }
   - { target: battleForm.formAttacks, op: set, value: true, scope: applied }

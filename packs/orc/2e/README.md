@@ -759,9 +759,9 @@ Still closed: attributes, proficiency ranks, saves, spell traditions (and a staf
   conditions by the outcome, healing for allies, and the spell itself applied to the caster, an
   ally or a target, its effects reading its rank (heightening to a given rank). A spell whose
   caster picks its damage type (resist energy, shadow blast, telekinetic projectile, …) adds
-  that choice to its own cast as a parameter with only the book's types (a `params` effect, such
-  as resist energy's `resistType`), which sets the cast's damage type at its `spell.chosen`
-  step; elemental toss and elemental blast take the elemental influence's type there, and
+  that choice to its own cast as `damageType`, with only the book's types (a `params` effect on
+  `spell-cast`, the tag only `cast-spell` carries, so a staff's `prepare-staff` takes none),
+  which sets the cast's damage type at its `spell.chosen` step; elemental toss and elemental blast take the elemental influence's type there, and
   dragon breath and flurry of claws the draconic exemplar's tradition's (force, spirit, mental or
   fire), unless the cast names one. Inner upheaval's and qi form's type is chosen once, as the
   spell is cast, though the book lets inner upheaval choose it each Strike.
@@ -773,9 +773,8 @@ Still closed: attributes, proficiency ranks, saves, spell traditions (and a staf
   order and 13 qi spells, 38 with mechanics), text in `i18n/en/spells-high.yaml`. Battle forms
   (`rules/battle-forms.yaml`) give their temporary Hit Points, skill floors and
   resistances, their AC (the form's + the level, without the armor's item bonus), and the chosen
-  form's Speeds and unarmed attacks (a parameter each battle form spell adds to its cast, such as
-  animal form's `animalForm`; 39 forms, 60 attacks as standard
-  copies), whose Strikes roll the form's attack modifier or the character's own if higher and
+  form's Speeds and unarmed attacks (a parameter each battle form spell adds to its cast,
+  `form`, offering only that spell's forms; 39 forms, 60 attacks as standard copies), whose Strikes roll the form's attack modifier or the character's own if higher and
   the form's damage bonus; fly, climb and burrow Speeds are fields (`speed.fly`, `.climb`, `.burrow`);
   regenerate and malignant sustenance heal at the start of the turn (`turn.start`). Text-only
   spells are utility, summoning, counteracting, areas over time,
