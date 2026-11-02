@@ -1,0 +1,28 @@
+status: finished
+outcome:
+  result: debilitated
+proposedChanges:
+  - to: target
+    character: ogre
+    step: earlier
+    change:
+      type: removeEffect
+      applied:
+        where: has(self.debilitation) && self.debilitation
+        appliedBy: example-orc-pip
+  - to: target
+    character: ogre
+    step: first
+    change:
+      type: applyEffect
+      source: orc-2e:conditions.off-guard
+      appliedBy: example-orc-pip
+      state:
+        debilitation: true
+        duration: next-end
+log:
+  - step: first
+    action: orc-2e:classes.rogue.debilitating-strike#debilitate
+    kind: choice
+    by: app
+    option: orc-2e:feats.rogue.precise-debilitations#off-guard

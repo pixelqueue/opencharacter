@@ -8,6 +8,14 @@ actions:
       target: { max: 1 }
     results: [debilitated]
     steps:
+      # A new debilitation ends the rogue's earlier ones on the target, first: the picked options
+      # (the racket feats' among them) apply theirs as they are picked.
+      - id: earlier
+        kind: changes
+        to: target
+        changes:
+          - type: removeEffect
+            applied: { where: has(self.debilitation) && self.debilitation, appliedBy: self }
       - id: first
         kind: choice
         tags: [debilitation]
@@ -19,13 +27,6 @@ actions:
         options:
           - { id: speed, when: "steps.first.picked != 'speed'" }
           - { id: enfeebled, when: "steps.first.picked != 'enfeebled'" }
-      # A new debilitation ends the rogue's earlier ones, wherever they are.
-      - id: earlier
-        kind: changes
-        to: applied
-        changes:
-          - type: removeEffect
-            applied: { where: has(self.debilitation) && self.debilitation }
       - id: apply
         kind: changes
         to: target

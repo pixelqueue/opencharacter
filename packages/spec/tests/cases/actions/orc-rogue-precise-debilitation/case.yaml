@@ -1,0 +1,15 @@
+description: "orc-2e: a thief rogue's Precise Debilitations option (off-guard): the rogue's earlier debilitations on the target end first, then the off-guard debilitation is applied, until the end of the rogue's next turn"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/orc/2e
+input:
+  action:
+    id: orc-2e:classes.rogue.debilitating-strike#debilitate
+    entry: class
+    source: orc-2e:classes.rogue.debilitating-strike
+  participants:
+    target:
+      - id: ogre
+answers:
+  - option: 'orc-2e:feats.rogue.precise-debilitations#off-guard'

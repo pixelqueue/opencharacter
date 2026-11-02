@@ -33,7 +33,8 @@ contentTypes:
             void,
           ]
         default: fire
-    reapply: { state: { value: highest } }
+    # A debilitation or an entry timed by its applier's turns stays its own entry.
+    reapply: { match: [debilitation, duration], state: { value: highest } }
 
 fields:
   conditions.drainedOffset: { type: integer, formula: 0, min: 0 }
