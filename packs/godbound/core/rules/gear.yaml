@@ -23,7 +23,7 @@ contentTypes:
       # Maximum range, in yards.
       range: { type: integer, min: 0 }
     actions:
-      - use: attack
+      - { use: attack, available: self.equipped || item.id == @weapons.unarmed }
 
   armor:
     carried: true

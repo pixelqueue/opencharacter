@@ -5,3 +5,16 @@ fields:
   degree: lesser
   activation: instant
   commit: scene
+# A melee attack that hits on anything but a natural 1 and does maximum damage, for the scene's
+# Effort.
+effects:
+  - target: { actions: [attack] }
+    op: params
+    when: effort.free > 0 && !(has(action.item.ranged) && action.item.ranged)
+    value:
+      unerringBlade: { type: boolean, default: false }
+  - target: { steps: [attack.boost] }
+    op: changes
+    when: has(params.unerringBlade) && params.unerringBlade
+    value:
+      flags: { sure: true, maximize: true, boosts: flags.boosts + 1 }

@@ -95,6 +95,18 @@ contentTypes:
       # A gift that heals; `day` when the one healed must commit Effort for the day.
       healing: { type: dice }
       healingCost: { type: enum, values: [none, day], default: none }
+    effects:
+      # A gift that hurts Mobs differently offers the choice on its own damage roll.
+      - target: { actions: [damage], from: self }
+        op: params
+        when: has(item.blastMob)
+        value:
+          mob: { type: boolean, default: false }
+      - target: { steps: [gift.commit], from: self }
+        op: changes
+        when: has(item.blastMob) && has(params.mob) && params.mob
+        value:
+          flags: { mob: true }
     state:
       # Effort held while the gift lasts: on the gift's copy, or on an artifact's grant of it.
       committed: { type: integer, default: 0, min: 0 }
@@ -105,7 +117,7 @@ contentTypes:
     actions:
       - use: invoke-gift
       - use: release-gift
-      - use: attack
+      - { use: attack, available: "item.commit != 'active' || self.committed > 0" }
       - use: gift-blast
       - use: gift-heal
 
@@ -196,7 +208,6 @@ actions:
       has(item.blast) && (item.commit == 'none'
         || (self.artifactEffort > 0 ? self.spent < self.artifactEffort : effort.free > 0))
     params:
-      mob: { type: boolean, default: false }
       straight: { type: boolean, default: false }
     results: [rolled]
     steps:
@@ -204,9 +215,11 @@ actions:
         kind: branch
         cases:
           - when: true
-            flags: { artifact: self.artifactEffort > 0 }
+            flags: { artifact: self.artifactEffort > 0, mob: false }
+      # A gift with `blastMob` adds the `mob` parameter, which sets `mob` here.
       - id: commit
         kind: changes
+        tags: [gift.commit]
         changes:
           - type: adjustState
             when: "item.commit != 'none' && flags.artifact"
@@ -225,11 +238,11 @@ actions:
         kind: roll
         tags: [damage, damage.gift]
         parts:
-          - dice: 'params.mob && has(item.blastMob) ? item.blastMob : item.blast'
+          - dice: 'flags.mob ? item.blastMob : item.blast'
       - id: total
         kind: branch
         cases:
-          - when: params.straight || params.mob || item.blastStraight
+          - when: params.straight || flags.mob || item.blastStraight
             flags:
               damage: steps.roll.total
           - when: true

@@ -80,6 +80,7 @@ resultBands:
   attack:
     - { id: hit, when: 'roll.kept[0] == 20' }
     - { id: miss, when: 'roll.kept[0] == 1' }
+    - { id: hit, when: flags.sure }
     - { id: rolled, when: '!flags.known' }
     - { id: hit, when: roll.total >= 20 - flags.ac, success: true }
     - { id: miss, when: true }
@@ -178,14 +179,11 @@ actions:
   # apart, with the attribute modifier added to the die it helps most; `straight` reads the total.
   - id: attack
     tags: [attack]
-    available: >-
-      has(item.damage) && (item.type != 'weapon' || self.equipped || item.id == @weapons.unarmed)
-        && (item.type != 'gift' || item.commit != 'active' || self.committed > 0)
+    available: has(item.damage)
     params:
       attribute: { type: enum, values: [str, dex, con, wis, int, cha], optional: true }
       targetAc: { type: integer, optional: true }
       modifier: { type: integer, default: 0 }
-      maximize: { type: boolean, default: false }
       straight: { type: boolean, default: false }
     results: { bands: attack }
     steps:
@@ -215,9 +213,16 @@ actions:
             flags:
               die: 'flags.floor > maxOf(flags.base) ? (flags.floor >= 12 ? 1d12 : 1d10) : flags.base'
               bonus: 'flags.ranged ? 0 : damage.melee.bonus'
-              maximize: >-
-                params.maximize
-                  || (flags.ranged ? damage.ranged.maximize > 0 : damage.melee.maximize > 0)
+              maximize: 'flags.ranged ? damage.ranged.maximize > 0 : damage.melee.maximize > 0'
+              sure: false
+              boosts: 0
+      # Gifts that sharpen this attack (Unerring Blade, Surge of Strength) set its flags here,
+      # each adding one to `boosts`: the Effort for the scene they commit.
+      - id: boost
+        kind: changes
+        tags: [attack.boost]
+        changes:
+          - { type: adjust, when: flags.boosts > 0, field: effort.scene, by: flags.boosts }
       - id: hit
         kind: roll
         tags: [{ formula: "flags.ranged ? 'attack.ranged' : 'attack.melee'" }]

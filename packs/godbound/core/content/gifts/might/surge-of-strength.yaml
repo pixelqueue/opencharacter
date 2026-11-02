@@ -5,3 +5,16 @@ fields:
   degree: lesser
   activation: instant
   commit: scene
+# A damage roll Strength modifies, maximized for the scene's Effort.
+effects:
+  - target: { actions: [attack] }
+    op: params
+    when: >-
+      effort.free > 0 && has(action.item.attribute) && action.item.attribute != 'dex'
+    value:
+      surgeOfStrength: { type: boolean, default: false }
+  - target: { steps: [attack.boost] }
+    op: changes
+    when: has(params.surgeOfStrength) && params.surgeOfStrength
+    value:
+      flags: { maximize: true, boosts: flags.boosts + 1 }
