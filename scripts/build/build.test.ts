@@ -88,7 +88,7 @@ describe('pnpm build:packs on the repository packs', () => {
   it('loads every pack into one ruleset', () => {
     const loaded = loadRuleset(built.map((b) => b.release));
     expect(loaded.ok ? [] : loaded.errors).toEqual([]);
-  });
+  }, 60_000); // loads every pack, about 5s on a loaded CI runner
 
   it('computes the example characters the same from releases as from sources', () => {
     const fromReleases = loadRuleset(built.map((b) => b.release));
