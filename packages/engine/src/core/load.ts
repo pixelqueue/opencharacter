@@ -969,6 +969,9 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
       out.auras = raw.auras.map((aura) => {
         if (seen.has(aura.id)) err('invalid-aura', { item: raw.id, aura: aura.id, pack });
         seen.add(aura.id);
+        // An aura does something to whoever is inside.
+        if (!aura.effects?.length && !aura.immuneTo?.length)
+          err('invalid-aura', { item: raw.id, aura: aura.id, pack });
         for (const e of aura.effects ?? [])
           if ((e.scope ?? 'applied') !== 'applied')
             err('invalid-aura', { item: raw.id, aura: aura.id, pack });

@@ -220,14 +220,17 @@ auras:
 
 - **The holder.** computeSheet lists each aura of its active holder content whose `when` holds,
   in `auras`, with `size` evaluated and `affects` ([engine-interface.md](engine-interface.md#computesheet)).
-  `when` and `size` see the item's `item` and `self`.
+  `when` and `size` see the item's `item` and `self`. A `when` or `size` that fails leaves the
+  aura out, with the formula's error in `errors`.
 - **A cast** (`scope: applied`; `holder` is the default). Applied entries of the item project
   the aura instead: computeSheet lists it once per active, unblocked applied entry of the item
   (or content its applied grants reach) that the character applied itself (no `appliedBy`, or
   its own `id`), with `entry` that entry's ID, and never for the held item. So one cast is one
   aura, whatever the caster holds the spell through or cast it from (a staff, a scroll), and it
-  ends when the entry does. `when` and `size` see the entry as `self`, so the cast's own state
-  (its rank, its slot) sizes it. The action that casts it applies the item to the caster
+  ends when the entry does; an entry whose grants reach the item twice still lists it once. `when`
+  and `size` see the entry as `self`, so the cast's own state (its rank, its slot) sizes it;
+  reached through an applied grant, `self` is the granting entry with the granted content's
+  declared state defaults for the keys it lacks ([below](#when-content-is-active)). The action that casts it applies the item to the caster
   (`applyEffect`, `to: self`), as for any lasting spell; the item's other `scope: applied`
   effects run on the caster as usual.
 - **Who is inside.** The app applies the aura's entry to each creature as it enters:
@@ -238,12 +241,16 @@ auras:
   are two entries.
 - **The entry** runs only the aura's `effects`, as `scope: applied` effects, and its `immuneTo`,
   as `scope: applied` immunities (an aura has either or both; any other scope on one is
-  `invalid-aura` at load, as is a repeated aura ID): none of the item's own rules for its holder
+  `invalid-aura` at load, as is a repeated aura ID or an aura with neither): none of the item's own rules for its holder
   reach the creature inside (its effects, grants, actions, prerequisites, immunities, standard
   copies and kept templates). An entry on the creature that an aura immunity matches is blocked
   and reported `immune` with the ID `<item>#<aura>/<id>`, as an applied entry's own immunities
-  block ([below](#when-content-is-active)). Its formulas, the immunities' `when` and `where`
-  included, see `item`, `self` (the entry) and `applier`: the projecting character's view, from
+  block ([below](#when-content-is-active)). Its formulas, the immunities' `when` included, see
+  `item`, `self` (the creature's aura entry) and `applier`; an immunity query's `where` sees
+  `item` as the candidate, `entry` as the candidate entry and `self` as the aura entry.
+  `self` is never the cast's entry on the caster, so an applied aura's effects read the cast's
+  state only through a field of the caster's it is reflected in, declared in `fields`.
+  `applier` is the projecting character's view, from
   the `appliers` the app passes to the creature's calls (that character's `computeSheet`
   values), its declared `fields` only ([engine-core.md](engine-core.md#links)). Each declared
   field must be a field of the item's pack with that type (`link-field-mismatch` at load), since
@@ -290,10 +297,10 @@ Whether an effect applies to the holder or to the character the content is appli
 **Applied content that includes other content**. A grant (`grants` on a content
 type or item) may say `scope`:
 
-| `scope`            | The grant applies while                                           | The granted content's activation   |
-| ------------------ | ----------------------------------------------------------------- | ---------------------------------- |
-| `holder` (default) | the content is held                                               | holder; `self` the owner copy      |
-| `applied`          | the content is the source of an active, unblocked `applied` entry | applied; `self` the granting entry |
+| `scope`            | The grant applies while                                           | The granted content's activation                                                                         |
+| ------------------ | ----------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| `holder` (default) | the content is held                                               | holder; `self` the owner copy                                                                            |
+| `applied`          | the content is the source of an active, unblocked `applied` entry | applied; `self` the granting entry, with the granted content's declared state defaults for keys it lacks |
 
 The granted content is then applied content too, for as long as the entry: its `scope: applied`
 effects, immunities, grants and actions apply, as if it were the source of an entry of its own.

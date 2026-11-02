@@ -1029,6 +1029,8 @@ export class PackChecker {
       const where = `${owner} aura ${aura.id}`;
       if (auras.has(aura.id)) this.report.error(file, `${where}: duplicate aura id`);
       auras.add(aura.id);
+      if (!aura.effects?.length && !aura.immuneTo?.length)
+        this.report.error(file, `${where}: an aura needs effects or immuneTo`);
       this.optionalKeys.add(`${owner}.auras.${aura.id}.name`);
       const ids = Object.keys(aura.fields ?? {});
       for (const id of ids)

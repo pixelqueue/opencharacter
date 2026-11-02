@@ -730,6 +730,8 @@ export class Sheet {
   auras(): ListedAura[] {
     const out: ListedAura[] = [];
     const by = new Map((this.character.applied ?? []).map((e) => [e.id, e.appliedBy]));
+    // An applied aura is one per entry, however often the entry's grants reach its item.
+    const listed = new Set<string>();
     for (const a of this.activations) {
       if (!a.item?.auras || a.aura) continue;
       if (a.scope === 'applied') {
@@ -740,11 +742,18 @@ export class Sheet {
       const pack = a.item.scopes?.auras ?? a.item.pack;
       for (const aura of a.item.auras) {
         if ((aura.scope ?? 'holder') !== a.scope) continue;
+        const entry = a.scope === 'applied' ? a.applied : a.entry?.id;
+        if (a.scope === 'applied') {
+          const key = JSON.stringify([a.item.qid, aura.id, entry]);
+          if (listed.has(key)) continue;
+          listed.add(key);
+        }
+        let at = 'when';
         try {
           if (!this.test(aura.when, pack, a.roots)) continue;
+          at = 'size';
           const size =
             aura.size === undefined ? undefined : this.evaluate(aura.size, pack, a.roots);
-          const entry = a.scope === 'applied' ? a.applied : a.entry?.id;
           out.push({
             source: a.item.qid,
             aura: aura.id,
@@ -756,6 +765,15 @@ export class Sheet {
           });
         } catch (error) {
           if (!(error instanceof Failure)) throw error;
+          // A failing `when` or `size` leaves the aura out, reported.
+          this.errors.push({
+            code: error.error.code,
+            data: {
+              where: `${a.item.qid}#${aura.id} ${at}`,
+              message: error.error.message,
+              ...error.error.data,
+            },
+          });
         }
       }
     }
@@ -1534,7 +1552,11 @@ export class Sheet {
             roots: {
               ...a.roots,
               item: itemView(this.ruleset, granted, [], (n, p) => this.inputByName(n, p)),
-              self: this.grantedSelf(grant, pack, roots, where).self,
+              // Keys the granted content declares that the entry lacks read their defaults.
+              self: {
+                ...pickState(this.ruleset, granted, undefined),
+                ...(this.grantedSelf(grant, pack, roots, where).self as Record<string, unknown>),
+              },
             },
             presets: undefined,
             source: { type: 'item', id: granted.qid },

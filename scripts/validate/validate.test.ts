@@ -290,6 +290,10 @@ describe('pnpm validate', () => {
         /aura dread immunity calm: unknown item "weapons.nowhere"/,
       ],
       ['an aura immunity reading an undeclared applier field', /aura dread immunity calm.*missing/],
+      [
+        'an aura with neither effects nor immunities',
+        /aura hollow: an aura needs effects or immuneTo/,
+      ],
       ['a clock action with a required parameter', /actions.tick: a clock action's parameter by/],
       ['an unlisted clock action', /actions.tick: a clock action is listed/],
       [

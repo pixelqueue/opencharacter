@@ -1,0 +1,9 @@
+# A staff's cast: its entry grants Bless, which reads the rank it declares from its default (the
+# staff's entry has none). The second grant reaches Bless again through the same entry.
+id: features.blessing-staff
+type: feature
+state:
+  charges: { type: integer, default: 3 }
+grants:
+  - { item: spells.bless, scope: applied }
+  - { item: spells.bless, scope: applied, state: { rank: 3 } }

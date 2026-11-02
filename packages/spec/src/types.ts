@@ -1138,11 +1138,11 @@ export type ContentItem = {
 export type Aura = {
   /** Unique among the item's auras; an applied entry names it in `aura`. */
   id: Slug;
-  /** What projects it. `holder` (default): each activation of the item the character has, as `self` the copy. `applied`: each active, unblocked applied entry of the item that the character applied itself (no `appliedBy`, or its own `id`), as `self` that entry, so one cast is one aura whatever the caster holds or cast it from; it ends with the entry. */
+  /** What projects it. `holder` (default): each activation of the item the character has, as `self` the copy. `applied`: each active, unblocked applied entry of the item that the character applied itself (no `appliedBy`, or its own `id`), as `self` that entry (through an applied grant: the granting entry, with the granted content's declared state defaults for keys it lacks), listed once per entry, so one cast is one aura whatever the caster holds or cast it from; it ends with the entry. The aura's effects don't see that entry: they read the cast's state through a declared `applier` field. */
   scope?: 'holder' | 'applied';
   /** On the character projecting it, with the item's `item` and `self` (as `scope` says): whether the aura is up. Default true. */
   when?: Condition;
-  /** On the character projecting it, with `item` and `self` as `when`: how far it reaches, in the game's own unit (squares, feet), for the app's map. */
+  /** On the character projecting it, with `item` and `self` as `when`: how far it reaches, in the game's own unit (squares, feet), for the app's map. A `when` or `size` that fails leaves the aura out, with the formula's error. */
   size?: Formula;
   /** Whom the app puts it on: `all` (the default), `allies` or `enemies` of the holder, as the app's sides go. */
   affects?: 'all' | 'allies' | 'enemies';
@@ -1150,7 +1150,7 @@ export type Aura = {
   fields?: DeclaredFields;
   /** The effects on each creature inside, whose entry names this aura: `scope: applied` effects (a `scope` other than `applied` is `invalid-aura` at load), seeing `item` and `self` (the entry) as an applied entry's effects do, and `applier`. */
   effects?: Effect[];
-  /** Applied content each creature inside can't be affected by: the immunities of the aura's entry, run as `scope: applied` immunities (a `scope` other than `applied` is `invalid-aura` at load). A matching entry on the creature is blocked and reported `immune` with the ID `<item>#<aura>/<id>`. Their `when` and query `where` see `item`, `self` (the entry) and `applier`, as the aura's effects do. */
+  /** Applied content each creature inside can't be affected by: the immunities of the aura's entry, run as `scope: applied` immunities (a `scope` other than `applied` is `invalid-aura` at load, as is an aura with neither `effects` nor `immuneTo`). A matching entry on the creature is blocked and reported `immune` with the ID `<item>#<aura>/<id>`. Their `when` sees `item`, `self` (the creature's aura entry) and `applier`, as the aura's effects do; a query's `where` sees `item` as the candidate, `entry` as the candidate entry and `self` as the aura entry. */
   immuneTo?: Immunity[];
 };
 

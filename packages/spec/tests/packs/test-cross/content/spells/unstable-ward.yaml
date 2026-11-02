@@ -1,0 +1,9 @@
+# A cast aura whose size divides by zero at rank 1.
+id: spells.unstable-ward
+type: spell
+auras:
+  - id: ward
+    scope: applied
+    size: 6 / (self.rank - 1)
+    effects:
+      - { target: potency, op: add, value: 1 }

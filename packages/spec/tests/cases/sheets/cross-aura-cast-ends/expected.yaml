@@ -1,4 +1,9 @@
-# The null field's own aura isn't up; the cast is listed once, never the held spell.
-auras:
-  - { source: test-cross:spells.bless, aura: blessing, entry: c1, size: 2, affects: allies }
+# The held spell projects nothing, and the cast is blocked by the holder's immunity.
+auras: []
+issues:
+  - {
+      code: immune,
+      id: 'test-cross:features.unhallowed/unblessed',
+      data: { entry: c1, item: test-cross:spells.bless },
+    }
 errors: []
