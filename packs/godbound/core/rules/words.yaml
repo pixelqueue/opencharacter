@@ -95,6 +95,33 @@ contentTypes:
       # A gift that heals; `day` when the one healed must commit Effort for the day.
       healing: { type: dice }
       healingCost: { type: enum, values: [none, day], default: none }
+    # The hero's damage and healing dice in dice notation (empty when the gift has none), for the
+    # gift's card.
+    computed:
+      damage:
+        type: string
+        formula: >-
+          !has(item.blast) ? ''
+          : countOf(item.blast) == 0 ? string(maxOf(item.blast))
+          : string(countOf(item.blast)) + 'd' + string(maxOf(dieOf(item.blast)))
+            + (maxOf(item.blast) > countOf(item.blast) * maxOf(dieOf(item.blast))
+              ? ' + ' + string(maxOf(item.blast) - countOf(item.blast) * maxOf(dieOf(item.blast))) : '')
+      mobDamage:
+        type: string
+        formula: >-
+          !has(item.blastMob) ? ''
+          : countOf(item.blastMob) == 0 ? string(maxOf(item.blastMob))
+          : string(countOf(item.blastMob)) + 'd' + string(maxOf(dieOf(item.blastMob)))
+            + (maxOf(item.blastMob) > countOf(item.blastMob) * maxOf(dieOf(item.blastMob))
+              ? ' + ' + string(maxOf(item.blastMob) - countOf(item.blastMob) * maxOf(dieOf(item.blastMob))) : '')
+      healing:
+        type: string
+        formula: >-
+          !has(item.healing) ? ''
+          : countOf(item.healing) == 0 ? string(maxOf(item.healing))
+          : string(countOf(item.healing)) + 'd' + string(maxOf(dieOf(item.healing)))
+            + (maxOf(item.healing) > countOf(item.healing) * maxOf(dieOf(item.healing))
+              ? ' + ' + string(maxOf(item.healing) - countOf(item.healing) * maxOf(dieOf(item.healing))) : '')
     effects:
       # A gift that hurts Mobs differently offers the choice on its own damage roll.
       - target: { actions: [damage], from: self }

@@ -106,6 +106,9 @@ computeSheet(ruleset, made.character).values['godbound-core:effort.max']?.value;
   - Gifts that are weapons have an `attack` (one held while active only while its Effort is
     committed); damaging gifts a `gift-blast` (on the damage chart or straight; a gift with Mob
     damage adds a `mob` parameter to its own); healing gifts a `gift-heal`.
+  - A gift's card (`types.gift.block`) shows the hero's damage, Mob damage and healing dice at
+    the hero's level, from its computed `damage`, `mobDamage` and `healing` (dice notation, empty
+    when the gift has none), on copies and on the gifts Apotheosis and artifacts grant.
   - Unerring Blade and Surge of Strength add a parameter to `attack` (melee attacks, and attacks
     Strength can modify) that commits the scene's Effort: Unerring Blade hits on anything but a
     natural 1 and maximizes the damage, Surge of Strength maximizes it.

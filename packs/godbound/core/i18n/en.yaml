@@ -162,8 +162,11 @@ types.word.fields.range.name: Range (feet)
 
 types.gift.name: Gift
 types.gift.block: >-
-  {has_word, select, true {{word_name} · } other {}}{has_apotheosisLevel, select, true {Level {apotheosisLevel} · } other {}}{has_degree, select, true {{degree_name} · } other {}}{smite, select, true {(Smite) } other {}}{activation_name}{commit, select, none {} other { · Commit Effort: {commit_name}}}
+  {has_word, select, true {{word_name} · } other {}}{has_apotheosisLevel, select, true {Level {apotheosisLevel} · } other {}}{has_degree, select, true {{degree_name} · } other {}}{smite, select, true {(Smite) } other {}}{activation_name}{commit, select, none {} other { · Commit Effort: {commit_name}}}{has_self_damage, select, true { · Damage {self_damage}} other {}}{has_self_mobDamage, select, true { · Against a Mob {self_mobDamage}} other {}}{has_self_healing, select, true { · Healing {self_healing}} other {}}
 types.gift.state.committed.name: Effort held
+types.gift.computed.damage.name: Damage
+types.gift.computed.mobDamage.name: Damage against a Mob
+types.gift.computed.healing.name: Healing
 types.gift.state.artifactEffort.name: Artifact Effort
 types.gift.fields.word.name: Word
 types.gift.fields.degree.name: Degree
