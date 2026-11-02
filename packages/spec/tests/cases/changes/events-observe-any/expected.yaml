@@ -1,0 +1,20 @@
+ok: true
+followUps:
+  - id: someone-healed-1
+    kind: ephemeral
+    followUp: test-events:someone-healed
+    to: self
+    required: false
+    changes:
+      - { type: adjust, field: test-events:wrath, by: 1 }
+      - { type: clearFollowUp, id: someone-healed-1 }
+    cause:
+      field: test-events:hp.current
+      by: 4
+      requested: 4
+      taken: 4
+      reason: requested
+      clamped: false
+      tags: [healing]
+      character: priest
+      applied: []

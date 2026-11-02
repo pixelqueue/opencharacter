@@ -10,7 +10,14 @@ proposedChanges:
   - to: target
     character: bandit
     step: deal
-    change: { type: adjust, field: orc-2e:hp.current, by: -6, tags: [damage, damage.piercing] }
+    change:
+      {
+        type: adjust,
+        field: orc-2e:hp.current,
+        by: -6,
+        tags: [damage, damage.piercing],
+        from: example-orc-ines,
+      }
 log:
   - { step: attack, action: orc-2e:strike, kind: dice, faces: [12], total: 19 }
   - { step: damage, action: orc-2e:strike, kind: dice, faces: [5], total: 6 }

@@ -590,7 +590,12 @@ it in a flag before the roll.
 
   **Routing.** `to` is `self` (default), `target`, a declared role, `{ link: <slot> }` or
   `applied`. Every proposed `applyEffect`, whatever its `to`, carries the actor's `id` as
-  `appliedBy`.
+  `appliedBy`, or the ID its `appliedBy` formula gives (a non-empty string, else
+  `type-mismatch`). Every proposed `adjust` whose `to` isn't `self` carries the actor's `id` as
+  `from`, unless its `character` is the actor's own `id` (the actor's view in a role). A
+  nested run (an `action` step, an `op: action` effect without `as`) runs on the actor, so its
+  adjusts carry the actor too; a handoff's run is the participant's own startAction, whose
+  changes to others carry the participant.
   - A change for a link carries `to: { link: <qualified slot id> }` and, when the slot is
     filled, `character`: the linked character's ID. An empty slot's changes are proposed
     without `character`. Fields, copy types and `addItem` items in a change sent to a link are

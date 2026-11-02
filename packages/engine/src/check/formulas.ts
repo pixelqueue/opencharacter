@@ -1298,6 +1298,7 @@ class FormulaChecker<L> {
     this.typed({ change: CHANGE }, () =>
       this.withRoots(def.on ? ['change'] : [], () => {
         this.formula(def.when, at, where, BOOL);
+        this.formula(def.character, at, where, ['string']);
         for (const value of Object.values(def.params ?? {}))
           this.formula(value, at, where, ANY, true);
         // A linked character's start parameters.
@@ -1409,6 +1410,7 @@ class FormulaChecker<L> {
 
   private appliedContent(change: ProposedChange, at: L, where: string, passed?: string[]): void {
     this.formula(change.source, at, where, ['string']);
+    this.formula(change.appliedBy, at, where, ['string']);
     this.formula(change.active, at, where, BOOL);
     for (const value of Object.values(change.state ?? {})) {
       if (!readsRoot(value, ['batch'])) {

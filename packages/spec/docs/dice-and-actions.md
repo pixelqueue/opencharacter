@@ -680,11 +680,34 @@ a step's changes to the role's characters. Each proposed change names its partic
 participant, in order. With no participants, a change is proposed once without `character`, as
 before. The changes name the actor's own fields, as `to: target` changes do.
 
+**Who sent it.** Every `adjust` an action proposes for another character (a role, `target`, a
+link, `to: applied`) carries the actor's `id` as `from`. The receiving character's `on`
+follow-ups read it as `change.from`: wrath when the creature you judged damages you, +4 AC
+against the creature that just hit you, a ward that slows whoever damaged you
+([rules-and-fields.md](rules-and-fields.md#follow-ups)). Changes `to: self` carry none, nor does
+one for a role the actor's own view fills: it is the actor's own change.
+
 **Who applied it.** Every `applyEffect` an action proposes, to any character, carries the actor's
 `id` as `appliedBy`, and applyChanges saves it on the entry
 ([characters.md](characters.md#entries)). The entry's formulas read it as `self.appliedBy`, so
 the holder's rules can tell whose mark it is, or end what one creature applied at that creature's
-turn ([below](#turn-boundaries)).
+turn ([below](#turn-boundaries)). A proposed applyEffect may name another applier with an
+`appliedBy` formula giving a character ID, usually a participant's: the target is frightened
+of the ally who triggered the ability, not of the tactician. Everything that reads the applier
+follows it (`self.appliedBy`, an aura's `applier`, `applied.appliedBy`), so the actor's own
+changes `to: applied` no longer reach the entry. A formula that gives anything but a non-empty
+string is `type-mismatch`.
+
+```yaml
+# Draw Steel's No Dying on My Watch: the target is frightened of the triggering ally.
+- id: frighten
+  kind: changes
+  to: target
+  changes:
+    - type: applyEffect
+      source: "'conditions.frightened'"
+      appliedBy: participants.ally[0].id
+```
 
 **Changes for whoever holds what the actor applied.** `to: applied` sends a step's changes to
 every character holding an entry the actor applied, wherever the actor put it: the earlier marks

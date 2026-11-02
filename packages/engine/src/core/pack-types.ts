@@ -279,13 +279,21 @@ export interface ValueOptions {
  */
 export interface FollowUp {
   id: string;
-  on?: { field: string; tags?: string[]; once?: boolean };
+  /** `from`: another character's entries, passed in by an `observe` change. */
+  on?: {
+    field: string;
+    tags?: string[];
+    once?: boolean;
+    from?: 'any' | 'applied' | { link: string };
+  };
   becomes?: Formula;
   while?: Formula;
   when?: Formula;
   /** Advisory: dismissing it needs an override. */
   required?: boolean;
-  to?: 'self' | 'applied' | { link: string };
+  to?: 'self' | 'applied' | 'character' | { link: string };
+  /** With `to: character`: the ID of the character it is for. */
+  character?: Formula;
   action?: string;
   params?: Record<string, Formula>;
   changes?: ProposedChange[];
@@ -515,6 +523,8 @@ export interface ProposedChange {
   grants?: { where: Formula; limit?: number };
   id?: string;
   aura?: string;
+  /** applyEffect: the applier's ID, else the actor's. */
+  appliedBy?: Formula;
   source?: Formula;
   active?: Formula;
   state?: Record<string, Formula>;

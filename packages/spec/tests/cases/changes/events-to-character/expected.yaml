@@ -1,0 +1,39 @@
+ok: true
+followUps:
+  - id: ward-1
+    kind: ephemeral
+    followUp: test-events:features.entropy-ward#ward
+    source: { type: item, id: test-events:features.entropy-ward, entry: ward }
+    to: character
+    character: goblin
+    required: false
+    changes:
+      - type: applyEffect
+        source: test-events:conditions.slowed
+        appliedBy: talent
+        state: { amount: 2 }
+    cause:
+      field: test-events:hp.current
+      by: -3
+      requested: -3
+      taken: -3
+      reason: requested
+      clamped: false
+      tags: [damage]
+      from: goblin
+character:
+  followUps:
+    - id: ward-1
+      followUp: test-events:features.entropy-ward#ward
+      source: { type: item, id: test-events:features.entropy-ward, entry: ward }
+      to: character
+      character: goblin
+      cause:
+        field: test-events:hp.current
+        by: -3
+        requested: -3
+        taken: -3
+        reason: requested
+        clamped: false
+        tags: [damage]
+        from: goblin

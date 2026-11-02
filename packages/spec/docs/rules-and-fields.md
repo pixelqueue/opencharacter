@@ -720,12 +720,13 @@ followUps:
   - **`while: <condition>`**: a derived offer, offered whenever the condition
     holds on the current character. Re-evaluated after every change, so experience that earns two
     levels offers one level-up, and then the next.
-  - **`on: { field, tags?, once? }`:** fires once for each entry of the batch's `adjustments` on
-    the field whose tags include one of `tags` (a tag matches its subtags), or any entry when
-    `tags` is left out. Overflow entries count, so health overflowing into a wound fires `on`
-    wounds. Formulas see the entry as `change` ([formulas.md](formulas.md#context-roots)). With
-    `once: true` it fires at most once per batch, on the matching entries summed
-    (below).
+  - **`on: { field, tags?, once?, from? }`:** fires once for each entry of the batch's
+    `adjustments` on the field whose tags include one of `tags` (a tag matches its subtags), or
+    any entry when `tags` is left out. Overflow entries count, so health overflowing into a wound
+    fires `on` wounds. Formulas see the entry as `change` ([formulas.md](formulas.md#context-roots)),
+    and `change.from` is who sent the adjust (below). With `once: true` it fires at most once per
+    batch, on the matching entries summed (below). With `from`, it fires on another character's
+    entries instead ([Other characters' events](#other-characters-events)).
   - **`becomes: <condition>`:** fires once when the condition is false on the character before
     the batch and true after it, and not again while it stays true. It is a state, not an event:
     at most one copy from a declaration is stored (a copy still stored isn't stored
@@ -775,6 +776,21 @@ followUps:
 - **`change.taken`** is the amount after incoming-change effects (resistance)
   and before absorbing fields (temporary hit points) and clamping; `change.requested` is the
   amount before effects.
+- **`change.from`** is the ID of the character whose action or follow-up sent the adjust, `''`
+  for the character's own changes. Actions fill in `from` on every adjust they send to another
+  character, so the damage names its dealer: a censor gains wrath when the creature they judge
+  damages them, and a ward acts on whoever hit you (`to: character`, below).
+
+  ```yaml
+  # Draw Steel: the first time each round the creature you judged damages you, 1 wrath.
+  - id: wrath-from-judged
+    on: { field: stamina.current, tags: [damage] }
+    when: combat.active && !censor.takenWrath && change.from == censor.judged
+    changes:
+      - { type: adjust, field: heroic.current, by: 1 }
+      - { type: set, field: censor.takenWrath, value: 'true' }
+  ```
+
 - **`once`**: `change` is the matching entries summed: `by`, `requested` and
   `taken` the sums, `tags` the union in entry order, `reason` the first entry's, `clamped` true
   if any was. `when` is evaluated once, on the sum. A batch is one action's changes as the app
@@ -819,8 +835,8 @@ followUps:
 
     A pack asks for a linked sheet this way, not with a constraint on the empty slot: a missing
     sheet the owner's rules can do without is an offer the player may decline, not a broken rule.
-- **`to`** (optional): `self`, the default, or `{ link: <slot> }`, the character filling one of
-  the character's link slots. A follow-up to a link names that character's action, fields and
+- **`to`** (optional): `self`, the default, `{ link: <slot> }`, the character filling one of
+  the character's link slots, `applied` or `character` (below). A follow-up to a link names that character's action, fields and
   content by qualified ID, as changes sent to a link do. An ephemeral one is stored on the
   character whose change fired it, marked for the link with the linked character's ID: the app
   that holds both files finds it in this character's `offers` (`to.link`, `character`), runs it
@@ -842,6 +858,27 @@ followUps:
           applied: { where: 'item.id == @features.tactician.marked' }
   ```
 
+  `to: character` is for the character whose ID the follow-up's `character` formula gives,
+  evaluated when it fires: `change.from` (who sent the damage), `change.character` (an observed
+  character), `self.appliedBy`. A formula that gives `null` or `''`, or fails, leaves it out.
+  Its changes and action name the other character's fields, content and rules action in this
+  pack's scope, as `to: applied` does: the other character plays the same game. It is stored and
+  listed here with the ID in `character`; the app runs it on that character and clears it here.
+  Its adjusts carry this character as `from`, and its applyEffects as `appliedBy`. Whoever
+  damages a talent with Entropy Ward is slowed:
+
+  ```yaml
+  followUps:
+    - id: entropy-ward
+      on: { field: stamina.current, tags: [damage] }
+      to: character
+      character: change.from
+      changes:
+        - type: applyEffect
+          source: "'conditions.entropy-slowed'"
+          state: { amount: characteristics.reason }
+  ```
+
 - **On content.** Content types and items may declare `followUps` too. They apply while the
   character has the copy or pick (not content in the `applied` list), and their formulas see
   `item` and `self`.
@@ -853,6 +890,43 @@ followUps:
   ([i18n.md](i18n.md)).
 - Level-up after experience thresholds is a `while` follow-up naming the pack's level-up action.
   Milestone leveling has no trigger: the app offers the action.
+
+### Other characters' events
+
+An `on` follow-up with `from` reacts to what another character's batch did: an ally damaging a
+creature you marked, any creature healed, your companion hurt. The engine computes one
+character per call, so the app passes the other batch in: each applyChanges returns `observe`,
+an `observe` change naming the character, its field entries (with their tags and senders) and
+the applied entries it holds that name an applier ([engine-core.md](engine-core.md#observing-another-characters-batch)).
+The app applies it, as given, to the other characters whose computeSheet lists one of its fields
+in `observes`. It changes nothing there; it only fires their `from` follow-ups, and a replay
+stores the same ones.
+
+- **`from`** says whose entries count: `any`, any other character; `applied`, a character holding
+  an entry this one applied (the observe change's `applied` names it as an applier);
+  `{ link: <slot> }`, the character filling one of this character's link slots. An observe of the
+  character itself matches nothing, and a follow-up without `from` never sees observed entries.
+- **`field`** names the observed character's field, resolved in the pack's scope as usual: the
+  other character plays the same game.
+- **`change.character`** is the observed character's ID, and **`change.applied`** the content
+  IDs of its entries this character applied, so `when` can ask which entry (`@conditions.marked
+  in change.applied`). `change.from` is still who sent the adjust: the observer itself when its
+  own action dealt the damage. With `once`, it fires at most once per observe change (one
+  observed character's batch), on that change's matching entries summed, never across two
+  characters.
+- **Opt-in.** An app that doesn't route events never passes an `observe` change, and these
+  follow-ups never fire; the pack's own actions stay for the table to run by hand.
+
+```yaml
+# Draw Steel: the first time each round you or an ally damages a creature you marked, 1 focus
+# (your own abilities count it themselves).
+- id: mark-damaged
+  on: { field: stamina.current, tags: [damage], from: applied, once: true }
+  when: >-
+    @conditions.marked in change.applied && change.from != character.id
+      && !tactician.markFocusGained
+  action: mark-damaged
+```
 
 ## Creation
 

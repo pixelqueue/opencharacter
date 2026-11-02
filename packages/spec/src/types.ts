@@ -350,7 +350,8 @@ export type Change =
   | SetHomebrewChange
   | DismissFollowUp
   | ClearFollowUp
-  | OfferFollowUp;
+  | OfferFollowUp
+  | Observe;
 
 /** Set an input field's value. */
 export type SetChange = {
@@ -369,6 +370,8 @@ export type AdjustChange = {
   faces?: number[];
   /** The receiving player's situational choices for this change, by qualified ID: a reaction such as Uncanny Dodge. Each selected choice (a boolean that's true, another value that isn't its default) must be offered (`available`) and its `incoming` must match the change (`situational-unavailable`); its incoming-change effects then apply while this change is routed, and not to its overflow or the rest of the batch. An action never sets it. */
   situational?: Record<string, Literal>;
+  /** The `id` of the character whose action or follow-up proposed the change, when it is another character: actions and follow-ups fill it in on every adjust they send to someone else (a target, a role, a link, a named character). Its field entries carry it, so an `on` follow-up reads who dealt the damage as `change.from`. Absent on a character's own changes. */
+  from?: string;
 };
 
 /** Add a copy of a content item to the inventory (carried types) or features. */
@@ -478,7 +481,7 @@ export type ApplyEffectChange = {
   active?: boolean;
   /** For an aura's entry: one of the source item's `auras`, by ID (`unknown-id` otherwise). The entry runs only that aura's effects. Applying content again merges only into an entry of the same aura. */
   aura?: Slug;
-  /** The `id` of the character applying the entry, saved on it. Actions and follow-ups fill it in with the character proposing the change; an app applying content by hand names the applier itself. Applying content again (`reapply`) gives the merged entry this applier. */
+  /** The `id` of the character applying the entry, saved on it. Actions and follow-ups fill it in with the character proposing the change, or with the character their `appliedBy` formula names (frightened of the ally who triggered it); an app applying content by hand names the applier itself. Applying content again (`reapply`) gives the merged entry this applier. */
   appliedBy?: string;
   /** The entry's state. A value may be `{ formula }`, a formula an action passed on because it reads `batch`: applyChanges evaluates it with `item` the source's item, this character's fields and `batch`, and the change as applied (`changes` in the result) carries the value. */
   state?: Record<
@@ -574,7 +577,7 @@ export type OfferFollowUp = {
 
 /** A change proposed by an action step. Same types as a change, but values may be formulas and `entry: self` means the copy making the action; the engine resolves them before returning. With `split`, one proposed adjust becomes one change per tag group (typed damage). An addItem's `entry` is an object whose values may be formulas. An applyEffect names its `source` with a formula and may leave out `id`; removeEffect, toggleEffect, setState and adjustState may name applied entries by query (`applied`). equip, applyTemplate and removeTemplate compute `equipped` and `template`; setExtension stays the app's. An offerFollowUp names a follow-up of the content or rules whose action, option or added changes propose it, with `params` as formulas. */
 export type ProposedChange = {
-  /** Any change type but setHomebrew, dismissFollowUp and clearFollowUp. */
+  /** Any change type but setHomebrew, dismissFollowUp, clearFollowUp and observe. */
   type:
     | 'set'
     | 'adjust'
@@ -598,7 +601,8 @@ export type ProposedChange = {
     | 'setHomebrew'
     | 'dismissFollowUp'
     | 'clearFollowUp'
-    | 'offerFollowUp';
+    | 'offerFollowUp'
+    | 'observe';
   /** The change is proposed only when this holds. */
   when?: Condition;
   /** Propose the change once per element of this list, in list order, with `x` bound to the element and `i` to its position (from 0). `when` and the change's other formulas are evaluated per element; an empty list proposes nothing. Each copy counts toward `maxActionSteps` (a follow-up's toward `maxFollowUps`). `x` and `i` are not bound in the formulas a change passes on. */
@@ -649,6 +653,8 @@ export type ProposedChange = {
   id?: InstanceId;
   /** applyEffect: the aura of the source the entry runs, by ID, passed on as written. */
   aura?: Slug;
+  /** applyEffect: a string formula naming the character the entry is applied by, saved as its `appliedBy`: a participant's `id` (`participants.ally[0].id`, frightened of the ally who triggered it). Without it, the actor (or the character whose follow-up it is). A value that isn't a non-empty string is `type-mismatch`. Everything that reads the applier then follows the named character: `self.appliedBy`, an aura's `applier`, `applied.appliedBy`, and the actor's own changes `to: applied` no longer reach the entry. */
+  appliedBy?: Formula;
   /** applyEffect: a string formula naming the content to apply, qualified against the action's pack as a proposed addItem's `item` is. A source that names no content, or a template, is `unknown-reference` when the action runs; for a link, or a role or target when qualified with a pack the ruleset doesn't load, it is passed on as written. */
   source?: Formula;
   /** applyEffect and toggleEffect: a boolean formula. */
@@ -726,6 +732,31 @@ export type Applied = {
   limit?: number;
   /** A character ID: only the entries it applied. An action or follow-up fills it in for a change it sends `to: applied`, or one whose query says `appliedBy: self`. */
   appliedBy?: string;
+};
+
+/** Another character's batch, for this character's follow-ups to react to: what its fields took, as that character's applyChanges returned it in `observe`. It changes nothing on this character; each `on` follow-up with `from` matches its entries (an ally damaged a creature you marked, a creature fell). The app passes it on as given, so a replay stores the same follow-ups. One whose `character` is this character's own matches nothing. */
+export type Observe = {
+  type: 'observe';
+  /** The observed character's `id`. */
+  character: string;
+  /** The observed batch's field entries, in order, each as an `on` follow-up's `change` reads one, with its tags and who sent it. */
+  adjustments: {
+    /** The field's qualified ID on the observed character. */
+    field: QualifiedId;
+    by: number;
+    requested?: number;
+    taken?: number;
+    reason: 'requested' | 'absorbed' | 'overflow' | 'reset' | 'carry';
+    clamped?: boolean;
+    tags?: Tag[];
+    /** Who sent the adjust that made the entry, as the adjust's `from`. */
+    from?: string;
+  }[];
+  /** The observed character's applied entries that name an applier, before the batch and those it applied, each as its `source` and `appliedBy`, once per pair, in that order. `from: applied` reads it. */
+  applied?: {
+    source: QualifiedId;
+    appliedBy: string;
+  }[];
 };
 
 /** The standard interchange file for one character, monster or NPC. Holds only base state: input field values, owned content and per-copy state, choices made, and which temporary effects are on. Derived values are never saved. Every content and field reference is fully qualified (`pack:id`). */
@@ -821,17 +852,18 @@ export type StoredFollowUp = {
   followUp: string;
   /** For a follow-up on content: the content and copy it comes from, as computeSheet's sources name them. */
   source?: Source;
-  /** For a follow-up to another character, stored here, on the character whose change triggered it, since one applyChanges writes one file: `{ link }` with the qualified slot ID, for the character filling the slot (the app shows it to whoever runs that character); `applied`, for every character holding an entry this one applied (its changes reach only those entries). Absent for the character's own. */
+  /** For a follow-up to another character, stored here, on the character whose change triggered it, since one applyChanges writes one file: `{ link }` with the qualified slot ID, for the character filling the slot (the app shows it to whoever runs that character); `applied`, for every character holding an entry this one applied (its changes reach only those entries); `character`, for the character named in `character`. Absent for the character's own. */
   to?:
     | {
         link: SlotId;
       }
-    | 'applied';
-  /** For a follow-up to a link: the ID of the character filling the slot when it was triggered. */
+    | 'applied'
+    | 'character';
+  /** For a follow-up to a link: the ID of the character filling the slot when it was triggered. For `to: character`: the ID its `character` formula gave. */
   character?: string;
   /** The parameters the follow-up fixes, evaluated when it was triggered. */
   params?: Record<string, unknown>;
-  /** What triggered an `on` moment: the adjustment entry as the follow-up's formulas saw it as `change` (with `once`, the matching entries summed), and its field. */
+  /** What triggered an `on` moment: the adjustment entry as the follow-up's formulas saw it as `change` (with `once`, the matching entries summed), and its field. For another character's entry (`on.from`), also `character`, the observed character, and `applied`, the content IDs of its entries this character applied. */
   cause?: {
     field: QualifiedId;
     by: number;
@@ -840,6 +872,12 @@ export type StoredFollowUp = {
     reason: 'requested' | 'absorbed' | 'overflow' | 'reset' | 'carry';
     clamped: boolean;
     tags: Tag[];
+    /** Who sent the adjust that made the entry (the adjust's `from`); with `once`, the first matching entry's that has one. */
+    from?: string;
+    /** For an observed entry: the observed character's ID. */
+    character?: string;
+    /** For an observed entry: the content IDs of the observed character's entries this character applied, in order. */
+    applied?: QualifiedId[];
   };
 };
 
@@ -1947,14 +1985,15 @@ export type ListedFollowUp = {
   followUp: string;
   /** For a follow-up declared on content: the content and copy it comes from, as computeSheet's sources name them. */
   source?: Source;
-  /** `self`, `{ link }` with the qualified slot ID, or `applied`: every character holding an entry this one applied, which the app applies the offer's `changes` to (they reach only those entries). */
+  /** `self`, `{ link }` with the qualified slot ID, `applied` (every character holding an entry this one applied, which the app applies the offer's `changes` to; they reach only those entries) or `character` (the character named in `character`). */
   to:
     | 'self'
     | 'applied'
+    | 'character'
     | {
         link: SlotId;
       };
-  /** For `to: { link }`: the ID of the character filling the slot, absent when it is empty. */
+  /** For `to: { link }`: the ID of the character filling the slot, absent when it is empty. For `to: character`: the ID of the character it is for. */
   character?: string;
   /** The action to start, in the shape of startAction's `action` input, with `followUp` set to this offer's ID for the character's own offer: for an ephemeral one, the run then proposes the clearing change. */
   action?: {
@@ -1983,7 +2022,7 @@ export type ListedFollowUp = {
   };
   /** Whether the rules mandate it. Advisory: the engine blocks nothing, and an ephemeral one can still be dismissed. */
   required: boolean;
-  /** For an ephemeral offer from `on`: the adjustment entry that triggered it, as the follow-up's formulas saw it as `change` (with `once`, the matching entries summed), and its field. Absent for `becomes` and derived offers. */
+  /** For an ephemeral offer from `on`: the adjustment entry that triggered it, as the follow-up's formulas saw it as `change` (with `once`, the matching entries summed), and its field; `from` when the adjust named who sent it; for another character's entry (`on.from`), `character` and `applied`. Absent for `becomes` and derived offers. */
   cause?: {
     field: QualifiedId;
     by: number;
@@ -1992,6 +2031,12 @@ export type ListedFollowUp = {
     reason: 'requested' | 'absorbed' | 'overflow' | 'reset' | 'carry';
     clamped: boolean;
     tags: Tag[];
+    /** Who sent the adjust that made the entry. */
+    from?: string;
+    /** For an observed entry: the observed character's ID. */
+    character?: string;
+    /** For an observed entry: the content IDs of the observed character's entries this character applied. */
+    applied?: QualifiedId[];
   };
 };
 
@@ -2059,6 +2104,8 @@ export type ApplyChangesOutput =
       )[];
       /** The ephemeral follow-ups this batch stored, as computeSheet's `offers` lists them, in the order they were stored: the rules' in declaration order, then content's in instance order, each `on` follow-up once per matching adjustment in order. They are in the returned character too. Nothing here has been run or applied. */
       followUps?: ListedFollowUp[];
+      /** What other characters' follow-ups may react to, ready to pass on: an `observe` change with this character's `id`, the batch's field entries (with their tags and who sent them) and the applied entries it held that name an applier. Present when the batch made field entries (an adjust, its absorbing, overflow and reset entries). An app that routes events applies it to the other characters whose computeSheet lists one of its fields in `observes`; one that doesn't can ignore it. */
+      observe?: Observe;
     }
   | {
       ok: false;
@@ -2251,6 +2298,8 @@ export type ComputeSheetOutput = {
     size?: number;
     affects: 'all' | 'allies' | 'enemies';
   }[];
+  /** The qualified IDs of the fields whose entries on other characters this character's `on` follow-ups with `from` react to, sorted. The app passes another character's `observe` (from its applyChanges) to this character when it names one of them. Absent when there are none. */
+  observes?: QualifiedId[];
   /** What the rules offer the character now: its stored ephemeral follow-ups in file order, then its derived offers whose condition holds, the rules' in declaration order and then content's in instance order. Derived from the character file alone, so every app, a reload and an import see the same list. An app runs any entry with startAction and its ID, and dismisses only ephemeral ones. */
   offers?: ListedFollowUp[];
   competing: CompetingOptions[];
@@ -2725,12 +2774,19 @@ export type RecommendPolicy = 'highest' | 'lowest' | 'first' | 'last';
 export type FollowUp = {
   /** Unique among the rules' follow-ups, or within the content type or item. Text keys: `followUps.<id>.name` and `.description` (rules), `<contentId>.followUps.<id>.…` and `types.<type>.followUps.<id>.…` (both optional). */
   id: Slug;
-  /** An ephemeral offer: fires once for each entry of the batch's `adjustments` on `field` whose tags include any of `tags` (a tag matches its subtags), or any entry on the field when `tags` is left out. Overflow entries count. In `when`, `params` and `changes`, `change` is that entry. With `once: true` it fires at most once per batch, when at least one entry matches, and `change` is the matching entries summed. */
+  /** An ephemeral offer: fires once for each entry of the batch's `adjustments` on `field` whose tags include any of `tags` (a tag matches its subtags), or any entry on the field when `tags` is left out. Overflow entries count. With `from`, it fires on another character's entries instead, passed in by an `observe` change. In `when`, `params`, `character` and `changes`, `change` is that entry. With `once: true` it fires at most once per batch, when at least one entry matches, and `change` is the matching entries summed. */
   on?: {
     field: FieldRef;
     tags?: Tag[];
-    /** Fire at most once per batch, on the matching entries summed: `by`, `requested` and `taken` the sums (an absent part counting 0), `tags` the union in entry order, `reason` the first entry's, `clamped` true if any entry's is. `when` is evaluated once, on the sum. A batch is one action's changes as the app applies them, so this is once per source when each attack is its own batch. Default false. */
+    /** Fire at most once per batch, on the matching entries summed: `by`, `requested` and `taken` the sums (an absent part counting 0), `tags` the union in entry order, `reason` the first entry's, `clamped` true if any entry's is. `when` is evaluated once, on the sum. A batch is one action's changes as the app applies them, so this is once per source when each attack is its own batch. With `from`, once per `observe` change instead, on its matching entries summed. Default false. */
     once?: boolean;
+    /** Whose entries it fires on: without it, this character's own; with it, another character's, from the batch's `observe` changes (the app passes on what the other character's applyChanges returned). `any`: any other character; `applied`: one holding an entry this character applied (the observe change's `applied` names this character as an applier); `{ link: <slot> }`: the character filling one of this character's link slots. `field` names the observed character's field, resolved in this pack's scope as usual. `change.character` is the observed character's ID and `change.applied` the content IDs of its entries this character applied. */
+    from?:
+      | 'any'
+      | 'applied'
+      | {
+          link: Name;
+        };
   };
   /** An ephemeral offer: fires once when this condition is false on the character before the batch and true after it, and is stored until acted on or dismissed, or until the condition is false after a batch; a copy still stored isn't stored again. For content the character didn't have before the batch, it counts as false before. */
   becomes?: Condition;
@@ -2738,13 +2794,16 @@ export type FollowUp = {
   while?: Condition;
   /** Evaluated on the character after the whole batch (an ephemeral offer) or on the current character (a derived offer); the follow-up fires or is offered only when it holds. */
   when?: Condition;
-  /** Whose follow-up it is: `self` (the default, the character the batch changed), `{ link: <slot> }`, the character filling one of its link slots, or `applied`, every character holding an entry this character applied (`changes` only, each a removeEffect, toggleEffect, setState or adjustState naming applied entries by query, which then reaches only the entries this character applied). A follow-up to a link names the linked character's action, fields and content by qualified ID. */
+  /** Whose follow-up it is: `self` (the default, the character the batch changed), `{ link: <slot> }`, the character filling one of its link slots, `applied`, every character holding an entry this character applied (`changes` only, each a removeEffect, toggleEffect, setState or adjustState naming applied entries by query, which then reaches only the entries this character applied), or `character`, the character whose ID the `character` formula gives (the creature that dealt the damage, `change.from`). A follow-up to a link names the linked character's action, fields and content by qualified ID; one to `applied` or `character` names them in this pack's scope, as the other character shares the game. */
   to?:
     | 'self'
     | 'applied'
+    | 'character'
     | {
         link: Name;
       };
+  /** With `to: character`: a string formula giving the ID of the character the follow-up is for, evaluated when it fires: `change.from` (who sent the damage), `change.character` (the observed character), `self.appliedBy`. A formula that gives `null` or `''`, or fails, leaves the follow-up out. */
+  character?: Formula;
   /** The action to run: a rules action (local or qualified ID) or, on content, also the content's own action. */
   action?: string;
   /** Formulas for the action's parameters. Parameters it doesn't fix are left for the app to supply. */

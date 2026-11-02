@@ -90,10 +90,20 @@ const expectedKeys: Record<string, string[]> = {
     'groups',
     'offers',
     'auras',
+    'observes',
   ],
   listOptions: ['options', 'min', 'max', 'errors'],
   describeAction: ['action', 'errors'],
-  applyChanges: ['ok', 'errors', 'issues', 'adjustments', 'followUps', 'character', 'changes'],
+  applyChanges: [
+    'ok',
+    'errors',
+    'issues',
+    'adjustments',
+    'followUps',
+    'character',
+    'changes',
+    'observe',
+  ],
   startAction: ['status', 'outcome', 'proposedChanges', 'needs', 'log', 'errors', 'errorData'],
   upgrade: ['ok', 'errors', 'character', 'pending', 'report'],
   checkRelease: ['ok', 'changes', 'errors'],
@@ -297,6 +307,8 @@ function run(dir: string): void {
     if (expected.copyLimits) expect(sheet.copyLimits).toEqual(expected.copyLimits);
     if (expected.offers) expect(sheet.offers).toEqual(expected.offers);
     if (expected.auras) expect(sheet.auras).toEqual(expected.auras);
+    // `null` means absent.
+    if (expected.observes !== undefined) expect(sheet.observes ?? null).toEqual(expected.observes);
     if (expected.errors) expect(sheet.errors.map((e) => e.code)).toEqual(expected.errors);
     if (expected.valueErrors)
       expect(
@@ -424,6 +436,8 @@ function run(dir: string): void {
     if (expected.adjustments) expect(result.adjustments).toEqual(expected.adjustments);
     if (expected.followUps) expect(result.followUps).toEqual(expected.followUps);
     if (expected.changes) expect(result.changes).toEqual(expected.changes);
+    // `null` means absent.
+    if (expected.observe !== undefined) expect(result.observe ?? null).toEqual(expected.observe);
     for (const [key, value] of Object.entries(
       (expected.character ?? {}) as Record<string, unknown>,
     )) {

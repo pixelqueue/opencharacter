@@ -22,6 +22,11 @@ The spec leaves these to the app. Packs give the app what it needs for each: an 
 - **Space and range:** zones, maps, distance, and who is within an aura's or a spell's area. An action's participants are whoever the app passes; packs give ranges and areas as data.
 - **The GM's rulings:** who takes a consequence, and the order of rolls in an exchange. Actions take whoever the app names and an opposition as a parameter.
 - **Creating and linking character files:** a new character needs an ID, storage and the player's say. Packs say when and what with a derived offer naming the empty link slot and the creation start that fills it (`create`); the app makes the file, runs the start and saves the link.
+- **Routing events between characters (opt-in):** the engine never sees two characters at once.
+  An app that wants rules to react to another character's batch (an ally damaging a creature you
+  marked, any creature healed) passes each batch's `observe` on to the characters whose
+  computeSheet lists one of its fields in `observes` ([below](#other-characters-events)). An app
+  that doesn't loses only those reactions; the packs keep actions for the table to run.
 - **Running what the rules offer:** the engine lists follow-ups and stores the
   ephemeral ones in the file, but never runs or applies one, nor rolls outside an action. The app
   runs an offer, asks first, shows a derived offer later (its "not now"), or dismisses an
@@ -40,7 +45,7 @@ The spec leaves these to the app. Packs give the app what it needs for each: an 
 | `computeSheet`   | ruleset, character, optional competing-option picks (a list of option IDs), optional `links`                                   | values with breakdowns, active effects, available actions, offered situational choices, pending choices, offers, competing options, rules issues, computed values per copy and per picked or granted content | [compute-sheet](../schemas/engine/compute-sheet.schema.json)     |
 | `listOptions`    | ruleset, character, a choice path, optional `links`                                                                            | options, each with `eligible`, `picked`, `recommended` and `reasons`                                                                                                                                         | [list-options](../schemas/engine/list-options.schema.json)       |
 | `describeAction` | ruleset, character, action (`id`, `entry?`, `source?`), optional `links`                                                       | the action's defining ID, tags, results, parameters (each with `required`, bounds, enum values and the IDs a reference parameter takes) and roles                                                            | [describe-action](../schemas/engine/describe-action.schema.json) |
-| `applyChanges`   | ruleset, character, changes, `strict?`, optional `links`, optional dice function                                               | `{ ok: true, character, changes, issues }` or `{ ok: false, errors }`                                                                                                                                        | [apply-changes](../schemas/engine/apply-changes.schema.json)     |
+| `applyChanges`   | ruleset, character, changes, `strict?`, optional `links`, optional dice function                                               | `{ ok: true, character, changes, issues, observe? }` or `{ ok: false, errors }`                                                                                                                              | [apply-changes](../schemas/engine/apply-changes.schema.json)     |
 | `startAction`    | ruleset, character, action (`id`, `entry?`), params, situational, policy, `links?`, `participants?`, `answers?`, dice function | finished, paused, or failure                                                                                                                                                                                 | [start-action](../schemas/engine/start-action.schema.json)       |
 | `continueAction` | ruleset, paused result, answer (`faces`, `option` or a handoff's `outcome`), policy                                            | finished, paused again, or failure                                                                                                                                                                           | [continue-action](../schemas/engine/continue-action.schema.json) |
 | `upgrade`        | old ruleset, new ruleset, character                                                                                            | upgraded character, pending choices, "what changed" report                                                                                                                                                   | [upgrade](../schemas/engine/upgrade.schema.json)                 |
@@ -83,6 +88,9 @@ Besides these calls, `checkRelease` ([upgrades.md](upgrades.md#the-build-check),
   the copy a held aura's content belongs to, or the applied entry that projects a cast one
   (`scope: applied`), so two casts are two listings; a cast's aura leaves the list when its entry
   ends.
+- `observes` lists the qualified IDs of the fields whose entries on other characters the
+  character's follow-ups react to (`on` with `from`), sorted; absent when there are none
+  ([below](#other-characters-events)).
 - `issues` lists rules issues.
 - `copies` maps each copy's instance ID to its computed values (`{ <name>: value }`), for copies that have any.
 - `activationValues` lists the computed values of picked and granted content, as
@@ -128,7 +136,9 @@ Besides these calls, `checkRelease` ([upgrades.md](upgrades.md#the-build-check),
   character's ID as `character`, and one for a role its participant's view `id`. The app applies
   each change to that character. A change `to: applied` carries none: it names applied entries by
   a query limited to the actor's (`applied.appliedBy`), and the app applies it to every character
-  that may hold one. Every proposed `applyEffect` carries the actor's ID as `appliedBy`.
+  that may hold one. Every proposed `applyEffect` carries the actor's ID as `appliedBy` (or the
+  ID its `appliedBy` formula gives), and every `adjust` for another character the actor's ID as
+  `from`.
 - `participants` passes the other characters taking part, by role the action
   declares: per role, a list of views `{ id, values }` taken from their own `computeSheet`, read
   like a link's. An undeclared role or a count outside the role's `min` and `max` is
@@ -160,6 +170,34 @@ of the characters filling the character's link slots, by qualified slot ID, each
 `{ id, values }`. The app takes `values` from that character's own
 `computeSheet` and may pass all of them; the engine reads only the declared fields. `upgrade`
 takes none: it changes saved state only. See [engine-core.md](engine-core.md#links).
+
+### Other characters' events
+
+A follow-up can react to another character's batch (`on` with `from`;
+[rules-and-fields.md](rules-and-fields.md#other-characters-events)). The engine stays pure: the
+app carries the event.
+
+1. Every successful applyChanges whose batch made field entries returns `observe`: an `observe`
+   change naming the character (`character`), its field entries with their tags and who sent
+   them (`adjustments`), and the applied entries it held that name an applier (`applied`).
+2. The app applies that change, as given, to each other character whose computeSheet lists one
+   of its entries' fields in `observes` (the characters in the encounter, say), as a batch of its
+   own or with that character's next one. It changes nothing; it fires their `from`
+   follow-ups, stored and listed in their `offers` as usual. It is in their change log, so a
+   replay stores the same follow-ups.
+3. Their batches don't pass the `observe` change on: a batch that made no field entries returns no
+   `observe`. A follow-up the app later runs on them is a new batch with its own `observe`,
+   which may fire offers elsewhere: two characters watching `from: any` can answer each other
+   forever. An app doesn't run offers an `observe` fired automatically while routing, or routes
+   at most one round per original event. Each routed event is a change in the observer's log, so
+   the app sends it only where `observes` says it matters, keeping each character's `observes`
+   from its last computeSheet (it changes only with the character's own batches).
+
+Changes an action proposes for another character carry the actor as `from` on each adjust, so
+the receiving character's `on` follow-ups know who dealt the damage (`change.from`), and a
+follow-up `to: character` with `character: change.from` acts back on them. It is stored on the
+character whose change fired it and listed in its `offers` with the other character's ID in
+`character`, as a link's is: the app runs or applies it on that character and clears it here.
 
 ### Appliers
 
@@ -225,7 +263,7 @@ A runtime error means the result would not be a valid character file. A rules is
 
 ## Changes
 
-The change types are a small, generic, fixed set ([data](../data/change-types.json)): `set`, `adjust`, `addItem`, `removeItem`, `equip`, `setState`, `adjustState`, `setQuantity`, `adjustQuantity`, `applyTemplate`, `removeTemplate`, `applyEffect`, `removeEffect`, `toggleEffect`, `choose`, `unchoose`, `setExtension`, `finishCreation`, `setHomebrew`, `dismissFollowUp`, `clearFollowUp` and `offerFollowUp`.
+The change types are a small, generic, fixed set ([data](../data/change-types.json)): `set`, `adjust`, `addItem`, `removeItem`, `equip`, `setState`, `adjustState`, `setQuantity`, `adjustQuantity`, `applyTemplate`, `removeTemplate`, `applyEffect`, `removeEffect`, `toggleEffect`, `choose`, `unchoose`, `setExtension`, `finishCreation`, `setHomebrew`, `dismissFollowUp`, `clearFollowUp`, `offerFollowUp` and `observe`.
 
 - **Batches are all or nothing.** A level-up of eight changes either fully applies or doesn't apply at all.
 - **Same changes, same result.** Replaying a character's change list from the start always rebuilds the same character, which gives apps undo, history and multiplayer sync.
@@ -243,8 +281,14 @@ The change types are a small, generic, fixed set ([data](../data/change-types.js
   ([engine-core.md](engine-core.md#applychanges)). Actions can't propose it.
 - `setQuantity` and `adjustQuantity` change a copy's `quantity` (spending an arrow, buying ten more). It never goes below 0, and a copy at 0 stays: removing it is a separate `removeItem`.
 - `setState`, `adjustState`, `setQuantity`, `adjustQuantity`, `equip` and `removeItem` may name their copies with a query (`copies: { type, where }`) instead of one `entry`. The receiving character resolves it, so an action can aim one at its target's copies ([engine-core.md](engine-core.md#applychanges)).
+- `adjust` may name who sent it (`from`, a character ID; actions and follow-ups fill it in for
+  another character), which its field entries keep for `on` follow-ups (`change.from`) and
+  `observe` ([engine-core.md](engine-core.md#who-sent-it)).
+- `observe` passes another character's batch in, as its applyChanges returned it: it changes
+  nothing and fires `on` follow-ups with `from`
+  ([engine-core.md](engine-core.md#observing-another-characters-batch)). Actions can't propose it.
 - `applyEffect` may name who applies it (`appliedBy`, a character ID saved on the entry; actions
-  fill it in), and `removeEffect`, `toggleEffect`, `setState` and `adjustState` queries may keep
+  fill it in, with the actor or the ID their `appliedBy` formula gives), and `removeEffect`, `toggleEffect`, `setState` and `adjustState` queries may keep
   to one applier's entries (`applied.appliedBy`).
 - `applyEffect` may leave out `id`, and `removeEffect`, `toggleEffect`, `setState` and `adjustState` may name applied entries with a query (`applied: { where, limit? }`). The receiving character picks the ID and resolves the query, so an action can apply a condition to its target, or end or worsen one, without knowing the target's file ([engine-core.md](engine-core.md#applychanges)).
 - `setState` and `adjustState` also change a pick's state (`path` and `option`, or `picks: { where }`) and the saved state of content a holder grant makes active (`grant` beside the copy's `entry` or the pick's `path` and `option`, or `grants: { where }`); a grant not active there is `not-granted` ([engine-core.md](engine-core.md#applychanges)).

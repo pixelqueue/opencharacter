@@ -11,15 +11,15 @@ proposedChanges:
   - to: target
     character: troll
     step: outcome[1]/sting
-    change: { type: adjust, field: test-pack:hp, by: -2, tags: [weakness] }
+    change: { type: adjust, field: test-pack:hp, by: -2, tags: [weakness], from: hero }
   - to: target
     character: orc
     step: burn[0]
-    change: { type: adjust, field: test-pack:hp, by: -4 }
+    change: { type: adjust, field: test-pack:hp, by: -4, from: hero }
   - to: target
     character: troll
     step: burn[1]
-    change: { type: adjust, field: test-pack:hp, by: -8 }
+    change: { type: adjust, field: test-pack:hp, by: -8, from: hero }
 log:
   - { step: damage, action: 'test-pack:blast', kind: dice, by: engine, faces: [4], total: 4 }
   - { step: 'outcome[1]/mark', action: 'test-pack:blast', kind: dice, by: engine, total: 2 }

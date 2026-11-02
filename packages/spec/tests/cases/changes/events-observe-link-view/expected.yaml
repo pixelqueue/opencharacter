@@ -1,0 +1,20 @@
+ok: true
+followUps:
+  - id: companion-hurt-1
+    kind: ephemeral
+    followUp: test-events:companion-hurt
+    to: self
+    required: false
+    changes:
+      - { type: adjust, field: test-events:focus, by: 1 }
+      - { type: clearFollowUp, id: companion-hurt-1 }
+    cause:
+      field: test-events:hp.current
+      by: -3
+      requested: 0
+      taken: 0
+      reason: requested
+      clamped: false
+      tags: [damage]
+      character: wolf
+      applied: []

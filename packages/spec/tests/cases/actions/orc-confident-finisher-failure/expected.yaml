@@ -11,7 +11,14 @@ proposedChanges:
   - to: target
     character: bandit
     step: graze
-    change: { type: adjust, field: orc-2e:hp.current, by: -3, tags: [damage, damage.piercing] }
+    change:
+      {
+        type: adjust,
+        field: orc-2e:hp.current,
+        by: -3,
+        tags: [damage, damage.piercing],
+        from: example-orc-ines,
+      }
   - to: self
     step: spend
     change: { type: removeEffect, applied: { where: "item.id == 'orc-2e:effects.panache'" } }

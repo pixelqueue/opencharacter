@@ -47,6 +47,7 @@ describe('weapon attack (Tamsin, longsword +1, Bless, Dueling)', () => {
             'wielder.neutral',
             'damage.slashing',
           ],
+          from: tamsin.id,
         },
       },
     ]);

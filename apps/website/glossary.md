@@ -10,7 +10,7 @@ One-line definitions of OCF terms, consistent with the [specification](../../pac
 - **Allocate step:** an action step that spends a budget across fields (FitD's creation dots, 5E point buy) or hands out a list of values, one per field (the standard array); a checkpoint answered with amounts.
 - **App:** the program using the engine; it owns the experience (dice presentation, time, choices, storage, display).
 - **Applied effect:** an entry in the character's `applied` list that turns on the effects of content the character doesn't own (Bless from an ally); the app toggles it, and its own incoming-change effect's `then` can end it (oil that burns away).
-- **Applier (`appliedBy`):** the character who applied an entry, saved on it; actions fill it in. A change sent `to: applied` reaches every entry one character applied, on whichever character holds it.
+- **Applier (`appliedBy`):** the character who applied an entry, saved on it; actions fill it in (the actor, or the participant their `appliedBy` formula names). A change sent `to: applied` reaches every entry one character applied, on whichever character holds it.
 - **Aura:** an area content projects (`auras` on an item), from its holder or, with `scope: applied`, from each cast of it (an applied entry the character applied); computeSheet lists them, the app applies its entry to whoever is inside (`aura`, `appliedBy`), and its effects and immunities read the projecting character's view passed as `appliers` (`applier`).
 - **Breakdown:** the list of effects that changed a field's value, in order, returned by computeSheet ("showing the work").
 - **Breaking bump:** a pack version bump that may change saved state or the pack's interface: the minor version while 0.x (0.1.4 → 0.2.0), the major version from 1.0.0 (1.4.2 → 2.0.0). Shape and interface changes need one.
@@ -54,7 +54,7 @@ One-line definitions of OCF terms, consistent with the [specification](../../pac
 - **Field:** one value on a character, keyed by a permanent field ID.
 - **Field parameter:** an action parameter of type `id` with `of: field`, read as `params.<name>.value` and `.id`.
 - **Fixed set:** a list of values defined by the spec and versioned with it (operations, modifiers, codes), published as data.
-- **Follow-up:** what the rules call for on a character: a derived offer (`while`) or an ephemeral one (`on`, an adjustment, with `once` the batch's matching adjustments summed; `becomes`, a condition becoming true), with an action to run, changes to apply or (a derived one) a linked character to make. computeSheet lists them in `offers`; the engine never runs or applies one.
+- **Follow-up:** what the rules call for on a character: a derived offer (`while`) or an ephemeral one (`on`, an adjustment, with `once` the batch's matching adjustments summed; `becomes`, a condition becoming true), with an action to run, changes to apply or (a derived one) a linked character to make, for the character itself or another (`to`). An `on` one with `from` fires on another character's entries, passed in by `observe`. computeSheet lists them in `offers`; the engine never runs or applies one.
 - **Formula:** an expression in OCF's CEL-like language with dice notation; safe, finite and deterministic.
 - **Grant:** an effect operation that adds a member (proficiency, tag, action) to a set field; also an item's `grants` list making other content active.
 - **Grant `available`:** a condition on the computed sheet that a grant's content's actions, follow-ups and auras wait on (a treasure's ability, usable only with a matching kit); the content stays active, marked `unavailable` in computeSheet's `activations`.
@@ -76,6 +76,7 @@ One-line definitions of OCF terms, consistent with the [specification](../../pac
 - **Monster / NPC:** a character file like any other, usually with mostly fixed values.
 - **Nested choice:** a choice inside an option, pending as soon as that option is picked.
 - **Overflow:** what happens when an adjust takes an input field past a bound: another field is adjusted and this one resets (FitD stress into trauma).
+- **Observe (`observe`):** another character's batch as its applyChanges returned it (its field entries with tags and senders, and whose entries it holds); the app passes it to the characters whose computeSheet lists its fields in `observes`, where it changes nothing but fires `on` follow-ups with `from` (an ally damaged a creature you marked).
 - **Open enum:** an enum a rules field, content type, item or action parameter marks `open: true`, to which packs depending on its pack add values (`extendEnums`), named in their own text; everything reads the merged list.
 - **Override:** a homebrew content file that changes only the properties it mentions on another pack's item.
 - **Pack:** a versioned bundle of rules and/or content with a manifest, license and translations.
@@ -102,6 +103,7 @@ One-line definitions of OCF terms, consistent with the [specification](../../pac
 - **Runtime error:** a change rejected because the result wouldn't be a valid character file; the character is unchanged.
 - **Roll effect `then`:** changes a roll effect proposes after a roll step it changed (or, with `when: applied`, was in play on), once per action run or, with `once: roll`, per roll: ending a condition, spending a use, or, `to` another character, ending the target's entry.
 - **Safety limit:** a spec-defined cap (exploding dice, nesting depth, action steps) protecting engines from untrusted packs.
+- **Sender (`from`):** the character whose action or follow-up proposed an adjust for someone else, carried on the adjust; an `on` follow-up reads it as `change.from` (the creature that damaged you).
 - **Shape change:** a difference between two pack releases that changes what saved state means (removed content, field, state key, choice or option; a new required choice); it needs a breaking bump and an upgrade script that covers it.
 - **Shape error:** input that doesn't match the spec's JSON Schema, rejected before running.
 - **Shared sheet:** a character file holding a pool several characters spend from (hero tokens, the Director's Malice, a crew), linked from each through one slot; the app applies each one's spend in turn.

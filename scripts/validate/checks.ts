@@ -1199,9 +1199,15 @@ export class PackChecker {
         if (!this.ruleset.field(def.on.field, this.scope))
           this.report.error(file, `${where}: unknown field "${def.on.field}"`);
         for (const tag of def.on.tags ?? []) this.tag(tag, file, where);
+        if (typeof def.on.from === 'object') this.linkScope(def.on.from.link, file, where);
       }
       const to = def.to === 'self' ? undefined : def.to;
       if (typeof to === 'object') this.linkScope(to.link, file, where);
+      if (to === 'character' && def.action !== undefined && own.has(def.action))
+        this.report.error(
+          file,
+          `${where}: a follow-up to another character runs a rules action, not "${def.action}" of its own content`,
+        );
       if (to === 'applied' && def.action !== undefined)
         this.report.error(file, `${where}: a follow-up to applied has changes, not an action`);
       if (def.create) this.createOffer(def.create, file, where);

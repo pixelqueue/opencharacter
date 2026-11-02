@@ -1,0 +1,38 @@
+ok: true
+followUps:
+  - id: mark-damaged-1
+    kind: ephemeral
+    followUp: test-events:mark-damaged
+    to: self
+    required: false
+    action: { id: test-events:gain-focus, followUp: mark-damaged-1 }
+    params: {}
+    cause:
+      field: test-events:hp.current
+      by: -5
+      requested: -5
+      taken: -5
+      reason: requested
+      clamped: false
+      tags: [damage]
+      from: fighter
+      character: goblin
+      applied: [test-events:conditions.marked]
+observe: null
+character:
+  values: null
+  followUps:
+    - id: mark-damaged-1
+      followUp: test-events:mark-damaged
+      params: {}
+      cause:
+        field: test-events:hp.current
+        by: -5
+        requested: -5
+        taken: -5
+        reason: requested
+        clamped: false
+        tags: [damage]
+        from: fighter
+        character: goblin
+        applied: [test-events:conditions.marked]

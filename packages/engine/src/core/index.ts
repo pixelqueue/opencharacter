@@ -1,7 +1,7 @@
 import type { CharacterDoc } from './pack-types.ts';
 import type { Ruleset } from './ruleset.ts';
 import { display, type ShownGroup } from './display.ts';
-import { offers, type ListedFollowUp } from './follow-ups.ts';
+import { observes, offers, type ListedFollowUp } from './follow-ups.ts';
 import { withHomebrew } from './homebrew.ts';
 import {
   type Appliers,
@@ -142,8 +142,15 @@ export function computeSheet(
     pending,
     offers: offers(layered.ruleset, sheet),
     auras: sheet.auras(),
+    ...observed(layered.ruleset, sheet),
     competing: sheet.competing,
     issues: sheet.issues(),
     errors: sheet.errors,
   };
+}
+
+/** `observes`, only when the character's follow-ups react to other characters. */
+function observed(ruleset: Ruleset, sheet: Sheet): { observes?: string[] } {
+  const fields = observes(ruleset, sheet);
+  return fields.length > 0 ? { observes: fields } : {};
 }
