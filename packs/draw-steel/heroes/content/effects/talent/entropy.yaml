@@ -1,0 +1,9 @@
+# Entropy Ward on the creature that damaged the talent: speed reduced by the talent's Reason and
+# no triggered actions until the end of its next turn (its own: the entry names it as applier).
+id: effects.talent.entropy
+type: effect
+state:
+  amount: { type: integer, default: 0, min: 0 }
+effects:
+  - { target: speed, op: add, value: -self.amount, scope: applied }
+  - { target: abilities.noTriggered, op: set, value: 'true', scope: applied }

@@ -83,6 +83,9 @@ contentTypes:
       # A non-condition effect the target gets instead of a condition, behind the same potency
       # and with the same duration ("R < WEAK, damage weakness 5 (save ends)").
       't{tier}Effect': { type: id, of: effect }
+      # The conditions it imposes are the triggering ally's (the `ally` participant): "frightened
+      # of the triggering ally".
+      allyImposes: { type: boolean, default: false }
     # What this hero's card shows: the characteristic rolled (the best of `rollChars`), each
     # tier's damage with it and the kit's bonus, each tier's potency, and the distance with the
     # kit's. `use-ability` reads the same values. Melee for an ability that can be either.
@@ -174,6 +177,10 @@ fields:
   abilities.edgeDiscount: { type: integer, formula: 0, min: 0 }
   # Abilities that cost nothing to use right now (an Elementalist's maintained abilities).
   abilities.free: { type: set, of: ability, formula: '[]' }
+  # The hero can't use triggered actions (dazed, an Entropy Ward's attacker, Smolder's strain).
+  abilities.noTriggered: { type: boolean, formula: conditions.dazed }
+  # Banes on ability rolls made against this creature (Blessing of Steel's aura).
+  powerRoll.banesAgainst: { type: integer, formula: 0, min: 0 }
   # Bonuses to the distance of ranged abilities: any, magic, psionic, and void magic ones. An
   # area's bonus goes to its range ("within"), not its size.
   abilities.rangeBonus: { type: integer, formula: 0 }
@@ -197,8 +204,9 @@ effects:
       [{ formula: "roll.item.damageType == 'untyped' ? [] : ['damage.' + roll.item.damageType]" }]
   # What each target brings to the power roll, on its own tier (`power-target`): an edge against
   # a prone target (melee), a restrained one, one frightened of the user or one a tactician
-  # marked; a bane when the user is frightened of the target, and on every target when the user
-  # is grabbed (a double bane when taunted) and the ability doesn't target the grabber (taunter).
+  # marked; a bane when the user is frightened of the target or the target brings banes against
+  # it (Blessing of Steel), and on every target when the user is grabbed (a double bane when
+  # taunted) and the ability doesn't target the grabber (taunter).
   - id: target-prone
     target: { rolls: [power-target], tally: edges }
     op: add
@@ -219,6 +227,11 @@ effects:
     op: add
     value: 1
     when: size(participant.tactician.markedBy) > 0
+  - id: target-banes
+    target: { rolls: [power-target], tally: banes }
+    op: add
+    value: participant.powerRoll.banesAgainst
+    when: participant.powerRoll.banesAgainst > 0
   - id: user-grabbed
     target: { rolls: [power-target], tally: banes }
     op: add
@@ -245,7 +258,8 @@ actions:
   - id: use-ability
     tags: [ability, { formula: "'usage.' + item.usage" }, { formula: item.tags }]
     available: >-
-      !stamina.dead && (item.cost == 0 || item.id in abilities.free
+      !stamina.dead && !(abilities.noTriggered && item.usage in ['triggered', 'free-triggered'])
+        && (item.cost == 0 || item.id in abilities.free
         || (combat.active
           ? heroic.current - max(0, item.cost - (item.kind == 'heroic' && size(item.rollChars) > 0 ? abilities.edgeDiscount : 0)) >= heroic.min
           : !(item.id in abilities.usedOutside)))
@@ -266,6 +280,8 @@ actions:
       downgrade: { type: boolean, default: false }
     participants:
       target: { fields: creature }
+      # The ally who triggered a triggered ability, or the one an ability helps, when it matters.
+      ally: { max: 1 }
     results: [used, unaffordable, tier1, tier2, tier3]
     steps:
       - id: setup
@@ -475,13 +491,19 @@ actions:
             }
         parts:
           - value: '[item.t1Damage, has(item.t2Damage) ? item.t2Damage : 0, has(item.t3Damage) ? item.t3Damage : 0][flags.tier - 1]'
-            tags: [{ formula: "item.damageType == 'untyped' ? [] : ['damage.' + item.damageType]" }]
+            tags:
+              - ability.damage
+              - { formula: "item.damageType == 'untyped' ? [] : ['damage.' + item.damageType]" }
           - field: "'characteristics.' + flags.char + '.score'"
             when: "flags.char != 'none' && [item.t1AddsChar, item.t2AddsChar, item.t3AddsChar][flags.tier - 1]"
-            tags: [{ formula: "item.damageType == 'untyped' ? [] : ['damage.' + item.damageType]" }]
+            tags:
+              - ability.damage
+              - { formula: "item.damageType == 'untyped' ? [] : ['damage.' + item.damageType]" }
           - value: params.surges * characteristics.highest
             when: flags.surges > 0 && params.surges > 0 && participant.id == participants.target[0].id
-            tags: [{ formula: "item.damageType == 'untyped' ? [] : ['damage.' + item.damageType]" }]
+            tags:
+              - ability.damage
+              - { formula: "item.damageType == 'untyped' ? [] : ['damage.' + item.damageType]" }
       - id: hit
         kind: changes
         each: target
@@ -498,6 +520,9 @@ actions:
             when: flags.landed
             source: flags.cond
             state: { duration: flags.dur }
+            appliedBy: >-
+              item.allyImposes && size(participants.ally) > 0 ? participants.ally[0].id
+                : character.id
       # Damage when no target is given: the roll's own tier, as the card shows it.
       - id: preview
         kind: roll
@@ -505,7 +530,9 @@ actions:
         tags: [damage]
         parts:
           - value: '[self.damage1, self.damage2, self.damage3][steps.roll.bandValue - 1]'
-            tags: [{ formula: "item.damageType == 'untyped' ? [] : ['damage.' + item.damageType]" }]
+            tags:
+              - ability.damage
+              - { formula: "item.damageType == 'untyped' ? [] : ['damage.' + item.damageType]" }
       # Bleeding: a main or triggered action, or a roll with Might or Agility, loses 1d6 + level.
       - id: bleed
         kind: roll

@@ -16,7 +16,7 @@ fields:
   rollChars:
     - might
   damageType: untyped
-  t1Damage: 0
+  t1Damage: 2
   t1AddsChar: false
   t1PotencyChar: might
   t1Potency: weak
@@ -24,7 +24,7 @@ fields:
   t1Duration: save
   t1Move: push
   t1MoveDistance: 1
-  t2Damage: 0
+  t2Damage: 5
   t2AddsChar: false
   t2PotencyChar: might
   t2Potency: average
@@ -32,7 +32,7 @@ fields:
   t2Duration: save
   t2Move: push
   t2MoveDistance: 2
-  t3Damage: 0
+  t3Damage: 7
   t3AddsChar: false
   t3PotencyChar: might
   t3Potency: strong
@@ -41,10 +41,7 @@ fields:
   t3Move: push
   t3MoveDistance: 3
 effects:
-  # The damage is the stormwight kit's primordial damage type: the tiers' damage ([2,5,7]) is
-  # added here with that type's tag, so immunity and weakness see it.
-  - target: { rolls: [damage], from: self }
-    op: add
-    when: roll.item.id == item.id
-    value: 'flags.tier > 0 ? [2,5,7][flags.tier - 1] : 0'
-    tags: [{ formula: "fury.primordialType == 'none' ? [] : ['damage.' + fury.primordialType]" }]
+  # The damage is the stormwight kit's primordial damage type, so immunity and weakness see it.
+  - target: { rolls: [damage], parts: [ability.damage], from: self }
+    op: tag
+    value: [{ formula: "fury.primordialType == 'none' ? [] : ['damage.' + fury.primordialType]" }]

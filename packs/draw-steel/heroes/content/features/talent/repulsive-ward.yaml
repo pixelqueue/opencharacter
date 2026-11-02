@@ -9,7 +9,7 @@ tags: [talent.ward]
 actions:
   - id: repel
     tags: [ability]
-    available: '!stamina.dead'
+    available: '!stamina.dead && !abilities.noTriggered'
     participants:
       target: { fields: creature, max: 1 }
     results: [pushed]
@@ -21,5 +21,5 @@ actions:
 followUps:
   - id: repel
     on: { field: stamina.current, tags: [damage], once: true }
-    when: change.taken < 0 && !stamina.dead
+    when: change.taken < 0 && !stamina.dead && !abilities.noTriggered
     action: repel

@@ -20,7 +20,8 @@ situational:
     type: boolean
     default: false
     incoming: { fields: [stamina.current], tags: [damage] }
-    available: '@ancestry-traits.dragon-knight.draconian-guard in ancestry.traits'
+    scope: batch
+    available: '@ancestry-traits.dragon-knight.draconian-guard in ancestry.traits && !abilities.noTriggered'
     effects:
       - target: { incoming: { fields: [stamina.current], tags: [damage] } }
         op: add
@@ -30,11 +31,13 @@ situational:
     type: boolean
     default: false
     incoming: { fields: [stamina.current], tags: [damage] }
-    available: '@ancestry-traits.human.resist-the-unnatural in ancestry.traits'
+    scope: batch
+    available: '@ancestry-traits.human.resist-the-unnatural in ancestry.traits && !abilities.noTriggered'
     effects:
       - target: { incoming: { fields: [stamina.current], tags: [damage] } }
         op: multiply
         value: 0.5
+        stackKey: half-damage
         when: "countList(keysOf('damageType'), 'damage.' + x in incoming.tags) > 0"
 
 display:

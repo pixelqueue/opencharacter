@@ -40,11 +40,13 @@ situational:
     type: boolean
     default: false
     incoming: { fields: [stamina.current], tags: [damage] }
-    available: fury.halfDamage
+    scope: batch
+    available: fury.halfDamage && !abilities.noTriggered
     effects:
       - target: { incoming: { fields: [stamina.current], tags: [damage] } }
         op: multiply
         value: 0.5
+        stackKey: half-damage
 
 effects:
   - id: hybrid-stamina-reset

@@ -26,6 +26,8 @@ settings:
       treasure-stamina: highestOnly
       # Two nulls' fields on one creature lower its potencies once.
       null-field: lowestOnly
+      # Damage halved by a triggered action is halved once, however many halve it.
+      half-damage: lowestOnly
       synaptic-break: lowestOnly
   competing:
     recommend: highest
@@ -56,3 +58,5 @@ viewFields:
     'potency.resistBonus.{characteristic}': { type: integer, default: 0 }
     # The tacticians who marked this creature: power rolls against it gain an edge.
     tactician.markedBy: { type: set, of: string, default: [] }
+    # Banes on ability rolls against this creature.
+    powerRoll.banesAgainst: { type: integer, default: 0 }

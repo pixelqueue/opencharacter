@@ -31,8 +31,16 @@ effects:
       changes:
         - { type: adjust, field: heroic.current, by: tactician.markFocus }
         - { type: set, field: tactician.markFocusGained, value: 'true' }
+followUps:
+  # An ally damaged a creature you marked: an app that routes other characters' events offers it.
+  - id: mark-damaged
+    on: { field: stamina.current, tags: [damage], from: applied, once: true }
+    when: >-
+      combat.active && @features.tactician.marked in change.applied && change.from != ''
+        && change.from != character.id && !tactician.markFocusGained && change.taken < 0
+    action: mark-damaged
 actions:
-  # An ally damaged a creature you marked.
+  # An ally damaged a creature you marked (run by hand where the app doesn't route events).
   - id: mark-damaged
     tags: [resource]
     available: combat.active && !tactician.markFocusGained

@@ -43,13 +43,22 @@ fields:
 
 effects:
   # The highest applicable weakness adds, the highest applicable immunity takes off (all of it
-  # with "immunity all"), and damage never heals. Damage that can't be reduced (`damage.unreducible`) skips immunity.
+  # with "immunity all"), and damage never heals. Damage that can't be reduced
+  # (`damage.unreducible`) skips immunity.
+  # Weakness and immunity apply after a triggered action halved the damage (immunity last, the book
+  # says; a `half-damage` multiply counts once however many): an add comes before a multiply, so
+  # with the damage halved they add twice their value, and the halving leaves exactly their value.
   - id: weakness
     target: { incoming: { fields: [stamina.current], tags: [damage] } }
     op: add
     value: >-
-      -max(weakness.all, maxList(keysOf('damageType'),
-        fieldOf('weakness.{damageType}', x), 'damage.' + x in incoming.tags))
+      -(situational.parry || situational.skinLikeCastleWalls || situational.inertialShield
+        || situational.inertialAbsorption || situational.synapticAnchor || situational.furyHalfDamage
+        || situational.shadowHalfDamage
+        || (situational.resistTheUnnatural
+          && countList(keysOf('damageType'), 'damage.' + x in incoming.tags) > 0) ? 2 : 1)
+        * max(weakness.all, maxList(keysOf('damageType'),
+          fieldOf('weakness.{damageType}', x), 'damage.' + x in incoming.tags))
     when: incoming.amount < 0
   - id: immunity
     target: { incoming: { fields: [stamina.current], tags: [damage] } }
@@ -57,8 +66,13 @@ effects:
     value: >-
       countList(keysOf('damageType'), fieldOf('immunity.{damageType}All', x) && 'damage.' + x in incoming.tags) > 0
         ? -incoming.amount
-        : max(immunity.all, maxList(keysOf('damageType'),
-          fieldOf('immunity.{damageType}', x), 'damage.' + x in incoming.tags))
+        : (situational.parry || situational.skinLikeCastleWalls || situational.inertialShield
+          || situational.inertialAbsorption || situational.synapticAnchor || situational.furyHalfDamage
+          || situational.shadowHalfDamage
+          || (situational.resistTheUnnatural
+            && countList(keysOf('damageType'), 'damage.' + x in incoming.tags) > 0) ? 2 : 1)
+          * max(immunity.all, maxList(keysOf('damageType'),
+            fieldOf('immunity.{damageType}', x), 'damage.' + x in incoming.tags))
     when: incoming.amount < 0 && !('damage.unreducible' in incoming.tags)
   - id: damage-never-heals
     target: { incoming: { fields: [stamina.current], tags: [damage] } }

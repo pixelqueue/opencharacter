@@ -15,13 +15,21 @@ fields:
   spendPlus: true
 effects:
   # Spend 1+ piety, one enhancement each: more targets (the participants), a Recovery more for a
-  # target, a prone target standing up, or an effect ended (the target's saving throw or the
-  # table's). Pass `spend` for the total.
+  # target, a prone target standing up, or an effect a saving throw or the end of their turn ends
+  # (the first such). Pass `spend` for the total: the extra Recoveries, standing and ending fit
+  # in it.
   - target: { actions: [ability], from: self }
     op: params
     value:
-      graceRecoveries: { type: integer, default: 0, min: 0 }
+      graceRecoveries:
+        type: integer
+        default: 0
+        min: 0
+        max: 'params.spend - (params.graceStand ? 1 : 0) - (params.graceEnd ? 1 : 0)'
       graceStand: { type: boolean, default: false }
+      graceEnd: { type: boolean, default: false }
+      # The applied entry to end (its ID on the target); without it, the first that qualifies.
+      graceEndEntry: { type: string, optional: true }
   # The target can spend a Recovery, and one more for each enhancement.
   - target: { steps: [ability.hit], from: self }
     op: changes
@@ -34,3 +42,10 @@ effects:
         - type: removeEffect
           when: params.graceStand
           applied: { where: 'self.source == @conditions.prone' }
+        - type: removeEffect
+          when: params.graceEnd
+          applied:
+            where: >-
+              has(self.duration) && self.duration in ['save', 'eot']
+                && (!has(params.graceEndEntry) || self.id == params.graceEndEntry)
+            limit: 1

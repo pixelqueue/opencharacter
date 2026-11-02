@@ -3,3 +3,30 @@ type: feature
 fields:
   class: classes.null
   level: 6
+# 2 surges when damage immunity reduces elemental damage: the hero's own immunity here, Inertial
+# Shield's (Elemental Absorption) on its choice. Keeping them for the next strike is the table's.
+effects:
+  - { target: nullClass.elementalBuffer, op: set, value: 'true' }
+followUps:
+  - id: buffer
+    on:
+      field: stamina.current
+      tags:
+        [
+          damage.acid,
+          damage.cold,
+          damage.corruption,
+          damage.fire,
+          damage.lightning,
+          damage.poison,
+          damage.sonic,
+        ]
+      once: true
+    required: true
+    when: >-
+      change.requested < 0 && !('damage.unreducible' in change.tags)
+        && countList(['acid', 'cold', 'corruption', 'fire', 'lightning', 'poison', 'sonic'],
+          'damage.' + x in change.tags
+            && max(immunity.all, fieldOf('immunity.{damageType}', x)) > 0) > 0
+    changes:
+      - { type: adjust, field: surges.current, by: 2 }

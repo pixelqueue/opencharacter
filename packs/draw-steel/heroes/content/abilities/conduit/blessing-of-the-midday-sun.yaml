@@ -13,3 +13,33 @@ fields:
   cost: 9
   distanceKind: aura
   distance: 4
+# The aura is this ability applied to you until the end of the encounter or until you are dying:
+# each enemy inside takes a bane on power rolls. The surges at the end of your turns are the
+# table's.
+state:
+  duration: { type: string, default: encounter }
+reapply: { state: { duration: replace } }
+auras:
+  - id: sun
+    scope: applied
+    size: item.distance
+    affects: enemies
+    effects:
+      - { target: { rolls: [power-roll], tally: banes }, op: add, value: 1 }
+effects:
+  - target: { steps: [ability.after], from: self }
+    op: changes
+    value:
+      changes:
+        - {
+            type: applyEffect,
+            source: "'abilities.conduit.blessing-of-the-midday-sun'",
+            state: { duration: "'encounter'" },
+          }
+followUps:
+  - id: ends
+    becomes: stamina.dying
+    required: true
+    changes:
+      - type: removeEffect
+        applied: { where: 'item.id == @abilities.conduit.blessing-of-the-midday-sun' }

@@ -31,11 +31,13 @@ situational:
     type: boolean
     default: false
     incoming: { fields: [stamina.current], tags: [damage] }
-    available: tactician.parry
+    scope: batch
+    available: tactician.parry && !abilities.noTriggered
     effects:
       - target: { incoming: { fields: [stamina.current], tags: [damage] } }
         op: multiply
         value: 0.5
+        stackKey: half-damage
 
 display:
   fields:
