@@ -78,18 +78,62 @@ actions:
         when: has(steps.weapon)
         options: [{ id: pick }, { id: roll }]
         recommend: "'roll'"
-      - id: entry
+      # One pick: the table's entries, named per table (the wasteland's 15-17 are one item).
+      - id: nearEntry
         kind: choice
-        when: "has(steps.extra) && steps.extra.picked == 'pick'"
-        options: { values: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20] }
-        recommend: "steps.kit.picked == 'wasteland' ? '10' : '4'"
+        when: "has(steps.extra) && steps.extra.picked == 'pick' && steps.kit.picked == 'near-future'"
+        options:
+          - { id: near-pistol, flags: { entry: 1 } }
+          - { id: near-camping-kit, flags: { entry: 2 } }
+          - { id: near-hand-tool, flags: { entry: 3 } }
+          - { id: near-plate-carrier, flags: { entry: 4 } }
+          - { id: near-crowbar, flags: { entry: 5 } }
+          - { id: near-lockpick-kit, flags: { entry: 6 } }
+          - { id: near-binoculars, flags: { entry: 7 } }
+          - { id: near-flashlight, flags: { entry: 8 } }
+          - { id: near-rifle, flags: { entry: 9 } }
+          - { id: near-walkie-talkies, flags: { entry: 10 } }
+          - { id: near-grenades, flags: { entry: 11 } }
+          - { id: near-jewelry, flags: { entry: 12 } }
+          - { id: near-sport-gear, flags: { entry: 13 } }
+          - { id: near-rations, flags: { entry: 14 } }
+          - { id: near-first-aid-kit, flags: { entry: 15 } }
+          - { id: near-toolkit, flags: { entry: 16 } }
+          - { id: near-shotgun, flags: { entry: 17 } }
+          - { id: near-batteries, flags: { entry: 18 } }
+          - { id: near-rope, flags: { entry: 19 } }
+          - { id: near-trade-tool, flags: { entry: 20 } }
+        recommend: "'near-plate-carrier'"
+      - id: wastelandEntry
+        kind: choice
+        when: "has(steps.extra) && steps.extra.picked == 'pick' && steps.kit.picked != 'near-future'"
+        options:
+          - { id: wasteland-bow, flags: { entry: 1 } }
+          - { id: wasteland-leathers, flags: { entry: 2 } }
+          - { id: wasteland-ammo, flags: { entry: 3 } }
+          - { id: wasteland-first-aid-kit, flags: { entry: 4 } }
+          - { id: wasteland-scrap, flags: { entry: 5 } }
+          - { id: wasteland-camping-kit, flags: { entry: 6 } }
+          - { id: wasteland-energy-cell, flags: { entry: 7 } }
+          - { id: wasteland-fine-clothes, flags: { entry: 8 } }
+          - { id: wasteland-lantern, flags: { entry: 9 } }
+          - { id: wasteland-scrap-mail, flags: { entry: 10 } }
+          - { id: wasteland-melee-weapon, flags: { entry: 11 } }
+          - { id: wasteland-keepsake, flags: { entry: 12 } }
+          - { id: wasteland-lighter, flags: { entry: 13 } }
+          - { id: wasteland-toolkit, flags: { entry: 14 } }
+          - { id: wasteland-salvaged-tech, flags: { entry: 15 } }
+          - { id: wasteland-rations, flags: { entry: 18 } }
+          - { id: wasteland-fiber-rope, flags: { entry: 19 } }
+          - { id: wasteland-shotgun, flags: { entry: 20 } }
+        recommend: "'wasteland-scrap-mail'"
       - id: picked
         kind: action
-        when: has(steps.entry)
+        when: has(steps.nearEntry) || has(steps.wastelandEntry)
         use: kit-entry
         params:
           table: steps.kit.picked
-          entry: steps.entry.value
+          entry: flags.entry
           random: params.random
       - {
           id: roll1,
