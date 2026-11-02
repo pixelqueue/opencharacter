@@ -12,7 +12,7 @@ prerequisites:
 effects:
   - target: { actions: [attack] }
     op: params
-    when: self.committed > 0 && has(action.item.ranged) && action.item.ranged
+    when: has(action.item.ranged) && action.item.ranged
     value:
       mob: { type: boolean, default: false }
   - target: { steps: [attack.boost] }

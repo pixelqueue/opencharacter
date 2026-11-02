@@ -141,6 +141,8 @@ contentTypes:
       # the artifact's copy as `self` and spend its Effort (`spent`, or the grant's `committed`
       # while it lasts), not the hero's.
       artifactEffort: { type: integer, default: 0, min: 0 }
+    # A gift held while active has its effects only while its Effort is committed.
+    effectsWhen: "item.commit != 'active' || self.committed > 0"
     actions:
       - use: invoke-gift
       - use: release-gift
