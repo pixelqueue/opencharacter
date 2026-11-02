@@ -6,3 +6,8 @@ effects:
   - target: combat.ranged.damage
     op: add
     value: max(0, skills.shoot.level)
+  # Thrown weapons too, but not with Armsmaster's bonuses: the better focus counts.
+  - target: combat.thrown.damage
+    op: add
+    value: max(0, skills.shoot.level)
+    stackKey: thrown-focus

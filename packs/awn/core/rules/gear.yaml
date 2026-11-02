@@ -31,27 +31,38 @@ contentTypes:
       attributeMod:
         type: integer
         formula: "size(item.attributes) == 0 ? 0 : maxList(item.attributes, fieldOf('attributes.{attribute}.mod', x))"
-      armed:
-        type: boolean
-        formula: "'stab' in item.skills || 'thrown' in item.tags"
+      # Melee: Stab or Punch weapons other than grenades; armed melee: Stab ones (Armsmaster).
       close:
         type: boolean
-        formula: "self.armed || 'punch' in item.skills"
-      # The total hit bonus: attack bonus, skill (-2 without even level-0), attribute, and the
-      # +1 of energy weapons.
-      hit:
+        formula: "('stab' in item.skills || 'punch' in item.skills) && !('grenade' in item.tags)"
+      armed:
+        type: boolean
+        formula: "self.close && 'stab' in item.skills"
+      # The hit bonus before the attack's kind: attack bonus, skill (-2 without even level-0),
+      # attribute, and the +1 of energy weapons.
+      baseHit:
         type: integer
         formula: >-
           combat.attackBonus + (self.skillLevel < 0 ? -2 : self.skillLevel) + self.attributeMod
-            + item.hitBonus + ('energy' in item.tags ? 1 : 0) + (self.close ? combat.melee.hit : 0)
-            + (self.armed ? combat.armed.hit : 0)
+            + item.hitBonus + ('energy' in item.tags ? 1 : 0)
+      # The total hit bonus of the weapon's usual attack: melee for a Stab or Punch weapon,
+      # thrown for a grenade, else ranged. `attack` throws a melee weapon that can be thrown with
+      # `baseHit` and `combat.thrown.hit`.
+      hit:
+        type: integer
+        formula: >-
+          self.baseHit + (self.close ? combat.melee.hit + (self.armed ? combat.armed.hit : 0)
+            : 'thrown' in item.tags ? combat.thrown.hit : 0)
       # Added to the damage die: the attribute, the Punch level for unarmed and Punch weapons.
+      baseDamage:
+        type: integer
+        formula: self.attributeMod + combat.damageBonus
       damage:
         type: integer
         formula: >-
-          self.attributeMod + ('punch' in item.skills ? max(0, skills.punch.level) : 0)
-            + combat.damageBonus + (self.close ? combat.melee.damage : combat.ranged.damage)
-            + (self.armed ? combat.armed.damage : 0)
+          self.baseDamage + (self.close ? ('punch' in item.skills ? max(0, skills.punch.level) : 0)
+            + combat.melee.damage + (self.armed ? combat.armed.damage : 0)
+            : 'thrown' in item.tags ? combat.thrown.damage : combat.ranged.damage)
       shockDamage:
         type: integer
         formula: >-
@@ -68,6 +79,29 @@ contentTypes:
         when: >-
           'laser' in item.tags && has(participants.target) && size(participants.target) > 0
             && participants.target[0].defense.laserSensitive
+      # Burst fire: a burst weapon's attack may fire three rounds for +2 to hit and damage. With
+      # fewer than three left it fires one for no bonus.
+      - target: { actions: [attack], from: self }
+        op: params
+        when: "'burst' in item.tags && has(item.magazine)"
+        value:
+          burst: { type: boolean, default: false }
+      # A melee weapon that can be thrown is thrown on request: a ranged attack, no Shock.
+      - target: { actions: [attack], from: self }
+        op: params
+        when: "'thrown' in item.tags && !('grenade' in item.tags)"
+        value:
+          thrown: { type: boolean, default: false }
+      - target: { steps: [attack.fire], from: self }
+        op: changes
+        value:
+          flags:
+            burst: 'has(params.burst) && params.burst && self.shots >= 3'
+            thrown: 'flags.thrown || (has(params.thrown) && params.thrown)'
+      - target: { rolls: [attack.ranged, damage], from: self }
+        op: add
+        value: 2
+        when: has(flags.burst) && flags.burst
     actions:
       - use: attack
 
@@ -155,19 +189,6 @@ constraints:
   - id: one-armor
     check: "countCopies(copy.type == 'armor' && copy.equipped && !('shield' in copy.tags)) <= 1"
 
-situational:
-  # Burst fire: three rounds for +2 to hit and damage. `attack` sets `flags.burst` only when the
-  # weapon can burst and has three rounds left; with fewer, it fires one for no bonus.
-  - id: burst
-    type: boolean
-    default: false
-    rolls: [attack.ranged, damage]
-    effects:
-      - target: { rolls: [attack.ranged, damage] }
-        op: add
-        value: 2
-        when: has(flags.burst) && flags.burst
-
 resultBands:
   attack:
     - {
@@ -179,7 +200,8 @@ resultBands:
 
 actions:
   # An attack with a weapon: a d20 plus the hit bonus against the target's AC (20 always hits,
-  # 1 always misses), damage on a hit, and Shock on a melee miss.
+  # 1 always misses), damage on a hit, and Shock on a melee miss. The weapon's `fire` step spends
+  # its rounds (three for a burst) and sets `flags.thrown` for a thrown attack.
   - id: attack
     tags: [attack]
     available: self.equipped || item.id == @weapons.unarmed
@@ -199,32 +221,39 @@ actions:
           - when: true
             flags:
               ac: 'has(params.targetAc) ? params.targetAc : 0'
-              burst: "situational.burst && 'burst' in item.tags && has(item.magazine) && self.shots >= 3"
+              burst: 'false'
+              thrown: "!self.close && 'thrown' in item.tags"
+      - id: fire
+        kind: changes
+        tags: [attack.fire]
+        changes:
+          - type: adjustState
+            when: has(item.magazine) && self.shots > 0
+            entry: self
+            key: shots
+            by: 'flags.burst ? -3 : -1'
       - id: roll
         kind: roll
-        tags: [attack, { formula: "self.close ? 'attack.melee' : 'attack.ranged'" }]
+        tags:
+          [attack, { formula: "self.close && !flags.thrown ? 'attack.melee' : 'attack.ranged'" }]
         bands: attack
         parts:
           - dice: 1d20
-          - value: self.hit
+          - value: 'flags.thrown ? self.baseHit + combat.thrown.hit : self.hit'
       - id: damage
         kind: roll
         tags: [damage]
         when: "has(item.damage) && (steps.roll.band == 'hit' || !has(params.targetAc))"
         parts:
           - dice: item.damage
-          - value: self.damage
-      - id: shots
-        kind: changes
-        when: has(item.magazine) && self.shots > 0
-        changes:
-          - { type: adjustState, entry: self, key: shots, by: 'flags.burst ? -3 : -1' }
+          - value: 'flags.thrown ? self.baseDamage + combat.thrown.damage : self.damage'
       - id: result
         kind: outcome
         result: "!has(params.targetAc) ? 'rolled' : steps.roll.band"
         data:
           attack: steps.roll.total
-          damage: 'has(steps.damage) ? max(steps.damage.total, self.shockDamage) : 0'
+          damage: >-
+            has(steps.damage) ? max(steps.damage.total, flags.thrown ? 0 : self.shockDamage) : 0
           shock: >-
-            !has(steps.damage) && self.shockDamage > 0
+            !has(steps.damage) && !flags.thrown && self.shockDamage > 0
               && (self.shockAnyAc || flags.ac <= item.shockAc) ? self.shockDamage : 0

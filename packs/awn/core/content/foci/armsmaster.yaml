@@ -17,3 +17,13 @@ effects:
     op: add
     value: 1
     when: self.level >= 2
+  # Thrown weapons too, but not with Deadeye's bonus: the better focus counts.
+  - target: combat.thrown.damage
+    op: add
+    value: max(0, skills.stab.level)
+    stackKey: thrown-focus
+  - target: combat.thrown.hit
+    op: add
+    value: 1
+    when: self.level >= 2
+    stackKey: thrown-focus

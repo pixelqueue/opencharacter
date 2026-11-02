@@ -82,7 +82,11 @@ const run = startAction(ruleset, blank, {
 - **Advancement:** experience on the fast or slow table, `level-up`, `improve-skill` and
   `improve-attribute` with the book's costs and minimum levels.
 - **Gear:** armor, ranged, melee, high-tech and portable heavy weapons, survival gear, drugs and
-  stims. Each weapon shows its hit bonus, damage bonus and Shock; `attack` rolls it.
+  stims. Each weapon shows its hit bonus, damage bonus and Shock; `attack` rolls it. Burst
+  weapons add a `burst` parameter to `attack` (three rounds for +2 to hit and damage), and melee
+  weapons that can be thrown a `thrown` one; other weapons offer neither.
+- **Armsmaster and Deadeye** both reach thrown attacks; there the better of the two counts, on
+  hit and damage together.
 - **Encumbrance:** Readied (equipped) and Stowed loads against Strength, small items bundled
   three to one when stowed, and the slower moves of pushing past the limits. A start that brings
   more than its Strength can haul stows Readied items, then leaves Stowed ones behind, heaviest
@@ -144,6 +148,7 @@ The near-future and wasteland d20 tables are the book's own tables.
   which is what rerolling until one fits gives.
 - **An edge's bonus skill after creation** (Mutant or another at 5th level) counts as three skill
   points, as a focus's does.
+- **Thrown attacks** are ranged attacks and deal no Shock, which is for melee.
 - **Stigma details:** the d12 column follows the nature (texture for size, amorphous and
   mineral changes).
 

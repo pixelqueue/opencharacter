@@ -10,19 +10,22 @@ fields:
   combat.attackBonus: { type: integer, formula: floor(level / 2) }
   # Added to every damage roll (Killing Blow).
   combat.damageBonus: { type: integer, formula: 0 }
-  # Melee and thrown attacks: hit and damage bonuses, Shock bonuses, and whether their Shock
-  # treats every target as AC 10.
+  # Melee attacks: hit and damage bonuses, Shock bonuses, and whether their Shock treats every
+  # target as AC 10.
   combat.melee.hit: { type: integer, formula: 0 }
   combat.melee.damage: { type: integer, formula: 0 }
   combat.melee.shock: { type: integer, formula: 0 }
   combat.melee.shockAnyAc: { type: boolean, formula: false }
-  # Armed melee and thrown attacks only, not unarmed ones (Armsmaster).
+  # Armed melee attacks only, not unarmed ones (Armsmaster).
   combat.armed.hit: { type: integer, formula: 0 }
   combat.armed.damage: { type: integer, formula: 0 }
   combat.armed.shock: { type: integer, formula: 0 }
   combat.armed.shockAnyAc: { type: boolean, formula: false }
   # Ranged attacks: damage bonus (Deadeye).
   combat.ranged.damage: { type: integer, formula: 0 }
+  # Thrown attacks: hit and damage bonuses (Armsmaster or Deadeye, the `thrown-focus` key).
+  combat.thrown.hit: { type: integer, formula: 0 }
+  combat.thrown.damage: { type: integer, formula: 0 }
   # The optional Traumatic Hit rules: a human's base trauma target is 6, worn armor adds its
   # modifier.
   combat.traumaTarget:
