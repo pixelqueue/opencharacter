@@ -192,6 +192,7 @@ A pack that depends on `mothership-1e` can add content of its types, and it join
 - **Classes:** creation offers every class of the ruleset: the guided start lists it, the random
   start draws over all of them (the book's d4 with the core four), and the class's own choices
   (its stat change, its skills) are asked as the core classes' are.
+- **Armor:** an added armor's effects count only while it is worn (the type's `effectsWhen`).
 - **Skills:** each class's skill picks are queries by tier, so an added skill is offered by tier.
   The Scientist's Expert and first Trained picks offer the skills whose `towardMaster` is set (on
   the way to some Master skill); an added Expert or Trained skill sets it when a Master skill
