@@ -106,6 +106,10 @@ sheet.values['swn-revised:saves.physical']?.value; // 15 less the better of Str 
   modeled where the sheet can show them (Ironhide's AC, Die Hard's hit points, Specialist's,
   Healer's, Hacker's and Sniper's dice, Armsman's and Gunslinger's damage, Unarmed Combatant's
   fists, Shocking Assault's Shock, Psychic Training's Effort, Wild Psychic Talent).
+  Specialist's and Healer's extra dice don't add up: the larger pool applies.
+- **Situational choices** the app offers on a roll: `hacking` on Program checks (Hacker),
+  `negotiation` on checks (Diplomat), `executionShot` on Shoot checks (Sniper), `telepathy` on
+  Mental saves (Neurointruder Alert), and `warriorLuck` on damage (above).
 - **Psionics:** the six disciplines, their core techniques (held while the skill is level-0 or
   better) and 63 techniques, each needing its skill level. Effort is 1 + the highest psychic
   skill + the better of Wisdom and Constitution modifiers (at least 1); `commit-effort` commits
@@ -146,8 +150,6 @@ sheet.values['swn-revised:saves.physical']?.value; // 15 less the better of Str 
 - **Equipment:** every armor, ranged, melee and heavy weapon, general equipment and
   pharmaceutical, and cyberware item of the free edition, with the equipment packages.
 
-Starships, vehicles, drones and gear mods are not modeled.
-
 ## Add-on packs
 
 A pack that depends on `swn-revised` can add content of its types, and creation offers it with the
@@ -174,7 +176,7 @@ with the core content alone):
   `spikes` added to `swn-revised:types.weapon.fields.ammo` is
   `types.weapon.fields.ammo.values.spikes.name: Spike magazine` (through `enumOrigins`).
 - **Tagged steps** take an add-on's rules-level `option` and `changes` effects: `attack.fire`
-  (an attack's first step, which sets `flags.burst`), `creation.kit`
+  (the attack's step before the roll, which sets `flags.burst`), `creation.kit`
   (the starting package pick: an added option replaces the package), `creation.focus` and
   `level-up.focus` (a focus pick at creation or on advancement: an added option is taken instead
   of a focus), `creation.finish` (the last changes of both creation actions, before creation
@@ -195,3 +197,13 @@ with the core content alone):
   and Psychic Training's discipline choices take it through `extendChoices`. The psychic classes
   grant each trained discipline's core technique (`core: true`, its `discipline` the key), so an
   added discipline's core technique comes with it.
+
+## Limitations
+
+- Starships, vehicles, drones and gear mods are not modeled.
+- Most psionic techniques change no number on the sheet: their use is the table's. Effort,
+  sustained techniques, Cursed Luck and Psychic Succor are modeled.
+- Foci whose benefits are narrative (Assassin, Authority, Connected, Savage Fray, Star Captain,
+  Starfarer, Tinker, Wanderer) give their bonus skill; the rest is text, as is Unique Gift.
+- Situational modifiers are the `modifier` parameters of `attack` and `saving-throw`, and the
+  difficulty of `skill-check`.
