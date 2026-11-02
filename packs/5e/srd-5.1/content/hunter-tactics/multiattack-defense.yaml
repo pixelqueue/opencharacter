@@ -17,7 +17,7 @@ effects:
 followUps:
   - id: hit
     on: { field: hp.current, tags: [attack], once: true }
-    when: change.from != '' && !(change.from in self.hitBy)
+    when: change.from != '' && change.from != character.id && !(change.from in self.hitBy)
     required: true
     changes:
       - { type: setState, pick: self, key: hitBy, value: 'self.hitBy + [change.from]' }

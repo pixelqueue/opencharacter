@@ -31,7 +31,7 @@ effects:
 followUps:
   - id: erupt
     on: { field: hp.current, tags: [melee], once: true }
-    when: change.from != ''
+    when: change.from != '' && change.from != character.id
     action: erupt
 actions:
   - use: cast-spell

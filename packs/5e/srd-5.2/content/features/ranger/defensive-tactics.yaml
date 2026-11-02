@@ -25,7 +25,7 @@ followUps:
   - id: multiattack-defense
     on: { field: hp.current, tags: [attack], once: true }
     when: >-
-      'multiattack-defense' in picksOf('option') && change.from != ''
+      'multiattack-defense' in picksOf('option') && change.from != '' && change.from != character.id
         && !(change.from in self.hitBy)
     required: true
     changes:
