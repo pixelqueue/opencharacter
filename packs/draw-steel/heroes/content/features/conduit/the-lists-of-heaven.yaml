@@ -3,10 +3,12 @@ type: feature
 fields:
   class: classes.conduit
   level: 2
-# Whenever the hero lets another creature spend a Recovery, they can spend one too: offered after
+# Whenever the hero lets another creature (not themself) spend a Recovery, they can spend one too: offered after
 # each ability that lets a creature spend a Recovery.
 effects:
   - target: { steps: [ability.after] }
     op: changes
-    when: "'recovery.granted' in action.item.tags && recoveries.current > 0"
+    when: >-
+      'recovery.granted' in action.item.tags && recoveries.current > 0
+        && countList(participants.target, x.id != character.id) > 0
     value: { changes: [{ type: offerFollowUp, followUp: spend-recovery }] }

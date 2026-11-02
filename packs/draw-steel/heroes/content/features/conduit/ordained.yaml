@@ -11,4 +11,8 @@ effects:
   - { target: potency.resistBonus.intuition, op: add, value: 1 }
   - { target: potency.resistBonus.presence, op: add, value: 1 }
   # While the hero has 5 or more Victories: a double edge on Presence tests to influence others.
-  - { target: { rolls: [test.presence], tally: edges }, op: add, value: 2, when: victories >= 5 }
+  # ("to influence other creatures": a test with an interpersonal skill)
+  - target: { rolls: [test.presence], tally: edges }
+    op: add
+    value: 2
+    when: "victories >= 5 && has(params.skill) && itemField(params.skill, 'group') == 'interpersonal'"

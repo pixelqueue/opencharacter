@@ -5,7 +5,11 @@ fields:
   level: 6
 effects:
   # An edge on Presence tests made to interact with other creatures.
-  - { target: { rolls: [test.presence], tally: edges }, op: add, value: 1 }
+  # ("to interact with other creatures": a test with an interpersonal skill)
+  - target: { rolls: [test.presence], tally: edges }
+    op: add
+    value: 1
+    when: "has(params.skill) && itemField(params.skill, 'group') == 'interpersonal'"
   # Dealing damage to an enemy: the hero can spend a Recovery.
   - target: { steps: [ability.after] }
     op: changes

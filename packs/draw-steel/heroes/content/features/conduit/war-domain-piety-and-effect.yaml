@@ -3,7 +3,20 @@ type: feature
 fields:
   class: classes.conduit
   level: 1
+# Damage the hero takes this turn (anyone's turn); the piety comes when it exceeds 10 + level.
+state:
+  taken: { type: integer, default: 0, min: 0 }
 effects:
+  - target: { incoming: { fields: [stamina.current], tags: [damage] } }
+    op: add
+    value: 0
+    when: incoming.amount < 0 && combat.active
+    then:
+      - { type: adjustState, entry: self, key: taken, by: -incoming.amount }
+  - target: { steps: [turn.boundary] }
+    op: changes
+    when: self.taken > 0
+    value: { changes: [{ type: setState, entry: self, key: taken, value: 0 }] }
   - {
       target: conduit.domainEffects,
       op: grant,
@@ -12,8 +25,7 @@ effects:
 followUps:
   # The hero's own event that grants the domain's piety (others' are the player's to run).
   - id: piety
-    on: { field: stamina.current, tags: [damage], once: true }
-    when: "combat.active && heroic.kind == 'piety' && !(item.id in conduit.domainPietyUsed) && -change.taken > 10 + level"
+    becomes: "combat.active && heroic.kind == 'piety' && !(item.id in conduit.domainPietyUsed) && self.taken > 10 + level"
     action: piety
 actions:
   # The domain's piety: the first time in an encounter its event happens.
