@@ -1,3 +1,15 @@
 id: heritages.chosen-pahtra
 type: heritage
 fields: { ancestry: ancestries.pahtra }
+state:
+  used: { type: boolean, default: false }
+# The first critically failed save each day is rerolled on the check's `check.reroll` step; the new
+# result stands. Daily preparations reset `used`.
+effects:
+  - target: { choices: [check.reroll] }
+    op: option
+    when: "!self.used && 'save' in params.check.tags && steps.roll.band == 'critical-failure'"
+    value:
+      id: chosen-pahtra
+      flags: { reroll: 1 }
+      changes: [{ type: setState, pick: owner, key: used, value: true }]

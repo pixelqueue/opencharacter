@@ -1,7 +1,8 @@
 id: spells.protective-wards
 type: spell
 tags: [trait.uncommon, trait.aura, trait.focus, trait.manipulate, trait.wizard]
-# Pass yourself as an ally too.
+# Cast on yourself: each cast projects its emanation, which the app places on allies inside.
+# Sustaining the spell to widen it is `widen`, once a turn.
 fields:
   rank: 1
   cast: one
@@ -9,7 +10,10 @@ fields:
   areaSize: 5
   duration: sustained
   sustained: true
-  applyTo: ally
+  applyTo: self
+state:
+  widened: { type: integer, default: 0, min: 0, max: 5 }
+  sustained: { type: boolean, default: false }
 effects:
   - {
       target: { fields: { where: "'ac' in item.tags" } },
@@ -18,3 +22,40 @@ effects:
       stackKey: status-bonus,
       scope: applied,
     }
+  # Sustaining is once a turn: the caster's next turn clears it.
+  - target: { steps: [turn.start] }
+    op: changes
+    when: self.sustained
+    scope: applied
+    value:
+      changes:
+        - type: setState
+          applied: { where: 'item.id == @spells.protective-wards && self.sustained' }
+          key: sustained
+          value: false
+auras:
+  - id: wards
+    scope: applied
+    # Only the caster's own cast (an entry it applied itself) projects it.
+    when: self.appliedBy == character.id
+    size: item.areaSize + 5 * self.widened
+    affects: allies
+    effects:
+      - {
+          target: { fields: { where: "'ac' in item.tags" } },
+          op: add,
+          value: 1,
+          stackKey: status-bonus,
+          scope: applied,
+        }
+actions:
+  - id: widen
+    tags: [trait.concentrate]
+    scope: applied
+    available: self.appliedBy == character.id && !self.sustained && self.widened < 5
+    steps:
+      - id: widen
+        kind: changes
+        changes:
+          - { type: adjustState, entry: self, key: widened, by: 1 }
+          - { type: setState, entry: self, key: sustained, value: true }

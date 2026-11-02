@@ -1,0 +1,15 @@
+description: 'orc-2e: a halfling with no Hero Points fails a Fortitude save; Halfling Luck rerolls it (once a day, its pick marked used) and the new result stands'
+specVersion: 0.3.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/orc/2e
+input:
+  action:
+    id: orc-2e:check
+  params:
+    check: orc-2e:saves.fortitude.mod
+    dc: 18
+  policy:
+    choices: pause
+answers:
+  - option: orc-2e:feats.ancestry.halfling-luck#halfling-luck

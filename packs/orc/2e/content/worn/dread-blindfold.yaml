@@ -10,17 +10,11 @@ fields:
 grants:
   - { item: spells.vision-of-death, when: 'self.equipped && self.invested' }
 effects:
-  - {
-      target: senses,
-      op: grant,
-      value: { tag: sense.darkvision },
-      when: 'self.equipped && self.invested',
-    }
+  - { target: senses, op: grant, value: { tag: sense.darkvision } }
   - target: skills.intimidation.mod
     op: add
     value: 3
     stackKey: item-bonus
-    when: 'self.equipped && self.invested'
   - target: { choices: [spell-cost] }
     op: option
     when: 'action.self.id == self.id && action.item.id == @spells.vision-of-death'

@@ -1,0 +1,15 @@
+description: 'orc-sf-2e: a lashunta mystic with no Hero Points fails a Will save; Center Thoughts rerolls it (once a day, its pick marked used) and the better result, the first, stands'
+specVersion: 0.3.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/orc/sf-2e
+input:
+  action:
+    id: orc-sf-2e:check
+  params:
+    check: orc-sf-2e:saves.will.mod
+    dc: 27
+  policy:
+    choices: pause
+answers:
+  - option: orc-sf-2e:feats.ancestry.center-thoughts#center-thoughts

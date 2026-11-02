@@ -57,6 +57,7 @@ situational:
         when: situational.misfortune
   - { id: againstFear, type: boolean, default: false, rolls: [save] }
   - { id: againstEmotion, type: boolean, default: false, rolls: [save] }
+  - { id: againstFascinatedOrConfused, type: boolean, default: false, rolls: [save] }
   - id: penalty
     type: integer
     default: 0
@@ -128,7 +129,7 @@ actions:
         kind: branch
         cases:
           - when: true
-            flags: { dc: 'has(params.dc) ? params.dc : -1' }
+            flags: { dc: 'has(params.dc) ? params.dc : -1', reroll: 0, second: false }
       - id: roll
         kind: roll
         tags: [d20, { formula: params.check.tags }]
@@ -136,16 +137,46 @@ actions:
         parts:
           - dice: 1d20
           - field: params.check.id
+      # A failed check may be rerolled by what content and the rules offer on `check.reroll` (a
+      # Hero Point, a fortune feat): an option's `reroll` flag is 1 when the second result stands, 2
+      # when the better one does. Declining is recommended.
+      - id: reroll
+        kind: choice
+        tags: [check.reroll]
+        when: "steps.roll.band in ['failure', 'critical-failure']"
+        options: []
+        repeat: { max: 1 }
+        recommend: "'#done'"
+      - id: rerolled
+        kind: roll
+        when: flags.reroll > 0
+        tags: [d20, { formula: params.check.tags }]
+        bands: degree
+        parts:
+          - dice: 1d20
+          - field: params.check.id
+      - id: stands
+        kind: branch
+        when: has(steps.rerolled)
+        cases:
+          # The better result: the better degree, or on the same degree the higher total.
+          - when: >-
+              flags.reroll == 1 || indexOf(['critical-failure', 'failure', 'success',
+                'critical-success'], steps.rerolled.band) > indexOf(['critical-failure', 'failure',
+                'success', 'critical-success'], steps.roll.band)
+                || (steps.rerolled.band == steps.roll.band
+                  && steps.rerolled.total > steps.roll.total)
+            flags: { second: true }
       - id: after
         kind: changes
         tags: [check.after]
       - id: result
         kind: outcome
-        result: steps.roll.band
+        result: 'flags.second ? steps.rerolled.band : steps.roll.band'
         data:
-          total: steps.roll.total
+          total: 'flags.second ? steps.rerolled.total : steps.roll.total'
           dc: flags.dc
-          natural: steps.roll.kept[0]
+          natural: 'flags.second ? steps.rerolled.kept[0] : steps.roll.kept[0]'
 
   - id: flat-check
     tags: [flat-check]

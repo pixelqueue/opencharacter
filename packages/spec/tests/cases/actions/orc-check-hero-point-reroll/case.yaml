@@ -1,0 +1,15 @@
+description: 'orc-2e: an Athletics check (+7) against DC 15 fails (5 + 7 = 12); the character spends a Hero Point to reroll, and the second result stands: 14 + 7 = 21, a success'
+specVersion: 0.3.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/orc/2e
+input:
+  action:
+    id: orc-2e:check
+  params:
+    check: orc-2e:skills.athletics.mod
+    dc: 15
+  policy:
+    choices: pause
+answers:
+  - option: orc-2e:rules#hero-point

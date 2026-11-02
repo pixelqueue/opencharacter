@@ -5,3 +5,15 @@ fields: { level: 1, category: ancestry, ancestry: ancestries.halfling }
 prerequisites:
   - id: not-jinxed
     when: '!(@heritages.jinxed-halfling in heritages.held)'
+state:
+  used: { type: boolean, default: false }
+# Once a day, a failed skill check or save is rerolled on the check's `check.reroll` step; the new
+# result stands. Daily preparations reset `used`.
+effects:
+  - target: { choices: [check.reroll] }
+    op: option
+    when: "!self.used && ('skill' in params.check.tags || 'save' in params.check.tags)"
+    value:
+      id: halfling-luck
+      flags: { reroll: 1 }
+      changes: [{ type: setState, pick: owner, key: used, value: true }]

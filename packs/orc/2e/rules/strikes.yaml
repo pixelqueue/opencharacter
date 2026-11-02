@@ -409,7 +409,7 @@ actions:
             field: hp.current
             split: { roll: damage, by: damage }
             by: -max(0, part.total)
-            tags: [damage]
+            tags: [damage, { formula: "flags.crit ? ['damage.critical'] : []" }]
       - id: onHit
         kind: changes
         when: has(flags.hit) && flags.hit

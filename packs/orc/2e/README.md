@@ -427,7 +427,10 @@ Still closed: attributes, proficiency ranks, saves, spell traditions (and a staf
     Furious Footfalls, Juggernaut and Indomitable Will are effects. Feats: 31 of levels 1 to 6
     (Sudden Charge and Intimidating Strike are the fighter's, Reactive Strike grants the fighter's
     feature); Furious Finish, Barreling Charge, Cleave, Mage Hunter, Shake It Off, Inner Strength and
-    Wounded Rage are actions.
+    Wounded Rage are actions. Scars of Steel is a reaction the player selects on a critical hit
+    (`scarsOfSteel`, once per attack: its resistance is spent over the attack's physical damage),
+    paid from a once-a-day field that daily preparations reset; Spiritual Guides is a reroll
+    option after a failed check.
 - **Stances, panache, stratagems and parries** are `effect` content, as Raging is: an
   action applies them to the character itself, and the app ends them when their duration does. Entering a stance removes every applied stance first, so one is applied at most; a
   stance's unarmed attacks are its standard copies, so they exist while it's applied (an unarmed
@@ -719,7 +722,14 @@ Still closed: attributes, proficiency ranks, saves, spell traditions (and a staf
   stages is one stage, its effect text unless it
   is a condition (curse of slumber, reviling earth); up to 7 stages. GM Core's 7 item curses are
   templates, one per curse whatever the kind of item (`content/item-curses`), bloodbiter's bleed with mechanics.
-- **Hero Points**: an input, 1 to start, at most 3; spending them is the app's.
+- **Hero Points**: an input, 1 to start, at most 3. A failed check (`check`, so skill actions,
+  Perception and saves) offers a Hero Point reroll after the roll (`check.reroll`, declining
+  recommended); the second result stands. The book allows a reroll after any result; the pack
+  offers it only after a failure or critical failure, where a reroll can help. Halfling Luck,
+  Cat's Luck (the better result stands: the better degree, or the higher total on the same one)
+  and Spiritual Guides offer their once-a-day rerolls there too, marking the feat used until
+  daily preparations. Rerolling a Strike or spell attack, the other fortune rerolls and spending
+  Hero Points to avoid dying are the app's.
 - **Creation**: a guided start, `standard`, and a random one,
   `random`. Guided: an ancestry and its heritage, a background and a class, then what each brings in the book's order: the ancestry's
   boosts and the heritage's choices, the background's boosts (and a scholar's skill), the four
@@ -764,7 +774,14 @@ Still closed: attributes, proficiency ranks, saves, spell traditions (and a staf
   which sets the cast's damage type at its `spell.chosen` step; elemental toss and elemental blast take the elemental influence's type there, and
   dragon breath and flurry of claws the draconic exemplar's tradition's (force, spirit, mental or
   fire), unless the cast names one. Inner upheaval's and qi form's type is chosen once, as the
-  spell is cast, though the book lets inner upheaval choose it each Strike.
+  spell is cast, though the book lets inner upheaval choose it each Strike. Bless, protective
+  wards and protector's sphere are cast on the caster, whose entry projects the emanation as an
+  applied aura (`auras`, one per cast) for the app to place on allies inside; Sustaining bless or
+  protective wards to widen it is the spell's `widen` action, and the sphere's resistance by rank
+  reaches allies through the caster's `spells.sphereResistance`. Only an entry the caster applied
+  itself projects the aura, and `widen` is once a turn (the caster's next turn clears it). Bane
+  stays a target's entry: its penalty needs each enemy's failed save, which an aura's entry can't
+  carry.
 - **Spells:** the 41 Player Core cantrips (with the bard's compositions and the witch's hexes)
   and every 1st-, 2nd- and 3rd-rank spell (58, 55, 34), text in `i18n/en/spells.yaml`; the
   casters' 1st-rank focus spells (7 school, 37 domain, 10 bloodline and 5 order spells), text in
@@ -813,7 +830,7 @@ Still closed: attributes, proficiency ranks, saves, spell traditions (and a staf
 | Area                  | Built                                                                                                                                                                                            | Not modeled                                                             |
 | --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------- |
 | Core math             | Attributes, proficiency, skills, saves, Perception, AC, class DC, HP; the highest resistance and weakness; damage immunities                                                                     | —                                                                       |
-| Checks                | Degrees of success, flat checks, fortune and misfortune, typed bonuses, 55 skill actions, Hero Points                                                                                            | Spending Hero Points (the app's)                                        |
+| Checks                | Degrees of success, flat checks, fortune and misfortune, typed bonuses, 55 skill actions, Hero Points                                                                                            | Hero Point rerolls of attacks, and to avoid dying (the app's)           |
 | Strikes               | MAP, every weapon trait, runes, criticals, flat checks, damage                                                                                                                                   | Critical specialization, reload, critical hits that need a save         |
 | Conditions            | All Player Core conditions, dying and recovery, turns                                                                                                                                            | Attitudes, detection states as observer-relative                        |
 | Ancestries            | 16 ancestries, 106 heritages (7 versatile), 313 ancestry feats (1st to 17th), 90 versatile heritage feats                                                                                        | —                                                                       |

@@ -8,6 +8,7 @@ tags:
   - trait.mental
   - trait.mystic
   - trait.uncommon
+# Pass the bonded creatures in the area as allies (yourself too, when bonded).
 fields:
   rank: 1
   cast: one
@@ -16,3 +17,16 @@ fields:
   sustained: true
   duration: minutes
   durationAmount: 1
+  applyTo: ally
+effects:
+  - target: { fields: { where: "'attack' in item.tags || 'damage' in item.tags" } }
+    op: add
+    value: 1
+    stackKey: status-bonus
+    scope: applied
+  - target: { rolls: [save] }
+    op: add
+    value: 1
+    stackKey: status-bonus
+    when: situational.againstFascinatedOrConfused
+    scope: applied

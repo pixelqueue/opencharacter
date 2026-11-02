@@ -198,6 +198,8 @@ fields:
   focus.spent: { type: integer, input: true, default: 0, min: 0, max: focus.points }
   focus.refocusAll: { type: boolean, formula: false }
 
+  # The resistance of the protector's sphere the character casts, which its aura's allies read.
+  spells.sphereResistance: { type: integer, formula: 0, min: 0 }
   spells.innate: { type: set, of: spell }
   spells.book: { type: set, of: spell }
   spells.access: { type: set, of: spell }
@@ -1177,6 +1179,10 @@ actions:
             field: { formula: "'spellSlots.rank' + string(x) + '.used'" }
             value: 0
           - { type: set, when: focus.spent > 0, field: focus.spent, value: 0 }
+          - type: set
+            when: barbarian.scarsOfSteelUsed
+            field: barbarian.scarsOfSteelUsed
+            value: false
           - { type: setState, picks: { where: self.used }, key: used, value: false }
           - type: setState
             picks: { where: has(self.fanUses) && self.fanUses > 0 }
@@ -1987,6 +1993,7 @@ display:
     spells.granted.cantrips: { hidden: true }
     'spells.granted.rank{rank}': { hidden: true }
     spellcasting.fromBook: { hidden: true }
+    spells.sphereResistance: { hidden: true }
     spells.innate: { hidden: true }
     spells.byOption: { hidden: true }
     spells.book: { hidden: true }

@@ -1,0 +1,34 @@
+# A 1st-level lashunta witchwarper of the precog paradox, her quantum field active. Her other
+# class picks are left open.
+specVersion: 0.3.0
+id: test-orc-sf-witchwarper
+packs:
+  - { id: orc-sf-2e, version: 0.3.0 }
+values:
+  orc-sf-2e:hp.current: 15
+  orc-sf-2e:quantum.active: true
+features:
+  - id: ancestry
+    item: orc-sf-2e:ancestries.lashunta
+    choices:
+      heritage:
+        - option: orc-sf-2e:heritages.unbound-lashunta
+      boosts:
+        - option: standard
+          choices:
+            free:
+              - option: orc-sf-2e:boosts.cha
+  - id: background
+    item: orc-sf-2e:backgrounds.street-rat
+    choices:
+      boost:
+        - option: orc-sf-2e:boosts.cha
+      free-boost:
+        - option: orc-sf-2e:boosts.con
+  - id: class
+    item: orc-sf-2e:classes.witchwarper
+    choices:
+      key-attribute:
+        - option: cha
+      paradox:
+        - option: orc-sf-2e:classes.witchwarper.paradoxes.precog

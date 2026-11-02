@@ -10,18 +10,8 @@ fields:
 grants:
   - { item: spells.augury, when: 'self.equipped && self.invested' }
 effects:
-  - {
-      target: attributes.wis.mod,
-      op: add,
-      value: 1,
-      when: 'self.equipped && self.invested && self.apex',
-    }
-  - {
-      target: attributes.wis.mod,
-      op: atLeast,
-      value: 4,
-      when: 'self.equipped && self.invested && self.apex',
-    }
+  - { target: attributes.wis.mod, op: add, value: 1, when: 'self.apex' }
+  - { target: attributes.wis.mod, op: atLeast, value: 4, when: 'self.apex' }
   - target: { choices: [spell-cost] }
     op: option
     when: 'action.self.id == self.id && action.item.id == @spells.augury && self.used < 1'

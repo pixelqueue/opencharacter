@@ -11,16 +11,10 @@ effects:
     op: add
     value: 2
     stackKey: item-bonus
-    when: 'self.equipped && self.invested'
 choices:
   - id: languages
     pick: 3
     from: { type: language }
     activate: false
     effects:
-      - {
-          target: languages,
-          op: grant,
-          value: { formula: pick.id },
-          when: 'self.equipped && self.invested',
-        }
+      - { target: languages, op: grant, value: { formula: pick.id } }

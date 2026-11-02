@@ -1,6 +1,18 @@
 fields:
   heroPoints: { type: integer, input: true, default: 1, min: 0, max: 3 }
 
+# Spending a Hero Point to reroll a failed check: an option on the check's `check.reroll` step,
+# paid when picked. Spending them all to avoid death is the app's.
+effects:
+  - id: hero-point-reroll
+    target: { choices: [check.reroll] }
+    op: option
+    when: heroPoints > 0
+    value:
+      id: hero-point
+      flags: { reroll: 1 }
+      changes: [{ type: adjust, field: heroPoints, by: -1 }]
+
 display:
   fields:
     heroPoints: { groups: [summary], priority: 2 }

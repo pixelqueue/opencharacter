@@ -1,0 +1,9 @@
+status: finished
+proposedChanges:
+  - to: self
+    step: widen
+    change: { type: adjustState, entry: bless, key: widened, by: 1 }
+  # Once a turn: the caster's next turn clears it.
+  - to: self
+    step: widen
+    change: { type: setState, entry: bless, key: sustained, value: true }

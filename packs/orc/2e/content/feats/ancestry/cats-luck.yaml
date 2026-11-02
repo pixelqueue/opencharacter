@@ -2,3 +2,15 @@ id: feats.ancestry.cats-luck
 type: feat
 tags: [trait.fortune]
 fields: { level: 1, category: ancestry, ancestry: ancestries.catfolk }
+state:
+  used: { type: boolean, default: false }
+# Once a day, a failed Reflex save is rerolled on the check's `check.reroll` step; the better result
+# stands. Daily preparations reset `used`.
+effects:
+  - target: { choices: [check.reroll] }
+    op: option
+    when: "!self.used && 'save.reflex' in params.check.tags"
+    value:
+      id: cats-luck
+      flags: { reroll: 2 }
+      changes: [{ type: setState, pick: owner, key: used, value: true }]

@@ -1,4 +1,5 @@
-# Pass yourself as an ally too.
+# Cast on yourself: each cast projects its emanation, which the app places on allies inside. The
+# cast's resistance (by its rank) reaches them through the caster's `spells.sphereResistance`.
 id: spells.protectors-sphere
 type: spell
 tags: [trait.aura, trait.cleric, trait.concentrate, trait.focus, trait.manipulate, trait.uncommon]
@@ -10,7 +11,7 @@ fields:
   duration: minutes
   durationAmount: 1
   sustained: true
-  applyTo: ally
+  applyTo: self
 effects:
   - target:
       incoming:
@@ -21,3 +22,23 @@ effects:
     value: min(-incoming.amount, 3 + (self.rank - 4))
     when: incoming.amount < 0
     scope: applied
+  - { target: spells.sphereResistance, op: atLeast, value: 3 + (self.rank - 4), scope: applied }
+auras:
+  - id: sphere
+    scope: applied
+    # Only the caster's own cast (an entry it applied itself) projects it.
+    when: self.appliedBy == character.id
+    size: item.areaSize
+    affects: allies
+    fields:
+      spells.sphereResistance: { type: integer, default: 3 }
+    effects:
+      - target:
+          incoming:
+            fields: [hp.current]
+            tags: [damage]
+        op: add
+        stackKey: resistance
+        value: min(-incoming.amount, applier.spells.sphereResistance)
+        when: incoming.amount < 0
+        scope: applied

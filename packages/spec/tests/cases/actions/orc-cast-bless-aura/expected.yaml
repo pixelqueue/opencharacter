@@ -1,0 +1,23 @@
+status: finished
+outcome:
+  result: cast
+  data:
+    rank: 1
+    mode: prepared
+    dc: 17
+    defense: ''
+    basic: false
+    damage: 0
+    healing: 0
+# No ally participants: the cast goes on the caster, whose entry projects the aura.
+proposedChanges:
+  - to: self
+    step: spend
+    change: { type: setState, entry: bless-1, key: expended, value: true }
+  - to: self
+    step: self
+    change:
+      type: applyEffect
+      source: orc-2e:spells.bless
+      appliedBy: example-orc-oriel
+      state: { rank: 1, damageType: force, copy: '', form: '' }
