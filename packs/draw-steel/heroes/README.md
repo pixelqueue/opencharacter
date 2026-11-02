@@ -93,11 +93,16 @@ computeSheet(ruleset, made.character).values['draw-steel-heroes:stamina.max']?.v
   Paragon pull and Exorcist teleport, King's Roar) or replaces a condition ("instead": It Is
   Justice You Fear). Choices made on each use are parameters: the psi boosts and taking the
   strain on any psionic ability (psi boosts are an extra cost paid with the use and counted by
-  strain; taking the strain outside combat costs 1d6), Hurl Element's and Dragon Breath's damage
-  type, Healing Grace's Spend enhancements (`graceRecoveries`, `graceStand`). Abilities with
+  strain; taking the strain outside combat costs 1d6), the damage type of Hurl Element, Dragon
+  Breath and Smolder (it types the ability's own damage, so the card shows the real numbers),
+  Healing Grace's Spend enhancements (`graceRecoveries`, `graceStand`, `graceEnd`, which must fit
+  in the Spend). An `ally` participant is the ally a triggered ability answers or an ability
+  helps: No Dying on My Watch frightens the target of that ally and lets them spend a Recovery,
+  Inspiring Strike lets them spend one. Abilities with
   rules beyond the tier table (Strained, with its rolled damage, persistent abilities, Judgment,
   Mark, routines, edicts, prayers, summons' numbers) add them on tagged steps or their own
-  actions. The uses are grouped by main action, maneuver and triggered action.
+  actions. The uses are grouped by main action, maneuver and triggered action; a hero who can't
+  use triggered actions (dazed, slowed by an Entropy Ward, Smolder's strain) has none offered.
 - **Ability cards:** each tier's text names this hero's damage (characteristic and kit included),
   potency and distance, from the ability's computed values, and the book's wording without a
   hero. Range bonuses (Omnisensory, Remote Amplification, Prayer of Distance, the Elementalist's
@@ -108,9 +113,19 @@ computeSheet(ruleset, made.character).values['draw-steel-heroes:stamina.max']?.v
   Discipline Mastery tables, 10th-level epic resources, and the Censor's use of the Conduit's
   domains: the Censor's domain grants the Conduit's domain features as the hero levels, and their
   text and numbers read the holder's class (Presence and My Life for Yours for a Censor,
-  Intuition and Healing Grace for a Conduit). Talent wards: Repulsive Ward offers its push and
-  Vanishing Ward makes the hero invisible until the end of their next turn. Persistent Magic counts the damage taken in one
-  turn (anyone's) until the turn changes, and 5 × Reason ends the maintained abilities.
+  Intuition and Healing Grace for a Conduit). The Censor gains wrath when the creature they
+  judged damages them (the damage names its dealer). Talent wards: Repulsive Ward offers its push,
+  Vanishing Ward makes the hero invisible until the end of their next turn, and Entropy Ward
+  slows whoever damaged the hero (a follow-up the app runs on that creature's sheet: speed down by
+  the talent's Reason and no triggered actions until the end of its next turn). Persistent Magic
+  counts the damage taken in one turn (anyone's) until the turn changes, and 5 × Reason ends the
+  maintained abilities.
+- **Reactions that reduce damage** are situational choices on the incoming damage, selected on
+  the attack's first change and reaching the whole attack: Unearthly Reflexes, Defensive Roll, In
+  All This Confusion, Draconian Guard, Resist the Unnatural, and the null's Inertial Shield,
+  Inertial Absorption and Synaptic Anchor, whose discipline (and Inertial Absorption's surges) the
+  choice pays. Elemental Buffer's surges come when immunity reduces elemental damage, Inertial
+  Shield's Elemental Absorption included.
 - **Stamina:** maximum from class, level and kit; winded, dying (and bleeding, unless a trait says
   otherwise) and dead; temporary Stamina (the greater kept); Recoveries, including Recoveries other
   heroes' abilities grant; damage immunity (by type, all damage, or "immunity all" to a type),
@@ -127,16 +142,25 @@ computeSheet(ruleset, made.character).values['draw-steel-heroes:stamina.max']?.v
 - **Marks:** the Tactician's marks are entries the tactician applied; a new Mark ends the earlier
   ones wherever they are, and dying ends them all. Any hero's power roll against a marked target
   has an edge (whether the hero is within the tactician's line of effect is the table's), and the
-  tactician's own rolls find its marks among the targets (Warmaster, focus).
-- **The Null Field:** an aura on the enemies inside: their potencies drop by 1 (once, however many
-  nulls), and Synaptic Break raises potencies used against them.
+  tactician's own rolls find its marks among the targets (Warmaster, focus). An ally damaging a
+  creature the tactician marked offers its focus, for an app that routes other characters'
+  events (`observes`); without it, `mark-damaged` is an action the table runs.
+- **Auras:** the Null Field on the enemies inside: their potencies drop by 1 (once, however many
+  nulls), and Synaptic Break raises potencies used against them. Auras an ability casts are the
+  ability applied to its user, one aura per cast: Blessing of Steel (damage immunity 5 and a bane
+  on ability rolls against you and your allies inside), Blessing of the Midday Sun (a bane on
+  enemies' power rolls), Blessing of Secrets (a double edge to hide and sneak) and Swarm of
+  Spirits (allies resist potencies as if 1 higher, +1 on saving throws).
 - **Hero tokens:** a party sheet (the `party` creation start) holds the pool; heroes link it and
   spend from it (surges, a failed saving throw, a test reroll, Stamina).
 - **Kits:** the 21 kits and the 4 stormwight kits (with their animal forms' sizes); with two kits
   (Field Arsenal) one bonus of each kind counts, one kit's damage bonus across all three tiers.
 - **Ancestries, culture, careers, perks, complications, titles, treasures:** every trait, aspect,
   career, perk, complication, title and treasure (100), with its numbers and choices. Armor and
-  weapon treasures need a kit with a matching keyword (or Prayer of Soldier's Skill). A career's
+  weapon treasures need a kit with a matching keyword (or Prayer of Soldier's Skill), abilities
+  they grant (King's Roar, Kuran'zoi Prismscale) included. Brawny and Lucky Dog are offered after
+  a failed test they apply to: the hero loses 1d6 + level Stamina and the test improves one tier.
+  Eidetic Memory's lore skill is picked anew at each respite. A career's
   inciting incident is a choice of the book's six, each with its text. A treasure a complication
   hands you (Secret Twin, Cursed Weapon, …) is picked at creation and held as your own copy;
   Dragon Dreams' traits work from 5 Victories; Following in the Footsteps keeps a template on the
@@ -150,9 +174,10 @@ no way to say them (each is a gap the project tracks):
 
 - **Effects on other creatures' sheets:** areas and the auras whose effects need positions or
   turns (Judgment's and Mark's benefits to allies, edicts on enemies, the Null Field's Inertial
-  Anchor and Gravitic Disruption), and anything triggered by another creature's turn or roll
-  (most Troubadour drama events, an ally damaging a creature you marked, an ally's heroic
-  ability: the Tactician's `mark-damaged` and `ally-heroic`).
+  Anchor and Gravitic Disruption, the surges and Recoveries auras hand out at turns), and anything
+  triggered by another creature's turn or roll (most Troubadour drama events, an ally's heroic
+  ability: the Tactician's `ally-heroic`). Synaptic Anchor's daze is its ability's use against
+  the creature.
 - **The Director's Malice** is the Director's; the null's discipline from it is an action the
   app runs.
 - **Positions:** areas, line of effect, cover, squares moved; forced movement is a number in the
@@ -161,21 +186,11 @@ no way to say them (each is a gap the project tracks):
   (area size, extra targets).
 - **Extended Power on abilities without a power roll** (that boost rides on the roll), and
   distances that grow with level (King's Roar).
-- **Talent:** Entropy Ward (it acts on the attacker's sheet) and Smolder's strained "can't use
-  triggered actions".
-- **Healing Grace:** ending an effect, and checking that the enhancements add up to the Spend.
-- **No Dying on My Watch** records the target as frightened of the tactician, not of the ally who
-  triggered it; **Inspiring Strike** offers only your own Recovery (the ally's, and the tier 3
-  edges, are the table's).
-- **Abilities a treasure grants** (King's Roar, Kuran'zoi Prismscale) aren't gated on the kit's
-  keywords, since a grant can't read picks.
+- **Healing Grace's extra targets** count toward the Spend the player gives; Inspiring Strike's
+  tier 3 edges are the table's.
 - **Ancestries:** the revenant's fall prone and 12-hour recovery, and a doomed hakaan's death at
   the encounter's end.
-- **Eidetic Memory's** reset at each respite (the skill stays until re-picked), and **Knife of
-  Nine's** growing bonus (+1 a hit on the same target, at most 3).
-- **Typed damage on the card** of Hurl Element and Dragon Breath: their tier fields hold 0 and the
-  damage comes from an effect tagged with the chosen type, since a roll effect can't retag the
-  ability's own damage.
+- **Knife of Nine's** growing bonus (+1 a hit on the same target, at most 3).
 
 ## Rule readings
 
