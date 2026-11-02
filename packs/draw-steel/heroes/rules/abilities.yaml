@@ -83,6 +83,9 @@ contentTypes:
       # A non-condition effect the target gets instead of a condition, behind the same potency
       # and with the same duration ("R < WEAK, damage weakness 5 (save ends)").
       't{tier}Effect': { type: id, of: effect }
+      # The conditions it imposes are the triggering ally's (the `ally` participant): "frightened
+      # of the triggering ally".
+      allyImposes: { type: boolean, default: false }
     # What this hero's card shows: the characteristic rolled (the best of `rollChars`), each
     # tier's damage with it and the kit's bonus, each tier's potency, and the distance with the
     # kit's. `use-ability` reads the same values. Melee for an ability that can be either.
@@ -271,6 +274,8 @@ actions:
       downgrade: { type: boolean, default: false }
     participants:
       target: { fields: creature }
+      # The ally who triggered a triggered ability, or the one an ability helps, when it matters.
+      ally: { max: 1 }
     results: [used, unaffordable, tier1, tier2, tier3]
     steps:
       - id: setup
@@ -503,6 +508,9 @@ actions:
             when: flags.landed
             source: flags.cond
             state: { duration: flags.dur }
+            appliedBy: >-
+              item.allyImposes && size(participants.ally) > 0 ? participants.ally[0].id
+                : character.id
       # Damage when no target is given: the roll's own tier, as the card shows it.
       - id: preview
         kind: roll

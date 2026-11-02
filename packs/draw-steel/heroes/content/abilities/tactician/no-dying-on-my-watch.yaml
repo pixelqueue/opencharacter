@@ -28,3 +28,22 @@ fields:
   t3Potency: strong
   t3Condition: conditions.frightened
   t3Duration: save
+  allyImposes: true
+# The triggering ally is the `ally` participant: the target is frightened of them, and they spend
+# a Recovery and gain 5 temporary Stamina for each enemy you came adjacent to (`adjacentEnemies`).
+effects:
+  - target: { actions: [ability], from: self }
+    op: params
+    value:
+      adjacentEnemies: { type: integer, default: 0, min: 0 }
+  - target: { steps: [ability.after], from: self }
+    op: changes
+    when: size(participants.ally) > 0
+    value:
+      to: ally
+      changes:
+        - { type: adjust, field: recoveries.spent, by: 1, tags: [recovery.granted] }
+        - type: adjust
+          when: params.adjacentEnemies > 0
+          field: stamina.temp
+          by: 5 * params.adjacentEnemies
