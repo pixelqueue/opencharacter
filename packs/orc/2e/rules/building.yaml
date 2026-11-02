@@ -58,6 +58,17 @@ contentTypes:
       # `skill` for any skill.
       skills: { type: set, of: tag, default: [] }
       archetype: { type: id, of: archetype }
+    # The holder's numbers a feat's text names (`{self_classDc}`): a class feat's class's class
+    # DC, so a feat taken through an archetype names that class's; else the character's own.
+    computed:
+      classDc:
+        type: integer
+        formula: >-
+          has(item.class) && countList(keysOf('class'), 'orc-2e:classes.' + x == item.class) > 0
+            ? maxList(keysOf('class'), fieldOf('classDc.{class}.value', x),
+              'orc-2e:classes.' + x == item.class)
+            : classDc.value
+      spellDc: { type: integer, formula: spellcasting.dc }
     effects:
       - { target: feats.held, op: grant, value: { formula: item.id } }
       - target: archetypes.dedications

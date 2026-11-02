@@ -332,7 +332,10 @@ Still closed: attributes, proficiency ranks, saves, spell traditions (and a staf
   ten ancestry Lores are `rules/lores-pc2.yaml`; the cursed background's Warding Sign is the
   situational choice `wardingSign`, the feybound's Fey's Fortune `fortune`.
 - **Feats:** a slot per level for ancestry (1, 5, 9, 13, 17), general (3, 7, 11, 15, 19; skill feats
-  too), class (1 and even levels) and skill feats (even levels), none taken twice unless `repeatable`. Each schedule,
+  too), class (1 and even levels) and skill feats (even levels), none taken twice unless `repeatable`. A held
+  feat carries the holder's class DC and spell DC as computed values (`classDc`, the class
+  feat's own class's through an archetype; `spellDc`), which its text names where it says "your
+  class DC" or "your spell DC" (`{self_classDc}`, shown when an app fills them). Each schedule,
   and the boosts at 5th, 10th, 15th and 20th, is one slotted choice with one
   prompt. General and skill feats: all 111 of Player Core up to 7th level (19 general, 92 skill;
   a skill feat's `skills` are the skills its prerequisites name, `skill.lore` for any Lore,

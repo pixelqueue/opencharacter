@@ -22,7 +22,7 @@ feats.ancestry.occult-dragonblood.description: "You're trained in Occultism (or 
 feats.ancestry.primal-dragonblood.name: 'Primal Dragonblood'
 feats.ancestry.primal-dragonblood.description: "You're trained in Nature (or a skill of your choice if you already were). You can use Nature to Sense Direction and to Subsist in the wilds. Your draconic exemplar, if you pick one, must be a primal dragon."
 feats.ancestry.breath-of-the-dragon.name: 'Breath of the Dragon'
-feats.ancestry.breath-of-the-dragon.description: "2 actions (magical): you exhale your exemplar's breath in a 15-foot cone or 30-foot line: 1d4 damage of its type (1d4 more at 3rd level and every 2 levels after), a basic save of its kind against the higher of your class DC and spell DC. Then you can't again for 1d4 rounds."
+feats.ancestry.breath-of-the-dragon.description: "2 actions (magical): you exhale your exemplar's breath in a 15-foot cone or 30-foot line: 1d4 damage of its type (1d4 more at 3rd level and every 2 levels after), a basic save of its kind against the higher of your class DC{has_self_classDc, select, true { ({self_classDc})} other {}} and spell DC{has_self_spellDc, select, true { ({self_spellDc})} other {}}. Then you can't again for 1d4 rounds."
 feats.ancestry.breath-of-the-dragon.actions.breath-of-the-dragon.name: 'Breath of the Dragon'
 feats.ancestry.breath-of-the-dragon.actions.breath-of-the-dragon.participants.target.name: 'Creatures in the area'
 feats.ancestry.breath-of-the-dragon.actions.breath-of-the-dragon.results.breathed.name: 'Breathed'
@@ -75,7 +75,7 @@ feats.ancestry.wing-buffet.prerequisites.expert: 'Expert in Athletics'
 feats.ancestry.draconic-veil.name: 'Draconic Veil'
 feats.ancestry.draconic-veil.description: "You can cast humanoid form once a day as a 5th-rank innate spell lasting 1 hour, of your exemplar's tradition."
 feats.ancestry.majestic-presence.name: 'Majestic Presence'
-feats.ancestry.majestic-presence.description: '1 action (emotion, fear, mental, visual): each creature in a 20-foot emanation attempts a Will save against the higher of your class DC and spell DC, then is immune for 24 hours. Success: frightened 1; failure: frightened 2; critical failure: frightened 4.'
+feats.ancestry.majestic-presence.description: '1 action (emotion, fear, mental, visual): each creature in a 20-foot emanation attempts a Will save against the higher of your class DC{has_self_classDc, select, true { ({self_classDc})} other {}} and spell DC{has_self_spellDc, select, true { ({self_spellDc})} other {}}, then is immune for 24 hours. Success: frightened 1; failure: frightened 2; critical failure: frightened 4.'
 feats.ancestry.majestic-presence.actions.majestic-presence.name: 'Majestic Presence'
 feats.ancestry.majestic-presence.actions.majestic-presence.participants.target.name: 'Creatures within 20 feet'
 feats.ancestry.majestic-presence.actions.majestic-presence.results.cowed.name: 'Cowed'

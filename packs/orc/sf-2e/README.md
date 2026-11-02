@@ -220,7 +220,9 @@ fixed sets.
   Points, class DCs and spellcasting sources (mystic and witchwarper).
 - **Feats:** every general, skill, ancestry and class feat is content with its prerequisites;
   176 of them also carry their mechanics (bonuses, proficiencies, trainings, actions, granted
-  features and spells).
+  features and spells). A held feat carries the holder's class DC (its class's, through an
+  archetype) and spell DC as computed values (`classDc`, `spellDc`), which its text names where
+  it says "your class DC" or "your spell DC".
 - **Skill actions:** the Second Edition actions and the book's new ones (Access Infosphere,
   Hack, Operate Device, Navigate, Plot Course, Stunt, Take Cover), each a check with its degrees.
 - **Spellcasting:** spontaneous repertoires with slots, signature spells and heightening, focus
