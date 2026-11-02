@@ -300,7 +300,7 @@ Where the SRD is unclear or silent, the pack reads it this way:
   shields, ammunition and staffs are templates on the mundane item. Charges, daily properties,
   attunement (more than three, or an unmet requirement, is a rules issue), potions, oils and
   dusts, spells cast from items, item powers, on-hit charges, wounds, stored spells and
-  situational advantages are modeled.
+  situational advantages are modeled. A power out of charges or used since dawn isn't offered.
 - **Sheet layout:** display groups for actions and content, with units (feet, pounds, gold
   pieces, miles per hour) and a compact `summary` view.
 

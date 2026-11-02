@@ -22,4 +22,5 @@ choices:
         when: self.equipped && self.attuned
 actions:
   - use: item-power
+    available: "!('sense-dragon' in self.usedToday)"
     params: { daily: "'sense-dragon'" }

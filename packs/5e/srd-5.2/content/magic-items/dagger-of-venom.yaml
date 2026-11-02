@@ -7,6 +7,7 @@ state:
   usedToday: { type: set, of: string, default: [] }
 actions:
   - use: item-power
+    available: "!('venom' in self.usedToday)"
     params:
       daily: "'venom'"
       dice: 2d10

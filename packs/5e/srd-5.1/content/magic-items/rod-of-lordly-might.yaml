@@ -9,6 +9,7 @@ state:
 actions:
   - id: drain-life
     tags: [magic-item]
+    available: "!('drain-life' in self.usedToday)"
     results: [used, no-charges, used-today]
     participants:
       target: {}
@@ -31,6 +32,7 @@ actions:
           damage: 'has(steps.power.data.damage) ? steps.power.data.damage : 0'
   - id: paralyze
     tags: [magic-item]
+    available: "!('paralyze' in self.usedToday)"
     results: [used, no-charges, used-today]
     participants:
       target: {}
@@ -51,6 +53,7 @@ actions:
           damage: 'has(steps.power.data.damage) ? steps.power.data.damage : 0'
   - id: terrify
     tags: [magic-item]
+    available: "!('terrify' in self.usedToday)"
     results: [used, no-charges, used-today]
     participants:
       target: {}

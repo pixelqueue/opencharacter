@@ -15,4 +15,5 @@ actions:
   - use: regain-charges
     params: { max: item.maxCharges, dice: item.recharge }
   - use: item-power
+    available: self.charges >= 1
     params: { charges: 1, save: "'con'", dc: 15, condition: "'conditions.paralyzed'" }

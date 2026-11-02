@@ -7,4 +7,5 @@ state:
   usedToday: { type: set, of: string, default: [] }
 actions:
   - use: item-power
+    available: "!('summon' in self.usedToday)"
     params: { daily: "'summon'" }

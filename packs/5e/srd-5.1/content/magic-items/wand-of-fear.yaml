@@ -27,4 +27,5 @@ actions:
   - use: regain-charges
     params: { max: item.maxCharges, dice: item.recharge }
   - use: item-power
+    available: self.charges >= 2
     params: { charges: 2, save: "'wis'", dc: 15, condition: "'conditions.frightened'" }

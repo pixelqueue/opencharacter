@@ -203,9 +203,10 @@ Where the SRD is unclear or silent, the pack reads it this way:
     until a weapon is named.
   - Telekinesis is cut off mid-sentence in the SRD 5.2.1; its text is finished with the SRD
     5.1's sentence.
-- **Magic items:** "once per dawn" is tracked per item and reset by the `dawn` action; starting
-  charges the SRD rolls start at the maximum; magic weapons, armor and shields are templates on
-  the mundane item. The dwarf requirement is the Dwarf species.
+- **Magic items:** "once per dawn" is tracked per item and reset by the `dawn` action, and a
+  power used since dawn or out of charges isn't offered; starting charges the SRD rolls start at
+  the maximum; magic weapons, armor and shields are templates on the mundane item. The
+  dwarf requirement is the Dwarf species.
 - **Monsters:** stat block numbers (to hit, damage, DC, AC, Initiative) are as printed, not
   recomputed; where a printed number doesn't follow from the scores (the Gray Ooze's Initiative
   score, a few skills), an effect makes up the difference. Mind Blank is assumed cast before combat.

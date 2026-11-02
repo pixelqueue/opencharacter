@@ -7,5 +7,6 @@ state:
   usedToday: { type: set, of: string, default: [] }
 actions:
   - use: item-power
+    available: "!('lightning-bolt' in self.usedToday)"
     params:
       { daily: "'lightning-bolt'", dice: 4d6, damageType: "'lightning'", save: "'dex'", dc: 13 }
