@@ -1,0 +1,44 @@
+description: "A staff grants two spells whose `from: self` effects add `form` with other values, and the staff type's own action carries their target tag: the staff copy's own run takes both, so they conflict"
+specVersion: 0.3.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.3.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        tags: [spell]
+        contentTypes:
+          spell:
+            actions:
+              - id: cast
+                tags: [spell]
+                steps: [{ id: done, kind: outcome }]
+          staff:
+            actions:
+              - id: prepare
+                tags: [spell]
+                steps: [{ id: done, kind: outcome }]
+      content:
+        - id: spells.animal-form
+          type: spell
+          effects:
+            - target: { actions: [spell], from: self }
+              op: params
+              value:
+                form: { type: enum, values: [ape, bear], optional: true }
+        - id: spells.plant-form
+          type: spell
+          effects:
+            - target: { actions: [spell], from: self }
+              op: params
+              value:
+                form: { type: enum, values: [arboreal, flytrap], optional: true }
+        - id: staves.fluid-form
+          type: staff
+          grants:
+            - { item: spells.animal-form }
+            - { item: spells.plant-form }

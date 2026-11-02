@@ -104,8 +104,9 @@ effects:
   and the character's fields), each is a parameter of the action after its own, checked by
   startAction like them (on the run the app starts only, never a nested one) and listed by
   describeAction with `addedBy`. Each is `optional` or has a `default`; a name an action its
-  literal tags reach declares, or another effect's other declaration of the name (except
-  between `from: self` effects of different content items), is the load error
+  literal tags reach declares, or another effect's other declaration of the name (not between
+  `from: self` effects of different content items, unless one item holding both has an action
+  both reach), is the load error
   `invalid-added-param` ([dice-and-actions.md](dice-and-actions.md#actions)), counting only
   actions and effects of packs that meet
   ([Which packs a tag target reaches](#which-packs-a-tag-target-reaches)). The action's own
@@ -382,7 +383,9 @@ that declares that tag, or a tag below it.
   reaches by its literal tags declares it. Two `params` effects `conflict` when their target
   tags meet (one is the other or below it) over packs that meet on that tag, or when one action
   may take both: its literal tags meet a target tag of each, over packs that meet on that tag;
-  two `from: self` effects of different content items never do. So one game's `params` effect
+  two `from: self` effects of different content items don't, unless one item names both (itself,
+  its grants, its choices' items) and has an action, its own or its type's, both reach. So one
+  game's `params` effect
   never clashes with an unrelated game's action or effect, even when a third pack depends on
   both, while two add-ons of one core clash whether or not an action carries the tag yet.
 - **Not scoped:** incoming changes. A change carries tags, never a pack: the receiving sheet's

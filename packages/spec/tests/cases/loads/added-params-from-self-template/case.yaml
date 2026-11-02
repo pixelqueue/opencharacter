@@ -1,0 +1,35 @@
+description: "A template's `from: self` effect and a spell's add `damageType` with other values: the template is part of the spell copy it applies to, so both reach the copy's run and they conflict"
+specVersion: 0.3.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.3.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        tags: [spell]
+        contentTypes:
+          spell:
+            actions:
+              - id: cast
+                tags: [spell]
+                steps: [{ id: done, kind: outcome }]
+      content:
+        - id: spells.resist-energy
+          type: spell
+          effects:
+            - target: { actions: [spell], from: self }
+              op: params
+              value:
+                damageType: { type: enum, values: [acid, cold, fire], optional: true }
+        - id: templates.sonic
+          type: template
+          appliesTo: { type: spell }
+          effects:
+            - target: { actions: [spell], from: self }
+              op: params
+              value:
+                damageType: { type: enum, values: [sonic], optional: true }

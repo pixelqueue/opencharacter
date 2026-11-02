@@ -1,0 +1,35 @@
+description: "A spell's `from: self` effect and a feature's unscoped effect add `damageType` with other values to one tag: the feature's reaches every spell's run, so they conflict"
+specVersion: 0.3.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.3.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        tags: [spell]
+        contentTypes:
+          feature: {}
+          spell:
+            actions:
+              - id: cast
+                tags: [spell]
+                steps: [{ id: done, kind: outcome }]
+      content:
+        - id: spells.resist-energy
+          type: spell
+          effects:
+            - target: { actions: [spell], from: self }
+              op: params
+              value:
+                damageType: { type: enum, values: [acid, cold, fire], optional: true }
+        - id: features.elemental-focus
+          type: feature
+          effects:
+            - target: { actions: [spell] }
+              op: params
+              value:
+                damageType: { type: enum, values: [cold, sonic], optional: true }
