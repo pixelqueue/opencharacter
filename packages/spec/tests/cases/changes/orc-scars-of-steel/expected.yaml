@@ -1,12 +1,11 @@
-# Resistance 4 over the batch: 3 slashing all resisted, 1 of the 4 piercing; fire untouched.
-# 50 - 0 - 3 - 3 = 44. The day's use is spent once, at the batch's end.
+# Resistance 4 over the batch's physical damage: 24 slashing becomes 20; the fire is untouched.
+# 50 - 20 - 8 = 22. The day's use is spent once, at the batch's end.
 ok: true
 adjustments:
-  - { field: orc-2e:hp.current, by: 0, requested: -3, taken: 0, reason: requested }
-  - { field: orc-2e:hp.current, by: -3, requested: -4, taken: -3, reason: requested }
-  - { field: orc-2e:hp.current, by: -3, requested: -3, taken: -3, reason: requested }
+  - { field: orc-2e:hp.current, by: -20, requested: -24, taken: -20, reason: requested }
+  - { field: orc-2e:hp.current, by: -8, requested: -8, taken: -8, reason: requested }
 character:
   values:
     orc-2e:level: 4
-    orc-2e:hp.current: 44
+    orc-2e:hp.current: 22
     orc-2e:barbarian.scarsOfSteelUsed: true
