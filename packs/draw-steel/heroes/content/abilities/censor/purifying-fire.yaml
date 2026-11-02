@@ -39,7 +39,7 @@ effects:
         - type: applyEffect
           source: "'abilities.censor.purifying-fire'"
           state: { duration: "'save'", value: '[3, 5, 7][flags.tier - 1]' }
-  - { target: weakness.fire, op: add, value: self.value, scope: applied }
+  - { target: weakness.fire, op: atLeast, value: self.value, scope: applied }
 actions:
   - use: saving-throw
     scope: applied

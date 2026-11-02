@@ -68,19 +68,19 @@ effects:
             value: 'flags.tier == 3 ? 5 + characteristics.reason.score : 5'
   - {
       target: weakness.acid,
-      op: add,
+      op: atLeast,
       value: self.value,
       when: "self.type == 'acid'",
       scope: applied,
     }
   - target: weakness.corruption
-    op: add
+    op: atLeast
     value: self.value
     when: "self.type == 'corruption'"
     scope: applied
   - {
       target: weakness.fire,
-      op: add,
+      op: atLeast,
       value: self.value,
       when: "self.type == 'fire'",
       scope: applied,
