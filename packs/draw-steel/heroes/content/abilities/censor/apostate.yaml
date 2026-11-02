@@ -23,8 +23,7 @@ fields:
 # Damage weakness 10 until the end of the encounter: this ability applied to the target.
 state:
   duration: { type: string, default: encounter }
-  by: { type: string, default: '' }
-reapply: { state: { duration: replace, by: replace } }
+reapply: { state: { duration: replace } }
 effects:
   - target: { steps: [ability.hit], from: self }
     op: changes
@@ -33,5 +32,5 @@ effects:
       changes:
         - type: applyEffect
           source: "'abilities.censor.apostate'"
-          state: { duration: "'encounter'", by: character.id }
+          state: { duration: "'encounter'" }
   - { target: weakness.all, op: add, value: 10, scope: applied }

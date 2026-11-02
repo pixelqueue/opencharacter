@@ -53,14 +53,6 @@ actions:
         tags: [turn.start]
         changes:
           - { type: adjust, when: has(steps.gain), field: heroic.current, by: steps.gain.total }
-          # Effects on yourself "until the start of your next turn" end; those "until the end of
-          # your next turn" now end with this turn.
-          - type: removeEffect
-            applied: { where: "has(self.duration) && self.duration == 'next-start'" }
-          - type: setState
-            applied: { where: "has(self.duration) && self.duration == 'next-end'" }
-            key: duration
-            value: "'eot'"
       - {
           id: done,
           kind: outcome,
@@ -83,6 +75,38 @@ actions:
             applied: { where: "has(self.duration) && self.duration == 'eot'" }
       - { id: done, kind: outcome, result: "'ended'" }
 
+  # Each turn change, run on every creature in the encounter (`ended` and `started` are the
+  # creatures whose turns end and start). What the ending creature applied "until the end of its
+  # next turn" ends; what the starting one applied "until the start of its next turn" ends, and
+  # what it applied "until the end of its next turn" now ends with this turn.
+  - id: turn-boundary
+    clock: turn-boundary
+    tags: [combat]
+    params:
+      ended: { type: string, optional: true }
+      started: { type: string, optional: true }
+    results: [passed]
+    steps:
+      - id: boundary
+        kind: changes
+        tags: [turn.boundary]
+        changes:
+          - type: removeEffect
+            when: has(params.ended)
+            applied:
+              where: "has(self.duration) && self.duration == 'this-turn' && self.appliedBy == params.ended"
+          - type: removeEffect
+            when: has(params.started)
+            applied:
+              where: "has(self.duration) && self.duration == 'next-start' && self.appliedBy == params.started"
+          - type: setState
+            when: has(params.started)
+            applied:
+              where: "has(self.duration) && self.duration == 'next-end' && self.appliedBy == params.started"
+            key: duration
+            value: "'this-turn'"
+      - { id: done, kind: outcome, result: "'passed'" }
+
   - id: end-combat
     tags: [combat]
     available: combat.active
@@ -100,7 +124,7 @@ actions:
           - type: removeEffect
             applied:
               {
-                where: "has(self.duration) && self.duration in ['eot', 'save', 'encounter', 'next-start', 'next-end']",
+                where: "has(self.duration) && self.duration in ['eot', 'save', 'encounter', 'next-start', 'next-end', 'this-turn']",
               }
       - { id: done, kind: outcome, result: "'ended'" }
 

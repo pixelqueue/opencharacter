@@ -1,33 +1,37 @@
 contentTypes:
   # A condition is applied content. Its duration is the effect's: end of turn (EoT), save ends,
-  # end of the encounter, until something ends it, or, for an effect on yourself, until the start
-  # or the end of your next turn; `by` is the character ID of the creature that imposed it (a
-  # frightened creature's source, a taunt's, a grab's). An applied condition counts only while
-  # it is active and not blocked by an immunity: its own applied effects say so.
+  # end of the encounter, until something ends it, or until the start or the end of its
+  # applier's next turn (`turn-boundary` ends those; `this-turn` is a next-end one in that turn).
+  # The entry's `appliedBy` is the creature that imposed it (a frightened creature's source, a
+  # taunt's, a grab's); a new one replaces it. An applied condition counts only while it is
+  # active and not blocked by an immunity: its own applied effects say so.
   condition:
     grantOnly: true
     state:
       duration:
-        { type: enum, values: [eot, save, encounter, until, next-start, next-end], default: until }
-      by: { type: string, default: '' }
-    reapply: { state: { duration: replace, by: replace } }
+        {
+          type: enum,
+          values: [eot, save, encounter, until, next-start, next-end, this-turn],
+          default: until,
+        }
+    reapply: { state: { duration: replace } }
     effects:
       - { target: conditions.active, op: grant, value: { formula: item.id }, scope: applied }
       - target: conditions.frightenedBy
         op: grant
-        value: { formula: self.by }
+        value: { formula: self.appliedBy }
         scope: applied
-        when: "item.id == @conditions.frightened && self.by != ''"
+        when: "item.id == @conditions.frightened && self.appliedBy != ''"
       - target: conditions.grabbedBy
         op: grant
-        value: { formula: self.by }
+        value: { formula: self.appliedBy }
         scope: applied
-        when: "item.id == @conditions.grabbed && self.by != ''"
+        when: "item.id == @conditions.grabbed && self.appliedBy != ''"
       - target: conditions.tauntedBy
         op: grant
-        value: { formula: self.by }
+        value: { formula: self.appliedBy }
         scope: applied
-        when: "item.id == @conditions.taunted && self.by != ''"
+        when: "item.id == @conditions.taunted && self.appliedBy != ''"
     actions:
       # A saving throw against this save-ends condition; a success ends it.
       - id: save
@@ -46,9 +50,12 @@ contentTypes:
     grantOnly: true
     state:
       duration:
-        { type: enum, values: [eot, save, encounter, until, next-start, next-end], default: until }
-      by: { type: string, default: '' }
-    reapply: { state: { duration: replace, by: replace } }
+        {
+          type: enum,
+          values: [eot, save, encounter, until, next-start, next-end, this-turn],
+          default: until,
+        }
+    reapply: { state: { duration: replace } }
     actions:
       - id: save
         scope: applied

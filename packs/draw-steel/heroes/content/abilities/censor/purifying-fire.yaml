@@ -25,9 +25,8 @@ fields:
 # The fire weakness is this ability applied to the target (save ends), its value the tier's.
 state:
   duration: { type: string, default: save }
-  by: { type: string, default: '' }
   value: { type: integer, default: 3, min: 0 }
-reapply: { state: { duration: replace, by: replace, value: highest } }
+reapply: { state: { duration: replace, value: highest } }
 effects:
   - target: { steps: [ability.hit], from: self }
     op: changes
@@ -39,7 +38,7 @@ effects:
       changes:
         - type: applyEffect
           source: "'abilities.censor.purifying-fire'"
-          state: { duration: "'save'", by: character.id, value: '[3, 5, 7][flags.tier - 1]' }
+          state: { duration: "'save'", value: '[3, 5, 7][flags.tier - 1]' }
   - { target: weakness.fire, op: add, value: self.value, scope: applied }
 actions:
   - id: save
