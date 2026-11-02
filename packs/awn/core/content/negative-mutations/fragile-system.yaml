@@ -6,8 +6,7 @@ effects:
   - target: strain.penalty
     op: add
     value: -2
-    when: '!self.light'
   - target: { rolls: [save] }
     op: add
     value: -2
-    when: "!self.light && (situational.versus == 'poison' || situational.versus == 'disease')"
+    when: situational.versus == 'poison' || situational.versus == 'disease'
