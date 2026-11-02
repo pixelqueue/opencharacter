@@ -8,8 +8,8 @@ computed:
 # choice), and on a hit that deals Sneak Attack damage the target saves
 # against it. An effect the rogue can't use (not in `rogue.strikeEffects`: one it doesn't know yet, or
 # Poison without a Poisoner's Kit), or effects together costing more dice than the Sneak Attack
-# has, do nothing and cost nothing. A Trip against a Huge or larger target does nothing, its die
-# spent. Withdraw's movement, Daze's limit and Stealth Attack are the player's.
+# has, do nothing and cost nothing; so does a Trip against a Huge or larger target. Withdraw's
+# movement, Daze's limit and Stealth Attack are the player's.
 effects:
   - { target: rogue.cunningStrikes, op: atLeast, value: 1 }
   - { target: rogue.strikeDc, op: set, value: 8 + abilities.dex.mod + proficiency.bonus }
@@ -34,6 +34,7 @@ effects:
         && (params.cunningStrike == 'knock-out' ? 6 : params.cunningStrike == 'obscure' ? 3
           : params.cunningStrike == 'daze' ? 2 : 1)
           + (has(params.cunningStrike2) && params.cunningStrike2 in rogue.strikeEffects
+              && !(params.cunningStrike2 == 'trip' && participant.creature.size in ['huge', 'gargantuan'])
             ? (params.cunningStrike2 == 'knock-out' ? 6 : params.cunningStrike2 == 'obscure' ? 3
               : params.cunningStrike2 == 'daze' ? 2 : 1) : 0)
           <= rogue.sneakAttack
@@ -66,6 +67,7 @@ effects:
         && (params.cunningStrike2 == 'knock-out' ? 6 : params.cunningStrike2 == 'obscure' ? 3
           : params.cunningStrike2 == 'daze' ? 2 : 1)
           + (has(params.cunningStrike) && params.cunningStrike in rogue.strikeEffects
+              && !(params.cunningStrike == 'trip' && participant.creature.size in ['huge', 'gargantuan'])
             ? (params.cunningStrike == 'knock-out' ? 6 : params.cunningStrike == 'obscure' ? 3
               : params.cunningStrike == 'daze' ? 2 : 1) : 0)
           <= rogue.sneakAttack
