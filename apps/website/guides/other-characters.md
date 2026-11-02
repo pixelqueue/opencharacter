@@ -454,33 +454,48 @@ Some rules fire on what happens to someone else: a tactician gains focus when an
 creature they marked, a troubadour when any hero falls. The engine sees one character per call,
 so your app carries the event. It's opt-in: an app that skips it only loses these reactions.
 
-1. Every `applyChanges` that changed a field returns `observe`, a ready-made change describing
+1. Every `applyChanges` whose batch made field entries (adjusted a field) returns `observe`, a ready-made change describing
    the batch: whose it was, what each field took (with tags and who sent it), and whose entries
    the character held (`applied`).
-2. Pass it to every other character whose `computeSheet` lists one of its fields in
-   `observes`. It changes nothing on them; it fires their follow-ups that watch others, which
+2. Pass it to every other character whose `observes` (from its `computeSheet`) lists one of
+   its fields. It changes nothing on them; it fires their follow-ups that watch others, which
    land in their `offers` as usual.
 
+`observes` changes only with the character's own content, so keep each character's list from its
+last `computeSheet` and refresh it after that character's own batches, rather than computing
+every sheet in the encounter for each event:
+
 ```ts
+const observes = new Map(); // character ID -> the fields its follow-ups watch on others
+
+function apply(c, changes) {
+  const result = applyChanges(rulesetFor(c), c, changes);
+  if (result.ok) observes.set(c.id, computeSheet(rulesetFor(c), result.character).observes ?? []);
+  return result;
+}
+
 function applyAndShare(target, changes) {
-  const result = applyChanges(rulesetFor(target), target, changes);
+  const result = apply(target, changes);
   if (!result.ok || !result.observe) return result;
   const fields = new Set(result.observe.adjustments.map((e) => e.field));
   for (const other of everyone) {
     if (other.id === target.id) continue;
-    const sheet = computeSheet(rulesetFor(other), other);
-    if (!(sheet.observes ?? []).some((f) => fields.has(f))) continue;
+    if (!(observes.get(other.id) ?? []).some((f) => fields.has(f))) continue;
     const seen = applyChanges(rulesetFor(other), other, [result.observe]);
-    // seen.followUps: the tactician's `mark-damaged` offer, say.
+    // seen.followUps: the tactician's `mark-damaged` offer, say. Show it; don't run it here.
   }
   return result;
 }
 ```
 
 - **Log it like any change.** The `observe` change is in the observer's change list, so
-  replaying the list stores the same follow-ups.
-- **No echoes.** A batch of only `observe` changes changes no field, so it returns no `observe`
-  of its own. Running the offer it fired (gaining focus) is a new batch, with its own `observe`.
+  replaying the list stores the same follow-ups. Routed events grow every observer's change log,
+  so send them only where `observes` says they matter.
+- **Mind echoes.** A batch of only `observe` changes makes no field entries, so it returns no
+  `observe` of its own. But running the offer it fired (gaining focus, healing) is a new batch
+  with its own `observe`, which can fire offers elsewhere: two characters whose follow-ups watch
+  `from: any` can answer each other forever. Don't run offers an `observe` fired automatically
+  inside the routing loop; show them, or route at most one round per original event.
 - **Who did it.** The follow-up reads the observed character as `change.character` and the
   dealer as `change.from`, so a tactician's own strikes (which count focus themselves) can be
   left out.

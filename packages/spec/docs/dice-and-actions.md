@@ -684,7 +684,8 @@ before. The changes name the actor's own fields, as `to: target` changes do.
 link, `to: applied`) carries the actor's `id` as `from`. The receiving character's `on`
 follow-ups read it as `change.from`: wrath when the creature you judged damages you, +4 AC
 against the creature that just hit you, a ward that slows whoever damaged you
-([rules-and-fields.md](rules-and-fields.md#follow-ups)). Changes `to: self` carry none.
+([rules-and-fields.md](rules-and-fields.md#follow-ups)). Changes `to: self` carry none, nor does
+one for a role the actor's own view fills: it is the actor's own change.
 
 **Who applied it.** Every `applyEffect` an action proposes, to any character, carries the actor's
 `id` as `appliedBy`, and applyChanges saves it on the entry

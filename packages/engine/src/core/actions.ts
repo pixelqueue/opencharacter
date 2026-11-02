@@ -4313,8 +4313,14 @@ function proposeOne(
         throw new ActionError('type-mismatch', { message: '`appliedBy` is a character ID' });
       out.appliedBy = by?.kind === 'string' ? by.value : ctx.state.character.id;
     }
-    // An adjust for someone else says who sent it.
-    if (change.type === 'adjust' && route.to !== 'self') out.from = ctx.state.character.id;
+    // An adjust for someone else says who sent it; one routed back to the actor (its own view
+    // in a role) is its own change.
+    if (
+      change.type === 'adjust' &&
+      route.to !== 'self' &&
+      route.character !== ctx.state.character.id
+    )
+      out.from = ctx.state.character.id;
     if (change.active !== undefined) {
       const active = evaluate(ctx, frame, change.active, extra);
       if (active.kind !== 'bool')

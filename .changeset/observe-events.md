@@ -3,8 +3,8 @@
 '@opencharacter/engine': minor
 ---
 
-Follow-ups can react to another character's events. A successful applyChanges that changed a
-field returns `observe`: an `observe` change naming the character, its field entries (with tags
+Follow-ups can react to another character's events. A successful applyChanges that made field entries (adjusted a
+field) returns `observe`: an `observe` change naming the character, its field entries (with tags
 and who sent them) and the applied entries it held that name an applier. Applied to another
 character, the new `observe` change changes nothing but fires its `on` follow-ups with `from`:
 `any` (any other character), `applied` (one holding an entry this character applied) or

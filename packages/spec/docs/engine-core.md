@@ -1410,8 +1410,10 @@ until they are acted on or dismissed. The engine runs and applies neither.
    - **`once`**: the follow-up fires at most once per batch, when at least one
      entry matches, and `change` is the matching entries summed: `by`, `requested` and `taken`
      the sums (absent parts counting 0), `tags` the union in entry order, `reason` the first
-     entry's, `clamped` true if any entry's is, `from` the first that has one, `character` and
-     `applied` the first entry's. `when` and every formula are evaluated once, on the sum.
+     entry's, `clamped` true if any entry's is, `from` the first that has one. With `from`, it
+     fires at most once per observe change instead, on that change's matching entries summed,
+     with its `character` and `applied`: two goblins hurt in one batch are two events. `when`
+     and every formula are evaluated once per sum.
 4. **`becomes`.** The condition is evaluated on the character after the batch and, for the same
    declaration (the rules', or the same content on the same copy and choice path), on the
    character before it, with the same links. It fires when it holds after and not before.

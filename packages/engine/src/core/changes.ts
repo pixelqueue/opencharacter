@@ -206,6 +206,17 @@ export function applyBatch(
     choices.index = index;
     // Another character's batch changes nothing here: only follow-ups read it.
     if ((change as AnyChange).type === 'observe') {
+      if (!observeShape(change))
+        return {
+          ok: false,
+          errors: [
+            {
+              code: 'invalid-shape',
+              path: `/changes/${index}`,
+              data: { path: `/changes/${index}` },
+            },
+          ],
+        };
       observed.push(change as Observe);
       applied.push(change);
       continue;
@@ -308,6 +319,41 @@ export function applyBatch(
     followUps: listed,
     ...(observe ? { observe } : {}),
   };
+}
+
+const REASONS = new Set(['requested', 'absorbed', 'overflow', 'reset', 'carry']);
+
+const isId = (v: unknown) => typeof v === 'string' && v !== '';
+const isStrings = (v: unknown) => Array.isArray(v) && v.every((t) => typeof t === 'string');
+const isOptionalNumber = (v: unknown) => v === undefined || typeof v === 'number';
+
+/** An `observe` change as follow-ups read it; anything else is `invalid-shape`. */
+function observeShape(change: unknown): boolean {
+  const o = change as Record<string, unknown>;
+  if (!isId(o.character) || !Array.isArray(o.adjustments)) return false;
+  const entries = o.adjustments.every((raw) => {
+    const e = raw as Record<string, unknown> | null;
+    return (
+      typeof e === 'object' &&
+      e !== null &&
+      isId(e.field) &&
+      typeof e.by === 'number' &&
+      isOptionalNumber(e.requested) &&
+      isOptionalNumber(e.taken) &&
+      REASONS.has(e.reason as string) &&
+      (e.clamped === undefined || typeof e.clamped === 'boolean') &&
+      (e.tags === undefined || isStrings(e.tags)) &&
+      (e.from === undefined || isId(e.from))
+    );
+  });
+  const applied =
+    o.applied === undefined ||
+    (Array.isArray(o.applied) &&
+      o.applied.every((raw) => {
+        const a = raw as Record<string, unknown> | null;
+        return typeof a === 'object' && a !== null && isId(a.source) && isId(a.appliedBy);
+      }));
+  return entries && applied;
 }
 
 /**

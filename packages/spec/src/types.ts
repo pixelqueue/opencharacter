@@ -2104,7 +2104,7 @@ export type ApplyChangesOutput =
       )[];
       /** The ephemeral follow-ups this batch stored, as computeSheet's `offers` lists them, in the order they were stored: the rules' in declaration order, then content's in instance order, each `on` follow-up once per matching adjustment in order. They are in the returned character too. Nothing here has been run or applied. */
       followUps?: ListedFollowUp[];
-      /** What other characters' follow-ups may react to, ready to pass on: an `observe` change with this character's `id`, the batch's field entries (with their tags and who sent them) and the applied entries it held that name an applier. Present when the batch changed a field. An app that routes events applies it to the other characters whose computeSheet lists one of its fields in `observes`; one that doesn't can ignore it. */
+      /** What other characters' follow-ups may react to, ready to pass on: an `observe` change with this character's `id`, the batch's field entries (with their tags and who sent them) and the applied entries it held that name an applier. Present when the batch made field entries (an adjust, its absorbing, overflow and reset entries). An app that routes events applies it to the other characters whose computeSheet lists one of its fields in `observes`; one that doesn't can ignore it. */
       observe?: Observe;
     }
   | {
@@ -2778,7 +2778,7 @@ export type FollowUp = {
   on?: {
     field: FieldRef;
     tags?: Tag[];
-    /** Fire at most once per batch, on the matching entries summed: `by`, `requested` and `taken` the sums (an absent part counting 0), `tags` the union in entry order, `reason` the first entry's, `clamped` true if any entry's is. `when` is evaluated once, on the sum. A batch is one action's changes as the app applies them, so this is once per source when each attack is its own batch. Default false. */
+    /** Fire at most once per batch, on the matching entries summed: `by`, `requested` and `taken` the sums (an absent part counting 0), `tags` the union in entry order, `reason` the first entry's, `clamped` true if any entry's is. `when` is evaluated once, on the sum. A batch is one action's changes as the app applies them, so this is once per source when each attack is its own batch. With `from`, once per `observe` change instead, on its matching entries summed. Default false. */
     once?: boolean;
     /** Whose entries it fires on: without it, this character's own; with it, another character's, from the batch's `observe` changes (the app passes on what the other character's applyChanges returned). `any`: any other character; `applied`: one holding an entry this character applied (the observe change's `applied` names this character as an applier); `{ link: <slot> }`: the character filling one of this character's link slots. `field` names the observed character's field, resolved in this pack's scope as usual. `change.character` is the observed character's ID and `change.applied` the content IDs of its entries this character applied. */
     from?:

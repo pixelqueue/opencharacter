@@ -160,6 +160,7 @@ export function storeFollowUps(
           ];
           if (from === 'applied' && mine.length === 0) continue;
           if (typeof from === 'object' && after.linkedId(from.link) !== o.character) continue;
+          const seen = { character: o.character, applied: mine };
           for (const entry of o.adjustments) {
             if (entry.field !== field) continue;
             const own = entry.tags ?? [];
@@ -168,7 +169,7 @@ export function storeFollowUps(
               entry: entry as Partial<FieldEntry>,
               own,
               ...(entry.from !== undefined ? { from: entry.from } : {}),
-              observed: { character: o.character, applied: mine },
+              observed: seen,
             });
           }
         }
@@ -182,18 +183,27 @@ export function storeFollowUps(
           : {}),
       });
       if (def.on.once && first) {
-        const sum = (key: 'by' | 'requested' | 'taken') =>
-          matched.reduce((n, m) => n + (m.entry[key] ?? 0), 0);
-        causes.push({
-          field,
-          by: sum('by'),
-          requested: sum('requested'),
-          taken: sum('taken'),
-          reason: first.entry.reason ?? 'requested',
-          clamped: matched.some((m) => m.entry.clamped === true),
-          tags: [...new Set(matched.flatMap((m) => m.own))],
-          ...about(first, matched.find((m) => m.from !== undefined)?.from),
-        });
+        // Once per batch; for another character's entries, once per observe change.
+        const groups = new Map<unknown, Matched[]>();
+        for (const m of matched) {
+          const key = m.observed ?? null;
+          groups.set(key, [...(groups.get(key) ?? []), m]);
+        }
+        for (const group of groups.values()) {
+          const head = group[0] as Matched;
+          const sum = (key: 'by' | 'requested' | 'taken') =>
+            group.reduce((n, m) => n + (m.entry[key] ?? 0), 0);
+          causes.push({
+            field,
+            by: sum('by'),
+            requested: sum('requested'),
+            taken: sum('taken'),
+            reason: head.entry.reason ?? 'requested',
+            clamped: group.some((m) => m.entry.clamped === true),
+            tags: [...new Set(group.flatMap((m) => m.own))],
+            ...about(head, group.find((m) => m.from !== undefined)?.from),
+          });
+        }
       } else if (!def.on.once) {
         for (const m of matched)
           causes.push({

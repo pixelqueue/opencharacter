@@ -592,7 +592,7 @@ it in a flag before the roll.
   `applied`. Every proposed `applyEffect`, whatever its `to`, carries the actor's `id` as
   `appliedBy`, or the ID its `appliedBy` formula gives (a non-empty string, else
   `type-mismatch`). Every proposed `adjust` whose `to` isn't `self` carries the actor's `id` as
-  `from`.
+  `from`, unless its `character` is the actor's own `id` (the actor's view in a role).
   - A change for a link carries `to: { link: <qualified slot id> }` and, when the slot is
     filled, `character`: the linked character's ID. An empty slot's changes are proposed
     without `character`. Fields, copy types and `addItem` items in a change sent to a link are

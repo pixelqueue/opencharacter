@@ -177,7 +177,7 @@ A follow-up can react to another character's batch (`on` with `from`;
 [rules-and-fields.md](rules-and-fields.md#other-characters-events)). The engine stays pure: the
 app carries the event.
 
-1. Every successful applyChanges whose batch changed a field returns `observe`: an `observe`
+1. Every successful applyChanges whose batch made field entries returns `observe`: an `observe`
    change naming the character (`character`), its field entries with their tags and who sent
    them (`adjustments`), and the applied entries it held that name an applier (`applied`).
 2. The app applies that change, as given, to each other character whose computeSheet lists one
@@ -185,9 +185,13 @@ app carries the event.
    own or with that character's next one. It changes nothing; it fires their `from`
    follow-ups, stored and listed in their `offers` as usual. It is in their change log, so a
    replay stores the same follow-ups.
-3. Their batches don't pass the `observe` change on: a batch that changed no field returns no
-   `observe`, so events don't echo. A follow-up the app later runs on them is a new batch with
-   its own `observe`.
+3. Their batches don't pass the `observe` change on: a batch that made no field entries returns no
+   `observe`. A follow-up the app later runs on them is a new batch with its own `observe`,
+   which may fire offers elsewhere: two characters watching `from: any` can answer each other
+   forever. An app doesn't run offers an `observe` fired automatically while routing, or routes
+   at most one round per original event. Each routed event is a change in the observer's log, so
+   the app sends it only where `observes` says it matters, keeping each character's `observes`
+   from its last computeSheet (it changes only with the character's own batches).
 
 Changes an action proposes for another character carry the actor as `from` on each adjust, so
 the receiving character's `on` follow-ups know who dealt the damage (`change.from`), and a

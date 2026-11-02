@@ -911,8 +911,9 @@ stores the same ones.
 - **`change.character`** is the observed character's ID, and **`change.applied`** the content
   IDs of its entries this character applied, so `when` can ask which entry (`@conditions.marked
   in change.applied`). `change.from` is still who sent the adjust: the observer itself when its
-  own action dealt the damage. `once` sums the batch's matching observed entries; `character`,
-  `applied` and `from` are the first's.
+  own action dealt the damage. With `once`, it fires at most once per observe change (one
+  observed character's batch), on that change's matching entries summed, never across two
+  characters.
 - **Opt-in.** An app that doesn't route events never passes an `observe` change, and these
   follow-ups never fire; the pack's own actions stay for the table to run by hand.
 
