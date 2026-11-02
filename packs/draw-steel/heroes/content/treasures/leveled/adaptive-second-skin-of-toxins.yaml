@@ -10,12 +10,12 @@ effects:
     op: add
     value: 'level >= 9 ? 21 : level >= 5 ? 12 : 6'
     stackKey: treasure-stamina
-    when: self.equipped
+    when: self.equipped && countList(item.tags, x in kit.gear) > 0
   - target: immunity.acid
     op: add
     value: characteristics.highest
-    when: self.equipped
+    when: self.equipped && countList(item.tags, x in kit.gear) > 0
   - target: immunity.poison
     op: add
     value: characteristics.highest
-    when: self.equipped
+    when: self.equipped && countList(item.tags, x in kit.gear) > 0

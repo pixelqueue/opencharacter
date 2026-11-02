@@ -19,6 +19,19 @@ contentTypes:
     carried: true
     equippable: true
 
+fields:
+  # The armor and weapon keywords of the hero's kits (a kit, Field Arsenal's second kit, a
+  # stormwight kit), plus light armor and weapons for a Conduit's Prayer of Soldier's Skill. An
+  # armor or weapon treasure benefits the hero only with one of its keywords here.
+  kit.gear:
+    type: set
+    of: tag
+    formula: >-
+      (size((picksOf('features.common.kit', 'kit') + picksOf('features.tactician.field-arsenal', 'kit') + picksOf('features.fury.beast-shape', 'kit'))) > 0 ? itemField((picksOf('features.common.kit', 'kit') + picksOf('features.tactician.field-arsenal', 'kit') + picksOf('features.fury.beast-shape', 'kit'))[0], 'armor') + itemField((picksOf('features.common.kit', 'kit') + picksOf('features.tactician.field-arsenal', 'kit') + picksOf('features.fury.beast-shape', 'kit'))[0], 'weapons') : [])
+        + (size((picksOf('features.common.kit', 'kit') + picksOf('features.tactician.field-arsenal', 'kit') + picksOf('features.fury.beast-shape', 'kit'))) > 1 ? itemField((picksOf('features.common.kit', 'kit') + picksOf('features.tactician.field-arsenal', 'kit') + picksOf('features.fury.beast-shape', 'kit'))[1], 'armor') + itemField((picksOf('features.common.kit', 'kit') + picksOf('features.tactician.field-arsenal', 'kit') + picksOf('features.fury.beast-shape', 'kit'))[1], 'weapons') : [])
+        + (@features.conduit.prayer-of-soldiers-skill in picksOf('classes.conduit', 'prayer')
+          ? ['armor.light', 'weapon.light'] : [])
+
 constraints:
   # A creature can safely carry at most three leveled treasures (a 9th-level Authority's End
   # doesn't count).
@@ -27,3 +40,7 @@ constraints:
       countCopies(copy.type == 'leveledTreasure'
         && !(level >= 9 && copy.item == @treasures.leveled.authoritys-end)) <= 3
     data: { limit: 3 }
+
+display:
+  fields:
+    kit.gear: { hidden: true }
