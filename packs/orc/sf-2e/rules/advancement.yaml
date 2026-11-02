@@ -29,9 +29,25 @@ actions:
               && (!('skill-training' in item.tags)
                 || countList(item.tags, x in skills.trained || x in skills.chosen) == 0)
         budget: skills.increasesPerLevel
+      - id: order
+        kind: branch
+        cases:
+          - when: true
+            flags:
+              order: >-
+                ['orc-sf-2e:boosts.' + class.keyAttribute, @boosts.con, @boosts.dex, @boosts.wis,
+                  @boosts.str, @boosts.int, @boosts.cha]
+      # What the new level brings: a boost goes to the key attribute, then Constitution, Dexterity,
+      # Wisdom, Strength, Intelligence and Charisma (as creation's); any other pick to the first
+      # eligible option.
       - id: picks
         kind: choice
         options: { pending: {} }
+        recommend: >-
+          'standard' in options ? 'standard'
+            : countList(options, x in flags.order) > 0
+              ? flags.order[minList(options, indexOf(flags.order, x), x in flags.order)]
+              : options[0]
 
 display:
   fields:

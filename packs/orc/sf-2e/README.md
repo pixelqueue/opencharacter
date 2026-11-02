@@ -53,7 +53,9 @@ console.log(en['fields.defenses.ac.name'], sheet.values['orc-sf-2e:defenses.ac']
 ```
 
 The guided start (`create-character`) pauses for each pick instead, and `level-up` raises the
-level, asking what the new level brings. The [quick start](https://opencharacterformat.org/guides/quick-start/)
+level, asking what the new level brings (each pick recommends: a boost to the key attribute, then
+Constitution, Dexterity, Wisdom, Strength, Intelligence and Charisma, anything else the first
+eligible option). The [quick start](https://opencharacterformat.org/guides/quick-start/)
 and the [guides](https://opencharacterformat.org/guides/) explain each call. Where the book
 leaves a rule open, the pack's reading is listed under [Rule readings](#rule-readings).
 

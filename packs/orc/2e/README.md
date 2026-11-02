@@ -787,6 +787,9 @@ Still closed: attributes, proficiency ranks, saves, spell traditions (and a staf
 - **Leveling:** 1,000 experience offers `level-up` (a derived offer while it holds), which raises the level (Hit
   Points follow), spends the experience, gives a skill increase at 3rd and every odd level after
   (over the increases inputs, each within its `max`), and asks what the new level brings over the pending choices.
+  Those picks recommend: a boost to the key attribute, then Constitution, Dexterity, Wisdom,
+  Strength, Intelligence and Charisma (as creation's), anything else the first eligible option,
+  so under the automatic policy only the skill increase asks.
 - **Sheet layout**: field groups (character, attributes, defenses, saves,
   skills, proficiencies, Bulk, the turn), action groups (Strikes, checks, reactions (a spell
   cast as a reaction too, by a computed tag on `cast-spell`), turns,

@@ -1,0 +1,208 @@
+status: finished
+outcome: {}
+proposedChanges:
+  - to: self
+    step: gain
+    change:
+      type: adjust
+      field: orc-2e:level
+      by: 1
+  - to: self
+    step: gain
+    change:
+      type: adjust
+      field: orc-2e:xp.current
+      by: -1000
+  - to: self
+    step: increase
+    change:
+      type: adjust
+      field: orc-2e:skills.athletics.increases
+      by: 1
+  - to: self
+    step: picks
+    change:
+      type: choose
+      path:
+        choice:
+          - boosts-5
+      option: orc-2e:boosts.str
+  - to: self
+    step: picks
+    change:
+      type: choose
+      path:
+        choice:
+          - boosts-5
+      option: orc-2e:boosts.con
+  - to: self
+    step: picks
+    change:
+      type: choose
+      path:
+        choice:
+          - boosts-5
+      option: orc-2e:boosts.dex
+  - to: self
+    step: picks
+    change:
+      type: choose
+      path:
+        choice:
+          - boosts-5
+      option: orc-2e:boosts.wis
+  - to: self
+    step: picks
+    change:
+      type: choose
+      path:
+        choice:
+          - ancestry-feat-5
+      option: orc-2e:feats.ancestry.clever-improviser
+  - to: self
+    step: picks
+    change:
+      type: choose
+      path:
+        choice:
+          - general-feat-3
+      option: orc-2e:feats.general.adopted-ancestry
+  - to: self
+    step: picks
+    change:
+      type: choose
+      path:
+        choice:
+          - general-feat-3
+          - orc-2e:feats.general.adopted-ancestry
+          - ancestry
+      option: orc-2e:ancestries.catfolk
+  - to: self
+    step: picks
+    change:
+      type: choose
+      path:
+        entry: class
+        choice:
+          - class-feat-4
+      option: orc-2e:feats.archetype.acrobat.acrobat-dedication
+  - to: self
+    step: picks
+    change:
+      type: choose
+      path:
+        entry: class
+        choice:
+          - skill-feat-4
+      option: orc-2e:feats.skill.acrobatic-performer
+  - to: self
+    step: picks
+    change:
+      type: choose
+      path:
+        entry: class
+        choice:
+          - orc-2e:features.fighter.weapon-mastery/group
+      option: group.axe
+log:
+  - step: increase
+    action: orc-2e:level-up
+    kind: allocate
+    by: app
+    amounts:
+      orc-2e:skills.athletics.increases: 1
+  - step: picks
+    action: orc-2e:level-up
+    kind: choice
+    by: engine
+    option: orc-2e:boosts.str
+    index: 0
+    choice:
+      choice:
+        - boosts-5
+  - step: picks
+    action: orc-2e:level-up
+    kind: choice
+    by: engine
+    option: orc-2e:boosts.con
+    index: 1
+    choice:
+      choice:
+        - boosts-5
+  - step: picks
+    action: orc-2e:level-up
+    kind: choice
+    by: engine
+    option: orc-2e:boosts.dex
+    index: 2
+    choice:
+      choice:
+        - boosts-5
+  - step: picks
+    action: orc-2e:level-up
+    kind: choice
+    by: engine
+    option: orc-2e:boosts.wis
+    index: 3
+    choice:
+      choice:
+        - boosts-5
+  - step: picks
+    action: orc-2e:level-up
+    kind: choice
+    by: engine
+    option: orc-2e:feats.ancestry.clever-improviser
+    index: 4
+    choice:
+      choice:
+        - ancestry-feat-5
+  - step: picks
+    action: orc-2e:level-up
+    kind: choice
+    by: engine
+    option: orc-2e:feats.general.adopted-ancestry
+    index: 5
+    choice:
+      choice:
+        - general-feat-3
+  - step: picks
+    action: orc-2e:level-up
+    kind: choice
+    by: engine
+    option: orc-2e:ancestries.catfolk
+    index: 6
+    choice:
+      choice:
+        - general-feat-3
+        - orc-2e:feats.general.adopted-ancestry
+        - ancestry
+  - step: picks
+    action: orc-2e:level-up
+    kind: choice
+    by: engine
+    option: orc-2e:feats.archetype.acrobat.acrobat-dedication
+    index: 7
+    choice:
+      entry: class
+      choice:
+        - class-feat-4
+  - step: picks
+    action: orc-2e:level-up
+    kind: choice
+    by: engine
+    option: orc-2e:feats.skill.acrobatic-performer
+    index: 8
+    choice:
+      entry: class
+      choice:
+        - skill-feat-4
+  - step: picks
+    action: orc-2e:level-up
+    kind: choice
+    by: engine
+    option: group.axe
+    index: 9
+    choice:
+      entry: class
+      choice:
+        - orc-2e:features.fighter.weapon-mastery/group
