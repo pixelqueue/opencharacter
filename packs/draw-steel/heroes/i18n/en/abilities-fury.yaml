@@ -3,9 +3,9 @@ abilities.fury.thunder-roar.description: '*You unleash a howl that hurls your en
 abilities.fury.thunder-roar.texts.target: Each enemy in the area
 abilities.fury.thunder-roar.texts.distance: 5 x 1 line within 1
 abilities.fury.thunder-roar.texts.roll: Power Roll + Might
-abilities.fury.thunder-roar.texts.tier1: 6 damage; push 2
-abilities.fury.thunder-roar.texts.tier2: 9 damage; push 4
-abilities.fury.thunder-roar.texts.tier3: 13 damage; push 6
+abilities.fury.thunder-roar.texts.tier1: '{has_self_damage1, select, true {{self_damage1}} other {6}} damage; push 2'
+abilities.fury.thunder-roar.texts.tier2: '{has_self_damage2, select, true {{self_damage2}} other {9}} damage; push 4'
+abilities.fury.thunder-roar.texts.tier3: '{has_self_damage3, select, true {{self_damage3}} other {13}} damage; push 6'
 abilities.fury.thunder-roar.texts.effect: 'Effect: The targets are force moved one at a time,
   starting with the target nearest to you, and can be pushed into other targets in the same line.'
 abilities.fury.hit-and-run.name: Hit and Run
@@ -13,9 +13,9 @@ abilities.fury.hit-and-run.description: '*Staying in constant motion helps you s
 abilities.fury.hit-and-run.texts.target: One creature or object
 abilities.fury.hit-and-run.texts.distance: Melee 1
 abilities.fury.hit-and-run.texts.roll: Power Roll + Might
-abilities.fury.hit-and-run.texts.tier1: 2 + M damage
-abilities.fury.hit-and-run.texts.tier2: 5 + M damage
-abilities.fury.hit-and-run.texts.tier3: 7 + M damage; A < STRONG, slowed (save ends)
+abilities.fury.hit-and-run.texts.tier1: '{has_self_damage1, select, true {{self_damage1}} other {2 + M}} damage'
+abilities.fury.hit-and-run.texts.tier2: '{has_self_damage2, select, true {{self_damage2}} other {5 + M}} damage'
+abilities.fury.hit-and-run.texts.tier3: '{has_self_damage3, select, true {{self_damage3}} other {7 + M}} damage; A < {has_self_potency3, select, true {{self_potency3}} other {STRONG}}, slowed (save ends)'
 abilities.fury.hit-and-run.texts.effect: 'Effect: You can shift 1 square.'
 abilities.fury.unearthly-reflexes.name: Unearthly Reflexes
 abilities.fury.unearthly-reflexes.description: '*You are as elusive as a hummingbird.*'
@@ -40,18 +40,18 @@ abilities.fury.blood-for-blood.description: "*See how well they fight after you'
 abilities.fury.blood-for-blood.texts.target: One creature or object
 abilities.fury.blood-for-blood.texts.distance: Melee 1
 abilities.fury.blood-for-blood.texts.roll: Power Roll + Might
-abilities.fury.blood-for-blood.texts.tier1: 4 + M damage; M < WEAK, bleeding and weakened (save ends)
-abilities.fury.blood-for-blood.texts.tier2: 6 + M damage; M < AVERAGE, bleeding and weakened (save ends)
-abilities.fury.blood-for-blood.texts.tier3: 10 + M damage; M < STRONG, bleeding and weakened (save ends)
+abilities.fury.blood-for-blood.texts.tier1: '{has_self_damage1, select, true {{self_damage1}} other {4 + M}} damage; M < WEAK, bleeding and weakened (save ends)'
+abilities.fury.blood-for-blood.texts.tier2: '{has_self_damage2, select, true {{self_damage2}} other {6 + M}} damage; M < AVERAGE, bleeding and weakened (save ends)'
+abilities.fury.blood-for-blood.texts.tier3: '{has_self_damage3, select, true {{self_damage3}} other {10 + M}} damage; M < STRONG, bleeding and weakened (save ends)'
 abilities.fury.blood-for-blood.texts.effect: 'Effect: You can deal 1d6 damage to yourself to deal an extra 1d6 damage to the target.'
 abilities.fury.to-the-death.name: To the Death!
 abilities.fury.to-the-death.description: '*Your reckless assault leaves you tactically vulnerable.*'
 abilities.fury.to-the-death.texts.target: One creature or object
 abilities.fury.to-the-death.texts.distance: Melee 1
 abilities.fury.to-the-death.texts.roll: Power Roll + Might
-abilities.fury.to-the-death.texts.tier1: 3 + M damage
-abilities.fury.to-the-death.texts.tier2: 6 + M damage
-abilities.fury.to-the-death.texts.tier3: 9 + M damage
+abilities.fury.to-the-death.texts.tier1: '{has_self_damage1, select, true {{self_damage1}} other {3 + M}} damage'
+abilities.fury.to-the-death.texts.tier2: '{has_self_damage2, select, true {{self_damage2}} other {6 + M}} damage'
+abilities.fury.to-the-death.texts.tier3: '{has_self_damage3, select, true {{self_damage3}} other {9 + M}} damage'
 abilities.fury.to-the-death.texts.effect: 'Effect: You gain 2 surges, and the target can make an
   opportunity attack against you as a free triggered action.'
 abilities.fury.tide-of-death.name: Tide of Death
@@ -59,9 +59,9 @@ abilities.fury.tide-of-death.description: '*Teach them the folly of lining up fo
 abilities.fury.tide-of-death.texts.target: Self
 abilities.fury.tide-of-death.texts.distance: Self; see below
 abilities.fury.tide-of-death.texts.roll: Power Roll + Might
-abilities.fury.tide-of-death.texts.tier1: 2 damage
-abilities.fury.tide-of-death.texts.tier2: 3 damage
-abilities.fury.tide-of-death.texts.tier3: 5 damage
+abilities.fury.tide-of-death.texts.tier1: '{has_self_damage1, select, true {{self_damage1}} other {2}} damage'
+abilities.fury.tide-of-death.texts.tier2: '{has_self_damage2, select, true {{self_damage2}} other {3}} damage'
+abilities.fury.tide-of-death.texts.tier3: '{has_self_damage3, select, true {{self_damage3}} other {5}} damage'
 abilities.fury.tide-of-death.texts.effect: >-
   Effect: You move up to your speed in a straight line, and enemy squares are not difficult terrain
   for this movement. You can end this movement in a creature's space and move them to an adjacent
@@ -75,9 +75,9 @@ abilities.fury.out-of-the-way.description: '*Your enemies will clear your pathâ€
 abilities.fury.out-of-the-way.texts.target: One creature
 abilities.fury.out-of-the-way.texts.distance: Melee 1
 abilities.fury.out-of-the-way.texts.roll: Power Roll + Might
-abilities.fury.out-of-the-way.texts.tier1: 3 + M damage; slide 2
-abilities.fury.out-of-the-way.texts.tier2: 5 + M damage; slide 3
-abilities.fury.out-of-the-way.texts.tier3: 8 + M damage; slide 5
+abilities.fury.out-of-the-way.texts.tier1: '{has_self_damage1, select, true {{self_damage1}} other {3 + M}} damage; slide 2'
+abilities.fury.out-of-the-way.texts.tier2: '{has_self_damage2, select, true {{self_damage2}} other {5 + M}} damage; slide 3'
+abilities.fury.out-of-the-way.texts.tier3: '{has_self_damage3, select, true {{self_damage3}} other {8 + M}} damage; slide 5'
 abilities.fury.out-of-the-way.texts.effect: 'Effect: When you slide the target, you can move into
   any square they leave. If you take damage from an opportunity attack by moving this way, the
   target takes the same damage.'
@@ -86,33 +86,33 @@ abilities.fury.brutal-slam.description: '*The heavy impact of your weapon attack
 abilities.fury.brutal-slam.texts.target: One creature or object
 abilities.fury.brutal-slam.texts.distance: Melee 1
 abilities.fury.brutal-slam.texts.roll: Power Roll + Might
-abilities.fury.brutal-slam.texts.tier1: 3 + M damage; push 1
-abilities.fury.brutal-slam.texts.tier2: 6 + M damage; push 2
-abilities.fury.brutal-slam.texts.tier3: 9 + M damage; push 4
+abilities.fury.brutal-slam.texts.tier1: '{has_self_damage1, select, true {{self_damage1}} other {3 + M}} damage; push 1'
+abilities.fury.brutal-slam.texts.tier2: '{has_self_damage2, select, true {{self_damage2}} other {6 + M}} damage; push 2'
+abilities.fury.brutal-slam.texts.tier3: '{has_self_damage3, select, true {{self_damage3}} other {9 + M}} damage; push 4'
 abilities.fury.back.name: Back!
 abilities.fury.back.description: '*You hew about you with your mighty weapon, hurling enemies backward.*'
 abilities.fury.back.texts.target: Each enemy in the area
 abilities.fury.back.texts.distance: 1 burst
 abilities.fury.back.texts.roll: Power Roll + Might
-abilities.fury.back.texts.tier1: 5 damage
-abilities.fury.back.texts.tier2: 8 damage; push 1
-abilities.fury.back.texts.tier3: 11 damage; push 3
+abilities.fury.back.texts.tier1: '{has_self_damage1, select, true {{self_damage1}} other {5}} damage'
+abilities.fury.back.texts.tier2: '{has_self_damage2, select, true {{self_damage2}} other {8}} damage; push 1'
+abilities.fury.back.texts.tier3: '{has_self_damage3, select, true {{self_damage3}} other {11}} damage; push 3'
 abilities.fury.impaled.name: Impaled!
 abilities.fury.impaled.description: '*You skewer your enemy like a boar upon a spit.*'
 abilities.fury.impaled.texts.target: One creature of your size or smaller
 abilities.fury.impaled.texts.distance: Melee 1
 abilities.fury.impaled.texts.roll: Power Roll + Might
-abilities.fury.impaled.texts.tier1: 2 + M damage; M < WEAK, grabbed
-abilities.fury.impaled.texts.tier2: 5 + M damage; M < AVERAGE, grabbed
-abilities.fury.impaled.texts.tier3: 7 + M damage; M < STRONG, grabbed
+abilities.fury.impaled.texts.tier1: '{has_self_damage1, select, true {{self_damage1}} other {2 + M}} damage; M < {has_self_potency1, select, true {{self_potency1}} other {WEAK}}, grabbed'
+abilities.fury.impaled.texts.tier2: '{has_self_damage2, select, true {{self_damage2}} other {5 + M}} damage; M < {has_self_potency2, select, true {{self_potency2}} other {AVERAGE}}, grabbed'
+abilities.fury.impaled.texts.tier3: '{has_self_damage3, select, true {{self_damage3}} other {7 + M}} damage; M < {has_self_potency3, select, true {{self_potency3}} other {STRONG}}, grabbed'
 abilities.fury.your-entrails-are-your-extrails.name: Your Entrails Are Your Extrails!
 abilities.fury.your-entrails-are-your-extrails.description: "*Hard for them to fight when they're busy holding in their giblets.*"
 abilities.fury.your-entrails-are-your-extrails.texts.target: One creature or object
 abilities.fury.your-entrails-are-your-extrails.texts.distance: Melee 1
 abilities.fury.your-entrails-are-your-extrails.texts.roll: Power Roll + Might
-abilities.fury.your-entrails-are-your-extrails.texts.tier1: 3 + M damage; M < WEAK, bleeding (save ends)
-abilities.fury.your-entrails-are-your-extrails.texts.tier2: 5 + M damage; M < AVERAGE, bleeding (save ends)
-abilities.fury.your-entrails-are-your-extrails.texts.tier3: 8 + M damage; M < STRONG, bleeding (save ends)
+abilities.fury.your-entrails-are-your-extrails.texts.tier1: '{has_self_damage1, select, true {{self_damage1}} other {3 + M}} damage; M < {has_self_potency1, select, true {{self_potency1}} other {WEAK}}, bleeding (save ends)'
+abilities.fury.your-entrails-are-your-extrails.texts.tier2: '{has_self_damage2, select, true {{self_damage2}} other {5 + M}} damage; M < {has_self_potency2, select, true {{self_potency2}} other {AVERAGE}}, bleeding (save ends)'
+abilities.fury.your-entrails-are-your-extrails.texts.tier3: '{has_self_damage3, select, true {{self_damage3}} other {8 + M}} damage; M < {has_self_potency3, select, true {{self_potency3}} other {STRONG}}, bleeding (save ends)'
 abilities.fury.your-entrails-are-your-extrails.texts.effect: 'Effect: While bleeding this way, the
   target takes damage equal to your Might score at the end of each of your turns.'
 abilities.fury.to-the-uttermost-end.name: To the Uttermost End
@@ -120,9 +120,9 @@ abilities.fury.to-the-uttermost-end.description: "*You gut your life force to en
 abilities.fury.to-the-uttermost-end.texts.target: One creature
 abilities.fury.to-the-uttermost-end.texts.distance: Melee 1
 abilities.fury.to-the-uttermost-end.texts.roll: Power Roll + Might
-abilities.fury.to-the-uttermost-end.texts.tier1: 7 + M damage
-abilities.fury.to-the-uttermost-end.texts.tier2: 11 + M damage
-abilities.fury.to-the-uttermost-end.texts.tier3: 16 + M damage
+abilities.fury.to-the-uttermost-end.texts.tier1: '{has_self_damage1, select, true {{self_damage1}} other {7 + M}} damage'
+abilities.fury.to-the-uttermost-end.texts.tier2: '{has_self_damage2, select, true {{self_damage2}} other {11 + M}} damage'
+abilities.fury.to-the-uttermost-end.texts.tier3: '{has_self_damage3, select, true {{self_damage3}} other {16 + M}} damage'
 abilities.fury.to-the-uttermost-end.texts.effect: 'Spend 1+ Ferocity: While you are winded, this
   ability deals an extra 1d6 damage for each ferocity spent. While you are dying, it deals an extra
   1d10 damage for each ferocity spent. In either case, you lose 1d6 Stamina after making this
@@ -186,9 +186,9 @@ abilities.fury.overkill.description: '*You strike so no damage is wasted.*'
 abilities.fury.overkill.texts.target: One creature
 abilities.fury.overkill.texts.distance: Melee 1
 abilities.fury.overkill.texts.roll: Power Roll + Might
-abilities.fury.overkill.texts.tier1: 6 + M damage
-abilities.fury.overkill.texts.tier2: 10 + M damage
-abilities.fury.overkill.texts.tier3: 14 + M damage
+abilities.fury.overkill.texts.tier1: '{has_self_damage1, select, true {{self_damage1}} other {6 + M}} damage'
+abilities.fury.overkill.texts.tier2: '{has_self_damage2, select, true {{self_damage2}} other {10 + M}} damage'
+abilities.fury.overkill.texts.tier3: '{has_self_damage3, select, true {{self_damage3}} other {14 + M}} damage'
 abilities.fury.overkill.texts.effect: "Effect: If the target is a minion or is winded but isn't a
   leader or solo creature, they are reduced to 0 Stamina before this ability's damage is dealt. If
   the target is killed by this damage, you can deal any damage over what was required to kill them
@@ -198,9 +198,9 @@ abilities.fury.avalanche-impact.description: '*You leap and crash down, causing 
 abilities.fury.avalanche-impact.texts.target: Self
 abilities.fury.avalanche-impact.texts.distance: Self
 abilities.fury.avalanche-impact.texts.roll: Power Roll + Might
-abilities.fury.avalanche-impact.texts.tier1: 4 damage; push 1
-abilities.fury.avalanche-impact.texts.tier2: 7 damage; push 2
-abilities.fury.avalanche-impact.texts.tier3: 11 damage; push 3
+abilities.fury.avalanche-impact.texts.tier1: '{has_self_damage1, select, true {{self_damage1}} other {4}} damage; push 1'
+abilities.fury.avalanche-impact.texts.tier2: '{has_self_damage2, select, true {{self_damage2}} other {7}} damage; push 2'
+abilities.fury.avalanche-impact.texts.tier3: '{has_self_damage3, select, true {{self_damage3}} other {11}} damage; push 3'
 abilities.fury.avalanche-impact.texts.effect: 'Effect: You jump up to your maximum jump distance and
   make one power roll that targets each creature adjacent to the space where you land.'
 abilities.fury.force-of-storms.name: Force of Storms
@@ -208,9 +208,9 @@ abilities.fury.force-of-storms.description: '*You strike an enemy hard enough to
 abilities.fury.force-of-storms.texts.target: One creature
 abilities.fury.force-of-storms.texts.distance: Melee 1
 abilities.fury.force-of-storms.texts.roll: Power Roll + Might
-abilities.fury.force-of-storms.texts.tier1: 7 + M damage; push 3
-abilities.fury.force-of-storms.texts.tier2: 11 + M damage; push 5
-abilities.fury.force-of-storms.texts.tier3: 16 + M damage; push 7
+abilities.fury.force-of-storms.texts.tier1: '{has_self_damage1, select, true {{self_damage1}} other {7 + M}} damage; push 3'
+abilities.fury.force-of-storms.texts.tier2: '{has_self_damage2, select, true {{self_damage2}} other {11 + M}} damage; push 5'
+abilities.fury.force-of-storms.texts.tier3: '{has_self_damage3, select, true {{self_damage3}} other {16 + M}} damage; push 7'
 abilities.fury.force-of-storms.texts.effect: 'Effect: When the target ends this forced movement,
   each creature within 2 squares of the target is pushed 3 squares.'
 abilities.fury.seek-and-destroy.name: Seek and Destroy
@@ -218,9 +218,9 @@ abilities.fury.seek-and-destroy.description: '*You break through the enemy lines
 abilities.fury.seek-and-destroy.texts.target: One creature
 abilities.fury.seek-and-destroy.texts.distance: Melee 1
 abilities.fury.seek-and-destroy.texts.roll: Power Roll + Might
-abilities.fury.seek-and-destroy.texts.tier1: 4 + M damage; P < WEAK, frightened (save ends)
-abilities.fury.seek-and-destroy.texts.tier2: 6 + M damage; P < AVERAGE, frightened (save ends)
-abilities.fury.seek-and-destroy.texts.tier3: 10 + M damage; P < STRONG, frightened (save ends)
+abilities.fury.seek-and-destroy.texts.tier1: '{has_self_damage1, select, true {{self_damage1}} other {4 + M}} damage; P < {has_self_potency1, select, true {{self_potency1}} other {WEAK}}, frightened (save ends)'
+abilities.fury.seek-and-destroy.texts.tier2: '{has_self_damage2, select, true {{self_damage2}} other {6 + M}} damage; P < {has_self_potency2, select, true {{self_potency2}} other {AVERAGE}}, frightened (save ends)'
+abilities.fury.seek-and-destroy.texts.tier3: '{has_self_damage3, select, true {{self_damage3}} other {10 + M}} damage; P < {has_self_potency3, select, true {{self_potency3}} other {STRONG}}, frightened (save ends)'
 abilities.fury.seek-and-destroy.texts.effect: >-
   Effect: You shift up to your speed.
 
@@ -255,9 +255,9 @@ abilities.fury.pounce.description: '*You strike at the target like the ultimate 
 abilities.fury.pounce.texts.target: One creature
 abilities.fury.pounce.texts.distance: Melee 1
 abilities.fury.pounce.texts.roll: Power Roll + Might
-abilities.fury.pounce.texts.tier1: 8 damage; M < WEAK, grabbed
-abilities.fury.pounce.texts.tier2: 13 damage; M < AVERAGE, grabbed
-abilities.fury.pounce.texts.tier3: 17 damage; M < STRONG, grabbed
+abilities.fury.pounce.texts.tier1: '{has_self_damage1, select, true {{self_damage1}} other {8}} damage; M < {has_self_potency1, select, true {{self_potency1}} other {WEAK}}, grabbed'
+abilities.fury.pounce.texts.tier2: '{has_self_damage2, select, true {{self_damage2}} other {13}} damage; M < {has_self_potency2, select, true {{self_potency2}} other {AVERAGE}}, grabbed'
+abilities.fury.pounce.texts.tier3: '{has_self_damage3, select, true {{self_damage3}} other {17}} damage; M < {has_self_potency3, select, true {{self_potency3}} other {STRONG}}, grabbed'
 abilities.fury.pounce.texts.effect: 'Effect: You can shift up to 4 squares, bringing the target with
   you. While grabbed this way, the target takes damage equal to twice your Might score at the start
   of each of your turns.'
@@ -267,18 +267,18 @@ abilities.fury.my-turn.texts.trigger: A creature causes you to be winded or dyin
 abilities.fury.my-turn.texts.target: The triggering creature
 abilities.fury.my-turn.texts.distance: Melee 1
 abilities.fury.my-turn.texts.roll: Power Roll + Might
-abilities.fury.my-turn.texts.tier1: 6 + M damage
-abilities.fury.my-turn.texts.tier2: 9 + M damage
-abilities.fury.my-turn.texts.tier3: 13 + M damage
+abilities.fury.my-turn.texts.tier1: '{has_self_damage1, select, true {{self_damage1}} other {6 + M}} damage'
+abilities.fury.my-turn.texts.tier2: '{has_self_damage2, select, true {{self_damage2}} other {9 + M}} damage'
+abilities.fury.my-turn.texts.tier3: '{has_self_damage3, select, true {{self_damage3}} other {13 + M}} damage'
 abilities.fury.my-turn.texts.effect: 'Effect: You can spend a Recovery.'
 abilities.fury.rebounding-storm.name: Rebounding Storm
 abilities.fury.rebounding-storm.description: '*You knock around enemies like playthings.*'
 abilities.fury.rebounding-storm.texts.target: Two creatures or objects
 abilities.fury.rebounding-storm.texts.distance: Melee 1
 abilities.fury.rebounding-storm.texts.roll: Power Roll + Might
-abilities.fury.rebounding-storm.texts.tier1: 9 damage; push 3
-abilities.fury.rebounding-storm.texts.tier2: 14 damage; push 5
-abilities.fury.rebounding-storm.texts.tier3: 19 damage; push 7
+abilities.fury.rebounding-storm.texts.tier1: '{has_self_damage1, select, true {{self_damage1}} other {9}} damage; push 3'
+abilities.fury.rebounding-storm.texts.tier2: '{has_self_damage2, select, true {{self_damage2}} other {14}} damage; push 5'
+abilities.fury.rebounding-storm.texts.tier3: '{has_self_damage3, select, true {{self_damage3}} other {19}} damage; push 7'
 abilities.fury.rebounding-storm.texts.effect: 'Effect: When a target would end this forced movement
   by colliding with a creature or object, they take damage as usual, then are pushed the remaining
   distance away from the creature or object in the direction they came from. As long as forced
@@ -288,9 +288,9 @@ abilities.fury.debilitating-strike.description: '*You need just one blow to sabo
 abilities.fury.debilitating-strike.texts.target: One creature
 abilities.fury.debilitating-strike.texts.distance: Melee 1
 abilities.fury.debilitating-strike.texts.roll: Power Roll + Might
-abilities.fury.debilitating-strike.texts.tier1: 10 + M damage; M < WEAK, slowed (save ends)
-abilities.fury.debilitating-strike.texts.tier2: 14 + M damage; M < AVERAGE, slowed (save ends)
-abilities.fury.debilitating-strike.texts.tier3: 20 + M damage; M < STRONG, slowed (save ends)
+abilities.fury.debilitating-strike.texts.tier1: '{has_self_damage1, select, true {{self_damage1}} other {10 + M}} damage; M < {has_self_potency1, select, true {{self_potency1}} other {WEAK}}, slowed (save ends)'
+abilities.fury.debilitating-strike.texts.tier2: '{has_self_damage2, select, true {{self_damage2}} other {14 + M}} damage; M < {has_self_potency2, select, true {{self_potency2}} other {AVERAGE}}, slowed (save ends)'
+abilities.fury.debilitating-strike.texts.tier3: '{has_self_damage3, select, true {{self_damage3}} other {20 + M}} damage; M < {has_self_potency3, select, true {{self_potency3}} other {STRONG}}, slowed (save ends)'
 abilities.fury.debilitating-strike.texts.effect: 'Effect: While slowed this way, the target takes 1
   damage for every square they move, including from forced movement.'
 abilities.fury.to-stone.name: To Stone!
@@ -298,9 +298,9 @@ abilities.fury.to-stone.description: '*You channel the Primordial Chaos into blo
 abilities.fury.to-stone.texts.target: One creature
 abilities.fury.to-stone.texts.distance: Melee 1
 abilities.fury.to-stone.texts.roll: Power Roll + Might
-abilities.fury.to-stone.texts.tier1: 9 + M damage; M < WEAK, slowed (save ends)
-abilities.fury.to-stone.texts.tier2: 13 + M damage; M < AVERAGE, slowed (save ends)
-abilities.fury.to-stone.texts.tier3: 18 + M damage; M < STRONG, restrained (save ends)
+abilities.fury.to-stone.texts.tier1: '{has_self_damage1, select, true {{self_damage1}} other {9 + M}} damage; M < {has_self_potency1, select, true {{self_potency1}} other {WEAK}}, slowed (save ends)'
+abilities.fury.to-stone.texts.tier2: '{has_self_damage2, select, true {{self_damage2}} other {13 + M}} damage; M < {has_self_potency2, select, true {{self_potency2}} other {AVERAGE}}, slowed (save ends)'
+abilities.fury.to-stone.texts.tier3: '{has_self_damage3, select, true {{self_damage3}} other {18 + M}} damage; M < {has_self_potency3, select, true {{self_potency3}} other {STRONG}}, restrained (save ends)'
 abilities.fury.to-stone.texts.effect: 'Effect: While the target is slowed this way, any other effect
   that would make the target slowed instead makes them restrained by this ability. Additionally, a
   creature who fails the saving throw while restrained this way is petrified until they are given a
@@ -310,9 +310,9 @@ abilities.fury.phalanx-breaker.description: '*Organizing your forces like feckle
 abilities.fury.phalanx-breaker.texts.target: Self
 abilities.fury.phalanx-breaker.texts.distance: Self; see below
 abilities.fury.phalanx-breaker.texts.roll: Power Roll + Might
-abilities.fury.phalanx-breaker.texts.tier1: 2 damage; A < WEAK, dazed (save ends)
-abilities.fury.phalanx-breaker.texts.tier2: 4 damage; A < AVERAGE, dazed (save ends)
-abilities.fury.phalanx-breaker.texts.tier3: 6 damage; A < STRONG, dazed (save ends)
+abilities.fury.phalanx-breaker.texts.tier1: '{has_self_damage1, select, true {{self_damage1}} other {2}} damage; A < {has_self_potency1, select, true {{self_potency1}} other {WEAK}}, dazed (save ends)'
+abilities.fury.phalanx-breaker.texts.tier2: '{has_self_damage2, select, true {{self_damage2}} other {4}} damage; A < {has_self_potency2, select, true {{self_potency2}} other {AVERAGE}}, dazed (save ends)'
+abilities.fury.phalanx-breaker.texts.tier3: '{has_self_damage3, select, true {{self_damage3}} other {6}} damage; A < {has_self_potency3, select, true {{self_potency3}} other {STRONG}}, dazed (save ends)'
 abilities.fury.phalanx-breaker.texts.effect: 'Effect: You shift up to your speed and make one power
   roll that targets up to three enemies you move adjacent to during this shift.'
 abilities.fury.special-delivery.name: Special Delivery
@@ -343,17 +343,17 @@ abilities.fury.death-death.description: '*Your unbridled rage strikes terror in 
 abilities.fury.death-death.texts.target: One creature
 abilities.fury.death-death.texts.distance: Melee 1
 abilities.fury.death-death.texts.roll: Power Roll + Might
-abilities.fury.death-death.texts.tier1: 3 + M damage; P < WEAK, dazed and frightened (save ends)
-abilities.fury.death-death.texts.tier2: 5 + M damage; P < AVERAGE, dazed and frightened (save ends)
-abilities.fury.death-death.texts.tier3: 8 + M damage; P < STRONG, dazed and frightened (save ends)
+abilities.fury.death-death.texts.tier1: '{has_self_damage1, select, true {{self_damage1}} other {3 + M}} damage; P < WEAK, dazed and frightened (save ends)'
+abilities.fury.death-death.texts.tier2: '{has_self_damage2, select, true {{self_damage2}} other {5 + M}} damage; P < AVERAGE, dazed and frightened (save ends)'
+abilities.fury.death-death.texts.tier3: '{has_self_damage3, select, true {{self_damage3}} other {8 + M}} damage; P < STRONG, dazed and frightened (save ends)'
 abilities.fury.apex-predator.name: Apex Predator
 abilities.fury.apex-predator.description: '*I will hunt you down.*'
 abilities.fury.apex-predator.texts.target: One creature
 abilities.fury.apex-predator.texts.distance: Melee 1
 abilities.fury.apex-predator.texts.roll: Power Roll + Might
-abilities.fury.apex-predator.texts.tier1: 4 damage; I < WEAK, slowed (save ends)
-abilities.fury.apex-predator.texts.tier2: 6 damage; I < AVERAGE, slowed (save ends)
-abilities.fury.apex-predator.texts.tier3: 10 damage; I < STRONG, slowed (save ends)
+abilities.fury.apex-predator.texts.tier1: '{has_self_damage1, select, true {{self_damage1}} other {4}} damage; I < {has_self_potency1, select, true {{self_potency1}} other {WEAK}}, slowed (save ends)'
+abilities.fury.apex-predator.texts.tier2: '{has_self_damage2, select, true {{self_damage2}} other {6}} damage; I < {has_self_potency2, select, true {{self_potency2}} other {AVERAGE}}, slowed (save ends)'
+abilities.fury.apex-predator.texts.tier3: '{has_self_damage3, select, true {{self_damage3}} other {10}} damage; I < {has_self_potency3, select, true {{self_potency3}} other {STRONG}}, slowed (save ends)'
 abilities.fury.apex-predator.texts.effect: "Effect: The target can't be hidden from you for 24
   hours. Until the end of the encounter, whenever the target willingly moves, you can use a free
   triggered action to move."
@@ -362,9 +362,9 @@ abilities.fury.visceral-roar.description: '*The sound of the storm within you st
 abilities.fury.visceral-roar.texts.target: Each enemy in the area
 abilities.fury.visceral-roar.texts.distance: 2 burst
 abilities.fury.visceral-roar.texts.roll: Power Roll + Might
-abilities.fury.visceral-roar.texts.tier1: 2 damage; push 1; M < WEAK, dazed (save ends)
-abilities.fury.visceral-roar.texts.tier2: 5 damage; push 2; M < AVERAGE, dazed (save ends)
-abilities.fury.visceral-roar.texts.tier3: 7 damage; push 3; M < STRONG, dazed (save ends)
+abilities.fury.visceral-roar.texts.tier1: '2 damage; push 1; M < {has_self_potency1, select, true {{self_potency1}} other {WEAK}}, dazed (save ends)'
+abilities.fury.visceral-roar.texts.tier2: '5 damage; push 2; M < {has_self_potency2, select, true {{self_potency2}} other {AVERAGE}}, dazed (save ends)'
+abilities.fury.visceral-roar.texts.tier3: '7 damage; push 3; M < {has_self_potency3, select, true {{self_potency3}} other {STRONG}}, dazed (save ends)'
 abilities.fury.visceral-roar.texts.effect: 'Effect: This ability deals your primordial damage type (see Stormwight Kits).'
 abilities.fury.steelbreaker.name: Steelbreaker
 abilities.fury.steelbreaker.description: '*See how useless their weapons are!*'
@@ -408,9 +408,9 @@ abilities.fury.shower-of-blood.description: '*You shock your foes with the bruta
 abilities.fury.shower-of-blood.texts.target: One creature
 abilities.fury.shower-of-blood.texts.distance: Melee 1
 abilities.fury.shower-of-blood.texts.roll: Power Roll + Might
-abilities.fury.shower-of-blood.texts.tier1: 12 + M damage
-abilities.fury.shower-of-blood.texts.tier2: 18 + M damage
-abilities.fury.shower-of-blood.texts.tier3: 24 + M damage
+abilities.fury.shower-of-blood.texts.tier1: '{has_self_damage1, select, true {{self_damage1}} other {12 + M}} damage'
+abilities.fury.shower-of-blood.texts.tier2: '{has_self_damage2, select, true {{self_damage2}} other {18 + M}} damage'
+abilities.fury.shower-of-blood.texts.tier3: '{has_self_damage3, select, true {{self_damage3}} other {24 + M}} damage'
 abilities.fury.shower-of-blood.texts.effect: "Effect: Each enemy within 5 squares of you is
   distracted until the end of the round. While a creature is distracted this way, they can't take
   triggered actions or free triggered actions, ability rolls made against them gain an edge, and
@@ -420,20 +420,17 @@ abilities.fury.death-rattle.description: '*You unleash an otherworldly cry that 
 abilities.fury.death-rattle.texts.target: Each enemy in the area
 abilities.fury.death-rattle.texts.distance: 3 burst
 abilities.fury.death-rattle.texts.roll: Power Roll + Might
-abilities.fury.death-rattle.texts.tier1: 4 psychic damage; any target who is a minion is reduced to 0 Stamina
-abilities.fury.death-rattle.texts.tier2: 6 psychic damage; any target who is a minion is reduced to
-  0 Stamina, as does one winded target who is not a leader or solo creature
-abilities.fury.death-rattle.texts.tier3: 10 psychic damage; each target who is not a leader or solo
-  creature is winded; any target who is a minion is reduced to 0 Stamina, as does one winded target
-  who is not a leader or solo creature
+abilities.fury.death-rattle.texts.tier1: '{has_self_damage1, select, true {{self_damage1}} other {4}} psychic damage; any target who is a minion is reduced to 0 Stamina'
+abilities.fury.death-rattle.texts.tier2: '{has_self_damage2, select, true {{self_damage2}} other {6}} psychic damage; any target who is a minion is reduced to 0 Stamina, as does one winded target who is not a leader or solo creature'
+abilities.fury.death-rattle.texts.tier3: '{has_self_damage3, select, true {{self_damage3}} other {10}} psychic damage; each target who is not a leader or solo creature is winded; any target who is a minion is reduced to 0 Stamina, as does one winded target who is not a leader or solo creature'
 abilities.fury.death-comes-for-you-all.name: Death Comes for You All!
 abilities.fury.death-comes-for-you-all.description: '*You use your weapon to create a destructive shockwave.*'
 abilities.fury.death-comes-for-you-all.texts.target: Each enemy in the area
 abilities.fury.death-comes-for-you-all.texts.distance: 3 burst
 abilities.fury.death-comes-for-you-all.texts.roll: Power Roll + Might
-abilities.fury.death-comes-for-you-all.texts.tier1: 7 damage; push 3
-abilities.fury.death-comes-for-you-all.texts.tier2: 10 damage; push 5
-abilities.fury.death-comes-for-you-all.texts.tier3: 15 damage; push 7
+abilities.fury.death-comes-for-you-all.texts.tier1: '{has_self_damage1, select, true {{self_damage1}} other {7}} damage; push 3'
+abilities.fury.death-comes-for-you-all.texts.tier2: '{has_self_damage2, select, true {{self_damage2}} other {10}} damage; push 5'
+abilities.fury.death-comes-for-you-all.texts.tier3: '{has_self_damage3, select, true {{self_damage3}} other {15}} damage; push 7'
 abilities.fury.death-comes-for-you-all.texts.effect: 'Effect: If this forced movement causes a
   target to be hurled through an object, that target takes an extra 10 damage.'
 abilities.fury.primordial-bane.name: Primordial Bane
@@ -441,9 +438,9 @@ abilities.fury.primordial-bane.description: '*You attune the target to be weaker
 abilities.fury.primordial-bane.texts.target: One creature
 abilities.fury.primordial-bane.texts.distance: Melee 1
 abilities.fury.primordial-bane.texts.roll: Power Roll + Might
-abilities.fury.primordial-bane.texts.tier1: 11 + M damage
-abilities.fury.primordial-bane.texts.tier2: 16 + M damage
-abilities.fury.primordial-bane.texts.tier3: 21 + M damage
+abilities.fury.primordial-bane.texts.tier1: '{has_self_damage1, select, true {{self_damage1}} other {11 + M}} damage'
+abilities.fury.primordial-bane.texts.tier2: '{has_self_damage2, select, true {{self_damage2}} other {16 + M}} damage'
+abilities.fury.primordial-bane.texts.tier3: '{has_self_damage3, select, true {{self_damage3}} other {21 + M}} damage'
 abilities.fury.primordial-bane.texts.effect: 'Effect: Choose acid, cold, corruption, fire,
   lightning, poison, or sonic damage. The target loses any damage immunity to the chosen type and
   gains weakness 10 to the chosen type (save ends).'
@@ -452,9 +449,9 @@ abilities.fury.primordial-vortex.description: '*You channel the power of the Pri
 abilities.fury.primordial-vortex.texts.target: Each enemy in the area
 abilities.fury.primordial-vortex.texts.distance: 3 burst
 abilities.fury.primordial-vortex.texts.roll: Power Roll + Might
-abilities.fury.primordial-vortex.texts.tier1: 3 damage; vertical pull 3
-abilities.fury.primordial-vortex.texts.tier2: 5 damage; vertical pull 5
-abilities.fury.primordial-vortex.texts.tier3: 8 damage; vertical pull 7
+abilities.fury.primordial-vortex.texts.tier1: '{has_self_damage1, select, true {{self_damage1}} other {3}} damage; vertical pull 3'
+abilities.fury.primordial-vortex.texts.tier2: '{has_self_damage2, select, true {{self_damage2}} other {5}} damage; vertical pull 5'
+abilities.fury.primordial-vortex.texts.tier3: '{has_self_damage3, select, true {{self_damage3}} other {8}} damage; vertical pull 7'
 abilities.fury.primordial-vortex.texts.effect: 'Effect: If this forced movement causes a target to
   slam into you, you take no damage from the collision and the target takes the damage you would
   have taken.'
@@ -463,35 +460,35 @@ abilities.fury.bear-claws.description: '*Attacks with your sharp and deadly claw
 abilities.fury.bear-claws.texts.target: One creature or object
 abilities.fury.bear-claws.texts.distance: Melee 1
 abilities.fury.bear-claws.texts.roll: Power Roll + Might
-abilities.fury.bear-claws.texts.tier1: '2 + M damage; M < WEAK, grabbed'
-abilities.fury.bear-claws.texts.tier2: '5 + M damage; M < AVERAGE, grabbed'
-abilities.fury.bear-claws.texts.tier3: '11 + M damage; M < STRONG, grabbed'
+abilities.fury.bear-claws.texts.tier1: '{has_self_damage1, select, true {{self_damage1}} other {2 + M}} damage; M < {has_self_potency1, select, true {{self_potency1}} other {WEAK}}, grabbed'
+abilities.fury.bear-claws.texts.tier2: '{has_self_damage2, select, true {{self_damage2}} other {5 + M}} damage; M < {has_self_potency2, select, true {{self_potency2}} other {AVERAGE}}, grabbed'
+abilities.fury.bear-claws.texts.tier3: '{has_self_damage3, select, true {{self_damage3}} other {11 + M}} damage; M < {has_self_potency3, select, true {{self_potency3}} other {STRONG}}, grabbed'
 abilities.fury.wing-buffet.name: Wing Buffet
 abilities.fury.wing-buffet.description: '*Foes who try to close in around you do so at their peril.*'
 abilities.fury.wing-buffet.texts.target: Each enemy in the area
 abilities.fury.wing-buffet.texts.distance: 1 burst
 abilities.fury.wing-buffet.texts.roll: Power Roll + Agility
-abilities.fury.wing-buffet.texts.tier1: '3 damage'
-abilities.fury.wing-buffet.texts.tier2: '6 damage'
-abilities.fury.wing-buffet.texts.tier3: '8 damage'
+abilities.fury.wing-buffet.texts.tier1: '{has_self_damage1, select, true {{self_damage1}} other {3}} damage'
+abilities.fury.wing-buffet.texts.tier2: '{has_self_damage2, select, true {{self_damage2}} other {6}} damage'
+abilities.fury.wing-buffet.texts.tier3: '{has_self_damage3, select, true {{self_damage3}} other {8}} damage'
 abilities.fury.wing-buffet.texts.effect: 'Effect: You can shift up to 2 squares before or after making the power roll.'
 abilities.fury.driving-pounce.name: Driving Pounce
 abilities.fury.driving-pounce.description: '*Your enemies try in vain to fall back from your pouncing attack.*'
 abilities.fury.driving-pounce.texts.target: One creature or object
 abilities.fury.driving-pounce.texts.distance: Melee 1
 abilities.fury.driving-pounce.texts.roll: Power Roll + Agility
-abilities.fury.driving-pounce.texts.tier1: '4 + A damage'
-abilities.fury.driving-pounce.texts.tier2: '7 + A damage; push 1'
-abilities.fury.driving-pounce.texts.tier3: '9 + A damage; push 2'
+abilities.fury.driving-pounce.texts.tier1: '{has_self_damage1, select, true {{self_damage1}} other {4 + A}} damage'
+abilities.fury.driving-pounce.texts.tier2: '{has_self_damage2, select, true {{self_damage2}} other {7 + A}} damage; push 1'
+abilities.fury.driving-pounce.texts.tier3: '{has_self_damage3, select, true {{self_damage3}} other {9 + A}} damage; push 2'
 abilities.fury.driving-pounce.texts.effect: 'Effect: You can shift up to the same number of squares that you pushed the target.'
 abilities.fury.unbalancing-attack.name: Unbalancing Attack
 abilities.fury.unbalancing-attack.description: '*A wild assault forces your foe onto their back.*'
 abilities.fury.unbalancing-attack.texts.target: One creature or object
 abilities.fury.unbalancing-attack.texts.distance: Melee 1
 abilities.fury.unbalancing-attack.texts.roll: Power Roll + Might
-abilities.fury.unbalancing-attack.texts.tier1: '4 + M damage; A < WEAK, prone'
-abilities.fury.unbalancing-attack.texts.tier2: '7 + M damage; A < AVERAGE, prone'
-abilities.fury.unbalancing-attack.texts.tier3: '9 + M damage; A < STRONG, prone'
+abilities.fury.unbalancing-attack.texts.tier1: '{has_self_damage1, select, true {{self_damage1}} other {4 + M}} damage; A < {has_self_potency1, select, true {{self_potency1}} other {WEAK}}, prone'
+abilities.fury.unbalancing-attack.texts.tier2: '{has_self_damage2, select, true {{self_damage2}} other {7 + M}} damage; A < {has_self_potency2, select, true {{self_potency2}} other {AVERAGE}}, prone'
+abilities.fury.unbalancing-attack.texts.tier3: '{has_self_damage3, select, true {{self_damage3}} other {9 + M}} damage; A < {has_self_potency3, select, true {{self_potency3}} other {STRONG}}, prone'
 abilities.fury.aspect-of-the-wild.name: Aspect of the Wild
 abilities.fury.aspect-of-the-wild.description: '*You assume the form of the animal who channels your ferocity.*'
 abilities.fury.aspect-of-the-wild.texts.target: Self

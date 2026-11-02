@@ -11,25 +11,25 @@ abilities.tactician.inspiring-strike.description: '*Your attack gives an ally ho
 abilities.tactician.inspiring-strike.texts.target: One creature or object
 abilities.tactician.inspiring-strike.texts.distance: Melee 1 or ranged 5
 abilities.tactician.inspiring-strike.texts.roll: Power Roll + Might
-abilities.tactician.inspiring-strike.texts.tier1: 3 + M damage; you or one ally within 10 squares of you can spend a Recovery
-abilities.tactician.inspiring-strike.texts.tier2: 5 + M damage; you or one ally within 10 squares of you can spend a Recovery
-abilities.tactician.inspiring-strike.texts.tier3: 8 + M damage; you and one ally within 10 squares of you can spend a Recovery, and each of you gains an edge on the next ability roll you make during the encounter
+abilities.tactician.inspiring-strike.texts.tier1: '{has_self_damage1, select, true {{self_damage1}} other {3 + M}} damage; you or one ally within 10 squares of you can spend a Recovery'
+abilities.tactician.inspiring-strike.texts.tier2: '{has_self_damage2, select, true {{self_damage2}} other {5 + M}} damage; you or one ally within 10 squares of you can spend a Recovery'
+abilities.tactician.inspiring-strike.texts.tier3: '{has_self_damage3, select, true {{self_damage3}} other {8 + M}} damage; you and one ally within 10 squares of you can spend a Recovery, and each of you gains an edge on the next ability roll you make during the encounter'
 abilities.tactician.concussive-strike.name: Concussive Strike
 abilities.tactician.concussive-strike.description: '*Your precise strike leaves your foe struggling to respond.*'
 abilities.tactician.concussive-strike.texts.target: One creature or object
 abilities.tactician.concussive-strike.texts.distance: Melee 1 or ranged 5
 abilities.tactician.concussive-strike.texts.roll: Power Roll + Might
-abilities.tactician.concussive-strike.texts.tier1: 3 + M damage; M < WEAK, dazed (save ends)
-abilities.tactician.concussive-strike.texts.tier2: 5 + M damage; M < AVERAGE, dazed (save ends)
-abilities.tactician.concussive-strike.texts.tier3: 8 + M damage; M < STRONG, dazed (save ends)
+abilities.tactician.concussive-strike.texts.tier1: '{has_self_damage1, select, true {{self_damage1}} other {3 + M}} damage; M < {has_self_potency1, select, true {{self_potency1}} other {WEAK}}, dazed (save ends)'
+abilities.tactician.concussive-strike.texts.tier2: '{has_self_damage2, select, true {{self_damage2}} other {5 + M}} damage; M < {has_self_potency2, select, true {{self_potency2}} other {AVERAGE}}, dazed (save ends)'
+abilities.tactician.concussive-strike.texts.tier3: '{has_self_damage3, select, true {{self_damage3}} other {8 + M}} damage; M < {has_self_potency3, select, true {{self_potency3}} other {STRONG}}, dazed (save ends)'
 abilities.tactician.hammer-and-anvil.name: Hammer and Anvil
 abilities.tactician.hammer-and-anvil.description: '*"Let''s not argue about who''s the hammer and who''s the anvil!"*'
 abilities.tactician.hammer-and-anvil.texts.target: One creature or object
 abilities.tactician.hammer-and-anvil.texts.distance: Melee 1 or ranged 5
 abilities.tactician.hammer-and-anvil.texts.roll: Power Roll + Might
-abilities.tactician.hammer-and-anvil.texts.tier1: 5 + M damage; one ally within 10 squares of you can use a strike signature ability against the target as a free triggered action
-abilities.tactician.hammer-and-anvil.texts.tier2: 9 + M damage; one ally within 10 squares of you can use a strike signature ability that gains an edge against the target as a free triggered action
-abilities.tactician.hammer-and-anvil.texts.tier3: 12 + M damage; two allies within 10 squares of you can each use a strike signature ability that gains an edge against the target as a free triggered action
+abilities.tactician.hammer-and-anvil.texts.tier1: '{has_self_damage1, select, true {{self_damage1}} other {5 + M}} damage; one ally within 10 squares of you can use a strike signature ability against the target as a free triggered action'
+abilities.tactician.hammer-and-anvil.texts.tier2: '{has_self_damage2, select, true {{self_damage2}} other {9 + M}} damage; one ally within 10 squares of you can use a strike signature ability that gains an edge against the target as a free triggered action'
+abilities.tactician.hammer-and-anvil.texts.tier3: '{has_self_damage3, select, true {{self_damage3}} other {12 + M}} damage; two allies within 10 squares of you can each use a strike signature ability that gains an edge against the target as a free triggered action'
 abilities.tactician.hammer-and-anvil.texts.effect: 'Effect: If the target is reduced to 0 Stamina before one or both chosen allies has made their strike, the ally or allies can pick a different target.'
 abilities.tactician.this-is-what-we-planned-for.name: This Is What We Planned For
 abilities.tactician.this-is-what-we-planned-for.description: '*All those coordination drills you made them do finally pay off.*'
@@ -55,9 +55,9 @@ abilities.tactician.mind-game.description: '*Your attack demoralizes your foe. Y
 abilities.tactician.mind-game.texts.target: One creature or object
 abilities.tactician.mind-game.texts.distance: Melee 1 or ranged 5
 abilities.tactician.mind-game.texts.roll: Power Roll + Might
-abilities.tactician.mind-game.texts.tier1: 4 + M damage; R < WEAK, weakened (save ends)
-abilities.tactician.mind-game.texts.tier2: 6 + M damage; R < AVERAGE, weakened (save ends)
-abilities.tactician.mind-game.texts.tier3: 10 + M damage; R < STRONG, weakened (save ends)
+abilities.tactician.mind-game.texts.tier1: '{has_self_damage1, select, true {{self_damage1}} other {4 + M}} damage; R < {has_self_potency1, select, true {{self_potency1}} other {WEAK}}, weakened (save ends)'
+abilities.tactician.mind-game.texts.tier2: '{has_self_damage2, select, true {{self_damage2}} other {6 + M}} damage; R < {has_self_potency2, select, true {{self_potency2}} other {AVERAGE}}, weakened (save ends)'
+abilities.tactician.mind-game.texts.tier3: '{has_self_damage3, select, true {{self_damage3}} other {10 + M}} damage; R < {has_self_potency3, select, true {{self_potency3}} other {STRONG}}, weakened (save ends)'
 abilities.tactician.mind-game.texts.effect: |-
   Effect: You mark the target.
 
@@ -111,9 +111,9 @@ abilities.tactician.ill-open-and-youll-close.description: '*You create an openin
 abilities.tactician.ill-open-and-youll-close.texts.target: One creature
 abilities.tactician.ill-open-and-youll-close.texts.distance: Melee 1 or ranged 5
 abilities.tactician.ill-open-and-youll-close.texts.roll: Power Roll + Might
-abilities.tactician.ill-open-and-youll-close.texts.tier1: 6 + M damage
-abilities.tactician.ill-open-and-youll-close.texts.tier2: 10 + M damage
-abilities.tactician.ill-open-and-youll-close.texts.tier3: 14 + M damage
+abilities.tactician.ill-open-and-youll-close.texts.tier1: '{has_self_damage1, select, true {{self_damage1}} other {6 + M}} damage'
+abilities.tactician.ill-open-and-youll-close.texts.tier2: '{has_self_damage2, select, true {{self_damage2}} other {10 + M}} damage'
+abilities.tactician.ill-open-and-youll-close.texts.tier3: '{has_self_damage3, select, true {{self_damage3}} other {14 + M}} damage'
 abilities.tactician.ill-open-and-youll-close.texts.effect: 'Effect: One ally within 10 squares of you can use a heroic ability against the target as a free triggered action without spending any of their Heroic Resource, as long as they have enough Heroic Resource to pay for the ability. If the target is reduced to 0 Stamina before the chosen ally has used their ability, the ally can pick a different target.'
 abilities.tactician.finish-them.name: Finish Them!
 abilities.tactician.finish-them.description: '*You point out an opening to your ally so they can land a killing blow.*'
@@ -148,18 +148,18 @@ abilities.tactician.instant-retaliation.texts.trigger: A creature deals damage t
 abilities.tactician.instant-retaliation.texts.target: One ally
 abilities.tactician.instant-retaliation.texts.distance: Melee 1
 abilities.tactician.instant-retaliation.texts.roll: Power Roll + Might
-abilities.tactician.instant-retaliation.texts.tier1: A < WEAK, dazed (save ends)
-abilities.tactician.instant-retaliation.texts.tier2: A < AVERAGE, dazed (save ends)
-abilities.tactician.instant-retaliation.texts.tier3: A < STRONG, dazed (save ends)
+abilities.tactician.instant-retaliation.texts.tier1: 'A < {has_self_potency1, select, true {{self_potency1}} other {WEAK}}, dazed (save ends)'
+abilities.tactician.instant-retaliation.texts.tier2: 'A < {has_self_potency2, select, true {{self_potency2}} other {AVERAGE}}, dazed (save ends)'
+abilities.tactician.instant-retaliation.texts.tier3: 'A < {has_self_potency3, select, true {{self_potency3}} other {STRONG}}, dazed (save ends)'
 abilities.tactician.instant-retaliation.texts.effect: 'Effect: The target takes half the damage. You then make a power roll against the triggering creature.'
 abilities.tactician.panic-in-their-lines.name: Panic in Their Lines
 abilities.tactician.panic-in-their-lines.description: '*You confuse your foes, causing them to turn on each other.*'
 abilities.tactician.panic-in-their-lines.texts.target: Two creatures
 abilities.tactician.panic-in-their-lines.texts.distance: Melee 1 or ranged 5
 abilities.tactician.panic-in-their-lines.texts.roll: Power Roll + Might
-abilities.tactician.panic-in-their-lines.texts.tier1: 6 + M damage; slide 1
-abilities.tactician.panic-in-their-lines.texts.tier2: 9 + M damage; slide 3
-abilities.tactician.panic-in-their-lines.texts.tier3: 13 + M damage; slide 5
+abilities.tactician.panic-in-their-lines.texts.tier1: '{has_self_damage1, select, true {{self_damage1}} other {6 + M}} damage; slide 1'
+abilities.tactician.panic-in-their-lines.texts.tier2: '{has_self_damage2, select, true {{self_damage2}} other {9 + M}} damage; slide 3'
+abilities.tactician.panic-in-their-lines.texts.tier3: '{has_self_damage3, select, true {{self_damage3}} other {13 + M}} damage; slide 5'
 abilities.tactician.panic-in-their-lines.texts.effect: 'Effect: If a target is force moved into another creature, they must make a free strike against that creature.'
 abilities.tactician.battle-plan.name: Battle Plan
 abilities.tactician.battle-plan.description: '*With new understanding of your foes, you create the perfect plan to win the battle.*'
@@ -174,9 +174,9 @@ abilities.tactician.to-me-squad.description: '*You lead your allies in a charge.
 abilities.tactician.to-me-squad.texts.target: One creature
 abilities.tactician.to-me-squad.texts.distance: Melee 1
 abilities.tactician.to-me-squad.texts.roll: Power Roll + Might
-abilities.tactician.to-me-squad.texts.tier1: 6 + M damage; one ally within 10 squares can use the Charge main action as a free triggered action, and can use a melee strike signature ability instead of a free strike for the charge
-abilities.tactician.to-me-squad.texts.tier2: 9 + M damage; one ally within 10 squares can use the Charge main action as a free triggered action, and can use a melee strike signature ability that gains an edge instead of a free strike for the charge
-abilities.tactician.to-me-squad.texts.tier3: 13 + M damage; two allies within 10 squares can use the Charge main action as a free triggered action, and can each use a melee strike signature ability that gains an edge instead of a free strike for the charge
+abilities.tactician.to-me-squad.texts.tier1: '{has_self_damage1, select, true {{self_damage1}} other {6 + M}} damage; one ally within 10 squares can use the Charge main action as a free triggered action, and can use a melee strike signature ability instead of a free strike for the charge'
+abilities.tactician.to-me-squad.texts.tier2: '{has_self_damage2, select, true {{self_damage2}} other {9 + M}} damage; one ally within 10 squares can use the Charge main action as a free triggered action, and can use a melee strike signature ability that gains an edge instead of a free strike for the charge'
+abilities.tactician.to-me-squad.texts.tier3: '{has_self_damage3, select, true {{self_damage3}} other {13 + M}} damage; two allies within 10 squares can use the Charge main action as a free triggered action, and can each use a melee strike signature ability that gains an edge instead of a free strike for the charge'
 abilities.tactician.to-me-squad.texts.effect: 'Effect: If the target is hit with two or more strikes as part of this ability and they have R < STRONG, they are dazed (save ends). If the target is reduced to 0 Stamina before one or both allies has made their strike, the ally or allies can pick a different target.'
 abilities.tactician.youve-still-got-something-left.name: You've Still Got Something Left
 abilities.tactician.youve-still-got-something-left.description: '*You push an ally to use a heroic ability sooner than they otherwise would.*'
@@ -193,9 +193,9 @@ abilities.tactician.squad-gear-check.description: '*You distract a foe while you
 abilities.tactician.squad-gear-check.texts.target: One creature
 abilities.tactician.squad-gear-check.texts.distance: Melee 1
 abilities.tactician.squad-gear-check.texts.roll: Power Roll + Might
-abilities.tactician.squad-gear-check.texts.tier1: 9 + M damage
-abilities.tactician.squad-gear-check.texts.tier2: 13 + M damage
-abilities.tactician.squad-gear-check.texts.tier3: 18 + M damage
+abilities.tactician.squad-gear-check.texts.tier1: '{has_self_damage1, select, true {{self_damage1}} other {9 + M}} damage'
+abilities.tactician.squad-gear-check.texts.tier2: '{has_self_damage2, select, true {{self_damage2}} other {13 + M}} damage'
+abilities.tactician.squad-gear-check.texts.tier3: '{has_self_damage3, select, true {{self_damage3}} other {18 + M}} damage'
 abilities.tactician.squad-gear-check.texts.effect: 'Effect: You and each ally adjacent to the target gain 10 temporary Stamina.'
 abilities.tactician.squad-remember-your-training.name: Squad! Remember Your Training!
 abilities.tactician.squad-remember-your-training.description: '*You remind your allies how to best use their gear.*'
@@ -207,9 +207,9 @@ abilities.tactician.ive-got-your-back.description: '*Your enemy will think twice
 abilities.tactician.ive-got-your-back.texts.target: One creature
 abilities.tactician.ive-got-your-back.texts.distance: Ranged 5
 abilities.tactician.ive-got-your-back.texts.roll: Power Roll + Reason
-abilities.tactician.ive-got-your-back.texts.tier1: 5 + R damage; taunted (EoT)
-abilities.tactician.ive-got-your-back.texts.tier2: 9 + R damage; taunted (EoT)
-abilities.tactician.ive-got-your-back.texts.tier3: 12 + R damage; taunted (EoT)
+abilities.tactician.ive-got-your-back.texts.tier1: '{has_self_damage1, select, true {{self_damage1}} other {5 + R}} damage; taunted (EoT)'
+abilities.tactician.ive-got-your-back.texts.tier2: '{has_self_damage2, select, true {{self_damage2}} other {9 + R}} damage; taunted (EoT)'
+abilities.tactician.ive-got-your-back.texts.tier3: '{has_self_damage3, select, true {{self_damage3}} other {12 + R}} damage; taunted (EoT)'
 abilities.tactician.ive-got-your-back.texts.effect: 'Effect: One ally adjacent to the target can spend a Recovery.'
 abilities.tactician.no-dying-on-my-watch.name: No Dying on My Watch
 abilities.tactician.no-dying-on-my-watch.description: '*You prioritize saving an ally over your own safety.*'
@@ -239,9 +239,9 @@ abilities.tactician.try-me-instead.description: '*"Try picking on someone my siz
 abilities.tactician.try-me-instead.texts.target: Self
 abilities.tactician.try-me-instead.texts.distance: Self; see below
 abilities.tactician.try-me-instead.texts.roll: Power Roll + Reason
-abilities.tactician.try-me-instead.texts.tier1: 2 + R damage; R < WEAK, frightened (save ends)
-abilities.tactician.try-me-instead.texts.tier2: 3 + R damage; R < AVERAGE, frightened (save ends)
-abilities.tactician.try-me-instead.texts.tier3: 4 + R damage; R < STRONG, frightened (save ends)
+abilities.tactician.try-me-instead.texts.tier1: '{has_self_damage1, select, true {{self_damage1}} other {2 + R}} damage; R < {has_self_potency1, select, true {{self_potency1}} other {WEAK}}, frightened (save ends)'
+abilities.tactician.try-me-instead.texts.tier2: '{has_self_damage2, select, true {{self_damage2}} other {3 + R}} damage; R < {has_self_potency2, select, true {{self_potency2}} other {AVERAGE}}, frightened (save ends)'
+abilities.tactician.try-me-instead.texts.tier3: '{has_self_damage3, select, true {{self_damage3}} other {4 + R}} damage; R < {has_self_potency3, select, true {{self_potency3}} other {STRONG}}, frightened (save ends)'
 abilities.tactician.try-me-instead.texts.effect: "Effect: You shift up to your speed directly toward an ally, ending adjacent to them, then swapping locations with that ally as long as you can fit into each other's spaces. The ally can spend a Recovery, and you can make the following weapon strike with a distance of melee 1 against a creature."
 abilities.tactician.fog-of-war.name: Fog of War
 abilities.tactician.fog-of-war.description: '*Your unorthodox strategy causes enemies to lash out in fear, heedless of who they might be attacking.*'
@@ -286,9 +286,9 @@ abilities.tactician.that-one-is-mine.description: '*You focus on making an enemy
 abilities.tactician.that-one-is-mine.texts.target: One creature
 abilities.tactician.that-one-is-mine.texts.distance: Melee 1 or ranged 5
 abilities.tactician.that-one-is-mine.texts.roll: Power Roll + Might
-abilities.tactician.that-one-is-mine.texts.tier1: 8 + M damage
-abilities.tactician.that-one-is-mine.texts.tier2: 13 + M damage
-abilities.tactician.that-one-is-mine.texts.tier3: 17 + M damage
+abilities.tactician.that-one-is-mine.texts.tier1: '{has_self_damage1, select, true {{self_damage1}} other {8 + M}} damage'
+abilities.tactician.that-one-is-mine.texts.tier2: '{has_self_damage2, select, true {{self_damage2}} other {13 + M}} damage'
+abilities.tactician.that-one-is-mine.texts.tier3: '{has_self_damage3, select, true {{self_damage3}} other {17 + M}} damage'
 abilities.tactician.that-one-is-mine.texts.effect: |-
   Effect: The target is marked by you.
 
@@ -298,9 +298,9 @@ abilities.tactician.no-escape.description: '*Nothing will stop you from reaching
 abilities.tactician.no-escape.texts.target: One creature
 abilities.tactician.no-escape.texts.distance: Melee 1
 abilities.tactician.no-escape.texts.roll: Power Roll + Might
-abilities.tactician.no-escape.texts.tier1: 11 + M damage
-abilities.tactician.no-escape.texts.tier2: 16 + M damage
-abilities.tactician.no-escape.texts.tier3: 21 + M damage
+abilities.tactician.no-escape.texts.tier1: '{has_self_damage1, select, true {{self_damage1}} other {11 + M}} damage'
+abilities.tactician.no-escape.texts.tier2: '{has_self_damage2, select, true {{self_damage2}} other {16 + M}} damage'
+abilities.tactician.no-escape.texts.tier3: '{has_self_damage3, select, true {{self_damage3}} other {21 + M}} damage'
 abilities.tactician.no-escape.texts.effect: |-
   Effect: You mark the target.
 
@@ -310,9 +310,9 @@ abilities.tactician.their-lack-of-focus-is-their-undoing.description: '*You tric
 abilities.tactician.their-lack-of-focus-is-their-undoing.texts.target: Three enemies
 abilities.tactician.their-lack-of-focus-is-their-undoing.texts.distance: Ranged 10
 abilities.tactician.their-lack-of-focus-is-their-undoing.texts.roll: Power Roll + Might
-abilities.tactician.their-lack-of-focus-is-their-undoing.texts.tier1: R < WEAK, dazed (save ends)
-abilities.tactician.their-lack-of-focus-is-their-undoing.texts.tier2: R < AVERAGE, dazed (save ends)
-abilities.tactician.their-lack-of-focus-is-their-undoing.texts.tier3: R < STRONG, dazed (save ends)
+abilities.tactician.their-lack-of-focus-is-their-undoing.texts.tier1: 'R < {has_self_potency1, select, true {{self_potency1}} other {WEAK}}, dazed (save ends)'
+abilities.tactician.their-lack-of-focus-is-their-undoing.texts.tier2: 'R < {has_self_potency2, select, true {{self_potency2}} other {AVERAGE}}, dazed (save ends)'
+abilities.tactician.their-lack-of-focus-is-their-undoing.texts.tier3: 'R < {has_self_potency3, select, true {{self_potency3}} other {STRONG}}, dazed (save ends)'
 abilities.tactician.their-lack-of-focus-is-their-undoing.texts.effect: "Effect: Each target uses a signature ability against one or more targets of your choosing, with each ability automatically obtaining a tier 3 outcome on the power roll. After resolving the targets' abilities, you make a power roll against each original target."
 abilities.tactician.blot-out-the-sun.name: Blot Out the Sun!
 abilities.tactician.blot-out-the-sun.description: '*What makes a good soldier? The ability to fire four shots a minute in any weather.*'

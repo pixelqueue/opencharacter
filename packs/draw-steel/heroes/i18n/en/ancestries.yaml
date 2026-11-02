@@ -591,17 +591,17 @@ abilities.ancestry.dragon-knight.draconian-pride.description: "*You let loose a 
 abilities.ancestry.dragon-knight.draconian-pride.texts.target: Each enemy in the area
 abilities.ancestry.dragon-knight.draconian-pride.texts.distance: 1 burst
 abilities.ancestry.dragon-knight.draconian-pride.texts.roll: Power Roll + Might or Presence
-abilities.ancestry.dragon-knight.draconian-pride.texts.tier1: 2 damage
-abilities.ancestry.dragon-knight.draconian-pride.texts.tier2: 5 damage; push 1
-abilities.ancestry.dragon-knight.draconian-pride.texts.tier3: 7 damage; push 2
+abilities.ancestry.dragon-knight.draconian-pride.texts.tier1: '{has_self_damage1, select, true {{self_damage1}} other {2}} damage'
+abilities.ancestry.dragon-knight.draconian-pride.texts.tier2: '{has_self_damage2, select, true {{self_damage2}} other {5}} damage; push 1'
+abilities.ancestry.dragon-knight.draconian-pride.texts.tier3: '{has_self_damage3, select, true {{self_damage3}} other {7}} damage; push 2'
 abilities.ancestry.dragon-knight.dragon-breath.name: Dragon Breath
 abilities.ancestry.dragon-knight.dragon-breath.description: '*A furious exhalation of energy washes over your foes.*'
 abilities.ancestry.dragon-knight.dragon-breath.texts.target: Each enemy in the area
 abilities.ancestry.dragon-knight.dragon-breath.texts.distance: 3 cube within 1
 abilities.ancestry.dragon-knight.dragon-breath.texts.roll: Power Roll + Might or Presence
-abilities.ancestry.dragon-knight.dragon-breath.texts.tier1: 2 damage
-abilities.ancestry.dragon-knight.dragon-breath.texts.tier2: 4 damage
-abilities.ancestry.dragon-knight.dragon-breath.texts.tier3: 6 damage
+abilities.ancestry.dragon-knight.dragon-breath.texts.tier1: '{has_self_damage1, select, true {{self_damage1}} other {2}} damage'
+abilities.ancestry.dragon-knight.dragon-breath.texts.tier2: '{has_self_damage2, select, true {{self_damage2}} other {4}} damage'
+abilities.ancestry.dragon-knight.dragon-breath.texts.tier3: '{has_self_damage3, select, true {{self_damage3}} other {6}} damage'
 abilities.ancestry.dragon-knight.dragon-breath.params.breathType.name: Damage type
 abilities.ancestry.dragon-knight.dragon-breath.params.breathType.values.acid.name: Acid
 abilities.ancestry.dragon-knight.dragon-breath.params.breathType.values.cold.name: Cold
@@ -718,7 +718,7 @@ abilities.ancestry.time-raider.concussive-slam.texts.distance: Ranged 10
 abilities.ancestry.time-raider.concussive-slam.texts.roll: Power Roll + Reason, Intuition, or Presence
 abilities.ancestry.time-raider.concussive-slam.texts.tier1: 2 + R, I, or P damage
 abilities.ancestry.time-raider.concussive-slam.texts.tier2: 5 + R, I, or P damage; push 1
-abilities.ancestry.time-raider.concussive-slam.texts.tier3: 7 + R, I, or P damage; push 2; M < STRONG, prone
+abilities.ancestry.time-raider.concussive-slam.texts.tier3: '7 + R, I, or P damage; push 2; M < {has_self_potency3, select, true {{self_potency3}} other {STRONG}}, prone'
 abilities.ancestry.time-raider.psionic-bolt.name: Psionic Bolt
 abilities.ancestry.time-raider.psionic-bolt.description: '*You shoot forth a purple beam of psychic force that moves your target.*'
 abilities.ancestry.time-raider.psionic-bolt.texts.target: One creature or object
@@ -739,7 +739,7 @@ abilities.ancestry.wode-elf.the-wode-defends.description: '*Thorny vines erupt f
 abilities.ancestry.wode-elf.the-wode-defends.texts.target: One creature
 abilities.ancestry.wode-elf.the-wode-defends.texts.distance: Ranged 10
 abilities.ancestry.wode-elf.the-wode-defends.texts.roll: Power Roll + Might or Agility
-abilities.ancestry.wode-elf.the-wode-defends.texts.tier1: 2 + M or A damage; A < WEAK, slowed (save ends)
-abilities.ancestry.wode-elf.the-wode-defends.texts.tier2: 3 + M or A damage; A < AVERAGE, slowed (save ends)
-abilities.ancestry.wode-elf.the-wode-defends.texts.tier3: 5 + M or A damage; A < STRONG, restrained (save ends)
+abilities.ancestry.wode-elf.the-wode-defends.texts.tier1: '{has_self_damage1, select, true {{self_damage1}} other {2 + M or A}} damage; A < {has_self_potency1, select, true {{self_potency1}} other {WEAK}}, slowed (save ends)'
+abilities.ancestry.wode-elf.the-wode-defends.texts.tier2: '{has_self_damage2, select, true {{self_damage2}} other {3 + M or A}} damage; A < {has_self_potency2, select, true {{self_potency2}} other {AVERAGE}}, slowed (save ends)'
+abilities.ancestry.wode-elf.the-wode-defends.texts.tier3: '{has_self_damage3, select, true {{self_damage3}} other {5 + M or A}} damage; A < {has_self_potency3, select, true {{self_potency3}} other {STRONG}}, restrained (save ends)'
 abilities.ancestry.human.determination.actions.end-condition.steps.condition.prompt: Condition to end
