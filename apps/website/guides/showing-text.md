@@ -141,9 +141,16 @@ A form labels each input with the pack's text, never a humanized ID:
 text.typeField('mork-borg-core:weapon', 'attackDrModifier'); // 'Attack DR modifier'
 text.typeFieldDescription('5e-srd-5.1:armor', 'maxDex'); // 'The most Dexterity modifier AC adds.'
 text.templateField('5e-srd-5.1:acBonus'); // 'AC bonus', for a custom template's form
+text.templateFieldDescription('5e-srd-5.1:acBonus'); // its hint, or undefined
 text.param('mork-borg-core:test', 'dr'); // 'Difficulty rating (DR)'
 text.paramDescription('mork-borg-core:test', 'dr');
 // 'The target to beat. 12 for most rolls; the GM raises or lowers it.'
+
+// A parameter content adds (describeAction's `addedBy`): Hurl Element's damage type.
+const hurl = 'draw-steel-heroes:abilities.elementalist.hurl-element';
+text.addedParam(hurl, 'element'); // 'Element'
+text.addedParamValue(hurl, 'element', 'fire'); // 'Fire'
+text.addedParamDescription(hurl, 'element'); // its hint, or undefined
 ```
 
 - **Every item field has a name** (`types.<type>.fields.<field>.name`); a hint
@@ -152,6 +159,37 @@ text.paramDescription('mork-borg-core:test', 'dr');
 - **A parameter's hint** is `<actionKey>.params.<param>.description`, optional. `action` is
   `needs.action`'s form, so an inline action is `<item>#<action>`. A parameter with an
   explicit `label` key is named by `text.lookup` with that key.
+- **A parameter content adds** is named from the content's text
+  (`<addedBy>.params.<param>.name`, `.description`, `.values.<v>.name`), so pass describeAction's
+  `addedBy`, not the action.
+
+## Situational choices
+
+The toggles computeSheet lists in `situational` (advantage, a Bardic Inspiration die) and the
+reactions a change offers ([Changing characters](changing-characters.md#reactions-to-one-change))
+are named by their ID:
+
+```ts
+text.situational('5e-srd-5.1:advantage'); // 'Advantage'
+text.situational('5e-srd-5.1:bardicInspiration'); // 'Bardic Inspiration die'
+text.situationalValue('5e-srd-5.1:bardicInspiration', 'd8'); // 'd8'
+```
+
+The keys are `situational.<id>.name` and `situational.<id>.values.<v>.name` in the choice's
+pack. A choice with its own `label` key is named by `text.lookup`.
+
+## Effects and auras
+
+An applied entry is named by its content: `text.content(entry.source)` ("Bless"). An aura's
+entry may have a name of its own, `<source>.auras.<aura>.name` in the source's pack, which no
+official pack writes yet. The helper has no method for it: look it up with `text.message`, and
+fall back to the source's name:
+
+```ts
+const [pack, local] = entry.source.split(/:(.*)/);
+text.message(pack, `${local}.auras.${entry.aura}.name`) ?? text.content(entry.source);
+// 'Aura of Protection'
+```
 
 ## Headlines
 
@@ -246,6 +284,9 @@ if (result.status === 'paused') {
 | `dice`       | the roll step's name, else the action's                                | `dice`, `roll`, and `targets` for a banded roll |
 | `handoff`    | the name of the action the participant runs                            |                                                 |
 
+For a pause you word yourself, `text.stepPrompt(needs)` gives the step's prompt and
+`text.stepName(needs)` its name, each falling back to the action's name.
+
 A FitD action roll with a push, for a scoundrel with Battleborn:
 
 ```ts
@@ -320,7 +361,10 @@ text.error(error); // the spec's text, data filled
   with its choice's prompt (`issues.too-many-picks.choice`), and a
   `safety-limit-exceeded` has a sentence per limit (`errors.safety-limit-exceeded.maxOverflowChain`).
 - A parameter's error names the parameter by its label, and its values by theirs, from the
-  action's text (the error's `action`).
+  action's text (the error's `action`), or from the content's for an added one (`addedBy`):
+  `invalid-param` reads `"Cost" is worked out by the rules, so it cannot be given.` An
+  `out-of-range` for a bound content added has `boundBy`, which the text doesn't name; add
+  `text.content(error.data.boundBy)` if you want to say why.
 - Text whose data is missing an argument is never shown raw. A code with no text, or whose text
   misses an argument, reads as the error's `data.message` when it has one, else `errors.other`
   ("Something went wrong."). Neither shows the code: log the error itself for developers.
