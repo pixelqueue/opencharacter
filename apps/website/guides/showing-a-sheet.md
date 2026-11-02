@@ -11,26 +11,28 @@ const sheet = computeSheet(ruleset, character);
 `computeSheet` **never fails**. Problems in the character file go in `sheet.errors`, and the
 sheet is computed without the broken part.
 
-| Output             | What it is                                                                       | Typical UI                                     |
-| ------------------ | -------------------------------------------------------------------------------- | ---------------------------------------------- |
-| `values`           | Every field's value, with its base, a breakdown and whether it's shown           | The sheet itself                               |
-| `groups`           | Each display group: whether it's shown, and its members, sorted                  | Sections of the sheet                          |
-| `effects`          | Every active effect, with its source; stacked-out ones `suppressed: true`        | "Active effects" panel, tooltips               |
-| `actions`          | Actions available now, with the entry each belongs to                            | Roll buttons ([Rolling dice](rolling-dice.md)) |
-| `situational`      | Situational choices offered now (advantage, cover)                               | Toggles next to roll buttons                   |
-| `pending`          | Choices that apply and still need picks                                          | "Choose your fighting style" prompts           |
-| `offers`           | What the rules offer now: derived (level-up) and stored ephemeral offers         | "Level up", "Concentration check (12 damage)"  |
-| `choices`          | Every choice that applies, answered or not, in order                             | A creation wizard's steps                      |
-| `competing`        | Fields where several effects compete to set the value                            | A picker on the field                          |
-| `issues`           | Rules issues: valid, but the rules object                                        | Warnings                                       |
-| `copies`           | Each copy's computed values (an item's quality), by instance ID                  | Next to the item in the inventory              |
-| `activationValues` | Picked or granted content's computed values (an ability's damage), by activation | On the ability's card                          |
-| `copyNames`        | Copies the player named (`nameFrom`), by instance ID                             | In place of the item's name                    |
-| `templated`        | Every item with templates, as merged (a Longsword +1, a longer cantrip)          | Item cards                                     |
-| `standardCopies`   | The copies every character holds, and whether the file saves each                | The inventory, unsaved items greyed out        |
-| `activations`      | Every piece of active content and how it was reached                             | Content groups                                 |
-| `copyLimits`       | Per content type, how many copies the character may hold and holds               | Replace instead of Add                         |
-| `errors`           | Problems with the file itself (unknown items, wrong types)                       | An import warning                              |
+| Output             | What it is                                                                       | Typical UI                                                                               |
+| ------------------ | -------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| `values`           | Every field's value, with its base, a breakdown and whether it's shown           | The sheet itself                                                                         |
+| `groups`           | Each display group: whether it's shown, and its members, sorted                  | Sections of the sheet                                                                    |
+| `effects`          | Every active effect, with its source; stacked-out ones `suppressed: true`        | "Active effects" panel, tooltips                                                         |
+| `actions`          | Actions available now, with the entry each belongs to                            | Roll buttons ([Rolling dice](rolling-dice.md))                                           |
+| `situational`      | Situational choices offered now (advantage, cover)                               | Toggles next to roll buttons                                                             |
+| `pending`          | Choices that apply and still need picks                                          | "Choose your fighting style" prompts                                                     |
+| `offers`           | What the rules offer now: derived (level-up) and stored ephemeral offers         | "Level up", "Concentration check (12 damage)"                                            |
+| `choices`          | Every choice that applies, answered or not, in order                             | A creation wizard's steps                                                                |
+| `competing`        | Fields where several effects compete to set the value                            | A picker on the field                                                                    |
+| `issues`           | Rules issues: valid, but the rules object                                        | Warnings                                                                                 |
+| `copies`           | Each copy's computed values (an item's quality), by instance ID                  | Next to the item in the inventory                                                        |
+| `activationValues` | Picked or granted content's computed values (an ability's damage), by activation | On the ability's card                                                                    |
+| `copyNames`        | Copies the player named (`nameFrom`), by instance ID                             | In place of the item's name                                                              |
+| `templated`        | Every item with templates, as merged (a Longsword +1, a longer cantrip)          | Item cards                                                                               |
+| `standardCopies`   | The copies every character holds, and whether the file saves each                | The inventory, unsaved items greyed out                                                  |
+| `activations`      | Every piece of active content and how it was reached                             | Content groups                                                                           |
+| `copyLimits`       | Per content type, how many copies the character may hold and holds               | Replace instead of Add                                                                   |
+| `auras`            | Auras the character projects now, with whom they affect and how far              | Placing entries on creatures inside ([Other characters](other-characters.md#auras))      |
+| `observes`         | Fields of other characters this one's follow-ups react to (absent when none)     | Routing `observe` ([Other characters](other-characters.md#reacting-to-other-characters)) |
+| `errors`           | Problems with the file itself (unknown items, wrong types)                       | An import warning                                                                        |
 
 The full shape is in
 [compute-sheet.schema.json](../../../packages/spec/schemas/engine/compute-sheet.schema.json).
@@ -235,6 +237,13 @@ engine never tracks time: when Bless ends, remove or toggle it
 A character can be **immune** to applied content: a monk with Purity of Body can't be poisoned.
 The entry stays in the list but has no effect, and `issues` has an `immune` issue whose `data`
 names the entry (`{ entry, item }`), so you can show it struck through or offer to remove it.
+An aura the creature stands in can do the same (Aura of Courage: no one inside is frightened);
+the issue's `id` then names the aura (`5e-srd-5.1:features.paladin.aura-of-courage#courage/frightened`).
+
+A content type or an item can make all its effects wait on its state (`effectsWhen`): a magic
+item's effects wait for attunement, an orc-2e item's for investment. Until the condition holds,
+the item is listed but its effects aren't in `effects` or `values`. Its `scope: applied` effects
+(what it does when cast on someone else) don't wait on it.
 
 ## Competing options
 
@@ -277,6 +286,10 @@ on every field.
 These picks aren't part of the character file. Store them yourself (in `extensions` if they
 should travel with the character), and pass them on every `computeSheet` call. A pick that no
 longer names an option falls back to the recommendation.
+
+Option IDs are stable within a spec version. Spec 0.4 qualified those of a rules-level choice's
+effects with their pack (`orc-2e:rules/qi-tradition/divine#0`, once `rules/qi-tradition/divine#0`),
+so re-key picks you saved under `rules/…`: they would otherwise fall back to the recommendation.
 
 ## Pending choices
 
