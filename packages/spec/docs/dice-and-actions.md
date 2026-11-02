@@ -98,6 +98,40 @@ contentTypes:
       - { use: saving-throw, scope: applied, available: "self.duration == 'save'" }
 ```
 
+**Derived parameters.** A parameter (an action's own, or one a `params` effect adds) may
+declare a `formula` instead of being given: a value the run works out from its other
+parameters, named once and read as `params.<name>` everywhere `params` is (steps, effects and
+bounds). Its type is `integer`, `decimal`, `boolean` or `string`, and it has no `default` and
+isn't `optional`.
+
+- **When:** as the action starts, once every given parameter has its value (the app's, a
+  `use`'s fixed one, or the default) and before any bound is checked, in declaration order (the
+  action's own, then those `params` effects add). It sees the action's (or the effect's) `item`
+  and `self`, `situational`, the character's fields, the run's `participants` (which a bound
+  doesn't see: Cunning Strike's Trip costs nothing against a Huge target), and `params` with the
+  given parameters and the derived ones declared **before** it. A later derived parameter, and
+  its own, is `unknown-name` at load for an action's own (through a `params` effect, absent when
+  it runs), so derived parameters can't loop. Its bounds, and every other bound, see its value.
+- **Never given:** a value for it from the app, a `use`, an `action` step or a handoff is
+  `invalid-param` (reason `derived`); the build reports a `use`'s, a creation start's, a field
+  roll's and an `action` effect's. describeAction lists it with `derived: true` and
+  `required: false`. Its label (`<actionKey>.params.<name>.name`) is optional: it is for apps
+  that show it.
+- A value of another type is `type-mismatch` as the action starts.
+
+Cunning Strike's cost in Sneak Attack dice is worked out once from the effect chosen on the
+attack, and the rules' Sneak Attack effect and the strike's own effects read it:
+
+```yaml
+- target: { actions: [attack-hit] }
+  op: params
+  value:
+    cunningStrike: { type: enum, values: [poison, trip, withdraw, daze], optional: true }
+    cunningStrikeCost:
+      type: integer
+      formula: "!has(params.cunningStrike) ? 0 : params.cunningStrike == 'daze' ? 2 : 1"
+```
+
 **The action's own tags** may hold `{ formula }` entries too, evaluated for each listing with its
 `item`, `self` and the character's fields (no `params`, `steps` or `flags`); a formula that fails
 leaves only the written tags. computeSheet's listing, display groups, describeAction and `params`
@@ -117,7 +151,7 @@ own with `addedBy`. The action's own formulas see only the parameters it declare
 reads its own as `params.<name>` in its roll, option and `changes` effects. So an ability
 chooses its damage type on each use, and a feature adds an opt-in to a rules action.
 
-- An added parameter is `optional` or has a `default`, and only the run the app starts
+- An added parameter is `optional`, has a `default` or is derived, and only the run the app starts
   (startAction, a follow-up taken up, a handoff's run on its own character) has it: an `action`
   step's nested run doesn't. A required one is the load error `invalid-added-param`.
 - Its `min` and `max` see the effect's roots, as its `when` (`item` and `self` the content's,
@@ -522,11 +556,11 @@ needs the app to say when turns change. A rules action with `clock: turn-boundar
 moment: at each turn change, the app runs it on **every** character in the encounter where it is
 listed, with `params.ended` the `id` of the character whose turn ended and `params.started` the
 one whose turn starts (each left out when there is none, at the start or end of a round). It must
-run with nothing else the app makes up and never pause: every parameter has a default or is
+run with nothing else the app makes up and never pause: every parameter has a default, is derived or is
 `optional` (`ended` and `started` are strings), no role has a `min`, it isn't `listed: false`,
 neither it nor a rules action its `action` steps run has a choice, allocate or handoff step, and
 only the rules declare one (`invalid-clock-action` at load). A parameter content adds with a
-`params` effect is optional or defaulted already (`invalid-added-param` otherwise), so it keeps the
+`params` effect is optional, defaulted or derived already (`invalid-added-param` otherwise), so it keeps the
 action runnable. Its rolls roll with the app's dice function under the default policy. computeSheet lists it with `clock: turn-boundary`.
 
 Content joins in through the action's tagged `changes` steps, as for any shared action:

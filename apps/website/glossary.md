@@ -23,7 +23,7 @@ One-line definitions of OCF terms, consistent with the [specification](../../pac
 - **Choice path:** the address of a choice: an optional entry, then alternating choice IDs and picked options.
 - **Clock action:** a rules action the app runs at a moment of its clock on every character: `clock: turn-boundary` at each turn change, with the IDs of the characters whose turn ended and started.
 - **Competing options:** several active `set` effects on one field, or the effects of a `playerChooses` stacking group (one group across every field for a key spanning fields, an option per source); the engine reports them and the recommended one, and the app picks.
-- **Computed value:** a value worked out from the character for each copy of an item (a FitD cohort's quality), or for picked or granted content (a Draw Steel ability's damage), declared by its content type, item or templates, never saved; computeSheet returns it in `copies` or `activationValues`, its actions and follow-ups read it as `self.<name>`, and its text as `{self_<name>}`.
+- **Computed value:** a value worked out from the character for each copy of an item (a FitD cohort's quality), or for picked or granted content (a Draw Steel ability's damage), declared by its content type, item or templates, never saved; computeSheet returns it in `copies` or `activationValues`, its actions, follow-ups and the effects that act as they run (on rolls, steps, listed actions and incoming changes) read it as `self.<name>`, and its text as `{self_<name>}`.
 - **Condition:** a formula that must evaluate to true or false (`when`, `showWhen`, `where`, prerequisites).
 - **Constraint:** a game rule in the rules data, checked against the current character, whose failure is a rules issue.
 - **Content order:** the order the engine lists content in: packs in load order, each pack's content in its release's order (file path order), homebrew last; query matches and choice options follow it, so a dependency's content comes first.
@@ -36,6 +36,7 @@ One-line definitions of OCF terms, consistent with the [specification](../../pac
 - **Default language:** the pack's language whose translation file must be complete and ships with the mechanics.
 - **Derived field:** a field computed from a formula and effects; never saved.
 - **Derived offer:** a follow-up (`while`) offered exactly as long as its condition, an imbalance on the sheet, holds: a level-up the experience has earned, or a linked character to make for an empty link slot (`create`). computeSheet derives it; it is never stored or dismissed.
+- **Derived parameter:** an action parameter that declares a `formula` instead of being given: worked out as the action starts from the given parameters (and earlier derived ones), read as `params.<name>`; describeAction marks it `derived`.
 - **Dice function:** the swappable function the engine calls for die faces; app-supplied or the built-in random one.
 - **Dice modifier:** one of the fixed set of notation modifiers (keep, drop, explode, reroll, count successes, …).
 - **Display hint:** optional presentation data (groups, priority, format, unit, `showWhen`, hidden) that never affects calculations. A display group holds fields, actions or content.

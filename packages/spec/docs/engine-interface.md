@@ -222,10 +222,11 @@ the definition, wherever it lives: a rules action, one inline on an item or on i
 - `tags` are the action's tags for this listing, computed ones evaluated.
 - `params` lists the parameters in declaration order, then those `params` effects add
   ([effects.md](effects.md#targets)), each `{ name, type, of?, required, default?, fixed?,
-  value?, min?, max?, addedBounds?, values?, options?, unique?, label?, addedBy? }`. An added one has
+  derived?, value?, min?, max?, addedBounds?, values?, options?, unique?, label?, addedBy? }`. An added one has
   `addedBy`, the content whose text names it (`<content id>`, `<pack>:types.<type>` or
   `<pack>:rules`; its key `<content key>.params.<name>.name`). `required` is
-  true when the parameter is neither `optional`, defaulted nor fixed. A parameter a `use` fixes
+  true when the parameter is neither `optional`, defaulted, derived nor fixed. A derived one
+  (its declaration's `formula`) has `derived: true`: startAction works it out, so don't ask for it. A parameter a `use` fixes
   has `fixed: true` and its `value` as startAction evaluates it; the app's is ignored. `min` and
   `max` are evaluated as startAction evaluates them, with every situational choice at its
   default; one that fails, or that reads `params` (it depends on the values the app is yet to

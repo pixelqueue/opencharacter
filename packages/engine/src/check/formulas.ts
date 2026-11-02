@@ -514,7 +514,9 @@ class FormulaChecker<L> {
       this.formula(aura.size, at, `${where} size`, NUMBER);
       this.typed({ applier: viewType(aura.fields ?? {}) }, () =>
         this.withRoots(['applier'], () => {
+          this.inAura = true;
           for (const effect of aura.effects ?? []) this.effect(effect, at, where);
+          this.inAura = false;
           for (const immunity of aura.immuneTo ?? []) this.immunity(immunity, at, where);
         }),
       );
@@ -734,8 +736,32 @@ class FormulaChecker<L> {
     };
   }
 
+  /** Inside an aura: its effects' `self` is the aura's entry, which has no computed values. */
+  private inAura = false;
+
+  /**
+   * An effect that acts as an action runs (on rolls, choice and changes steps, listed actions and
+   * incoming changes) reads its content's computed values as `self.<name>`: they are worked out
+   * after every field, which such an effect never feeds. A field effect can't (`unknown-name`),
+   * nor can an applied one or an aura's, whose `self` is an applied entry.
+   */
   private effect(effect: Effect, at: L, where: string): void {
     const kind = targetKind(effect.target);
+    const self = this.types.self;
+    if (kind === 'field' || effect.scope === 'applied' || this.inAura || self === undefined)
+      this.effectOf(effect, at, where, kind);
+    else
+      this.typed({ self: revealComputed(self) as FType }, () =>
+        this.effectOf(effect, at, where, kind),
+      );
+  }
+
+  private effectOf(
+    effect: Effect,
+    at: L,
+    where: string,
+    kind: ReturnType<typeof targetKind>,
+  ): void {
     if (kind === 'roll') {
       this.typed(this.rollTypes(), () =>
         this.withRoots(ROLL_ROOTS, () => this.effectBody(effect, at, where, kind)),
@@ -851,6 +877,12 @@ class FormulaChecker<L> {
             this.formula(decl.min, at, `${place} min`, NUMBER);
             this.formula(decl.max, at, `${place} max`, NUMBER);
           }),
+        );
+        // A derived one sees the run's participants too.
+        this.typed({ params: 'dyn', participants: 'dyn' }, () =>
+          this.withRoots(['params', 'participants'], () =>
+            this.formula(decl.formula, at, `${place} formula`, [fieldFormulaType(decl.type)]),
+          ),
         );
         if (decl.where === undefined || decl.type !== 'id' || decl.of === undefined) continue;
         if (decl.of === 'field') this.query({ type: 'field', where: decl.where }, at, place);
@@ -1105,6 +1137,29 @@ class FormulaChecker<L> {
             }),
           ),
       );
+    // A derived parameter sees what a bound sees and `participants`, but only the derived
+    // parameters before it: a later one, or its own, is `unknown-name`, so they can't loop.
+    const derived = Object.entries(action.params ?? {})
+      .filter(([, decl]) => decl.formula !== undefined)
+      .map(([name]) => name);
+    for (const [index, name] of derived.entries()) {
+      const decl = action.params?.[name] as ValueDecl;
+      const later = new Set(derived.slice(index));
+      const all = (types.params as { object: Record<string, FType> }).object;
+      const params: FType = {
+        object: Object.fromEntries(Object.entries(all).filter(([n]) => !later.has(n))),
+      };
+      const seen = { situational: types.situational, participants: types.participants };
+      this.typed({ ...own, ...(seen as Record<string, FType>), params }, () =>
+        this.at('content', () =>
+          this.onlyRoots(['situational', 'participants', 'params'], () =>
+            this.formula(decl.formula, at, `${key} param ${name} formula`, [
+              fieldFormulaType(decl.type),
+            ]),
+          ),
+        ),
+      );
+    }
     this.typed(types, () => this.actionBody(action, at, key, each));
   }
 

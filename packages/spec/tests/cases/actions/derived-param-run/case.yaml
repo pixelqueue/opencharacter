@@ -1,0 +1,11 @@
+description: "A derived parameter a `params` effect adds is worked out from the run's given parameters (the action's own `surges` and the added `overload`) and the feature's computed `drain` (`self.drain`, which effects that act as an action runs read), and read by the feature's changes"
+specVersion: 0.3.0
+call: startAction
+packs:
+  - path: ../../../packs/test-action-params
+input:
+  action: { id: 'test-action-params:use-ability', entry: spike }
+  params: { surges: 2, overload: true }
+  participants:
+    target:
+      - { id: orc, values: {} }

@@ -1,0 +1,19 @@
+# An opt-in on any ability whose cost is derived from the run's other parameters and the
+# feature's own computed `drain`: worked out once (`overloadCost`, never given) and read by the
+# feature's own changes.
+id: features.overload
+type: feature
+computed:
+  drain: { type: integer, formula: drama + 1 }
+effects:
+  - target: { actions: [ability] }
+    op: params
+    value:
+      overload: { type: boolean, default: false }
+      overloadCost: { type: integer, formula: 'params.overload ? params.surges + self.drain : 0' }
+  - target: { steps: [hit] }
+    op: changes
+    when: params.overloadCost > 0
+    value:
+      to: self
+      changes: [{ type: adjust, field: drama, by: -params.overloadCost }]

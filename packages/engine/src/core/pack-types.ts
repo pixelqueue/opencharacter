@@ -49,6 +49,8 @@ export interface ValueDecl {
   min?: Formula;
   max?: Formula;
   label?: string;
+  /** Action parameters: a derived one, worked out as the action starts, never given. */
+  formula?: Formula;
 }
 
 export interface ComputedDecl {

@@ -321,7 +321,7 @@ function checkAddedParams(
     );
   for (const [i, p] of added.entries()) {
     const data = { param: p.name, source: p.source };
-    if (!p.decl.optional && p.decl.default === undefined)
+    if (!p.decl.optional && p.decl.default === undefined && p.decl.formula === undefined)
       err('invalid-added-param', { ...data, reason: 'required' });
     for (const { key, pack, def, tags } of literal) {
       if (!Object.hasOwn(def.params ?? {}, p.name)) continue;
@@ -965,7 +965,8 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
       for (const [name, decl] of Object.entries(def.params ?? {})) {
         if ((name === 'ended' || name === 'started') && decl.type !== 'string')
           bad({ param: name });
-        else if (decl.default === undefined && !decl.optional) bad({ param: name });
+        else if (decl.default === undefined && !decl.optional && decl.formula === undefined)
+          bad({ param: name });
       }
       for (const [role, decl] of Object.entries(def.participants ?? {}))
         if ((decl.min ?? 0) > 0) bad({ role });
@@ -1165,7 +1166,12 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
       const action = q.actionId(start.action, pid);
       const def = ruleset.rules.actions[action];
       for (const [name, decl] of Object.entries(def?.params ?? {})) {
-        if (decl.optional || decl.default !== undefined || start.params?.[name] !== undefined)
+        if (
+          decl.optional ||
+          decl.default !== undefined ||
+          decl.formula !== undefined ||
+          start.params?.[name] !== undefined
+        )
           continue;
         err('missing-param', { param: name, creation: start.id, pack: pid });
       }

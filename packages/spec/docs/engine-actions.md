@@ -44,8 +44,13 @@ shape, an optional **dice function**.
    `max` see the effect's roots (as its `when`) and `params`. A `use` that fixes a parameter, an added one
    included, wins over the app's value; its formula is evaluated in the pack that writes the
    use, with the listing's `item` and `self`. Missing required parameters are `missing-param`; wrong types are
-   `wrong-type`. Every parameter error (`missing-param`, `wrong-type`, `out-of-range`,
-   `invalid-option`), here or at a handoff, also carries `action` (the qualified ID of the action
+   `wrong-type`. A derived parameter (`formula`, [dice-and-actions.md](dice-and-actions.md#actions))
+   takes no value (`invalid-param` if given); once every given parameter has its value, each
+   derived one is evaluated in declaration order with what its bounds see, `participants` and `params` so far,
+   and then the bounds are checked. So a derived parameter reads them, the participants
+   ([step 4](#starting-an-action)) are checked before the parameters: `invalid-participants`
+   comes first. Every parameter error (`missing-param`, `wrong-type`,
+   `out-of-range`, `invalid-option`, `invalid-param`), here or at a handoff, also carries `action` (the qualified ID of the action
    the parameter belongs to; `<item ID>#<action ID>` for an item's inline action), for an added
    parameter `addedBy` (as describeAction gives it), and, for an
    action started on them, `entry` and `source`, so text names the parameter by its label

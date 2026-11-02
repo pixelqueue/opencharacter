@@ -82,8 +82,13 @@ export function describeAction(
     const out: DescribedParam = {
       name,
       type: decl.type as DescribedParam['type'],
-      required: !decl.optional && decl.default === undefined && fixed[name] === undefined,
+      required:
+        !decl.optional &&
+        decl.default === undefined &&
+        decl.formula === undefined &&
+        fixed[name] === undefined,
     };
+    if (decl.formula !== undefined) out.derived = true;
     if (by !== undefined) out.addedBy = by;
     if (decl.of !== undefined) out.of = decl.of;
     if (decl.default !== undefined) out.default = decl.default;

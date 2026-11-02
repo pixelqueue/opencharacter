@@ -8,7 +8,7 @@ export type Action = {
   tags?: TagList;
   /** When the action is offered, e.g. `self.equipped`. */
   available?: Condition;
-  /** A moment the app runs this rules action at, on every character it applies to: `turn-boundary`, at each turn change, on every character in the encounter, with `params.ended` the `id` of the character whose turn ended and `params.started` the one whose turn starts (each left out when there is none). It runs with nothing the app must make up and never pauses: every parameter has a default or is `optional` (`ended` and `started` are strings), no role has a minimum, it is listed, and neither it nor a rules action it runs has a choice, allocate or handoff step; rolls roll with the app's dice function under the default policy. Content's actions can't have one (`invalid-clock-action` at load). computeSheet lists it with its `clock`. Content joins in through its tagged `changes` steps: resetting what lasts a turn, ending what the creature whose turn starts applied until then (`self.appliedBy == params.started`). */
+  /** A moment the app runs this rules action at, on every character it applies to: `turn-boundary`, at each turn change, on every character in the encounter, with `params.ended` the `id` of the character whose turn ended and `params.started` the one whose turn starts (each left out when there is none). It runs with nothing the app must make up and never pauses: every parameter has a default, is derived (`formula`) or is `optional` (`ended` and `started` are strings), no role has a minimum, it is listed, and neither it nor a rules action it runs has a choice, allocate or handoff step; rolls roll with the app's dice function under the default policy. Content's actions can't have one (`invalid-clock-action` at load). computeSheet lists it with its `clock`. Content joins in through its tagged `changes` steps: resetting what lasts a turn, ending what the creature whose turn starts applied until then (`self.appliedBy == params.started`). */
   clock?: 'turn-boundary';
   /** `false`: computeSheet doesn't list the action and apps don't show it, but an `action` step with `source` or `entry` still runs it (while `available` holds), and so does `startAction`. For an action only other actions run: a class's part of a shared rules action. Default `true`. */
   listed?: boolean;
@@ -1267,7 +1267,7 @@ export type ContentType = {
   nameFrom?: Name;
   /** Per-copy state on the character's copy (charges, shots, level). Visible in formulas as `self.<key>`. `appliedBy` is reserved: an applied entry's `self.appliedBy` is its applier. */
   state?: Record<string, ValueDecl>;
-  /** Computed values on each copy: per-copy values with a formula, worked out after every field and never saved. computeSheet returns them per copy (`copies`); the copy's own actions (and the actions it reaches through `use`) and its follow-ups read them as `self.<name>`, as do the copy's later computed values. Nothing else can read them. A name must not reuse a state key or a core property of the copy. */
+  /** Computed values on each copy: per-copy values with a formula, worked out after every field and never saved. computeSheet returns them per copy (`copies`); the copy's own actions (and the actions it reaches through `use`) and its follow-ups read them as `self.<name>`, as do its effects that act as an action runs (on rolls, choice and changes steps, listed actions and incoming changes) and the copy's later computed values. Nothing else can read them: a field effect, field formula, constraint or activation condition reading one is `unknown-name` at load. A name must not reuse a state key or a core property of the copy. */
   computed?: Record<string, ComputedDecl>;
   /** Copies live in the character's `inventory` (true) or `features` (false, default). */
   carried?: boolean;
@@ -1314,6 +1314,8 @@ export type ValueDecl = {
   required?: boolean;
   /** Parameters: may be omitted. */
   optional?: boolean;
+  /** Parameters of type `integer`, `decimal`, `boolean` or `string`: a derived parameter, worked out by the engine, never given (a value from the app, a `use` or an action step is `invalid-param`). Evaluated as the action starts, once every given parameter has its value and before any bound is checked, in declaration order (the action's own, then those `params` effects add), seeing what a bound sees and the run's `participants`: `params` holds the given parameters and the derived ones before it. Read as `params.<name>` everywhere `params` is, bounds included. No `default` or `optional`. */
+  formula?: Formula;
   /** Item fields: each copy may save its own value, in its entry's `fields` (`addItem`, `setField`): merged into the copy's `item` after its templates, so a custom stunt's skill is the player's. Elsewhere it is an error. */
   perCopy?: boolean;
   /** Parameters: the label key. Default: `<actionKey>.params.<name>.name`; an optional one-line hint is `<actionKey>.params.<name>.description`. */
@@ -2435,6 +2437,8 @@ export type DescribedParam = {
   /** Neither `optional`, defaulted nor fixed: startAction needs a value (`missing-param`). */
   required: boolean;
   default?: Literal;
+  /** A derived parameter (its declaration's `formula`): startAction works it out, so the app never gives it (`invalid-param` if it does). Its value depends on the others, so none is listed. */
+  derived?: true;
   /** The item's `use` fixes it: startAction takes `value`, never the app's. */
   fixed?: true;
   /** A fixed parameter's value, evaluated as startAction does; dice as canonical text. */
@@ -3413,6 +3417,7 @@ export type ErrorCode =
   | 'situational-unavailable'
   | 'unknown-situational'
   | 'missing-param'
+  | 'invalid-param'
   | 'invalid-participants'
   | 'undeclared-result'
   | 'answer-mismatch'

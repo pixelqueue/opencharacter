@@ -311,7 +311,7 @@ function select(type: FType, key: string, path: string): FType {
     if (type.hidden?.[key] !== undefined)
       return fail(
         'unknown-name',
-        `"${path}" is a computed value, which only the copy's own actions and follow-ups, and its later computed values, read`,
+        `"${path}" is a computed value, worked out after every field: only the copy's own actions and follow-ups, its effects that act as an action runs (on rolls, choice and changes steps, listed actions and incoming changes) and its later computed values read it, never a field effect, field formula, constraint or activation condition`,
         { name: path },
       );
     if (type.open) return 'dyn';

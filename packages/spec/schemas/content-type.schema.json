@@ -33,7 +33,7 @@
       }
     },
     "computed": {
-      "description": "Computed values on each copy: per-copy values with a formula, worked out after every field and never saved. computeSheet returns them per copy (`copies`); the copy's own actions (and the actions it reaches through `use`) and its follow-ups read them as `self.<name>`, as do the copy's later computed values. Nothing else can read them. A name must not reuse a state key or a core property of the copy.",
+      "description": "Computed values on each copy: per-copy values with a formula, worked out after every field and never saved. computeSheet returns them per copy (`copies`); the copy's own actions (and the actions it reaches through `use`) and its follow-ups read them as `self.<name>`, as do its effects that act as an action runs (on rolls, choice and changes steps, listed actions and incoming changes) and the copy's later computed values. Nothing else can read them: a field effect, field formula, constraint or activation condition reading one is `unknown-name` at load. A name must not reuse a state key or a core property of the copy.",
       "type": "object",
       "propertyNames": {
         "$ref": "common.schema.json#/$defs/name"
@@ -160,6 +160,10 @@
           "description": "Parameters: may be omitted.",
           "type": "boolean"
         },
+        "formula": {
+          "description": "Parameters of type `integer`, `decimal`, `boolean` or `string`: a derived parameter, worked out by the engine, never given (a value from the app, a `use` or an action step is `invalid-param`). Evaluated as the action starts, once every given parameter has its value and before any bound is checked, in declaration order (the action's own, then those `params` effects add), seeing what a bound sees and the run's `participants`: `params` holds the given parameters and the derived ones before it. Read as `params.<name>` everywhere `params` is, bounds included. No `default` or `optional`.",
+          "$ref": "formula.schema.json"
+        },
         "perCopy": {
           "description": "Item fields: each copy may save its own value, in its entry's `fields` (`addItem`, `setField`): merged into the copy's `item` after its templates, so a custom stunt's skill is the player's. Elsewhere it is an error.",
           "type": "boolean"
@@ -224,6 +228,31 @@
               "type": {
                 "const": "list"
               }
+            },
+            "type": "object"
+          }
+        },
+        {
+          "description": "A derived parameter is a scalar, never given: no default, nor optional.",
+          "if": {
+            "required": ["formula"],
+            "type": "object"
+          },
+          "then": {
+            "properties": {
+              "type": {
+                "enum": ["integer", "decimal", "boolean", "string"]
+              }
+            },
+            "not": {
+              "anyOf": [
+                {
+                  "required": ["default"]
+                },
+                {
+                  "required": ["optional"]
+                }
+              ]
             },
             "type": "object"
           }
