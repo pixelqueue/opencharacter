@@ -179,7 +179,9 @@ export function checkFormula(
 // Context root types, so the checker catches paths that can't exist (`item.damge`).
 
 const declTypes = (decls: Record<string, ValueDecl> | undefined): Record<string, FType> =>
-  Object.fromEntries(Object.entries(decls ?? {}).map(([k, d]) => [k, fieldFormulaType(d.type)]));
+  Object.fromEntries(
+    Object.entries(decls ?? {}).map(([k, d]) => [k, fieldFormulaType(d.type, d.of)]),
+  );
 
 /** Closed, so unknown fields are errors; the type's own fields win over template fields. */
 export function itemType(

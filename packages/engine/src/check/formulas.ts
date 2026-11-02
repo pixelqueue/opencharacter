@@ -630,7 +630,8 @@ class FormulaChecker<L> {
   /** An item field's or state key's `where` is resolved by loadRuleset: it reads only `item`. */
   private declWhere(decl: ValueDecl, at: L, where: string): void {
     const { of, where: condition } = decl;
-    if (condition === undefined || !of || of === 'tag' || of === 'string') return;
+    if (condition === undefined || !of || of === 'tag' || of === 'string' || of === 'integer')
+      return;
     const before = this.problems.length;
     this.at('query', () => this.query({ type: of, where: condition }, at, `${where} where`));
     if (this.problems.length > before || isContentOnly(condition)) return;

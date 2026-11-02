@@ -1267,7 +1267,7 @@ export type ValueDecl = {
   values?: Slug[];
   /** An enum item field or state key of a content type, an item's own state key, or a parameter of a rules action or an item's inline action: packs that depend on this one may add values, in their rules' `extendEnums` (`<pack>:types.<type>.fields.<field>`, `<pack>:types.<type>.state.<key>`, `<pack>:<item>.state.<key>`, `<pack>:actions.<action>.params.<param>`, `<pack>:<item>.actions.<action>.params.<param>`). Items, copies, actions and formulas see the merged list. Elsewhere (a content type's actions, roles, views) it is an error. */
   open?: boolean;
-  /** id/set/list: the content type (or `field`, `tag`, `string`) of the members. */
+  /** id/set/list: the content type (or `field`, `tag`, `string`) of the members; a list may hold integers (`integer`): its values are whole numbers, read as `list<int>` (a class's characteristic array `[2, -1, -1]`). */
   of?: Name;
   /** id/set/list of `tag`: which tags it takes. Without it, any declared tag. */
   members?: TagMembers;

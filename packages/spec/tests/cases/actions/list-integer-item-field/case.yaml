@@ -1,0 +1,40 @@
+description: 'A `list` item field `of: integer` holds whole numbers in the order written, its default too: formulas read a `list<int>`, so the list functions and indexing work on its members, and an effect on an integer field adds one'
+specVersion: 0.3.0
+call: startAction
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.3.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        fields:
+          might: { type: integer, default: 0 }
+        contentTypes:
+          class:
+            fields:
+              array: { type: list, of: integer }
+              costs: { type: list, of: integer, default: [0, 1, 2] }
+            actions:
+              - id: show
+                steps:
+                  - id: done
+                    kind: outcome
+                    data:
+                      array: item.array
+                      first: item.array[0]
+                      total: sumList(item.array, x)
+                      doubled: mapList(item.array, x * 2)
+                      costs: item.costs
+                      might: might
+      content:
+        - id: classes.fury
+          type: class
+          fields:
+            array: [2, -1, -1]
+          effects:
+            - { target: might, op: add, value: 'item.array[0] + sumList(item.costs, x)' }
+input:
+  action: { id: 'test-pack:classes.fury#show', entry: fury }

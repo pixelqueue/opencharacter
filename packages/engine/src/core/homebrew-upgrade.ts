@@ -31,7 +31,7 @@ const LIST_KEYS: Record<Kind, ReadonlySet<string>> = {
   tag: new Set(['tags', 'choices']),
 };
 /** Value kinds an item field's `of` may name that aren't content types. */
-const BUILT_IN_OF = new Set(['field', 'tag', 'string']);
+const BUILT_IN_OF = new Set(['field', 'tag', 'string', 'integer']);
 
 const isObj = (v: Json): v is Obj => typeof v === 'object' && v !== null && !Array.isArray(v);
 const pointer = (parts: readonly (string | number)[]) =>

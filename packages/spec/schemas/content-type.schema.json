@@ -142,7 +142,7 @@
           "type": "boolean"
         },
         "of": {
-          "description": "id/set/list: the content type (or `field`, `tag`, `string`) of the members.",
+          "description": "id/set/list: the content type (or `field`, `tag`, `string`) of the members; a list may hold integers (`integer`): its values are whole numbers, read as `list<int>` (a class's characteristic array `[2, -1, -1]`).",
           "$ref": "common.schema.json#/$defs/name"
         },
         "members": {
@@ -217,6 +217,26 @@
         {
           "if": {
             "required": ["unique"],
+            "type": "object"
+          },
+          "then": {
+            "properties": {
+              "type": {
+                "const": "list"
+              }
+            },
+            "type": "object"
+          }
+        },
+        {
+          "description": "Integer members are for a list.",
+          "if": {
+            "required": ["of"],
+            "properties": {
+              "of": {
+                "const": "integer"
+              }
+            },
             "type": "object"
           },
           "then": {

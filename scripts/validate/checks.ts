@@ -84,7 +84,7 @@ import type {
 
 const BUILT_IN_TYPES = new Set(['template', 'field']);
 const numeric = (t: string | undefined) => t === 'integer' || t === 'decimal';
-const MEMBER_KINDS = new Set(['field', 'tag', 'string']);
+const MEMBER_KINDS = new Set(['field', 'tag', 'string', 'integer']);
 const OP_TARGETS = new Map(
   loadFixedSet('effect-operations').items.map((op) => [op.id, op['targets'] as string[]]),
 );
@@ -1361,7 +1361,12 @@ export class PackChecker {
         enum: `one of ${decl.values?.join(', ')}`,
         id: 'an id',
         set: 'a list',
-        list: decl.unique ? 'a list without duplicates' : 'a list',
+        list:
+          decl.of === 'integer'
+            ? 'a list of integers'
+            : decl.unique
+              ? 'a list without duplicates'
+              : 'a list',
       };
       this.report.error(
         file,
@@ -1420,7 +1425,8 @@ export class PackChecker {
       ['id', 'set', 'list'].includes(decl.type) &&
       decl.of !== undefined &&
       decl.of !== 'tag' &&
-      decl.of !== 'string';
+      decl.of !== 'string' &&
+      decl.of !== 'integer';
     if (takesWhere && decl.where !== undefined && !refs)
       this.report.error(
         file,

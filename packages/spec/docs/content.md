@@ -2,7 +2,7 @@
 
 ## Content types
 
-Each game defines its own **content types** in data ([`content-type.schema.json`](../schemas/content-type.schema.json)), declared under `contentTypes` in a rules document. Mothership does not inherit 5E's idea of a spell. A type name is an identifier (`weapon`, `fightingStyle`), and the names `template`, `field`, `tag`, `string` and `contentType` are reserved.
+Each game defines its own **content types** in data ([`content-type.schema.json`](../schemas/content-type.schema.json)), declared under `contentTypes` in a rules document. Mothership does not inherit 5E's idea of a spell. A type name is an identifier (`weapon`, `fightingStyle`), and the names `template`, `field`, `tag`, `string`, `integer` and `contentType` are reserved.
 
 A content type's interface has four parts:
 
@@ -45,10 +45,25 @@ fields: { abilityPriority: [abilities.str, abilities.con, abilities.dex] }
 # A formula: item.abilityPriority[0], indexOf(item.abilityPriority, x)
 ```
 
+A `list` may hold whole numbers instead of references: `of: integer`. Its value is a list of
+integers, written as is, and formulas see a `list<int>`, so content carries a table of numbers (a
+class's characteristic array, a point-buy cost table, a per-level bonus):
+
+```yaml
+contentTypes:
+  class:
+    fields:
+      array: { type: list, of: integer } # [2, -1, -1]
+# A formula: item.array[0], sumList(item.array, x)
+```
+
+`of: integer` is for a `list` only (a schema error elsewhere), and takes no `where`.
+
 - **Item fields only:** a content type's `fields` and the rules' `templateFields`. A `list`
   state key, action parameter or template parameter is a validation error.
-- **Checked** as a `set` is: a value that isn't a list, or a `unique` list with a member twice,
-  is `invalid-item-field` (`wrong-type`) at load, and the validator checks each member against
+- **Checked** as a `set` is: a value that isn't a list, a `unique` list with a member twice, or
+  a list `of: integer` with a member that isn't a whole number, is `invalid-item-field`
+  (`wrong-type`) at load, and the validator checks each member against
   `of`. A per-copy value is checked the same way (`wrong-type`, `unknown-id`).
 - `unique` is for a `list` only (a schema error elsewhere).
 

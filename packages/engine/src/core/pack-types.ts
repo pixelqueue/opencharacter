@@ -866,7 +866,9 @@ export function fitsItemField(value: unknown, decl: ValueDecl): boolean {
       return Array.isArray(value);
     case 'list':
       return (
-        Array.isArray(value) && (!decl.unique || new Set(value.map(String)).size === value.length)
+        Array.isArray(value) &&
+        (decl.of !== 'integer' || value.every((v) => Number.isInteger(v))) &&
+        (!decl.unique || new Set(value.map(String)).size === value.length)
       );
     default:
       return true;
