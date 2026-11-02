@@ -1438,7 +1438,7 @@ class FormulaChecker<L> {
       // literals, so a path to a map is a type mismatch. No other action root is passed on.
       this.typed({ item: this.itemOf(def), self: selfType(def), batch: BATCH }, () =>
         this.at('content', () =>
-          this.onlyRoots([...PASSED_ROOTS, ...this.inEach(), 'batch'], () => {
+          this.onlyRoots([...PASSED_ROOTS, ...this.inEach(), ...this.inRun(), 'batch'], () => {
             this.passedOn(change.copies?.where, at, where, BOOL);
             if (perCopy(change.value)) this.passedOn(change.value, at, where, value);
             if (perCopy(change.by)) this.passedOn(change.by, at, where, by);
@@ -1446,12 +1446,12 @@ class FormulaChecker<L> {
         ),
       );
     }
-    this.appliedContent(change, at, where, [...PASSED_ROOTS, ...this.inEach()]);
+    this.appliedContent(change, at, where, [...PASSED_ROOTS, ...this.inEach(), ...this.inRun()]);
     const applied = change.applied ?? change.picks ?? change.grants;
     if (applied) {
       this.typed({ item: 'dyn', self: entryType(undefined), batch: BATCH }, () =>
         this.at('content', () =>
-          this.onlyRoots([...PASSED_ROOTS, ...this.inEach(), 'batch'], () => {
+          this.onlyRoots([...PASSED_ROOTS, ...this.inEach(), ...this.inRun(), 'batch'], () => {
             this.passedOn(applied.where, at, where, BOOL);
             if (change.value !== undefined && readsCopy(change.value))
               this.passedOn(change.value, at, where, value);
@@ -1531,6 +1531,11 @@ class FormulaChecker<L> {
 
   private inEach(): string[] {
     return this.extraRoots.includes('participant') ? ['participant'] : [];
+  }
+
+  /** An `action` effect's changes pass on `run` too, substituted as the action's roots are. */
+  private inRun(): string[] {
+    return this.extraRoots.includes('run') ? ['run'] : [];
   }
 
   private onlyRoots<T>(roots: string[], fn: () => T): T {
@@ -1911,7 +1916,10 @@ class FormulaChecker<L> {
       if (type.ok && !hasLiteral(type.value)) maps.push(print(path));
       return path;
     };
-    replaceRooted(tree.value, new Set(PASSED_ROOTS), { path: visitPath, has: (path) => path });
+    replaceRooted(tree.value, new Set([...PASSED_ROOTS, ...this.inRun()]), {
+      path: visitPath,
+      has: (path) => path,
+    });
     for (const path of maps) {
       this.problems.push({
         at,

@@ -1,0 +1,15 @@
+# Mode b: the first `x` effect's `when` is false, so the second runs at deal/test-pack:fury#x,
+# gaining 2; its removal's `where` carries the run's 2 as a literal.
+status: finished
+outcome: {}
+proposedChanges:
+  - to: self
+    step: deal
+    change: { type: adjust, field: test-pack:hp, by: -1 }
+  - to: self
+    step: deal/test-pack:fury#x/gain
+    change: { type: adjust, field: test-pack:surges, by: 2 }
+  - to: self
+    step: deal
+    change: { type: removeEffect, applied: { where: self.stacks <= 2 } }
+log: []

@@ -1527,7 +1527,7 @@ export type StepChanges = {
 
 /** What an `action` effect runs at a tagged changes step each time the step runs while the effect's `when` holds: the action `use` names, as an `action` step runs it, after the step's own changes and those `changes` effects add, then the value's own `changes`, which see that run's outcome as `run` (`run.result`, `run.data`). Each effect runs its own action, so two features add two saving throws at their own DCs. Its ID is `<content id>#<id>` (`<pack>:rules#<id>` for the rules' effects); the run's path is `<step path>/<that ID>`, with `[<i>]` per participant. In its `when`, `params`, `participants` and `changes`, `item` and `self` are the content carrying the effect, the action's own are `action.item`, `action.self` and `action.step`, and the action's `params`, `situational`, `steps`, `flags`, `participants` (and `participant` when it runs per participant) are bound. */
 export type StepAction = {
-  /** Names the run: its path and log entries are under `<step path>/<content id>#<id>`. Of the effects reaching one step with one ID, only the first runs. */
+  /** Names the run: its path and log entries are under `<step path>/<content id>#<id>`. Of the effects reaching one step with one ID, only the first whose `when` holds at a run path (per participant with `each`) runs there; one whose `when` is false takes nothing. */
   id: Slug;
   /** The rules action to run (a local ID resolves in the effect's pack). It runs with the running action's entry, source and situational choices, as an `action` step without `source` or `entry` would. */
   use: Ref;

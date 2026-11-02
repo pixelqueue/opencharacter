@@ -601,14 +601,8 @@
           "target": {
             "not": {
               "anyOf": [
-                {
-                  "required": ["tally"],
-                  "type": "object"
-                },
-                {
-                  "required": ["parts"],
-                  "type": "object"
-                }
+                { "required": ["tally"], "type": "object" },
+                { "required": ["parts"], "type": "object" }
               ]
             }
           }
@@ -739,14 +733,7 @@
     "stepChanges": {
       "description": "What a `changes` effect adds to a tagged changes step each time the step runs (per participant in an `each` step) while the effect's `when` holds: `flags`, set before the step's own changes, and `changes`, proposed after the step's own (or, with `order: before`, before them), `to` this `to`, else the step's. In its `when`, `flags` and `changes`, `item` and `self` are the content carrying the effect (`entry: self` is that copy), the action's own are `action.item`, `action.self` and `action.step`, and the action's `params`, `situational`, `steps`, `flags`, `participants` (and `participant` in an `each` step) are bound.",
       "type": "object",
-      "anyOf": [
-        {
-          "required": ["changes"]
-        },
-        {
-          "required": ["flags"]
-        }
-      ],
+      "anyOf": [{ "required": ["changes"] }, { "required": ["flags"] }],
       "properties": {
         "flags": {
           "description": "Flags set as the step runs, before its own changes, as a branch case's: each formula is evaluated in the effect's context and set as `flags.<name>`, in instance order of the effects, so the step's own `when`s and changes, later effects and later steps read it. In an `each` step, it is set for the current participant, as an `each` branch's. A flag already set is replaced. The action must set each flag elsewhere, in a branch case or a written option: one it doesn't is `formula-error` (cause `unknown-name`) at load, and a value of another type `type-mismatch`.",
@@ -776,7 +763,7 @@
       "required": ["id", "use"],
       "properties": {
         "id": {
-          "description": "Names the run: its path and log entries are under `<step path>/<content id>#<id>`. Of the effects reaching one step with one ID, only the first runs.",
+          "description": "Names the run: its path and log entries are under `<step path>/<content id>#<id>`. Of the effects reaching one step with one ID, only the first whose `when` holds at a run path (per participant with `each`) runs there; one whose `when` is false takes nothing.",
           "$ref": "common.schema.json#/$defs/slug"
         },
         "use": {

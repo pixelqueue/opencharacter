@@ -3877,16 +3877,17 @@ function changesStep(ctx: Ctx, frame: Frame, step: Step, path: string): void {
 }
 
 /**
- * Each `action` effect reaching the step, in instance order (the first of those sharing an ID):
- * per participant of its `each` (the step's own participant in an `each` step), when its `when`
- * holds, it runs `use` at `<path>/<content id>#<id>` (handed off with `as`), then proposes its
- * changes with the run's outcome as `run`.
+ * Each `action` effect reaching the step, in instance order: per participant of its `each` (the
+ * step's own participant in an `each` step), when its `when` holds and no earlier effect ran at
+ * the same path, it runs `use` at `<path>/<content id>#<id>` (handed off with `as`), then proposes
+ * its changes with the run's outcome as `run`.
  */
 function addedRuns(ctx: Ctx, frame: Frame, step: Step, path: string): void {
   const action = actionRoot(ctx, frame, step);
   const tags = action.step.tags;
   if (tags.length === 0) return;
-  const ids = new Set<string>();
+  // A run path is taken only by an effect that runs there, so one whose `when` fails leaves it.
+  const taken = new Set<string>();
   for (const instance of ctx.sheet.instances) {
     const effect = instance.effect;
     const target = effect.target;
@@ -3895,8 +3896,6 @@ function addedRuns(ctx: Ctx, frame: Frame, step: Step, path: string): void {
     if (!addsToSteps(instance, frame, target.from)) continue;
     const value = effect.value as StepAction;
     const id = `${instance.source.id}#${value.id}`;
-    if (ids.has(id)) continue;
-    ids.add(id);
     const added = optionFrame(frame, instance);
     const runs: { frame: Frame; path: string }[] = [];
     const role = value.each;
@@ -3923,7 +3922,9 @@ function addedRuns(ctx: Ctx, frame: Frame, step: Step, path: string): void {
     for (const [n, one] of runs.entries()) {
       if (n > 0 && ++ctx.stepsRun > MAX_STEPS)
         throw new ActionError('safety-limit-exceeded', { limit: 'maxActionSteps' });
+      if (taken.has(one.path)) continue;
       if (effect.when !== undefined && !test(ctx, one.frame, effect.when, { action })) continue;
+      taken.add(one.path);
       const result =
         value.as === 'participant'
           ? handoff(ctx, one.frame, used, one.path)

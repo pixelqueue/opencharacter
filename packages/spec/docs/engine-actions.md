@@ -57,9 +57,11 @@ shape, an optional **dice function**.
      the action's `item` and `self`, `situational`, the character's fields and `params`, every
      parameter as the action's formulas will read it, but no `steps` or `flags`
      (`amount: { type: integer, min: 1, max: effort.free }`,
-     `recoveries: { max: params.spend }`). The parameters are checked in order, the first out of
-     range failing the action. A bound reads values, never another bound, so bounds that read
-     each other can't loop.
+     `recoveries: { max: params.spend }`). An optional parameter left out is absent, so a bound
+     reads it behind `has()` (`max: 'has(params.cap) ? params.cap : 10'`). Every parameter's
+     missing, type and option errors come first, as each takes its value; then the bounds are
+     checked in order, the first out of range failing the action. A bound reads values, never
+     another bound, so bounds that read each other can't loop.
    - A **field parameter** (`type: id, of: field`) takes a field ID, qualified or local to the
      action's pack. A field outside its `where` set is `invalid-option`. Formulas see
      `params.<name>` as `{ id, type, tags, value }`: the field view its `where` sees (the qualified
@@ -626,10 +628,11 @@ it in a flag before the roll.
   3. The changes of those with `order: before`, in instance order.
   4. The step's own `changes`, their `when`s seeing the flags step 2 set.
   5. The changes of the others (`order: after`, the default), in instance order.
-  6. Each active `action` effect matching as in 2 (the first of those sharing an ID
-     `<content id>#<id>`), in instance order. Per run (per participant of its `each`; in an
-     `each` step, the current participant's; else once), when its `when` holds (`participant`
-     bound per participant), it runs `use` as an `action` step with `params` and `participants`
+  6. Each active `action` effect matching as in 2, in instance order. Per run (per participant
+     of its `each`; in an `each` step, the current participant's; else once), when its `when`
+     holds (`participant` bound per participant) and no earlier effect with the same ID
+     `<content id>#<id>` ran at that path (an effect whose `when` is false there takes nothing,
+     so a later one with the ID may run), it runs `use` as an `action` step with `params` and `participants`
      evaluated in the effect's context, at `<step path>/<content id>#<id>`, `[<i>]` added per
      participant of its `each` (`hit/5e-srd-5.2:features.monk.stunning-strike#stun[0]`). Without
      `as` it runs on the actor with the action's own entry, source and situational choices, its

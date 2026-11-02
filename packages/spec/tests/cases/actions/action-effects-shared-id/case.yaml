@@ -1,0 +1,63 @@
+description: 'Of two `action` effects sharing an ID, the one whose `when` is false takes nothing, so the other runs; a passed-on formula in its changes reads `run`, substituted as a literal'
+specVersion: 0.3.0
+call: startAction
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.3.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        tags: [hit]
+        fields:
+          hp: { type: integer, input: true, default: 10 }
+          surges: { type: integer, input: true, default: 0 }
+        contentTypes:
+          feature: {}
+        actions:
+          - id: surge
+            params:
+              by: { type: integer, default: 1 }
+            steps:
+              - id: gain
+                kind: changes
+                changes:
+                  - { type: adjust, field: surges, by: params.by }
+              - { id: done, kind: outcome, result: "'surged'", data: { by: params.by } }
+          - id: strike
+            params:
+              k: { type: enum, values: [a, b], default: a }
+            steps:
+              - id: deal
+                kind: changes
+                tags: [hit]
+                changes:
+                  - { type: adjust, field: hp, by: -1 }
+      content:
+        # Two ways to surge, one per mode; both name their run `x`.
+        - id: fury
+          type: feature
+          effects:
+            - target: { steps: [hit] }
+              op: action
+              when: params.k == 'a'
+              value: { id: x, use: surge, params: { by: '1' } }
+            - target: { steps: [hit] }
+              op: action
+              when: params.k == 'b'
+              value:
+                id: x
+                use: surge
+                params: { by: '2' }
+                changes:
+                  - type: removeEffect
+                    applied: { where: self.stacks <= run.data.by }
+        - id: marked
+          type: feature
+          state:
+            stacks: { type: integer, default: 0 }
+input:
+  action: { id: test-pack:strike }
+  params: { k: b }

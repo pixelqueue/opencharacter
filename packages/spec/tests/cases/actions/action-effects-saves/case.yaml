@@ -56,7 +56,7 @@ packs:
                 changes:
                   - type: applyEffect
                     source: "'stunned'"
-                    when: run.result == 'failure'
+                    when: has(run.result) && run.result == 'failure'
         # A Dexterity save or Prone, on the first target only, when the rogue asks for it.
         - id: cunning-strike
           type: feature
@@ -74,7 +74,7 @@ packs:
                 changes:
                   - type: applyEffect
                     source: "'prone'"
-                    when: run.result == 'failure'
+                    when: has(run.result) && run.result == 'failure'
         - id: stunned
           type: feature
         - id: prone

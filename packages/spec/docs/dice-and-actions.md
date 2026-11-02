@@ -126,7 +126,8 @@ chooses its damage type on each use, and a feature adds an opt-in to a rules act
   own does.
 - Bounds, an action's own and added ones alike, are checked once every parameter has its value
   (the app's, a `use`'s fixed one, or the default), so one parameter bounds another. A bound reads
-  values, never another bound, so bounds that read each other can't loop. Healing Grace spends
+  values, never another bound, so bounds that read each other can't loop. An optional parameter
+  left out is absent: read it behind `has()` (`has(params.cap) ? params.cap : 10`). Healing Grace spends
   one piety per enhancement:
 
   ```yaml
@@ -896,7 +897,7 @@ effects:
       params: { ability: "'con'", dc: focus.saveDc }
       changes:
         - type: applyEffect
-          when: run.result == 'failure'
+          when: has(run.result) && run.result == 'failure'
           source: "'conditions.stunned'"
 ```
 
