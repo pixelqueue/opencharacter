@@ -18,11 +18,11 @@ effects:
   - target: renown
     op: add
     value: 1
-    when: self.equipped && countList(item.tags, x in kit.gear) > 0 && level >= 5
+    when: countList(item.tags, x in kit.gear) > 0 && level >= 5
   - target:
       rolls:
         - power-roll.test
       tally: edges
     op: add
     value: 2
-    when: self.equipped && countList(item.tags, x in kit.gear) > 0 && level >= 9 && has(params.skill) && params.skill in skills.known && itemField(params.skill, 'group') == 'interpersonal'
+    when: countList(item.tags, x in kit.gear) > 0 && level >= 9 && has(params.skill) && params.skill in skills.known && itemField(params.skill, 'group') == 'interpersonal'
