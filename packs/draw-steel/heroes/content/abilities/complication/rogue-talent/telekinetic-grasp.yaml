@@ -1,3 +1,4 @@
+# Used as a ranged free strike; push or pull, chosen on each use.
 id: abilities.complication.rogue-talent.telekinetic-grasp
 type: ability
 tags:
@@ -6,7 +7,7 @@ tags:
   - kw.strike
 fields:
   usage: maneuver
-  kind: complication
+  kind: free-strike
   distanceKind: ranged
   distance: 10
   rollChars:
@@ -19,3 +20,13 @@ fields:
   t2MoveDistance: 2
   t3Move: push
   t3MoveDistance: 3
+effects:
+  - target: { actions: [ability], from: self }
+    op: params
+    value:
+      direction: { type: enum, values: [push, pull], default: push }
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    when: "flags.move != ''"
+    value:
+      flags: { move: params.direction }
