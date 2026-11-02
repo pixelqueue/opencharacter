@@ -69,58 +69,86 @@ computeSheet(ruleset, made.character).values['draw-steel-heroes:stamina.max']?.v
   subclass, kit, characteristic array, skills, perks and every level's choices, and an optional
   complication.
 - **Power rolls:** 2d10 plus a characteristic, in three tiers. Edges and banes are roll tallies:
-  one is ±2, two or more move the tier, and they cancel as the book says. A natural 19 or 20 is
-  tier 3; automatic tier outcomes and tier shifts. Tests read the tier against an easy, medium or
-  hard difficulty; saving throws are 6 or higher.
-- **Abilities:** all 607 abilities (class, kit, common, ancestry, perk, title, treasure,
-  complication) share one `use-ability` action. It pays the cost and Spend, rolls once, and gives
-  each target its own tier with the edges and banes it brings (prone, restrained, frightened,
-  grabbed, taunted, marked); damage adds the characteristic, surges and the kit's bonus for that
-  tier; conditions and other effects land behind potency; forced movement and distance are in the
-  outcome. Content adds to an ability's forced movement, potency and distance through roll tallies
-  (Forceful, Growing Ferocity, the psi boosts, Prayer of Distance). Abilities with rules beyond
-  the tier table (Strained, persistent abilities, Judgment, Mark, routines, edicts, prayers,
-  summons' numbers) add them on tagged steps or their own actions.
+  one is ±2 (in the reported total), two or more move the tier, and they cancel as the book says.
+  A natural 19 or 20 is tier 3; automatic tier outcomes, tier shifts and minimum tiers (Area of
+  Expertise). Tests read the tier against an easy, medium or hard difficulty; saving throws are 6
+  or higher, offered on each save-ends condition or effect.
+- **Abilities:** all 605 abilities (class, kit, common, ancestry, perk, title, treasure,
+  complication) share one `use-ability` action. It rolls once and gives each target its own tier
+  with the edges and banes it brings (prone, restrained, frightened, grabbed, taunted, marked,
+  and content's own: Executioner's Blade against a winded target, The Harder They Fall against a
+  large one), then pays the cost and Spend, so the Shadow's insight discount and an
+  Elementalist's maintained abilities cost what they should, and a use that can't pay ends.
+  Damage adds the characteristic, surges and the kit's bonus for that tier; conditions and other
+  effects land behind potency; forced movement, a teleport and distance are in the outcome.
+  Content adds to an ability's forced movement, potency and distance through roll tallies
+  (Forceful, Growing Ferocity, the psi boosts, Prayer of Distance), sets them on a hit (Judgment's
+  Paragon pull and Exorcist teleport, King's Roar) or replaces a condition ("instead": It Is
+  Justice You Fear). Choices made on each use are parameters: the psi boosts and taking the
+  strain on any psionic ability, Hurl Element's and Dragon Breath's damage type. Abilities with
+  rules beyond the tier table (Strained, with its rolled damage, persistent abilities, Judgment,
+  Mark, routines, edicts, prayers, summons' numbers) add them on tagged steps or their own
+  actions. The uses are grouped by main action, maneuver and triggered action.
+- **Ability cards:** each tier's text names this hero's damage (characteristic and kit included)
+  and potency, from the ability's computed values, and the book's wording without a hero.
 - **Classes:** the nine classes with their subclasses, heroic resources (including the Talent's
   negative clarity and strain), resource gains from their triggers, Growing Ferocity and
   Discipline Mastery tables, 10th-level epic resources, and the Censor's use of the Conduit's
-  domains.
+  domains: the Censor's domain grants the Conduit's domain features as the hero levels, and their
+  text and numbers read the holder's class (Presence and My Life for Yours for a Censor,
+  Intuition and Healing Grace for a Conduit). Persistent Magic counts the damage taken in one
+  turn (anyone's) until the turn changes, and 5 × Reason ends the maintained abilities.
 - **Stamina:** maximum from class, level and kit; winded, dying (and bleeding, unless a trait says
   otherwise) and dead; temporary Stamina (the greater kept); Recoveries, including Recoveries other
   heroes' abilities grant; damage immunity (by type, all damage, or "immunity all" to a type),
   weakness, and damage that can't be reduced.
 - **Conditions and effects:** the nine conditions and other lasting effects (Setup's damage
-  weakness), with duration (EoT, save ends, end of encounter, until the start or end of your next
-  turn) and who imposed them; immunities keep them off the sheet; saving throws.
+  weakness), with duration (EoT, save ends, end of encounter, until the start or end of the
+  imposer's next turn, on anyone: the `turn-boundary` clock action ends them) and who imposed
+  them; immunities keep them off the sheet; saving throws.
 - **Combat:** start of combat, rounds and turns, Victories, experience and level-up, respite.
+- **Marks:** the Tactician's marks are entries the tactician applied; a new Mark ends the earlier
+  ones wherever they are, dying ends them all, and the tactician's own rolls find its marks among
+  the targets (the edge, Warmaster, focus).
+- **The Null Field:** an aura on the enemies inside: their potencies drop by 1 (once, however many
+  nulls), and Synaptic Break raises potencies used against them.
+- **Hero tokens:** a party sheet (the `party` creation start) holds the pool; heroes link it and
+  spend from it (surges, a failed saving throw, a test reroll, Stamina).
 - **Kits:** the 21 kits and the 4 stormwight kits (with their animal forms' sizes); with two kits
-  (Field Arsenal) one bonus of each kind counts.
+  (Field Arsenal) one bonus of each kind counts, one kit's damage bonus across all three tiers.
 - **Ancestries, culture, careers, perks, complications, titles, treasures:** every trait, aspect,
-  career, perk, complication, title and treasure, with its numbers and choices.
+  career, perk, complication, title and treasure, with its numbers and choices. A career's
+  inciting incident is a choice of the book's six, each with its text. A treasure a complication
+  hands you (Secret Twin, Cursed Weapon, …) is picked at creation and held as your own copy;
+  Dragon Dreams' traits work from 5 Victories; Following in the Footsteps records the heroic
+  ability you aim for (its cost reduction is the table's).
 
 ## Text-only, and why
 
 The book's text is on every item; these parts are the table's to apply, because the format has
 no way to say them (each is a gap the project tracks):
 
-- **Effects on other creatures' sheets:** auras and areas (the Null Field, Judgment's and Mark's
-  benefits to allies, edicts on enemies), ending an effect you put on someone else, and anything
-  triggered by another creature's turn or roll (most Troubadour drama events, "damage taken in
-  one turn").
+- **Effects on other creatures' sheets:** areas and the auras whose effects need positions or
+  turns (Judgment's and Mark's benefits to allies, edicts on enemies, the Null Field's Inertial
+  Anchor and Gravitic Disruption), and anything triggered by another creature's turn or roll
+  (most Troubadour drama events, an ally damaging a creature you marked, an ally's heroic
+  ability: the Tactician's `mark-damaged` and `ally-heroic`).
+- **The Director's Malice** is the Director's; the null's discipline from it is an action the
+  app runs.
 - **Positions:** areas, line of effect, cover, squares moved; forced movement is a number in the
   outcome, not a move.
-- **Choices made at the table in the middle of an ability:** a damage type picked per use (Dragon
-  Breath), Expanded and Shared psi boosts (area size, extra targets), new forced movement or a
-  teleport an order or domain adds to Judgment.
-- **Distance bonuses on abilities without a power roll** (the bonus rides on the roll).
-- **Ignoring banes** a target brings (Manifold Resonance) and **edges against one target** of
-  several from the user's own content.
-- **A treasure a complication hands you** is taken by an item action, not by creation.
+- **Choices made at the table in the middle of an ability:** Expanded and Shared psi boosts
+  (area size, extra targets).
+- **Distance bonuses on abilities without a power roll** (the bonus rides on the roll), and
+  distances that grow with level (King's Roar).
+- **Typed damage on the card** of Hurl Element and Dragon Breath: their tier fields hold 0 and the
+  damage comes from an effect tagged with the chosen type, since a roll effect can't retag the
+  ability's own damage.
 
 ## Rule readings
 
-- **A single edge or bane** isn't a roll item: the tier counts it, while the roll's total doesn't
-  show the ±2.
+- **A single edge or bane** isn't a roll item: the band set's total adds the ±2, so the log
+  shows 15 for a 13 with an edge, and the dice total before it as `bounded`.
 - **Kit signature abilities** are written without the kit's damage and distance bonus, which the
   kit adds back like any weapon ability's.
 - **Forced movement bonuses** add to every target's forced movement from the ability; one that
