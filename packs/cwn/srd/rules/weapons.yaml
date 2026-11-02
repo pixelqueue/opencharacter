@@ -31,6 +31,36 @@ contentTypes:
         default: 'has(item.magazine) ? item.magazine : 0'
         min: 0
         max: 'has(item.magazine) ? item.magazine : 0'
+    effects:
+      # What a weapon offers on each attack: the better of Strength and Dexterity unless the
+      # player picks, throwing a melee weapon with a range, and burst fire.
+      - target: { actions: [attack], from: self }
+        op: params
+        when: item.attribute == 'str-dex'
+        value:
+          attribute: { type: enum, values: [str, dex], optional: true }
+      - target: { actions: [attack], from: self }
+        op: params
+        when: "'melee' in item.tags && has(item.rangeNormal)"
+        value:
+          thrown: { type: boolean, default: false }
+      - target: { actions: [attack], from: self }
+        op: params
+        when: "'burst' in item.tags"
+        value:
+          burst: { type: boolean, default: false }
+      - target: { steps: [attack.options], from: self }
+        op: changes
+        when: has(params.attribute)
+        value: { flags: { attribute: params.attribute } }
+      - target: { steps: [attack.options], from: self }
+        op: changes
+        when: has(params.thrown) && params.thrown
+        value: { flags: { ranged: 'true', thrown: 'true' } }
+      - target: { steps: [attack.options], from: self }
+        op: changes
+        when: has(params.burst) && params.burst && self.loaded >= 3
+        value: { flags: { burst: 'true' } }
     actions:
       - use: attack
       - use: reload
@@ -64,16 +94,14 @@ actions:
   # Attack with a weapon: 1d20 + attack bonus + the attribute modifier + the combat skill (-2
   # with no skill) against the target's Ranged or Melee AC. A hit rolls damage and the Trauma
   # Die; a Traumatic Hit multiplies the damage by the Trauma Rating. A melee miss may still deal
-  # Shock. Burst fire spends three rounds for +2 to hit and damage.
+  # Shock. Burst fire spends three rounds for +2 to hit and damage. The weapon type adds the
+  # attribute, thrown and burst parameters where a weapon offers them, read in `options`.
   - id: attack
     tags: [attack]
     available: >-
       (self.equipped || 'standard' in item.tags || 'implant' in item.tags)
         && !('trap' in item.tags) && (!has(item.magazine) || self.loaded >= 1)
     params:
-      attribute: { type: enum, values: [str, dex, wis], optional: true }
-      thrown: { type: boolean, default: false }
-      burst: { type: boolean, default: false }
       lethal: { type: boolean, optional: true }
       targetAc: { type: integer, optional: true }
       targetTrauma: { type: integer, optional: true }
@@ -92,25 +120,21 @@ actions:
         cases:
           - when: true
             flags:
-              ranged: >-
-                has(item.rangeNormal) && (!('melee' in item.tags) || params.thrown)
-              thrown: >-
-                'thrown' in item.tags
-                  || (params.thrown && has(item.rangeNormal) && 'melee' in item.tags)
-              attributes: >-
-                item.attribute == 'str-dex' ? ['str', 'dex']
-                  : item.attribute == 'none' ? [] : [item.attribute]
-              burst: params.burst && 'burst' in item.tags && self.loaded >= 3
+              ranged: has(item.rangeNormal) && !('melee' in item.tags)
+              thrown: "'thrown' in item.tags"
+              attribute: >-
+                item.attribute == 'none' ? ''
+                  : item.attribute != 'str-dex' ? item.attribute
+                  : attributes.dex.mod > attributes.str.mod ? 'dex' : 'str'
+              burst: 'false'
               nonlethal: "has(params.lethal) ? !params.lethal : 'nonlethal' in item.tags"
+      # The weapon's own parameters: the attribute picked, a throw, burst fire.
+      - { id: options, kind: changes, tags: [attack.options] }
       - id: pick
         kind: branch
         cases:
           - when: true
             flags:
-              attribute: >-
-                has(params.attribute) && params.attribute in flags.attributes ? params.attribute
-                  : size(flags.attributes) == 0 ? ''
-                  : sortList(flags.attributes, -fieldOf('attributes.{attribute}.mod', x))[0]
               skill: >-
                 flags.thrown ? max(skills.shoot.level, skills.stab.level, skills.exert.level)
                   : fieldOf('skills.{skill}.level', item.skill)

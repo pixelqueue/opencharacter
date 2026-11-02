@@ -15,6 +15,17 @@ contentTypes:
         required: true
     state:
       prepared: { type: boolean, default: false }
+    effects:
+      # A spell Committing for the scene or the day lets the caster pick on each cast.
+      - target: { actions: [spell], from: self }
+        op: params
+        when: item.effort == 'either'
+        value:
+          commit: { type: enum, values: [scene, day], optional: true }
+      - target: { steps: [spell.commit], from: self }
+        op: changes
+        when: has(params.commit)
+        value: { flags: { commit: params.commit } }
     actions:
       - use: cast-spell
 
@@ -142,8 +153,6 @@ actions:
     tags: [magic, spell]
     available: magic.mage && self.prepared
     params:
-      # For spells Committing for the scene or the day.
-      commit: { type: enum, values: [scene, day], optional: true }
       overcast: { type: boolean, default: false }
     results: [cast, overcast]
     steps:
@@ -151,10 +160,9 @@ actions:
         kind: branch
         cases:
           - when: true
-            flags:
-              commit: >-
-                item.effort == 'either' ? (has(params.commit) ? params.commit : 'scene')
-                  : item.effort
+            flags: { commit: "item.effort == 'either' ? 'scene' : item.effort" }
+      # The spell's own `commit` parameter, where it has one.
+      - { id: choose, kind: changes, tags: [spell.commit] }
       - id: effort
         kind: changes
         when: "!params.overcast && flags.commit != 'none'"
