@@ -583,6 +583,38 @@ interface Frame {
   each?: { role: string; index: number; view: Record<string, unknown>; step: string };
 }
 
+const givenSheets = new WeakMap<Ruleset, Map<string, Sheet>>();
+const GIVEN_SHEETS_KEPT = 8;
+
+/**
+ * The actor's sheet as given (`memo.given`: its file, links and appliers), built from that JSON
+ * once per ruleset and kept for the few used last. A run reads it and doesn't change it, and an action rebuilt it
+ * on every start and resume though nothing it's built from changes between pauses.
+ */
+function givenSheet(ruleset: Ruleset, state: ActionState, memo: RunMemo): Sheet {
+  let sheets = givenSheets.get(ruleset);
+  if (!sheets) {
+    sheets = new Map();
+    givenSheets.set(ruleset, sheets);
+  }
+  let sheet = sheets.get(memo.given);
+  if (sheet) {
+    sheets.delete(memo.given);
+  } else {
+    // built from the key itself: a copy of the file, links and appliers, so a caller editing its
+    // own objects afterwards can't change what a later run with the same key reads
+    const [character, links, appliers] = JSON.parse(memo.given) as [
+      ActionState['character'],
+      NonNullable<ActionState['links']>,
+      NonNullable<ActionState['appliers']>,
+    ];
+    sheet = new Sheet(ruleset, character, [], links, undefined, appliers);
+  }
+  sheets.set(memo.given, sheet);
+  if (sheets.size > GIVEN_SHEETS_KEPT) sheets.delete(sheets.keys().next().value!);
+  return sheet;
+}
+
 function run(
   ruleset: Ruleset,
   state: ActionState,
@@ -590,14 +622,7 @@ function run(
   dice: DiceFunction,
   memo: RunMemo = newMemo(ruleset, state),
 ): ActionResult {
-  const sheet = new Sheet(
-    ruleset,
-    state.character,
-    [],
-    state.links ?? {},
-    undefined,
-    state.appliers ?? [],
-  );
+  const sheet = givenSheet(ruleset, state, memo);
   const ctx: Ctx = {
     memo,
     sheet,
@@ -622,21 +647,25 @@ function run(
     if (!kind) return { ok: false, errors: [{ code: 'unknown-follow-up', data: { id: takenUp } }] };
     clears = kind === 'ephemeral';
   }
-  const finished = (outcome: Outcome): ActionResult => ({
-    status: 'finished',
-    outcome,
-    proposedChanges: clears
-      ? [
-          ...ctx.proposed,
-          {
-            to: 'self',
-            step: '',
-            change: { type: 'clearFollowUp', id: takenUp } as unknown as Change,
-          },
-        ]
-      : ctx.proposed,
-    log: ctx.log,
-  });
+  // What a run hands back is its own: the kept actor sheet's objects (its character root, an
+  // effect's source) reach outcomes and logs, and a caller editing them mustn't change the next
+  // run. The caller's `state` stays as given.
+  const finished = (outcome: Outcome): ActionResult =>
+    structuredClone({
+      status: 'finished',
+      outcome,
+      proposedChanges: clears
+        ? [
+            ...ctx.proposed,
+            {
+              to: 'self',
+              step: '',
+              change: { type: 'clearFollowUp', id: takenUp } as unknown as Change,
+            },
+          ]
+        : ctx.proposed,
+      log: ctx.log,
+    });
   try {
     const frame = startFrame(
       ctx,
@@ -652,12 +681,17 @@ function run(
   } catch (error) {
     if (error instanceof Finish) return finished(error.outcome);
     if (error instanceof Pause) {
-      const paused = { status: 'paused' as const, needs: error.needs, state, log: ctx.log };
+      const paused = {
+        status: 'paused' as const,
+        needs: structuredClone(error.needs),
+        state,
+        log: structuredClone(ctx.log),
+      };
       memos.set(paused, memo);
       return paused;
     }
     if (error instanceof ActionError)
-      return { ok: false, errors: [{ code: error.code, data: error.data }] };
+      return { ok: false, errors: [{ code: error.code, data: structuredClone(error.data) }] };
     const formulaError = (error as { error?: f.FormulaError }).error;
     if (formulaError?.code)
       return {
@@ -665,7 +699,7 @@ function run(
         errors: [
           {
             code: formulaError.code,
-            data: { message: formulaError.message, ...formulaError.data },
+            data: structuredClone({ message: formulaError.message, ...formulaError.data }),
           },
         ],
       };

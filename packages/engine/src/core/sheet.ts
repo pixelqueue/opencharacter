@@ -512,6 +512,27 @@ function sameRounds(a: Rounds, b: Rounds): boolean {
   );
 }
 
+const rulesetUses = new WeakMap<Ruleset, Set<string>>();
+
+/**
+ * The rules actions that content types and content name with `use`. Fixed for a ruleset, so found
+ * once: `actionList` runs on every action start and resume, and walking every content item each
+ * time was most of an action's cost.
+ */
+function usesOf(ruleset: Ruleset): Set<string> {
+  let used = rulesetUses.get(ruleset);
+  if (!used) {
+    used = new Set<string>();
+    const collectUses = (list: ActionOrUse[] | undefined) => {
+      for (const a of list ?? []) if ('use' in a) used!.add(a.use);
+    };
+    for (const t of Object.values(ruleset.contentTypes)) collectUses(t.actions);
+    for (const item of Object.values(ruleset.content)) collectUses(item.actions);
+    rulesetUses.set(ruleset, used);
+  }
+  return used;
+}
+
 export class Sheet {
   readonly errors: EngineError[] = [];
   readonly activations: Activation[] = [];
@@ -3641,12 +3662,7 @@ export class Sheet {
   actionList(unlisted = false): { listed: ListedAction; tags: readonly string[] }[] {
     const out: { listed: ListedAction; tags: readonly string[] }[] = [];
     const seen = new Set<string>();
-    const used = new Set<string>();
-    const collectUses = (list: ActionOrUse[] | undefined) => {
-      for (const a of list ?? []) if ('use' in a) used.add(a.use);
-    };
-    for (const t of Object.values(this.ruleset.contentTypes)) collectUses(t.actions);
-    for (const item of Object.values(this.ruleset.content)) collectUses(item.actions);
+    const used = usesOf(this.ruleset);
 
     // Each item activation lists its content type's actions, then its own: a holder activation
     // those of scope `holder`, an applied entry those of scope `applied`, with the entry's ID as
