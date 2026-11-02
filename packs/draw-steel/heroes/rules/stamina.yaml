@@ -42,13 +42,13 @@ fields:
   weakness.all: { type: integer, formula: 0, min: 0 }
 
 effects:
-  # Weakness adds, the highest applicable immunity takes off (all of it with "immunity all"), and
-  # damage never heals. Damage that can't be reduced (`damage.unreducible`) skips immunity.
+  # The highest applicable weakness adds, the highest applicable immunity takes off (all of it
+  # with "immunity all"), and damage never heals. Damage that can't be reduced (`damage.unreducible`) skips immunity.
   - id: weakness
     target: { incoming: { fields: [stamina.current], tags: [damage] } }
     op: add
     value: >-
-      -(weakness.all + maxList(keysOf('damageType'),
+      -max(weakness.all, maxList(keysOf('damageType'),
         fieldOf('weakness.{damageType}', x), 'damage.' + x in incoming.tags))
     when: incoming.amount < 0
   - id: immunity
