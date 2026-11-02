@@ -78,17 +78,17 @@ contentTypes:
     effects:
       # What a weapon offers on each attack: the better of Strength and Dexterity unless the
       # player picks, throwing a melee weapon with a range, and burst fire.
-      - target: { actions: [attack], from: self }
+      - target: { actions: [attack.weapon], from: self }
         op: params
         when: item.attribute == 'str-dex'
         value:
           attribute: { type: enum, values: [str, dex], optional: true }
-      - target: { actions: [attack], from: self }
+      - target: { actions: [attack.weapon], from: self }
         op: params
         when: "'melee' in item.tags && has(item.rangeNormal)"
         value:
           thrown: { type: boolean, default: false }
-      - target: { actions: [attack], from: self }
+      - target: { actions: [attack.weapon], from: self }
         op: params
         when: "'burst' in item.tags"
         value:
@@ -141,7 +141,7 @@ actions:
   # Shock. Burst fire spends three rounds for +2 to hit and damage. The weapon type adds the
   # attribute, thrown and burst parameters where a weapon offers them, read in `options`.
   - id: attack
-    tags: [attack]
+    tags: [attack, attack.weapon]
     available: >-
       (self.equipped || 'standard' in item.tags || 'implant' in item.tags)
         && !('trap' in item.tags) && (!has(item.magazine) || self.loaded >= 1)

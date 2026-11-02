@@ -19,7 +19,7 @@ contentTypes:
       sceneCasts: { type: integer, default: 0, min: 0 }
     effects:
       # A spell Committing for the scene or the day lets the caster pick on each cast.
-      - target: { actions: [spell], from: self }
+      - target: { actions: [spell.casting], from: self }
         op: params
         when: item.effort == 'either'
         value:
@@ -152,7 +152,7 @@ actions:
   # Cast a prepared spell: Commit its Effort, or overcast it for none and roll on the overcasting
   # table (d20 + Cast + Con, -2 for a day spell) for its System Strain and worse.
   - id: cast-spell
-    tags: [magic, spell]
+    tags: [magic, spell, spell.casting]
     available: magic.mage && self.prepared
     params:
       overcast: { type: boolean, default: false }
