@@ -545,9 +545,12 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
     return set;
   };
   for (const pack of byId.values()) {
-    for (const item of pack.content)
-      if (item.id !== undefined)
-        ruleset.content[`${pack.manifest.id}:${item.id}`] = { ...item } as LoadedItem;
+    for (const item of pack.content) {
+      if (item.id === undefined) continue;
+      const qid = `${pack.manifest.id}:${item.id}`;
+      if (qid in ruleset.content) err('duplicate-content-id', { id: qid, pack: pack.manifest.id });
+      else ruleset.content[qid] = { ...item } as LoadedItem;
+    }
   }
 
   const unknown = (kind: string, ref: string, pack: string) =>
