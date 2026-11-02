@@ -22,10 +22,32 @@ display:
       priority: 1
       members: { type: ability }
       sectionBy: item.usage
+    # Using abilities, by the action each takes (use-ability carries the ability's usage tag).
+    - id: main-actions
+      kind: actions
+      priority: 1
+      members: { type: action, where: "'usage.main-action' in item.tags" }
+    - id: maneuvers
+      kind: actions
+      priority: 1
+      members:
+        { type: action, where: "'usage.maneuver' in item.tags || 'usage.free-maneuver' in item.tags" }
+    - id: triggered-actions
+      kind: actions
+      priority: 1
+      members:
+        {
+          type: action,
+          where: "'usage.triggered' in item.tags || 'usage.free-triggered' in item.tags",
+        }
     - id: ability-actions
       kind: actions
       priority: 1
-      members: { type: action, where: "'ability' in item.tags" }
+      members:
+        type: action
+        where: >-
+          'ability' in item.tags && countList(['usage.main-action', 'usage.maneuver',
+            'usage.free-maneuver', 'usage.triggered', 'usage.free-triggered'], x in item.tags) == 0
     - id: combat
       kind: actions
       priority: 2
