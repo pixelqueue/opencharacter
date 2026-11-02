@@ -15,9 +15,16 @@ fields:
   duration: minutes
   durationAmount: 10
   applyTo: ally
-  damageTypeChoice: true
   damageType: fire
 effects:
+  # The damage type is chosen on each cast: a parameter the spell adds to its own cast.
+  - target: { actions: [spell], from: self }
+    op: params
+    value:
+      resistType: { type: enum, values: [acid, cold, electricity, fire, sonic], optional: true }
+  - target: { steps: [spell.chosen], from: self }
+    op: changes
+    value: { flags: { damageType: 'has(params.resistType) ? params.resistType : item.damageType' } }
   - target: { incoming: { fields: [hp.current] } }
     op: add
     stackKey: resistance

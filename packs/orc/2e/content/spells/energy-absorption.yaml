@@ -5,9 +5,16 @@ fields:
   rank: 4
   cast: reaction
   applyTo: self
-  damageTypeChoice: true
   damageType: fire
 effects:
+  # The damage type is chosen on each cast: a parameter the spell adds to its own cast.
+  - target: { actions: [spell], from: self }
+    op: params
+    value:
+      energyType: { type: enum, values: [acid, cold, electricity, fire], optional: true }
+  - target: { steps: [spell.chosen], from: self }
+    op: changes
+    value: { flags: { damageType: 'has(params.energyType) ? params.energyType : item.damageType' } }
   - target:
       incoming:
         fields: [hp.current]

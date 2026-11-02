@@ -7,7 +7,21 @@ fields:
   defense: will
   basic: true
   damage: '6d8'
-  damageTypeChoice: true
   damageType: force
   heighten: 1
   heightenDice: 1
+effects:
+  # The damage type is chosen on each cast: a parameter the spell adds to its own cast.
+  - target: { actions: [spell], from: self }
+    op: params
+    value:
+      shadowType:
+        {
+          type: enum,
+          values:
+            [acid, bludgeoning, cold, electricity, fire, force, piercing, slashing, sonic, spirit],
+          optional: true,
+        }
+  - target: { steps: [spell.chosen], from: self }
+    op: changes
+    value: { flags: { damageType: 'has(params.shadowType) ? params.shadowType : item.damageType' } }

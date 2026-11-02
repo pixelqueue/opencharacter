@@ -20,6 +20,14 @@ fields:
   defense: ac
   damage: 2d8
   damageType: slashing
-  damageTypeChoice: true
   heighten: 2
   heightenDice: 1
+effects:
+  # The damage type is chosen on each cast: a parameter the spell adds to its own cast.
+  - target: { actions: [spell], from: self }
+    op: params
+    value:
+      weaponType: { type: enum, values: [bludgeoning, piercing, slashing, spirit], optional: true }
+  - target: { steps: [spell.chosen], from: self }
+    op: changes
+    value: { flags: { damageType: 'has(params.weaponType) ? params.weaponType : item.damageType' } }

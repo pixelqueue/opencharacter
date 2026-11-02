@@ -8,7 +8,13 @@ fields:
   defense: reflex
   basic: true
   damage: 8d6
-  damageTypeChoice: true
   damageType: fire
   heighten: 1
   heightenDice: 2
+effects:
+  # The damage is of the elemental influence's type.
+  - target: { steps: [spell.chosen], from: self }
+    op: changes
+    value:
+      flags:
+        damageType: "sorcerer.elementDamage != 'none' ? sorcerer.elementDamage : item.damageType"

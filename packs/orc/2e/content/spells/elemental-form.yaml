@@ -11,6 +11,14 @@ fields:
   heighten: 1
   heightenTempHp: 5
 effects:
+  # The battle form is chosen on each cast: a parameter the spell adds to its own cast.
+  - target: { actions: [spell], from: self }
+    op: params
+    value:
+      elementalForm: { type: enum, values: [air, earth, fire, metal, water, wood], optional: true }
+  - target: { steps: [spell.chosen], from: self }
+    op: changes
+    value: { flags: { form: "has(params.elementalForm) ? params.elementalForm : ''" } }
   - { target: battleForm.active, op: set, value: true, scope: applied }
   - {
       target: battleForm.acBase,

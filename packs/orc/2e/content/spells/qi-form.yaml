@@ -7,9 +7,16 @@ fields:
   duration: minutes
   durationAmount: 1
   applyTo: self
-  damageTypeChoice: true
   damageType: force
 effects:
+  # The damage type is chosen on each cast: a parameter the spell adds to its own cast.
+  - target: { actions: [spell], from: self }
+    op: params
+    value:
+      qiType: { type: enum, values: [force, spirit, vitality, void], optional: true }
+  - target: { steps: [spell.chosen], from: self }
+    op: changes
+    value: { flags: { damageType: 'has(params.qiType) ? params.qiType : item.damageType' } }
   - { target: speed.fly, op: atLeast, value: speed.land, scope: applied }
   - target:
       rolls: [damage.strike]

@@ -11,6 +11,15 @@ fields:
   heighten: 1
   heightenTempHp: 5
 effects:
+  # The battle form is chosen on each cast: a parameter the spell adds to its own cast.
+  - target: { actions: [spell], from: self }
+    op: params
+    value:
+      insectForm:
+        { type: enum, values: [ant, beetle, centipede, mantis, scorpion, spider], optional: true }
+  - target: { steps: [spell.chosen], from: self }
+    op: changes
+    value: { flags: { form: "has(params.insectForm) ? params.insectForm : ''" } }
   - { target: battleForm.active, op: set, value: true, scope: applied }
   - {
       target: battleForm.acBase,

@@ -9,7 +9,16 @@ fields:
   defense: reflex
   basic: true
   damage: 5d6
-  damageTypeChoice: true
   damageType: fire
   heighten: 1
   heightenDice: 2
+effects:
+  # The damage type is chosen on each cast: a parameter the spell adds to its own cast.
+  - target: { actions: [spell], from: self }
+    op: params
+    value:
+      exemplarType: { type: enum, values: [fire, force, mental, spirit], optional: true }
+  - target: { steps: [spell.chosen], from: self }
+    op: changes
+    value:
+      { flags: { damageType: 'has(params.exemplarType) ? params.exemplarType : item.damageType' } }

@@ -8,6 +8,20 @@ fields:
   durationAmount: 1
   applyTo: self
 effects:
+  # The battle form is chosen on each cast: a parameter the spell adds to its own cast.
+  - target: { actions: [spell], from: self }
+    op: params
+    value:
+      dinosaurForm:
+        {
+          type: enum,
+          values:
+            [ankylosaurus, brontosaurus, deinonychus, stegosaurus, triceratops, tyrannosaurus],
+          optional: true,
+        }
+  - target: { steps: [spell.chosen], from: self }
+    op: changes
+    value: { flags: { form: "has(params.dinosaurForm) ? params.dinosaurForm : ''" } }
   - { target: battleForm.active, op: set, value: true, scope: applied }
   - {
       target: battleForm.acBase,

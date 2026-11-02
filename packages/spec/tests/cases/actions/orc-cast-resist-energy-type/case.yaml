@@ -1,0 +1,11 @@
+description: 'orc-2e: resist energy takes its energy as a parameter the spell adds to its own cast (acid, cold, electricity, fire or sonic): sonic, applied to the ally with that damage type'
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/orc/2e
+input:
+  action: { id: orc-2e:cast-spell, entry: class, source: orc-2e:spells.resist-energy }
+  params: { resistType: sonic }
+  participants:
+    ally:
+      - { id: ally }

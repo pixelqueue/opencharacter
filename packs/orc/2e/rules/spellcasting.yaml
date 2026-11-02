@@ -371,7 +371,6 @@ contentTypes:
             untyped,
           ]
         default: force
-      damageTypeChoice: { type: boolean, default: false }
       damage2: { type: dice, default: 0d6 }
       damage2Type:
         open: true
@@ -498,30 +497,7 @@ actions:
       actions: { type: integer, optional: true, min: 1, max: 3 }
       ac: { type: integer, optional: true }
       copy: { type: string, optional: true }
-      form: { type: string, optional: true }
       source: { type: string, optional: true }
-      damageType:
-        type: enum
-        optional: true
-        open: true
-        values:
-          [
-            acid,
-            bleed,
-            bludgeoning,
-            cold,
-            electricity,
-            fire,
-            force,
-            mental,
-            piercing,
-            poison,
-            slashing,
-            sonic,
-            spirit,
-            vitality,
-            void,
-          ]
     participants:
       target:
         fields:
@@ -790,8 +766,14 @@ actions:
           - when: true
             flags:
               steps: 'item.heighten > 0 ? max(0, floor((flags.rank - item.rank) / item.heighten)) : 0'
-              damageType: 'item.damageTypeChoice && has(params.damageType) ? params.damageType : item.damageType'
+              damageType: item.damageType
+              form: "''"
               heightenedConditions: item.heightenAt > 0 && flags.rank >= item.heightenAt
+      # A spell that takes a damage type or a form when cast sets it here, from a parameter it
+      # adds to its own cast (a `params` effect) or from the caster's fields.
+      - id: chosen
+        kind: changes
+        tags: [spell.chosen]
       - id: totals
         kind: branch
         cases:
@@ -1067,7 +1049,7 @@ actions:
               rank: flags.rank
               damageType: flags.damageType
               copy: flags.copy
-              form: "has(params.form) ? params.form : ''"
+              form: flags.form
       - id: fortissimo
         kind: changes
         when: >-

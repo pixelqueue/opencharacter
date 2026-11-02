@@ -98,8 +98,10 @@ A pack that depends on `orc-sf-2e` can add to what it offers:
   connection or paradox sets with its own effect, as the core's do; weapon `group`,
   `damageType` and `ammoKind`, ammunition `kind`, armor `group`, consumable `category`,
   `damageType` and `persistentType`, spell damage types, affliction and persistent damage
-  condition damage types, feat `category`, and `cast-spell`'s `damageType` parameter
-  (`orc-sf-2e:actions.cast-spell.params.damageType`). A new damage type or group also needs its tag,
+  condition damage types and feat `category`. A spell whose caster picks its damage type or
+  battle form declares the choice as a parameter of its own cast (a `params` effect, such as
+  resist energy's `resistType`), setting the cast's damage type or form at its `spell.chosen`
+  step. A new damage type or group also needs its tag,
   declared and named in the add-on.
 - **Choices** (`extendChoices`): written value and inline option choices take additions: the
   operative's `specialization`, the epiphany feats' `spell` (Basic, New, Advanced, Greater and

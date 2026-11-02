@@ -100,9 +100,10 @@ A pack that depends on `orc-2e` can add to what it offers:
   value: "'thunder'" }`), as the core's do; weapon `group` and `damageType`, armor `group`,
   consumable `category`, `damageType` and `persistentType`, spell damage types (`damageType`,
   `damage2Type`, `persistentType` and the cast's `damageType` state), affliction and persistent
-  damage condition damage types, feat `category`, and the damage type parameters of `cast-spell`
-  (`damageType`) and `bomb-strike` (`damageType`, `persistentType`), so an added bomb or spell
-  deals its type (`orc-2e:actions.bomb-strike.params.damageType`). A new damage type or group also needs its
+  damage condition damage types, feat `category`, and the damage type parameters of
+  `bomb-strike` (`damageType`, `persistentType`), so an added bomb deals its type
+  (`orc-2e:actions.bomb-strike.params.damageType`). An added spell whose caster picks its damage
+  type or battle form declares the choice itself, as the core's do (below). A new damage type or group also needs its
   tag (`damage.sonic`, `group.firearm`), declared and named in the add-on.
 - **Choices** (`extendChoices`): written value and inline option choices take additions: the
   dedications' identity picks (Barbarian Dedication's `instinct`), the follow-up feats' inline
@@ -734,7 +735,11 @@ Still closed: attributes, proficiency ranks, saves, spell traditions (and a staf
   doubled on a critical hit), or one damage roll and each target's save on its own sheet (none,
   half, full or double by the degree), incapacitation, heightening (+N), persistent damage,
   conditions by the outcome, healing for allies, and the spell itself applied to the caster, an
-  ally or a target, its effects reading its rank (heightening to a given rank).
+  ally or a target, its effects reading its rank (heightening to a given rank). A spell whose
+  caster picks its damage type (resist energy, shadow blast, telekinetic projectile, …) adds
+  that choice to its own cast as a parameter with only the book's types (a `params` effect, such
+  as resist energy's `resistType`), which sets the cast's damage type at its `spell.chosen`
+  step; elemental toss and elemental blast take the elemental influence's type there.
 - **Spells:** the 41 Player Core cantrips (with the bard's compositions and the witch's hexes)
   and every 1st-, 2nd- and 3rd-rank spell (58, 55, 34), text in `i18n/en/spells.yaml`; the
   casters' 1st-rank focus spells (7 school, 37 domain, 10 bloodline and 5 order spells), text in
@@ -743,7 +748,8 @@ Still closed: attributes, proficiency ranks, saves, spell traditions (and a staf
   order and 13 qi spells, 38 with mechanics), text in `i18n/en/spells-high.yaml`. Battle forms
   (`rules/battle-forms.yaml`) give their temporary Hit Points, skill floors and
   resistances, their AC (the form's + the level, without the armor's item bonus), and the chosen
-  form's Speeds and unarmed attacks (cast-spell's `form`; 39 forms, 60 attacks as standard
+  form's Speeds and unarmed attacks (a parameter each battle form spell adds to its cast, such as
+  animal form's `animalForm`; 39 forms, 60 attacks as standard
   copies), whose Strikes roll the form's attack modifier or the character's own if higher and
   the form's damage bonus; fly, climb and burrow Speeds are fields (`speed.fly`, `.climb`, `.burrow`);
   regenerate and malignant sustenance heal at the start of the turn (`turn.start`). Text-only

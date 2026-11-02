@@ -9,6 +9,12 @@ fields:
   defense: ac
   damage: 1d8
   damageType: bludgeoning
-  damageTypeChoice: true
   heighten: 1
   heightenDice: 1
+effects:
+  # The damage is of the elemental influence's type.
+  - target: { steps: [spell.chosen], from: self }
+    op: changes
+    value:
+      flags:
+        damageType: "sorcerer.elementDamage != 'none' ? sorcerer.elementDamage : item.damageType"

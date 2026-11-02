@@ -15,6 +15,15 @@ fields:
   defense: ac
   damage: '2d6'
   damageType: bludgeoning
-  damageTypeChoice: true
   heighten: 1
   heightenDice: 1
+effects:
+  # The damage type is chosen on each cast: a parameter the spell adds to its own cast.
+  - target: { actions: [spell], from: self }
+    op: params
+    value:
+      physicalType: { type: enum, values: [bludgeoning, piercing, slashing], optional: true }
+  - target: { steps: [spell.chosen], from: self }
+    op: changes
+    value:
+      { flags: { damageType: 'has(params.physicalType) ? params.physicalType : item.damageType' } }
