@@ -64,8 +64,8 @@ leaves a rule open, the pack's reading is listed under [Rule readings](#rule-rea
 - **Covered:** Player Core, the player-facing book. GM Core is not covered.
 - **Modeled:** the core math (attributes, proficiency, checks and degrees of success, bonus
   types, resistances, weaknesses and immunities, conditions with the book's new ones, dying and
-  recovery, Bulk, Hero Points); all 10 ancestries with every heritage (the two versatile ones
-  included) and ancestry feat; all 39 backgrounds; all 6 classes from 1st to 20th level with
+  recovery, Bulk, Hero Points and their reroll of a failed check); all 10 ancestries with every
+  heritage (the two versatile ones included) and ancestry feat; all 39 backgrounds; all 6 classes from 1st to 20th level with
   every class feat; the 6 multiclass archetypes with their feats; every general and skill feat;
   the skill actions, with Computers and Piloting; spontaneous spellcasting (connections and
   paradoxes, focus spells, innate spells, archetype sources, spell gems) with every spell; guns

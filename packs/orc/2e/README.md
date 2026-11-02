@@ -719,7 +719,10 @@ Still closed: attributes, proficiency ranks, saves, spell traditions (and a staf
   stages is one stage, its effect text unless it
   is a condition (curse of slumber, reviling earth); up to 7 stages. GM Core's 7 item curses are
   templates, one per curse whatever the kind of item (`content/item-curses`), bloodbiter's bleed with mechanics.
-- **Hero Points**: an input, 1 to start, at most 3; spending them is the app's.
+- **Hero Points**: an input, 1 to start, at most 3. A failed check (`check`, so skill actions,
+  Perception and saves) offers a Hero Point reroll after the roll (`check.reroll`, declining
+  recommended); the second result stands. Rerolling a Strike or spell attack and spending them
+  all to avoid dying are the app's.
 - **Creation**: a guided start, `standard`, and a random one,
   `random`. Guided: an ancestry and its heritage, a background and a class, then what each brings in the book's order: the ancestry's
   boosts and the heritage's choices, the background's boosts (and a scholar's skill), the four
@@ -818,7 +821,7 @@ Still closed: attributes, proficiency ranks, saves, spell traditions (and a staf
 | Area                  | Built                                                                                                                                                                                            | Not modeled                                                             |
 | --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------- |
 | Core math             | Attributes, proficiency, skills, saves, Perception, AC, class DC, HP; the highest resistance and weakness; damage immunities                                                                     | —                                                                       |
-| Checks                | Degrees of success, flat checks, fortune and misfortune, typed bonuses, 55 skill actions, Hero Points                                                                                            | Spending Hero Points (the app's)                                        |
+| Checks                | Degrees of success, flat checks, fortune and misfortune, typed bonuses, 55 skill actions, Hero Points                                                                                            | Hero Point rerolls of attacks, and to avoid dying (the app's)           |
 | Strikes               | MAP, every weapon trait, runes, criticals, flat checks, damage                                                                                                                                   | Critical specialization, reload, critical hits that need a save         |
 | Conditions            | All Player Core conditions, dying and recovery, turns                                                                                                                                            | Attitudes, detection states as observer-relative                        |
 | Ancestries            | 16 ancestries, 106 heritages (7 versatile), 313 ancestry feats (1st to 17th), 90 versatile heritage feats                                                                                        | —                                                                       |
