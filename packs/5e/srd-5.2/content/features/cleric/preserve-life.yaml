@@ -1,5 +1,8 @@
 id: features.cleric.preserve-life
 type: feature
+# The healing to divide: five times the Cleric level.
+computed:
+  healingPool: { type: integer, formula: 5 * self.level }
 actions:
   - id: preserve-life
     tags: [feature, healing]
@@ -14,4 +17,4 @@ actions:
         kind: outcome
         result: "'healing'"
         data:
-          pool: 5 * self.level
+          pool: self.healingPool

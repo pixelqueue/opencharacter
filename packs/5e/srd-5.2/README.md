@@ -269,6 +269,10 @@ Where the SRD is unclear or silent, the pack reads it this way:
   Hands and smites, Favored Enemy, Sneak Attack and Cunning Strike, Font of Magic and the ten
   Metamagic options, Pact Magic and the 28 invocations, the spellbook, Arcane Recovery. Uses until
   a rest are state on the class copy, an invocation's on its pick (Gift of the Depths' `used`).
+  Features carry the numbers their card needs as computed values (in computeSheet's
+  `activationValues`), which their actions read: Cunning Strike's `strikeDc`, Intimidating
+  Presence's `presenceDc`, Relentless Rage's `rageDc`, Sacred Weapon's `weaponBonus`, Preserve
+  Life's `healingPool`, and Breath Weapon's `breathDc` and `breathDice`.
   A species trait keeps its own uses as its grant's saved state (Breath Weapon, Draconic Flight,
   Stonecunning, the lineage spells, Giant Ancestry, Large Form, Adrenaline Rush, Relentless
   Endurance); Stone's Endurance spends a Giant Ancestry use from its incoming-damage effect's

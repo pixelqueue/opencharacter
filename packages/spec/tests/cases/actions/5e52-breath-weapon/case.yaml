@@ -1,0 +1,28 @@
+description: "5E 2024 Breath Weapon at character level 5: 2d10 of the lineage's type, a Dexterity save at DC 8 + Constitution modifier + Proficiency Bonus (the trait's computed breathDc and breathDice)"
+specVersion: 0.1.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/5e/srd-5.2
+input:
+  action:
+    {
+      id: '5e-srd-5.2:traits.breath-weapon#breath-weapon',
+      entry: species,
+      source: 5e-srd-5.2:traits.breath-weapon,
+    }
+  participants:
+    target:
+      - id: goblin
+        values:
+          combat.ac: 15
+          creature.size: small
+          creature.type: humanoid
+  policy:
+    dice: auto
+    choices: auto
+    allocations: auto
+answers:
+  - outcome:
+      result: failure
+      data:
+        total: 9

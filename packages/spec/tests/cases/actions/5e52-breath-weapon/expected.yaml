@@ -1,0 +1,32 @@
+# Fighter 5, Constitution 14: DC 8 + 2 + 3 = 13; 2d10 lightning (blue), 7 + 4 = 11. The goblin
+# fails its save (9) and takes all 11.
+status: finished
+outcome:
+  result: breathed
+  data:
+    damage: 11
+    dc: 13
+    area: 15
+proposedChanges:
+  - to: self
+    step: spend
+    change:
+      type: adjustState
+      entry: species
+      grant: 5e-srd-5.2:traits.breath-weapon
+      key: breathWeaponUsed
+      by: 1
+  - to: target
+    character: goblin
+    step: burn[0]
+    change:
+      type: adjust
+      field: 5e-srd-5.2:hp.current
+      by: -11
+      tags:
+        - damage
+        - magical
+        - save-half
+        - save.dex
+        - save-failure
+        - damage.lightning

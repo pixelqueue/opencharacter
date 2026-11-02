@@ -1,5 +1,8 @@
 id: features.rogue.cunning-strike
 type: feature
+# The save DC: 8 + Dexterity modifier + Proficiency Bonus.
+computed:
+  strikeDc: { type: integer, formula: 8 + abilities.dex.mod + proficiency.bonus }
 effects:
   - { target: rogue.cunningStrikes, op: atLeast, value: 1 }
 actions:
@@ -36,7 +39,7 @@ actions:
         cases:
           - when: true
             flags:
-              dc: 8 + abilities.dex.mod + proficiency.bonus
+              dc: self.strikeDc
               save: >-
                 params.effect in ['poison', 'daze', 'knock-out'] ? 'con'
                   : params.effect in ['trip', 'obscure'] ? 'dex' : 'none'

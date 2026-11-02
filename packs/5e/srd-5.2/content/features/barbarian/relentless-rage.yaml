@@ -1,5 +1,8 @@
 id: features.barbarian.relentless-rage
 type: feature
+# The save DC: 10, plus 5 for each use since the last rest.
+computed:
+  rageDc: { type: integer, formula: 10 + 5 * self.relentlessRageSpent }
 effects:
   - target: { steps: [rest.short, rest.long] }
     op: changes
@@ -21,7 +24,7 @@ actions:
       - id: save
         kind: action
         use: saving-throw
-        params: { ability: "'con'", dc: 10 + 5 * self.relentlessRageSpent }
+        params: { ability: "'con'", dc: self.rageDc }
       - id: survive
         kind: changes
         when: "steps.save.result == 'success'"
@@ -37,4 +40,4 @@ actions:
         kind: outcome
         result: steps.save.result
         data:
-          dc: 10 + 5 * self.relentlessRageSpent
+          dc: self.rageDc

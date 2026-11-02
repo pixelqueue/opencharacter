@@ -1,5 +1,8 @@
 id: features.paladin.sacred-weapon
 type: feature
+# The bonus to attack rolls: Charisma modifier, at least +1.
+computed:
+  weaponBonus: { type: integer, formula: 'max(1, abilities.cha.mod)' }
 effects:
   - target: { rolls: [attack] }
     op: add
@@ -26,5 +29,5 @@ actions:
         kind: outcome
         result: "'active'"
         data:
-          bonus: max(1, abilities.cha.mod)
+          bonus: self.weaponBonus
           minutes: 10

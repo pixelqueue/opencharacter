@@ -1,5 +1,8 @@
 id: features.barbarian.intimidating-presence
 type: feature
+# The save DC: 8 + Strength modifier + Proficiency Bonus.
+computed:
+  presenceDc: { type: integer, formula: 8 + abilities.str.mod + proficiency.bonus }
 effects:
   - target: { steps: [rest.long] }
     op: changes
@@ -34,7 +37,7 @@ actions:
         use: saving-throw
         params:
           ability: "'wis'"
-          dc: 8 + abilities.str.mod + proficiency.bonus
+          dc: self.presenceDc
       - id: frighten
         kind: changes
         each: target
@@ -48,5 +51,5 @@ actions:
         kind: outcome
         result: "'frightening'"
         data:
-          dc: 8 + abilities.str.mod + proficiency.bonus
+          dc: self.presenceDc
           save: "'wis'"
