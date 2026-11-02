@@ -1744,7 +1744,10 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
       if (field && !field.input) invalid({ reason: 'not-input', field: change.field });
       else if (field && change.type === 'adjust' && !['integer', 'decimal'].includes(field.type))
         invalid({ reason: 'not-numeric', field: change.field });
-      // A held copy's state: a key its content type declares, numeric for adjustState.
+      // A held copy's state: named by a copies query only, a key its content type declares,
+      // numeric for adjustState.
+      if ((change.type === 'setState' || change.type === 'adjustState') && !change.copies)
+        invalid({ reason: 'copies' });
       const type = change.copies ? ruleset.contentTypes[change.copies.type] : undefined;
       if (type && change.key !== undefined) {
         const decl = type.state?.[change.key];

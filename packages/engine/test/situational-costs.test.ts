@@ -184,4 +184,41 @@ describe("a situational choice's state changes", () => {
     if (result.ok) return;
     expect(result.errors.map((e) => [e.code, e.path])).toEqual([['out-of-range', '/changes/1']]);
   });
+
+  it('name their copies by a copies query only: an applied query fails at load', () => {
+    const result = loadRuleset([
+      buildRelease({
+        manifest: {
+          id: 'test-pack',
+          version: '1.0.0',
+          specVersion: '0.1.0',
+          license: 'CC0-1.0',
+          defaultLanguage: 'en',
+        },
+        rules: [
+          {
+            tags: ['damage'],
+            fields: { hp: { type: 'integer', input: true, default: 20 } },
+            situational: [
+              {
+                id: 'catch',
+                type: 'boolean',
+                default: false,
+                incoming: { fields: ['hp'], tags: ['damage'] },
+                changes: [
+                  { type: 'adjustState', applied: { where: 'true' }, key: 'damage', by: 1 },
+                ],
+              },
+            ],
+          },
+        ] as never,
+        content: [],
+      }),
+    ]);
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.errors.map((e) => [e.code, e.data?.reason])).toEqual([
+      ['invalid-situational-change', 'copies'],
+    ]);
+  });
 });

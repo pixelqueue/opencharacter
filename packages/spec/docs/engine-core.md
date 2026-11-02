@@ -1301,7 +1301,8 @@ qualified IDs to values, such as 5E's Uncanny Dodge on one attack.
   carries `source: { type: situational, id }`; `setState` and `adjustState` change held copies'
   state by a `copies: { type, where }` query (and optional `limit`), resolved then, as a
   [change aimed at copies](#applychanges) is, with `where`, `value` and `by` evaluated per match
-  with `item`, `self`, `situational` and `batch` bound, and checked as that change is; their
+  with `item`, `self`, `situational` and `batch` bound, and checked as that change is (an
+  `adjustState` past a bound is `out-of-range`: it doesn't clamp); their
   `{ copies }` entry carries the same `source`; `offerFollowUp` offers the rules follow-up with
   its `params` evaluated, after the batch's own offers ([follow-ups](#follow-ups)). Each formula
   is evaluated in the choice's pack on the character as it is then, with `situational` (every
@@ -1315,7 +1316,8 @@ qualified IDs to values, such as 5E's Uncanny Dodge on one attack.
   of a field that isn't an input field (or an `adjust` of one that isn't numeric), a `setState`
   or `adjustState` of a key the content type doesn't declare (or an `adjustState` of one that
   isn't numeric), or a follow-up parameter its action neither declares nor gets from a `params`
-  effect reaching it, is `invalid-situational-change`; an unknown content type is
+  effect reaching it, or a `setState` or `adjustState` without `copies`, is
+  `invalid-situational-change`; an unknown content type is
   `unknown-reference` (kind `content type`); a tag no visible pack declares is `unknown-tag`.
 - `changes` returns the adjust with its `situational`, so a logged batch replays the same.
 - An action never proposes `situational`: the target's player chooses, on the target's side.

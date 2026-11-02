@@ -90,9 +90,9 @@ situational:
           stopped: >-
             -sumList(batch.adjustments, x.requested, x.field == 'test-reactions:hp'
               && x.reason == 'requested')
-  # Blocks one attack with the equipped shield: its hardness comes off the attack's total once, and
-  # the first equipped shield takes the damage left after hardness. Every equipped shield records
-  # the block.
+  # Blocks one attack with the equipped shields' best hardness, off the attack's total once; the
+  # first equipped shield takes the damage left after that hardness. Every equipped shield records
+  # the block. Its damage isn't clamped to its structure, so going past it rejects the batch.
   - id: shieldBlock
     type: boolean
     default: false
@@ -110,8 +110,8 @@ situational:
         limit: 1
         key: damage
         by: >-
-          max(0, -sumList(batch.adjustments, x.requested, x.field == 'test-reactions:hp'
-            && x.reason == 'requested') - item.hardness)
+          max(0, -sumList(batch.adjustments, x.requested, x.field == @hp
+            && x.reason == 'requested') - shieldHardness)
       - type: setState
         copies: { type: shield, where: self.equipped && situational.shieldBlock }
         key: blocked

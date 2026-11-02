@@ -545,7 +545,7 @@ situational:
       - type: offerFollowUp
         followUp: deflect-redirect
         when: >-
-          countList(batch.adjustments, x.field == 'hp.current' && x.reason == 'requested'
+          countList(batch.adjustments, x.field == @hp.current && x.reason == 'requested'
             && x.taken < 0) == 0
 ```
 
@@ -594,7 +594,7 @@ situational:
   - id: shieldBlock
     type: boolean
     default: false
-    incoming: { fields: [hp.current], tags: [attack] }
+    incoming: { fields: [hp.current], tags: [damage] }
     scope: batch
     available: shield.hardness > 0 && shield.raised
     effects:
@@ -608,8 +608,8 @@ situational:
         limit: 1
         key: damage
         by: >-
-          max(0, -sumList(batch.adjustments, x.requested, x.field == 'hp.current'
-            && x.reason == 'requested') - item.hardness)
+          min(item.hp - self.damage, max(0, -sumList(batch.adjustments, x.requested,
+            x.field == @hp.current && x.reason == 'requested') - shield.hardness))
 ```
 
 - **`copies: { type, where }`** names the copies of the content type `type` (local or qualified)
@@ -622,9 +622,13 @@ situational:
 - Each applies at the batch's end with the choice's other changes, in their order, so `batch`
   holds the whole attack: Shield Block's hardness comes off the attack once (`scope: batch`),
   and the shield takes what is left of the total after its hardness.
-- Each match is checked as a `setState` or `adjustState` naming it (its bounds: `out-of-range`
-  rejects the batch). No match is not an error. Its `{ copies }` entry in `adjustments` carries
-  the choice as `source`.
+- Each match is checked as a `setState` or `adjustState` naming it. Unlike the choice's `adjust`
+  of a field, an `adjustState` **doesn't clamp**: past the key's `min` or `max` is
+  `out-of-range` and rejects the whole batch, so clamp in `by` (the shield's `damage` stops at
+  its Hit Points, `max: item.hp`). No match is not an error. Its `{ copies }` entry in
+  `adjustments` carries the choice as `source`.
+- `batch.adjustments` entries hold qualified field IDs: compare `x.field` with an ID literal
+  (`@hp.current`), not a local name.
 
 ## Link slots
 
