@@ -2,7 +2,7 @@
 
 The test suite is how every engine, the TypeScript reference engine and community ports alike, proves it implements a spec version. A port is conformant when it passes every case for the spec versions it claims. **Cases are plain data** (YAML in, YAML out), so any language can run them without TypeScript.
 
-> Spec 0.1: cases exist for the formula language and every engine call.
+Cases cover the formula language and every engine call.
 
 ## Layout
 
@@ -15,15 +15,15 @@ tests/cases/<area>/<case-name>/
   expected.yaml    # the expected output
 ```
 
-| Area        | Call(s)                                           | Typical inputs                                                    |
-| ----------- | ------------------------------------------------- | ----------------------------------------------------------------- |
-| `formulas/` | parse, print, evaluate                            | formula text or tree, a context (field values, `item`, `self`, …) |
-| `sheets/`   | `computeSheet`                                    | packs, character, competing-option picks                          |
-| `options/`  | `listOptions`                                     | packs, character, choice path                                     |
-| `changes/`  | `applyChanges`                                    | packs, character, changes, `strict`                               |
-| `actions/`  | `startAction`, `continueAction`, `describeAction` | packs, character, action, params, situational, policy, die faces  |
-| `upgrades/` | `upgrade`, `checkRelease`                         | old and new packs, character                                      |
-| `loads/`    | `loadRuleset`                                     | packs                                                             |
+| Area        | Call(s)                                           | Typical inputs                                                                                  |
+| ----------- | ------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| `formulas/` | parse, print, evaluate                            | formula text or tree, a context (field values, `item`, `self`, …)                               |
+| `sheets/`   | `computeSheet`                                    | packs, character, competing-option picks, links, appliers                                       |
+| `options/`  | `listOptions`                                     | packs, character, choice path, links, appliers                                                  |
+| `changes/`  | `applyChanges`                                    | packs, character, changes, `strict`, links, appliers                                            |
+| `actions/`  | `startAction`, `continueAction`, `describeAction` | packs, character, action, params, situational, policy, links, appliers, participants, die faces |
+| `upgrades/` | `upgrade`, `checkRelease`                         | old and new packs, character                                                                    |
+| `loads/`    | `loadRuleset`                                     | packs                                                                                           |
 
 ## Formula cases
 
@@ -114,7 +114,8 @@ call: startAction
 packs: # pack sources, in load order
   - path: ../../../../../packs/5e/srd-5.1 # a repo pack, by path, or…
   - inline: { manifest: …, rules: …, content: [] } # …a small pack release written inline
-input: # any other call inputs (action, params, situational, policy, strict, links, …)
+input: # any other call inputs (action, params, situational, policy, strict, choice, competing,
+  # links, appliers, participants, …)
   action: { id: weapon-attack, entry: inv-1 }
   situational: { 5e-srd-5.1:advantage: true }
   policy: { dice: pause }
@@ -122,32 +123,7 @@ input: # any other call inputs (action, params, situational, policy, strict, lin
 
 - **Packs** given by `path` are pack source folders (like `packs/5e/srd-5.1`); the runner builds
   each into a pack release before calling `loadRuleset`. `tests/packs/` holds test-only packs with
-  made-up content: `test-gear`, a weapon for the Mothership cases, `test-borg-gear`, gear for the
-  MÖRK BORG cases, `test-effects`, rules for stacking, multiplying and issue order, `test-actions`,
-  actions of picked content, `test-follow-ups`, follow-ups after changes (and once per batch),
-  `test-situational`, situational choices for rolls and incoming changes, `test-immunity`, immunity
-  to applied content, `test-standard`, standard copies, `test-choice-picks`, a choice's own picks,
-  `eligible` and repeatable content and waived prerequisites (0092), `test-kept-templates`,
-  templates content keeps on copies and on picked or granted content (the keeper's own picks, with
-  its params), `test-applied`, actions that apply content and change applied entries,
-  `test-roll-twice`, rolls made more than once (`of: roll`), `test-owner-picks`, formulas
-  reading their owner's picks with `picksOf`, `test-pick-aggregates`, formulas counting saved
-  picks and active grants (`countPicks`, `countGrants`), `test-content-picks`, formulas reading
-  another content's picks (`picksOf(content, choice)`, `grantedPicksOf`), `test-content-items`,
-  formulas reading a picked item's fields and tags by ID (`itemField`, `itemTags`),
-  `test-target-formula`, effects whose target is a formula (`target: { formula }`),
-  `test-part-rolls`, advantage and disadvantage on a roll's parts (`of: roll`), and
-  `test-roll-then`, roll effects that end themselves or spend a use once a roll used them
-  (`then`), `test-describe`, actions as `describeAction` reads them, `test-choice-activation`, a
-  choice recommending among its eligible options, picks active only while a condition holds
-  (`activeWhen`), picks held as copies (`addAs: copy`), an inline option's immunity and
-  allocations recommended per field, `test-span-stacking`, stack keys spanning fields (one kit's
-  bonus on every tier), `test-content-values`, computed values on picked and granted content,
-  and `test-cross`, effects that cross between characters (who
-  applied an entry, changes `to: applied`, clock actions, auras, a pool spent through a link),
-  with `test-party`, the shared party sheet it links, and `test-events`, follow-ups on other
-  characters' events (who dealt the damage, `observe` changes, follow-ups `to: character`, an
-  applier named by formula).
+  made-up content (listed under [Test packs](#test-packs)).
 - **How outputs compare.** Only what `expected.yaml` lists is compared. A key the call doesn't
   define, in `case.yaml` or `expected.yaml`, is a mistake in the case: runners fail it rather
   than ignore it, so a case never seems to test something it doesn't.
@@ -179,11 +155,15 @@ input: # any other call inputs (action, params, situational, policy, strict, lin
     - `groups`: the exact list of `{ id, shown, fields, actions, items }`.
     - `offers`: the exact list.
     - `observes`: the exact list; `null` means absent.
+    - `auras`: the exact list.
+    - `templated`: the exact list.
+    - `copyNames`: the exact map.
   - **`listOptions`:**
     - `options`: the exact list, in order. Each is compared as
       `{ option, eligible, picked, recommended }`, with `reasons` as the list of `{ code, id }`, in
       order.
     - `min`, `max`: as given.
+    - `errors`: codes.
   - **`applyChanges`:** a case may give `dice.yaml`, a flat list of faces for a dice function;
     without it, the call gets no dice function.
     - `ok`, and `errors` as codes.
@@ -196,8 +176,8 @@ input: # any other call inputs (action, params, situational, policy, strict, lin
     - `character`: listed top-level keys, each compared in full; `null` means the key is absent
       (a file with no stored follow-ups left).
 - **`startAction` / `continueAction`** cases put the call inputs in `case.yaml` `input`
-  (`action`, `params`, `situational`, `policy`, `links`, `participants`) and the die faces in
-  `dice.yaml`:
+  (`action`, `params`, `situational`, `policy`, `links`, `appliers`, `participants`) and the die
+  faces in `dice.yaml`:
   - **Automatic policy:** `dice.yaml` is a flat list, consumed in order by a dice function.
   - **Paused policy:** `answers` (a list of `{ faces }`, `{ option }`, `{ amounts }` for an
     allocation or, for a handoff, `{ outcome }`) is fed to `continueAction` in turn. A handoff always pauses, so a case with
@@ -220,9 +200,9 @@ input: # any other call inputs (action, params, situational, policy, strict, lin
   - `errors` codes, and `errorData`: per error, its `data` on the keys listed (a replay's
     `index` and `needs`).
 
-- **`describeAction`** cases put `action` (and `links`) in `case.yaml` `input`. `expected.yaml`
-  compares `errors` as codes, or `action`: each key it lists, exactly (`params` and
-  `participants` as whole lists).
+- **`describeAction`** cases put `action` (and `links`, `appliers`) in `case.yaml` `input`.
+  `expected.yaml` compares `errors` as codes, or `action`: each key it lists, exactly (`params`
+  and `participants` as whole lists).
 
 - **`upgrade`** cases list the old and new packs as `from` and `to`. Packs are usually written
   inline as pack releases: `{ inline: { manifest, rules, content, upgrades } }`.
@@ -253,6 +233,59 @@ input: # any other call inputs (action, params, situational, policy, strict, lin
 - **Expected outputs** (`expected.yaml`) are compared as data. For example, `computeSheet` cases may list only the fields they check (`values: { 5e-srd-5.1:combat.ac: { value: 17 } }`); unlisted output is not compared. Errors and rules issues are compared by `code` (and `id`), never by text.
 - A case for a call that should fail lists the expected `errors` codes.
 
+## Test packs
+
+Each pack in `tests/packs/` is test-only, not a game pack.
+
+| Pack                                                      | What it tests                                                                                                                                                                                                       |
+| --------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `test-action-params`                                      | An action's computed tags, a `use` with its own `available`, and parameters content adds (`params` effects)                                                                                                         |
+| `test-actions`                                            | Actions of picked content and of content without an entry                                                                                                                                                           |
+| `test-add-items`                                          | Actions that add items                                                                                                                                                                                              |
+| `test-applied`                                            | Actions that apply content and change applied entries                                                                                                                                                               |
+| `test-borg-gear`                                          | Made-up gear for the MÖRK BORG cases                                                                                                                                                                                |
+| `test-choice-activation`                                  | A choice recommending among its eligible options, picks active only while a condition holds (`activeWhen`), picks held as copies (`addAs: copy`), an inline option's immunity and allocations recommended per field |
+| `test-choice-picks`                                       | A choice's own picks, `eligible` and repeatable content, and waived prerequisites                                                                                                                                   |
+| `test-content-items`                                      | Formulas reading a picked item's fields and tags by ID (`itemField`, `itemTags`)                                                                                                                                    |
+| `test-content-picks`                                      | Formulas reading another content's picks (`picksOf(content, choice)`, `grantedPicksOf`)                                                                                                                             |
+| `test-content-values`                                     | Computed values on picked and granted content                                                                                                                                                                       |
+| `test-core`, `test-addon`, `test-addon-two`               | A core pack and two add-ons that add content of its types and to the same choices, in load order                                                                                                                    |
+| `test-cross`, `test-party`                                | Effects that cross between characters (who applied an entry, changes `to: applied`, clock actions, auras, a pool spent through a link), and the shared party sheet it links                                         |
+| `test-derived-choice`                                     | Content that does one thing or another by a derived value, as a choice its eligibility decides                                                                                                                      |
+| `test-describe`                                           | Actions as `describeAction` reads them                                                                                                                                                                              |
+| `test-effects`                                            | Stacking, multiplying and issue order                                                                                                                                                                               |
+| `test-events`                                             | Follow-ups on other characters' events (who dealt the damage, `observe` changes, follow-ups `to: character`, an applier named by formula)                                                                           |
+| `test-field-sets`                                         | Effects on sets of fields, typed stacks carried into rolls, and a field whose tags are computed                                                                                                                     |
+| `test-follow-ups`                                         | Follow-ups after changes, and once per batch                                                                                                                                                                        |
+| `test-gear`                                               | A made-up weapon for the Mothership cases                                                                                                                                                                           |
+| `test-grant-only`                                         | Grant-only content, held only through a grant or a pick                                                                                                                                                             |
+| `test-grant-storage`                                      | Grants that preset the granted content's choices, and granted content that keeps saved state on its owner                                                                                                           |
+| `test-immunity`                                           | Immunity to applied content                                                                                                                                                                                         |
+| `test-improve-roll`                                       | Paying to improve a finished roll: a tagged choice step that offers only what content adds                                                                                                                          |
+| `test-includes`                                           | Applied content that includes other content, and applying content again                                                                                                                                             |
+| `test-kept-sources`                                       | Kept templates that read what is applied and whose activation they are kept on                                                                                                                                      |
+| `test-kept-templates`                                     | Templates content keeps on copies and on picked or granted content (the keeper's own picks, with its params)                                                                                                        |
+| `test-owner-picks`                                        | Formulas reading their owner's picks with `picksOf`                                                                                                                                                                 |
+| `test-part-rolls`                                         | Advantage and disadvantage on a roll's parts (`of: roll`)                                                                                                                                                           |
+| `test-per-copy`                                           | Item fields a copy sets for itself                                                                                                                                                                                  |
+| `test-pick-aggregates`                                    | Formulas counting saved picks and active grants (`countPicks`, `countGrants`)                                                                                                                                       |
+| `test-pool-stacking`                                      | `poolDice` roll modifiers that stack by key on one part                                                                                                                                                             |
+| `test-power-rolls`                                        | A band set's effective total, bounds on its value, and a roll classified again per participant with its own tallies                                                                                                 |
+| `test-reactions`                                          | Situational choices on incoming changes that cost something, choices that reach the whole batch or change held copies' state, and incoming-change effects that read the batch and their own roll                    |
+| `test-roll-bounds`                                        | Bounds on a roll's total, removing advantage, rolls with no dice, and rerolls limited by a count                                                                                                                    |
+| `test-roll-multiply`                                      | A roll modifier that multiplies a roll's items, dice and flat                                                                                                                                                       |
+| `test-roll-parts`                                         | Roll effects that replace a roll's tagged parts, and the `stepDie` and `setFaces` modifiers                                                                                                                         |
+| `test-roll-roots`                                         | A roll effect's `item` and `self` are its own content's; the action's own copy is `action.self`                                                                                                                     |
+| `test-roll-tag`                                           | `tag` roll effects that add tags to a roll's parts                                                                                                                                                                  |
+| `test-roll-then`                                          | Roll effects that end themselves or spend a use once a roll used them (`then`)                                                                                                                                      |
+| `test-roll-twice`                                         | Rolls made more than once (`of: roll`), counted by `net`                                                                                                                                                            |
+| `test-scope-core`, `test-scope-addon`, `test-scope-other` | Tag targets reach only packs that meet over the tag: an add-on does, an unrelated game declaring the same tags doesn't                                                                                              |
+| `test-situational`                                        | When situational choices are offered, for rolls and incoming changes                                                                                                                                                |
+| `test-span-stacking`                                      | Stack keys spanning fields (one kit's bonus on every tier)                                                                                                                                                          |
+| `test-standard`                                           | Standard copies                                                                                                                                                                                                     |
+| `test-tallies`                                            | Roll tallies                                                                                                                                                                                                        |
+| `test-target-formula`                                     | Effects whose target is a formula (`target: { formula }`)                                                                                                                                                           |
+
 ## Running
 
-Each engine ships a small runner that walks `tests/cases/`, feeds each case to its own implementation, and compares the result. The reference runner will live in `@opencharacter/engine`. Cases must not depend on run order.
+Each engine ships a small runner that walks `tests/cases/`, feeds each case to its own implementation, and compares the result. The reference engine's runner is `packages/engine/test/conformance/run.ts`, and `pnpm test` runs it; it is in the repo, not the published package. Cases must not depend on run order.
