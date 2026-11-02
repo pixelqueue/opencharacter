@@ -3,22 +3,16 @@ type: feature
 immuneTo:
   - id: charmed
     items: [conditions.charmed]
-    when: >-
+    when: &conscious >-
       countList(character.applied,
         x.active && x.source == @conditions.unconscious) == 0
+  # For `ally` entries saved before the aura: they keep the immunity.
   - { id: ally-charmed, items: [conditions.charmed], scope: applied }
-actions:
-  - id: aura-of-devotion
-    tags: [feature]
-    results: [extended]
-    participants:
-      ally: {}
-    steps:
-      - id: extend
-        kind: changes
-        to: ally
-        changes:
-          - { type: applyEffect, source: item.id }
-      - id: result
-        kind: outcome
-        result: "'extended'"
+# Friendly creatures within the paladin's aura while it is conscious.
+auras:
+  - id: devotion
+    when: *conscious
+    size: aura.range
+    affects: allies
+    immuneTo:
+      - { id: charmed, items: [conditions.charmed] }

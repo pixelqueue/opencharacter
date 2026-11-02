@@ -87,8 +87,7 @@ effects:
         - { type: applyEffect, source: item.id }
 auras:
   - id: guardians
-    when: countList(character.applied, x.active && x.source == @spells.spirit-guardians
-      && (x.appliedBy == '' || x.appliedBy == character.id)) > 0
+    scope: applied
     size: 15
     affects: enemies
     effects:

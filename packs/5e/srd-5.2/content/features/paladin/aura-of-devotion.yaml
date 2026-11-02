@@ -3,7 +3,15 @@ type: feature
 immuneTo:
   - id: charmed
     items: [conditions.charmed]
-    when: >-
+    when: &up >-
       countList(character.applied, x.active && x.source in [@conditions.incapacitated,
         @conditions.paralyzed, @conditions.petrified, @conditions.stunned,
         @conditions.unconscious]) == 0
+# Allies in the paladin's Aura of Protection, down while it has the Incapacitated condition.
+auras:
+  - id: devotion
+    when: *up
+    size: paladin.auraRange
+    affects: allies
+    immuneTo:
+      - { id: charmed, items: [conditions.charmed] }

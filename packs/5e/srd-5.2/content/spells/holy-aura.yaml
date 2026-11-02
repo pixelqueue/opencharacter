@@ -30,8 +30,7 @@ effects:
 # chooses inside. The Fiend or Undead attacker's save against blindness stays the table's.
 auras:
   - id: holy
-    when: countList(character.applied, x.active && x.source == @spells.holy-aura
-      && (x.appliedBy == '' || x.appliedBy == character.id)) > 0
+    scope: applied
     size: item.areaSize
     affects: allies
     effects:

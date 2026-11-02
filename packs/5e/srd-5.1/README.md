@@ -289,15 +289,18 @@ Where the SRD is unclear or silent, the pack reads it this way:
   Each spell the character has carries its numbers as computed values (`castingClass`,
   `spellDc`, `spellAttack`, `spellMod`, in computeSheet's `activationValues`), which
   `cast-spell` reads and the spell card shows ("Save DC 14", "Spell attack +6").
-- **Auras:** Aura of Protection (while the paladin is conscious, `aura.range`, reading its live
-  Charisma modifier), Countercharm (30 feet, while the bard performs), the Rod of Alertness's
+- **Auras:** Aura of Protection, Aura of Courage (no frightened) and Aura of Devotion (no
+  charmed), all in `aura.range` while the paladin is conscious, Protection reading its live
+  Charisma modifier, are listed in computeSheet's `auras` for the app to place on whoever is
+  inside. So are the auras an applied entry holds up, one per entry the creature applied itself
+  (`scope: applied`): Countercharm (30 feet, while the bard performs), the Rod of Alertness's
   Protective Aura (60 feet, while planted), Pass without Trace (30 feet, cast on the caster) and
   Spirit Guardians (15 feet, enemies' speed halved; the cast puts the spell on the caster to hold
-  it up) are listed in computeSheet's `auras` for the app to place on whoever is inside. A creature
-  counts one Aura of Protection, Rod or Pass without Trace bonus (stackKey `source`), so the
-  holder inside its own aura, or an ally with an older `ally` entry, isn't counted twice. The
-  `ally` actions stay for apps that don't place auras. Aura of Courage and Aura of Devotion keep
-  their `ally` actions: an aura carries effects only, not immunities. Spirit Guardians' save and
+  it up), whatever the spell was cast from. A creature counts one Aura of Protection, Rod or Pass
+  without Trace bonus (stackKey `source`), so the holder inside its own aura, or an ally with an
+  older `ally` entry, isn't counted twice. Aura of Protection's `ally` action stays for apps that
+  don't place auras; Courage's and Devotion's are gone, though `ally` entries saved before keep
+  their immunity. Spirit Guardians' save and
   damage after the cast (a creature entering or starting its turn there) are the app's: running
   the cast again would spend another slot.
 - **Equipment:** every SRD weapon and armor, 135 gear items, 7 equipment packs, 35 tools, 8

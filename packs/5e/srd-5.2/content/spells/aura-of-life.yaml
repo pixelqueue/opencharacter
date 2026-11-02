@@ -27,8 +27,7 @@ effects:
 # Hit Point maximum that can't be reduced and the 1 Hit Point at turn start stay the table's.
 auras:
   - id: life
-    when: countList(character.applied, x.active && x.source == @spells.aura-of-life
-      && (x.appliedBy == '' || x.appliedBy == character.id)) > 0
+    scope: applied
     size: item.areaSize
     affects: allies
     effects:

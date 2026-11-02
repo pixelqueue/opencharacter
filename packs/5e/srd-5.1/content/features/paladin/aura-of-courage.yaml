@@ -3,22 +3,16 @@ type: feature
 immuneTo:
   - id: frightened
     items: [conditions.frightened]
-    when: >-
+    when: &conscious >-
       countList(character.applied,
         x.active && x.source == @conditions.unconscious) == 0
+  # For `ally` entries saved before the aura: they keep the immunity.
   - { id: ally-frightened, items: [conditions.frightened], scope: applied }
-actions:
-  - id: aura-of-courage
-    tags: [feature]
-    results: [extended]
-    participants:
-      ally: {}
-    steps:
-      - id: extend
-        kind: changes
-        to: ally
-        changes:
-          - { type: applyEffect, source: item.id }
-      - id: result
-        kind: outcome
-        result: "'extended'"
+# Friendly creatures within the paladin's aura while it is conscious.
+auras:
+  - id: courage
+    when: *conscious
+    size: aura.range
+    affects: allies
+    immuneTo:
+      - { id: frightened, items: [conditions.frightened] }

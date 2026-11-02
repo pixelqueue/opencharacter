@@ -69,9 +69,7 @@ effects:
 # source: a creature with an older `ally` entry, or the holder, counts each +1 once.
 auras:
   - id: protective-aura
-    when: >-
-      countList(character.applied, x.active && x.source == @magic-items.rod-of-alertness
-        && (x.appliedBy == '' || x.appliedBy == character.id)) > 0
+    scope: applied
     size: 60
     affects: allies
     effects:
