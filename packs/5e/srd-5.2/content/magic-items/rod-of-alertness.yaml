@@ -70,7 +70,8 @@ effects:
 auras:
   - id: protective-aura
     when: >-
-      countList(character.applied, x.active && x.source == @magic-items.rod-of-alertness) > 0
+      countList(character.applied, x.active && x.source == @magic-items.rod-of-alertness
+        && (x.appliedBy == '' || x.appliedBy == character.id)) > 0
     size: 60
     affects: allies
     effects:

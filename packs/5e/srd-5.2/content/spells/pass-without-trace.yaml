@@ -26,7 +26,8 @@ effects:
 # chooses in the Emanation gets the bonus while inside. stackKey source: one +10 however it came.
 auras:
   - id: veil
-    when: countList(character.applied, x.active && x.source == @spells.pass-without-trace) > 0
+    when: countList(character.applied, x.active && x.source == @spells.pass-without-trace
+      && (x.appliedBy == '' || x.appliedBy == character.id)) > 0
     size: item.areaSize
     affects: allies
     effects:
