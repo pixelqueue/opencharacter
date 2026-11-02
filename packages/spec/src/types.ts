@@ -2057,6 +2057,10 @@ export type CheckReleaseOutput = {
       | 'item-field-values-removed'
       | 'tag-removed'
       | 'action-removed'
+      | 'param-removed'
+      | 'param-type-changed'
+      | 'situational-removed'
+      | 'situational-type-changed'
       | 'enum-closed'
       | 'extension-removed'
       | 'choice-copies-changed';

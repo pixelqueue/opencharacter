@@ -16,6 +16,7 @@ import type {
   ChoiceAddition,
   ChoiceTree,
   ContentItem,
+  Effect,
   Entry,
   FieldDef,
   Pick,
@@ -888,6 +889,13 @@ export interface ShapeChange {
     | 'item-field-values-removed'
     | 'tag-removed'
     | 'action-removed'
+    // An action parameter (its own or one a `params` effect adds) is removed, or no longer takes
+    // the values it took.
+    | 'param-removed'
+    | 'param-type-changed'
+    // A situational choice is removed, or no longer takes the values it took.
+    | 'situational-removed'
+    | 'situational-type-changed'
     // An open enum stops being open: dependents' additions no longer load.
     | 'enum-closed'
     // A value or option the pack added to a dependency's enum or choice is gone.
@@ -1167,6 +1175,26 @@ export function checkRelease(
   for (const action of previous.rules.actions ?? [])
     if (!nextActions.has(action.id))
       interfaceChanges.push({ kind: 'action-removed', id: action.id });
+  // Parameters of an action both releases define, and those a remaining declarer's effects add.
+  const prevParams = paramDecls(previous);
+  const nextParams = paramDecls(next);
+  for (const [id, { decl, owner }] of prevParams) {
+    if (!nextParams.owners.has(owner)) continue;
+    const now = nextParams.get(id);
+    if (!now) interfaceChanges.push({ kind: 'param-removed', id });
+    else if (narrowed(decl, now.decl) || (!required(decl) && required(now.decl)))
+      interfaceChanges.push({ kind: 'param-type-changed', id });
+  }
+  for (const [id, { decl, owner }] of nextParams)
+    if (!prevParams.has(id) && prevParams.owners.has(owner) && required(decl))
+      interfaceChanges.push({ kind: 'param-type-changed', id });
+  const nextSituational = new Map((next.rules.situational ?? []).map((s) => [s.id, s]));
+  for (const def of previous.rules.situational ?? []) {
+    const now = nextSituational.get(def.id);
+    if (!now) interfaceChanges.push({ kind: 'situational-removed', id: def.id });
+    else if (narrowed(def, now))
+      interfaceChanges.push({ kind: 'situational-type-changed', id: def.id });
+  }
 
   if (changes.length + interfaceChanges.length > 0) {
     if (!breakingBump(prevVersion, nextVersion)) {
@@ -1242,6 +1270,10 @@ export function checkRelease(
     'item-field-values-removed',
     'tag-removed',
     'action-removed',
+    'param-removed',
+    'param-type-changed',
+    'situational-removed',
+    'situational-type-changed',
     'enum-closed',
     'extension-removed',
     'choice-copies-changed',
@@ -1381,6 +1413,64 @@ function literalGrants(ruleset: Ruleset, qid: string): Set<string> {
       .filter((g) => (g.scope ?? 'holder') === 'holder' && typeof g.item === 'string')
       .map((g) => g.item as string),
   );
+}
+
+/** A value no longer fits: its `type` or `of` changed, or an enum lost values. */
+function narrowed(
+  was: { type: string; of?: string; values?: unknown[] },
+  now: { type: string; of?: string; values?: unknown[] },
+): boolean {
+  return (
+    was.type !== now.type ||
+    was.of !== now.of ||
+    (was.values ?? []).some((v) => !(now.values ?? []).includes(v))
+  );
+}
+
+const required = (decl: ValueDecl): boolean => !decl.optional && decl.default === undefined;
+
+/**
+ * A release's action parameters by text-key address: an action's own
+ * (`actions.<action>.params.<p>`, `<item>.actions.<action>.params.<p>`,
+ * `types.<type>.<action>.params.<p>`), and those `params` effects add, by the declarer's
+ * content key (`<item>.params.<p>`, `types.<type>.params.<p>`, `rules.params.<p>`). `owners`
+ * holds every action and declarer, so a parameter is compared only where its owner remains.
+ */
+function paramDecls(
+  release: PackRelease,
+): Map<string, { decl: ValueDecl; owner: string }> & { owners: Set<string> } {
+  const out = Object.assign(new Map<string, { decl: ValueDecl; owner: string }>(), {
+    owners: new Set<string>(),
+  });
+  const own = (key: string, def: ActionOrUse) => {
+    if ('use' in def) return;
+    const owner = `${key}${def.id}`;
+    out.owners.add(owner);
+    for (const [name, decl] of Object.entries(def.params ?? {}))
+      out.set(`${owner}.params.${name}`, { decl, owner });
+  };
+  const addedBy = (key: string, effects: Effect[] | undefined) => {
+    out.owners.add(key);
+    for (const effect of effects ?? []) {
+      if (effect.op !== 'params' || typeof effect.value !== 'object') continue;
+      for (const [name, decl] of Object.entries(effect.value as Record<string, ValueDecl>)) {
+        const id = `${key}.params.${name}`;
+        if (!out.has(id)) out.set(id, { decl, owner: key });
+      }
+    }
+  };
+  for (const def of release.rules.actions ?? []) own('actions.', def);
+  addedBy('rules', release.rules.effects);
+  for (const [name, type] of Object.entries(release.rules.contentTypes ?? {})) {
+    for (const def of type.actions ?? []) own(`types.${name}.`, def);
+    addedBy(`types.${name}`, type.effects);
+  }
+  for (const item of release.content) {
+    if (item.id === undefined) continue;
+    for (const def of item.actions ?? []) own(`${item.id}.actions.`, def);
+    addedBy(item.id, item.effects);
+  }
+  return out;
 }
 
 /** The addresses of a release's open action parameters and items' own open enums. */

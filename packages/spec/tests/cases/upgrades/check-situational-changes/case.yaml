@@ -1,0 +1,30 @@
+description: 'A situational choice removed, retyped or losing enum values is an interface change and needs a breaking bump: a patch is too small. A choice gaining values, or a narrowed `available` (not compared statically), is no change found'
+specVersion: 0.2.0
+call: checkRelease
+previous:
+  inline:
+    manifest:
+      { id: test-pack, version: 0.1.0, specVersion: 0.2.0, license: CC0-1.0, defaultLanguage: en }
+    rules:
+      fields:
+        omens: { type: integer, input: true, default: 0 }
+      situational:
+        - { id: omenDamage, type: boolean }
+        - { id: cover, type: enum, values: [none, half, full], default: none }
+        - { id: bonus, type: integer }
+        - { id: stance, type: enum, values: [low, high], default: low }
+        - { id: grace, type: boolean }
+    content: []
+next:
+  inline:
+    manifest:
+      { id: test-pack, version: 0.1.1, specVersion: 0.2.0, license: CC0-1.0, defaultLanguage: en }
+    rules:
+      fields:
+        omens: { type: integer, input: true, default: 0 }
+      situational:
+        - { id: cover, type: enum, values: [none, half], default: none }
+        - { id: bonus, type: boolean }
+        - { id: stance, type: enum, values: [low, high, mid], default: low }
+        - { id: grace, type: boolean, available: omens > 0 }
+    content: []

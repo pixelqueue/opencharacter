@@ -174,7 +174,7 @@ export function releaseCheck(
         pack: pack.id,
         level: 'info',
         code: 'ok',
-        message: `${pack.id} ${previous.manifest.version} → ${version}: ${result.changes.length} shape change(s), covered.`,
+        message: `${pack.id} ${previous.manifest.version} → ${version}: ${result.changes.length} shape or interface change(s), covered.`,
       });
     }
   }
