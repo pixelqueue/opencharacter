@@ -21,6 +21,9 @@ actions:
   # new creature is marked.
   - id: move
     tags: [spell]
+    available: concentration.active
+    params:
+      slot: { type: integer, optional: true }
     participants: { target: { max: 1 } }
     results: [moved]
     steps:
@@ -34,7 +37,9 @@ actions:
         kind: changes
         to: target
         changes:
-          - { type: applyEffect, source: item.id }
+          - type: applyEffect
+            source: item.id
+            state: { castSlot: 'has(params.slot) ? params.slot : item.level' }
       - id: result
         kind: outcome
         result: "'moved'"

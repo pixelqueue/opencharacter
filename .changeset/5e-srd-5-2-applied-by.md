@@ -10,3 +10,5 @@ Hex and Hunter's Mark: `hex.cursedBy` and `huntersMark.markedBy` name each appli
 When concentration ends, the new required follow-up `concentration-ends` ends the caster's concentration spells on every creature holding one (`removeEffect` `to: applied`, by the entries' `appliedBy`; entries saved without an applier stay the app's). Conformance suite: `5e52-concentration-ends`.
 
 effects.md: the Vexed example reads the entry's `appliedBy`.
+
+Hex's and Hunter's Mark's `move` is offered only while the caster concentrates, and the new target's entry keeps the slot the spell was cast with (the optional `slot` parameter, else the spell's level) and the caster's spell save DC (`castSlot`, `castDc`).

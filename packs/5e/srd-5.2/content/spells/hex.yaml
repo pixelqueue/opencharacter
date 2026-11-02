@@ -61,8 +61,13 @@ effects:
     duration: { amount: 1, unit: hour, concentration: true }
 actions:
   - use: cast-spell
+  # While the caster concentrates on it; `slot` is the slot it was cast with, kept on the new
+  # target's entry with the caster's spell save DC.
   - id: move
     tags: [spell]
+    available: concentration.active
+    params:
+      slot: { type: integer, optional: true }
     participants: { target: { max: 1 } }
     results: [moved]
     steps:
@@ -83,7 +88,10 @@ actions:
         changes:
           - type: applyEffect
             source: item.id
-            state: { option: steps.ability.value }
+            state:
+              option: steps.ability.value
+              castSlot: 'has(params.slot) ? params.slot : item.level'
+              castDc: self.spellDc
       - id: result
         kind: outcome
         result: "'moved'"
