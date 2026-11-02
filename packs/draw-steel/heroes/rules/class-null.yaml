@@ -41,10 +41,11 @@ fields:
 
 # The triggered abilities that halve damage, chosen on the first change of the attack that
 # triggers them (one selection halves the whole attack). Inertial Shield also gives Elemental
-# Absorption's immunity from 6th level, and with it Elemental Buffer's surges when the immunity is
-# the shield's alone (an immunity the hero has gains them by the feature's follow-up). The heroic
-# ones pay their discipline here; their `use-ability` is for a table that doesn't route incoming
-# choices (or Synaptic Anchor on an ally).
+# Absorption's immunity from 6th level (`elemental-absorption`, below), and with it Elemental
+# Buffer's surges when the immunity is the shield's alone (an immunity the hero has gains them by
+# the feature's follow-up). The heroic ones pay their discipline here, or outside combat use up
+# the ability until a respite, as `use-ability` does; their `use-ability` is for a table that
+# doesn't route incoming choices (or Synaptic Anchor on an ally).
 situational:
   - id: inertialShield
     type: boolean
@@ -56,15 +57,7 @@ situational:
       - target: { incoming: { fields: [stamina.current], tags: [damage] } }
         op: multiply
         value: 0.5
-      - target: { incoming: { fields: [stamina.current], tags: [damage] } }
-        op: add
-        value: >-
-          max(0, characteristics.intuition.score - max(immunity.all, maxList(keysOf('damageType'),
-            fieldOf('immunity.{damageType}', x), 'damage.' + x in incoming.tags)))
-        when: >-
-          level >= 6 && incoming.amount < 0
-            && countList(['acid', 'cold', 'corruption', 'fire', 'lightning', 'poison', 'sonic'],
-              'damage.' + x in incoming.tags) > 0
+        stackKey: half-damage
     changes:
       - type: adjust
         when: >-
@@ -90,13 +83,19 @@ situational:
     scope: batch
     available: >-
       nullClass.inertialAbsorption && !abilities.noTriggered
-        && (!combat.active || heroic.current - 11 >= heroic.min)
+        && (combat.active ? heroic.current - 11 >= heroic.min
+          : !(@abilities.null.inertial-absorption in abilities.usedOutside))
     effects:
       - target: { incoming: { fields: [stamina.current], tags: [damage] } }
         op: multiply
         value: 0.5
+        stackKey: half-damage
     changes:
       - { type: adjust, when: combat.active, field: heroic.current, by: -11 }
+      - type: set
+        when: '!combat.active'
+        field: abilities.usedOutside
+        value: abilities.usedOutside + [@abilities.null.inertial-absorption]
       - { type: adjust, field: surges.current, by: 3 }
   # Synaptic Anchor (11 discipline) on the null: half the damage. Dazing the creature is the
   # ability's use, against it.
@@ -107,13 +106,36 @@ situational:
     scope: batch
     available: >-
       nullClass.synapticAnchor && !abilities.noTriggered
-        && (!combat.active || heroic.current - 11 >= heroic.min)
+        && (combat.active ? heroic.current - 11 >= heroic.min
+          : !(@abilities.null.synaptic-anchor in abilities.usedOutside))
     effects:
       - target: { incoming: { fields: [stamina.current], tags: [damage] } }
         op: multiply
         value: 0.5
+        stackKey: half-damage
     changes:
       - { type: adjust, when: combat.active, field: heroic.current, by: -11 }
+      - type: set
+        when: '!combat.active'
+        field: abilities.usedOutside
+        value: abilities.usedOutside + [@abilities.null.synaptic-anchor]
+
+effects:
+  # Elemental Absorption: with Inertial Shield chosen on an attack, each of its elemental changes
+  # meets immunity equal to Intuition (the higher of it and the hero's own counts). It is the
+  # hero's own effect, not the batch choice's, so every change gets it whole, and it adds twice its
+  # value for the shield's halving that follows (immunity comes last; rules/stamina.yaml).
+  - id: elemental-absorption
+    target: { incoming: { fields: [stamina.current], tags: [damage] } }
+    op: add
+    value: >-
+      2 * max(0, characteristics.intuition.score - max(immunity.all, maxList(keysOf('damageType'),
+        fieldOf('immunity.{damageType}', x), 'damage.' + x in incoming.tags)))
+    when: >-
+      situational.inertialShield && level >= 6 && incoming.amount < 0
+        && !('damage.unreducible' in incoming.tags)
+        && countList(['acid', 'cold', 'corruption', 'fire', 'lightning', 'poison', 'sonic'],
+          'damage.' + x in incoming.tags) > 0
 
 display:
   fields:
