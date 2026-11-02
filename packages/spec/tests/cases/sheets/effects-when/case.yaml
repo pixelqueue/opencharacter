@@ -1,0 +1,59 @@
+description: "A content type's `effectsWhen` is ANDed into every effect of its items (the type's, the item's, its choices' and its inline options'); an item's own `effectsWhen` replaces it (`true` lifts it); its grants still apply"
+specVersion: 0.3.0
+call: computeSheet
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.3.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        fields:
+          ward: { type: integer, formula: 0 }
+          luck: { type: integer, formula: 0 }
+        contentTypes:
+          relic:
+            carried: true
+            fields:
+              requiresAttunement: { type: boolean, default: false }
+            state:
+              attuned: { type: boolean, default: false }
+            effectsWhen: '!item.requiresAttunement || self.attuned'
+            effects:
+              - { target: ward, op: add, value: 100 }
+          boon: {}
+      content:
+        - id: relics.amulet
+          type: relic
+          fields: { requiresAttunement: true }
+          effects:
+            - { target: ward, op: add, value: 1 }
+          choices:
+            - id: gem
+              from:
+                options:
+                  - id: ruby
+                    effects:
+                      - { target: ward, op: add, value: 4 }
+              effects:
+                - { target: ward, op: add, value: 2 }
+          # Grants are activation decisions: the boon applies, attuned or not.
+          grants:
+            - { item: boons.lucky }
+        - id: relics.lamp
+          type: relic
+          effects:
+            - { target: ward, op: add, value: 1000 }
+        # Needs attunement, but lifts the type's condition.
+        - id: relics.charm
+          type: relic
+          fields: { requiresAttunement: true }
+          effectsWhen: true
+          effects:
+            - { target: ward, op: add, value: 10000 }
+        - id: boons.lucky
+          type: boon
+          effects:
+            - { target: luck, op: add, value: 1 }

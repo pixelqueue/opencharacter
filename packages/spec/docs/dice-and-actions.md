@@ -51,7 +51,7 @@ An **action** ([`action.schema.json`](../schemas/action.schema.json)) is a casca
 | Property       | Meaning                                                                                                                                                                  |
 | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `tags`         | The action's tags; `{ formula }` entries are evaluated per listing, with its `item` and `self` (below)                                                                   |
-| `available`    | When the action is offered (`self.equipped`)                                                                                                                             |
+| `available`    | When the action is offered (`self.equipped`); a [grant's `available`](content.md#conditions-on-computed-values) holds for granted content's too                          |
 | `listed`       | `false`: computeSheet doesn't list it, so only other actions (and `startAction`) run it (below)                                                                          |
 | `clock`        | A rules action the app runs at a moment of its clock on every character: `turn-boundary` ([below](#turn-boundaries))                                                     |
 | `params`       | Values the app supplies (a target's AC, which stat to test), declared like state; `min`/`max` are enforced as the action starts ([engine-actions.md](engine-actions.md)) |

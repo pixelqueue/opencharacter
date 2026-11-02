@@ -98,6 +98,10 @@
         "$ref": "effect.schema.json"
       }
     },
+    "effectsWhen": {
+      "description": "A condition every effect of the item needs, in place of its content type's `effectsWhen`: ANDed into the `when` of its type's effects and its own, its choices' and inline options' effects (roll, step, option and incoming effects too) and its auras' `when`, and evaluated as an effect's `when` is (derived fields bound; it sees what the effect's `when` sees). Not on its grants, choices or actions. `true` lifts the type's. An attuned item: `'!item.requiresAttunement || self.attuned'`.",
+      "$ref": "formula.schema.json#/$defs/condition"
+    },
     "auras": {
       "description": "Areas the holder, or the caster of an applied entry (`scope: applied`), projects, putting effects and immunities on whoever is inside: a field, a banner, a ward, a cast blessing. Positions are the app's: computeSheet lists each aura that is up (`auras`), the app applies its entry to each creature as it enters (`applyEffect` with `source` this item, `aura` the aura's ID and `appliedBy` the projecting character) and removes it as the creature leaves or the aura ends. The entry runs only the aura's `effects` and `immuneTo`, whose formulas read the projector's live values as `applier.<field>` from the view the app passes (`appliers`). Text: `<contentId>.auras.<id>.name` (optional).",
       "type": "array",
@@ -374,6 +378,10 @@
           "$ref": "formula.schema.json"
         },
         "when": {
+          "$ref": "formula.schema.json#/$defs/condition"
+        },
+        "available": {
+          "description": "A condition on the computed sheet (derived fields bound, as an action's `available` is; `self`, `item`, `x` and `i` as in `when`), ANDed into the `available` of every action the granted content offers, and the content it grants or picks in turn. The grant stays an activation decision: the content is active and listed whatever it gives (computeSheet's `activations` marks it `unavailable`), only its actions wait on the value. So a treasure grants its ability only with a matching kit: `available: \"countList(item.tags, x in kit.gear) > 0\"`.",
           "$ref": "formula.schema.json#/$defs/condition"
         },
         "scope": {

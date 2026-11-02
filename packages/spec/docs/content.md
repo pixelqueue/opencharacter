@@ -163,6 +163,34 @@ has, before the item's own:
   suppresses armor's `base-ac` and `wearing-armor`.
 - Content types can't be overridden by other packs (only items can).
 
+### A condition every effect needs
+
+A content type may say `effectsWhen`: a condition every effect of its items needs, so a rule
+that holds for all of them ("only while attuned", "only with a matching kit") is written once.
+An item's own `effectsWhen` replaces its type's (`true` lifts it).
+
+- **Which effects:** it is ANDed into the `when` of the type's effects and the item's own, its
+  choices' `effects`, its inline options' effects (and theirs in turn) and its auras' `when`,
+  whatever their target (fields, rolls, choice and changes steps, action params, incoming
+  changes). Content the item grants or picks has its own.
+- **Read as `when`:** it is evaluated with the effect's roots, as the effect's `when` is: derived
+  fields bound, `item` and `self` the item and its copy, and whatever else the effect's `when`
+  sees there (`pick` in a choice's effects, `action` and `roll` in a roll effect's). A loop
+  through it is the effect's loop: a condition reading the field its own effect changes makes
+  that field `circular-formula`, as such a `when` does.
+- **Not activation:** grants, choices and actions don't read it: they are activation decisions
+  (`when`, `activeWhen`) and listings (`available`).
+
+```yaml
+# A 5E magic item: an item that needs attunement has its effects only while attuned.
+magicItem:
+  fields:
+    requiresAttunement: { type: boolean, default: false }
+  state:
+    attuned: { type: boolean, default: false }
+  effectsWhen: '!item.requiresAttunement || self.attuned'
+```
+
 ## Content items
 
 A content item ([`content-item.schema.json`](../schemas/content-item.schema.json)) is mechanics only. Its text lives in i18n under `<id>.name` and `<id>.description`.
@@ -176,6 +204,7 @@ A content item ([`content-item.schema.json`](../schemas/content-item.schema.json
 | `fields`         | Values for the type's item fields: literals or formulas. They MUST match the declared types; undeclared names and missing required fields are errors (`invalid-item-field`).                                                         |
 | `state`          | Extra per-copy state keys beyond the type's                                                                                                                                                                                          |
 | `effects`        | [effects.md](effects.md)                                                                                                                                                                                                             |
+| `effectsWhen`    | A condition every effect of the item needs, replacing its type's ([above](#a-condition-every-effect-needs))                                                                                                                          |
 | `followUps`      | What the rules call for after a change while the character has the item ([rules-and-fields.md](rules-and-fields.md#follow-ups))                                                                                                      |
 | `actions`        | Inline actions, or `{ use: <rules action>, params }`; `scope: applied` offers one on the character the item is applied to                                                                                                            |
 | `choices`        | See below                                                                                                                                                                                                                            |
@@ -600,6 +629,34 @@ grants:
 The player picks what the rules decide, and the sheet says when the pick is wrong: training
 from a background taken later makes the training pick `option-not-eligible` until the player
 picks Assurance.
+
+**A grant whose content is usable only on a computed value.** When granted content is had
+either way but usable only while a computed value holds (a treasure's ability, usable only with
+a kit whose keywords match it), give the grant `available`: a condition evaluated on the
+computed sheet, as an action's `available` is (derived fields bound; `self`, `item`, `x` and
+`i` as in the grant's `when`).
+
+- **What it gates:** it is ANDed into the `available` of every action the granted content offers,
+  its type's and its own, and of the content that content grants or picks in turn. Those actions
+  aren't listed and can't be started (`unknown-action`) while it fails; follow-ups don't offer
+  them.
+- **What it doesn't:** the grant stays an activation decision. The content is active and listed
+  in computeSheet's `activations`, marked `unavailable: true` while the condition fails
+  ([engine-core.md](engine-core.md#the-activation-list)), and its effects, grants and choices
+  apply; an effect that should wait too tests the value in its `when`, or its type's
+  `effectsWhen` ([above](#a-condition-every-effect-needs)).
+- **No loop:** activation comes first, then fields, then actions. A derived field may depend on
+  the granted content's effects, and nothing that computes a field reads an action's
+  availability, so `available` never feeds back into what it reads.
+
+```yaml
+# Draw Steel's King's Roar: its Roar ability is usable only with a kit that has a shield
+# (`kit.gear`, a derived field built from the kit picks).
+grants:
+  - item: abilities.treasure.kings-roar.roar
+    when: self.equipped
+    available: countList(item.tags, x in kit.gear) > 0
+```
 
 ### Per-copy state
 
@@ -1078,6 +1135,8 @@ never be valid, and `pnpm validate` reports them.
 ## Grants and prerequisites
 
 - `grants: [{ item, when }]` makes other content active, such as a class granting its features "at level N" (`when: "self.level >= 3"`). Multiclassing gives each class copy its own `level` state. The total level is a derived field.
+- **Granted actions on a computed value**: a grant may say `available`, a condition on the
+  computed sheet ([above](#conditions-on-computed-values)).
 - **Waived prerequisites**: a grant may say `waivePrerequisites: true`, and so may
   a choice: the granted or picked item's activation through it reports no `prerequisite-not-met`,
   and `listOptions` gives that choice's options no prerequisite reasons. Only the item's own

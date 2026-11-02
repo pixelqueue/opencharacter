@@ -17,7 +17,7 @@ effects:
 | `target`     | A field (by ID or a formula), a set of fields, rolls, incoming changes, or choice steps (see below)                               |
 | `op`         | One of the [effect operations](../data/effect-operations.json)                                                                    |
 | `value`      | A formula, a grant value, a roll modifier, or an option, depending on `op`                                                        |
-| `when`       | Condition. `self` is the copy carrying the effect.                                                                                |
+| `when`       | Condition. `self` is the copy carrying the effect. The item's or its type's `effectsWhen` must hold too                           |
 | `stackKey`   | See [Stacking](#stacking)                                                                                                         |
 | `rounding`   | Overrides the game's rounding for this effect's `multiply`                                                                        |
 | `tags`       | `add` on rolls only: tags for the roll item the effect adds (see below)                                                           |

@@ -1,0 +1,51 @@
+description: "startAction refuses an action of granted content whose grant's `available` doesn't hold, as computeSheet leaves it out"
+specVersion: 0.3.0
+call: startAction
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.3.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        fields:
+          kit.gear: { type: set, of: string }
+          stability: { type: integer, formula: 0 }
+        contentTypes:
+          kit:
+            fields:
+              gear: { type: string, default: '' }
+            effects:
+              - { target: kit.gear, op: grant, value: { formula: item.gear } }
+          treasure:
+            carried: true
+            fields:
+              gear: { type: string, default: '' }
+          ability:
+            grantOnly: true
+      content:
+        - { id: kits.shield, type: kit, fields: { gear: shield } }
+        - { id: kits.mail, type: kit, fields: { gear: armor } }
+        # The shield's ability needs a kit with a shield.
+        - id: treasures.kings-roar
+          type: treasure
+          fields: { gear: shield }
+          grants:
+            - item: abilities.roar
+              available: item.gear in kit.gear
+        - id: abilities.roar
+          type: ability
+          effects:
+            - { target: stability, op: add, value: 1 }
+          actions:
+            - { id: roar, steps: [{ id: done, kind: outcome }] }
+          grants:
+            - { item: abilities.echo }
+        - id: abilities.echo
+          type: ability
+          actions:
+            - { id: echo, steps: [{ id: done, kind: outcome }] }
+input:
+  action: { id: 'test-pack:abilities.roar#roar', entry: shield, source: test-pack:abilities.roar }

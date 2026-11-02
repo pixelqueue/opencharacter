@@ -1,0 +1,38 @@
+description: "A content type's `effectsWhen` holds for its items' roll effects too: the unattuned amulet's bonus is left out of the roll, the lamp's counts"
+specVersion: 0.3.0
+call: startAction
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.3.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        tags: [attack]
+        contentTypes:
+          relic:
+            carried: true
+            fields:
+              requiresAttunement: { type: boolean, default: false }
+            state:
+              attuned: { type: boolean, default: false }
+            effectsWhen: '!item.requiresAttunement || self.attuned'
+        actions:
+          - id: attack
+            steps:
+              - { id: roll, kind: roll, tags: [attack], parts: [{ dice: 1d20 }] }
+              - { id: done, kind: outcome, data: { total: steps.roll.total } }
+      content:
+        - id: relics.amulet
+          type: relic
+          fields: { requiresAttunement: true }
+          effects:
+            - { target: { rolls: [attack] }, op: add, value: 5 }
+        - id: relics.lamp
+          type: relic
+          effects:
+            - { target: { rolls: [attack] }, op: add, value: 100 }
+input:
+  action: { id: 'test-pack:attack' }

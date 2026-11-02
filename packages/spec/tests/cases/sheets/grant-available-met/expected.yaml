@@ -1,0 +1,11 @@
+# The shield kit matches: Roar's and Echo's actions are listed.
+values:
+  test-pack:stability: { value: 1 }
+activations:
+  - { item: test-pack:kits.shield, entry: kit, via: copy }
+  - { item: test-pack:treasures.kings-roar, entry: shield, via: copy }
+  - { item: test-pack:abilities.roar, entry: shield, via: grant, parent: 1 }
+  - { item: test-pack:abilities.echo, entry: shield, via: grant, parent: 2 }
+actions:
+  - { action: 'test-pack:abilities.roar#roar', entry: shield, source: test-pack:abilities.roar }
+  - { action: 'test-pack:abilities.echo#echo', entry: shield, source: test-pack:abilities.echo }

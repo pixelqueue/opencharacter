@@ -1,0 +1,37 @@
+description: "`effectsWhen` reads derived fields as an effect's `when` does, loops included: a condition reading the field its own effect changes is `circular-formula` there, and one reading another derived field is fine"
+specVersion: 0.3.0
+call: computeSheet
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.3.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        fields:
+          ward: { type: integer, formula: 0 }
+          might: { type: integer, formula: 0 }
+          luck: { type: integer, formula: 0 }
+        contentTypes:
+          # Its effect on `ward` holds while `ward` is low: a loop.
+          bulwark:
+            effectsWhen: ward < 5
+          # Reads `might`, which it doesn't change.
+          banner:
+            effectsWhen: might > 0
+          boon: {}
+      content:
+        - id: bulwarks.stone
+          type: bulwark
+          effects:
+            - { target: ward, op: add, value: 1 }
+        - id: banners.red
+          type: banner
+          effects:
+            - { target: luck, op: add, value: 2 }
+        - id: boons.strong
+          type: boon
+          effects:
+            - { target: might, op: add, value: 3 }

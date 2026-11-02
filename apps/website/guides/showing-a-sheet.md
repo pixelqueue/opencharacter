@@ -172,11 +172,13 @@ build from the ruleset.
 
 `sheet.activations` lists that content for you: every copy, template, granted and picked piece
 of content, and applied content, in instance order, as `{ item, entry?, via, standard?, scope?,
-parent?, path?, hiddenState? }`. `via` says how it was reached (`copy`, `template`, `grant`,
+parent?, path?, hiddenState?, unavailable? }`. `via` says how it was reached (`copy`, `template`, `grant`,
 `pick`, `applied`), `standard` marks a [standard copy](#standard-copies) (the Fist of every
 `orc-2e` character, a ysoki's jaws), `parent` is the index of what granted it or owns the choice
-it was picked in, and a pick's `path` is its choice path. Offer Remove only for a `copy` without
-`standard`: that is an entry the file saves. A content group's `items` point into this list, so a
+it was picked in, and a pick's `path` is its choice path. `unavailable` marks content a grant
+gives but whose actions wait on a computed value (a Draw Steel treasure's ability without a
+matching kit): show it as known, greyed, as none of its actions is in `sheet.actions`. Offer
+Remove only for a `copy` without `standard`: that is an entry the file saves. A content group's `items` point into this list, so a
 Mothership Teamster's skills list shows the two the class grants and the two picked, with no
 walking of grants and choices on your side.
 

@@ -1,0 +1,35 @@
+description: "A grant's `available` reads derived fields, as an action's `available` does, where its `when` can't (`unknown-name`); `effectsWhen` on a type or an item reads them too and must be a condition (`type-mismatch`)"
+specVersion: 0.3.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.3.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        fields:
+          bonus: { type: integer, formula: 0 }
+        contentTypes:
+          feat: {}
+          relic:
+            effectsWhen: bonus > 0
+          charm:
+            effectsWhen: bonus
+      content:
+        - id: feats.fine
+          type: feat
+          grants:
+            - { item: feats.other, available: bonus > 0 }
+        - id: feats.derived-when
+          type: feat
+          grants:
+            - { item: feats.other, when: bonus > 0 }
+        - id: feats.other
+          type: feat
+        - id: feats.not-a-condition
+          type: feat
+          effectsWhen: bonus + 1
+        - { id: relics.fine, type: relic }

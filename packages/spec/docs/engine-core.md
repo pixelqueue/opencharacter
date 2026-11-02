@@ -345,6 +345,11 @@ are not applied to those values. A condition that reads a derived field is rejec
 (`type-mismatch`). **PROVISIONAL.** This keeps activation free of loops: a class grants features
 by `self.level`, never by a computed field.
 
+Two conditions sit beside activation and read the computed sheet instead, so they can't loop
+back into it: a grant's `available`, which waits on the actions of the content it grants
+([Actions](#actions)), and a content type's or item's `effectsWhen`, which is part of each of its
+effects' `when` ([Effects](#effects)). Neither decides what is active.
+
 Activation is found by walking from the copies, the `applied` list and the rules. Each grant and
 pick is followed once; the same content reached twice by different paths is two activations.
 A grant with `forEach` is followed once per element, in list order, and a grant whose `item` is
@@ -424,7 +429,8 @@ this sheet, so it neither stacks nor appears in `effects`.
 
 **Content type effects and grants.** Wherever an item is active, its content type's effects
 (minus those the item `suppress`es) and grants apply first, then the item's own. Their
-competing-option keys are `<item id>#type.<effect id or index>`.
+competing-option keys are `<item id>#type.<effect id or index>`. The item's `effectsWhen`, else its
+type's, holds for all its effects ([content.md](content.md#a-condition-every-effect-needs)).
 
 **Choice keys.** An activation reads its choices' picks from its tree. The tree's own item (the
 entry's item, or a picked option) uses bare choice IDs. A template or granted content in the
@@ -439,6 +445,10 @@ activation's scope (`holder` effects for holder activations, `applied` effects f
 plus each choice's `effects` once per pick (with `pick` bound). An instance's source is
 `{ type: item | template | rules, id, entry? }`.
 
+- An instance counts while its `when` holds and, for content whose item or type has
+  `effectsWhen`, that condition holds too, evaluated with the same roots wherever the `when` is
+  (fields, rolls, steps, listings, incoming changes). Inline options and a choice's `effects`
+  take their owner's. A loop through it is `circular-formula`, as through a `when`.
 - Situational effects are not part of the sheet; they apply only when an action rolls.
 - Effects targeting rolls are listed in `effects`, but they apply only when an action rolls.
 - Effects targeting incoming changes apply only in `applyChanges`.
@@ -669,7 +679,10 @@ in ruleset order, a type's `max` issue before its items' in the order of their f
 
 An action is available when its `available` formula (if any) is true, and, for a `use`, the
 use's own `available` too (evaluated with the listing's `item` and `self`, in the pack that writes
-the use). An activation offering several with one ID lists the first available one, and
+the use). A content action also needs the `available` of every grant its activation was reached
+through (its own grant's and those above it, each with that grant's roots, on the computed sheet):
+while one fails, the activation lists none of its actions and is marked `unavailable` in
+`activations` ([content.md](content.md#conditions-on-computed-values)). An activation offering several with one ID lists the first available one, and
 startAction and describeAction run and describe that one, its fixed `params` included. An available action with
 `listed: false` (on the action, or on the `use` that names it) is left out of `actions`: only
 `startAction` and other actions' `action` steps run it. Two kinds of action are listed in
@@ -770,7 +783,7 @@ is `{ entry?, activation?, item, templates, tags, fields }`:
 `activations` lists every content activation ([Activation](#activation)), in instance order:
 the rules-level picks, then each copy with its templates, grants and picks,
 depth first, then the active applied entries with their applied grants. Each is
-`{ item, entry?, via, standard?, scope?, parent?, keptBy?, path? }`:
+`{ item, entry?, via, standard?, scope?, parent?, keptBy?, path?, unavailable? }`:
 
 - `item`: the content's qualified ID (the base item; a template is its own activation).
 - `entry`: the owner copy's instance ID, or for applied content the applied entry's ID; absent
@@ -793,6 +806,9 @@ depth first, then the active applied entries with their applied grants. Each is
   picked option last, as `pending` and change paths name it. For a holder grant whose node is a
   pick (content granted by picked content or an inline option), that pick's path, which names
   the grant's saved state ([applyChanges](#applychanges)).
+- `unavailable`: `true` while a grant's `available` it was reached through (its own grant's or
+  one above it) fails: the content is active, but none of its actions is listed. Absent
+  otherwise.
 
 Inline options, the rules and applied entries an immunity blocks (which aren't activated) aren't
 listed, nor are the picks of a choice with `activate: false` or `addAs: copy` (whose copies are
