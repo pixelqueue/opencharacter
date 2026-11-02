@@ -179,9 +179,9 @@ Where the SRD is unclear or silent, the pack reads it this way:
   - Enlarge/Reduce: only an unwilling target saves.
   - Black Tentacles' 3d6 is on a failed save only; a spell whose area is a wall or a square has
     no area shape.
-  - Conjure Fey, Chromatic Orb, Eldritch Blast's later beams, Scorching Ray's rays, Magic
-    Missile's darts and other repeated effects are their own actions on the spell; the cast is the
-    first.
+  - Conjure Fey, Chromatic Orb's leaps, Eldritch Blast's later beams, Scorching Ray's rays,
+    Magic Missile's darts and other repeated effects are their own actions on the spell; the cast
+    is the first. Chromatic Orb's type is a parameter the spell adds to its cast (`damageType`).
   - Death Ward ends when it saves its target: on the first damage that, before resistances,
     would drop the target to 0 Hit Points. Oil's extra fire damage ends with the first fire
     damage; Hypnotic Pattern and Eyebite's Asleep end on any damage.

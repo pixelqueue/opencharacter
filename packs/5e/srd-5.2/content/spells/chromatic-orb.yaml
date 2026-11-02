@@ -11,6 +11,21 @@ fields:
   somatic: true
   material: true
   durationUnit: instantaneous
+  attack: ranged
+  damage: 3d8
+  upcastDice: 1
+# The orb's type is picked per cast: a parameter of its own cast-spell, which sets the damage type
+# the cast's damage roll reads. A leap (matching dice) is the `orb` action, with no slot spent.
+effects:
+  - target: { actions: [spell.cast], from: self }
+    op: params
+    value:
+      damageType:
+        { type: enum, values: [acid, cold, fire, lightning, poison, thunder], default: acid }
+  - target: { steps: [spell.cast], from: self }
+    op: changes
+    value:
+      flags: { damageType: params.damageType }
 actions:
   - use: cast-spell
   - id: orb

@@ -99,7 +99,7 @@ followUps:
 
 actions:
   - id: cast-spell
-    tags: [spell]
+    tags: [spell, spell.cast]
     available: >-
       !spellcasting.blocked
         && (!(item.id in spells.wizardBook) || item.id in spells.wizard
@@ -267,6 +267,11 @@ actions:
         cases:
           - when: true
             flags: { damageType: item.damageType }
+      # A spell whose damage type is picked per cast (Chromatic Orb) sets `damageType` here from
+      # the parameter it adds to this action.
+      - id: cast
+        kind: changes
+        tags: [spell.cast]
       - id: metamagic
         kind: choice
         tags: [metamagic]

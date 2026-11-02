@@ -1,0 +1,31 @@
+status: finished
+outcome:
+  result: hit
+  data:
+    slot: 2
+    spellcastingClass: wizard
+    dc: 15
+    save: ''
+    halfOnSave: false
+    damage: 18
+    healing: 0
+    concentration: false
+    critical: false
+    metamagic: []
+proposedChanges:
+  - to: self
+    step: spendSlot
+    change: { type: adjust, field: 5e-srd-5.2:spellSlots.level2.used, by: 1 }
+  - to: target
+    step: deal
+    change:
+      type: adjust
+      field: 5e-srd-5.2:hp.current
+      by: -18
+      tags:
+        - damage
+        - attack
+        - spell
+        - magical
+        - ranged
+        - damage.cold
