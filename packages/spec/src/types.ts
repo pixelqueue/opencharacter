@@ -481,7 +481,7 @@ export type ApplyEffectChange = {
   active?: boolean;
   /** For an aura's entry: one of the source item's `auras`, by ID (`unknown-id` otherwise). The entry runs only that aura's effects. Applying content again merges only into an entry of the same aura. */
   aura?: Slug;
-  /** The `id` of the character applying the entry, saved on it. Actions and follow-ups fill it in with the character proposing the change; an app applying content by hand names the applier itself. Applying content again (`reapply`) gives the merged entry this applier. */
+  /** The `id` of the character applying the entry, saved on it. Actions and follow-ups fill it in with the character proposing the change, or with the character their `appliedBy` formula names (frightened of the ally who triggered it); an app applying content by hand names the applier itself. Applying content again (`reapply`) gives the merged entry this applier. */
   appliedBy?: string;
   /** The entry's state. A value may be `{ formula }`, a formula an action passed on because it reads `batch`: applyChanges evaluates it with `item` the source's item, this character's fields and `batch`, and the change as applied (`changes` in the result) carries the value. */
   state?: Record<
@@ -653,6 +653,8 @@ export type ProposedChange = {
   id?: InstanceId;
   /** applyEffect: the aura of the source the entry runs, by ID, passed on as written. */
   aura?: Slug;
+  /** applyEffect: a string formula naming the character the entry is applied by, saved as its `appliedBy`: a participant's `id` (`participants.ally[0].id`, frightened of the ally who triggered it). Without it, the actor (or the character whose follow-up it is). A value that isn't a non-empty string is `type-mismatch`. Everything that reads the applier then follows the named character: `self.appliedBy`, an aura's `applier`, `applied.appliedBy`, and the actor's own changes `to: applied` no longer reach the entry. */
+  appliedBy?: Formula;
   /** applyEffect: a string formula naming the content to apply, qualified against the action's pack as a proposed addItem's `item` is. A source that names no content, or a template, is `unknown-reference` when the action runs; for a link, or a role or target when qualified with a pack the ruleset doesn't load, it is passed on as written. */
   source?: Formula;
   /** applyEffect and toggleEffect: a boolean formula. */

@@ -175,6 +175,10 @@ applyChanges(rulesetFor(ally), ally, [
 ]);
 ```
 
+A pack may name someone else as the applier, usually another participant: "frightened of the
+ally who triggered it". The proposed change then carries that participant's ID; pass the ally in
+the role the action declares, as you would any participant.
+
 ### Changes for whoever holds what you applied
 
 Some rules end what one character put on others: a new Mark ends the old one, an aura ends when

@@ -690,7 +690,23 @@ against the creature that just hit you, a ward that slows whoever damaged you
 `id` as `appliedBy`, and applyChanges saves it on the entry
 ([characters.md](characters.md#entries)). The entry's formulas read it as `self.appliedBy`, so
 the holder's rules can tell whose mark it is, or end what one creature applied at that creature's
-turn ([below](#turn-boundaries)).
+turn ([below](#turn-boundaries)). A proposed applyEffect may name another applier with an
+`appliedBy` formula giving a character ID, usually a participant's: the target is frightened
+of the ally who triggered the ability, not of the tactician. Everything that reads the applier
+follows it (`self.appliedBy`, an aura's `applier`, `applied.appliedBy`), so the actor's own
+changes `to: applied` no longer reach the entry. A formula that gives anything but a non-empty
+string is `type-mismatch`.
+
+```yaml
+# Draw Steel's No Dying on My Watch: the target is frightened of the triggering ally.
+- id: frighten
+  kind: changes
+  to: target
+  changes:
+    - type: applyEffect
+      source: "'conditions.frightened'"
+      appliedBy: participants.ally[0].id
+```
 
 **Changes for whoever holds what the actor applied.** `to: applied` sends a step's changes to
 every character holding an entry the actor applied, wherever the actor put it: the earlier marks

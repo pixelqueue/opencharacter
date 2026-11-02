@@ -136,7 +136,8 @@ Besides these calls, `checkRelease` ([upgrades.md](upgrades.md#the-build-check),
   character's ID as `character`, and one for a role its participant's view `id`. The app applies
   each change to that character. A change `to: applied` carries none: it names applied entries by
   a query limited to the actor's (`applied.appliedBy`), and the app applies it to every character
-  that may hold one. Every proposed `applyEffect` carries the actor's ID as `appliedBy`, and every `adjust` for another character the actor's ID as
+  that may hold one. Every proposed `applyEffect` carries the actor's ID as `appliedBy` (or the
+  ID its `appliedBy` formula gives), and every `adjust` for another character the actor's ID as
   `from`.
 - `participants` passes the other characters taking part, by role the action
   declares: per role, a list of views `{ id, values }` taken from their own `computeSheet`, read
@@ -283,7 +284,7 @@ The change types are a small, generic, fixed set ([data](../data/change-types.js
   nothing and fires `on` follow-ups with `from`
   ([engine-core.md](engine-core.md#observing-another-characters-batch)). Actions can't propose it.
 - `applyEffect` may name who applies it (`appliedBy`, a character ID saved on the entry; actions
-  fill it in), and `removeEffect`, `toggleEffect`, `setState` and `adjustState` queries may keep
+  fill it in, with the actor or the ID their `appliedBy` formula gives), and `removeEffect`, `toggleEffect`, `setState` and `adjustState` queries may keep
   to one applier's entries (`applied.appliedBy`).
 - `applyEffect` may leave out `id`, and `removeEffect`, `toggleEffect`, `setState` and `adjustState` may name applied entries with a query (`applied: { where, limit? }`). The receiving character picks the ID and resolves the query, so an action can apply a condition to its target, or end or worsen one, without knowing the target's file ([engine-core.md](engine-core.md#applychanges)).
 - `setState` and `adjustState` also change a pick's state (`path` and `option`, or `picks: { where }`) and the saved state of content a holder grant makes active (`grant` beside the copy's `entry` or the pick's `path` and `option`, or `grants: { where }`); a grant not active there is `not-granted` ([engine-core.md](engine-core.md#applychanges)).

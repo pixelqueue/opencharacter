@@ -46,6 +46,29 @@ actions:
         to: target
         changes:
           - { type: applyEffect, source: "'conditions.marked'" }
+  # The target is frightened of the ally who called for it, or of the actor without one.
+  - id: frighten
+    participants:
+      target: { max: 1 }
+      ally: { max: 1 }
+    steps:
+      - id: frighten
+        kind: changes
+        to: target
+        changes:
+          - type: applyEffect
+            source: "'conditions.frightened'"
+            appliedBy: 'size(participants.ally) > 0 ? participants.ally[0].id : character.id'
+  # Names an applier that isn't a character ID.
+  - id: frighten-badly
+    participants:
+      target: { max: 1 }
+    steps:
+      - id: frighten
+        kind: changes
+        to: target
+        changes:
+          - { type: applyEffect, source: "'conditions.frightened'", appliedBy: "''" }
   # Gains 1 focus: the app runs it when a creature this character marked is damaged.
   - id: gain-focus
     steps:

@@ -692,8 +692,14 @@ function resolveChange(
       });
     out.source = qid;
   }
-  // The character applies what its follow-up proposes; `to: applied` reaches only its entries.
-  if (change.type === 'applyEffect') out.appliedBy = sheet.file.id;
+  // The character applies what its follow-up proposes (or the character its formula names);
+  // `to: applied` reaches only its entries.
+  if (change.type === 'applyEffect') {
+    const by = change.appliedBy === undefined ? undefined : evaluate(change.appliedBy);
+    if (by !== undefined && (by.kind !== 'string' || by.value === ''))
+      throw new Failure({ code: 'type-mismatch', message: '`appliedBy` is a character ID' });
+    out.appliedBy = by?.kind === 'string' ? by.value : sheet.file.id;
+  }
   // An adjust for someone else says who sent it.
   if (change.type === 'adjust' && other) out.from = sheet.file.id;
   if (change.active !== undefined) {

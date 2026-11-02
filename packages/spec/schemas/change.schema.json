@@ -910,7 +910,7 @@
           "$ref": "common.schema.json#/$defs/slug"
         },
         "appliedBy": {
-          "description": "The `id` of the character applying the entry, saved on it. Actions and follow-ups fill it in with the character proposing the change; an app applying content by hand names the applier itself. Applying content again (`reapply`) gives the merged entry this applier.",
+          "description": "The `id` of the character applying the entry, saved on it. Actions and follow-ups fill it in with the character proposing the change, or with the character their `appliedBy` formula names (frightened of the ally who triggered it); an app applying content by hand names the applier itself. Applying content again (`reapply`) gives the merged entry this applier.",
           "type": "string",
           "minLength": 1,
           "maxLength": 2048
@@ -1354,6 +1354,10 @@
           "description": "applyEffect: the aura of the source the entry runs, by ID, passed on as written.",
           "$ref": "common.schema.json#/$defs/slug"
         },
+        "appliedBy": {
+          "description": "applyEffect: a string formula naming the character the entry is applied by, saved as its `appliedBy`: a participant's `id` (`participants.ally[0].id`, frightened of the ally who triggered it). Without it, the actor (or the character whose follow-up it is). A value that isn't a non-empty string is `type-mismatch`. Everything that reads the applier then follows the named character: `self.appliedBy`, an aura's `applier`, `applied.appliedBy`, and the actor's own changes `to: applied` no longer reach the entry.",
+          "$ref": "formula.schema.json"
+        },
         "source": {
           "description": "applyEffect: a string formula naming the content to apply, qualified against the action's pack as a proposed addItem's `item` is. A source that names no content, or a template, is `unknown-reference` when the action runs; for a link, or a role or target when qualified with a pack the ruleset doesn't load, it is passed on as written.",
           "$ref": "formula.schema.json"
@@ -1464,6 +1468,19 @@
                   "required": ["params"]
                 }
               ]
+            }
+          }
+        },
+        {
+          "description": "`appliedBy` is applyEffect's.",
+          "if": {
+            "required": ["appliedBy"]
+          },
+          "then": {
+            "properties": {
+              "type": {
+                "const": "applyEffect"
+              }
             }
           }
         }

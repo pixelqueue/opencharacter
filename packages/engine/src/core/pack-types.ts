@@ -523,6 +523,8 @@ export interface ProposedChange {
   grants?: { where: Formula; limit?: number };
   id?: string;
   aura?: string;
+  /** applyEffect: the applier's ID, else the actor's. */
+  appliedBy?: Formula;
   source?: Formula;
   active?: Formula;
   state?: Record<string, Formula>;

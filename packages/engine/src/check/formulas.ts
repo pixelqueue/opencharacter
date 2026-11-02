@@ -1410,6 +1410,7 @@ class FormulaChecker<L> {
 
   private appliedContent(change: ProposedChange, at: L, where: string, passed?: string[]): void {
     this.formula(change.source, at, where, ['string']);
+    this.formula(change.appliedBy, at, where, ['string']);
     this.formula(change.active, at, where, BOOL);
     for (const value of Object.values(change.state ?? {})) {
       if (!readsRoot(value, ['batch'])) {
