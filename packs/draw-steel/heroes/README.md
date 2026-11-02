@@ -53,16 +53,20 @@ computeSheet(ruleset, made.character).values['draw-steel-heroes:stamina.max']?.v
 ## License
 
 - **License:** `LicenseRef-draw-steel-creator-license`. Apps that show this pack's content must
-  pass on its `credit` and its `permission` notice:
+  pass on its `credit` and its `permission` notice.
+- **Credit:**
 
   > The Open Character Format Draw Steel Heroes pack (draw-steel-heroes) is an independent product
   > published under the DRAW STEEL Creator License and is not affiliated with MCDM Productions,
   > LLC. DRAW STEEL © 2026 MCDM Productions, LLC.
-  - `permission`: the Draw Steel text, mechanics and rules, proper names included, are reused under
-    the [DRAW STEEL Creator License](https://mcdm.gg/ds-license); no art, logos or page layouts
-    are included.
 
-  [`LICENSE`](LICENSE) says the same.
+- **Notice (`permission`):**
+
+  > The DRAW STEEL text, mechanics and rules in this pack, proper names included, are reused
+  > under the DRAW STEEL Creator License (https://mcdm.gg/ds-license). No art, logos or page
+  > layouts are included.
+
+[`LICENSE`](LICENSE) says the same.
 
 ## What's modeled
 
@@ -91,20 +95,30 @@ computeSheet(ruleset, made.character).values['draw-steel-heroes:stamina.max']?.v
   Content adds to an ability's forced movement, potency and distance through roll tallies
   (Forceful, Growing Ferocity, the psi boosts, Prayer of Distance), sets them on a hit (Judgment's
   Paragon pull and Exorcist teleport, King's Roar) or replaces a condition ("instead": It Is
-  Justice You Fear). Choices made on each use are parameters: the psi boosts and taking the
-  strain on any psionic ability (psi boosts are an extra cost paid with the use and counted by
-  strain; taking the strain outside combat costs 1d6), the damage type of Hurl Element, Dragon
-  Breath and Smolder, and the stormwight's primordial type on Visceral Roar and Deluge (Deluge's
-  ignoring immunity), all typing the ability's own damage so the card shows the real numbers;
-  Healing Grace's Spend enhancements (`graceRecoveries`, `graceStand`, `graceEnd` with
-  `graceEndEntry` naming the effect, which must fit in the Spend; an overspend is reported on
-  `graceRecoveries`). An `ally` participant is the ally a triggered ability answers or an ability
-  helps: No Dying on My Watch frightens the target of that ally and lets them spend a Recovery,
-  Inspiring Strike lets them spend one. Abilities with
+  Justice You Fear). `use-ability` takes `characteristic`, `mode` (melee or ranged), `spend`,
+  `surges`, `potencySurge` and `downgrade`. Other choices made on each use are parameters content
+  adds:
+  - `talentStrain` (taking the strain on any psionic ability; outside combat it costs 1d6) and
+    the psi boosts `psiDynamic`, `psiExpanded`, `psiExtended`, `psiHeightened`, `psiMagnified`,
+    `psiShared` and `psiSharpened` (an extra cost paid with the use and counted by strain).
+  - The damage type of Hurl Element (`element`), Dragon Breath (`breathType`) and Smolder
+    (`smolderType`), typing the ability's own damage so the card shows the real numbers.
+    Visceral Roar and Deluge take the stormwight kit's primordial type (`fury.primordialType`),
+    and Deluge's ignores immunity.
+  - Healing Grace's Spend enhancements: `graceRecoveries`, `graceStand` and `graceEnd`, which
+    must fit in `spend`. `graceEndEntry` is the ID of the applied entry to end on the target;
+    without it, the first that a saving throw or the end of a turn ends. An overspend is
+    reported on `graceRecoveries` ([#252](https://github.com/pixelqueue/opencharacter/issues/252)).
+  - No Dying on My Watch's `adjacentEnemies`: the ally gains 5 temporary Stamina for each.
+
+  An `ally` participant is the ally a triggered ability answers or an ability helps: No Dying on
+  My Watch's target is frightened of that ally, who spends a Recovery; Inspiring Strike lets them
+  spend one. Abilities with
   rules beyond the tier table (Strained, with its rolled damage, persistent abilities, Judgment,
   Mark, routines, edicts, prayers, summons' numbers) add them on tagged steps or their own
   actions. The uses are grouped by main action, maneuver and triggered action; a hero who can't
   use triggered actions (dazed, slowed by an Entropy Ward, Smolder's strain) has none offered.
+
 - **Ability cards:** each tier's text names this hero's damage (characteristic and kit included),
   potency and distance, from the ability's computed values, and the book's wording without a
   hero. Range bonuses (Omnisensory, Remote Amplification, Prayer of Distance, the Elementalist's
@@ -123,14 +137,20 @@ computeSheet(ruleset, made.character).values['draw-steel-heroes:stamina.max']?.v
   counts the damage taken in one turn (anyone's) until the turn changes, and 5 × Reason ends the
   maintained abilities.
 - **Reactions that reduce damage** are situational choices on the incoming damage, selected on
-  the attack's first change and reaching the whole attack: Parry, Skin Like Castle Walls,
-  Unearthly Reflexes, Defensive Roll, In All This Confusion, Draconian Guard, Resist the
-  Unnatural, and the null's Inertial Shield, Inertial Absorption and Synaptic Anchor, whose
-  discipline (and Inertial Absorption's surges) the choice pays; outside combat they use the
-  ability up until a respite, as a heroic ability's use does. Damage is halved once however many
+  the attack's first change and reaching the whole attack: Parry (`parry`), Skin Like Castle
+  Walls (`skinLikeCastleWalls`), Unearthly Reflexes (`furyHalfDamage`), Defensive Roll and In All
+  This Confusion (`shadowHalfDamage`), Draconian Guard (`draconianGuard`), Resist the Unnatural
+  (`resistTheUnnatural`), and the null's Inertial Shield (`inertialShield`), Inertial Absorption
+  (`inertialAbsorption`) and Synaptic Anchor (`synapticAnchor`). Inertial Absorption and Synaptic
+  Anchor pay their 11 discipline in the choice, and Inertial Absorption gains 3 surges; outside
+  combat they use the ability up until a respite, as a heroic ability's use does. Damage is halved once however many
   halve it, and weakness and immunity apply after the halving (immunity last). Elemental
   Absorption's immunity meets each elemental change of the attack whole, and Elemental Buffer's
   surges come when immunity reduces elemental damage, Elemental Absorption's included.
+- **Other situational choices:** `edges`, `banes` and `bonus` on any power roll (the
+  Director's), `conduitPray` (praying before the piety roll), `shadowConditionMet` (a shadow
+  ability's own condition holds: its surge), `kineticAmplifier` (surges spent on forced movement)
+  and `psionNoStrainDamage` (a psion takes no damage from negative clarity).
 - **Stamina:** maximum from class, level and kit; winded, dying (and bleeding, unless a trait says
   otherwise) and dead; temporary Stamina (the greater kept); Recoveries, including Recoveries other
   heroes' abilities grant; damage immunity (by type, all damage, or "immunity all" to a type),
@@ -147,7 +167,11 @@ computeSheet(ruleset, made.character).values['draw-steel-heroes:stamina.max']?.v
 - **Marks:** the Tactician's marks are entries the tactician applied; a new Mark ends the earlier
   ones wherever they are, and dying ends them all. Any hero's power roll against a marked target
   has an edge (whether the hero is within the tactician's line of effect is the table's), and the
-  tactician's own rolls find its marks among the targets (Warmaster, focus). An ally damaging a
+  tactician's own rolls find its marks among the targets (Warmaster, focus). On the tactician's
+  damage roll, the `markDamage` situational choice spends 1 focus for twice their Reason in extra
+  damage to the first target. The `mark-benefit` action spends 1 focus for another benefit:
+  extra damage or a shift as outcome numbers, a Recovery when the damage was the tactician's, or a
+  taunt on the target. An ally damaging a
   creature the tactician marked offers its focus, for an app that routes other characters'
   events (`observes`); without it, `mark-damaged` is an action the table runs.
 - **Auras:** the Null Field on the enemies inside: their potencies drop by 1 (once, however many
@@ -173,30 +197,28 @@ computeSheet(ruleset, made.character).values['draw-steel-heroes:stamina.max']?.v
   idol's heroic ability (2 less, at least 1) and the neglected one (1 more), so cards, availability
   and the cost paid show it.
 
-## Text-only, and why
+## Add-on packs
 
-The book's text is on every item; these parts are the table's to apply, because the format has
-no way to say them (each is a gap the project tracks):
+A pack that depends on `draw-steel-heroes` can add content of its types: creation offers every
+ancestry, culture, career, class and complication of the ruleset, in the guided picks and in the
+random draws, and every ability shares the `use-ability` action.
 
-- **Effects on other creatures' sheets:** areas and the auras whose effects need positions or
-  turns (Judgment's and Mark's benefits to allies, edicts on enemies, the Null Field's Inertial
-  Anchor and Gravitic Disruption, the surges and Recoveries auras hand out at turns), and anything
-  triggered by another creature's turn or roll (most Troubadour drama events, an ally's heroic
-  ability: the Tactician's `ally-heroic`). Synaptic Anchor's daze is its ability's use against
-  the creature.
-- **The Director's Malice** is the Director's; the null's discipline from it is an action the
-  app runs.
-- **Positions:** areas, line of effect, cover, squares moved; forced movement is a number in the
-  outcome, not a move.
-- **Choices made at the table in the middle of an ability:** Expanded and Shared psi boosts
-  (area size, extra targets).
-- **Extended Power on abilities without a power roll** (that boost rides on the roll), and
-  distances that grow with level (King's Roar).
-- **Healing Grace's extra targets** count toward the Spend the player gives; Inspiring Strike's
-  tier 3 edges are the table's.
-- **Ancestries:** the revenant's fall prone and 12-hour recovery, and a doomed hakaan's death at
-  the encounter's end.
-- **Knife of Nine's** growing bonus (+1 a hit on the same target, at most 3).
+- **Open enums** (`extendEnums`): `heroic.kind`, a class's `resource`, and an ability's `usage`,
+  `kind`, `resource`, `distanceKind` and `damageType`. An add-on lists new values in
+  `extendEnums` and names them in its text.
+- **Naming what an add-on adds:** it names each added value, option or key in its own text,
+  under the key this pack would use, and `createText` finds it there when the app passes the
+  ruleset's `enumOrigins`, `optionOrigins` and `familyOrigins`.
+- **Abilities:** `use-ability` carries the tags `ability`, `usage.<usage>` and the ability's own
+  keywords (`kw.*`), so a `params` effect can add a parameter to some abilities. Its power roll
+  is tagged `power-roll.ability` (each target's banding `power-target`), and its damage `damage`
+  with the part `ability.damage`.
+- **Tagged steps** take an add-on's rules-level `changes` effects: `ability.extra` (an extra cost
+  for this use, as `flags.extra`), `ability.pay` (costs), `ability.spend` (a Spend paid),
+  `ability.hit` (per target, after damage and conditions), `ability.after` (once, at the end),
+  `combat.start`, `round.start`, `turn.start`, `turn.end`, `turn.boundary` (each turn change),
+  `combat.end`, `respite`, `level-up`, `test.improve` and `test.improved` (a failed test improved
+  after the roll).
 
 ## Rule readings
 
@@ -208,3 +230,36 @@ no way to say them (each is a gap the project tracks):
   should reach only some targets (Boren's grabbed target) applies when every target qualifies.
 - **"While you have temporary Stamina from this ability"** (Kinetic Shield) reads as "while you
   have temporary Stamina": the sheet can't tell where it came from.
+
+## Limitations
+
+The book's text is on every item. These parts are the table's to apply. Some are outside the
+format (positions, the Director's side); the others are gaps, linked where an issue is open.
+
+- **Effects on other creatures' sheets:** areas and the auras whose effects need positions or
+  turns (Judgment's benefits to allies, Mark's extra damage and shift on an ally's strike, edicts
+  on enemies, the Null Field's Inertial Anchor and Gravitic Disruption, the surges and Recoveries
+  auras hand out at turns). Synaptic Anchor's daze is its ability's use against the creature.
+- **Triggers on another creature's turn, roll or ability use:** most Troubadour drama events and
+  an ally's heroic ability (the Tactician's `ally-heroic`) are actions the app runs
+  ([#187](https://github.com/pixelqueue/opencharacter/issues/187)). The first hero winded and
+  damage to a villain need the observed creature's state or kind, which the observed event
+  doesn't carry ([#255](https://github.com/pixelqueue/opencharacter/issues/255)); the
+  `drama-event` action records them.
+- **Bonus damage on a chosen-type ability** is untyped, so immunity and weakness skip it: Acolyte
+  of Fire and Master of Fire on Dragon Breath and Smolder, and Enchantment of Destruction and
+  Force Augmentation on all of them. Only Hurl Element is special-cased
+  ([#254](https://github.com/pixelqueue/opencharacter/issues/254)).
+- **The Director's Malice** is the Director's; the null's discipline from it is an action the
+  app runs.
+- **Positions:** areas, line of effect, cover, squares moved; forced movement is a number in the
+  outcome, not a move.
+- **Choices made at the table in the middle of an ability:** Expanded and Shared psi boosts
+  (area size, extra targets).
+- **Extended Power on abilities without a power roll** (that boost rides on the roll), and
+  distances that grow with level (King's Roar).
+- **Healing Grace's extra targets:** the player counts them in `spend`; nothing checks that they
+  fit. Inspiring Strike's tier 3 edges are the table's.
+- **Ancestries:** the revenant's fall prone and 12-hour recovery, and a doomed hakaan's death at
+  the encounter's end.
+- **Knife of Nine's** growing bonus (+1 a hit on the same target, at most 3).
