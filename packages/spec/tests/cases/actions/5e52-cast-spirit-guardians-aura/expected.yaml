@@ -1,0 +1,15 @@
+status: finished
+proposedChanges:
+  - to: self
+    step: spendSlot
+    change: { type: adjust, field: 5e-srd-5.2:spellSlots.level3.used, by: 1 }
+  - to: self
+    step: concentrate
+    change: { type: set, field: 5e-srd-5.2:concentration.active, value: true }
+  # The spell's own changes effect on the step: the spell on the caster, which holds its aura up.
+  - to: self
+    step: concentrate
+    change:
+      type: applyEffect
+      source: 5e-srd-5.2:spells.spirit-guardians
+      appliedBy: test

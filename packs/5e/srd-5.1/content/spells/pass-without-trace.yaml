@@ -20,4 +20,18 @@ effects:
     op: add
     value: 10
     scope: applied
+    stackKey: source
     duration: { amount: 1, unit: hour, concentration: true }
+# Cast with no target, the spell is on the caster and holds the aura up: each creature the caster
+# chooses within 30 feet gets the bonus while inside. stackKey source: one +10 however it came.
+auras:
+  - id: veil
+    when: countList(character.applied, x.active && x.source == @spells.pass-without-trace) > 0
+    size: 30
+    affects: allies
+    effects:
+      - target: { rolls: [skill.stealth] }
+        op: add
+        value: 10
+        scope: applied
+        stackKey: source

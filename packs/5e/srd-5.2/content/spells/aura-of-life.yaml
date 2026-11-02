@@ -23,3 +23,15 @@ effects:
     value: { tag: damage.necrotic }
     scope: applied
     duration: { amount: 10, unit: minute, concentration: true }
+# Cast with no target, the spell is on the caster and holds the aura up for its allies inside. The
+# Hit Point maximum that can't be reduced and the 1 Hit Point at turn start stay the table's.
+auras:
+  - id: life
+    when: countList(character.applied, x.active && x.source == @spells.aura-of-life) > 0
+    size: item.areaSize
+    affects: allies
+    effects:
+      - target: damage.resistances
+        op: grant
+        value: { tag: damage.necrotic }
+        scope: applied

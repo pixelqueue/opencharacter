@@ -26,5 +26,18 @@ effects:
     value: true
     scope: applied
     duration: { amount: 1, unit: minute, concentration: true }
+# Cast with no target, the spell is on the caster and holds the aura up for the creatures it
+# chooses inside. The Fiend or Undead attacker's save against blindness stays the table's.
+auras:
+  - id: holy
+    when: countList(character.applied, x.active && x.source == @spells.holy-aura) > 0
+    size: item.areaSize
+    affects: allies
+    effects:
+      - target: { rolls: [save] }
+        op: rollModifier
+        value: { kind: advantage }
+        scope: applied
+      - { target: combat.attackersDisadvantage, op: set, value: true, scope: applied }
 actions:
   - use: cast-spell
