@@ -773,7 +773,7 @@ actions:
         kind: roll
         tags: [damage]
         parts:
-          - dice: '(level.total >= 16 ? 5 : level.total >= 11 ? 4 : level.total >= 6 ? 3 : 2)d6'
+          - dice: (self.breathDice)d6
             tags: [{ formula: "'damage.' + item.damageType" }]
       - id: saves
         kind: action
@@ -782,7 +782,7 @@ actions:
         use: saving-throw
         params:
           ability: item.save
-          dc: 8 + abilities.con.mod + proficiency.bonus
+          dc: self.breathDc
       - id: burn
         kind: changes
         each: target
@@ -810,6 +810,6 @@ actions:
         data:
           damage: steps.damage.total
           damageType: item.damageType
-          dc: 8 + abilities.con.mod + proficiency.bonus
+          dc: self.breathDc
           save: item.save
           area: item.area

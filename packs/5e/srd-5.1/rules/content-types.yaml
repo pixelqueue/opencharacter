@@ -387,6 +387,12 @@ contentTypes:
     # Once until a short or long rest, on the ancestry's pick.
     state:
       used: { type: boolean, default: false }
+    # The breath's save DC (8 + Constitution modifier + proficiency bonus) and its d6s by level.
+    computed:
+      breathDc: { type: integer, formula: 8 + abilities.con.mod + proficiency.bonus }
+      breathDice:
+        type: integer
+        formula: 'level.total >= 16 ? 5 : level.total >= 11 ? 4 : level.total >= 6 ? 3 : 2'
     actions:
       - use: breath-weapon
     effects:

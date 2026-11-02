@@ -264,7 +264,9 @@ Where the SRD is unclear or silent, the pack reads it this way:
   Acolyte and the Grappler feat.
 - **Classes:** all twelve classes and their twelve SRD subclasses, feature by feature. Uses
   until a rest are state on the class copy (an invocation's on its pick, the breath weapon's
-  `used` on the draconic ancestry pick, a racial trait's in its saved grant state); per-roll bonuses are situational choices; lasting
+  `used` on the draconic ancestry pick, a racial trait's in its saved grant state); the draconic
+  ancestry carries its breath weapon's save DC and dice as computed values (`breathDc`,
+  `breathDice`); per-roll bonuses are situational choices; lasting
   effects are boolean inputs; once per turn is the app's. Divine Smite is offered on a melee
   weapon hit (one option per spell slot level left, and the pact slot): it spends the slot and
   adds its radiant dice to the hit's damage roll, doubled on a critical hit.
