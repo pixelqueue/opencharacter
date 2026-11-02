@@ -11,15 +11,15 @@ effects:
     when: >-
       combat.active && 'kw.psionic' in action.item.tags
         && action.item.usage in ['main-action', 'maneuver']
-        && (situational.psiDynamic || situational.psiExpanded || situational.psiExtended
-          || situational.psiHeightened || situational.psiMagnified || situational.psiShared
-          || situational.psiSharpened)
+        && (params.psiDynamic || params.psiExpanded || params.psiExtended
+          || params.psiHeightened || params.psiMagnified || params.psiShared
+          || params.psiSharpened)
     value:
       changes:
         - type: adjust
           field: heroic.current
           by: >-
-            -((situational.psiDynamic ? 1 : 0) + (situational.psiExpanded ? 3 : 0)
-              + (situational.psiExtended ? 1 : 0) + (situational.psiHeightened ? 1 : 0)
-              + (situational.psiMagnified ? 5 : 0) + (situational.psiShared ? 5 : 0)
-              + (situational.psiSharpened ? 1 : 0))
+            -((params.psiDynamic ? 1 : 0) + (params.psiExpanded ? 3 : 0)
+              + (params.psiExtended ? 1 : 0) + (params.psiHeightened ? 1 : 0)
+              + (params.psiMagnified ? 5 : 0) + (params.psiShared ? 5 : 0)
+              + (params.psiSharpened ? 1 : 0))

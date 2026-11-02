@@ -30,13 +30,11 @@ effects:
         - ability.after
       from: self
     op: changes
-    when:
-      (combat.active && heroic.current - item.cost - params.spend < 0)
-      || situational.talentStrain
+    when: (combat.active && heroic.current - item.cost - params.spend < 0)
+      || params.talentStrain
     value:
       changes:
         - type: applyEffect
           source: "'conditions.bleeding'"
           state:
             duration: "'until'"
-            by: character.id

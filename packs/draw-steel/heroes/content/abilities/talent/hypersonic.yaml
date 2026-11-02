@@ -31,28 +31,24 @@ effects:
         - ability.hit
       from: self
     op: changes
-    when:
-      ((combat.active && heroic.current - item.cost - params.spend <
-      0) || situational.talentStrain) && flags.tier >= 2
+    when: ((combat.active && heroic.current - item.cost - params.spend <
+      0) || params.talentStrain) && flags.tier >= 2
     value:
       changes:
         - type: applyEffect
           source: "'conditions.slowed'"
           state:
             duration: "'eot'"
-            by: character.id
   - target:
       steps:
         - ability.after
       from: self
     op: changes
-    when:
-      ((combat.active && heroic.current - item.cost - params.spend <
-      0) || situational.talentStrain) && has(steps.roll) && steps.roll.bandValue >= 2
+    when: ((combat.active && heroic.current - item.cost - params.spend <
+      0) || params.talentStrain) && has(steps.roll) && steps.roll.bandValue >= 2
     value:
       changes:
         - type: applyEffect
           source: "'conditions.slowed'"
           state:
             duration: "'eot'"
-            by: character.id

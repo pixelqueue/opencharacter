@@ -31,7 +31,7 @@ effects:
     value: 1
     when: >-
       (combat.active && heroic.current - item.cost - params.spend < 0)
-        || situational.talentStrain
+        || params.talentStrain
   - target:
       steps:
         - ability.after
@@ -39,7 +39,7 @@ effects:
     op: changes
     when:
       (combat.active && heroic.current - item.cost - params.spend < 0)
-      || situational.talentStrain
+      || params.talentStrain
     value:
       changes:
         - type: adjust

@@ -2,9 +2,9 @@
 #
 # An ability's strained effects apply when the hero is strained as they use it: in combat, when
 # the clarity left after paying the cost and any Spend is below 0; or, by the hero's choice,
-# through the `talentStrain` situational choice (outside combat, where using a second clarity
-# ability within a minute strains, and with Psion at 10th level). Each ability tests
-#   (combat.active && heroic.current - item.cost - params.spend < 0) || situational.talentStrain
+# through the `talentStrain` parameter (outside combat, where using a second clarity ability
+# within a minute strains, and with Psion at 10th level). Each ability tests
+#   (combat.active && heroic.current - item.cost - params.spend < 0) || params.talentStrain
 # in its own effects, since the action's steps read the sheet before the cost is paid.
 fields:
   talent.strained: { type: boolean, formula: "heroic.kind == 'clarity' && heroic.current < 0" }
@@ -32,12 +32,6 @@ tags:
   - talent.strain
 
 situational:
-  # Take on an ability's strained effect though not strained (outside combat, or with Psion).
-  - id: talentStrain
-    type: boolean
-    default: false
-    rolls: [kw.psionic]
-    available: "heroic.kind == 'clarity' && (!combat.active || talent.psion)"
   # Psion: no damage from negative clarity.
   - id: psionNoStrainDamage
     type: boolean
@@ -54,73 +48,60 @@ situational:
     default: 0
     rolls: [power-roll.ability]
     available: talent.kineticAmplifier && surges.current > 0
+
+effects:
+  # Taking on an ability's strained effect though not strained (outside combat, or with Psion):
+  # a parameter of using any psionic ability, with a power roll or without.
+  - id: strain-param
+    target: { actions: [kw.psionic] }
+    op: params
+    when: "heroic.kind == 'clarity' && (!combat.active || talent.psion)"
+    value:
+      talentStrain: { type: boolean, default: false }
   # Psi boosts (a talent's at 6th level, a null's at 7th), on a psionic main action or maneuver,
   # with the hero's potency characteristic (Reason, or a null's Intuition). The Psi Boost feature
   # pays for them. Expanded and Shared change the ability's area or targets (the app's).
-  - id: psiDynamic
-    type: boolean
-    default: false
-    rolls: [kw.psionic]
-    available: talent.psiBoost
-    effects:
-      - target: { rolls: [power-roll.ability], tally: moveBonus }
-        op: add
-        value: "potency.char == 'none' ? 0 : fieldOf('characteristics.{characteristic}.score', potency.char)"
-        when: "'kw.psionic' in action.item.tags"
-  - id: psiExpanded
-    type: boolean
-    default: false
-    rolls: [kw.psionic]
-    available: talent.psiBoost
-  - id: psiExtended
-    type: boolean
-    default: false
-    rolls: [kw.psionic]
-    available: talent.psiBoost
-    effects:
-      - target: { rolls: [power-roll.ability], tally: distanceBonus }
-        op: add
-        value: "flags.mode == 'ranged' ? (potency.char == 'none' ? 0 : fieldOf('characteristics.{characteristic}.score', potency.char)) : 2"
-        when: "'kw.psionic' in action.item.tags"
-  - id: psiHeightened
-    type: boolean
-    default: false
-    rolls: [kw.psionic]
-    available: talent.psiBoost
-    effects:
-      - target: { rolls: [damage] }
-        op: add
-        value: "potency.char == 'none' ? 0 : fieldOf('characteristics.{characteristic}.score', potency.char)"
-        when: "'kw.psionic' in action.item.tags"
-        tags:
-          - {
-              formula: "action.item.damageType == 'untyped' ? [] : ['damage.' + action.item.damageType]",
-            }
-  - id: psiMagnified
-    type: boolean
-    default: false
-    rolls: [kw.psionic]
-    available: talent.psiBoost
-    effects:
-      - target: { rolls: [power-roll.ability], tally: potencyBonus }
-        op: add
-        value: "potency.char == 'none' ? 0 : fieldOf('characteristics.{characteristic}.score', potency.char)"
-        when: "'kw.psionic' in action.item.tags"
-  - id: psiShared
-    type: boolean
-    default: false
-    rolls: [kw.psionic]
-    available: talent.psiBoost
-  - id: psiSharpened
-    type: boolean
-    default: false
-    rolls: [kw.psionic]
-    available: talent.psiBoost
-    effects:
-      - target: { rolls: [power-roll.ability], tally: edges }
-        op: add
-        value: 1
-        when: "'kw.psionic' in action.item.tags"
+  - id: psi-boosts
+    target: { actions: [kw.psionic] }
+    op: params
+    when: talent.psiBoost
+    value:
+      psiDynamic: { type: boolean, default: false }
+      psiExpanded: { type: boolean, default: false }
+      psiExtended: { type: boolean, default: false }
+      psiHeightened: { type: boolean, default: false }
+      psiMagnified: { type: boolean, default: false }
+      psiShared: { type: boolean, default: false }
+      psiSharpened: { type: boolean, default: false }
+  - id: psi-dynamic
+    target: { rolls: [power-roll.ability], tally: moveBonus }
+    op: add
+    value: "potency.char == 'none' ? 0 : fieldOf('characteristics.{characteristic}.score', potency.char)"
+    when: "'kw.psionic' in action.item.tags && params.psiDynamic"
+  - id: psi-extended
+    target: { rolls: [power-roll.ability], tally: distanceBonus }
+    op: add
+    value: "flags.mode == 'ranged' ? (potency.char == 'none' ? 0 : fieldOf('characteristics.{characteristic}.score', potency.char)) : 2"
+    when: "'kw.psionic' in action.item.tags && params.psiExtended"
+  - id: psi-heightened
+    target: { rolls: [damage] }
+    op: add
+    value: "potency.char == 'none' ? 0 : fieldOf('characteristics.{characteristic}.score', potency.char)"
+    when: "'kw.psionic' in action.item.tags && params.psiHeightened"
+    tags:
+      - {
+          formula: "action.item.damageType == 'untyped' ? [] : ['damage.' + action.item.damageType]",
+        }
+  - id: psi-magnified
+    target: { rolls: [power-roll.ability], tally: potencyBonus }
+    op: add
+    value: "potency.char == 'none' ? 0 : fieldOf('characteristics.{characteristic}.score', potency.char)"
+    when: "'kw.psionic' in action.item.tags && params.psiMagnified"
+  - id: psi-sharpened
+    target: { rolls: [power-roll.ability], tally: edges }
+    op: add
+    value: 1
+    when: "'kw.psionic' in action.item.tags && params.psiSharpened"
 
 display:
   fields:

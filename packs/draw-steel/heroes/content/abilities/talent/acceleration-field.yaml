@@ -33,21 +33,18 @@ effects:
       from: self
     op: set
     value: 0
-    when:
-      '!((combat.active && heroic.current - item.cost - params.spend <
-      0) || situational.talentStrain)'
+    when: '!((combat.active && heroic.current - item.cost - params.spend <
+      0) || params.talentStrain)'
   - target:
       steps:
         - ability.hit
       from: self
     op: changes
-    when:
-      ((combat.active && heroic.current - item.cost - params.spend <
-      0) || situational.talentStrain) && flags.tier > 0
+    when: ((combat.active && heroic.current - item.cost - params.spend <
+      0) || params.talentStrain) && flags.tier > 0
     value:
       changes:
         - type: applyEffect
           source: "'conditions.slowed'"
           state:
             duration: "'save'"
-            by: character.id
