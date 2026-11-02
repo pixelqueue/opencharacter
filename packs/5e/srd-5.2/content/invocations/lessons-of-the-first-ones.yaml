@@ -6,6 +6,7 @@ prerequisites:
     when: self.level >= 2
 choices:
   - id: feat
+    recommend: '(filterList([@feats.alert, @feats.skilled], x in options) + options)[0]'
     from: { type: feat, where: "item.category == 'origin'" }
     eligible: "!(item.id in feats.held) || item.id in choice.picks || 'repeatable' in item.tags"
     unique: feats

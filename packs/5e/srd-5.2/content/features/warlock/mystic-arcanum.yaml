@@ -12,6 +12,7 @@ effects:
         - { type: setState, entry: self, key: arcanum9Used, value: false }
 choices:
   - id: level-6
+    recommend: options[0]
     from: { type: spell, where: 'item.level == 6 && @classes.warlock in item.classes' }
     effects:
       - { target: spells.warlock, op: grant, value: { formula: pick.id } }
@@ -34,6 +35,7 @@ choices:
           changes:
             - { type: setState, entry: self, key: arcanum6Used, value: true }
   - id: level-7
+    recommend: options[0]
     from: { type: spell, where: 'item.level == 7 && @classes.warlock in item.classes' }
     when: self.level >= 13
     effects:
@@ -51,6 +53,7 @@ choices:
           changes:
             - { type: setState, entry: self, key: arcanum7Used, value: true }
   - id: level-8
+    recommend: options[0]
     from: { type: spell, where: 'item.level == 8 && @classes.warlock in item.classes' }
     when: self.level >= 15
     effects:
@@ -68,6 +71,7 @@ choices:
           changes:
             - { type: setState, entry: self, key: arcanum8Used, value: true }
   - id: level-9
+    recommend: options[0]
     from: { type: spell, where: 'item.level == 9 && @classes.warlock in item.classes' }
     when: self.level >= 17
     effects:

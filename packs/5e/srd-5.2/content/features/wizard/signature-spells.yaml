@@ -10,6 +10,7 @@ effects:
         - { type: setState, entry: self, key: signatureSpell2Used, value: false }
 choices:
   - id: first
+    recommend: '(filterList([@spells.counterspell, @spells.fireball], x in options) + options)[0]'
     unique: signature-spells
     from: { type: spell, where: 'item.level == 3 && @classes.wizard in item.classes' }
     eligible: item.id in spells.wizardBook
@@ -27,6 +28,7 @@ choices:
           changes:
             - { type: setState, entry: self, key: signatureSpell1Used, value: true }
   - id: second
+    recommend: '(filterList([@spells.counterspell, @spells.fireball], x in options) + options)[0]'
     unique: signature-spells
     from: { type: spell, where: 'item.level == 3 && @classes.wizard in item.classes' }
     eligible: item.id in spells.wizardBook

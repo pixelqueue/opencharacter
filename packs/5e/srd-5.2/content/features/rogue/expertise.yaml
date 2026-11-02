@@ -2,6 +2,9 @@ id: features.rogue.expertise
 type: feature
 choices:
   - id: skills
+    recommend: >-
+      (filterList(['skill.sleight-of-hand', 'skill.stealth', 'skill.perception',
+        'skill.acrobatics'], x in options) + options)[0]
     slots: [1, 6]
     when: self.level >= slot
     pick: 2
@@ -27,12 +30,5 @@ choices:
         - skill.survival
       where: value in proficiencies.skills
     eligible: '!(value in proficiencies.expertise) || value in choice.picks'
-    recommend: >-
-      'skill.sleight-of-hand' in proficiencies.skills && !('skill.sleight-of-hand' in choice.picks)
-          && !('skill.sleight-of-hand' in proficiencies.expertise)
-        ? 'skill.sleight-of-hand'
-        : 'skill.stealth' in proficiencies.skills && !('skill.stealth' in choice.picks)
-          && !('skill.stealth' in proficiencies.expertise)
-        ? 'skill.stealth' : ''
     effects:
       - { target: proficiencies.expertise, op: grant, value: { formula: pick.value } }

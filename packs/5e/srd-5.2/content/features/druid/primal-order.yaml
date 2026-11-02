@@ -2,6 +2,7 @@ id: features.druid.primal-order
 type: feature
 choices:
   - id: order
+    recommend: options[0]
     from:
       options:
         - id: magician
@@ -10,6 +11,7 @@ choices:
             - { target: skills.nature, op: add, value: 'max(1, abilities.wis.mod)' }
           choices:
             - id: cantrip
+              recommend: options[0]
               from: { type: spell, where: 'item.level == 0 && @classes.druid in item.classes' }
               eligible: '!(item.id in spells.druid) || item.id in choice.picks'
               effects:

@@ -52,6 +52,9 @@ grants:
   - { item: features.ranger.foe-slayer, when: self.level >= 20 }
 choices:
   - id: skills
+    recommend: >-
+      (filterList(['skill.perception', 'skill.stealth', 'skill.survival'], x in options) +
+        options)[0]
     pick: 3
     unique: skills
     from:
@@ -69,6 +72,9 @@ choices:
     effects:
       - { target: proficiencies.skills, op: grant, value: { formula: pick.value } }
   - id: multiclass-skill
+    recommend: >-
+      (filterList(['skill.perception', 'skill.stealth', 'skill.survival'], x in options) +
+        options)[0]
     unique: skills
     from:
       values: *skills

@@ -2,7 +2,9 @@ id: features.fighter.additional-fighting-style
 type: feature
 choices:
   - id: style
+    recommend: >-
+      (filterList([@feats.defense, @feats.great-weapon-fighting, @feats.archery], x in options) +
+        options)[0]
     from: { type: feat, where: "item.category == 'fighting-style'" }
     unique: feats
     eligible: "!(item.id in feats.held) || item.id in choice.picks || 'repeatable' in item.tags"
-    recommend: '@feats.defense'

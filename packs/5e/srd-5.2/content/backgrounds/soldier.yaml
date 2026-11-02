@@ -49,12 +49,16 @@ choices:
             - { target: abilities.dex.base, op: add, value: 1 }
             - { target: abilities.con.base, op: add, value: 1 }
   - id: gaming-set
+    recommend: options[0]
     from: { type: tool, where: "item.category == 'gaming-set'" }
     activate: false
     eligible: '!(item.id in proficiencies.tools) || item.id in choice.picks'
     effects:
       - { target: proficiencies.tools, op: grant, value: { formula: pick.id } }
   - id: languages
+    recommend: >-
+      (filterList([@languages.dwarvish, @languages.elvish, @languages.giant, @languages.goblin,
+        @languages.halfling], x in options) + options)[0]
     pick: 2
     unique: languages
     from: { type: language, where: '!item.rare' }

@@ -4,6 +4,9 @@ grants:
   - item: languages.thieves-cant
 choices:
   - id: language
+    recommend: >-
+      (filterList([@languages.dwarvish, @languages.elvish, @languages.giant, @languages.goblin,
+        @languages.halfling], x in options) + options)[0]
     from: { type: language, where: "!('monster' in item.tags)" }
     eligible: >-
       item.id != @languages.thieves-cant

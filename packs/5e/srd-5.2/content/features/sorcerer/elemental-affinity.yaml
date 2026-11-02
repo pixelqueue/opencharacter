@@ -12,6 +12,7 @@ effects:
           || (has(roll.item.damage2Type) && roll.item.damage2Type == sorcerer.affinity))
 choices:
   - id: damage-type
+    recommend: options[0]
     from: { values: [acid, cold, fire, lightning, poison] }
     effects:
       - { target: sorcerer.affinity, op: set, value: pick.value }

@@ -51,6 +51,9 @@ choices:
             - { target: abilities.wis.base, op: add, value: 1 }
             - { target: abilities.cha.base, op: add, value: 1 }
   - id: languages
+    recommend: >-
+      (filterList([@languages.dwarvish, @languages.elvish, @languages.giant, @languages.goblin,
+        @languages.halfling], x in options) + options)[0]
     pick: 2
     unique: languages
     from: { type: language, where: '!item.rare' }

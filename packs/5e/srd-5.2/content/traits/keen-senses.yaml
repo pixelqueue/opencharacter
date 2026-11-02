@@ -2,11 +2,10 @@ id: traits.keen-senses
 type: trait
 choices:
   - id: skill
-    unique: skills
     recommend: >-
-      (filterList(['skill.perception', 'skill.insight', 'skill.survival'],
-        !(x in proficiencies.skills) || x in choice.picks)
-        + ['skill.perception', 'skill.insight', 'skill.survival'])[0]
+      (filterList(['skill.perception', 'skill.insight', 'skill.survival'], x in options) +
+        options)[0]
+    unique: skills
     from:
       values: [skill.insight, skill.perception, skill.survival]
       where: >-

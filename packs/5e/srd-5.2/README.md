@@ -51,8 +51,8 @@ const sheet = computeSheet(ruleset, applied.character);
 console.log(en['fields.hp.max.name'], sheet.values['5e-srd-5.2:hp.max']?.value);
 ```
 
-The guided start (`standard`) runs the same action and pauses for each pick; a `level` parameter
-starts higher. A monster is made with `create-monster`. The
+The guided start (`standard`) runs the same action and asks each pick, recommending one, so an
+automatic run finishes too; a `level` parameter starts higher. A monster is made with `create-monster`. The
 [quick start](https://opencharacterformat.org/guides/quick-start/) and the
 [guides](https://opencharacterformat.org/guides/) explain each call.
 
@@ -105,7 +105,12 @@ Where the SRD is unclear or silent, the pack reads it this way:
   next.
 - **The guided start** recommends the Standard Array by Class (point buy at the same spread, 27
   points) and every pick the SRD recommends (a Fighting Style, an Epic Boon, Skilled for a human,
-  the class's example weapon masteries).
+  the class's example weapon masteries). Every other pick, at creation and on a level-up,
+  recommends one of the options it offers (`recommend` over `options`): a short list of usual
+  picks first (the class's skills, a caster's staple spells, a few common languages), then the
+  highest-level spell or the first option. Invocations recommend only ones whose level
+  prerequisite the warlock meets. So an automatic run of either start, or of a level-up,
+  finishes.
 - **Starting higher:** the character starts with the minimum experience for the level, and the
   level-up offers take it there one level at a time; levels 5 and up roll the extra gold of the
   Starting Equipment at Higher Levels table. Coins are tracked (`coins.*`), since a starting

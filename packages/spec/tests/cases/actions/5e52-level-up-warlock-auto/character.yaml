@@ -1,0 +1,97 @@
+specVersion: 0.1.0
+id: test
+packs:
+  - id: 5e-srd-5.2
+    version: 0.3.0
+features:
+  - id: class
+    item: 5e-srd-5.2:classes.warlock
+    state:
+      level: 1
+      startingClass: true
+    choices:
+      skills:
+        - option: skill.arcana
+        - option: skill.deception
+      5e-srd-5.2:features.warlock.eldritch-invocations/invocation-1:
+        - option: 5e-srd-5.2:invocations.pact-of-the-tome
+          choices:
+            cantrips:
+              - option: 5e-srd-5.2:spells.mage-hand
+              - option: 5e-srd-5.2:spells.minor-illusion
+              - option: 5e-srd-5.2:spells.message
+            rituals:
+              - option: 5e-srd-5.2:spells.detect-magic
+              - option: 5e-srd-5.2:spells.find-familiar
+      5e-srd-5.2:features.warlock.pact-magic/cantrips:
+        - option: 5e-srd-5.2:spells.eldritch-blast
+        - option: 5e-srd-5.2:spells.prestidigitation
+      5e-srd-5.2:features.warlock.pact-magic/prepared:
+        - option: 5e-srd-5.2:spells.charm-person
+        - option: 5e-srd-5.2:spells.hex
+  - id: background
+    item: 5e-srd-5.2:backgrounds.acolyte
+    choices:
+      ability-increase:
+        - option: two-and-one
+          choices:
+            plus-two:
+              - option: cha
+            plus-one:
+              - option: int
+      languages:
+        - option: 5e-srd-5.2:languages.dwarvish
+        - option: 5e-srd-5.2:languages.elvish
+      5e-srd-5.2:feats.magic-initiate/list:
+        - option: cleric
+          choices:
+            ability:
+              - option: cha
+            cantrips:
+              - option: 5e-srd-5.2:spells.guidance
+              - option: 5e-srd-5.2:spells.light
+            spell:
+              - option: 5e-srd-5.2:spells.bane
+  - id: species
+    item: 5e-srd-5.2:species.dragonborn
+    choices:
+      lineage:
+        - option: 5e-srd-5.2:lineages.black-dragon
+values:
+  5e-srd-5.2:abilities.str.base: 8
+  5e-srd-5.2:abilities.dex.base: 14
+  5e-srd-5.2:abilities.con.base: 13
+  5e-srd-5.2:abilities.int.base: 12
+  5e-srd-5.2:abilities.wis.base: 10
+  5e-srd-5.2:abilities.cha.base: 15
+  5e-srd-5.2:coins.gp: 23
+  5e-srd-5.2:hp.base: 8
+  5e-srd-5.2:hp.current: 9
+inventory:
+  - id: armor-leather-1
+    item: 5e-srd-5.2:armor.leather
+    equipped: true
+  - id: weapons-sickle-1
+    item: 5e-srd-5.2:weapons.sickle
+    equipped: true
+  - id: weapons-dagger-1
+    item: 5e-srd-5.2:weapons.dagger
+    equipped: true
+    quantity: 2
+  - id: gear-orb-1
+    item: 5e-srd-5.2:gear.orb
+  - id: gear-book-1
+    item: 5e-srd-5.2:gear.book
+  - id: gear-scholars-pack-1
+    item: 5e-srd-5.2:gear.scholars-pack
+  - id: tools-calligraphers-supplies-1
+    item: 5e-srd-5.2:tools.calligraphers-supplies
+  - id: gear-book-2
+    item: 5e-srd-5.2:gear.book
+  - id: gear-parchment-1
+    item: 5e-srd-5.2:gear.parchment
+    quantity: 10
+  - id: gear-robe-1
+    item: 5e-srd-5.2:gear.robe
+  - id: gear-amulet-1
+    item: 5e-srd-5.2:gear.amulet

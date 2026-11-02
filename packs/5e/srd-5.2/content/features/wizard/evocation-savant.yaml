@@ -2,6 +2,7 @@ id: features.wizard.evocation-savant
 type: feature
 choices:
   - id: spells
+    recommend: "sortList(options, -itemField(x, 'level'))[0]"
     pick: 2
     unique: spellbook
     from:
@@ -12,6 +13,7 @@ choices:
     effects:
       - { target: spells.wizardBook, op: grant, value: { formula: pick.id } }
   - id: new-level
+    recommend: "sortList(options, -itemField(x, 'level'))[0]"
     slots: [5, 7, 9, 11, 13, 15, 17]
     when: self.level >= slot
     unique: spellbook

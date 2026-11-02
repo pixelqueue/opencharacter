@@ -2,11 +2,11 @@ id: traits.skillful
 type: trait
 choices:
   - id: skill
-    unique: skills
     recommend: >-
-      filterList(['skill.perception', 'skill.insight', 'skill.athletics', 'skill.stealth',
+      (filterList(['skill.perception', 'skill.insight', 'skill.athletics', 'skill.stealth',
         'skill.persuasion', 'skill.survival', 'skill.investigation', 'skill.arcana'],
-        !(x in proficiencies.skills) || x in choice.picks)[0]
+        x in options) + options)[0]
+    unique: skills
     from:
       values:
         [

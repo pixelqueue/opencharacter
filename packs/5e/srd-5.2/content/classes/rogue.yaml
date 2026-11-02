@@ -52,6 +52,9 @@ grants:
   - { item: features.rogue.stroke-of-luck, when: self.level >= 20 }
 choices:
   - id: skills
+    recommend: >-
+      (filterList(['skill.acrobatics', 'skill.perception', 'skill.sleight-of-hand',
+        'skill.stealth'], x in options) + options)[0]
     pick: 4
     unique: skills
     from:
@@ -71,6 +74,9 @@ choices:
     effects:
       - { target: proficiencies.skills, op: grant, value: { formula: pick.value } }
   - id: multiclass-skill
+    recommend: >-
+      (filterList(['skill.acrobatics', 'skill.perception', 'skill.sleight-of-hand',
+        'skill.stealth'], x in options) + options)[0]
     unique: skills
     from:
       values: *skills

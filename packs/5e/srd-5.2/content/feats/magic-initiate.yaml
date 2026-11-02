@@ -101,11 +101,13 @@ choices:
                         op: set
                         value: proficiency.bonus + abilities.cha.mod
             - id: cantrips
+              recommend: options[0]
               pick: 2
               from: { type: spell, where: 'item.level == 0 && @classes.cleric in item.classes' }
               effects:
                 - { target: spells.initiateCleric, op: grant, value: { formula: pick.id } }
             - id: spell
+              recommend: options[0]
               from: { type: spell, where: 'item.level == 1 && @classes.cleric in item.classes' }
               effects:
                 - { target: spells.initiateCleric, op: grant, value: { formula: pick.id } }
@@ -158,11 +160,13 @@ choices:
                         op: set
                         value: proficiency.bonus + abilities.cha.mod
             - id: cantrips
+              recommend: options[0]
               pick: 2
               from: { type: spell, where: 'item.level == 0 && @classes.druid in item.classes' }
               effects:
                 - { target: spells.initiateDruid, op: grant, value: { formula: pick.id } }
             - id: spell
+              recommend: options[0]
               from: { type: spell, where: 'item.level == 1 && @classes.druid in item.classes' }
               effects:
                 - { target: spells.initiateDruid, op: grant, value: { formula: pick.id } }
@@ -215,11 +219,13 @@ choices:
                         op: set
                         value: proficiency.bonus + abilities.cha.mod
             - id: cantrips
+              recommend: options[0]
               pick: 2
               from: { type: spell, where: 'item.level == 0 && @classes.wizard in item.classes' }
               effects:
                 - { target: spells.initiateWizard, op: grant, value: { formula: pick.id } }
             - id: spell
+              recommend: options[0]
               from: { type: spell, where: 'item.level == 1 && @classes.wizard in item.classes' }
               effects:
                 - { target: spells.initiateWizard, op: grant, value: { formula: pick.id } }

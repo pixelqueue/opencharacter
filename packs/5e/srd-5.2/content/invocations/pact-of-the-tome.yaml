@@ -2,6 +2,9 @@ id: invocations.pact-of-the-tome
 type: invocation
 choices:
   - id: cantrips
+    recommend: >-
+      (filterList([@spells.mage-hand, @spells.minor-illusion, @spells.message], x in options) +
+        options)[0]
     pick: 3
     from: { type: spell, where: item.level == 0 }
     eligible: >-
@@ -10,6 +13,8 @@ choices:
     effects:
       - { target: spells.warlock, op: grant, value: { formula: pick.id } }
   - id: rituals
+    recommend: >-
+      (filterList([@spells.detect-magic, @spells.find-familiar], x in options) + options)[0]
     pick: 2
     from: { type: spell, where: item.level == 1 && has(item.ritual) && item.ritual }
     eligible: >-

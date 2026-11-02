@@ -2,6 +2,9 @@ id: features.bard.expertise
 type: feature
 choices:
   - id: skills
+    recommend: >-
+      (filterList(['skill.performance', 'skill.persuasion', 'skill.deception', 'skill.insight'],
+        x in options) + options)[0]
     slots: [2, 9]
     pick: 2
     when: self.level >= slot
@@ -27,8 +30,5 @@ choices:
         - skill.survival
       where: value in proficiencies.skills
     eligible: '!(value in proficiencies.expertise) || value in choice.picks'
-    recommend: >-
-      filterList(['skill.performance', 'skill.persuasion'], x in proficiencies.skills
-        && !(x in proficiencies.expertise) && !(x in choice.picks))[0]
     effects:
       - { target: proficiencies.expertise, op: grant, value: { formula: pick.value } }

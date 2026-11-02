@@ -2,6 +2,9 @@ id: features.ranger.deft-explorer
 type: feature
 choices:
   - id: expertise
+    recommend: >-
+      (filterList(['skill.stealth', 'skill.perception', 'skill.survival'], x in options) +
+        options)[0]
     from:
       values: &skills
         - skill.acrobatics
@@ -27,6 +30,9 @@ choices:
     effects:
       - { target: proficiencies.expertise, op: grant, value: { formula: pick.value } }
   - id: languages
+    recommend: >-
+      (filterList([@languages.dwarvish, @languages.elvish, @languages.giant, @languages.goblin,
+        @languages.halfling], x in options) + options)[0]
     pick: 2
     from: { type: language, where: "!('monster' in item.tags)" }
     eligible: '!(item.id in proficiencies.languages) || item.id in choice.picks'

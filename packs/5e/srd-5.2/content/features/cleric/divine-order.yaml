@@ -2,6 +2,7 @@ id: features.cleric.divine-order
 type: feature
 choices:
   - id: order
+    recommend: options[0]
     from:
       options:
         - id: protector
@@ -16,6 +17,7 @@ choices:
             - { target: skills.religion, op: add, value: 'max(1, abilities.wis.mod)' }
           choices:
             - id: cantrip
+              recommend: options[0]
               from: { type: spell, where: 'item.level == 0 && @classes.cleric in item.classes' }
               eligible: '!(item.id in spells.cleric) || item.id in choice.picks'
               effects:

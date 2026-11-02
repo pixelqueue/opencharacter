@@ -7,13 +7,13 @@ effects:
   - { target: spellcasting.casterLevel, op: add, value: ceil(self.level / 2) }
 choices:
   - id: spells
+    recommend: >-
+      (filterList([@spells.heroism, @spells.searing-smite], x in options) + sortList(options,
+        -itemField(x, 'level')))[0]
     pick: '[2, 3, 4, 5, 6, 6, 7, 7, 9, 9, 10, 10, 11, 11, 12, 12, 14, 14, 15, 15][self.level - 1]'
     from: { type: spell, where: 'item.level >= 1 && @classes.paladin in item.classes' }
     eligible: >-
       item.level <= min(5, ceil(self.level / 4))
         && (!(item.id in spells.paladin) || item.id in choice.picks)
-    recommend: >-
-      !(@spells.heroism in choice.picks) ? @spells.heroism
-        : !(@spells.searing-smite in choice.picks) ? @spells.searing-smite : ''
     effects:
       - { target: spells.paladin, op: grant, value: { formula: pick.id } }

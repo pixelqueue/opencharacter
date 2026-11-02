@@ -2,6 +2,9 @@ id: features.barbarian.primal-knowledge
 type: feature
 choices:
   - id: skill
+    recommend: >-
+      (filterList(['skill.athletics', 'skill.intimidation', 'skill.perception', 'skill.survival'],
+        x in options) + options)[0]
     unique: skills
     from:
       values:
