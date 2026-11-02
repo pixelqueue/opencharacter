@@ -83,15 +83,15 @@ choices:
 
 situational:
   # Veteran's Luck against an attack: once a scene, an attack roll that hit is treated as a miss.
-  # Selected on the hit's damage; the whole attack's batch takes none.
+  # Selected on the weapon hit's damage (`damage.weapon`); the whole attack's batch takes none.
   - id: veteransLuck
     type: boolean
     default: false
-    incoming: { fields: [hp.current], tags: [damage] }
+    incoming: { fields: [hp.current], tags: [damage.weapon] }
     scope: batch
     available: '@edges.veterans-luck in edges.taken && !scene.veteransLuck'
     effects:
-      - target: { incoming: { fields: [hp.current], tags: [damage] } }
+      - target: { incoming: { fields: [hp.current], tags: [damage.weapon] } }
         op: multiply
         value: 0
     changes:

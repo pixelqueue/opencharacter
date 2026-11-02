@@ -97,8 +97,8 @@ the player's choices and other characters.
   the Trauma Die and Traumatic Hits, Killing Blow, Armsmaster and Deadeye. Veteran's Luck, once a
   scene (`scene.veteransLuck`, cleared by `end-scene` and `rest`), turns a missed attack into a
   hit (an option on the attack's `missed-attack` step) or a hit against the character into a
-  miss (the `veteransLuck` situational choice on the hit's damage: the attack's batch takes
-  none, Damage Soak untouched). Each weapon adds the
+  miss (the `veteransLuck` situational choice on a weapon hit's damage, tagged `damage.weapon`
+  as the attack deals it: the attack's batch takes none, Damage Soak untouched). Each weapon adds the
   parameters it uses: the attribute for a Str/Dex weapon, throwing for a melee weapon with a
   range, burst fire for a burst weapon. Weapons track their magazines, and each weapon copy
   computes its hit bonus, damage bonus and Shock as an attack with it starts (`hit`, `damage`,

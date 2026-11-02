@@ -225,11 +225,13 @@ actions:
           - { value: flags.meleeHit, when: flags.meleeHit != 0 }
           - { value: 2, when: flags.burst, tags: [attack.burst] }
           - { value: params.modifier, when: has(params.modifier) }
-      # A miss against a known AC: content may turn it into a hit (Veteran's Luck).
+      # A miss against a known AC, with Veteran's Luck unspent: the edge may turn it into a hit.
       - id: luck
         kind: choice
         tags: [missed-attack]
-        when: "flags.ac >= 0 && steps.hit.band == 'miss'"
+        when: >-
+          flags.ac >= 0 && steps.hit.band == 'miss' && @edges.veterans-luck in edges.taken
+            && !scene.veteransLuck
         options: [{ id: accept }]
         recommend: "'accept'"
       - id: landed
