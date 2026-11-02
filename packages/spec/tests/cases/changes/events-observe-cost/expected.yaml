@@ -1,0 +1,19 @@
+# The halved hits keep their tags; the cost, paid once after the batch, has none and no sender.
+ok: true
+observe:
+  type: observe
+  character: test
+  adjustments:
+    - field: test-reactions:hp
+      by: -3
+      requested: -6
+      taken: -3
+      reason: requested
+      tags: [attack, damage.slashing]
+    - field: test-reactions:hp
+      by: -2
+      requested: -4
+      taken: -2
+      reason: requested
+      tags: [attack, damage.fire]
+    - { field: test-reactions:focus, by: -1, requested: -1, taken: -1, reason: requested }

@@ -1361,7 +1361,8 @@ pass on, that other characters' follow-ups react to ([rules-and-fields.md](rules
 - `adjustments`: each field entry of the batch, in order, as `{ field, by, requested?, taken?,
   reason, clamped?, tags?, from? }`: what `adjustments` lists, with the entry's tags (as an `on`
   follow-up's `change.tags` has them; left out when none), `clamped` only when true, and who
-  sent it;
+  sent it. A situational choice's `changes` (a reaction's cost) are the character's own: their
+  entries come after the batch's, with no sender;
 - `applied`: the applied entries that name an applier, on the character before the batch and
   then after it, each `{ source, appliedBy }`, once per pair; left out when none. A creature
   whose mark the damage ended still names its marker.
