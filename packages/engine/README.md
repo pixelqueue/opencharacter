@@ -41,24 +41,30 @@ character and roll an attack.
 The engine calls, as the spec defines them
 ([engine interface](https://opencharacterformat.org/spec/engine-interface/)):
 
-| Export                          | What it does                                                                  |
-| ------------------------------- | ----------------------------------------------------------------------------- |
-| `loadRuleset`                   | Merges packs (releases or sources) into a ruleset and checks every reference. |
-| `computeSheet`                  | A character's computed values, actions, choices and issues.                   |
-| `listOptions`                   | The options a choice offers, with what each would need.                       |
-| `applyChanges`                  | A new character file with changes applied; the one passed in is untouched.    |
-| `startAction`, `continueAction` | Run an action: rolls, pauses for the player's input, outcomes.                |
-| `upgrade`, `checkRelease`       | Move a character to newer pack versions; check a pack release.                |
-| `withHomebrew`                  | A ruleset with a character's own homebrew added.                              |
-| `resolveId`                     | Resolves an ID as formulas do.                                                |
-| `buildRelease`                  | Builds a pack release from pack sources.                                      |
-| `randomDice`, `diceFrom`        | The dice an action rolls: random, or from given results.                      |
-| `formula`, `check`              | The formula parser, printer and type checker; the pack formula checks.        |
-| `SPEC_VERSION`                  | The spec version it ships with.                                               |
-| `IMPLEMENTS_SPEC`               | The spec major.minor versions it implements, derived from `SPEC_VERSION`.     |
+| Export                                           | What it does                                                                              |
+| ------------------------------------------------ | ----------------------------------------------------------------------------------------- |
+| `loadRuleset`                                    | Merges packs (releases or sources) into a ruleset and checks every reference.             |
+| `computeSheet`                                   | Every value with its breakdown, plus actions, choices, effects, offers, auras and issues. |
+| `listOptions`                                    | The options a choice offers, with what each would need.                                   |
+| `applyChanges`                                   | A new character file with changes applied; the one passed in is untouched.                |
+| `describeAction`                                 | An action's parameters, roles, tags and results, before it runs.                          |
+| `startAction`, `continueAction`                  | Run an action: rolls, pauses for the player's input, outcomes.                            |
+| `upgrade`, `checkRelease`                        | Move a character to newer pack versions; check a pack release.                            |
+| `withHomebrew`                                   | A ruleset with a character's own homebrew added.                                          |
+| `resolveId`                                      | Resolves an ID as formulas do.                                                            |
+| `buildRelease`                                   | Builds a pack release from pack sources.                                                  |
+| `createExport`, `readExport`, `releaseIntegrity` | Write and read an export file with its packs; a release's integrity hash.                 |
+| `randomDice`, `diceFrom`                         | The dice an action rolls: random, or from given results.                                  |
+| `formula`, `check`                               | The formula parser, printer and type checker; the pack formula checks.                    |
+| `SPEC_VERSION`                                   | The spec version it ships with.                                                           |
+| `IMPLEMENTS_SPEC`                                | The spec major.minor versions it implements, derived from `SPEC_VERSION`.                 |
+
+Calls that read other characters take `links` (the views of the characters filling its link
+slots) and `appliers` (the views of the characters whose auras it is in).
 
 The types (`CharacterFile`, `Ruleset`, `PackRelease` and the call inputs and outputs) come with
-it. The [guides](https://opencharacterformat.org/guides/) show each call in an app, and the
+it, and `spec` holds every type generated from the schemas. The
+[guides](https://opencharacterformat.org/guides/) show each call in an app, and the
 [spec](https://opencharacterformat.org/spec/) defines them; the engine passes the spec's shared
 conformance suite, in [`@opencharacter/spec`](https://www.npmjs.com/package/@opencharacter/spec).
 
@@ -67,9 +73,11 @@ conformance suite, in [`@opencharacter/spec`](https://www.npmjs.com/package/@ope
 `listOptions` evaluates an option's prerequisites on a trial sheet only for options that declare
 prerequisites. A sheet runs a query choice's query once per choice and keeps the item views its
 queries build. Results depend only on a call's input. A few caches outlive a call, but
-none changes a result: item views that read no input field, kept per ruleset, and the sheets
-and option lists of an action's run, which the paused result carries to the next answer, so a
-replay doesn't build them again.
+none changes a result: item views that read no input field and the rules actions content `use`s,
+kept per ruleset; the actor's sheet for the last 8 inputs (file, links and appliers) of
+`startAction` and `continueAction`, kept per ruleset; and the sheets and option lists of an
+action's run, which the paused result carries to the next answer, so a replay doesn't build them
+again. What a run returns is its own copy, so editing it changes no later run.
 
 ## License
 

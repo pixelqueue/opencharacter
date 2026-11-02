@@ -12,31 +12,33 @@ The documentation website (https://opencharacterformat.org/) is built from these
 
 ## Where things live
 
-| Path                     | What                                                                                                                                                                   |
-| ------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `packages/spec/schemas/` | JSON Schemas (draft 2020-12); `engine/` holds call inputs and outputs                                                                                                  |
-| `packages/spec/data/`    | Fixed sets as data (effect operations, dice modifiers, change types, stacking policies, error codes, formula context, …)                                               |
-| `packages/spec/docs/`    | Spec docs for implementers                                                                                                                                             |
-| `packages/spec/i18n/`    | Standard text for the spec's error and rules-issue codes                                                                                                               |
-| `packages/spec/tests/`   | Shared conformance test suite                                                                                                                                          |
-| `packages/engine/`       | Reference engine (TypeScript)                                                                                                                                          |
-| `packages/text/`         | Wording helper (TypeScript): engine output to finished text                                                                                                            |
-| `packages/packs/`        | The `@opencharacter/packs` bundle of every official pack                                                                                                               |
-| `apps/web-editor/`       | Local pack editor (`pnpm editor`); private, never published                                                                                                            |
-| `apps/website/`          | Documentation website (Astro Starlight, GitHub Pages): guides, glossary, and the spec synced in; private, never published                                              |
-| `packs/<game>/<pack>/`   | One pack (ID `<game>-<pack>`, version from 0.1.0): `pack.yaml`, `rules/`, `content/`, `i18n/`, `upgrades/`. A game folder holds that game's editions and content packs |
-| `examples/`              | Example character files (`characters/`) and exports (`exports/`)                                                                                                       |
-| `scripts/`               | `validate`, `build:packs`, `release:check`, `release:setup` and `types`                                                                                                |
+| Path                                | What                                                                                                                                                                   |
+| ----------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `packages/spec/schemas/`            | JSON Schemas (draft 2020-12); `engine/` holds call inputs and outputs                                                                                                  |
+| `packages/spec/data/`               | Fixed sets as data (effect operations, dice modifiers, change types, stacking policies, error codes, formula context, …)                                               |
+| `packages/spec/docs/`               | Spec docs for implementers                                                                                                                                             |
+| `packages/spec/i18n/`               | Standard text for the spec's error and rules-issue codes                                                                                                               |
+| `packages/spec/tests/`              | Shared conformance test suite: `cases/` and the test-only packs in `packs/`                                                                                            |
+| `packages/engine/`                  | Reference engine (TypeScript)                                                                                                                                          |
+| `packages/text/`                    | Wording helper (TypeScript): engine output to finished text                                                                                                            |
+| `packages/packs/`                   | The `@opencharacter/packs` bundle of every official pack                                                                                                               |
+| `apps/web-editor/`                  | Local pack editor (`pnpm editor`); private, never published                                                                                                            |
+| `apps/website/`                     | Documentation website (Astro Starlight, GitHub Pages): guides, glossary, and the spec synced in; private, never published                                              |
+| `packs/<game>/<pack>/`              | One pack (ID `<game>-<pack>`, version from 0.1.0): `pack.yaml`, `rules/`, `content/`, `i18n/`, `upgrades/`. A game folder holds that game's editions and content packs |
+| `examples/`                         | Example character files (`characters/`) and exports (`exports/`)                                                                                                       |
+| `scripts/`                          | `validate`, `build:packs`, `release:check`, `release:setup` and `types`                                                                                                |
+| `scripts/release/upgrade-fixtures/` | Saved data of an old shape and what each upgrade script must leave                                                                                                     |
+| `.changeset/`                       | Pending changesets; `pnpm changeset` adds one                                                                                                                          |
 
 ## Commands
 
 | Command                 | Does                                                                                                                                                                                                                                    |
 | ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `pnpm install`          | Install (Node 26, pnpm 10)                                                                                                                                                                                                              |
+| `pnpm install`          | Install (pnpm 10; Node 26 per `.nvmrc`, 22 and 24 work)                                                                                                                                                                                 |
 | `pnpm lint`             | oxlint, then oxfmt in check mode                                                                                                                                                                                                        |
 | `pnpm format`           | Format everything with oxfmt (TS, JSON, YAML, Markdown)                                                                                                                                                                                 |
 | `pnpm typecheck`        | TypeScript, strict                                                                                                                                                                                                                      |
-| `pnpm test`             | Vitest: schemas, fixed sets, validator, engine, conformance suite, release scripts; the upgrade-fixture test needs git tags                                                                                                             |
+| `pnpm test`             | Vitest: schemas, fixed sets, validator, engine, text, conformance suite, editor, the guides' code samples and the scripts; the upgrade-fixture test needs git tags                                                                      |
 | `pnpm validate`         | Check every pack, example character and example export against the schemas and check every reference                                                                                                                                    |
 | `pnpm types`            | Regenerate the TypeScript types in `packages/spec/src/types.ts` from the schemas (run after changing a schema)                                                                                                                          |
 | `pnpm editor`           | Start the local pack editor (`apps/web-editor`) at http://127.0.0.1:5173                                                                                                                                                                |

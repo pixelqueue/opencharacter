@@ -23,10 +23,15 @@ import specEn from '@opencharacter/spec/i18n/en';
 
 const loaded = loadRuleset([packs['5e-srd-5.1']]);
 if (!loaded.ok) throw new Error(JSON.stringify(loaded.errors));
-const text = createText({ languages: ['en'], packs: { en: packsEn }, spec: { en: specEn } });
+const text = createText({
+  languages: ['en'],
+  packs: { en: packsEn },
+  spec: { en: specEn },
+  content: loaded.ruleset.content, // for the headline's class and subrace
+});
 
 const sheet = computeSheet(loaded.ruleset, character);
-text.choicePrompt(sheet.choices[0]); // 'Choose two Trained skills'
+text.choicePrompt(sheet.choices[0]); // 'Choose two wizard skills'
 text.headline(sheet, character); // 'Level 3 Hill dwarf Wizard'
 describeNeed(loaded.ruleset, text, paused.needs, { character }); // { title, options, fields, … }
 ```
@@ -36,8 +41,8 @@ describeNeed(loaded.ruleset, text, paused.needs, { character }); // { title, opt
 ## API
 
 - `createText(options)`: the text bundle for the given languages (the first that has a key wins):
-  names and descriptions of fields, content and actions, choice prompts, issues, roll summaries,
-  headlines and blocks.
+  names and descriptions of fields, content, actions and their parameters (those content adds
+  too), choice prompts and options, issues, roll summaries, headlines and blocks.
 - `describeNeed(ruleset, text, needs, context)`: one call per pause of an action, the text for
   each thing it asks of the player.
 - `keys`: the key builders, for apps with their own formatter.
