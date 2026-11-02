@@ -4,12 +4,18 @@ fields:
   ancestry: ancestries.hakaan
   cost: 2
 effects:
-  # Doomed: a tier 3 outcome on tests and ability rolls, and no death however low Stamina falls.
+  # Doomed: a tier 3 outcome on tests and ability rolls.
   - target: { rolls: [power-roll.test, power-roll.ability], tally: autoTier3 }
     op: add
     value: 1
     when: hakaan.doomed
-  - { target: stamina.dead, op: set, value: 'false', when: hakaan.doomed }
+  # Doomed or not, no death at the threshold: doomed, the hero fights on; otherwise they turn to
+  # rubble (the 12 hours and the Stamina regained are the table's, as is the death that ends a
+  # doomed encounter).
+  - { target: stamina.dead, op: set, value: 'false' }
+  - target: ancestry.inert
+    op: set
+    value: '!hakaan.doomed && stamina.current <= -stamina.winded'
 actions:
   - id: become-doomed
     available: '!hakaan.doomed'

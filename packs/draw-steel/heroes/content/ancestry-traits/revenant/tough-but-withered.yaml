@@ -10,3 +10,16 @@ effects:
   - { target: immunity.lightning, op: atLeast, value: level }
   - { target: immunity.poison, op: atLeast, value: level }
   - { target: weakness.fire, op: atLeast, value: 5 }
+  # At the negative of the winded value: inert instead of dead; fire damage while inert destroys
+  # the body. Falling prone, the 12 hours and the Stamina regained are the table's.
+  - target: ancestry.inert
+    op: set
+    value: 'stamina.current <= -stamina.winded && !revenant.destroyed'
+  - { target: stamina.dead, op: set, value: revenant.destroyed }
+followUps:
+  - id: destroyed
+    on: { field: stamina.current, tags: [damage.fire] }
+    when: ancestry.inert && change.taken < 0
+    required: true
+    changes:
+      - { type: set, field: revenant.destroyed, value: 'true' }

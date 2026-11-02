@@ -9,6 +9,10 @@ fields:
   orc.bloodfireRush: { type: boolean, input: true, default: false }
   # Doomsight: doomed, until the end of the encounter.
   hakaan.doomed: { type: boolean, input: true, default: false }
+  # At the death threshold, inert (a revenant) or rubble (a hakaan) instead of dead.
+  ancestry.inert: { type: boolean, formula: 'false' }
+  # A revenant's inert body destroyed by fire: dead.
+  revenant.destroyed: { type: boolean, input: true, default: false }
 
 situational:
   # Draconian Guard: a triggered action that reduces a strike's damage by the level.
@@ -32,3 +36,8 @@ situational:
         op: multiply
         value: 0.5
         when: "countList(keysOf('damageType'), 'damage.' + x in incoming.tags) > 0"
+
+display:
+  fields:
+    ancestry.inert: { groups: [summary, stamina], priority: 2, showWhen: ancestry.inert }
+    revenant.destroyed: { hidden: true }
