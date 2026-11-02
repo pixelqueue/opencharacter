@@ -18,17 +18,14 @@ fields:
   rollChars:
     - might
   damageType: untyped
-  t1Damage: 0
+  t1Damage: 7
   t1AddsChar: false
-  t2Damage: 0
+  t2Damage: 10
   t2AddsChar: false
-  t3Damage: 0
+  t3Damage: 15
   t3AddsChar: false
 effects:
-  # The damage is the stormwight kit's primordial damage type: the tiers' damage ([7,10,15]) is
-  # added here with that type's tag, so immunity and weakness see it.
-  - target: { rolls: [damage], from: self }
-    op: add
-    when: roll.item.id == item.id
-    value: 'flags.tier > 0 ? [7,10,15][flags.tier - 1] : 0'
-    tags: [{ formula: "fury.primordialType == 'none' ? [] : ['damage.' + fury.primordialType]" }]
+  # The damage is the stormwight kit's primordial damage type, so immunity and weakness see it.
+  - target: { rolls: [damage], parts: [ability.damage], from: self }
+    op: tag
+    value: [{ formula: "fury.primordialType == 'none' ? [] : ['damage.' + fury.primordialType]" }]

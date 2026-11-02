@@ -485,13 +485,19 @@ actions:
             }
         parts:
           - value: '[item.t1Damage, has(item.t2Damage) ? item.t2Damage : 0, has(item.t3Damage) ? item.t3Damage : 0][flags.tier - 1]'
-            tags: [{ formula: "item.damageType == 'untyped' ? [] : ['damage.' + item.damageType]" }]
+            tags:
+              - ability.damage
+              - { formula: "item.damageType == 'untyped' ? [] : ['damage.' + item.damageType]" }
           - field: "'characteristics.' + flags.char + '.score'"
             when: "flags.char != 'none' && [item.t1AddsChar, item.t2AddsChar, item.t3AddsChar][flags.tier - 1]"
-            tags: [{ formula: "item.damageType == 'untyped' ? [] : ['damage.' + item.damageType]" }]
+            tags:
+              - ability.damage
+              - { formula: "item.damageType == 'untyped' ? [] : ['damage.' + item.damageType]" }
           - value: params.surges * characteristics.highest
             when: flags.surges > 0 && params.surges > 0 && participant.id == participants.target[0].id
-            tags: [{ formula: "item.damageType == 'untyped' ? [] : ['damage.' + item.damageType]" }]
+            tags:
+              - ability.damage
+              - { formula: "item.damageType == 'untyped' ? [] : ['damage.' + item.damageType]" }
       - id: hit
         kind: changes
         each: target
@@ -518,7 +524,9 @@ actions:
         tags: [damage]
         parts:
           - value: '[self.damage1, self.damage2, self.damage3][steps.roll.bandValue - 1]'
-            tags: [{ formula: "item.damageType == 'untyped' ? [] : ['damage.' + item.damageType]" }]
+            tags:
+              - ability.damage
+              - { formula: "item.damageType == 'untyped' ? [] : ['damage.' + item.damageType]" }
       # Bleeding: a main or triggered action, or a roll with Might or Agility, loses 1d6 + level.
       - id: bleed
         kind: roll
