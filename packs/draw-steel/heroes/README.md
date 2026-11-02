@@ -125,8 +125,9 @@ computeSheet(ruleset, made.character).values['draw-steel-heroes:stamina.max']?.v
 - **Combat:** start of combat, rounds and turns, Victories, experience and level-up, respite
   (not for a dead hero).
 - **Marks:** the Tactician's marks are entries the tactician applied; a new Mark ends the earlier
-  ones wherever they are, dying ends them all, and the tactician's own rolls find its marks among
-  the targets (the edge, Warmaster, focus).
+  ones wherever they are, and dying ends them all. Any hero's power roll against a marked target
+  has an edge (whether the hero is within the tactician's line of effect is the table's), and the
+  tactician's own rolls find its marks among the targets (Warmaster, focus).
 - **The Null Field:** an aura on the enemies inside: their potencies drop by 1 (once, however many
   nulls), and Synaptic Break raises potencies used against them.
 - **Hero tokens:** a party sheet (the `party` creation start) holds the pool; heroes link it and
