@@ -8,3 +8,19 @@ fields:
 prerequisites:
   - id: word
     when: '@words.bow in words.bound'
+# While it lasts, a ranged attack against a Mob reads its damage straight and adds the level.
+effects:
+  - target: { actions: [attack] }
+    op: params
+    when: self.committed > 0 && has(action.item.ranged) && action.item.ranged
+    value:
+      mob: { type: boolean, default: false }
+  - target: { steps: [attack.boost] }
+    op: changes
+    when: has(params.mob) && params.mob
+    value:
+      flags: { straight: true }
+  - target: { rolls: [damage.ranged] }
+    op: add
+    value: level
+    when: has(params.mob) && params.mob

@@ -111,7 +111,9 @@ computeSheet(ruleset, made.character).values['godbound-core:effort.max']?.value;
     when the gift has none), on copies and on the gifts Apotheosis and artifacts grant.
   - Unerring Blade and Surge of Strength add a parameter to `attack` (melee attacks, and attacks
     Strength can modify) that commits the scene's Effort: Unerring Blade hits on anything but a
-    natural 1 and maximizes the damage, Surge of Strength maximizes it.
+    natural 1 and maximizes the damage, Surge of Strength maximizes it. While Rain of Sorrow is
+    held, a ranged attack offers `mob`: against a Mob, the damage is read straight plus the
+    level.
   - Gift points: six, plus two per level. A lesser gift of a bound Word costs 1, a greater 2, a
     lesser gift of another Word 2 (1 once that Word is bound), a universal gift 1 (Effort of the
     Word 2 after the first), each Word past three 3. `gifts.points.spent` works it out from the
@@ -172,8 +174,8 @@ gift names its Word in `word`).
 - **Tagged steps** take an add-on's rules-level `changes` effects: `creation.finish` (the last
   step of creation), `level.gain` (each new level), `rest.scene` (the end of a scene),
   `rest.day` (a new day), `attack.boost` (before an attack's roll: a gift's `changes` effect
-  sets its flags `maximize` and `sure`, a hit unless a natural 1, and adds 1 to `boosts`, the
-  scene's Effort committed), `gift.commit` (a `gift-blast` committing its Effort: `mob` is
+  sets its flags `maximize`, `straight` and `sure`, a hit unless a natural 1, and adds 1 to
+  `boosts`, the scene's Effort committed), `gift.commit` (a `gift-blast` committing its Effort: `mob` is
   the flag for Mob damage), `gift.invoke` (`invoke-gift` committing its Effort) and
   `turn.boundary` (each turn change).
 

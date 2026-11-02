@@ -195,6 +195,7 @@ actions:
           - when: true
             flags:
               known: has(params.targetAc)
+              straight: params.straight
               ac: 'has(params.targetAc) ? params.targetAc : 0'
               ranged: has(item.ranged) && item.ranged
               base: item.damage
@@ -218,8 +219,8 @@ actions:
               maximize: 'flags.ranged ? damage.ranged.maximize > 0 : damage.melee.maximize > 0'
               sure: false
               boosts: 0
-      # Gifts that sharpen this attack (Unerring Blade, Surge of Strength) set its flags here,
-      # each adding one to `boosts`: the Effort for the scene they commit.
+      # Gifts that sharpen this attack (Unerring Blade, Surge of Strength, Rain of Sorrow) set its
+      # flags here; each that commits the scene's Effort adds one to `boosts`.
       - id: boost
         kind: changes
         tags: [attack.boost]
@@ -263,7 +264,7 @@ actions:
       - id: total
         kind: branch
         cases:
-          - when: has(steps.damage) && params.straight
+          - when: has(steps.damage) && flags.straight
             flags:
               damage: 'sumList(flags.faces, x) + flags.add'
           - when: has(steps.damage)
