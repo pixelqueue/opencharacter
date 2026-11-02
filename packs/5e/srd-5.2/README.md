@@ -123,8 +123,10 @@ Where the SRD is unclear or silent, the pack reads it this way:
   Paralyzed or Unconscious target's automatic Critical Hits likewise.
 - **Weapon mastery** is offered after the attack roll (recommended). Sap ends with the target's
   next attack roll (one where Advantage cancels its Disadvantage included), Vex with the
-  attacker's next attack roll against that target, and two Slows don't stack; their other timing is
-  the app's. Push and Cleave are reported in the outcome (`push`,
+  attacker's next attack roll against that target, and two Slows don't stack. The target's entry
+  records the attacker (`appliedBy`), and the `turn-boundary` clock action, which the app runs on
+  every creature at each turn change, ends Sap and Slow when the attacker's next turn starts and
+  Vex (and Studied Attacks' Advantage) when it ends. Push and Cleave are reported in the outcome (`push`,
   `cleave`) for the app to resolve; Cleave's attack runs the weapon's attack with `cleave` set.
 - **Grapple and Shove:** the target saves with the better of Strength and Dexterity (its
   player's choice).

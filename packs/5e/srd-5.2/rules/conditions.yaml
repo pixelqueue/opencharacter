@@ -27,10 +27,14 @@ contentTypes:
       magical: { type: boolean, default: false }
       escapeDc: { type: integer, default: 0, min: 0 }
 
+  # A weapon mastery's mark on the creature hit. Who put it there is the entry's `appliedBy`;
+  # `attacker` is read only for entries saved before appliers were recorded. `armed`: the
+  # applier's next turn has started, so a Vex ends when it ends.
   combatEffect:
     carried: false
     state:
       attacker: { type: string, default: '' }
+      armed: { type: boolean, default: false }
 
 fields:
   conditions.exhaustion: { type: integer, input: true, default: 0, min: 0, max: 6 }
@@ -52,3 +56,38 @@ effects:
     op: atMost
     value: 0
     when: conditions.exhaustionImmune
+
+actions:
+  # Run by the app on every creature at each turn change. Sap and Slow last until the start of
+  # their applier's next turn; Vex (and Studied Attacks) until the end of it, so its mark is armed
+  # when that turn starts and ends when it ends.
+  - id: turn-boundary
+    clock: turn-boundary
+    params:
+      ended: { type: string, optional: true }
+      started: { type: string, optional: true }
+    steps:
+      - id: boundary
+        kind: changes
+        tags: [turn-boundary]
+        changes:
+          - type: removeEffect
+            when: has(params.ended)
+            applied:
+              where: >-
+                item.id == @combat-effects.vexed && self.armed
+                  && (self.appliedBy != '' ? self.appliedBy : self.attacker) == params.ended
+          - type: removeEffect
+            when: has(params.started)
+            applied:
+              where: >-
+                item.id in [@combat-effects.sapped, @combat-effects.slowed]
+                  && (self.appliedBy != '' ? self.appliedBy : self.attacker) == params.started
+          - type: setState
+            when: has(params.started)
+            applied:
+              where: >-
+                item.id == @combat-effects.vexed
+                  && (self.appliedBy != '' ? self.appliedBy : self.attacker) == params.started
+            key: armed
+            value: true

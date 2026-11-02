@@ -1,0 +1,14 @@
+- type: removeEffect
+  applied:
+    where: >-
+      item.id == '5e-srd-5.2:combat-effects.vexed' && self.armed && (self.appliedBy != '' ? self.appliedBy : self.attacker) == 'rogue'
+- type: removeEffect
+  applied:
+    where: >-
+      item.id in ['5e-srd-5.2:combat-effects.sapped', '5e-srd-5.2:combat-effects.slowed'] && (self.appliedBy != '' ? self.appliedBy : self.attacker) == 'fighter'
+- type: setState
+  applied:
+    where: >-
+      item.id == '5e-srd-5.2:combat-effects.vexed' && (self.appliedBy != '' ? self.appliedBy : self.attacker) == 'fighter'
+  key: armed
+  value: true

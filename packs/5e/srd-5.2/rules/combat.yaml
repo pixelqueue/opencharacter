@@ -74,8 +74,9 @@ fields:
     type: set
     of: string
     formula: >-
-      mapList(filterList(character.applied,
-        x.active && x.source == @combat-effects.vexed && has(x.state.attacker)), x.state.attacker)
+      mapList(filterList(character.applied, x.active && x.source == @combat-effects.vexed
+        && (x.appliedBy != '' || x.state.attacker != '')),
+        x.appliedBy != '' ? x.appliedBy : x.state.attacker)
 
   martialArts.known: { type: boolean, formula: false }
   martialArts.die: { type: dice, formula: 0 }
@@ -183,7 +184,10 @@ effects:
       when: applied
       changes:
         - type: removeEffect
-          applied: { where: 'item.id == @combat-effects.vexed && self.attacker == flags.me' }
+          applied:
+            where: >-
+              item.id == @combat-effects.vexed
+                && (self.appliedBy != '' ? self.appliedBy : self.attacker) == flags.me
   - id: target-elusive
     target: { rolls: [attack] }
     op: rollModifier
@@ -444,7 +448,6 @@ actions:
           - type: applyEffect
             when: flags.mastery == 'vex' && has(steps.damage)
             source: "'combat-effects.vexed'"
-            state: { attacker: flags.me }
       - id: result
         kind: outcome
         result: "flags.hit ? 'hit' : 'miss'"

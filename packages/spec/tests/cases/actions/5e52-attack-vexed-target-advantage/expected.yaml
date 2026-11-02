@@ -15,7 +15,8 @@ proposedChanges:
     change:
       type: removeEffect
       applied:
-        where: item.id == '5e-srd-5.2:combat-effects.vexed' && self.attacker == 'test'
+        where: >-
+          item.id == '5e-srd-5.2:combat-effects.vexed' && (self.appliedBy != '' ? self.appliedBy : self.attacker) == 'test'
   - to: target
     character: goblin
     step: deal
