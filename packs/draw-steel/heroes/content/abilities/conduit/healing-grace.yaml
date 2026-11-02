@@ -14,9 +14,23 @@ fields:
   spendCost: 1
   spendPlus: true
 effects:
-  # The target can spend a Recovery (Spend: more targets, Recoveries, effects ended, standing).
+  # Spend 1+ piety, one enhancement each: more targets (the participants), a Recovery more for a
+  # target, a prone target standing up, or an effect ended (the target's saving throw or the
+  # table's). Pass `spend` for the total.
+  - target: { actions: [ability], from: self }
+    op: params
+    value:
+      graceRecoveries: { type: integer, default: 0, min: 0 }
+      graceStand: { type: boolean, default: false }
+  # The target can spend a Recovery, and one more for each enhancement.
   - target: { steps: [ability.hit], from: self }
     op: changes
     value:
       changes:
-        - { type: adjust, field: recoveries.spent, by: 1, tags: [recovery.granted] }
+        - type: adjust
+          field: recoveries.spent
+          by: 1 + params.graceRecoveries
+          tags: [recovery.granted]
+        - type: removeEffect
+          when: params.graceStand
+          applied: { where: 'self.source == @conditions.prone' }

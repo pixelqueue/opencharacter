@@ -51,6 +51,26 @@ actions:
           - id: stand
           - id: temp
         recommend: "'recovery'"
+      # The condition to end (one ended by a saving throw or at the end of the target's turn).
+      - id: which
+        kind: choice
+        when: steps.benefit.picked == 'end-effect'
+        options:
+          {
+            values:
+              [
+                '@conditions.bleeding',
+                '@conditions.dazed',
+                '@conditions.frightened',
+                '@conditions.grabbed',
+                '@conditions.prone',
+                '@conditions.restrained',
+                '@conditions.slowed',
+                '@conditions.taunted',
+                '@conditions.weakened',
+              ],
+          }
+        recommend: options[0]
       - id: apply
         kind: changes
         each: target
@@ -61,6 +81,10 @@ actions:
             field: recoveries.spent
             by: 1
             tags: [recovery.granted]
+          - type: removeEffect
+            when: steps.benefit.picked == 'end-effect'
+            applied:
+              where: "self.source == steps.which.value && has(self.duration) && self.duration in ['save', 'eot']"
           - type: removeEffect
             when: steps.benefit.picked == 'stand'
             applied: { where: 'self.source == @conditions.prone' }
