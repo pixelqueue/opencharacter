@@ -80,7 +80,7 @@ describe('pnpm validate on params effects, computed action tags and a use with a
       ].join('\n'),
     });
     expect(added(errors)).toEqual([
-      'invalid-added-param: test-action-params:features.surge-boost and test-action-params:features.psi-boost both add the parameter "boost", declared differently',
+      'invalid-added-param: test-action-params:features.surge-boost and test-action-params:features.psi-boost both add the parameter "boost", declared differently.',
     ]);
     // Another ability's `from: self` element, with its own values: never on one run.
     const own = validate({
