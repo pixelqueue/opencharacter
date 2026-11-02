@@ -846,6 +846,8 @@ class FormulaChecker<L> {
       this.formula(modifier.count, at, label, ['int']);
       this.formula(modifier.steps, at, label, ['int']);
       for (const face of modifier.faces ?? []) this.formula(face, at, label, ['int']);
+    } else if (effect.op === 'tag') {
+      this.tagList(effect.value as (string | { formula: Formula })[], at, label);
     } else if (effect.op !== 'grant') {
       this.formula(effect.value as Formula, at, label, this.effectValueType(effect));
     }

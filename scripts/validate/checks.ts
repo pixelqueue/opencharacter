@@ -1921,6 +1921,8 @@ export class PackChecker {
       for (const change of value.changes ?? [])
         this.proposedChange(change, file, label, false, new Set(), value.to);
     }
+    if (effect.op === 'tag' && Array.isArray(effect.value))
+      this.tagList(effect.value as TagOrFormula[], file, label);
     if (effect.tags) {
       if (kind !== 'roll' || effect.op !== 'add') {
         this.report.error(

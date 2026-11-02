@@ -1456,11 +1456,12 @@ export type Effect = {
     | 'atMost'
     | 'grant'
     | 'rollModifier'
+    | 'tag'
     | 'option'
     | 'changes'
     | 'action'
     | 'params';
-  /** A formula for add/set/multiply/atLeast/atMost (on rolls and on incoming changes, `add` accepts dice: `1d4`; on rolls, `atLeast` and `atMost` take an integer and bound the roll's total after the dice); a grant value object for grant; a roll modifier for rollModifier; an option for option; changes for a tagged changes step for changes; a nested action run for action; parameter declarations for params. On a roll's parts, `set` takes a formula (dice or a number) that replaces each matching part. */
+  /** A formula for add/set/multiply/atLeast/atMost (on rolls and on incoming changes, `add` accepts dice: `1d4`; on rolls, `atLeast` and `atMost` take an integer and bound the roll's total after the dice); a grant value object for grant; a roll modifier for rollModifier; an option for option; changes for a tagged changes step for changes; a nested action run for action; parameter declarations for params. On a roll's parts, `set` takes a formula (dice or a number) that replaces each matching part, and `tag` a list of tags (entries may be formulas) added to each matching part's items. */
   value?: unknown;
   /** Condition for the effect to be active. `self` is the character's copy of the item carrying it. For `option`, the added option is offered only while this holds; it also sees the action context and `action`. For `changes`, the changes are added only while this holds, with the same context and `participant` in an `each` step. For `action`, the action runs only while this holds, evaluated per participant (with `participant` bound) when it runs per participant. On an incoming target, it also sees `incoming`. */
   when?: Condition;
@@ -1594,7 +1595,7 @@ export type RollTarget = {
   tally?: Name;
   /** `value`: the effect bounds the value of the band set the roll step classifies by (`atLeast` or `atMost`, an integer), once the set's `value` is worked out and before its bands read it as `roll.value`; a minimum tier. Only on a set whose `value` gives a number. */
   band?: 'value';
-  /** The roll's own parts, by tag: the effect reaches the items built from the action's parts (not those effects add) whose tags match. Only op `set` (replace the part) and the roll modifiers `stepDie`, `setFaces`, and `advantage` and `disadvantage` with `of: roll` (roll the matching parts again as a group, keeping the better or worse subtotal). Not with `tally`. */
+  /** The roll's own parts, by tag: the effect reaches the items built from the action's parts (not those effects add) whose tags match. Only op `set` (replace the part), op `tag` (add tags to the part's items) and the roll modifiers `stepDie`, `setFaces`, and `advantage` and `disadvantage` with `of: roll` (roll the matching parts again as a group, keeping the better or worse subtotal). Not with `tally`. */
   parts?: Tags;
 };
 

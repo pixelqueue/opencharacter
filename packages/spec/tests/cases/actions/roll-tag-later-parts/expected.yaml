@@ -1,0 +1,26 @@
+# The element makes the damage part `damage.fire`; the rules' `stepDie` on `parts: [damage.fire]`
+# then reaches it: 2d8. 7 + 2 fire, 2 untyped.
+status: finished
+outcome: { data: { total: 11 } }
+proposedChanges:
+  - to: self
+    step: deal
+    change: { type: adjust, field: 'test-roll-tag:hp', by: -9, tags: [damage.fire] }
+  - to: self
+    step: deal
+    change: { type: adjust, field: 'test-roll-tag:hp', by: -2 }
+log:
+  - step: roll
+    action: 'test-roll-tag:use-ability'
+    kind: dice
+    by: engine
+    faces: [7, 2]
+    total: 11
+    items:
+      - kind: dice
+        count: 2
+        sides: 8
+        steppedFrom: 6
+        value: 9
+        tags: [ability.damage, damage.fire]
+      - { kind: flat, value: 2, tags: [kit] }

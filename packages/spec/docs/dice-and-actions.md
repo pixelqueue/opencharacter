@@ -166,10 +166,9 @@ effects:
     value:
       element:
         { type: enum, values: [acid, cold, corruption, fire, lightning, poison], default: fire }
-  - target: { rolls: [damage], from: self }
-    op: add
-    value: 2
-    tags: [{ formula: "'damage.' + params.element" }]
+  - target: { rolls: [damage], parts: [ability.damage], from: self }
+    op: tag
+    value: [{ formula: "'damage.' + params.element" }]
 # Appeal to the Muses: an opt-in as the turn starts, its drama added to the turn's.
 effects:
   - target: { actions: [turn.start] }

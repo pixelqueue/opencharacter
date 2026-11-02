@@ -225,6 +225,7 @@ A roll step is built, then rolled, then classified.
    - **`atLeast`** and **`atMost`** (without `tally`) bound the total once it is rolled (below).
    - **`set`** with `parts` replaces parts, before anything above reads them
      (below).
+   - **`tag`** with `parts` adds tags to parts, right after (below).
 
    **2a. Replaced parts**. For each part, the counted `set` effects whose `parts`
    tags match its items' tags are stacked by key; of those left, the one
@@ -234,6 +235,11 @@ A roll step is built, then rolled, then classified.
    field's keyed instances, as in step 1). The first new item lists the replaced items, as
    built, in `replaces`. This happens before the carried instances and `add` effects of step 2
    are worked out.
+
+   **Tagged parts**. Then each active `tag` effect, in effect order, evaluates its tags (as an
+   `add`'s `tags`) and appends those an item doesn't carry yet to the items of every part whose
+   tags, as built or replaced in 2a, match its `parts`. `tag` effects don't stack. The steps
+   below, and a `split`, read the items' tags with the new ones.
 
    **2b. Die steps**. Each dice item from a part moves along d4, d6, d8, d10, d12 by
    the sum of the counted `stepDie` modifiers that reach it (all, or those whose `parts`

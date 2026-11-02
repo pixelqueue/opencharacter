@@ -1,0 +1,42 @@
+tags: [ability, ability.damage, kit, damage, damage.fire, damage.cold]
+
+fields:
+  hp: { type: integer, input: true, default: 30 }
+  # A fire die one size larger: reaches the parts an element made fire.
+  hotter: { type: boolean, input: true, default: false }
+
+contentTypes:
+  # Every ability uses `use-ability`, which rolls the ability's own damage.
+  ability:
+    fields:
+      damage: { type: dice, default: 1d6 }
+    actions:
+      - { use: use-ability }
+
+effects:
+  - target: { rolls: [ability], parts: [damage.fire] }
+    op: rollModifier
+    value: { kind: stepDie, steps: 1 }
+    when: hotter
+
+actions:
+  # The ability's damage and a kit bonus, dealt to the character split by damage type.
+  - id: use-ability
+    tags: [ability]
+    steps:
+      - id: roll
+        kind: roll
+        tags: [ability]
+        parts:
+          - { dice: item.damage, tags: [ability.damage] }
+          - { value: 2, tags: [kit] }
+      - id: deal
+        kind: changes
+        changes:
+          - type: adjust
+            field: hp
+            split: { roll: roll, by: damage }
+            by: -part.total
+      - id: result
+        kind: outcome
+        data: { total: steps.roll.total }

@@ -2034,6 +2034,25 @@ function rollStep(ctx: Ctx, frame: Frame, step: Step, path: string): void {
       ];
     }
   }
+  // 2a'. Retagged parts: every `tag` effect adds its tags to the items of the parts whose tags,
+  // as built and replaced, match.
+  const partTags = new Map(items.map((i) => [i, i.tags]));
+  for (const c of active) {
+    if (c.effect.op !== 'tag' || !targets(c.effect)?.parts) continue;
+    const reached = items.filter(
+      (i) => i.part !== undefined && onPart(c, partTags.get(i) as string[]),
+    );
+    if (reached.length === 0) continue;
+    const added = tagsOf(ctx, c.effect.value as TagOrFormula[], (fm) =>
+      sheet.evaluate(fm, c.pack, effectCtx(c)),
+    );
+    for (const item of reached) {
+      const fresh = added.filter((t) => !item.tags.includes(t));
+      if (fresh.length === 0) continue;
+      item.tags = [...item.tags, ...fresh];
+      changed.add(c);
+    }
+  }
   // 2b. Die steps.
   const steppers = stack(
     ctx,

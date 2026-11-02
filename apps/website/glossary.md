@@ -41,7 +41,7 @@ One-line definitions of OCF terms, consistent with the [specification](../../pac
 - **Display hint:** optional presentation data (groups, priority, format, unit, `showWhen`, hidden) that never affects calculations. A display group holds fields, actions or content.
 - **Effect:** a change active content makes to a field, a roll or an incoming change, with an operation, value and condition.
 - **effectsWhen:** a condition on a content type or item that every effect of its items needs (5E attunement: `'!item.requiresAttunement || self.attuned'`), ANDed into each holder effect's `when` and read as it is (not applied effects); an item's replaces its type's.
-- **Effect operation:** one of the fixed set: add, set, multiply, atLeast, atMost, grant, rollModifier, and, for tagged action steps, option (an extra choice option) and changes (extra proposed changes, or flags set), and, for tagged actions, params (extra parameters).
+- **Effect operation:** one of the fixed set: add, set, multiply, atLeast, atMost, grant, rollModifier, tag (tags added to a roll's parts), and, for tagged action steps, option (an extra choice option) and changes (extra proposed changes, or flags set), and, for tagged actions, params (extra parameters).
 - **Effect scope:** whether an effect applies to a character who has the content (`holder`) or one it is applied to (`applied`).
 - **Engine:** an implementation of the spec's calls; the TypeScript one is the reference engine, others are ports.
 - **Entry (copy):** the character's copy of a content item: base item, templates, equipped flag, quantity, state, picks, and the state of content it grants.
