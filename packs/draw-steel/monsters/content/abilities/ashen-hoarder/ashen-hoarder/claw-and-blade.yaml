@@ -1,0 +1,45 @@
+# Tiers 1 and 2: one target bleeding (M < 2/3), the other grabbed (A < 2/3): the first target
+# listed is the bleeding one, the second the grabbed one. Tier 3: each target bleeding (M < 4) and
+# grabbed (A < 2). The two-grab limit is the table's.
+id: abilities.ashen-hoarder.ashen-hoarder.claw-and-blade
+type: ability
+grantOnly: false
+tags:
+  - kw.melee
+  - kw.strike
+  - kw.weapon
+fields:
+  usage: main-action
+  kind: signature
+  distanceKind: melee
+  distance: 2
+  rollBonus: 4
+  t1Damage: 10
+  t1AddsChar: false
+  t2Damage: 15
+  t2AddsChar: false
+  t3Damage: 18
+  t3AddsChar: false
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@conditions.bleeding'
+          state: { duration: "'save'" }
+          appliedBy: character.id
+    when: >-
+      flags.tier > 0 && (flags.tier == 3 || participant.id == participants.target[0].id)
+        && participant.characteristics.might.score + participant.potency.resistBonus.might < flags.tier + 1 + steps.roll.tallies.potencyBonus
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@conditions.grabbed'
+          appliedBy: character.id
+    when: >-
+      flags.tier > 0 && (flags.tier == 3 || participant.id != participants.target[0].id)
+        && participant.characteristics.agility.score + participant.potency.resistBonus.agility
+          < (flags.tier == 3 ? 2 : flags.tier + 1) + steps.roll.tallies.potencyBonus

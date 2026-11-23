@@ -1,0 +1,43 @@
+# 2 Malice: slowed too where weakened lands. 3 Malice (a second cube) is the table's.
+id: abilities.ashen-hoarder.ashen-hoarder.corpse-bomb
+type: ability
+grantOnly: false
+tags:
+  - kw.area
+  - kw.magic
+  - kw.ranged
+fields:
+  usage: main-action
+  spendCost: 2
+  distanceKind: cube
+  distance: 4
+  within: 20
+  rollBonus: 4
+  t1Damage: 4
+  t1AddsChar: false
+  t1Condition: conditions.weakened
+  t1Duration: save
+  t1PotencyChar: agility
+  t1PotencyValue: 2
+  t2Damage: 8
+  t2AddsChar: false
+  t2Condition: conditions.weakened
+  t2Duration: save
+  t2PotencyChar: agility
+  t2PotencyValue: 3
+  t3Damage: 11
+  t3AddsChar: false
+  t3Condition: conditions.weakened
+  t3Duration: save
+  t3PotencyChar: agility
+  t3PotencyValue: 4
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@conditions.slowed'
+          state: { duration: "'save'" }
+          appliedBy: character.id
+    when: flags.tier > 0 && flags.landed && has(params.malice) && params.malice >= 2
