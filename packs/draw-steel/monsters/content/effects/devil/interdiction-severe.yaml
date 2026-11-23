@@ -1,0 +1,11 @@
+# Adjudicator's Interdiction (tier 1): slowed, a bane on power rolls, and no regaining Stamina (the
+# table's), one saving throw for all three.
+id: effects.devil.interdiction-severe
+type: effect
+effects:
+  - target: conditions.active
+    op: grant
+    value: { formula: '@conditions.slowed' }
+    scope: applied
+  - { target: speed, op: atMost, value: speed.slowedMax, scope: applied }
+  - { target: { rolls: [power-roll], tally: banes }, op: add, value: 1, scope: applied }

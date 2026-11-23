@@ -1,0 +1,12 @@
+# Fire and Brimstone: a burning creature takes 1d6 fire damage at the start of each of their turns
+# (a burning object at the end of each round: the table's).
+id: effects.devil.burning
+type: effect
+effects:
+  - target: { steps: [turn.start] }
+    op: action
+    scope: applied
+    value:
+      id: burning
+      use: ongoing-damage
+      params: { dice: 1d6, damageType: "'fire'" }

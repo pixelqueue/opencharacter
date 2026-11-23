@@ -1,0 +1,24 @@
+id: abilities.devil.devil-magistrate.verdict
+type: ability
+grantOnly: false
+tags:
+  - kw.melee
+  - kw.strike
+  - kw.weapon
+fields:
+  usage: main-action
+  distanceKind: melee
+  distance: 1
+  rollBonus: 3
+  t1Damage: 11
+  t1AddsChar: false
+  t2Damage: 17
+  t2AddsChar: false
+  t3Damage: 21
+  t3AddsChar: false
+# The double edge if the magistrate was hidden is the table's; 5 more damage to a dazed target.
+effects:
+  - target: { rolls: [damage], from: self }
+    op: add
+    value: 5
+    when: flags.tier > 0 && participant.conditions.dazed

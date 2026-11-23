@@ -1,0 +1,40 @@
+# Damage to each creature and object moved through in a Charge is the table's.
+id: abilities.devil.devil-legate.writ-of-execution
+type: ability
+grantOnly: false
+tags:
+  - kw.charge
+  - kw.melee
+  - kw.strike
+  - kw.weapon
+fields:
+  usage: main-action
+  distanceKind: melee
+  distance: 2
+  rollBonus: 3
+  t1Damage: 6
+  t1AddsChar: false
+  t1Condition: conditions.prone
+  t1PotencyChar: might
+  t1PotencyValue: 1
+  t2Damage: 11
+  t2AddsChar: false
+  t2Condition: conditions.prone
+  t2PotencyChar: might
+  t2PotencyValue: 2
+  t3Damage: 14
+  t3AddsChar: false
+  t3Condition: conditions.prone
+  t3PotencyChar: might
+  t3PotencyValue: 3
+# Tiers 2 and 3: can't stand (save ends) with the prone, behind the same potency.
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@effects.common.cant-stand'
+          state: { duration: "'save'" }
+          appliedBy: character.id
+    when: flags.tier >= 2 && flags.landed

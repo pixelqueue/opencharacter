@@ -1,0 +1,31 @@
+id: abilities.devil.devil-magistrate.edge-of-the-law
+type: ability
+grantOnly: false
+tags:
+  - kw.melee
+  - kw.strike
+  - kw.weapon
+fields:
+  usage: main-action
+  kind: signature
+  distanceKind: melee
+  distance: 1
+  rollBonus: 3
+  t1Damage: 10
+  t1AddsChar: false
+  t2Damage: 15
+  t2AddsChar: false
+  t3Damage: 0
+  t3AddsChar: false
+  t3Condition: conditions.dazed
+  t3Duration: save
+  t3PotencyChar: reason
+  t3PotencyValue: 3
+# Tier 3's 18 damage is fire, tiers 1 and 2 untyped (one type per ability): the tier field is 0
+# and the fire damage a roll effect.
+effects:
+  - target: { rolls: [damage], from: self }
+    op: add
+    value: 18
+    tags: [damage.fire]
+    when: flags.tier == 3
