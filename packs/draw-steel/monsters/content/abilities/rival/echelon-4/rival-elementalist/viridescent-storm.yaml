@@ -33,4 +33,4 @@ effects:
     tags: [damage.acid]
     when: >-
       flags.tier > 0 && has(participant)
-        && participant.characteristics.might.score < [3, 4, 5][flags.tier - 1] + (has(steps.roll) ? steps.roll.tallies.potencyBonus : 0)
+        && participant.characteristics.might.score + participant.potency.resistBonus.might < [3, 4, 5][flags.tier - 1] + (has(steps.roll) ? steps.roll.tallies.potencyBonus : 0)

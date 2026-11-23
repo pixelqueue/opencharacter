@@ -45,4 +45,4 @@ effects:
           appliedBy: character.id
     when: >-
       flags.tier == 3
-        && participant.characteristics.agility.score < 5 + (has(steps.roll) ? steps.roll.tallies.potencyBonus : 0)
+        && participant.characteristics.agility.score + participant.potency.resistBonus.agility < 5 + (has(steps.roll) ? steps.roll.tallies.potencyBonus : 0)

@@ -32,5 +32,5 @@ effects:
           state: { duration: "'save'" }
           appliedBy: character.id
     when: >-
-      flags.tier == 3 && participant.characteristics.agility.score
+      flags.tier == 3 && participant.characteristics.agility.score + participant.potency.resistBonus.agility
         < 2 + (has(steps.roll) ? steps.roll.tallies.potencyBonus : 0)

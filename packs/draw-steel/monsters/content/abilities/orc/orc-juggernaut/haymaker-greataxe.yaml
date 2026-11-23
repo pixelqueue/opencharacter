@@ -30,7 +30,7 @@ effects:
           state: { duration: "'save'" }
           appliedBy: character.id
     when: >-
-      flags.tier == 3 && participant.characteristics.might.score
+      flags.tier == 3 && participant.characteristics.might.score + participant.potency.resistBonus.might
         < 2 + (has(steps.roll) ? steps.roll.tallies.potencyBonus : 0)
   # A target who is already prone takes 6 more damage.
   - target: { rolls: [damage], from: self }

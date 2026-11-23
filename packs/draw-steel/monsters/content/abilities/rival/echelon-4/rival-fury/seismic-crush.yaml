@@ -36,7 +36,7 @@ effects:
           appliedBy: character.id
     when: >-
       flags.tier > 0 && has(params.malice) && params.malice >= 2
-        && participant.characteristics.might.score < 4 + (has(steps.roll) ? steps.roll.tallies.potencyBonus : 0)
+        && participant.characteristics.might.score + participant.potency.resistBonus.might < 4 + (has(steps.roll) ? steps.roll.tallies.potencyBonus : 0)
   # (the slowed)
   - target: { steps: [ability.hit], from: self }
     op: changes
@@ -48,4 +48,4 @@ effects:
           appliedBy: character.id
     when: >-
       flags.tier > 0 && has(params.malice) && params.malice >= 2
-        && participant.characteristics.might.score < 4 + (has(steps.roll) ? steps.roll.tallies.potencyBonus : 0)
+        && participant.characteristics.might.score + participant.potency.resistBonus.might < 4 + (has(steps.roll) ? steps.roll.tallies.potencyBonus : 0)

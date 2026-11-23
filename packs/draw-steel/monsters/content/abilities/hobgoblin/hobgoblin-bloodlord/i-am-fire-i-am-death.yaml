@@ -47,4 +47,4 @@ effects:
     tags: [damage.fire]
     when: >-
       flags.tier > 0 && has(participant)
-        && participant.characteristics.presence.score < [2, 3, 4][flags.tier - 1] + (has(steps.roll) ? steps.roll.tallies.potencyBonus : 0)
+        && participant.characteristics.presence.score + participant.potency.resistBonus.presence < [2, 3, 4][flags.tier - 1] + (has(steps.roll) ? steps.roll.tallies.potencyBonus : 0)

@@ -36,4 +36,4 @@ effects:
           appliedBy: character.id
     when: >-
       flags.tier > 0 && has(params.malice) && params.malice >= 2
-        && participant.characteristics.might.score < 2 + (has(steps.roll) ? steps.roll.tallies.potencyBonus : 0)
+        && participant.characteristics.might.score + participant.potency.resistBonus.might < 2 + (has(steps.roll) ? steps.roll.tallies.potencyBonus : 0)
