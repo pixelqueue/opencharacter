@@ -1,0 +1,39 @@
+id: abilities.orc.orc-terranova.earth-pillar
+type: ability
+grantOnly: false
+tags:
+  - kw.magic
+  - kw.ranged
+  - kw.strike
+fields:
+  usage: main-action
+  kind: signature
+  distanceKind: ranged
+  distance: 10
+  rollBonus: 2
+  t1Damage: 6
+  t1AddsChar: false
+  t2Damage: 9
+  t2AddsChar: false
+  t3Damage: 12
+  t3AddsChar: false
+  t1Condition: conditions.prone
+  t1PotencyChar: agility
+  t1PotencyValue: 0
+  t2Condition: conditions.prone
+  t2PotencyChar: agility
+  t2PotencyValue: 1
+  t3Condition: conditions.prone
+  t3PotencyChar: agility
+  t3PotencyValue: 2
+# Prone (the tier fields) and can't stand (save ends), behind the same potency.
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@effects.common.cant-stand'
+          state: { duration: "'save'" }
+          appliedBy: character.id
+    when: flags.landed

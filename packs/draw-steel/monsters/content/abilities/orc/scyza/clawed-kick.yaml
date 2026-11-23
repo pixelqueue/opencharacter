@@ -1,0 +1,33 @@
+id: abilities.orc.scyza.clawed-kick
+type: ability
+grantOnly: false
+tags:
+  - kw.melee
+  - kw.strike
+  - kw.weapon
+fields:
+  usage: main-action
+  kind: signature
+  distanceKind: melee
+  distance: 2
+  rollBonus: 2
+  t1Damage: 7
+  t1AddsChar: false
+  t2Damage: 11
+  t2AddsChar: false
+  t2Condition: conditions.prone
+  t3Damage: 14
+  t3AddsChar: false
+  t3Condition: conditions.prone
+# Effect: frightened (save ends) if the target has I < 2, on any tier.
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@conditions.frightened'
+          state: { duration: "'save'" }
+          appliedBy: character.id
+    when: >-
+      flags.tier > 0 && participant.characteristics.intuition.score < 2 + (has(steps.roll) ? steps.roll.tallies.potencyBonus : 0)

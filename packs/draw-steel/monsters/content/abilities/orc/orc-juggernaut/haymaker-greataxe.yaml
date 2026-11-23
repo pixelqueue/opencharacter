@@ -1,0 +1,39 @@
+id: abilities.orc.orc-juggernaut.haymaker-greataxe
+type: ability
+grantOnly: false
+tags:
+  - kw.melee
+  - kw.strike
+  - kw.weapon
+fields:
+  usage: main-action
+  kind: signature
+  distanceKind: melee
+  distance: 1
+  rollBonus: 2
+  t1Damage: 7
+  t1AddsChar: false
+  t2Damage: 11
+  t2AddsChar: false
+  t2Condition: conditions.prone
+  t3Damage: 14
+  t3AddsChar: false
+  t3Condition: conditions.prone
+# Tier 3: prone (the tier field), and bleeding (save ends) if M < 2.
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@conditions.bleeding'
+          state: { duration: "'save'" }
+          appliedBy: character.id
+    when: >-
+      flags.tier == 3 && participant.characteristics.might.score
+        < 2 + (has(steps.roll) ? steps.roll.tallies.potencyBonus : 0)
+  # A target who is already prone takes 6 more damage.
+  - target: { rolls: [damage], from: self }
+    op: add
+    value: 6
+    when: has(participant) && participant.conditions.prone
