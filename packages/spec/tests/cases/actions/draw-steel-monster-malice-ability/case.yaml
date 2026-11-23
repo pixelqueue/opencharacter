@@ -1,0 +1,19 @@
+description: "draw-steel-monsters: the goblin monarch's Get in Here! (1 Malice) is paid from the
+  Director's sheet through the link"
+specVersion: 0.4.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/draw-steel/heroes
+  - path: ../../../../../../packs/draw-steel/monsters
+input:
+  action:
+    id: draw-steel-heroes:use-ability
+    entry: abilities-goblin-goblin-monarch-get-in-here-1
+  links:
+    draw-steel-monsters:director:
+      id: director
+      values:
+        draw-steel-monsters:malice: 4
+        draw-steel-heroes:combat.active: true
+        draw-steel-heroes:combat.round: 1
+        draw-steel-monsters:villain.round: 0
