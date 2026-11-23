@@ -1,0 +1,44 @@
+id: abilities.valok.multivok-bodyguard.valiar-axe
+type: ability
+grantOnly: false
+tags:
+  - kw.melee
+  - kw.strike
+  - kw.weapon
+fields:
+  usage: main-action
+  resource: malice
+  cost: 3
+  distanceKind: melee
+  distance: 2
+  rollBonus: 4
+  t1Damage: 15
+  t1AddsChar: false
+  t1Condition: conditions.weakened
+  t1Duration: save
+  t1PotencyChar: might
+  t1PotencyValue: 2
+  t2Damage: 21
+  t2AddsChar: false
+  t2Condition: conditions.weakened
+  t2Duration: save
+  t2PotencyChar: might
+  t2PotencyValue: 3
+  t3Damage: 26
+  t3AddsChar: false
+  t3Condition: conditions.weakened
+  t3Duration: save
+  t3PotencyChar: might
+  t3PotencyValue: 4
+# Tier 3: prone, and M < 4 weakened. The double edge against a target it was used on before is
+# the table's.
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@conditions.prone'
+          state: { duration: "'until'" }
+          appliedBy: character.id
+    when: flags.tier == 3
