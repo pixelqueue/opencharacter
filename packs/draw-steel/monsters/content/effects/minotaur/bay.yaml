@@ -1,0 +1,11 @@
+# Primal Bay, Fearsome Bay: damage immunity 2 and an extra 5 damage with strikes (until the end of
+# the minotaur's next turn).
+id: effects.minotaur.bay
+type: effect
+effects:
+  - { target: immunity.all, op: atLeast, value: 2, scope: applied }
+  - target: { rolls: [damage] }
+    op: add
+    value: 5
+    scope: applied
+    when: "'kw.strike' in roll.item.tags"

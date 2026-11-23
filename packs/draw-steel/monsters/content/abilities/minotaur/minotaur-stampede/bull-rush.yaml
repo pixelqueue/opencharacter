@@ -1,0 +1,36 @@
+id: abilities.minotaur.minotaur-stampede.bull-rush
+type: ability
+grantOnly: false
+tags:
+  - kw.charge
+  - kw.melee
+  - kw.strike
+  - kw.weapon
+fields:
+  usage: main-action
+  kind: signature
+  distanceKind: melee
+  distance: 2
+  rollBonus: 5
+  t1Damage: 4
+  t1AddsChar: false
+  t2Damage: 7
+  t2AddsChar: false
+  t2Condition: conditions.prone
+  t3Damage: 9
+  t3AddsChar: false
+  t3Condition: conditions.prone
+# Tier 3: can't stand (save ends) beside the prone, behind M < 5. The prone of each creature
+# moved through in a Charge is the table's.
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@effects.common.cant-stand'
+          state: { duration: "'save'" }
+          appliedBy: character.id
+    when: >-
+      flags.tier == 3 && (participant.characteristics.might.score + participant.potency.resistBonus.might)
+        < 5 + steps.roll.tallies.potencyBonus
