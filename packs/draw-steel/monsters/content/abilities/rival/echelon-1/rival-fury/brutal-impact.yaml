@@ -1,0 +1,39 @@
+id: abilities.rival.echelon-1.rival-fury.brutal-impact
+type: ability
+grantOnly: false
+tags:
+  - kw.melee
+  - kw.strike
+  - kw.weapon
+fields:
+  usage: main-action
+  kind: signature
+  spendCost: 2
+  distanceKind: melee
+  distance: 1
+  rollBonus: 2
+  t1Damage: 7
+  t1AddsChar: false
+  t1Move: push
+  t1MoveDistance: 1
+  t2Damage: 11
+  t2AddsChar: false
+  t2Move: push
+  t2MoveDistance: 2
+  t3Damage: 14
+  t3AddsChar: false
+  t3Move: push
+  t3MoveDistance: 3
+effects:
+  # 2 Malice: each target who has M < 1 is slowed (save ends).
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@conditions.slowed'
+          state: { duration: "'save'" }
+          appliedBy: character.id
+    when: >-
+      flags.tier > 0 && has(params.malice) && params.malice >= 2
+        && participant.characteristics.might.score < 1 + (has(steps.roll) ? steps.roll.tallies.potencyBonus : 0)

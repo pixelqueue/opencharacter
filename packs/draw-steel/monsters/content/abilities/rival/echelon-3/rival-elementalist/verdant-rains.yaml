@@ -1,0 +1,36 @@
+# An ally ending a condition is the table's.
+id: abilities.rival.echelon-3.rival-elementalist.verdant-rains
+type: ability
+grantOnly: false
+tags:
+  - kw.green
+  - kw.magic
+  - kw.ranged
+  - kw.strike
+fields:
+  usage: main-action
+  kind: signature
+  distanceKind: ranged
+  distance: 10
+  rollBonus: 4
+  t1Damage: 12
+  t1AddsChar: false
+  t1Move: slide
+  t1MoveDistance: 2
+  t2Damage: 17
+  t2AddsChar: false
+  t2Move: slide
+  t2MoveDistance: 3
+  t3Damage: 21
+  t3AddsChar: false
+  t3Move: slide
+  t3MoveDistance: 4
+effects:
+  # M < 2/3/4: 4, 6 or 8 acid damage besides.
+  - target: { rolls: [damage], from: self }
+    op: add
+    value: '[4, 6, 8][flags.tier - 1]'
+    tags: [damage.acid]
+    when: >-
+      flags.tier > 0 && has(participant)
+        && participant.characteristics.might.score < [2, 3, 4][flags.tier - 1] + (has(steps.roll) ? steps.roll.tallies.potencyBonus : 0)

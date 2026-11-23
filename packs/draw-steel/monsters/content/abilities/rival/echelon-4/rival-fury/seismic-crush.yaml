@@ -1,0 +1,51 @@
+id: abilities.rival.echelon-4.rival-fury.seismic-crush
+type: ability
+grantOnly: false
+tags:
+  - kw.melee
+  - kw.strike
+  - kw.weapon
+fields:
+  usage: main-action
+  kind: signature
+  spendCost: 2
+  distanceKind: melee
+  distance: 1
+  rollBonus: 5
+  t1Damage: 15
+  t1AddsChar: false
+  t1Move: push
+  t1MoveDistance: 4
+  t2Damage: 21
+  t2AddsChar: false
+  t2Move: push
+  t2MoveDistance: 5
+  t3Damage: 25
+  t3AddsChar: false
+  t3Move: push
+  t3MoveDistance: 6
+effects:
+  # 2 Malice: each target who has M < 4 is bleeding and slowed (save ends).
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@conditions.bleeding'
+          state: { duration: "'save'" }
+          appliedBy: character.id
+    when: >-
+      flags.tier > 0 && has(params.malice) && params.malice >= 2
+        && participant.characteristics.might.score < 4 + (has(steps.roll) ? steps.roll.tallies.potencyBonus : 0)
+  # (the slowed)
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@conditions.slowed'
+          state: { duration: "'save'" }
+          appliedBy: character.id
+    when: >-
+      flags.tier > 0 && has(params.malice) && params.malice >= 2
+        && participant.characteristics.might.score < 4 + (has(steps.roll) ? steps.roll.tallies.potencyBonus : 0)

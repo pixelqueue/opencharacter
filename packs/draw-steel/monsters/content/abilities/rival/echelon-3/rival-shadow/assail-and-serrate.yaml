@@ -1,0 +1,44 @@
+# The 1 Malice teleport and hide are the table's.
+id: abilities.rival.echelon-3.rival-shadow.assail-and-serrate
+type: ability
+grantOnly: false
+tags:
+  - kw.melee
+  - kw.strike
+  - kw.weapon
+fields:
+  usage: main-action
+  kind: signature
+  spendCost: 1
+  distanceKind: melee
+  distance: 1
+  rollBonus: 4
+  t1Damage: 13
+  t1AddsChar: false
+  t1Condition: conditions.bleeding
+  t1Duration: save
+  t1PotencyChar: agility
+  t1PotencyValue: 2
+  t2Damage: 18
+  t2AddsChar: false
+  t2Condition: conditions.bleeding
+  t2Duration: save
+  t2PotencyChar: agility
+  t2PotencyValue: 3
+  t3Damage: 22
+  t3AddsChar: false
+  t3Condition: conditions.bleeding
+  t3Duration: save
+  t3PotencyChar: agility
+  t3PotencyValue: 4
+effects:
+  # Tier 3: weakened (save ends) too, behind the same potency.
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@conditions.weakened'
+          state: { duration: "'save'" }
+          appliedBy: character.id
+    when: flags.tier == 3 && flags.landed
