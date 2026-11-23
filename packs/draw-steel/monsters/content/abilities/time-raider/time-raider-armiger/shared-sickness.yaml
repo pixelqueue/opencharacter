@@ -1,0 +1,27 @@
+id: abilities.time-raider.time-raider-armiger.shared-sickness
+type: ability
+grantOnly: false
+tags:
+  - kw.psionic
+  - kw.ranged
+fields:
+  usage: triggered
+  distanceKind: ranged
+  distance: 20
+  rollBonus: 2
+  damageType: psychic
+  t1Damage: 4
+  t1AddsChar: false
+  t2Damage: 6
+  t2AddsChar: false
+  t3Damage: 9
+  t3AddsChar: false
+# R < 0 / 1 / 2: 5 poison damage beside the psychic damage.
+effects:
+  - target: { rolls: [damage], from: self }
+    op: add
+    value: 5
+    tags: [damage.poison]
+    when: >-
+      flags.tier > 0 && participant.characteristics.reason.score
+        < [0, 1, 2][flags.tier - 1] + steps.roll.tallies.potencyBonus

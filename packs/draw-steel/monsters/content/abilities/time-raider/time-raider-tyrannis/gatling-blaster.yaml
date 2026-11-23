@@ -1,0 +1,34 @@
+id: abilities.time-raider.time-raider-tyrannis.gatling-blaster
+type: ability
+grantOnly: false
+tags:
+  - kw.melee
+  - kw.psionic
+  - kw.ranged
+  - kw.strike
+  - kw.weapon
+fields:
+  usage: main-action
+  kind: signature
+  distanceKind: melee-or-ranged
+  distance: 2
+  rangedDistance: 10
+  rollBonus: 3
+  damageType: corruption
+  t1Damage: 8
+  t1AddsChar: false
+  t2Damage: 12
+  t2AddsChar: false
+  t3Damage: 15
+  t3AddsChar: false
+# Each target takes a −2 penalty to speed until the start of the tyrannis's next turn.
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@effects.time-raider.speed-penalty'
+          state: { duration: "'next-start'" }
+          appliedBy: character.id
+    when: flags.tier > 0
