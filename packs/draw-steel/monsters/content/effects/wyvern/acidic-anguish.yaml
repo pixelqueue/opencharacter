@@ -1,0 +1,18 @@
+# Acidic Anguish: 1d4 acid damage at the start of each of the creature's turns while weakened; it
+# ends at the end of a turn the creature isn't weakened.
+id: effects.wyvern.acidic-anguish
+type: effect
+effects:
+  - target: { steps: [turn.start] }
+    op: action
+    scope: applied
+    value: { id: acidic-anguish, use: ongoing-damage, params: { dice: 1d4, damageType: "'acid'" } }
+    when: conditions.weakened
+  - target: { steps: [turn.end] }
+    op: changes
+    scope: applied
+    value:
+      changes:
+        - type: removeEffect
+          applied: { where: 'self.source == @effects.wyvern.acidic-anguish' }
+    when: '!conditions.weakened'

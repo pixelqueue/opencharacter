@@ -1,0 +1,44 @@
+id: abilities.wyvern.wyvern-lurker.acidic-anguish
+type: ability
+grantOnly: false
+tags:
+  - kw.magic
+  - kw.strike
+  - kw.weapon
+fields:
+  usage: main-action
+  resource: malice
+  cost: 3
+  distanceKind: melee
+  distance: 2
+  rollBonus: 3
+  damageType: acid
+  t1Damage: 10
+  t1AddsChar: false
+  t1Condition: conditions.weakened
+  t1Duration: save
+  t1PotencyChar: might
+  t1PotencyValue: 1
+  t2Damage: 16
+  t2AddsChar: false
+  t2Condition: conditions.weakened
+  t2Duration: save
+  t2PotencyChar: might
+  t2PotencyValue: 2
+  t3Damage: 20
+  t3AddsChar: false
+  t3Condition: conditions.weakened
+  t3Duration: save
+  t3PotencyChar: might
+  t3PotencyValue: 3
+# A target weakened this way takes 1d4 acid damage at the start of each of their turns.
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@effects.wyvern.acidic-anguish'
+          state: { duration: "'encounter'" }
+          appliedBy: character.id
+    when: flags.tier > 0 && flags.landed

@@ -1,0 +1,38 @@
+id: abilities.wyvern.wyvern-predator.sedating-stinger
+type: ability
+grantOnly: false
+tags:
+  - kw.magic
+  - kw.strike
+  - kw.weapon
+fields:
+  usage: main-action
+  kind: signature
+  distanceKind: melee
+  distance: 3
+  rollBonus: 3
+  t1Damage: 9
+  t1AddsChar: false
+  t2Damage: 14
+  t2AddsChar: false
+  t2Condition: conditions.slowed
+  t2Duration: save
+  t2PotencyChar: might
+  t2PotencyValue: 2
+  t3Damage: 17
+  t3AddsChar: false
+  t3Condition: conditions.slowed
+  t3Duration: save
+  t3PotencyChar: might
+  t3PotencyValue: 3
+# A target already slowed is instead restrained (save ends).
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@conditions.restrained'
+          state: { duration: "'save'" }
+          appliedBy: character.id
+    when: flags.tier >= 2 && flags.landed && participant.conditions.slowed
