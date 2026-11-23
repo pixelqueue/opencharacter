@@ -1,0 +1,23 @@
+# The pull is the table's. Until the end of the target's next turn: the bleeding is applied as the target's own, so
+# 'next-end' ends it at the end of their next turn.
+id: abilities.dragon.thorn-dragon.prickly-situation
+type: ability
+grantOnly: false
+tags:
+  - kw.magic
+  - kw.ranged
+fields:
+  usage: free-triggered
+  distanceKind: ranged
+  distance: 10
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@conditions.restrained'
+          state: { duration: "'next-end'" }
+          appliedBy: participant.id
+    when: >-
+      participant.characteristics.agility.score + participant.potency.resistBonus.agility < 2 + (has(steps.roll) ? steps.roll.tallies.potencyBonus : 0)

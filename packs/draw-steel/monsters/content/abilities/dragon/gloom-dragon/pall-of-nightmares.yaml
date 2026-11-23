@@ -1,0 +1,34 @@
+# Any target with I < 3 is also dazed (save ends). That each target must be dragonsealed is the
+# table's.
+id: abilities.dragon.gloom-dragon.pall-of-nightmares
+type: ability
+grantOnly: false
+tags:
+  - kw.area
+  - kw.magic
+fields:
+  usage: no-action
+  kind: villain
+  resource: villain-action
+  cost: 2
+  distanceKind: burst
+  distance: 10
+  rollBonus: 4
+  damageType: psychic
+  t1Damage: 6
+  t1AddsChar: false
+  t2Damage: 11
+  t2AddsChar: false
+  t3Damage: 14
+  t3AddsChar: false
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@conditions.dazed'
+          state: { duration: "'save'" }
+          appliedBy: character.id
+    when: >-
+      flags.tier > 0 && participant.characteristics.intuition.score + participant.potency.resistBonus.intuition < 3 + (has(steps.roll) ? steps.roll.tallies.potencyBonus : 0)

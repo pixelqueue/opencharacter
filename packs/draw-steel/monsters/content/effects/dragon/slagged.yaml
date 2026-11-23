@@ -1,0 +1,12 @@
+# Slagged (crucible dragon's Slag Spew): 2d6 fire damage at the start of each of the creature's
+# turns. Restrained (save ends) on taking cold damage with M < 3 is the table's.
+id: effects.dragon.slagged
+type: effect
+effects:
+  - target: { steps: [turn.start] }
+    op: action
+    scope: applied
+    value:
+      id: slagged
+      use: ongoing-damage
+      params: { dice: 2d6, damageType: "'fire'" }

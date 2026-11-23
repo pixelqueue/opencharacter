@@ -1,0 +1,20 @@
+# Damage immunity 6 until the end of the encounter; losing it for the round after taking damage
+# (and regaining it each round) is the table's.
+id: abilities.dragon.crucible-dragon.subdermal-shielding
+type: ability
+grantOnly: false
+fields:
+  usage: no-action
+  kind: villain
+  resource: villain-action
+  cost: 2
+  distanceKind: self
+effects:
+  - target: { steps: [ability.after], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@effects.dragon.subdermal-shielding'
+          state: { duration: "'encounter'" }
+          appliedBy: character.id

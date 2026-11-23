@@ -1,0 +1,37 @@
+# 1 Malice: 1d6 cold damage more. The free strike against slagged targets knocked prone is the
+# table's.
+id: abilities.dragon.crucible-dragon.forge-hammer-tail-slam
+type: ability
+grantOnly: false
+tags:
+  - kw.melee
+  - kw.strike
+  - kw.weapon
+fields:
+  usage: main-action
+  spendCost: 1
+  distanceKind: melee
+  distance: 3
+  rollBonus: 4
+  t1Damage: 11
+  t1AddsChar: false
+  t1Condition: conditions.prone
+  t1PotencyChar: might
+  t1PotencyValue: 2
+  t2Damage: 17
+  t2AddsChar: false
+  t2Condition: conditions.prone
+  t2PotencyChar: might
+  t2PotencyValue: 3
+  t3Damage: 20
+  t3AddsChar: false
+  t3Condition: conditions.prone
+  t3PotencyChar: might
+  t3PotencyValue: 4
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - { type: adjust, field: stamina.current, by: -1d6, tags: [damage, damage.cold] }
+    when: flags.tier > 0 && has(params.malice) && params.malice >= 1

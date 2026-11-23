@@ -1,0 +1,31 @@
+# The Deathcount: 10, 8 or 6 by tier (the lowest of several counts).
+id: abilities.dragon.omen-dragon.what-you-deserve
+type: ability
+grantOnly: false
+tags:
+  - kw.area
+  - kw.magic
+fields:
+  usage: no-action
+  kind: villain
+  resource: villain-action
+  cost: 1
+  distanceKind: burst
+  distance: 5
+  rollBonus: 5
+  t1Move: pull
+  t1MoveDistance: 1
+  t2Move: pull
+  t2MoveDistance: 2
+  t3Move: pull
+  t3MoveDistance: 3
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@effects.dragon.deathcount'
+          state: { amount: '[10, 8, 6][flags.tier - 1]', duration: "'encounter'" }
+          appliedBy: character.id
+    when: flags.tier > 0

@@ -1,0 +1,45 @@
+# 2 Malice: an extra 1d3 damage and A < 2 bleeding (save ends) on each target.
+id: abilities.dragon.thorn-dragon.spinous-tail-swing
+type: ability
+grantOnly: false
+tags:
+  - kw.charge
+  - kw.melee
+  - kw.strike
+  - kw.weapon
+fields:
+  usage: main-action
+  spendCost: 2
+  distanceKind: melee
+  distance: 2
+  rollBonus: 3
+  t1Damage: 8
+  t1AddsChar: false
+  t1Move: push
+  t1MoveDistance: 2
+  t2Damage: 12
+  t2AddsChar: false
+  t2Move: push
+  t2MoveDistance: 4
+  t3Damage: 15
+  t3AddsChar: false
+  t3Move: push
+  t3MoveDistance: 8
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - { type: adjust, field: stamina.current, by: -1d3, tags: [damage] }
+    when: flags.tier > 0 && has(params.malice) && params.malice >= 2
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@conditions.bleeding'
+          state: { duration: "'save'" }
+          appliedBy: character.id
+    when: >-
+      flags.tier > 0 && has(params.malice) && params.malice >= 2
+        && participant.characteristics.agility.score + participant.potency.resistBonus.agility < 2 + (has(steps.roll) ? steps.roll.tallies.potencyBonus : 0)
