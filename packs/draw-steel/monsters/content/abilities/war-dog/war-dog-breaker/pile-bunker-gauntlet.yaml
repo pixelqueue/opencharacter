@@ -40,5 +40,6 @@ effects:
           state: { duration: "'save'" }
           appliedBy: character.id
     when: >-
-      flags.tier == 3 && participant.characteristics.might.score
-        < 4 + (has(steps.roll) ? steps.roll.tallies.potencyBonus : 0)
+      flags.tier == 3
+        && participant.characteristics.might.score + participant.potency.resistBonus.might
+          < 4 + (has(steps.roll) ? steps.roll.tallies.potencyBonus : 0)
