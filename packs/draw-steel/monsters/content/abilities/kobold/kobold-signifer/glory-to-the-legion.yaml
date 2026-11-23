@@ -1,0 +1,18 @@
+id: abilities.kobold.kobold-signifer.glory-to-the-legion
+type: ability
+grantOnly: false
+tags:
+  - kw.area
+fields:
+  usage: maneuver
+  resource: malice
+  cost: 5
+  distanceKind: burst
+  distance: 5
+# Each target regains 5 Stamina.
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - { type: adjust, field: stamina.current, by: 5, tags: [healing] }

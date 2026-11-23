@@ -1,0 +1,8 @@
+# Dolabra and Net's 3 Malice: 2 fire damage at the start of each of the creature's turns.
+id: effects.kobold.burning-net
+type: effect
+effects:
+  - target: { steps: [turn.start] }
+    op: action
+    scope: applied
+    value: { id: burning-net, use: ongoing-damage, params: { dice: '2', damageType: "'fire'" } }

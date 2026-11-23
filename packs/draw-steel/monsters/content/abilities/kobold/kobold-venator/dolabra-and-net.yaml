@@ -1,0 +1,40 @@
+id: abilities.kobold.kobold-venator.dolabra-and-net
+type: ability
+grantOnly: false
+tags:
+  - kw.melee
+  - kw.strike
+  - kw.weapon
+fields:
+  usage: main-action
+  kind: signature
+  spendCost: 3
+  distanceKind: melee
+  distance: 1
+  rollBonus: 2
+  t1Damage: 4
+  t1AddsChar: false
+  t2Damage: 6
+  t2AddsChar: false
+  t2Condition: conditions.restrained
+  t2Duration: save
+  t2PotencyChar: might
+  t2PotencyValue: 1
+  t3Damage: 7
+  t3AddsChar: false
+  t3Condition: conditions.restrained
+  t3Duration: save
+  t3PotencyChar: might
+  t3PotencyValue: 2
+# 3 Malice: a target restrained this way takes 2 fire damage at the start of each of their turns
+# (its own save: that it ends with the restrained is the table's).
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@effects.kobold.burning-net'
+          state: { duration: "'save'" }
+          appliedBy: character.id
+    when: flags.landed && has(params.malice) && params.malice >= 3
