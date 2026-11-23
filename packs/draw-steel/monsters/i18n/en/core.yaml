@@ -1,4 +1,14 @@
 pack.name: Draw Steel Monsters
+# A monster's sheet: "Goblin Monarch, Level 1 Leader", "Goblin Spinecleaver, Level 1 Minion Brute";
+# the Director's: "Director, 9 Malice"; a hero's as the heroes pack words it.
+headline: >-
+  {has_type_monster, select,
+    true {{type_monster}, Level {field_level} {field_monster_organization, select, minion {Minion} horde {Horde} platoon {Platoon} elite {Elite} leader {Leader} solo {Solo} retainer {Retainer} other {}}{field_monster_role, select, ambusher { Ambusher} artillery { Artillery} brute { Brute} controller { Controller} defender { Defender} harrier { Harrier} hexer { Hexer} mount { Mount} support { Support} other {}}}
+    other {{has_type_director, select,
+      true {Director, {field_malice} Malice}
+      other {{has_type_class, select,
+        true {Level {field_level} {has_type_ancestry, select, true {{type_ancestry} } other {}}{type_class}{has_type_subclass, select, true { ({type_subclass})} other {}}}
+        other {{has_type_ancestry, select, true {{type_ancestry}} other {}}}}}}}}
 
 creation.monster.name: Monster
 creation.monster.description: Make a monster's sheet from its stat block (a minion's sheet is its squad).
@@ -8,6 +18,43 @@ creation.director.name: Director
 creation.director.description: Make the Director's sheet, which holds the Malice every monster spends.
 
 types.monster.name: Monster
+types.monster.block: >-
+  {has_tags, select, true {**{tags_name}** · } other {}}Level {level}
+  {organization_name}{role, select, none {} other { {role_name}}} · EV {ev}{organization, select,
+  minion { for four minions} other {}} · Size {size_name} · Speed {speed} · Stamina {stamina} ·
+  Stability {stability} · Free Strike {freeStrike}
+types.monster.fields.organization.values.minion.name: Minion
+types.monster.fields.organization.values.horde.name: Horde
+types.monster.fields.organization.values.platoon.name: Platoon
+types.monster.fields.organization.values.elite.name: Elite
+types.monster.fields.organization.values.leader.name: Leader
+types.monster.fields.organization.values.solo.name: Solo
+types.monster.fields.organization.values.retainer.name: Retainer
+types.monster.fields.role.values.none.name: —
+types.monster.fields.role.values.ambusher.name: Ambusher
+types.monster.fields.role.values.artillery.name: Artillery
+types.monster.fields.role.values.brute.name: Brute
+types.monster.fields.role.values.controller.name: Controller
+types.monster.fields.role.values.defender.name: Defender
+types.monster.fields.role.values.harrier.name: Harrier
+types.monster.fields.role.values.hexer.name: Hexer
+types.monster.fields.role.values.mount.name: Mount
+types.monster.fields.role.values.support.name: Support
+types.monster.fields.size.values.1t.name: '1T'
+types.monster.fields.size.values.1s.name: '1S'
+types.monster.fields.size.values.1m.name: '1M'
+types.monster.fields.size.values.1l.name: '1L'
+types.monster.fields.size.values.2.name: '2'
+types.monster.fields.size.values.3.name: '3'
+types.monster.fields.size.values.4.name: '4'
+types.monster.fields.size.values.5.name: '5'
+types.malice.block: '{cost}{costPlus, select, true {+} other {}} Malice{test, select, none {} other { · {test_name} test}}'
+types.malice.fields.test.values.none.name: None
+types.malice.fields.test.values.might.name: Might
+types.malice.fields.test.values.agility.name: Agility
+types.malice.fields.test.values.reason.name: Reason
+types.malice.fields.test.values.intuition.name: Intuition
+types.malice.fields.test.values.presence.name: Presence
 types.monster.fields.level.name: Level
 types.monster.fields.organization.name: Organization
 types.monster.fields.role.name: Role
