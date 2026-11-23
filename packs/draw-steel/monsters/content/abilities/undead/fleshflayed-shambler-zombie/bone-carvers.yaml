@@ -28,4 +28,5 @@ effects:
           state: { duration: "'save'" }
           appliedBy: character.id
     when: >-
-      flags.tier > 0 && min(2, steps.roll.tallies.edges) > min(2, steps.roll.tallies.banes)
+      flags.tier > 0 && has(steps.tier)
+        && min(2, steps.tier.tallies.edges) > min(2, steps.tier.tallies.banes)
