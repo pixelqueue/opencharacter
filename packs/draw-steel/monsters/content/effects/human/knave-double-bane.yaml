@@ -1,0 +1,16 @@
+# Morningstar and Javelin tier 3: a double bane on the creature's next power roll, which ends it.
+id: effects.human.knave-double-bane
+type: effect
+effects:
+  - target: { rolls: [power-roll], tally: banes }
+    op: add
+    value: 2
+    scope: applied
+  - target: { steps: [ability.after] }
+    op: changes
+    scope: applied
+    value:
+      changes:
+        - type: removeEffect
+          applied: { where: 'self.source == @effects.human.knave-double-bane' }
+    when: has(steps.roll)
