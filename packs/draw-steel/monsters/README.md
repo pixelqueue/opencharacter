@@ -106,7 +106,13 @@ computeSheet(ruleset, made.character).values['draw-steel-heroes:stamina.max']?.v
 
 ## Monsters
 
-Goblins, the werewolf and the elementals so far; the other groups are being converted.
+Every group in the book: 437 stat blocks across 53 groups, from the solo monsters (Ajax the
+Invincible, the dragons, Xorannox the Tyract) to the rivals, war dogs and noncombatants.
+
+- **Retainers:** a retainer's sheet is a monster sheet; `advance-retainer` raises their level and
+  applies the book's advancement (Stamina, free strike and signature damage, characteristics, and
+  the advancement ability chosen at 4th, 7th and 10th level). An Encounter ability comes back when
+  the encounter ends, not when the mentor earns a Victory.
 
 ## Limitations
 
