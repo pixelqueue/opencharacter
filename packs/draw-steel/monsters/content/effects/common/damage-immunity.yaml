@@ -1,0 +1,16 @@
+# "The target has fire immunity 5" for a while: the type and amount are the entry's. It doesn't
+# add to an immunity the creature has: the higher counts.
+id: effects.common.damage-immunity
+type: effect
+state:
+  damageType:
+    type: enum
+    values: [acid, cold, corruption, fire, holy, lightning, poison, psychic, sonic]
+    default: fire
+  amount: { type: integer, default: 0, min: 0 }
+reapply: { match: [damageType], state: { amount: highest, duration: replace } }
+effects:
+  - target: { formula: "'draw-steel-heroes:immunity.' + self.damageType" }
+    op: atLeast
+    value: self.amount
+    scope: applied

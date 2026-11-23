@@ -117,18 +117,17 @@ effects:
         - { type: set, field: villain.used, value: '[]' }
     when: sheet.monster
 
-  # A target's test: each target tests, and its tier lands as the ability's tier fields say.
-  - id: target-test
+  # A target's test: each target tests, and its tier lands as the ability's tier fields say. One
+  # effect per characteristic: an added run's params don't see `action` (gap list).
+  - id: target-test-might
     target: { steps: [ability.hit] }
     op: action
     value:
       id: target-test
       use: test
       as: participant
-      params:
-        characteristic: >-
-          filterList(keysOf('characteristic'), ('target-test.' + x) in action.item.tags)[0]
-      changes:
+      params: { characteristic: "'might'" }
+      changes: &target-test
         - type: adjust
           when: >-
             [has(action.item.t1Damage), has(action.item.t2Damage), has(action.item.t3Damage)][min(3, run.data.tier) - 1]
@@ -155,8 +154,47 @@ effects:
                 has(action.item.t2Duration) ? action.item.t2Duration : 'until',
                 has(action.item.t3Duration) ? action.item.t3Duration : 'until'][min(3, run.data.tier) - 1]
           appliedBy: character.id
-    when: >-
-      sheet.monster && countList(keysOf('characteristic'), ('target-test.' + x) in action.item.tags) > 0
+    when: "sheet.monster && 'target-test.might' in action.item.tags"
+  - id: target-test-agility
+    target: { steps: [ability.hit] }
+    op: action
+    value:
+      id: target-test
+      use: test
+      as: participant
+      params: { characteristic: "'agility'" }
+      changes: *target-test
+    when: "sheet.monster && 'target-test.agility' in action.item.tags"
+  - id: target-test-reason
+    target: { steps: [ability.hit] }
+    op: action
+    value:
+      id: target-test
+      use: test
+      as: participant
+      params: { characteristic: "'reason'" }
+      changes: *target-test
+    when: "sheet.monster && 'target-test.reason' in action.item.tags"
+  - id: target-test-intuition
+    target: { steps: [ability.hit] }
+    op: action
+    value:
+      id: target-test
+      use: test
+      as: participant
+      params: { characteristic: "'intuition'" }
+      changes: *target-test
+    when: "sheet.monster && 'target-test.intuition' in action.item.tags"
+  - id: target-test-presence
+    target: { steps: [ability.hit] }
+    op: action
+    value:
+      id: target-test
+      use: test
+      as: participant
+      params: { characteristic: "'presence'" }
+      changes: *target-test
+    when: "sheet.monster && 'target-test.presence' in action.item.tags"
 
   # No power roll and no test: the tier-1 damage and condition land on each target, the condition
   # behind its potency.

@@ -327,6 +327,33 @@ actions:
             applied: { where: self.id == params.entry }
       - { id: done, kind: outcome, result: "'ended'" }
 
+  # Damage a lasting effect deals on a turn ("a burning creature takes 1d6 fire damage at the start
+  # of each of their turns"): an effect runs it on the creature who has it.
+  - id: ongoing-damage
+    tags: [combat]
+    params:
+      dice: { type: dice }
+      damageType:
+        type: enum
+        values: [untyped, acid, cold, corruption, fire, holy, lightning, poison, psychic, sonic]
+        default: untyped
+    results: [taken]
+    steps:
+      - id: roll
+        kind: roll
+        tags: [ongoing-damage]
+        parts: [{ dice: params.dice }]
+      - id: take
+        kind: changes
+        changes:
+          - type: adjust
+            field: stamina.current
+            by: -steps.roll.total
+            tags:
+              - damage
+              - { formula: "params.damageType == 'untyped' ? [] : ['damage.' + params.damageType]" }
+      - { id: done, kind: outcome, result: "'taken'", data: { damage: steps.roll.total } }
+
   # Making a monster's sheet: its stat block, then a copy of each trait and ability. A minion's
   # sheet is its squad (`squad` minions, one Stamina pool).
   - id: create-monster
