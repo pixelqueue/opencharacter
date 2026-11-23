@@ -1,0 +1,43 @@
+# Two power rolls: the tier fields are the first (from the ceiling: damage, prone, restrained
+# behind M < 1/2/3); the second (from the floor: 2/3/4 damage and a vertical slide 2/4/6, restrained
+# on hitting the ceiling at tier 3) is the table's, in the effect text.
+id: abilities.fossil-cryptic.fossil-cryptic.no-escape
+type: ability
+grantOnly: false
+tags:
+  - kw.ranged
+fields:
+  usage: no-action
+  kind: villain
+  resource: villain-action
+  cost: 3
+  distanceKind: ranged
+  distance: 10
+  rollBonus: 3
+  t1Damage: 5
+  t1AddsChar: false
+  t1Condition: conditions.restrained
+  t1Duration: save
+  t1PotencyChar: might
+  t1PotencyValue: 1
+  t2Damage: 9
+  t2AddsChar: false
+  t2Condition: conditions.restrained
+  t2Duration: save
+  t2PotencyChar: might
+  t2PotencyValue: 2
+  t3Damage: 12
+  t3AddsChar: false
+  t3Condition: conditions.restrained
+  t3Duration: save
+  t3PotencyChar: might
+  t3PotencyValue: 3
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@conditions.prone'
+          appliedBy: character.id
+    when: flags.tier > 0
