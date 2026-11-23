@@ -1,0 +1,47 @@
+id: abilities.basilisk.basilisk-tonguesnapper.wink
+type: ability
+grantOnly: false
+tags:
+  - kw.magic
+  - kw.melee
+  - kw.ranged
+  - kw.strike
+fields:
+  usage: main-action
+  resource: malice
+  cost: 2
+  distanceKind: melee-or-ranged
+  distance: 1
+  rangedDistance: 10
+  rollBonus: 2
+  damageType: corruption
+  t1Damage: 8
+  t1AddsChar: false
+  t1Condition: conditions.dazed
+  t1Duration: save
+  t1PotencyChar: reason
+  t1PotencyValue: 0
+  t2Damage: 10
+  t2AddsChar: false
+  t2Condition: conditions.dazed
+  t2Duration: save
+  t2PotencyChar: reason
+  t2PotencyValue: 1
+  t3Damage: 14
+  t3AddsChar: false
+  t3Condition: conditions.dazed
+  t3Duration: save
+  t3PotencyChar: reason
+  t3PotencyValue: 2
+# Tier 3: dazed and slowed behind R < 2. A creature dazed this way losing edges and surges is the
+# table's.
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@conditions.slowed'
+          state: { duration: "'save'" }
+          appliedBy: character.id
+    when: flags.tier == 3 && flags.landed
