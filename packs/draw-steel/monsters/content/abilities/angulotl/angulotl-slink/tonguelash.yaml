@@ -1,0 +1,36 @@
+id: abilities.angulotl.angulotl-slink.tonguelash
+type: ability
+grantOnly: false
+tags:
+  - kw.melee
+  - kw.strike
+  - kw.weapon
+fields:
+  usage: main-action
+  kind: signature
+  distanceKind: melee
+  distance: 6
+  rollBonus: 2
+  t1Damage: 4
+  t1AddsChar: false
+  t1Move: pull
+  t1MoveDistance: 2
+  t2Damage: 6
+  t2AddsChar: false
+  t2Move: pull
+  t2MoveDistance: 4
+  t3Damage: 7
+  t3AddsChar: false
+  t3Move: pull
+  t3MoveDistance: 6
+# The target is wet (save ends). An ally ignoring the damage is the table's.
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@effects.angulotl.wet'
+          state: { duration: "'save'" }
+          appliedBy: character.id
+    when: flags.tier > 0
