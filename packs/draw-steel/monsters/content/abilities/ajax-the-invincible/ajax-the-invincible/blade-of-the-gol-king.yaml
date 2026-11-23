@@ -1,0 +1,37 @@
+# Tier 3: prone behind M < 6; each tier's M potency costs the target 1d3 Recoveries. The
+# extra targets of the 1+ Malice option are the table's.
+id: abilities.ajax-the-invincible.ajax-the-invincible.blade-of-the-gol-king
+type: ability
+grantOnly: false
+tags:
+  - kw.charge
+  - kw.magic
+  - kw.melee
+  - kw.strike
+  - kw.weapon
+fields:
+  usage: main-action
+  kind: signature
+  spendCost: 1
+  spendPlus: true
+  distanceKind: melee
+  distance: 1
+  rollBonus: 5
+  t1Damage: 16
+  t1AddsChar: false
+  t2Damage: 22
+  t2AddsChar: false
+  t3Damage: 26
+  t3AddsChar: false
+  t3Condition: conditions.prone
+  t3PotencyChar: might
+  t3PotencyValue: 6
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - { type: adjust, field: recoveries.spent, by: 1d3 }
+    when: >-
+      flags.tier > 0
+        && participant.characteristics.might.score < [4, 5, 6][flags.tier - 1] + (has(steps.roll) ? steps.roll.tallies.potencyBonus : 0)
