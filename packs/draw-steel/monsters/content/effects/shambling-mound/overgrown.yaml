@@ -1,0 +1,8 @@
+# Ravenous Overgrowth: poison weakness (3 or 5) until the end of the encounter.
+id: effects.shambling-mound.overgrown
+type: effect
+state:
+  amount: { type: integer, default: 0, min: 0 }
+reapply: { state: { amount: highest, duration: replace } }
+effects:
+  - { target: weakness.poison, op: add, value: self.amount, scope: applied }
