@@ -1,0 +1,38 @@
+id: abilities.lizardfolk.lizardfolk-scaletooth.razor-bite
+type: ability
+grantOnly: false
+tags:
+  - kw.melee
+  - kw.strike
+  - kw.weapon
+fields:
+  usage: main-action
+  kind: signature
+  distanceKind: melee
+  distance: 1
+  rollBonus: 2
+  t1Damage: 6
+  t1AddsChar: false
+  t2Damage: 9
+  t2AddsChar: false
+  t3Damage: 12
+  t3AddsChar: false
+  t3Condition: conditions.bleeding
+  t3Duration: save
+  t3PotencyChar: agility
+  t3PotencyValue: 2
+# A grabbed target: the potency is 1 higher (A < 3). A target only shows that it's grabbed, not by
+# whom: that the scaletooth holds them is the table's.
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@conditions.bleeding'
+          state: { duration: "'save'" }
+          appliedBy: character.id
+    when: >-
+      flags.tier == 3 && !flags.landed && participant.conditions.grabbed
+        && participant.characteristics.agility.score + participant.potency.resistBonus.agility
+          < 3 + (has(steps.roll) ? steps.roll.tallies.potencyBonus : 0)
