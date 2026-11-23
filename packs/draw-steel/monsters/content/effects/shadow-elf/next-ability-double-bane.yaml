@@ -1,0 +1,15 @@
+# Blotting Bolt's 3 Malice: a double bane on the next ability the creature uses, which ends it.
+id: effects.shadow-elf.next-ability-double-bane
+type: effect
+effects:
+  - target: { rolls: [power-roll.ability], tally: banes }
+    op: add
+    value: 2
+    scope: applied
+  - target: { steps: [ability.after] }
+    op: changes
+    scope: applied
+    value:
+      changes:
+        - type: removeEffect
+          applied: { where: 'self.source == @effects.shadow-elf.next-ability-double-bane' }

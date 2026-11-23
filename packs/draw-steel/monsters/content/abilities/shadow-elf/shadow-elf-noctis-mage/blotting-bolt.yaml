@@ -1,0 +1,32 @@
+id: abilities.shadow-elf.shadow-elf-noctis-mage.blotting-bolt
+type: ability
+grantOnly: false
+tags:
+  - kw.magic
+  - kw.ranged
+  - kw.strike
+fields:
+  usage: main-action
+  kind: signature
+  spendCost: 3
+  distanceKind: ranged
+  distance: 5
+  rollBonus: 3
+  t1Damage: 9
+  t1AddsChar: false
+  t2Damage: 14
+  t2AddsChar: false
+  t3Damage: 17
+  t3AddsChar: false
+# A bane on the target's next strike; with 3 Malice, a double bane on their next ability instead.
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: >-
+            has(params.malice) && params.malice >= 3
+              ? @effects.shadow-elf.next-ability-double-bane : @effects.shadow-elf.next-strike-bane
+          appliedBy: character.id
+    when: flags.tier > 0

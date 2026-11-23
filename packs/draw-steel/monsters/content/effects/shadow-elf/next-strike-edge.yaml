@@ -1,0 +1,17 @@
+# Mourning Till Dusk: an edge on the creature's next strike, which ends it.
+id: effects.shadow-elf.next-strike-edge
+type: effect
+effects:
+  - target: { rolls: [power-roll.ability], tally: edges }
+    op: add
+    value: 1
+    scope: applied
+    when: "'kw.strike' in roll.item.tags"
+  - target: { steps: [ability.after] }
+    op: changes
+    scope: applied
+    value:
+      changes:
+        - type: removeEffect
+          applied: { where: 'self.source == @effects.shadow-elf.next-strike-edge' }
+    when: "'kw.strike' in action.item.tags"
