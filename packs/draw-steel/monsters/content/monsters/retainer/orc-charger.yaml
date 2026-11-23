@@ -1,0 +1,51 @@
+id: monsters.retainer.orc-charger
+type: monster
+tags:
+  - creature.humanoid
+  - creature.orc
+fields:
+  level: 1
+  organization: retainer
+  role: harrier
+  size: 1m
+  speed: 8
+  stamina: 21
+  freeStrike: 3
+  might: 2
+  agility: 2
+  reason: 0
+  intuition: 0
+  presence: 0
+  traits:
+    - traits.retainer.orc-charger.relentless
+  abilities:
+    - abilities.retainer.orc-charger.notched-axe
+# Retainer advancement (rules/retainer.yaml): a characteristic +1 at 2nd and 8th level, and an
+# advancement ability at 4th, 7th and 10th level, the retainer's own or their role's.
+choices:
+  - id: increase2
+    when: item.level >= 2
+    from: { values: [might, agility, reason, intuition, presence] }
+    recommend: "'reason'"
+    effects:
+      - target: { formula: "'retainer.' + pick.value + '.increase2'" }
+        op: set
+        value: 'true'
+  - id: increase8
+    when: item.level >= 8
+    from: { values: [might, agility, reason, intuition, presence] }
+    recommend: "'might'"
+    effects:
+      - target: { formula: "'retainer.' + pick.value + '.increase8'" }
+        op: set
+        value: 'true'
+  - id: advancement
+    slots: [4, 7, 10]
+    when: item.level >= slot
+    from:
+      type: ability
+      where: >-
+        item.id in [@abilities.retainer.orc-charger.blood-oath, @abilities.retainer.role-harrier.tackle, @abilities.retainer.orc-charger.mow-em-down, @abilities.retainer.role-harrier.meet-you-there, @abilities.retainer.orc-charger.vein-burst, @abilities.retainer.role-harrier.nab-and-stab]
+    eligible: item.level == slot
+    recommend: >-
+      [@abilities.retainer.orc-charger.blood-oath, @abilities.retainer.orc-charger.mow-em-down, @abilities.retainer.orc-charger.vein-burst][indexOf([4, 7, 10], slot)]

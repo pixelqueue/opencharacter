@@ -1,0 +1,41 @@
+# Tier 3's "can't use triggered actions" is the table's (it shares the slowed's saving throw).
+id: abilities.retainer.role-ambusher.hamstring-slice
+type: ability
+grantOnly: false
+tags:
+  - kw.melee
+  - kw.ranged
+  - kw.strike
+  - kw.weapon
+fields:
+  usage: main-action
+  level: 7
+  resource: encounter
+  cost: 1
+  distanceKind: melee-or-ranged
+  distance: 1
+  rangedDistance: 5
+  t1Damage: 7
+  t1AddsChar: false
+  t1Condition: conditions.slowed
+  t1Duration: eot
+  t1PotencyChar: might
+  t1Potency: weak
+  t2Damage: 10
+  t2AddsChar: false
+  t2Condition: conditions.slowed
+  t2Duration: save
+  t2PotencyChar: might
+  t2Potency: average
+  t3Damage: 15
+  t3AddsChar: false
+  rollChars:
+    - might
+    - agility
+    - reason
+    - intuition
+    - presence
+  t3Condition: conditions.slowed
+  t3Duration: save
+  t3PotencyChar: might
+  t3Potency: strong

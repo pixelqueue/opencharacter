@@ -1,0 +1,55 @@
+id: monsters.retainer.angulotl-hopper
+type: monster
+tags:
+  - creature.angulotl
+  - creature.humanoid
+fields:
+  level: 1
+  organization: retainer
+  role: harrier
+  size: 1s
+  speed: 6
+  movement:
+    - move.climb
+    - move.swim
+  stamina: 21
+  freeStrike: 2
+  might: 1
+  agility: 2
+  reason: 0
+  intuition: 0
+  presence: 0
+  poisonImmunity: 2
+  traits:
+    - traits.retainer.angulotl-hopper.toxiferous
+  abilities:
+    - abilities.retainer.angulotl-hopper.leapfrog
+# Retainer advancement (rules/retainer.yaml): a characteristic +1 at 2nd and 8th level, and an
+# advancement ability at 4th, 7th and 10th level, the retainer's own or their role's.
+choices:
+  - id: increase2
+    when: item.level >= 2
+    from: { values: [might, agility, reason, intuition, presence] }
+    recommend: "'might'"
+    effects:
+      - target: { formula: "'retainer.' + pick.value + '.increase2'" }
+        op: set
+        value: 'true'
+  - id: increase8
+    when: item.level >= 8
+    from: { values: [might, agility, reason, intuition, presence] }
+    recommend: "'might'"
+    effects:
+      - target: { formula: "'retainer.' + pick.value + '.increase8'" }
+        op: set
+        value: 'true'
+  - id: advancement
+    slots: [4, 7, 10]
+    when: item.level >= slot
+    from:
+      type: ability
+      where: >-
+        item.id in [@abilities.retainer.angulotl-hopper.leaping-attack, @abilities.retainer.role-harrier.tackle, @abilities.retainer.angulotl-hopper.three-poison-dart, @abilities.retainer.role-harrier.meet-you-there, @abilities.retainer.angulotl-hopper.trip-of-the-tongue, @abilities.retainer.role-harrier.nab-and-stab]
+    eligible: item.level == slot
+    recommend: >-
+      [@abilities.retainer.angulotl-hopper.leaping-attack, @abilities.retainer.angulotl-hopper.three-poison-dart, @abilities.retainer.angulotl-hopper.trip-of-the-tongue][indexOf([4, 7, 10], slot)]

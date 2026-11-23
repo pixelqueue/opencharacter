@@ -1,0 +1,38 @@
+id: abilities.retainer.unquiet-spirit.enervating-curse
+type: ability
+grantOnly: false
+tags:
+  - kw.magic
+  - kw.ranged
+  - kw.strike
+fields:
+  usage: main-action
+  level: 4
+  resource: encounter
+  cost: 1
+  distanceKind: ranged
+  distance: 10
+  damageType: corruption
+  t1Damage: 6
+  t1AddsChar: false
+  t2Damage: 10
+  t2AddsChar: false
+  t3Damage: 14
+  t3AddsChar: false
+  rollChars:
+    - might
+    - agility
+    - reason
+    - intuition
+    - presence
+effects:
+  # 1, 2 or 3 levels of drain by tier.
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@effects.retainer.drain'
+          state: { amount: flags.tier }
+          appliedBy: character.id
+    when: flags.tier > 0

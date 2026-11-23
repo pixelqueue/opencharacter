@@ -1,0 +1,51 @@
+id: monsters.retainer.undead-servitor
+type: monster
+tags:
+  - creature.undead
+  - creature.soulless
+fields:
+  level: 1
+  organization: retainer
+  role: brute
+  size: 1m
+  speed: 5
+  stamina: 21
+  freeStrike: 3
+  might: 2
+  agility: -1
+  reason: -3
+  intuition: -1
+  presence: 0
+  traits:
+    - traits.retainer.undead-servitor.arise
+  abilities:
+    - abilities.retainer.undead-servitor.lurching-swipe
+# Retainer advancement (rules/retainer.yaml): a characteristic +1 at 2nd and 8th level, and an
+# advancement ability at 4th, 7th and 10th level, the retainer's own or their role's.
+choices:
+  - id: increase2
+    when: item.level >= 2
+    from: { values: [might, agility, reason, intuition, presence] }
+    recommend: "'presence'"
+    effects:
+      - target: { formula: "'retainer.' + pick.value + '.increase2'" }
+        op: set
+        value: 'true'
+  - id: increase8
+    when: item.level >= 8
+    from: { values: [might, agility, reason, intuition, presence] }
+    recommend: "'might'"
+    effects:
+      - target: { formula: "'retainer.' + pick.value + '.increase8'" }
+        op: set
+        value: 'true'
+  - id: advancement
+    slots: [4, 7, 10]
+    when: item.level >= slot
+    from:
+      type: ability
+      where: >-
+        item.id in [@abilities.retainer.undead-servitor.grab-and-bite, @abilities.retainer.role-brute.big-windup, @abilities.retainer.undead-servitor.death-to-death, @abilities.retainer.role-brute.overhand-swat, @abilities.retainer.undead-servitor.death-miasma, @abilities.retainer.role-brute.dizzying-sweep]
+    eligible: item.level == slot
+    recommend: >-
+      [@abilities.retainer.undead-servitor.grab-and-bite, @abilities.retainer.undead-servitor.death-to-death, @abilities.retainer.undead-servitor.death-miasma][indexOf([4, 7, 10], slot)]

@@ -1,0 +1,43 @@
+id: abilities.retainer.unquiet-spirit.ectoplasm
+type: ability
+grantOnly: false
+tags:
+  - kw.area
+  - kw.magic
+fields:
+  usage: main-action
+  level: 7
+  resource: encounter
+  cost: 1
+  distanceKind: cube
+  distance: 3
+  within: 1
+  rollChars:
+    - might
+    - agility
+    - reason
+    - intuition
+    - presence
+  t1Condition: conditions.slowed
+  t1Duration: save
+  t1PotencyChar: agility
+  t1Potency: weak
+  t2Condition: conditions.slowed
+  t2Duration: save
+  t2PotencyChar: agility
+  t2Potency: average
+  t3Condition: conditions.slowed
+  t3Duration: save
+  t3PotencyChar: agility
+  t3Potency: strong
+effects:
+  # Slowed and weakened, behind the tier's potency.
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@conditions.weakened'
+          state: { duration: "'save'" }
+          appliedBy: character.id
+    when: flags.tier > 0 && flags.landed

@@ -1,0 +1,43 @@
+id: abilities.retainer.troll-mercenary.troll-roar
+type: ability
+grantOnly: false
+tags:
+  - kw.area
+fields:
+  usage: maneuver
+  resource: encounter
+  cost: 1
+  distanceKind: burst
+  distance: 3
+  t1Condition: conditions.frightened
+  t1Duration: save
+  t1PotencyChar: presence
+  t1Potency: weak
+  t2Condition: conditions.frightened
+  t2Duration: save
+  t2PotencyChar: presence
+  t2Potency: average
+  rollChars:
+    - might
+    - agility
+    - reason
+    - intuition
+    - presence
+  t3Condition: conditions.frightened
+  t3Duration: save
+  t3PotencyChar: presence
+  t3Potency: strong
+  t3Move: push
+  t3MoveDistance: 3
+  t3MovePotency: true
+effects:
+  # Tier 3: prone too, behind the same potency.
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@conditions.prone'
+          state: { duration: "'until'" }
+          appliedBy: character.id
+    when: flags.tier == 3 && flags.landed

@@ -1,0 +1,45 @@
+# A retainer has no EV (the source data's 60 isn't in the book).
+id: monsters.retainer.gnoll-gnasher
+type: monster
+tags:
+  - creature.abyssal
+  - creature.gnoll
+fields:
+  level: 2
+  organization: retainer
+  role: harrier
+  size: 1m
+  speed: 7
+  stamina: 30
+  stability: 1
+  freeStrike: 3
+  might: 1
+  agility: 2
+  reason: 0
+  intuition: 0
+  presence: 1
+  traits:
+    - traits.retainer.gnoll-gnasher.death-frenzy
+  abilities:
+    - abilities.retainer.gnoll-gnasher.gnash
+# Retainer advancement (rules/retainer.yaml): a characteristic +1 at 2nd and 8th level, and an
+# advancement ability at 4th, 7th and 10th level, the retainer's own or their role's.
+choices:
+  - id: increase8
+    when: item.level >= 8
+    from: { values: [might, agility, reason, intuition, presence] }
+    recommend: "'agility'"
+    effects:
+      - target: { formula: "'retainer.' + pick.value + '.increase8'" }
+        op: set
+        value: 'true'
+  - id: advancement
+    slots: [4, 7, 10]
+    when: item.level >= slot
+    from:
+      type: ability
+      where: >-
+        item.id in [@abilities.retainer.gnoll-gnasher.frenzied-bite, @abilities.retainer.role-harrier.tackle, @abilities.retainer.gnoll-gnasher.flurry-of-fangs, @abilities.retainer.role-harrier.meet-you-there, @abilities.retainer.gnoll-gnasher.horrific-feast, @abilities.retainer.role-harrier.nab-and-stab]
+    eligible: item.level == slot
+    recommend: >-
+      [@abilities.retainer.gnoll-gnasher.frenzied-bite, @abilities.retainer.gnoll-gnasher.flurry-of-fangs, @abilities.retainer.gnoll-gnasher.horrific-feast][indexOf([4, 7, 10], slot)]

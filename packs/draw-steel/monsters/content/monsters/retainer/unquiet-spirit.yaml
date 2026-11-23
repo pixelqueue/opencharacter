@@ -1,0 +1,58 @@
+id: monsters.retainer.unquiet-spirit
+type: monster
+tags:
+  - creature.undead
+  - creature.soulless
+fields:
+  level: 1
+  organization: retainer
+  role: hexer
+  size: 1m
+  speed: 5
+  movement:
+    - move.fly
+    - move.hover
+  stamina: 21
+  stability: 1
+  freeStrike: 2
+  might: -4
+  agility: 1
+  reason: 0
+  intuition: 0
+  presence: 2
+  corruptionImmunity: 3
+  poisonImmunity: 3
+  traits:
+    - traits.retainer.unquiet-spirit.corruptive-phasing
+  abilities:
+    - abilities.retainer.unquiet-spirit.chill-of-death
+    - abilities.retainer.unquiet-spirit.spirit-meld
+# Retainer advancement (rules/retainer.yaml): a characteristic +1 at 2nd and 8th level, and an
+# advancement ability at 4th, 7th and 10th level, the retainer's own or their role's.
+choices:
+  - id: increase2
+    when: item.level >= 2
+    from: { values: [might, agility, reason, intuition, presence] }
+    recommend: "'agility'"
+    effects:
+      - target: { formula: "'retainer.' + pick.value + '.increase2'" }
+        op: set
+        value: 'true'
+  - id: increase8
+    when: item.level >= 8
+    from: { values: [might, agility, reason, intuition, presence] }
+    recommend: "'agility'"
+    effects:
+      - target: { formula: "'retainer.' + pick.value + '.increase8'" }
+        op: set
+        value: 'true'
+  - id: advancement
+    slots: [4, 7, 10]
+    when: item.level >= slot
+    from:
+      type: ability
+      where: >-
+        item.id in [@abilities.retainer.unquiet-spirit.enervating-curse, @abilities.retainer.role-hexer.backfire-curse, @abilities.retainer.unquiet-spirit.ectoplasm, @abilities.retainer.role-hexer.take-root, @abilities.retainer.unquiet-spirit.death-phase, @abilities.retainer.role-hexer.mazed]
+    eligible: item.level == slot
+    recommend: >-
+      [@abilities.retainer.unquiet-spirit.enervating-curse, @abilities.retainer.unquiet-spirit.ectoplasm, @abilities.retainer.unquiet-spirit.death-phase][indexOf([4, 7, 10], slot)]

@@ -1,0 +1,53 @@
+id: monsters.retainer.wode-elf-arrowswift
+type: monster
+tags:
+  - creature.fey
+  - creature.humanoid
+  - creature.wode-elf
+fields:
+  level: 1
+  organization: retainer
+  role: artillery
+  size: 1m
+  speed: 7
+  stamina: 21
+  stability: 1
+  freeStrike: 2
+  might: 0
+  agility: 2
+  reason: 0
+  intuition: 1
+  presence: 0
+  traits:
+    - traits.retainer.wode-elf-arrowswift.masking-glamor
+  abilities:
+    - abilities.retainer.wode-elf-arrowswift.longshot
+# Retainer advancement (rules/retainer.yaml): a characteristic +1 at 2nd and 8th level, and an
+# advancement ability at 4th, 7th and 10th level, the retainer's own or their role's.
+choices:
+  - id: increase2
+    when: item.level >= 2
+    from: { values: [might, agility, reason, intuition, presence] }
+    recommend: "'intuition'"
+    effects:
+      - target: { formula: "'retainer.' + pick.value + '.increase2'" }
+        op: set
+        value: 'true'
+  - id: increase8
+    when: item.level >= 8
+    from: { values: [might, agility, reason, intuition, presence] }
+    recommend: "'agility'"
+    effects:
+      - target: { formula: "'retainer.' + pick.value + '.increase8'" }
+        op: set
+        value: 'true'
+  - id: advancement
+    slots: [4, 7, 10]
+    when: item.level >= slot
+    from:
+      type: ability
+      where: >-
+        item.id in [@abilities.retainer.wode-elf-arrowswift.snipe, @abilities.retainer.role-artillery.supporting-volley, @abilities.retainer.wode-elf-arrowswift.magic-arrows, @abilities.retainer.role-artillery.line-em-up, @abilities.retainer.wode-elf-arrowswift.double-shot, @abilities.retainer.role-artillery.ricochet-shot]
+    eligible: item.level == slot
+    recommend: >-
+      [@abilities.retainer.wode-elf-arrowswift.snipe, @abilities.retainer.wode-elf-arrowswift.magic-arrows, @abilities.retainer.wode-elf-arrowswift.double-shot][indexOf([4, 7, 10], slot)]
