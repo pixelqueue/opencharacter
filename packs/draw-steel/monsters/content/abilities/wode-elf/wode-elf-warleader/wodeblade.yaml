@@ -1,0 +1,42 @@
+id: abilities.wode-elf.wode-elf-warleader.wodeblade
+type: ability
+grantOnly: false
+tags:
+  - kw.magic
+  - kw.melee
+  - kw.strike
+  - kw.weapon
+fields:
+  usage: main-action
+  kind: signature
+  spendCost: 2
+  distanceKind: melee
+  distance: 1
+  rollBonus: 3
+  t1Damage: 8
+  t1AddsChar: false
+  t1Condition: conditions.restrained
+  t1Duration: save
+  t1PotencyChar: might
+  t1PotencyValue: 1
+  t2Damage: 12
+  t2AddsChar: false
+  t2Condition: conditions.restrained
+  t2Duration: save
+  t2PotencyChar: might
+  t2PotencyValue: 2
+  t3Damage: 15
+  t3AddsChar: false
+  t3Condition: conditions.restrained
+  t3Duration: save
+  t3PotencyChar: might
+  t3PotencyValue: 3
+# 2 Malice: a target restrained by this ability takes 3 more damage.
+effects:
+  - target: { rolls: [damage], from: self }
+    op: add
+    value: 3
+    when: >-
+      flags.tier > 0 && has(params.malice) && params.malice >= 2
+        && participant.characteristics.might.score
+          < [1, 2, 3][flags.tier - 1] + steps.roll.tallies.potencyBonus

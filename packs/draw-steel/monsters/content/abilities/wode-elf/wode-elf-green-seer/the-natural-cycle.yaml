@@ -1,0 +1,39 @@
+id: abilities.wode-elf.wode-elf-green-seer.the-natural-cycle
+type: ability
+grantOnly: false
+tags:
+  - kw.magic
+  - kw.ranged
+  - kw.strike
+fields:
+  usage: maneuver
+  resource: malice
+  cost: 3
+  distanceKind: ranged
+  distance: 10
+  rollBonus: 2
+  t1Damage: 2
+  t1AddsChar: false
+  t2Damage: 4
+  t2AddsChar: false
+  t2Condition: conditions.weakened
+  t2Duration: save
+  t2PotencyChar: presence
+  t2PotencyValue: 1
+  t3Damage: 6
+  t3AddsChar: false
+  t3Condition: conditions.bleeding
+  t3Duration: save
+  t3PotencyChar: presence
+  t3PotencyValue: 1
+# Tier 3: a double bane on strikes (save ends), beside the bleeding.
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@effects.wode-elf.strike-double-bane'
+          state: { duration: "'save'" }
+          appliedBy: character.id
+    when: flags.tier == 3
