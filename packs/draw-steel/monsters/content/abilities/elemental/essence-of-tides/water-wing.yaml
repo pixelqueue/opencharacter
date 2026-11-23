@@ -1,0 +1,36 @@
+id: abilities.elemental.essence-of-tides.water-wing
+type: ability
+grantOnly: false
+tags:
+  - kw.magic
+  - kw.melee
+  - kw.strike
+fields:
+  usage: main-action
+  kind: signature
+  distanceKind: melee
+  distance: 1
+  rollBonus: 2
+  t1Damage: 7
+  t1AddsChar: false
+  t1Move: slide
+  t1MoveDistance: 1
+  t2Damage: 11
+  t2AddsChar: false
+  t2Move: slide
+  t2MoveDistance: 2
+  t3Damage: 14
+  t3AddsChar: false
+  t3Move: slide
+  t3MoveDistance: 3
+# A target with P < 2: stability 0 and 2 more squares of forced movement (save ends).
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@effects.elemental.unmoored'
+          state: { duration: "'save'" }
+          appliedBy: character.id
+    when: flags.tier > 0 && participant.characteristics.presence.score < 2 + steps.roll.tallies.potencyBonus

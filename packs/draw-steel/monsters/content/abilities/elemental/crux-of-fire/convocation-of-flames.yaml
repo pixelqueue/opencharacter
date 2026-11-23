@@ -1,0 +1,22 @@
+id: abilities.elemental.crux-of-fire.convocation-of-flames
+type: ability
+grantOnly: false
+tags:
+  - kw.magic
+  - kw.ranged
+fields:
+  usage: maneuver
+  spendCost: 3
+  distanceKind: ranged
+  distance: 5
+# The target (self or one elemental) has fire immunity 5 until the start of the user's next turn.
+# The 3 Malice ground is the table's.
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@effects.common.damage-immunity'
+          state: { damageType: "'fire'", amount: 5, duration: "'next-start'" }
+          appliedBy: character.id
