@@ -1,0 +1,8 @@
+id: traits.hobgoblin.slaughter-demon.lethe
+type: trait
+# While winded: an edge on strikes. Strikes against the demon gaining an edge is the table's.
+effects:
+  - target: { rolls: [power-roll.ability], tally: edges }
+    op: add
+    value: 1
+    when: "stamina.isWinded && 'kw.strike' in roll.item.tags"

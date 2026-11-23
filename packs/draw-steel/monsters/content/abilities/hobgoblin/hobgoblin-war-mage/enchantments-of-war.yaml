@@ -1,0 +1,22 @@
+# Spending the war mage's Stamina for more temporary Stamina is the table's.
+id: abilities.hobgoblin.hobgoblin-war-mage.enchantments-of-war
+type: ability
+grantOnly: false
+tags:
+  - kw.magic
+  - kw.ranged
+fields:
+  usage: main-action
+  distanceKind: ranged
+  distance: 10
+# Each target gains 10 temporary Stamina and a double edge on their next power roll. The
+# Stamina is added: that it doesn't stack with the target's own is the table's.
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - { type: adjust, field: stamina.temp, by: 10 }
+        - type: applyEffect
+          source: '@effects.hobgoblin.war-mage-double-edge'
+          appliedBy: character.id

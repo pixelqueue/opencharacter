@@ -1,0 +1,32 @@
+id: abilities.hobgoblin.hobgoblin-redglare.glare-of-the-old-judgments
+type: ability
+grantOnly: false
+tags:
+  - kw.magic
+  - kw.ranged
+  - kw.strike
+fields:
+  usage: main-action
+  resource: malice
+  cost: 5
+  distanceKind: ranged
+  distance: 10
+  rollBonus: 3
+  damageType: corruption
+  t1Damage: 10
+  t1AddsChar: false
+  t2Damage: 10
+  t2AddsChar: false
+  t2Effect: effects.hobgoblin.judged
+  t2Duration: encounter
+  t2PotencyChar: presence
+  t2PotencyValue: 2
+  t3Effect: effects.hobgoblin.judged
+  t3Duration: encounter
+# Tier 2: the damage, or judged if the target has P < 2 (no damage then).
+effects:
+  - target: { rolls: [damage], from: self }
+    op: add
+    value: -10
+    tags: [damage.corruption]
+    when: flags.tier == 2 && flags.landed

@@ -1,0 +1,44 @@
+id: abilities.hobgoblin.hobgoblin-incendiarist.fireball-volley
+type: ability
+grantOnly: false
+tags:
+  - kw.area
+  - kw.magic
+  - kw.ranged
+fields:
+  usage: main-action
+  resource: malice
+  cost: 3
+  distanceKind: cube
+  distance: 4
+  within: 10
+  rollBonus: 3
+  damageType: fire
+  t1Damage: 5
+  t1AddsChar: false
+  t2Damage: 9
+  t2AddsChar: false
+  t3Damage: 11
+  t3AddsChar: false
+  t3Condition: conditions.prone
+  t1Effect: effects.hobgoblin.burning
+  t1Duration: save
+  t1PotencyChar: agility
+  t1PotencyValue: 1
+  t2Effect: effects.hobgoblin.burning
+  t2Duration: save
+  t2PotencyChar: agility
+  t2PotencyValue: 2
+# Tier 3: prone (the tier field), and burning (save ends) if A < 3.
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@effects.hobgoblin.burning'
+          state: { duration: "'save'" }
+          appliedBy: character.id
+    when: >-
+      flags.tier == 3 && participant.characteristics.agility.score
+        < 3 + (has(steps.roll) ? steps.roll.tallies.potencyBonus : 0)

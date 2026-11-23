@@ -1,0 +1,50 @@
+# The black flames (5 corruption damage to an adjacent enemy who grabs or uses a melee ability
+# against the bloodlord) are the table's.
+id: abilities.hobgoblin.hobgoblin-bloodlord.i-am-fire-i-am-death
+type: ability
+grantOnly: false
+tags:
+  - kw.area
+  - kw.magic
+fields:
+  usage: no-action
+  kind: villain
+  resource: villain-action
+  cost: 3
+  distanceKind: burst
+  distance: 5
+  rollBonus: 4
+  damageType: fire
+  t1Damage: 5
+  t1AddsChar: false
+  t2Damage: 5
+  t2AddsChar: false
+  t3Damage: 5
+  t3AddsChar: false
+  t1Condition: conditions.prone
+  t1PotencyChar: presence
+  t1PotencyValue: 2
+  t1Move: push
+  t1MoveDistance: 2
+  t1MovePotency: true
+  t2Condition: conditions.prone
+  t2PotencyChar: presence
+  t2PotencyValue: 3
+  t2Move: push
+  t2MoveDistance: 3
+  t2MovePotency: true
+  t3Condition: conditions.prone
+  t3PotencyChar: presence
+  t3PotencyValue: 4
+  t3Move: push
+  t3MoveDistance: 5
+  t3MovePotency: true
+# P < 2/3/4: 2, 7 or 10 more fire damage (with the push and prone the tier fields gate).
+effects:
+  - target: { rolls: [damage], from: self }
+    op: add
+    value: '[2, 7, 10][flags.tier - 1]'
+    tags: [damage.fire]
+    when: >-
+      flags.tier > 0 && has(participant)
+        && participant.characteristics.presence.score < [2, 3, 4][flags.tier - 1] + (has(steps.roll) ? steps.roll.tallies.potencyBonus : 0)

@@ -1,0 +1,10 @@
+# Glare of the Old Judgments: 10 corruption damage at the start of each of the creature's turns
+# until the encounter ends. Regaining 5 Stamina when it lets another creature spend a Recovery is
+# the table's.
+id: effects.hobgoblin.judged
+type: effect
+effects:
+  - target: { steps: [turn.start] }
+    op: action
+    scope: applied
+    value: { id: judged, use: ongoing-damage, params: { dice: '10', damageType: "'corruption'" } }

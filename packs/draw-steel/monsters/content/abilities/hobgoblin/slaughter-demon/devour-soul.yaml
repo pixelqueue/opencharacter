@@ -1,0 +1,21 @@
+# The target can't be brought back to life: the table's.
+id: abilities.hobgoblin.slaughter-demon.devour-soul
+type: ability
+grantOnly: false
+tags:
+  - kw.area
+  - kw.magic
+fields:
+  usage: triggered
+  distanceKind: burst
+  distance: 5
+# The slaughter demon gains an edge on power rolls until the end of the encounter.
+effects:
+  - target: { steps: [ability.after], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@effects.hobgoblin.devoured-soul'
+          state: { duration: "'encounter'" }
+          appliedBy: character.id
