@@ -1,0 +1,21 @@
+# Halving the strike's damage is the table's; then 3 more damage with abilities until the end of
+# the chorogaunt's next turn.
+id: abilities.demon.chorogaunt.i-thrive-on-pain
+type: ability
+grantOnly: false
+tags:
+  - kw.magic
+fields:
+  usage: triggered
+  resource: malice
+  cost: 3
+  distanceKind: self
+effects:
+  - target: { steps: [ability.after], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@effects.demon.thrive-on-pain'
+          state: { duration: "'next-end'" }
+          appliedBy: character.id

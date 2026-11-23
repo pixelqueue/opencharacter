@@ -1,0 +1,20 @@
+# Despair Bolt: a bane (a double bane on a winded target) on the target's next strike, which ends
+# it.
+id: effects.demon.despair
+type: effect
+state:
+  amount: { type: integer, default: 1, min: 1, max: 2 }
+effects:
+  - target: { rolls: [power-roll.ability], tally: banes }
+    op: add
+    value: self.amount
+    scope: applied
+    when: "'kw.strike' in roll.item.tags"
+  - target: { steps: [ability.after] }
+    op: changes
+    scope: applied
+    value:
+      changes:
+        - type: removeEffect
+          applied: { where: 'item.id == @effects.demon.despair' }
+    when: "'kw.strike' in action.item.tags"
