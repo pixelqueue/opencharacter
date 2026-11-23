@@ -1,0 +1,16 @@
+# Solo Act: the creature halves any damage they take, has a +4 damage bonus to strikes and their
+# speed doubled.
+id: effects.radenwight.solo-act
+type: effect
+effects:
+  - target: { incoming: { fields: [stamina.current], tags: [damage] } }
+    op: multiply
+    value: 0.5
+    scope: applied
+    when: incoming.amount < 0
+  - target: { rolls: [damage] }
+    op: add
+    value: 4
+    scope: applied
+    when: "'kw.strike' in roll.item.tags"
+  - { target: speed, op: multiply, value: 2, scope: applied }
