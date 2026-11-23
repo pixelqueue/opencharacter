@@ -1,0 +1,18 @@
+id: abilities.werewolf.werewolf.full-wolf
+type: ability
+grantOnly: false
+fields:
+  usage: no-action
+  kind: villain
+  resource: villain-action
+  cost: 2
+  distanceKind: self
+effects:
+  - target: { steps: [ability.after], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@effects.werewolf.full-wolf'
+          state: { duration: "'encounter'" }
+          appliedBy: character.id

@@ -1,0 +1,26 @@
+# Rage (Accursed Rage): a count the werewolf's abilities give a target. A creature who starts their
+# turn with 10 or more expends it (then shifts toward the nearest creature and free strikes it:
+# the table's), and it's gone after a respite, unless the creature has lycanthropy.
+id: effects.werewolf.rage
+type: effect
+state:
+  amount: { type: integer, default: 0, min: 0 }
+reapply: { state: { amount: add, duration: replace } }
+effects:
+  - target: { steps: [turn.start] }
+    op: changes
+    scope: applied
+    value:
+      changes:
+        - type: removeEffect
+          applied: { where: 'self.source == @effects.werewolf.rage' }
+    when: self.amount >= 10
+  - target: { steps: [respite] }
+    op: changes
+    scope: applied
+    value:
+      changes:
+        - type: removeEffect
+          applied: { where: 'self.source == @effects.werewolf.rage' }
+    when: >-
+      countList(character.applied, x.active && x.source == @effects.werewolf.lycanthropy) == 0
