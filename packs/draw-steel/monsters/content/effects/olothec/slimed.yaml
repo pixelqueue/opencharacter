@@ -1,0 +1,15 @@
+# Devolving Tentacles, Psychic Pulse: 4 psychic damage whenever the creature makes a power roll
+# (here each ability with a power roll; a test's is the table's).
+id: effects.olothec.slimed
+type: effect
+effects:
+  - target: { steps: [ability.after] }
+    op: changes
+    scope: applied
+    value:
+      changes:
+        - type: adjust
+          field: stamina.current
+          by: -4
+          tags: [damage, damage.psychic]
+    when: has(steps.roll)
