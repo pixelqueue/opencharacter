@@ -1,0 +1,22 @@
+# 5 Malice: size 2 with an extra 4 damage on melee abilities (`effects.hag.large-form`) until the
+# hag returns to their original form (removing the effect). The +1 melee distance is the
+# table's (no melee distance field); the size 1 forms and hiding are the table's.
+id: abilities.hag.wode-hag.shapeshifter
+type: ability
+grantOnly: false
+tags:
+  - kw.magic
+fields:
+  usage: maneuver
+  spendCost: 5
+  distanceKind: self
+effects:
+  - target: { steps: [ability.after], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@effects.hag.large-form'
+          state: { duration: "'until'" }
+          appliedBy: character.id
+    when: has(params.malice) && params.malice >= 5
