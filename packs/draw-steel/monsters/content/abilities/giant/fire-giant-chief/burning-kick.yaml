@@ -30,5 +30,5 @@ effects:
     value: 9
     tags: [damage.fire]
     when: >-
-      flags.tier > 0 && participant.characteristics.agility.score
+      flags.tier > 0 && participant.characteristics.agility.score + participant.potency.resistBonus.agility
         < [3, 4, 5][flags.tier - 1] + steps.roll.tallies.potencyBonus

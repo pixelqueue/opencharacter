@@ -23,5 +23,5 @@ effects:
     value: 5
     tags: [damage.poison]
     when: >-
-      flags.tier > 0 && participant.characteristics.reason.score
+      flags.tier > 0 && participant.characteristics.reason.score + participant.potency.resistBonus.reason
         < [0, 1, 2][flags.tier - 1] + steps.roll.tallies.potencyBonus

@@ -38,5 +38,5 @@ effects:
     value: 3
     when: >-
       flags.tier > 0 && has(params.malice) && params.malice >= 2
-        && participant.characteristics.might.score
+        && participant.characteristics.might.score + participant.potency.resistBonus.might
           < [1, 2, 3][flags.tier - 1] + steps.roll.tallies.potencyBonus

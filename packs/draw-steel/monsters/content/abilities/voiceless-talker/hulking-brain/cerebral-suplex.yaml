@@ -21,5 +21,5 @@ effects:
     op: add
     value: '[3, 3, 6][flags.tier - 1]'
     when: >-
-      flags.tier > 0 && participant.characteristics.might.score
+      flags.tier > 0 && participant.characteristics.might.score + participant.potency.resistBonus.might
         < [1, 2, 3][flags.tier - 1] + steps.roll.tallies.potencyBonus

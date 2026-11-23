@@ -34,7 +34,7 @@ effects:
           state: { duration: "'save'" }
           appliedBy: character.id
     when: >-
-      flags.tier == 3 && participant.characteristics.intuition.score
+      flags.tier == 3 && participant.characteristics.intuition.score + participant.potency.resistBonus.intuition
         < 1 + steps.roll.tallies.potencyBonus
   - target: { steps: [ability.hit], from: self }
     op: changes
@@ -45,5 +45,5 @@ effects:
           state: { duration: "'save'" }
           appliedBy: character.id
     when: >-
-      flags.tier == 3 && participant.characteristics.presence.score
+      flags.tier == 3 && participant.characteristics.presence.score + participant.potency.resistBonus.presence
         < 1 + steps.roll.tallies.potencyBonus
