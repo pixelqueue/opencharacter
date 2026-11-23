@@ -1,0 +1,38 @@
+id: abilities.giant.granite-stone-giant.jagged-stone-club
+type: ability
+grantOnly: false
+tags:
+  - kw.melee
+  - kw.strike
+  - kw.weapon
+fields:
+  usage: main-action
+  kind: signature
+  distanceKind: melee
+  distance: 3
+  rollBonus: 4
+  t1Damage: 12
+  t1AddsChar: false
+  t2Damage: 17
+  t2AddsChar: false
+  t2Condition: conditions.weakened
+  t2Duration: save
+  t2PotencyChar: reason
+  t2PotencyValue: 3
+  t3Damage: 21
+  t3AddsChar: false
+  t3Condition: conditions.weakened
+  t3Duration: save
+  t3PotencyChar: reason
+  t3PotencyValue: 4
+# A target already weakened is also bleeding (save ends).
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@conditions.bleeding'
+          state: { duration: "'save'" }
+          appliedBy: character.id
+    when: flags.tier > 0 && participant.conditions.weakened

@@ -1,0 +1,28 @@
+id: abilities.giant.hill-giant-clobberer.clobberin-club
+type: ability
+grantOnly: false
+tags:
+  - kw.charge
+  - kw.melee
+  - kw.strike
+  - kw.weapon
+fields:
+  usage: main-action
+  kind: signature
+  distanceKind: melee
+  distance: 3
+  rollBonus: 4
+  t1Damage: 12
+  t1AddsChar: false
+  t2Damage: 17
+  t2AddsChar: false
+  t2Condition: conditions.prone
+  t3Damage: 21
+  t3AddsChar: false
+  t3Condition: conditions.prone
+# A target already prone: 12 more damage.
+effects:
+  - target: { rolls: [damage], from: self }
+    op: add
+    value: 12
+    when: participant.conditions.prone
