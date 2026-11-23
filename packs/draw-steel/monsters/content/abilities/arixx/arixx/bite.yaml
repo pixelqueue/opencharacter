@@ -1,0 +1,32 @@
+id: abilities.arixx.arixx.bite
+type: ability
+grantOnly: false
+tags:
+  - kw.melee
+  - kw.strike
+  - kw.weapon
+fields:
+  usage: main-action
+  kind: signature
+  distanceKind: melee
+  distance: 2
+  rollBonus: 3
+  t1Damage: 9
+  t1AddsChar: false
+  t1Condition: conditions.grabbed
+  t2Damage: 13
+  t2AddsChar: false
+  t2Condition: conditions.grabbed
+  t3Damage: 16
+  t3AddsChar: false
+  t3Condition: conditions.grabbed
+# A size 1 target grabbed this way takes 3 acid damage at the start of each of their turns.
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@effects.arixx.digesting'
+          appliedBy: character.id
+    when: "flags.tier > 0 && participant.size.value in ['1t', '1s', '1m', '1l']"
