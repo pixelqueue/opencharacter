@@ -1,0 +1,45 @@
+# The vampire regains half the damage dealt; ending an effect, and the 2+ Malice shift and extra
+# targets, are the table's.
+id: abilities.undead.vampire-lord.crimson-embrace
+type: ability
+grantOnly: false
+tags:
+  - kw.melee
+  - kw.strike
+  - kw.weapon
+fields:
+  usage: main-action
+  kind: signature
+  spendCost: 2
+  spendPlus: true
+  distanceKind: melee
+  distance: 1
+  rollBonus: 5
+  damageType: corruption
+  t1Damage: 13
+  t1AddsChar: false
+  t1Condition: conditions.bleeding
+  t1Duration: save
+  t1PotencyChar: might
+  t1PotencyValue: 3
+  t2Damage: 21
+  t2AddsChar: false
+  t2Condition: conditions.bleeding
+  t2Duration: save
+  t2PotencyChar: might
+  t2PotencyValue: 4
+  t3Damage: 24
+  t3AddsChar: false
+  t3Condition: conditions.bleeding
+  t3Duration: save
+  t3PotencyChar: might
+  t3PotencyValue: 5
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - { type: adjust, field: stamina.current, by: 'floor(steps.damage.total / 2)' }
+      to: self
+    when: >-
+      flags.tier > 0 && has(steps.damage)

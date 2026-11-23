@@ -1,0 +1,17 @@
+# The shift and move are the table's; the edge on the next ability before the start of their
+# next turn.
+id: abilities.undead.vampire-spawn.vampiric-celerity
+type: ability
+grantOnly: false
+fields:
+  usage: maneuver
+  distanceKind: self
+effects:
+  - target: { steps: [ability.after], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@effects.undead.vampiric-celerity'
+          state: { duration: "'next-start'" }
+          appliedBy: character.id

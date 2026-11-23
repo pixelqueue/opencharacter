@@ -1,0 +1,14 @@
+# Eldritch Curse: bleeding and weakened, one saving throw for both. Allies' edge on strikes
+# against the target is the table's.
+id: effects.undead.cursed
+type: effect
+effects:
+  - target: conditions.active
+    op: grant
+    value: { formula: '@conditions.bleeding' }
+    scope: applied
+  - target: conditions.active
+    op: grant
+    value: { formula: '@conditions.weakened' }
+    scope: applied
+  - { target: { rolls: [power-roll], tally: banes }, op: add, value: 1, scope: applied }

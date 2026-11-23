@@ -1,0 +1,35 @@
+# Tier 3, behind M < 2: prone if size 1, else slowed (save ends).
+id: abilities.undead.rotting-zombie.rotting-fist
+type: ability
+grantOnly: false
+tags:
+  - kw.melee
+  - kw.strike
+  - kw.weapon
+fields:
+  usage: main-action
+  kind: signature
+  distanceKind: melee
+  distance: 1
+  rollBonus: 2
+  t1Damage: 2
+  t1AddsChar: false
+  t2Damage: 4
+  t2AddsChar: false
+  t3Damage: 5
+  t3AddsChar: false
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          when: "participant.size.value in ['1t', '1s', '1m', '1l']"
+          source: '@conditions.prone'
+          appliedBy: character.id
+        - type: applyEffect
+          when: "!(participant.size.value in ['1t', '1s', '1m', '1l'])"
+          source: '@conditions.slowed'
+          state: { duration: "'save'" }
+          appliedBy: character.id
+    when: flags.tier == 3 && (participant.characteristics.might.score + participant.potency.resistBonus.might) < 2 + steps.roll.tallies.potencyBonus
