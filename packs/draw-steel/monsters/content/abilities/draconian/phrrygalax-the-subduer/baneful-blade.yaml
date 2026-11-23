@@ -1,0 +1,35 @@
+id: abilities.draconian.phrrygalax-the-subduer.baneful-blade
+type: ability
+grantOnly: false
+tags:
+  - kw.melee
+  - kw.strike
+  - kw.weapon
+fields:
+  usage: main-action
+  kind: signature
+  distanceKind: melee
+  distance: 1
+  rollBonus: 3
+  t1Damage: 10
+  t1AddsChar: false
+  t2Damage: 16
+  t2AddsChar: false
+  t2Condition: conditions.bleeding
+  t2Duration: save
+  t2PotencyChar: might
+  t2PotencyValue: 1
+  t3Damage: 19
+  t3AddsChar: false
+  t3Condition: conditions.bleeding
+  t3Duration: save
+  t3PotencyChar: might
+  t3PotencyValue: 2
+# Tier 3, M < 2: 3 more damage with the bleeding.
+effects:
+  - target: { rolls: [damage], from: self }
+    op: add
+    value: 3
+    when: >-
+      flags.tier == 3 && participant.characteristics.might.score
+        < 2 + steps.roll.tallies.potencyBonus
