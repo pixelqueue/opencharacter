@@ -1,0 +1,27 @@
+# Tier 3 is grabbed or prone, the catchpole's choice: the table's.
+id: abilities.dwarf.dwarf-catchpole.maul
+type: ability
+grantOnly: false
+tags:
+  - kw.charge
+  - kw.melee
+  - kw.strike
+  - kw.weapon
+fields:
+  usage: main-action
+  kind: signature
+  distanceKind: melee
+  distance: 1
+  rollBonus: 2
+  t1Damage: 2
+  t1AddsChar: false
+  t2Damage: 4
+  t2AddsChar: false
+  t3Damage: 5
+  t3AddsChar: false
+# A restrained target takes 2 more damage.
+effects:
+  - target: { rolls: [damage], from: self }
+    op: add
+    value: 2
+    when: participant.conditions.restrained
