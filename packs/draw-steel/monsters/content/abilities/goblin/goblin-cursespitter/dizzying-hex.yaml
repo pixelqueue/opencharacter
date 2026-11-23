@@ -1,0 +1,35 @@
+id: abilities.goblin.goblin-cursespitter.dizzying-hex
+type: ability
+grantOnly: false
+tags:
+  - kw.magic
+  - kw.ranged
+  - kw.strike
+fields:
+  usage: maneuver
+  resource: malice
+  cost: 1
+  distanceKind: ranged
+  distance: 10
+  rollBonus: 2
+  t1Condition: conditions.prone
+  t1PotencyChar: intuition
+  t1PotencyValue: 0
+  t2Condition: conditions.prone
+  t2PotencyChar: intuition
+  t2PotencyValue: 1
+  t3Condition: conditions.prone
+# Can't stand: with the prone at tier 2 (EoT); behind its own potency at tier 3 (save ends).
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@effects.goblin.cant-stand'
+          state: { duration: "flags.tier == 2 ? 'eot' : 'save'" }
+          appliedBy: character.id
+    when: >-
+      (flags.tier == 2 && flags.landed)
+        || (flags.tier == 3 && participant.characteristics.intuition.score
+          < 2 + (has(steps.roll) ? steps.roll.tallies.potencyBonus : 0))
