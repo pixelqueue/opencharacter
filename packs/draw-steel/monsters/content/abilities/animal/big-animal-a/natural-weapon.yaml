@@ -1,0 +1,27 @@
+id: abilities.animal.big-animal-a.natural-weapon
+type: ability
+grantOnly: false
+tags:
+  - kw.melee
+  - kw.strike
+  - kw.weapon
+fields:
+  usage: main-action
+  kind: signature
+  distanceKind: melee
+  distance: 1
+  rollBonus: 2
+  t1Damage: 6
+  t1AddsChar: false
+  t2Damage: 9
+  t2AddsChar: false
+  t3Damage: 12
+  t3AddsChar: false
+# Tiers 2 and 3: 3 more damage to a target with A < 1 (A < 2 at tier 3).
+effects:
+  - target: { rolls: [damage], from: self }
+    op: add
+    value: 3
+    when: >-
+      flags.tier >= 2 && (participant.characteristics.agility.score + participant.potency.resistBonus.agility)
+        < flags.tier - 1 + steps.roll.tallies.potencyBonus
