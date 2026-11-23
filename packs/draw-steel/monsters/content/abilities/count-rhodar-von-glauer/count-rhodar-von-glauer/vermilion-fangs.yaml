@@ -1,0 +1,49 @@
+# Tier 1: bleeding (save ends) and prone, both behind M < 4. Tiers 2 and 3: prone, and bleeding
+# behind M < 5 (save ends) or M < 6 (until the end of the encounter). The healing is the table's.
+id: abilities.count-rhodar-von-glauer.count-rhodar-von-glauer.vermilion-fangs
+type: ability
+grantOnly: false
+tags:
+  - kw.melee
+  - kw.weapon
+  - kw.strike
+fields:
+  usage: main-action
+  resource: malice
+  cost: 3
+  distanceKind: melee
+  distance: 1
+  rollBonus: 5
+  damageType: corruption
+  t1Damage: 17
+  t1AddsChar: false
+  t1Condition: conditions.bleeding
+  t1Duration: save
+  t1PotencyChar: might
+  t1PotencyValue: 4
+  t2Damage: 24
+  t2AddsChar: false
+  t2Condition: conditions.prone
+  t3Damage: 30
+  t3AddsChar: false
+  t3Condition: conditions.prone
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@conditions.prone'
+          appliedBy: character.id
+    when: flags.tier == 1 && flags.landed
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@conditions.bleeding'
+          state: { duration: "flags.tier == 3 ? 'encounter' : 'save'" }
+          appliedBy: character.id
+    when: >-
+      flags.tier >= 2 && participant.characteristics.might.score + participant.potency.resistBonus.might
+        < flags.tier + 3 + steps.roll.tallies.potencyBonus
