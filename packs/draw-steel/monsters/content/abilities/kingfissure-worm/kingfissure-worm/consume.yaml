@@ -1,0 +1,23 @@
+# Swallowed: restrained and the swallowed effect, until the worm regurgitates the target.
+id: abilities.kingfissure-worm.kingfissure-worm.consume
+type: ability
+grantOnly: false
+tags:
+  - kw.melee
+fields:
+  usage: main-action
+  resource: malice
+  cost: 2
+  distanceKind: melee
+  distance: 1
+  t1Condition: conditions.restrained
+  t1Duration: until
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@effects.kingfissure-worm.swallowed'
+          state: { duration: "'until'" }
+          appliedBy: character.id
