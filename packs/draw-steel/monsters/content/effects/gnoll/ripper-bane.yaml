@@ -1,0 +1,16 @@
+# Wizard Ripper: a bane on the creature's next power roll, which ends it.
+id: effects.gnoll.ripper-bane
+type: effect
+effects:
+  - target: { rolls: [power-roll], tally: banes }
+    op: add
+    value: 1
+    scope: applied
+  - target: { steps: [ability.after] }
+    op: changes
+    scope: applied
+    value:
+      changes:
+        - type: removeEffect
+          applied: { where: 'self.source == @effects.gnoll.ripper-bane' }
+    when: has(steps.roll)
