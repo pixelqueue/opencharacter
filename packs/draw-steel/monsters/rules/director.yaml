@@ -1,0 +1,143 @@
+# The Director's sheet: the Malice pool, the villain action used this round, and the Malice
+# features in play (copies of `malice` items; every monster's basic ones are standard copies of
+# the sheet's item). Monsters link it through the `director` slot and spend from it.
+fields:
+  sheet.director: { type: boolean, formula: "countCopies(copy.type == 'director') > 0" }
+  malice: { type: integer, input: true, default: 0, min: 0 }
+  # What the Malice gain reads: the heroes in the battle and their average Victories.
+  director.heroes: { type: integer, input: true, default: 4, min: 0 }
+  director.victories: { type: integer, input: true, default: 0, min: 0 }
+  # The round in which a villain action was last used (0: none this encounter).
+  villain.round: { type: integer, input: true, default: 0, min: 0 }
+
+contentTypes:
+  # The Director's sheet's one item: it isn't a hero or a monster.
+  director:
+    carried: false
+    copies: { max: 1 }
+    effects:
+      - { target: sheet.hero, op: set, value: 'false' }
+
+  # A Malice feature: a monster group's ("Goblin Malice") or the basic ones every monster has.
+  # Its text is the book's; `cost` is the Malice it costs ("5+": `costPlus`). One with a test
+  # names the characteristic in `test` and words its three outcomes in `tier1` to `tier3`.
+  malice:
+    carried: false
+    texts: [tier1, tier2, tier3]
+    fields:
+      cost: { type: integer, min: 0, required: true }
+      costPlus: { type: boolean, default: false }
+      test:
+        { type: enum, values: [none, might, agility, reason, intuition, presence], default: none }
+    actions:
+      - use: use-malice
+
+links:
+  director:
+    pack: draw-steel-monsters
+    fields:
+      malice: { type: integer, default: 0 }
+      villain.round: { type: integer, default: 0 }
+      combat.round: { type: integer, default: 0 }
+      combat.active: { type: boolean, default: false }
+
+effects:
+  # Malice: at the start of combat, the heroes' average Victories, then each round the number of
+  # heroes plus the round's number (the first round's included). Unspent Malice is lost when the
+  # encounter ends.
+  - id: malice-combat-start
+    target: { steps: [combat.start] }
+    op: changes
+    value:
+      changes:
+        - { type: set, field: malice, value: director.victories + director.heroes + 1 }
+        - { type: set, field: villain.round, value: 0 }
+    when: sheet.director
+  - id: malice-round-start
+    target: { steps: [round.start] }
+    op: changes
+    value:
+      changes:
+        - { type: adjust, field: malice, by: director.heroes + combat.round + 1 }
+    when: sheet.director
+  - id: malice-combat-end
+    target: { steps: [combat.end] }
+    op: changes
+    value:
+      changes:
+        - { type: set, field: malice, value: 0 }
+        - { type: set, field: villain.round, value: 0 }
+    when: sheet.director
+
+creation:
+  - { id: director, action: create-director }
+
+actions:
+  - id: create-director
+    tags: [creation]
+    available: character.creating
+    params:
+      heroes: { type: integer, default: 4, min: 0 }
+      victories: { type: integer, default: 0, min: 0 }
+    results: [created]
+    steps:
+      - id: make
+        kind: changes
+        changes:
+          - { type: addItem, entry: { item: "'directors.director'" } }
+          - { type: set, field: director.heroes, value: params.heroes }
+          - { type: set, field: director.victories, value: params.victories }
+          - { type: finishCreation }
+      - { id: done, kind: outcome, result: "'created'" }
+
+  # A Malice feature, from the Director's sheet: its cost (and any more for a "5+" one) is paid
+  # from the pool. What it does is the book's text; a test is each creature's own `test`.
+  - id: use-malice
+    tags: [malice]
+    available: sheet.director && malice >= item.cost
+    params:
+      extra: { type: integer, default: 0, min: 0 }
+    results: [used, unaffordable]
+    steps:
+      - id: unaffordable
+        kind: outcome
+        when: 'malice < item.cost + (item.costPlus ? params.extra : 0)'
+        result: "'unaffordable'"
+      - id: pay
+        kind: changes
+        changes:
+          - { type: adjust, field: malice, by: '-(item.cost + (item.costPlus ? params.extra : 0))' }
+      - id: done
+        kind: outcome
+        result: "'used'"
+        data: { spent: 'item.cost + (item.costPlus ? params.extra : 0)' }
+
+  # Malice spent on anything else the Director decides.
+  - id: spend-malice
+    tags: [malice]
+    available: sheet.director && malice > 0
+    params:
+      amount: { type: integer, default: 1, min: 1 }
+    results: [spent, unaffordable]
+    steps:
+      - id: unaffordable
+        kind: outcome
+        when: malice < params.amount
+        result: "'unaffordable'"
+      - id: pay
+        kind: changes
+        changes:
+          - { type: adjust, field: malice, by: -params.amount }
+      - { id: done, kind: outcome, result: "'spent'" }
+  - id: gain-malice
+    tags: [malice]
+    available: sheet.director
+    params:
+      amount: { type: integer, default: 1, min: 1 }
+    results: [gained]
+    steps:
+      - id: gain
+        kind: changes
+        changes:
+          - { type: adjust, field: malice, by: params.amount }
+      - { id: done, kind: outcome, result: "'gained'" }

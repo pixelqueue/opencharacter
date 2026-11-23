@@ -1,0 +1,243 @@
+pack.name: Draw Steel Monsters
+
+creation.monster.name: Monster
+creation.monster.description: Make a monster's sheet from its stat block (a minion's sheet is its squad).
+creation.random-monster.name: Random monster
+creation.random-monster.description: Make the sheet of a monster drawn at random.
+creation.director.name: Director
+creation.director.description: Make the Director's sheet, which holds the Malice every monster spends.
+
+types.monster.name: Monster
+types.monster.fields.level.name: Level
+types.monster.fields.organization.name: Organization
+types.monster.fields.role.name: Role
+types.monster.fields.ev.name: EV
+types.monster.fields.ev.description: Encounter value (a minion's is for four minions).
+types.monster.fields.size.name: Size
+types.monster.fields.speed.name: Speed
+types.monster.fields.movement.name: Movement
+types.monster.fields.stamina.name: Stamina
+types.monster.fields.stability.name: Stability
+types.monster.fields.freeStrike.name: Free Strike
+types.monster.fields.might.name: Might
+types.monster.fields.agility.name: Agility
+types.monster.fields.reason.name: Reason
+types.monster.fields.intuition.name: Intuition
+types.monster.fields.presence.name: Presence
+types.monster.fields.acidImmunity.name: Acid immunity
+types.monster.fields.coldImmunity.name: Cold immunity
+types.monster.fields.corruptionImmunity.name: Corruption immunity
+types.monster.fields.fireImmunity.name: Fire immunity
+types.monster.fields.holyImmunity.name: Holy immunity
+types.monster.fields.lightningImmunity.name: Lightning immunity
+types.monster.fields.poisonImmunity.name: Poison immunity
+types.monster.fields.psychicImmunity.name: Psychic immunity
+types.monster.fields.sonicImmunity.name: Sonic immunity
+types.monster.fields.damageImmunity.name: Damage immunity
+types.monster.fields.acidWeakness.name: Acid weakness
+types.monster.fields.coldWeakness.name: Cold weakness
+types.monster.fields.corruptionWeakness.name: Corruption weakness
+types.monster.fields.fireWeakness.name: Fire weakness
+types.monster.fields.holyWeakness.name: Holy weakness
+types.monster.fields.lightningWeakness.name: Lightning weakness
+types.monster.fields.poisonWeakness.name: Poison weakness
+types.monster.fields.psychicWeakness.name: Psychic weakness
+types.monster.fields.sonicWeakness.name: Sonic weakness
+types.monster.fields.damageWeakness.name: Damage weakness
+types.monster.fields.captainBonus.name: With Captain
+types.monster.fields.captainAmount.name: With Captain bonus
+types.monster.fields.endEffect.name: End Effect damage
+types.monster.fields.traits.name: Traits
+types.monster.fields.abilities.name: Abilities
+types.monster.state.squad.name: Minions in the squad
+types.monster.state.captain.name: Has a captain
+types.monster.followUps.director-sheet.name: Make a Director's sheet for Malice
+types.trait.name: Trait
+types.director.name: Director
+types.malice.name: Malice feature
+types.malice.fields.cost.name: Malice cost
+types.malice.fields.costPlus.name: Costs more ("+")
+types.malice.fields.test.name: Test
+types.ability.fields.resource.values.malice.name: Malice
+types.ability.fields.resource.values.villain-action.name: Villain Action
+types.ability.fields.kind.values.villain.name: Villain action
+
+directors.director.name: Director
+links.director.name: Director
+
+fields.monster.organization.name: Organization
+fields.monster.organization.values.none.name: None
+fields.monster.organization.values.minion.name: Minion
+fields.monster.organization.values.horde.name: Horde
+fields.monster.organization.values.platoon.name: Platoon
+fields.monster.organization.values.elite.name: Elite
+fields.monster.organization.values.leader.name: Leader
+fields.monster.organization.values.solo.name: Solo
+fields.monster.organization.values.retainer.name: Retainer
+fields.monster.role.name: Role
+fields.monster.role.values.none.name: None
+fields.monster.role.values.ambusher.name: Ambusher
+fields.monster.role.values.artillery.name: Artillery
+fields.monster.role.values.brute.name: Brute
+fields.monster.role.values.controller.name: Controller
+fields.monster.role.values.defender.name: Defender
+fields.monster.role.values.harrier.name: Harrier
+fields.monster.role.values.hexer.name: Hexer
+fields.monster.role.values.mount.name: Mount
+fields.monster.role.values.support.name: Support
+fields.monster.ev.name: EV
+fields.monster.freeStrike.name: Free Strike
+fields.monster.freeStrikeType.name: Free strike damage type
+fields.monster.freeStrikeType.values.untyped.name: Untyped
+fields.monster.freeStrikeType.values.acid.name: Acid
+fields.monster.freeStrikeType.values.cold.name: Cold
+fields.monster.freeStrikeType.values.corruption.name: Corruption
+fields.monster.freeStrikeType.values.fire.name: Fire
+fields.monster.freeStrikeType.values.holy.name: Holy
+fields.monster.freeStrikeType.values.lightning.name: Lightning
+fields.monster.freeStrikeType.values.poison.name: Poison
+fields.monster.freeStrikeType.values.psychic.name: Psychic
+fields.monster.freeStrikeType.values.sonic.name: Sonic
+fields.monster.endEffect.name: End Effect damage
+fields.monster.oneStamina.name: Stamina per minion
+fields.monster.squad.name: Minions in the squad
+fields.monster.alive.name: Minions standing
+fields.villain.used.name: Villain actions used
+fields.malice.name: Malice
+fields.director.heroes.name: Heroes in the battle
+fields.director.victories.name: Average Victories
+fields.villain.round.name: Villain action used in round
+
+groups.monster.label: Monster
+groups.traits.label: Traits
+groups.stat-block.label: Stat block
+groups.director.label: Director
+groups.malice-features.label: Malice features
+groups.malice-actions.label: Malice and free strikes
+
+rules.params.malice.name: Malice spent
+rules.params.malice.description: Malice spent on the ability's "N Malice" option.
+rules.params.extraMinions.name: Extra minions on the first target
+rules.params.extraMinions.description: Each other minion of the squad striking the same target adds its free strike damage (two at most).
+
+actions.create-monster.name: Make a monster
+actions.create-monster.params.random.name: Random monster
+actions.create-monster.params.monster.name: Monster
+actions.create-monster.params.squad.name: Minions in the squad
+actions.create-monster.steps.monster.prompt: Choose a monster
+actions.create-monster.results.created.name: Monster made
+actions.set-captain.name: Captain
+actions.set-captain.params.captain.name: The squad has a captain
+actions.set-captain.results.set.name: Set
+actions.monster-free-strike.name: Free strike
+actions.monster-free-strike.params.damageType.name: Damage type
+actions.monster-free-strike.params.damageType.values.untyped.name: Untyped
+actions.monster-free-strike.params.damageType.values.acid.name: Acid
+actions.monster-free-strike.params.damageType.values.cold.name: Cold
+actions.monster-free-strike.params.damageType.values.corruption.name: Corruption
+actions.monster-free-strike.params.damageType.values.fire.name: Fire
+actions.monster-free-strike.params.damageType.values.holy.name: Holy
+actions.monster-free-strike.params.damageType.values.lightning.name: Lightning
+actions.monster-free-strike.params.damageType.values.poison.name: Poison
+actions.monster-free-strike.params.damageType.values.psychic.name: Psychic
+actions.monster-free-strike.params.damageType.values.sonic.name: Sonic
+actions.monster-free-strike.params.minions.name: Minions striking together
+actions.monster-free-strike.results.struck.name: Struck
+actions.monster-free-strike.participants.target.name: Target
+actions.end-effect.name: End Effect
+actions.end-effect.params.entry.name: Effect to end
+actions.end-effect.results.ended.name: Effect ended
+actions.create-director.name: Make the Director's sheet
+actions.create-director.params.heroes.name: Heroes in the battle
+actions.create-director.params.victories.name: Average Victories
+actions.create-director.results.created.name: Director's sheet made
+actions.use-malice.name: Use
+actions.use-malice.params.extra.name: More Malice
+actions.use-malice.params.extra.description: Malice spent beyond the cost, on a "5+" feature.
+actions.use-malice.results.used.name: Used
+actions.use-malice.results.unaffordable.name: Not enough Malice
+actions.spend-malice.name: Spend Malice
+actions.spend-malice.params.amount.name: Malice
+actions.spend-malice.results.spent.name: Spent
+actions.spend-malice.results.unaffordable.name: Not enough Malice
+actions.gain-malice.name: Gain Malice
+actions.gain-malice.params.amount.name: Malice
+actions.gain-malice.results.gained.name: Gained
+
+tags.basic-malice.name: Basic Malice
+tags.creature.abyssal.name: Abyssal
+tags.creature.accursed.name: Accursed
+tags.creature.angulotl.name: Angulotl
+tags.creature.animal.name: Animal
+tags.creature.arixx.name: Arixx
+tags.creature.basilisk.name: Basilisk
+tags.creature.beast.name: Beast
+tags.creature.bredbeddle.name: Bredbeddle
+tags.creature.bugbear.name: Bugbear
+tags.creature.chimera.name: Chimera
+tags.creature.construct.name: Construct
+tags.creature.demon.name: Demon
+tags.creature.devil.name: Devil
+tags.creature.draconian.name: Draconian
+tags.creature.dragon.name: Dragon
+tags.creature.dwarf.name: Dwarf
+tags.creature.elemental.name: Elemental
+tags.creature.eyestalk.name: Eyestalk
+tags.creature.fey.name: Fey
+tags.creature.fire-giant.name: Fire Giant
+tags.creature.frost-giant.name: Frost Giant
+tags.creature.giant.name: Giant
+tags.creature.gnoll.name: Gnoll
+tags.creature.goblin.name: Goblin
+tags.creature.griffon.name: Griffon
+tags.creature.hag.name: Hag
+tags.creature.high-elf.name: High Elf
+tags.creature.hill-giant.name: Hill Giant
+tags.creature.hobgoblin.name: Hobgoblin
+tags.creature.horror.name: Horror
+tags.creature.human.name: Human
+tags.creature.humanoid.name: Humanoid
+tags.creature.infernal.name: Infernal
+tags.creature.kobold.name: Kobold
+tags.creature.lightbender.name: Lightbender
+tags.creature.lizardfolk.name: Lizardfolk
+tags.creature.manticore.name: Manticore
+tags.creature.medusa.name: Medusa
+tags.creature.minotaur.name: Minotaur
+tags.creature.multivok.name: Multivok
+tags.creature.mummy.name: Mummy
+tags.creature.name: Creature keyword
+tags.creature.ogre.name: Ogre
+tags.creature.olothec.name: Olothec
+tags.creature.ooze.name: Ooze
+tags.creature.orc.name: Orc
+tags.creature.overmind.name: Overmind
+tags.creature.plant.name: Plant
+tags.creature.radenwight.name: Radenwight
+tags.creature.rival.name: Rival
+tags.creature.servok.name: Servok
+tags.creature.shadow-elf.name: Shadow Elf
+tags.creature.shambling-mound.name: Shambling Mound
+tags.creature.soulless.name: Soulless
+tags.creature.soulraker.name: Soulraker
+tags.creature.stone-giant.name: Stone Giant
+tags.creature.swarm.name: Swarm
+tags.creature.time-raider.name: Time Raider
+tags.creature.troll.name: Troll
+tags.creature.undead.name: Undead
+tags.creature.valok.name: Valok
+tags.creature.vampire.name: Vampire
+tags.creature.voiceless-talker.name: Voiceless Talker
+tags.creature.war-dog.name: War Dog
+tags.creature.werebeast.name: Werebeast
+tags.creature.wode-elf.name: Wode Elf
+tags.creature.worm.name: Worm
+tags.creature.wyvern.name: Wyvern
+tags.free-strike.name: Free strike
+tags.malice.name: Malice
+tags.target-test.agility.name: Agility test
+tags.target-test.intuition.name: Intuition test
+tags.target-test.might.name: Might test
+tags.target-test.name: Target makes a test
+tags.target-test.presence.name: Presence test
+tags.target-test.reason.name: Reason test
