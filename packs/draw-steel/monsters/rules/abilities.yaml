@@ -214,11 +214,11 @@ effects:
           when: >-
             (has(action.item.t1Condition) || has(action.item.t1Effect))
               && (!has(action.item.t1PotencyChar)
-                || (action.item.t1PotencyChar == 'might' ? participant.characteristics.might.score
-                  : action.item.t1PotencyChar == 'agility' ? participant.characteristics.agility.score
-                  : action.item.t1PotencyChar == 'reason' ? participant.characteristics.reason.score
-                  : action.item.t1PotencyChar == 'intuition' ? participant.characteristics.intuition.score
-                  : participant.characteristics.presence.score)
+                || (action.item.t1PotencyChar == 'might' ? participant.characteristics.might.score + participant.potency.resistBonus.might
+                  : action.item.t1PotencyChar == 'agility' ? participant.characteristics.agility.score + participant.potency.resistBonus.agility
+                  : action.item.t1PotencyChar == 'reason' ? participant.characteristics.reason.score + participant.potency.resistBonus.reason
+                  : action.item.t1PotencyChar == 'intuition' ? participant.characteristics.intuition.score + participant.potency.resistBonus.intuition
+                  : participant.characteristics.presence.score + participant.potency.resistBonus.presence)
                   < (has(action.item.t1PotencyValue) ? action.item.t1PotencyValue : 0))
           source: >-
             has(action.item.t1Condition) ? action.item.t1Condition : action.item.t1Effect

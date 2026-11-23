@@ -44,5 +44,5 @@ effects:
           appliedBy: character.id
     when: >-
       flags.tier > 0 && has(params.malice) && params.malice >= 2
-        && participant.characteristics.presence.score
+        && participant.characteristics.presence.score + participant.potency.resistBonus.presence
           < 0 + steps.roll.tallies.potencyBonus + (countList(character.applied, x.active && x.source == @effects.werewolf.full-wolf) > 0 ? 1 : 0)

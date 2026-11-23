@@ -13,7 +13,7 @@ effects:
     value:
       changes:
         - type: removeEffect
-          applied: { where: 'self.source == @effects.werewolf.rage' }
+          applied: { where: 'item.id == @effects.werewolf.rage' }
     when: self.amount >= 10
   - target: { steps: [respite] }
     op: changes
@@ -21,6 +21,6 @@ effects:
     value:
       changes:
         - type: removeEffect
-          applied: { where: 'self.source == @effects.werewolf.rage' }
+          applied: { where: 'item.id == @effects.werewolf.rage' }
     when: >-
       countList(character.applied, x.active && x.source == @effects.werewolf.lycanthropy) == 0

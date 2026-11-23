@@ -33,4 +33,4 @@ effects:
           source: '@effects.elemental.unmoored'
           state: { duration: "'save'" }
           appliedBy: character.id
-    when: flags.tier > 0 && participant.characteristics.presence.score < 2 + steps.roll.tallies.potencyBonus
+    when: flags.tier > 0 && participant.characteristics.presence.score + participant.potency.resistBonus.presence < 2 + steps.roll.tallies.potencyBonus
