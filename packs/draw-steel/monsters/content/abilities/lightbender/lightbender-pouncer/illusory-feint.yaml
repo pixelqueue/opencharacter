@@ -1,0 +1,38 @@
+id: abilities.lightbender.lightbender-pouncer.illusory-feint
+type: ability
+grantOnly: false
+tags:
+  - kw.area
+  - kw.magic
+  - kw.ranged
+fields:
+  usage: maneuver
+  resource: malice
+  cost: 5
+  distanceKind: cube
+  distance: 3
+  within: 10
+  rollBonus: 2
+  t1Condition: conditions.dazed
+  t1Duration: save
+  t1PotencyChar: intuition
+  t1PotencyValue: 0
+  t2Condition: conditions.dazed
+  t2Duration: save
+  t2PotencyChar: intuition
+  t2PotencyValue: 1
+  t3Condition: conditions.dazed
+  t3Duration: save
+  t3PotencyChar: intuition
+  t3PotencyValue: 2
+# While dazed this way, the target has speed 0.
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@effects.lightbender.stupor'
+          state: { duration: "'encounter'" }
+          appliedBy: character.id
+    when: flags.tier > 0 && flags.landed
