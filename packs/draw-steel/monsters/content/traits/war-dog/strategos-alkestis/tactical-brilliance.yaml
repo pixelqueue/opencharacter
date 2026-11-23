@@ -1,0 +1,12 @@
+id: traits.war-dog.strategos-alkestis.tactical-brilliance
+type: trait
+effects:
+  # 2 Malice at the start of each of Alkestis's turns. The 1 Malice for a war dog's tier 3 outcome
+  # happens on other sheets: the table's.
+  - target: { steps: [turn.start] }
+    op: changes
+    value:
+      to: { link: director }
+      changes:
+        - { type: adjust, field: draw-steel-monsters:malice, by: 2 }
+    when: has(links.director)

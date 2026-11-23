@@ -1,0 +1,44 @@
+# Tier 2 is prone or M < 3 dazed (save ends), the breaker's choice: prone here, dazed the
+# table's.
+id: abilities.war-dog.war-dog-breaker.pile-bunker-gauntlet
+type: ability
+grantOnly: false
+tags:
+  - kw.charge
+  - kw.melee
+  - kw.strike
+  - kw.weapon
+fields:
+  usage: main-action
+  kind: signature
+  distanceKind: melee
+  distance: 1
+  rollBonus: 4
+  t1Damage: 12
+  t1AddsChar: false
+  t1Move: push
+  t1MoveDistance: 4
+  t1Condition: conditions.prone
+  t2Damage: 17
+  t2AddsChar: false
+  t2Move: slide
+  t2MoveDistance: 4
+  t3Damage: 21
+  t3AddsChar: false
+  t3Move: slide
+  t3MoveDistance: 4
+  t3Condition: conditions.prone
+  t2Condition: conditions.prone
+effects:
+  # Tier 3: dazed (save ends) too, behind its own M < 4.
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@conditions.dazed'
+          state: { duration: "'save'" }
+          appliedBy: character.id
+    when: >-
+      flags.tier == 3 && participant.characteristics.might.score
+        < 4 + (has(steps.roll) ? steps.roll.tallies.potencyBonus : 0)

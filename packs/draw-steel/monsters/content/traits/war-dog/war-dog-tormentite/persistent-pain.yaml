@@ -1,0 +1,10 @@
+id: traits.war-dog.war-dog-tormentite.persistent-pain
+type: trait
+effects:
+  # 1 damage at the start of each of the tormentite's turns in an encounter.
+  - target: { steps: [turn.start] }
+    op: changes
+    value:
+      changes:
+        - { type: adjust, field: stamina.current, by: -1, tags: [damage] }
+    when: combat.active

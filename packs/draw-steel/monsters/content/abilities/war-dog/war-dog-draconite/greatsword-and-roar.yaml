@@ -1,0 +1,29 @@
+# Tier 3's move away and the Effect's frightened (if the damage leaves the target winded) are
+# the table's.
+id: abilities.war-dog.war-dog-draconite.greatsword-and-roar
+type: ability
+grantOnly: false
+tags:
+  - kw.charge
+  - kw.melee
+  - kw.strike
+  - kw.weapon
+fields:
+  usage: main-action
+  kind: signature
+  distanceKind: melee
+  distance: 2
+  rollBonus: 4
+  t1Damage: 4
+  t1AddsChar: false
+  t2Damage: 4
+  t2AddsChar: false
+  t3Damage: 4
+  t3AddsChar: false
+effects:
+  # Tiers 2 and 3: 3 or 4 psychic damage besides.
+  - target: { rolls: [damage], from: self }
+    op: add
+    value: '[0, 3, 4][flags.tier - 1]'
+    tags: [damage.psychic]
+    when: flags.tier >= 2
