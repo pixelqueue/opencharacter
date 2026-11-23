@@ -1,0 +1,37 @@
+id: abilities.chimera.chimera.rams-defiance
+type: ability
+grantOnly: false
+tags:
+  - kw.melee
+  - kw.strike
+  - kw.weapon
+fields:
+  usage: triggered
+  distanceKind: melee
+  distance: 2
+  rollBonus: 3
+  t1Damage: 6
+  t1AddsChar: false
+  t1Condition: conditions.slowed
+  t1Duration: save
+  t1PotencyChar: might
+  t1PotencyValue: 1
+  t2Damage: 8
+  t2AddsChar: false
+  t2Condition: conditions.prone
+  t3Damage: 10
+  t3AddsChar: false
+  t3Condition: conditions.prone
+# Tiers 2 and 3: also M < 2 / M < 3 slowed (save ends). The shift first is the table's.
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@conditions.slowed'
+          state: { duration: "'save'" }
+          appliedBy: character.id
+    when: >-
+      flags.tier >= 2 && participant.characteristics.might.score + participant.potency.resistBonus.might
+        < [0, 2, 3][flags.tier - 1] + (has(steps.roll) ? steps.roll.tallies.potencyBonus : 0)
