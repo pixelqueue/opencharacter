@@ -1,0 +1,18 @@
+id: abilities.manticore.manticore.debilitating-poison
+type: ability
+grantOnly: false
+fields:
+  usage: no-action
+  kind: villain
+  resource: villain-action
+  cost: 3
+  distanceKind: self
+effects:
+  - target: { steps: [ability.after], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@effects.manticore.debilitating-poison'
+          state: { duration: "'encounter'" }
+          appliedBy: character.id

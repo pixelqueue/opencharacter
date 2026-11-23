@@ -1,0 +1,37 @@
+# Frightened (EoT), or instead frightened (save ends) / dazed (save ends) behind I < 2/3/4.
+id: abilities.manticore.manticore.trumpeting-howl
+type: ability
+grantOnly: false
+tags:
+  - kw.area
+  - kw.magic
+fields:
+  usage: no-action
+  kind: villain
+  resource: villain-action
+  cost: 1
+  distanceKind: burst
+  distance: 5
+  rollBonus: 4
+  t1Condition: conditions.frightened
+  t1Duration: save
+  t1PotencyChar: intuition
+  t1PotencyValue: 2
+  t2Condition: conditions.frightened
+  t2Duration: save
+  t2PotencyChar: intuition
+  t2PotencyValue: 3
+  t3Condition: conditions.dazed
+  t3Duration: save
+  t3PotencyChar: intuition
+  t3PotencyValue: 4
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@conditions.frightened'
+          state: { duration: "'eot'" }
+          appliedBy: character.id
+    when: flags.tier > 0 && !flags.landed

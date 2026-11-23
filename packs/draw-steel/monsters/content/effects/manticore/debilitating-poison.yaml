@@ -1,0 +1,11 @@
+# Debilitating Poison (villain action 3), on the manticore until the end of the encounter: a
+# double edge on power rolls against weakened creatures. Tail Spike's weakened targets' halved
+# speed and 3 poison damage each turn are the table's.
+id: effects.manticore.debilitating-poison
+type: effect
+effects:
+  - target: { rolls: [power-target], tally: edges }
+    op: add
+    value: 2
+    scope: applied
+    when: participant.conditions.weakened
