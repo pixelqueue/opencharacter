@@ -1,0 +1,42 @@
+id: abilities.troll.troll-crack-trooper.charging-chomp
+type: ability
+grantOnly: false
+tags:
+  - kw.charge
+  - kw.melee
+  - kw.strike
+  - kw.weapon
+fields:
+  usage: main-action
+  kind: signature
+  distanceKind: melee
+  distance: 1
+  rollBonus: 4
+  t1Damage: 5
+  t1AddsChar: false
+  t1Move: push
+  t1MoveDistance: 2
+  t2Damage: 7
+  t2AddsChar: false
+  t2Move: push
+  t2MoveDistance: 3
+  t3Damage: 9
+  t3AddsChar: false
+  t3Move: push
+  t3MoveDistance: 4
+# The squad's Stamina pool regains half the damage dealt.
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - { type: adjust, field: stamina.current, by: floor(steps.damage.total / 2) }
+      to: self
+    when: flags.tier > 0 && has(steps.damage)
+  # Tiers 2 and 3: 3 more damage to a target with A < 3, 5 more with A < 4 at tier 3.
+  - target: { rolls: [damage], from: self }
+    op: add
+    value: '[0, 3, 5][flags.tier - 1]'
+    when: >-
+      flags.tier >= 2 && (participant.characteristics.agility.score + participant.potency.resistBonus.agility)
+        < flags.tier + 1 + steps.roll.tallies.potencyBonus

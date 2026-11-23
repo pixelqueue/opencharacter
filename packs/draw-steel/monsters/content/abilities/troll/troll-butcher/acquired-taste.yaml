@@ -1,0 +1,20 @@
+id: abilities.troll.troll-butcher.acquired-taste
+type: ability
+grantOnly: false
+tags:
+  - kw.melee
+fields:
+  usage: triggered
+  distanceKind: melee
+  distance: 1
+# The free strike is the monster free strike; then the butcher's edge and extra damage until the
+# end of their next turn.
+effects:
+  - target: { steps: [ability.after], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@effects.troll.acquired-taste'
+          state: { duration: "'next-end'" }
+          appliedBy: character.id

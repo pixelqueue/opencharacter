@@ -1,0 +1,29 @@
+# The shift after the strike (1, 2 or 3 squares by tier) is the table's.
+id: abilities.troll.troll-ravager.dine-and-dash
+type: ability
+grantOnly: false
+tags:
+  - kw.melee
+  - kw.strike
+  - kw.weapon
+fields:
+  usage: main-action
+  kind: signature
+  distanceKind: melee
+  distance: 1
+  rollBonus: 4
+  t1Damage: 4
+  t1AddsChar: false
+  t2Damage: 6
+  t2AddsChar: false
+  t3Damage: 8
+  t3AddsChar: false
+# The squad's Stamina pool regains half the damage dealt.
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - { type: adjust, field: stamina.current, by: floor(steps.damage.total / 2) }
+      to: self
+    when: flags.tier > 0 && has(steps.damage)
