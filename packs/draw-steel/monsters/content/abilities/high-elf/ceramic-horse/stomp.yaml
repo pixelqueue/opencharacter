@@ -1,0 +1,23 @@
+id: abilities.high-elf.ceramic-horse.stomp
+type: ability
+grantOnly: false
+tags:
+  - kw.area
+  - kw.weapon
+fields:
+  usage: main-action
+  distanceKind: burst
+  distance: 1
+  rollBonus: 2
+  t1Damage: 3
+  t1AddsChar: false
+  t2Damage: 5
+  t2AddsChar: false
+  t3Damage: 7
+  t3AddsChar: false
+# A prone target takes 2 more damage.
+effects:
+  - target: { rolls: [damage], from: self }
+    op: add
+    value: 2
+    when: participant.conditions.prone
