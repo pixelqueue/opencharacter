@@ -84,8 +84,9 @@ computeSheet(ruleset, made.character).values['draw-steel-heroes:stamina.max']?.v
 - **Abilities:** all 605 abilities (class, kit, common, ancestry, perk, title, treasure,
   complication) share one `use-ability` action. It rolls once and gives each target its own tier
   with the edges and banes it brings (prone, restrained, frightened, grabbed, taunted, marked,
-  and content's own: Executioner's Blade against a winded target, The Harder They Fall against a
-  large one), then pays the cost and Spend, so the Shadow's insight discount and an
+  the edges and banes its effects give against it, such as Look!'s distraction and Blessing of
+  Steel's bane, and content's own: Executioner's Blade against a winded target, The Harder They
+  Fall against a large one), then pays the cost and Spend, so the Shadow's insight discount and an
   Elementalist's maintained abilities cost what they should, and a use that can't pay ends.
   Damage adds the characteristic, surges (checked against those held, spent only on rolled
   damage) and the kit's bonus for that tier; 2 more surges raise one target's potency by 1
@@ -159,9 +160,11 @@ computeSheet(ruleset, made.character).values['draw-steel-heroes:stamina.max']?.v
   revenant at the death threshold is inert, not dead (fire then destroys it), and a doomsight
   hakaan turns to rubble.
 - **Conditions and effects:** the nine conditions and other lasting effects (Setup's damage
-  weakness), with duration (EoT, save ends, end of encounter, until the start or end of the
-  imposer's next turn, on anyone: the `turn-boundary` clock action ends them) and who imposed
-  them; immunities keep them off the sheet; saving throws.
+  weakness, Look!'s distraction), with duration (EoT, save ends, end of encounter, until the start
+  or end of the imposer's next turn, on anyone: the `turn-boundary` clock action ends them, on
+  the imposer's turns) and who imposed them; immunities keep them off the sheet; saving throws.
+  An ability's tier durations (`t{tier}Duration`) take the same: `eot`, `save`, `encounter`,
+  `until`, and `next-start` and `next-end` for the user's next turn.
 - **Combat:** start of combat, rounds and turns, Victories, experience and level-up, respite
   (not for a dead hero).
 - **Marks:** the Tactician's marks are entries the tactician applied; a new Mark ends the earlier
@@ -213,6 +216,26 @@ random draws, and every ability shares the `use-ability` action.
   keywords (`kw.*`), so a `params` effect can add a parameter to some abilities. Its power roll
   is tagged `power-roll.ability` (each target's banding `power-target`), and its damage `damage`
   with the part `ability.damage`.
+- **What a target shows an attacker:** `use-ability`'s targets are `creature` views: level,
+  characteristics, size, stability, Stamina (`stamina.current`, `stamina.max`, winded), the
+  conditions with who frightens and who grabs it (`conditions.frightenedBy`,
+  `conditions.grabbedBy`), the IDs of its `effect` content in effect (`effects.active`), its
+  `side`, the Tactician's marks and the edges and banes against it. An add-on's ability reads
+  them as `participant.*` ("if the target isn't at full Stamina", "grabbed by this creature",
+  "already under this effect").
+- **Sides:** `side` is `heroes` for a hero and `director` for a creature whose pack sets
+  `sheet.hero` false; an effect sets it for one that changes sides, and an add-on adds sides
+  (`extendEnums`).
+- **Edges and banes against a creature:** an effect on the creature adds to these fields, and
+  every ability used against it counts them (`power-target`), with the others: they add up, and
+  the power roll caps and cancels them.
+  - `powerRoll.edgesAgainst` and `powerRoll.banesAgainst`: on any ability roll.
+  - `powerRoll.strikeEdgesAgainst` and `powerRoll.strikeBanesAgainst`: on strikes.
+  - `powerRoll.meleeStrikeEdgesAgainst`: on melee strikes.
+  - `powerRoll.edgesAgainstFor`: an edge for attackers whose `side` is in the set.
+  - `powerRoll.nextStrikeEdgesAgainst`: on the next strike against it. That strike proposes
+    removing, on the target, the applied entries whose content is tagged
+    `ends.next-strike-against`, so the effect that gives these edges carries the tag.
 - **Tagged steps** take an add-on's rules-level `changes` effects: `ability.extra` (an extra cost
   for this use, as `flags.extra`), `ability.pay` (costs), `ability.spend` (a Spend paid),
   `ability.hit` (per target, after damage and conditions), `ability.after` (once, at the end),
