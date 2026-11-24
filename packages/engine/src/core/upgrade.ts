@@ -28,7 +28,7 @@ import type { Ruleset } from './ruleset.ts';
 import { homebrewFormulas, withHomebrew } from './homebrew.ts';
 import { HomebrewRewriter } from './homebrew-upgrade.ts';
 import { display } from './display.ts';
-import { loadRuleset } from './load.ts';
+import { loadPacks, loadRuleset } from './load.ts';
 import { itemStandard, rulesStandard, standardId } from './ruleset.ts';
 import { upgradeSpec } from './spec-upgrade.ts';
 import { dropUnpicked, pickLinks } from './tree.ts';
@@ -1084,12 +1084,12 @@ export function checkRelease(
   }
   // Items that became standard: both sides are loaded with their dependencies,
   // so the standard copies queries resolve as for a character. A side that doesn't load is the
-  // load's errors, `data.release` naming the side.
+  // load's errors, `data.release` naming the side. The previous side was published, its formulas
+  // checked then, so they aren't checked again (a newer engine's stricter checker may refuse them).
   const loads = (['previous', 'next'] as const).map((side) => {
-    const result = loadRuleset([
-      ...(dependencies[side] ?? []),
-      side === 'previous' ? previous : next,
-    ]);
+    const packs = [...(dependencies[side] ?? []), side === 'previous' ? previous : next];
+    const result =
+      side === 'previous' ? loadPacks(packs, { checkFormulasOf: new Set() }) : loadRuleset(packs);
     if (!result.ok)
       for (const e of result.errors)
         errors.push({ ...e, data: { ...e.data, release: side } } as EngineError);

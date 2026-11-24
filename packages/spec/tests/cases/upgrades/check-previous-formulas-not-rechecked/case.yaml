@@ -1,0 +1,45 @@
+description: "The previous release's formulas were checked when it was published and aren't checked again: one a stricter checker refuses (`self.source` in an `applied` query) still compares with its fix"
+specVersion: 0.4.0
+call: checkRelease
+previous:
+  inline:
+    manifest:
+      id: test-pack
+      version: 1.0.0
+      specVersion: 0.4.0
+      license: CC0-1.0
+      defaultLanguage: en
+    rules:
+      contentTypes:
+        condition: {}
+      actions:
+        - id: stand
+          steps:
+            - id: up
+              kind: changes
+              changes:
+                - type: removeEffect
+                  applied: { where: 'self.source == @prone' }
+    content:
+      - { id: prone, type: condition }
+next:
+  inline:
+    manifest:
+      id: test-pack
+      version: 1.0.1
+      specVersion: 0.4.0
+      license: CC0-1.0
+      defaultLanguage: en
+    rules:
+      contentTypes:
+        condition: {}
+      actions:
+        - id: stand
+          steps:
+            - id: up
+              kind: changes
+              changes:
+                - type: removeEffect
+                  applied: { where: 'item.id == @prone' }
+    content:
+      - { id: prone, type: condition }

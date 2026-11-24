@@ -79,7 +79,9 @@ next, dependencies)`). `dependencies` gives each side's dependency releases,
 transitively (`{ previous, next }`, each `[]` when absent): checkRelease loads each side with
 them, as `loadRuleset` does, to resolve the standard copies queries. A side that doesn't load
 fails the check with the load's errors, each with `data.release` (`previous` or `next`); an
-engine must load the old release anyway to upgrade characters from it. The result lists the
+engine must load the old release anyway to upgrade characters from it. The previous side's
+formulas were checked when it was published, so they aren't type-checked again: a newer engine
+whose checker is stricter still compares the releases. The result lists the
 shape changes and these errors:
 
 - **`version-not-increased`:** the new version must be greater than the previous one.
