@@ -10,7 +10,7 @@ state:
   amount: { type: integer, default: 0, min: 0 }
 reapply: { match: [damageType], state: { amount: highest, duration: replace } }
 effects:
-  - target: { formula: "'draw-steel-heroes:immunity.' + self.damageType" }
+  - target: { formula: "fieldId('immunity.{damageType}', self.damageType)" }
     op: atLeast
     value: self.amount
     scope: applied
