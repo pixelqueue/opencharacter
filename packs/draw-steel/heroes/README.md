@@ -162,7 +162,8 @@ computeSheet(ruleset, made.character).values['draw-steel-heroes:stamina.max']?.v
 - **Conditions and effects:** the nine conditions and other lasting effects (Setup's damage
   weakness, Look!'s distraction), with duration (EoT, save ends, end of encounter, until the start
   or end of the imposer's next turn, on anyone: the `turn-boundary` clock action ends them, on
-  the imposer's turns) and who imposed them; immunities keep them off the sheet; saving throws.
+  the imposer's turns) and who imposed them (an effect applied again by the same creature
+  replaces its duration; another creature's is its own entry); immunities keep them off the sheet; saving throws.
   An ability's tier durations (`t{tier}Duration`) take the same: `eot`, `save`, `encounter`,
   `until`, and `next-start` and `next-end` for the user's next turn.
 - **Combat:** start of combat, rounds and turns, Victories, experience and level-up, respite

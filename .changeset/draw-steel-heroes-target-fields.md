@@ -9,6 +9,7 @@ draw-steel-heroes: edges and banes against a creature, more of the target's view
 - A `side` field (`heroes` for a hero, `director` when `sheet.hero` is false; open, and an effect may set it).
 - The `creature` view also carries `stamina.max`, `conditions.grabbedBy`, `effects.active` (the IDs of the `effect` content in effect, a new sheet field), `side` and the new edge and bane fields. Apps that build target views from the whole sheet need no change.
 - An ability's `t{tier}Duration` takes `next-start` and `next-end`: until the start or the end of the user's next turn, ended by `turn-boundary` on the user's turns.
-- Look! (Shadow, Harlequin Mask) now distracts its targets: ability rolls against them gain an edge until the start of the shadow's next turn.
+- An `effect` applied again merges only with the same applier's entry (`reapply` `match: [appliedBy]`), so two creatures' effects end on their own appliers' turns.
+- Look! (Shadow, Harlequin Mask) now distracts its targets: ability rolls against them gain an edge until the start of the shadow's next turn. Two shadows' Look! give one edge (stack key `look-distracted`, highest only) while either lasts.
 
 No saved shape changes. Conformance cases and the test-only `test-draw-steel-foe` pack show each.

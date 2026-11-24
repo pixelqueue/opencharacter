@@ -51,7 +51,9 @@ contentTypes:
           values: [eot, save, encounter, until, next-start, next-end, this-turn],
           default: until,
         }
-    reapply: { state: { duration: replace } }
+    # Applied again by the same creature, it replaces the duration; another creature's is its
+    # own entry, ending on its own applier's turn (two shadows' Look!).
+    reapply: { match: [appliedBy], state: { duration: replace } }
     # Each active effect lists itself, so another creature's ability can ask what it has.
     effects:
       - { target: effects.active, op: grant, value: { formula: item.id }, scope: applied }
