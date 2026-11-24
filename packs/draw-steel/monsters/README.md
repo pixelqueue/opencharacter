@@ -90,7 +90,8 @@ computeSheet(ruleset, made.character).values['draw-steel-heroes:stamina.max']?.v
   target; one whose targets make a test ("Each target makes a Might test", tagged
   `target-test.<characteristic>`) hands the test off to each target and lands its tier.
 - **Free strikes:** `monster-free-strike` deals the stat block's free strike, typed as the
-  signature ability; `minions` adds squad members striking together.
+  signature ability; `minions` adds squad members striking together. The pack hides the heroes
+  pack's weapon free strikes, which a monster would otherwise hold as standard copies.
 - **Malice:** the `director` start makes the Director's sheet, which holds Malice (gained at the
   start of combat and of each round from its heroes and Victories, lost when combat ends), the
   basic Malice features and the group features in play (`use-malice`). Monsters link it
@@ -128,7 +129,5 @@ The book's text is on every item. These parts are the table's to apply.
   applies it ([#187](https://github.com/pixelqueue/opencharacter/issues/187)).
 - **Positions:** areas, auras, summoned creatures, terrain, line of effect; forced movement is a
   number in the outcome, not a move.
-- **Hero free strikes** from the heroes pack's common abilities are listed on monster sheets too;
-  a monster's free strike is `monster-free-strike`.
 - **"With Captain: +N bonus to melee distance"** is in the text only.
 - **Solo turns** and the order of villain actions are the Director's.
