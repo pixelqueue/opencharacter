@@ -13,3 +13,12 @@ fields:
   cost: 9
   distanceKind: burst
   distance: 5
+effects:
+  # Each target is distracted until the start of your next turn.
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: "'effects.shadow.look'"
+          state: { duration: "'next-start'" }
