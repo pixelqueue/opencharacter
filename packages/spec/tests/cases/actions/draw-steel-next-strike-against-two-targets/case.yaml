@@ -1,0 +1,16 @@
+description: "draw-steel-heroes: a strike against two targets that both carry next-strike edges ends each target's effects"
+specVersion: 0.4.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/draw-steel/heroes
+  - path: ../../../packs/test-draw-steel-foe
+input:
+  action:
+    {
+      id: draw-steel-heroes:use-ability,
+      entry: draw-steel-heroes-abilities-common-melee-weapon-free-strike,
+    }
+  participants:
+    target:
+      - { id: lit-1, values: { draw-steel-heroes:powerRoll.nextStrikeEdgesAgainst: 2 } }
+      - { id: lit-2, values: { draw-steel-heroes:powerRoll.nextStrikeEdgesAgainst: 2 } }

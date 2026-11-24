@@ -277,9 +277,12 @@ effects:
     op: add
     value: participant.powerRoll.nextStrikeEdgesAgainst
     when: "'kw.strike' in action.item.tags && participant.powerRoll.nextStrikeEdgesAgainst > 0"
+    # Once per roll: each target's tier is its own roll, so a strike against several ends each
+    # one's.
     then:
       to: target
       when: applied
+      once: roll
       changes:
         - type: removeEffect
           applied: { where: "'ends.next-strike-against' in item.tags" }

@@ -1,0 +1,88 @@
+# 4 + 5 + Might 2 = 11, tier 1: a double edge against each target (tier 2), and the strike
+# proposes ending each target's next-strike effects (once per target's roll).
+status: finished
+outcome:
+  result: tier1
+  data:
+    natural: 9
+    critical: false
+    tier: 1
+    damage: 0
+    distance: 1
+    within: 0
+    rangedDistance: 0
+    targetTiers:
+      - 2
+      - 2
+    forcedMovement:
+      - ''
+      - ''
+    forcedDistance:
+      - 0
+      - 0
+    teleport: 0
+proposedChanges:
+  - to: target
+    character: lit-1
+    step: tier[0]
+    change:
+      type: removeEffect
+      applied:
+        where: "'ends.next-strike-against' in item.tags"
+  - to: target
+    character: lit-2
+    step: tier[1]
+    change:
+      type: removeEffect
+      applied:
+        where: "'ends.next-strike-against' in item.tags"
+  - to: target
+    character: lit-1
+    step: hit[0]
+    change:
+      type: adjust
+      field: draw-steel-heroes:stamina.current
+      from: foe
+      by: -7
+      tags:
+        - damage
+  - to: target
+    character: lit-2
+    step: hit[1]
+    change:
+      type: adjust
+      field: draw-steel-heroes:stamina.current
+      from: foe
+      by: -7
+      tags:
+        - damage
+log:
+  - step: roll
+    band: tier1
+    bandValue: 1
+  - step: tier[0]
+    band: tier2
+    bandValue: 2
+    tallies:
+      - name: edges
+        value: 2
+        sources:
+          - source:
+              type: rules
+              id: draw-steel-heroes:rules
+            op: add
+            value: 2
+  - step: tier[1]
+    band: tier2
+    bandValue: 2
+    tallies:
+      - name: edges
+        value: 2
+        sources:
+          - source:
+              type: rules
+              id: draw-steel-heroes:rules
+            op: add
+            value: 2
+  - step: damage[0]
+  - step: damage[1]
