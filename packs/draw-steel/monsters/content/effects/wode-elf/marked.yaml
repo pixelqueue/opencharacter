@@ -1,5 +1,9 @@
-# Marked by a wode elf: allies of the wode elves gain an edge on abilities against the creature.
-# The edge is the table's: the heroes field for an edge against a creature (`tactician.markedBy`)
-# would give it to every attacker, heroes too (gap list).
+# Marked by a wode elf: the wode elves' allies (the Director's side) gain an edge on abilities
+# against the creature.
 id: effects.wode-elf.marked
 type: effect
+effects:
+  - target: powerRoll.edgesAgainstFor
+    op: grant
+    value: { formula: "'director'" }
+    scope: applied
