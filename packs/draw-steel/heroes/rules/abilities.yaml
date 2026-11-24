@@ -181,8 +181,17 @@ fields:
   abilities.free: { type: set, of: ability, formula: '[]' }
   # The hero can't use triggered actions (dazed, an Entropy Ward's attacker, Smolder's strain).
   abilities.noTriggered: { type: boolean, formula: conditions.dazed }
-  # Banes on ability rolls made against this creature (Blessing of Steel's aura).
+  # Edges and banes on ability rolls made against this creature (the `creature` view carries
+  # them to the attacker): on any ability roll (Look!), banes on any (Blessing of Steel's aura),
+  # on strikes, on melee strikes, an edge for attackers of the sides listed, and edges on the
+  # next strike against it, which ends the effects tagged `ends.next-strike-against`.
+  powerRoll.edgesAgainst: { type: integer, formula: 0, min: 0 }
   powerRoll.banesAgainst: { type: integer, formula: 0, min: 0 }
+  powerRoll.strikeEdgesAgainst: { type: integer, formula: 0, min: 0 }
+  powerRoll.strikeBanesAgainst: { type: integer, formula: 0, min: 0 }
+  powerRoll.meleeStrikeEdgesAgainst: { type: integer, formula: 0, min: 0 }
+  powerRoll.edgesAgainstFor: { type: set, of: string, formula: '[]' }
+  powerRoll.nextStrikeEdgesAgainst: { type: integer, formula: 0, min: 0 }
   # Bonuses to the distance of ranged abilities: any, magic, psionic, and void magic ones. An
   # area's bonus goes to its range ("within"), not its size.
   abilities.rangeBonus: { type: integer, formula: 0 }
@@ -206,9 +215,10 @@ effects:
       [{ formula: "roll.item.damageType == 'untyped' ? [] : ['damage.' + roll.item.damageType]" }]
   # What each target brings to the power roll, on its own tier (`power-target`): an edge against
   # a prone target (melee), a restrained one, one frightened of the user or one a tactician
-  # marked; a bane when the user is frightened of the target or the target brings banes against
-  # it (Blessing of Steel), and on every target when the user is grabbed (a double bane when
-  # taunted) and the ability doesn't target the grabber (taunter).
+  # marked; the edges and banes the target brings against it (`powerRoll.*Against`: Look!,
+  # Blessing of Steel); a bane when the user is frightened of the target, and on every target
+  # when the user is grabbed (a double bane when taunted) and the ability doesn't target the
+  # grabber (taunter). Edges and banes add up; the power roll caps and cancels them.
   - id: target-prone
     target: { rolls: [power-target], tally: edges }
     op: add
@@ -234,6 +244,45 @@ effects:
     op: add
     value: participant.powerRoll.banesAgainst
     when: participant.powerRoll.banesAgainst > 0
+  - id: target-edges
+    target: { rolls: [power-target], tally: edges }
+    op: add
+    value: participant.powerRoll.edgesAgainst
+    when: participant.powerRoll.edgesAgainst > 0
+  - id: target-strike-edges
+    target: { rolls: [power-target], tally: edges }
+    op: add
+    value: participant.powerRoll.strikeEdgesAgainst
+    when: "'kw.strike' in action.item.tags && participant.powerRoll.strikeEdgesAgainst > 0"
+  - id: target-strike-banes
+    target: { rolls: [power-target], tally: banes }
+    op: add
+    value: participant.powerRoll.strikeBanesAgainst
+    when: "'kw.strike' in action.item.tags && participant.powerRoll.strikeBanesAgainst > 0"
+  - id: target-melee-strike-edges
+    target: { rolls: [power-target], tally: edges }
+    op: add
+    value: participant.powerRoll.meleeStrikeEdgesAgainst
+    when: >-
+      'kw.strike' in action.item.tags && 'kw.melee' in action.item.tags && flags.mode == 'melee'
+        && participant.powerRoll.meleeStrikeEdgesAgainst > 0
+  - id: target-side-edge
+    target: { rolls: [power-target], tally: edges }
+    op: add
+    value: 1
+    when: side in participant.powerRoll.edgesAgainstFor
+  # The next strike against the target: its edges, and the strike ends the effects that gave them.
+  - id: target-next-strike-edges
+    target: { rolls: [power-target], tally: edges }
+    op: add
+    value: participant.powerRoll.nextStrikeEdgesAgainst
+    when: "'kw.strike' in action.item.tags && participant.powerRoll.nextStrikeEdgesAgainst > 0"
+    then:
+      to: target
+      when: applied
+      changes:
+        - type: removeEffect
+          applied: { where: "'ends.next-strike-against' in item.tags" }
   - id: user-grabbed
     target: { rolls: [power-target], tally: banes }
     op: add
