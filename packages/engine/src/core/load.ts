@@ -342,6 +342,8 @@ function checkAddedParams(
   return added;
 }
 
+const isRecord = (v: unknown) => typeof v === 'object' && v !== null && !Array.isArray(v);
+
 /** loadRuleset's steps, with options for layering a character's homebrew. */
 export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): LoadResult {
   const errors: EngineError[] = [];
@@ -349,6 +351,13 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
     errors.push(path ? { code, path, data } : { code, data });
 
   // 1. Check the packs.
+  packs.forEach((pack, i) => {
+    const shape = pack as Partial<Record<'manifest' | 'rules' | 'content', unknown>>;
+    for (const key of ['manifest', 'rules', 'content'] as const)
+      if (key === 'content' ? !Array.isArray(shape[key]) : !isRecord(shape[key]))
+        err('invalid-shape', { path: `/packs/${i}/${key}` }, `/packs/${i}/${key}`);
+  });
+  if (errors.length > 0) return { ok: false, errors };
   const byId = new Map<string, PackRelease>();
   packs.forEach((pack, i) => {
     const { id, specVersion } = pack.manifest;

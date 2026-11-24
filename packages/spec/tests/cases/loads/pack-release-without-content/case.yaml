@@ -1,0 +1,16 @@
+description: 'A pack release without `content` is `invalid-shape`, even one whose families would expand it'
+specVersion: 0.4.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.4.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        families:
+          damage: [fire, cold]
+        fields:
+          'immunity.{damage}': { type: integer, input: true, default: 0 }

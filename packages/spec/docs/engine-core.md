@@ -10,6 +10,8 @@ character. Parts marked **PROVISIONAL** may change once more games are modeled.
 Input: pack releases in load order (later packs win). Output: a ruleset, or errors.
 
 1. **Check the packs.**
+   - Each pack release has a `manifest` and `rules` (objects) and `content` (a list), else
+     `invalid-shape` at the missing one's path (`/packs/<i>/content`).
    - Each pack's `specVersion` must not be newer than the engine's (`spec-version-unsupported`).
    - A pack may appear only once (`duplicate-pack`).
    - Every dependency must be loaded and in range (`missing-dependency`). A dependency may appear
