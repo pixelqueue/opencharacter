@@ -1576,8 +1576,9 @@ function nestedAction(
   step: Step,
   path: string,
   owner: Frame = frame,
+  extra: Record<string, unknown> = {},
 ): NestedResult {
-  const raw = stepParams(ctx, frame, step);
+  const raw = stepParams(ctx, frame, step, extra);
   const target = nestedRun(ctx, owner, step);
   const nested = startFrame(
     ctx,
@@ -1589,7 +1590,7 @@ function nestedAction(
     frame.depth + 1,
     {
       ...(step.participants !== undefined
-        ? { participants: passedParticipants(ctx, frame, step) }
+        ? { participants: passedParticipants(ctx, frame, step, extra) }
         : {}),
       added: [...frame.added, ...tagsOf(ctx, step.tags, (fm) => evaluate(ctx, frame, fm))],
       situational: stepSituational(ctx, frame, step),
@@ -1650,10 +1651,15 @@ function groupStep(ctx: Ctx, frame: Frame, step: Step, path: string): void {
 }
 
 /** A formula giving `null` leaves its parameter out. */
-function stepParams(ctx: Ctx, frame: Frame, step: Step): Record<string, unknown> {
+function stepParams(
+  ctx: Ctx,
+  frame: Frame,
+  step: Step,
+  extra: Record<string, unknown> = {},
+): Record<string, unknown> {
   const raw: Record<string, unknown> = {};
   for (const [name, formula] of Object.entries(step.params ?? {})) {
-    const value = evaluate(ctx, frame, formula);
+    const value = evaluate(ctx, frame, formula, extra);
     if (value.kind !== 'null') raw[name] = outputData(value);
   }
   return raw;
@@ -1742,9 +1748,14 @@ function nestedRun(
   return found;
 }
 
-function passedParticipants(ctx: Ctx, frame: Frame, step: Step): Record<string, View[]> {
+function passedParticipants(
+  ctx: Ctx,
+  frame: Frame,
+  step: Step,
+  extra: Record<string, unknown> = {},
+): Record<string, View[]> {
   const out: Record<string, View[]> = {};
-  for (const [role, ids] of Object.entries(participantIds(ctx, frame, step))) {
+  for (const [role, ids] of Object.entries(participantIds(ctx, frame, step, extra))) {
     out[role] = ids.map((id) => {
       const view = frame.views.get(id);
       if (!view) throw new ActionError('invalid-participants', { role });
@@ -1754,10 +1765,15 @@ function passedParticipants(ctx: Ctx, frame: Frame, step: Step): Record<string, 
   return out;
 }
 
-function participantIds(ctx: Ctx, frame: Frame, step: Step): Record<string, string[]> {
+function participantIds(
+  ctx: Ctx,
+  frame: Frame,
+  step: Step,
+  extra: Record<string, unknown> = {},
+): Record<string, string[]> {
   const out: Record<string, string[]> = {};
   for (const [role, formula] of Object.entries(step.participants ?? {})) {
-    const value = evaluate(ctx, frame, formula);
+    const value = evaluate(ctx, frame, formula, extra);
     const ids =
       value.kind === 'list'
         ? value.value.map((v) => {
@@ -1780,9 +1796,10 @@ function handoffParticipants(
   frame: Frame,
   step: Step,
   used: ActionDef,
+  extra: Record<string, unknown> = {},
 ): Record<string, string[]> | undefined {
   if (step.participants === undefined) return undefined;
-  const given = participantIds(ctx, frame, step);
+  const given = participantIds(ctx, frame, step, extra);
   const roles = used.participants ?? {};
   const self = ctx.state.character.id;
   const seen = new Set<string>();
@@ -1804,13 +1821,19 @@ function handoffParticipants(
 }
 
 /** The participant runs the used action on its own character; the policy doesn't apply. */
-function handoff(ctx: Ctx, frame: Frame, step: Step, path: string): NestedResult {
+function handoff(
+  ctx: Ctx,
+  frame: Frame,
+  step: Step,
+  path: string,
+  extra: Record<string, unknown> = {},
+): NestedResult {
   const each = frame.each;
   if (!each) throw new ActionError('unknown-role', { step: step.id, pack: frame.pack });
   const qid = step.use as string;
   const used = ctx.ruleset.rules.actions[qid];
   if (!used) throw new ActionError('unknown-action', { action: qid });
-  const given = stepParams(ctx, frame, step);
+  const given = stepParams(ctx, frame, step, extra);
   for (const [name, decl] of Object.entries(used.params ?? {})) {
     if (decl.type === 'id' && decl.of === 'field' && name in given)
       given[name] = fieldIdOf(given[name]);
@@ -1837,7 +1860,7 @@ function handoff(ctx: Ctx, frame: Frame, step: Step, path: string): NestedResult
         typeof bound === 'number' ? bound : undefined,
       );
   }
-  const passed = handoffParticipants(ctx, frame, step, used);
+  const passed = handoffParticipants(ctx, frame, step, used, extra);
   const participant = { role: each.role, id: each.view.id as string };
   const [answer] = takeAnswers(ctx, path, 'handoff');
   if (!answer?.outcome)
@@ -4085,8 +4108,8 @@ function addedRuns(ctx: Ctx, frame: Frame, step: Step, path: string): void {
       taken.add(one.path);
       const result =
         value.as === 'participant'
-          ? handoff(ctx, one.frame, used, one.path)
-          : nestedAction(ctx, one.frame, used, one.path, frame);
+          ? handoff(ctx, one.frame, used, one.path, { action })
+          : nestedAction(ctx, one.frame, used, one.path, frame, { action });
       if (!value.changes) continue;
       const to = value.to ?? step.to ?? 'self';
       proposeChanges(ctx, one.frame, step, path, to, value.changes, {

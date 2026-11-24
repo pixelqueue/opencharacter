@@ -1,0 +1,66 @@
+description: "An `action` effect's `params` and `participants` see the running action as `action` (`action.item`, `action.step`), as its `when` and `changes` do"
+specVersion: 0.4.0
+call: startAction
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.4.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        tags: [hit]
+        fields:
+          hp: { type: integer, input: true, default: 10 }
+        contentTypes:
+          weapon:
+            fields:
+              damage: { type: integer }
+            actions:
+              - use: strike
+          feature: {}
+        actions:
+          # Reports the step it was run at and how many it was handed.
+          - id: echo
+            params:
+              at: { type: string }
+              by: { type: integer }
+            participants:
+              who: {}
+            steps:
+              - id: done
+                kind: outcome
+                result: "'echoed'"
+                data: { at: params.at, by: params.by, who: size(participants.who) }
+          - id: strike
+            participants:
+              target: { max: 1 }
+            steps:
+              - id: deal
+                kind: changes
+                tags: [hit]
+                to: target
+                changes:
+                  - { type: adjust, field: hp, by: -item.damage }
+      content:
+        - id: axe
+          type: weapon
+          fields: { damage: 3 }
+        - id: echo
+          type: feature
+          effects:
+            - target: { steps: [hit] }
+              op: action
+              value:
+                id: echo
+                use: echo
+                params: { at: action.step.id, by: action.item.damage }
+                participants: { who: "action.step.id == 'deal' ? participants.target : []" }
+                to: self
+                changes:
+                  - { type: adjust, field: hp, by: run.data.by + run.data.who }
+input:
+  action: { id: test-pack:strike, entry: axe }
+  participants:
+    target: [{ id: orc, values: {} }]
