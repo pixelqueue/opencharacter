@@ -41,6 +41,13 @@ fields:
   # True for heroes; a pack whose creatures aren't heroes sets it false, which hides the hero-only
   # parts of the sheet.
   sheet.hero: { type: boolean, formula: 'true' }
+  # The side the creature fights on: the heroes' or the Director's. An effect sets it for a
+  # creature on the other side (a summoned ally, a turncoat); a pack adds sides to the enum.
+  side:
+    type: enum
+    values: [heroes, director]
+    open: true
+    formula: "sheet.hero ? 'heroes' : 'director'"
 
 # What every creature shows other characters: participants of abilities read these.
 viewFields:
@@ -51,9 +58,14 @@ viewFields:
     size.rank: { type: integer, default: 3 }
     stability: { type: integer, default: 0 }
     stamina.current: { type: integer, default: 0 }
+    stamina.max: { type: integer, default: 0 }
     stamina.isWinded: { type: boolean, default: false }
     'conditions.{condition}': { type: boolean, default: false }
     conditions.frightenedBy: { type: set, of: string, default: [] }
+    conditions.grabbedBy: { type: set, of: string, default: [] }
+    # The effects (`effect` content) on the creature.
+    effects.active: { type: set, of: string, default: [] }
+    side: { type: enum, values: [heroes, director], open: true, default: director }
     # A bonus to a characteristic when resisting a potency (Stand Tough).
     'potency.resistBonus.{characteristic}': { type: integer, default: 0 }
     # The tacticians who marked this creature: power rolls against it gain an edge.

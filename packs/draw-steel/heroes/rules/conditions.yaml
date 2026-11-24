@@ -52,6 +52,9 @@ contentTypes:
           default: until,
         }
     reapply: { state: { duration: replace } }
+    # Each active effect lists itself, so another creature's ability can ask what it has.
+    effects:
+      - { target: effects.active, op: grant, value: { formula: item.id }, scope: applied }
     actions:
       - use: saving-throw
         scope: applied
@@ -68,6 +71,8 @@ fields:
   conditions.frightenedBy: { type: set, of: string }
   conditions.grabbedBy: { type: set, of: string }
   conditions.tauntedBy: { type: set, of: string }
+  # The effects (`effect` content) in effect.
+  effects.active: { type: set, of: effect }
   # A dying hero is bleeding, unless something says otherwise (Bloodless, I Am the Weapon).
   stamina.dyingBleeds: { type: boolean, formula: 'true' }
 
