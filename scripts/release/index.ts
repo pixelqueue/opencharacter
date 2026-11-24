@@ -25,7 +25,7 @@ export interface PublishedReleases {
 
 export interface ReleaseFinding {
   pack: string;
-  level: 'error' | 'info';
+  level: 'error' | 'warn' | 'info';
   code: string;
   message: string;
 }
@@ -161,6 +161,16 @@ export function releaseCheck(
       next: dependenciesOf(pack.release, built, inRange),
     };
     const result = checkRelease(previous, pack.release, dependencies);
+    // The published release no longer type-checks under this engine: it was checked when
+    // published, so apps load it with the build's checks skipped, or take the fixed release.
+    for (const warning of result.warnings) {
+      findings.push({
+        pack: pack.id,
+        level: 'warn',
+        code: warning.code,
+        message: `${pack.id} ${previous.manifest.version} (published) under this engine: ${warning.code} ${JSON.stringify(warning.data ?? {})}`,
+      });
+    }
     for (const error of result.errors) {
       findings.push({
         pack: pack.id,

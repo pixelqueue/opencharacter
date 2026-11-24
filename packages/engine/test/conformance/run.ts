@@ -106,7 +106,7 @@ const expectedKeys: Record<string, string[]> = {
   ],
   startAction: ['status', 'outcome', 'proposedChanges', 'needs', 'log', 'errors', 'errorData'],
   upgrade: ['ok', 'errors', 'character', 'pending', 'report'],
-  checkRelease: ['ok', 'changes', 'errors'],
+  checkRelease: ['ok', 'changes', 'errors', 'warnings'],
   loadRuleset: [
     'errors',
     'conflicts',
@@ -214,6 +214,10 @@ function run(dir: string): void {
     if (expected.changes)
       expect(result.changes.map((c) => ({ kind: c.kind, id: c.id }))).toEqual(expected.changes);
     if (expected.errors) expect(result.errors.map((e) => e.code)).toEqual(expected.errors);
+    if (expected.warnings)
+      expect(result.warnings.map((e) => ({ code: e.code, release: e.data?.release }))).toEqual(
+        expected.warnings,
+      );
     return;
   }
   if (spec.call === 'loadRuleset') {

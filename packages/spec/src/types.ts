@@ -2159,6 +2159,8 @@ export type CheckReleaseOutput = {
   }[];
   /** The build check's errors, and the errors of a side that doesn't load, each with `data.release` (`previous` or `next`). */
   errors: EngineError[];
+  /** The previous release's formula errors under this engine's checker, each with `data.release: previous`: it was checked when published, and loads for the comparison without them. A `warn` for the build, not a failure. */
+  warnings?: EngineError[];
 };
 
 /** A member of a `content` group: an activation (`from: own`), or an applied entry (`from: applied`). */

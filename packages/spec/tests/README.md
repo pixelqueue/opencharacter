@@ -217,7 +217,8 @@ input: # any other call inputs (action, params, situational, policy, strict, cho
   - `report.homebrew` (as `{ path, op }`).
 - **`checkRelease`** cases give `previous` and `next` (inline releases), and optionally
   `dependencies: { previous, next }`, each a list of pack references.
-  `expected.yaml` compares `ok`, `changes` (exact list of `{ kind, id }`) and `errors` (codes).
+  `expected.yaml` compares `ok`, `changes` (exact list of `{ kind, id }`), `errors` (codes) and
+  `warnings` (exact list of `{ code, release }`, `release` the warning's `data.release`).
 - **`loadRuleset`** cases list `packs`, usually inline. A case without `expected.yaml` expects the
   packs to load. Otherwise `errors` is the exact list of `{ code, cause, path }`: `cause` is
   `data.cause` (the formula error code of a `formula-error`) and `path` the error's JSON Pointer,

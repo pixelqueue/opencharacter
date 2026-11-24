@@ -916,6 +916,8 @@ export interface CheckReleaseResult {
   ok: boolean;
   changes: ShapeChange[];
   errors: EngineError[];
+  /** The previous release's formula errors under this engine's checker: it loads without them. */
+  warnings: EngineError[];
 }
 
 interface ChoiceInfo {
@@ -1084,15 +1086,23 @@ export function checkRelease(
   }
   // Items that became standard: both sides are loaded with their dependencies,
   // so the standard copies queries resolve as for a character. A side that doesn't load is the
-  // load's errors, `data.release` naming the side. The previous side was published, its formulas
-  // checked then, so they aren't checked again (a newer engine's stricter checker may refuse them).
+  // load's errors, `data.release` naming the side. The previous side's formula errors alone are
+  // warnings (it was checked when published; a newer checker may be stricter), and the side is
+  // then compared as loaded without the formula checks.
+  const warnings: EngineError[] = [];
   const loads = (['previous', 'next'] as const).map((side) => {
     const packs = [...(dependencies[side] ?? []), side === 'previous' ? previous : next];
-    const result =
-      side === 'previous' ? loadPacks(packs, { checkFormulasOf: new Set() }) : loadRuleset(packs);
-    if (!result.ok)
-      for (const e of result.errors)
-        errors.push({ ...e, data: { ...e.data, release: side } } as EngineError);
+    let result = loadRuleset(packs);
+    const mark = (e: EngineError) => ({ ...e, data: { ...e.data, release: side } }) as EngineError;
+    if (
+      !result.ok &&
+      side === 'previous' &&
+      result.errors.every((e) => e.code === 'formula-error')
+    ) {
+      warnings.push(...result.errors.map(mark));
+      result = loadPacks(packs, { checkFormulasOf: new Set() });
+    }
+    if (!result.ok) errors.push(...result.errors.map(mark));
     return result.ok ? result.ruleset : undefined;
   });
   const [before, after] = loads;
@@ -1303,7 +1313,7 @@ export function checkRelease(
       (a, b) =>
         order.indexOf(a.kind) - order.indexOf(b.kind) || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0),
     );
-  return { ok: errors.length === 0, changes: out, errors };
+  return { ok: errors.length === 0, changes: out, errors, warnings };
 }
 
 function covered(
