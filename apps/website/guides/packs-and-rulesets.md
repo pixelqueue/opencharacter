@@ -213,6 +213,7 @@ const text = createText({
   enumOrigins: ruleset.enumOrigins,
   optionOrigins: ruleset.optionOrigins,
   familyOrigins: ruleset.familyOrigins,
+  scopes: ruleset.packs, // the add-on's items name the core's tags through it
 });
 text.value('orc-2e:weapon', 'damageType', 'sonic'); // 'Sonic'
 text.option('stone', { choice: { owner: 'orc-2e:feats.druid.order-explorer', id: 'order' } }); // 'Stone'

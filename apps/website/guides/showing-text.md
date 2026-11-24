@@ -27,6 +27,7 @@ const text = createText({
   enumOrigins: ruleset.enumOrigins, // optional: names for values add-on packs add to enums
   optionOrigins: ruleset.optionOrigins, // optional: names for options add-ons add to choices
   familyOrigins: ruleset.familyOrigins, // optional: names for keys add-ons add to families
+  scopes: ruleset.packs, // optional: where a tag an add-on uses but doesn't name is named first
 });
 ```
 
@@ -65,7 +66,8 @@ text.field('5e-srd-5.1:combat.ac', { short: true }); // 'AC'
 text.type('5e-srd-5.1:weapon'); // 'Weapon'
 text.tag('5e-srd-5.1:save.int'); // 'Intelligence saving throw'
 text.tag('save.int', '5e-srd-5.1'); // the same, for a tag as a set field holds it
-// A tag the pack doesn't name (an add-on's item with its core's tag) is named by the pack that does.
+// A tag the pack doesn't name (an add-on's item with its core's tag) is named by the pack that
+// does: its dependencies first (`scopes`), then any other pack.
 text.setMember('skill.arcana', '5e-srd-5.1'); // 'Arcana': content, else field, else tag, else the ID
 text.action('5e-srd-5.1:features.fighter.second-wind#second-wind'); // 'Second Wind'
 text.band('fitd-scoundrel:action', 'partial'); // 'Partial success'

@@ -35,6 +35,28 @@ describe('an add-on over a core', () => {
     tags: ['kw.melee', 'kw.beast', 'kw.none'],
   };
 
+  it("looks in the pack's dependencies before the other packs", () => {
+    const scoped = createText({
+      languages: ['en'],
+      spec: { en: {} },
+      packs: {
+        en: {
+          // Loaded first, but not a dependency of the add-on.
+          other: { 'tags.kw.melee.name': 'Close quarters' },
+          core: { 'tags.kw.melee.name': 'Melee' },
+          addon: {},
+        },
+      },
+      scopes: [
+        { id: 'core', scope: ['core'] },
+        { id: 'addon', scope: ['addon', 'core'] },
+        { id: 'other', scope: ['other'] },
+      ],
+    });
+    expect(scoped.tag('kw.melee', 'addon')).toBe('Melee');
+    expect(scoped.tag('kw.melee', 'other')).toBe('Close quarters');
+  });
+
   it("names a dependency's tags as the pack that declares them does", () => {
     expect(text.contentBlock(bite)).toBe('**Bite** · Melee, Beast, kw.none');
     expect(text.tag('kw.melee', 'addon')).toBe('Melee');
