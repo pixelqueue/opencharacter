@@ -84,10 +84,10 @@ actions:
           - type: removeEffect
             when: steps.benefit.picked == 'end-effect'
             applied:
-              where: "self.source == steps.which.value && has(self.duration) && self.duration in ['save', 'eot']"
+              where: "item.id == steps.which.value && has(self.duration) && self.duration in ['save', 'eot']"
           - type: removeEffect
             when: steps.benefit.picked == 'stand'
-            applied: { where: 'self.source == @conditions.prone' }
+            applied: { where: 'item.id == @conditions.prone' }
           - type: adjust
             when: steps.benefit.picked == 'temp'
             field: stamina.temp
