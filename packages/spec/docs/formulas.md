@@ -319,8 +319,10 @@ treats the rest as `dyn`:
 In roll, option, `changes` and `action` effects, `steps`, `flags` and `params` are `dyn`, because the effect
 applies to many actions (so is `params` in the `min`, `max` and `formula` of a parameter a
 `params` effect adds or bounds; an action's own bounds and derived parameters see its typed
-`params`); so are their `action.item` and `action.self`, and a roll effect's or
-result band's `participants` and `participant`.
+`params`); so are their `action.item` and `action.self`, and a result band's `participants` and
+`participant`. A roll, `changes` or `action` effect's `participants.<role>` and `participant` are
+the views the roles of the actions its pack sees declare: a field no such role declares is
+`unknown-name` at load, since a participant's view carries only its role's fields.
 
 **Roll effects**. A roll effect's formulas see the content's own roots (`item`, `self`)
 with the action context (`steps`, `flags`, `params`, `situational`, `participants`,

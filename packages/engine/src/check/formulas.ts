@@ -184,6 +184,21 @@ interface ActionTarget<L> {
   ownerType?: string;
 }
 
+const isObjectType = (t: FType): t is { object: Record<string, FType> } =>
+  typeof t === 'object' && 'object' in t;
+
+/** Both views' fields; one two views type differently is `dyn`. */
+function mergeViews(a: FType, b: FType): FType {
+  if (!isObjectType(a) || !isObjectType(b))
+    return JSON.stringify(a) === JSON.stringify(b) ? a : 'dyn';
+  const object: Record<string, FType> = { ...a.object };
+  for (const [key, type] of Object.entries(b.object)) {
+    const known = object[key];
+    object[key] = known === undefined ? type : mergeViews(known, type);
+  }
+  return { object };
+}
+
 /** Whether a step of `kind` carries a literal tag the target names. */
 function reachesStep(steps: Step[], tags: string[], kind: 'choice' | 'changes'): boolean {
   return steps.some((step) => {
@@ -223,6 +238,7 @@ class FormulaChecker<L> {
   private readonly scope: string[];
   private readonly targetsByTags = new Map<string, ActionTarget<L>[]>();
   private readonly stateKeys = new Map<string, Record<string, FType>>();
+  private readonly roleViews = new Map<string, { participants: FType; participant: FType }>();
 
   constructor(
     private readonly set: PackSet<L>,
@@ -735,10 +751,46 @@ class FormulaChecker<L> {
       flags: 'dyn',
       params: 'dyn',
       situational: this.situationalRoot(),
-      participants: 'dyn',
-      participant: 'dyn',
+      ...this.roleTypes(),
       action: actionType('dyn', 'dyn'),
     };
+  }
+
+  /**
+   * `participants` and `participant` in an effect that acts as an action runs: the roles of any
+   * action the pack sees, each view carrying the fields some role of that name (or, for
+   * `participant`, any role) declares. Closed, so a field no role carries is `unknown-name`: the
+   * run's views drop it.
+   */
+  private roleTypes(): { participants: FType; participant: FType } {
+    const memo = this.scope.join(' ');
+    const known = this.roleViews.get(memo);
+    if (known) return known;
+    const roles: Record<string, FType> = {};
+    let any: FType | undefined;
+    const add = (def: ActionOrUse) => {
+      if ('use' in def) return;
+      for (const [role, decl] of Object.entries(def.participants ?? {})) {
+        const view = viewType(decl.fields ?? {});
+        const list = roles[role];
+        roles[role] = { list: list ? mergeViews((list as { list: FType }).list, view) : view };
+        any = any ? mergeViews(any, view) : view;
+      }
+    };
+    for (const pid of this.scope) {
+      const rules = this.set.rules.get(pid);
+      for (const [, { def }] of rules?.actions ?? []) add(def);
+      for (const [, { def }] of rules?.contentTypes ?? [])
+        for (const a of def.actions ?? []) add(a);
+      for (const { doc } of this.set.packContent.get(pid) ?? [])
+        for (const a of doc.actions ?? []) add(a);
+    }
+    const types = {
+      participants: { object: roles },
+      participant: any ?? { object: { id: 'string' } },
+    };
+    this.roleViews.set(memo, types);
+    return types;
   }
 
   /** Inside an aura: its effects' `self` is the aura's entry, which has no computed values. */
@@ -785,8 +837,7 @@ class FormulaChecker<L> {
           params: 'dyn',
           situational: this.situationalRoot(),
           action: actionType('dyn', 'dyn'),
-          participants: 'dyn',
-          participant: 'dyn',
+          ...this.roleTypes(),
         },
         () => this.withRoots(STEP_ROOTS, () => this.effectBody(effect, at, where, kind)),
       );

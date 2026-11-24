@@ -1,0 +1,55 @@
+description: "An effect on a dependency's action reads `participant` and `participants` as the views the pack's roles declare: a field no role carries is `unknown-name` at load, since the run's views drop it"
+specVersion: 0.4.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        id: core
+        version: 1.0.0
+        specVersion: 0.4.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        tags: [hit]
+        fields:
+          hp: { type: integer, input: true, default: 10 }
+        actions:
+          - id: strike
+            participants:
+              target: { fields: { hp: { type: integer, default: 0 } } }
+            steps:
+              - id: deal
+                kind: changes
+                each: target
+                tags: [hit]
+                to: target
+                changes:
+                  - { type: adjust, field: hp, by: -1 }
+      content: []
+  - inline:
+      manifest:
+        id: addon
+        version: 1.0.0
+        specVersion: 0.4.0
+        license: CC0-1.0
+        defaultLanguage: en
+        dependencies: { core: ^1.0.0 }
+      rules:
+        fields:
+          stress: { type: integer, input: true, default: 0 }
+        effects:
+          - id: finish
+            target: { steps: [hit] }
+            op: changes
+            when: participant.hp <= 1 && size(participants.target) > 0
+            value:
+              changes:
+                - { type: adjust, field: 'core:hp', by: -1 }
+          - id: rattle
+            target: { steps: [hit] }
+            op: changes
+            when: participant.stress > 0
+            value:
+              changes:
+                - { type: adjust, field: 'core:hp', by: -1 }
+      content: []
