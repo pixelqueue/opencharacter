@@ -1,0 +1,41 @@
+# A hero holding entries other creatures applied, with next-turn durations.
+specVersion: 0.4.0
+id: hero
+packs:
+  - id: draw-steel-heroes
+    version: 0.1.1
+  - id: test-draw-steel-foe
+    version: 0.1.0
+values:
+  draw-steel-heroes:combat.active: true
+applied:
+  - {
+      id: slowed,
+      source: draw-steel-heroes:conditions.slowed,
+      state: { duration: next-end },
+      appliedBy: foe,
+    }
+  - {
+      id: dazed,
+      source: draw-steel-heroes:conditions.dazed,
+      state: { duration: next-start },
+      appliedBy: foe,
+    }
+  - {
+      id: look,
+      source: draw-steel-heroes:effects.shadow.look,
+      state: { duration: next-start },
+      appliedBy: foe,
+    }
+  - {
+      id: bleeding,
+      source: draw-steel-heroes:conditions.bleeding,
+      state: { duration: next-start },
+      appliedBy: other,
+    }
+  - {
+      id: weakened,
+      source: draw-steel-heroes:conditions.weakened,
+      state: { duration: this-turn },
+      appliedBy: goblin,
+    }

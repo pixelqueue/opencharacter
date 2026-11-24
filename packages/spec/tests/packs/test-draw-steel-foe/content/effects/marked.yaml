@@ -1,0 +1,13 @@
+# A made-up effect: an edge on ability rolls against the creature for the Director's side, a bane
+# on strikes, an edge on melee strikes.
+id: effects.marked
+type: effect
+effects:
+  - {
+      target: powerRoll.edgesAgainstFor,
+      op: grant,
+      value: { formula: "'director'" },
+      scope: applied,
+    }
+  - { target: powerRoll.strikeBanesAgainst, op: add, value: 1, scope: applied }
+  - { target: powerRoll.meleeStrikeEdgesAgainst, op: add, value: 1, scope: applied }

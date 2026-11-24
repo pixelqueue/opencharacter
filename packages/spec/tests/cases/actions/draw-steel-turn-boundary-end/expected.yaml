@@ -1,0 +1,30 @@
+# foe's turn ends: what it applied for this turn ends; goblin's next-start and next-end entries
+# change at goblin's turn.
+status: finished
+outcome:
+  result: passed
+proposedChanges:
+  - to: self
+    step: boundary
+    change:
+      type: removeEffect
+      applied:
+        where: has(self.duration) && self.duration == 'this-turn' && self.appliedBy ==
+          'foe'
+  - to: self
+    step: boundary
+    change:
+      type: removeEffect
+      applied:
+        where: has(self.duration) && self.duration == 'next-start' && self.appliedBy ==
+          'goblin'
+  - to: self
+    step: boundary
+    change:
+      type: setState
+      key: duration
+      applied:
+        where: has(self.duration) && self.duration == 'next-end' && self.appliedBy ==
+          'goblin'
+      value: "'this-turn'"
+log: []

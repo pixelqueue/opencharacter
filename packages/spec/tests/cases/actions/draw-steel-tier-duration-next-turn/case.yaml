@@ -1,0 +1,12 @@
+description: "draw-steel-heroes: a tier's next-end duration (slowed until the end of the user's next turn) lands on the target applied by the user, so the user's turns end it"
+specVersion: 0.4.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/draw-steel/heroes
+  - path: ../../../packs/test-draw-steel-foe
+input:
+  action:
+    { id: draw-steel-heroes:use-ability, entry: foe, source: test-draw-steel-foe:abilities.hobble }
+  participants:
+    target:
+      - { id: goblin, values: {} }

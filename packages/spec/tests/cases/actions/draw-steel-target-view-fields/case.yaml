@@ -1,0 +1,27 @@
+description: "draw-steel-heroes: an ability's rules read the target's max Stamina, who grabs it and its effects from the creature view"
+specVersion: 0.4.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/draw-steel/heroes
+  - path: ../../../packs/test-draw-steel-foe
+input:
+  action:
+    {
+      id: draw-steel-heroes:use-ability,
+      entry: foe,
+      source: test-draw-steel-foe:abilities.opportunist,
+    }
+  participants:
+    target:
+      - {
+          id: unhurt,
+          values: { draw-steel-heroes:stamina.current: 20, draw-steel-heroes:stamina.max: 20 },
+        }
+      - {
+          id: hurt,
+          values: { draw-steel-heroes:stamina.current: 12, draw-steel-heroes:stamina.max: 20 },
+        }
+      - { id: grabbed, values: { draw-steel-heroes:conditions.grabbedBy: [foe] } }
+      - { id: grabbed-by-other, values: { draw-steel-heroes:conditions.grabbedBy: [someone] } }
+      - id: set-up
+        values: { draw-steel-heroes:effects.active: [draw-steel-heroes:effects.shadow.setup] }

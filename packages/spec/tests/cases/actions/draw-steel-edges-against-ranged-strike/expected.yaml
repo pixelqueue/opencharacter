@@ -1,0 +1,65 @@
+# 4 + 5 + Might 2 = 11, tier 1: the strike edge counts on a ranged strike (tier 2), the
+# melee-strike edge doesn't.
+status: finished
+outcome:
+  result: tier1
+  data:
+    natural: 9
+    critical: false
+    tier: 1
+    damage: 0
+    distance: 5
+    within: 0
+    rangedDistance: 0
+    targetTiers:
+      - 2
+      - 1
+    forcedMovement:
+      - ''
+      - ''
+    forcedDistance:
+      - 0
+      - 0
+    teleport: 0
+proposedChanges:
+  - to: target
+    character: strikes
+    step: hit[0]
+    change:
+      type: adjust
+      field: draw-steel-heroes:stamina.current
+      from: foe
+      by: -6
+      tags:
+        - damage
+  - to: target
+    character: melee-strikes
+    step: hit[1]
+    change:
+      type: adjust
+      field: draw-steel-heroes:stamina.current
+      from: foe
+      by: -4
+      tags:
+        - damage
+log:
+  - step: roll
+    band: tier1
+    bandValue: 1
+  - step: tier[0]
+    band: tier2
+    bandValue: 2
+    tallies:
+      - name: edges
+        value: 1
+        sources:
+          - source:
+              type: rules
+              id: draw-steel-heroes:rules
+            op: add
+            value: 1
+  - step: tier[1]
+    band: tier1
+    bandValue: 1
+  - step: damage[0]
+  - step: damage[1]

@@ -1,0 +1,18 @@
+description: "draw-steel-heroes: an ability that isn't a strike (Knockback) gains the target's edges on any ability roll, not its strike edges, strike banes or next-strike edges"
+specVersion: 0.4.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/draw-steel/heroes
+  - path: ../../../packs/test-draw-steel-foe
+input:
+  action: { id: draw-steel-heroes:use-ability, entry: draw-steel-heroes-abilities-common-knockback }
+  participants:
+    target:
+      - { id: any-roll, values: { draw-steel-heroes:powerRoll.edgesAgainst: 1 } }
+      - id: strikes-only
+        values:
+          {
+            draw-steel-heroes:powerRoll.strikeEdgesAgainst: 1,
+            draw-steel-heroes:powerRoll.strikeBanesAgainst: 1,
+            draw-steel-heroes:powerRoll.nextStrikeEdgesAgainst: 1,
+          }

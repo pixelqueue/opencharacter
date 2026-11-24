@@ -1,0 +1,28 @@
+# A hero under made-up and heroes effects: what its creature view carries.
+specVersion: 0.4.0
+id: hero
+packs:
+  - id: draw-steel-heroes
+    version: 0.1.1
+  - id: test-draw-steel-foe
+    version: 0.1.0
+values:
+  draw-steel-heroes:stamina.current: 1
+  draw-steel-heroes:combat.active: true
+applied:
+  - { id: lit, source: test-draw-steel-foe:effects.lit, appliedBy: foe }
+  - { id: marked, source: test-draw-steel-foe:effects.marked, appliedBy: foe }
+  - {
+      id: setup,
+      source: draw-steel-heroes:effects.shadow.setup,
+      state: { duration: save },
+      appliedBy: shadow,
+    }
+  - {
+      id: look,
+      source: draw-steel-heroes:effects.shadow.look,
+      state: { duration: next-start },
+      appliedBy: shadow,
+    }
+  - { id: grabbed, source: draw-steel-heroes:conditions.grabbed, appliedBy: foe }
+  - { id: turncoat, source: test-draw-steel-foe:effects.turncoat }

@@ -1,0 +1,30 @@
+# A made-up melee strike that reads the target's view: an edge against a target not at full
+# Stamina, one grabbed by the user, and one under Setup.
+id: abilities.opportunist
+type: ability
+tags: [kw.melee, kw.strike, kw.weapon]
+fields:
+  usage: main-action
+  kind: complication
+  distanceKind: melee
+  distance: 1
+  rollChars: [might]
+  t1Damage: 2
+  t2Damage: 4
+  t3Damage: 6
+effects:
+  - target: { rolls: [power-target], tally: edges }
+    from: self
+    op: add
+    value: 1
+    when: participant.stamina.current < participant.stamina.max
+  - target: { rolls: [power-target], tally: edges }
+    from: self
+    op: add
+    value: 1
+    when: character.id in participant.conditions.grabbedBy
+  - target: { rolls: [power-target], tally: edges }
+    from: self
+    op: add
+    value: 1
+    when: "'draw-steel-heroes:effects.shadow.setup' in participant.effects.active"

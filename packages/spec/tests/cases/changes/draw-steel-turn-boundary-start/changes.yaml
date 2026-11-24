@@ -1,0 +1,15 @@
+# The changes turn-boundary proposes (actions/draw-steel-turn-boundary-start).
+- type: removeEffect
+  applied:
+    where: has(self.duration) && self.duration == 'this-turn' && self.appliedBy ==
+      'goblin'
+- type: removeEffect
+  applied:
+    where: has(self.duration) && self.duration == 'next-start' && self.appliedBy ==
+      'foe'
+- type: setState
+  key: duration
+  applied:
+    where: has(self.duration) && self.duration == 'next-end' && self.appliedBy ==
+      'foe'
+  value: "'this-turn'"

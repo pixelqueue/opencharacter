@@ -1,0 +1,16 @@
+description: "draw-steel-heroes: Look! leaves each target distracted until the start of the shadow's next turn"
+specVersion: 0.4.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/draw-steel/heroes
+input:
+  action:
+    {
+      id: draw-steel-heroes:use-ability,
+      entry: shadow,
+      source: draw-steel-heroes:abilities.shadow.look,
+    }
+  participants:
+    target:
+      - { id: goblin-1, values: {} }
+      - { id: goblin-2, values: {} }
