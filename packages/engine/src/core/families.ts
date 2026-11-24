@@ -41,6 +41,13 @@ export function expandFamilies(
       families.set(name, values.map(String));
     }
     for (const [name, set] of Object.entries(doc.viewFields ?? {})) {
+      if (name.includes(':')) {
+        problems.push({
+          where: { rules: i },
+          message: `view fields "${name}": a set is its declaring pack's own, named without a pack`,
+        });
+        continue;
+      }
       if (views.has(name))
         problems.push({ where: { rules: i }, message: `view fields "${name}" are declared twice` });
       views.set(name, set as Record<string, unknown>);
@@ -73,6 +80,17 @@ export function expandFamilies(
     ),
     problems,
   };
+}
+
+/** Whether a `fields` anywhere in the value names a shared view-field set. */
+export function namesViewFields(value: unknown): boolean {
+  if (Array.isArray(value)) return value.some(namesViewFields);
+  if (value === null || typeof value !== 'object') return false;
+  for (const [key, v] of Object.entries(value)) {
+    if (key === 'fields' && typeof v === 'string') return true;
+    if (namesViewFields(v)) return true;
+  }
+  return false;
 }
 
 function walk(

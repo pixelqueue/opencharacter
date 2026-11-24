@@ -208,9 +208,11 @@ fields:
 - **Shared view fields.** `viewFields: { <name>: { <field>: decl } }` names a set of declared
   fields; a link slot's or a participant role's `fields` may be that name instead of the map
   (5E's attack actions share `target`), in rules or content. A set's family keys expand where
-  it is declared, so a content action's role naming it gets the expanded fields too.
-- **Errors:** a placeholder naming no family, a view-field name naming no set, an addition to a
-  family that doesn't exist, a key that comes out twice, a family or set declared twice:
+  it is declared, so a content action's role naming it gets the expanded fields too. A set is its
+  declaring pack's own: only that pack's roles and slots name it, and no other pack adds to it.
+- **Errors:** a placeholder naming no family, a view-field name naming no set of the pack's own
+  (a dependency's set included), an addition to a family that doesn't exist, a set named with a
+  pack (`core:creature`), a key that comes out twice, a family or set declared twice:
   `invalid-family` (data: `pack`, `message`).
 - **Text** is per expanded field (`fields.abilities.str.mod.name`); i18n has no families. A
   family's values offered in an action's values step (`options: { values: { formula: "keysOf('gang')" } }`) are

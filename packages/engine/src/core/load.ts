@@ -38,7 +38,7 @@ import {
 } from './pack-types.ts';
 import { bandSet, innerSteps, isAddedBound, stepArms } from './pack-types.ts';
 import type { PackRelease } from './release.ts';
-import { expandFamilies } from './families.ts';
+import { expandFamilies, namesViewFields } from './families.ts';
 import {
   admitsTag,
   itemStandard,
@@ -431,7 +431,14 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
     for (const scoped of scopeOf(pid).toReversed())
       for (const [qid, values] of declaredFamilies)
         if (qid.startsWith(`${scoped}:`)) visible.set(qid.slice(scoped.length + 1), values);
-    if (visible.size === 0 && pack.rules.viewFields === undefined) return;
+    // A set name is still checked: a pack sees only its own sets.
+    if (
+      visible.size === 0 &&
+      pack.rules.viewFields === undefined &&
+      !namesViewFields(pack.rules) &&
+      !namesViewFields(pack.content)
+    )
+      return;
     const expanded = expandFamilies([pack.rules], pack.content, visible);
     for (const problem of expanded.problems)
       err(

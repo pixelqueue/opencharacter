@@ -1,0 +1,31 @@
+description: "A `viewFields` set is its declaring pack's own: an add-on can't add to its dependency's set by naming it qualified, `invalid-family`"
+specVersion: 0.4.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        id: core
+        version: 1.0.0
+        specVersion: 0.4.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        fields:
+          hp: { type: integer, input: true, default: 0 }
+        viewFields:
+          creature:
+            hp: { type: integer, default: 0 }
+      content: []
+  - inline:
+      manifest:
+        id: addon
+        version: 1.0.0
+        specVersion: 0.4.0
+        license: CC0-1.0
+        defaultLanguage: en
+        dependencies: { core: ^1.0.0 }
+      rules:
+        viewFields:
+          'core:creature':
+            stress: { type: integer, default: 0 }
+      content: []

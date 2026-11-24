@@ -1,0 +1,45 @@
+description: "A pack sees only its own `viewFields` sets: an add-on's role naming its dependency's set, by name or qualified, is `invalid-family`, though the add-on has no families or sets to expand"
+specVersion: 0.4.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        id: core
+        version: 1.0.0
+        specVersion: 0.4.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        fields:
+          hp: { type: integer, input: true, default: 0 }
+        viewFields:
+          creature:
+            hp: { type: integer, default: 0 }
+        actions:
+          - id: hit
+            participants:
+              target: { fields: creature }
+            steps:
+              - { id: done, kind: outcome, result: "'hit'" }
+      content: []
+  - inline:
+      manifest:
+        id: addon
+        version: 1.0.0
+        specVersion: 0.4.0
+        license: CC0-1.0
+        defaultLanguage: en
+        dependencies: { core: ^1.0.0 }
+      rules:
+        actions:
+          - id: poke
+            participants:
+              target: { fields: creature }
+            steps:
+              - { id: done, kind: outcome, result: "'poked'" }
+          - id: prod
+            participants:
+              target: { fields: 'core:creature' }
+            steps:
+              - { id: done, kind: outcome, result: "'prodded'" }
+      content: []
