@@ -1,10 +1,10 @@
-# Skitterling Claws: a bane on the target's next strike, which ends it.
-id: effects.goblin.skitterling-bane
+# A double bane on the creature's next strike, which ends it.
+id: effects.common.next-strike-double-bane
 type: effect
 effects:
   - target: { rolls: [power-roll.ability], tally: banes }
     op: add
-    value: 1
+    value: 2
     scope: applied
     when: "'kw.strike' in roll.item.tags"
   - target: { steps: [ability.after] }
@@ -13,5 +13,5 @@ effects:
     value:
       changes:
         - type: removeEffect
-          applied: { where: 'item.id == @effects.goblin.skitterling-bane' }
+          applied: { where: 'item.id == @effects.common.next-strike-double-bane' }
     when: "'kw.strike' in action.item.tags"

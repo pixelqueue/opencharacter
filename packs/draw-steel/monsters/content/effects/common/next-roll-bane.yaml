@@ -1,5 +1,5 @@
-# Smoke Bomb: a bane on the creature's next power roll, which ends it.
-id: effects.hobgoblin.smoke-bane
+# A bane on the creature's next power roll, which ends it.
+id: effects.common.next-roll-bane
 type: effect
 effects:
   - target: { rolls: [power-roll], tally: banes }
@@ -12,5 +12,5 @@ effects:
     value:
       changes:
         - type: removeEffect
-          applied: { where: 'item.id == @effects.hobgoblin.smoke-bane' }
+          applied: { where: 'item.id == @effects.common.next-roll-bane' }
     when: has(steps.roll)

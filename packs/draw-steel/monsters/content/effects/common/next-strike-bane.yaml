@@ -1,5 +1,5 @@
-# Blotting Bolt: a bane on the creature's next strike, which ends it.
-id: effects.shadow-elf.next-strike-bane
+# A bane on the creature's next strike, which ends it.
+id: effects.common.next-strike-bane
 type: effect
 effects:
   - target: { rolls: [power-roll.ability], tally: banes }
@@ -13,5 +13,5 @@ effects:
     value:
       changes:
         - type: removeEffect
-          applied: { where: 'item.id == @effects.shadow-elf.next-strike-bane' }
+          applied: { where: 'item.id == @effects.common.next-strike-bane' }
     when: "'kw.strike' in action.item.tags"
