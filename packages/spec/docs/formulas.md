@@ -397,7 +397,10 @@ a path must not be a map (`type-mismatch`). In a change an app gives to applyCha
 names are `unknown-name`. A change aimed at applied entries passes on `applied.where` and its
 per-entry `by` or `value` the same way; there `item` is the entry's source item (typed `dyn`, since
 it may be of any content type) and `self` the entry: `id`, `appliedBy` and its state keys, with declared
-defaults.
+defaults. In a `picks` or `grants` query, `self` is the state alone (with the change's `key`, which every
+match declares). Since the entry may be of any
+type, `self` may read any state key a content type or item the pack sees declares; any other key
+(`self.source`) is `unknown-name` at load.
 
 Details of each root are in [`data/formula-context.json`](../data/formula-context.json).
 

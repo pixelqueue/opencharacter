@@ -222,6 +222,7 @@ class FormulaChecker<L> {
   readonly problems: FormulaProblem<L>[] = [];
   private readonly scope: string[];
   private readonly targetsByTags = new Map<string, ActionTarget<L>[]>();
+  private readonly stateKeys = new Map<string, Record<string, FType>>();
 
   constructor(
     private readonly set: PackSet<L>,
@@ -1449,7 +1450,11 @@ class FormulaChecker<L> {
             }
             if (change.applied || change.picks || change.grants) {
               const query = (change.applied ?? change.picks ?? change.grants)?.where as Formula;
-              this.typed({ item: 'dyn', self: entryType(undefined), batch: BATCH }, () =>
+              const self = this.queryEntryType(
+                change.applied !== undefined,
+                typeof change.key === 'string' ? change.key : undefined,
+              );
+              this.typed({ item: 'dyn', self, batch: BATCH }, () =>
                 this.at('content', () =>
                   this.onlyRoots(['batch'], () => {
                     this.formula(query, at, where, BOOL);
@@ -1589,7 +1594,11 @@ class FormulaChecker<L> {
     this.appliedContent(change, at, where, [...PASSED_ROOTS, ...this.inEach(), ...this.inRun()]);
     const applied = change.applied ?? change.picks ?? change.grants;
     if (applied) {
-      this.typed({ item: 'dyn', self: entryType(undefined), batch: BATCH }, () =>
+      const self = this.queryEntryType(
+        change.applied !== undefined,
+        typeof change.key === 'string' ? change.key : undefined,
+      );
+      this.typed({ item: 'dyn', self, batch: BATCH }, () =>
         this.at('content', () =>
           this.onlyRoots([...PASSED_ROOTS, ...this.inEach(), ...this.inRun(), 'batch'], () => {
             this.passedOn(applied.where, at, where, BOOL);
@@ -1721,6 +1730,41 @@ class FormulaChecker<L> {
     return this.templateFieldDecls;
   }
   private templateFieldDecls: Record<string, ValueDecl> | undefined;
+
+  /**
+   * `self` in an `applied`, `picks` or `grants` query: the entry's `id` and `appliedBy` (applied
+   * entries only) and its state keys, any a content type or item the pack sees declares (a key
+   * declared with two types is `dyn`). Closed, so a key no entry can have is `unknown-name`; a
+   * `picks` or `grants` query matches only content declaring the change's `key`, so it has that.
+   */
+  private queryEntryType(applied: boolean, key?: string): FType {
+    const memo = this.scope.join(' ');
+    let keys = this.stateKeys.get(memo);
+    if (keys === undefined) {
+      const found: Record<string, FType> = {};
+      const add = (decls: Record<string, ValueDecl> | undefined) => {
+        for (const [name, decl] of Object.entries(decls ?? {})) {
+          const type = fieldFormulaType(decl.type, decl.of);
+          const known = found[name];
+          found[name] =
+            known === undefined || JSON.stringify(known) === JSON.stringify(type) ? type : 'dyn';
+        }
+      };
+      for (const pid of this.scope) {
+        for (const { def } of this.set.rules.get(pid)?.contentTypes.values() ?? []) add(def.state);
+        for (const { doc } of this.set.packContent.get(pid) ?? []) add(doc.state);
+      }
+      keys = found;
+      this.stateKeys.set(memo, keys);
+    }
+    return {
+      object: {
+        ...(key !== undefined && !applied ? { [key]: 'dyn' as FType } : {}),
+        ...keys,
+        ...(applied ? { id: 'string', appliedBy: 'string' } : {}),
+      },
+    };
+  }
 
   private contentTypeDef(name: string | undefined): ContentTypeDef | undefined {
     return name ? this.set.contentType(name, this.scope)?.def : undefined;

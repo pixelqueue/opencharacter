@@ -1,0 +1,29 @@
+description: "In an `applied` query `self` is the entry: `id`, `appliedBy` and state keys the pack's content types and items declare; another key (`self.source`) is `unknown-name` at load, as it would be when the change applies"
+specVersion: 0.4.0
+call: loadRuleset
+packs:
+  - inline:
+      manifest:
+        id: test-pack
+        version: 1.0.0
+        specVersion: 0.4.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        contentTypes:
+          condition:
+            state:
+              rounds: { type: integer, default: 1 }
+        actions:
+          - id: shake-off
+            steps:
+              - id: clear
+                kind: changes
+                changes:
+                  - type: removeEffect
+                    applied: { where: "self.rounds > 0 && self.appliedBy != '' && self.id != ''" }
+                  - type: removeEffect
+                    applied: { where: 'self.source == @prone' }
+      content:
+        - id: prone
+          type: condition
