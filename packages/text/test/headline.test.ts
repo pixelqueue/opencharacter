@@ -243,3 +243,13 @@ describe('MÖRK BORG', () => {
     expect(headline(character(pack, { creating: true }))).toBeUndefined();
   });
 });
+
+describe('Draw Steel', () => {
+  const headline = headlines('draw-steel/heroes', 'draw-steel/monsters');
+  it('words a monster by its stat block, a minion squad with its role', () => {
+    expect(headline(example('draw-steel-goblin-monarch'))).toBe('Goblin Monarch, Level 1 Leader');
+    expect(headline(example('draw-steel-spinecleavers'))).toBe(
+      'Goblin Spinecleaver, Level 1 Minion Brute',
+    );
+  });
+});

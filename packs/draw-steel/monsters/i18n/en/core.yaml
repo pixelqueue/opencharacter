@@ -1,9 +1,10 @@
 pack.name: Draw Steel Monsters
 # A monster's sheet: "Goblin Monarch, Level 1 Leader", "Goblin Spinecleaver, Level 1 Minion Brute";
-# the Director's: "Director, 9 Malice"; a hero's as the heroes pack words it.
+# the Director's: "Director, 9 Malice". A sheet takes the headline of its last pack that has one,
+# so a hero's sheet with this pack is worded here too, as the heroes pack words it.
 headline: >-
   {has_type_monster, select,
-    true {{type_monster}, Level {field_level} {field_monster_organization, select, minion {Minion} horde {Horde} platoon {Platoon} elite {Elite} leader {Leader} solo {Solo} retainer {Retainer} other {}}{field_monster_role, select, ambusher { Ambusher} artillery { Artillery} brute { Brute} controller { Controller} defender { Defender} harrier { Harrier} hexer { Hexer} mount { Mount} support { Support} other {}}}
+    true {{type_monster_each}}
     other {{has_type_director, select,
       true {Director, {field_malice} Malice}
       other {{has_type_class, select,
@@ -18,6 +19,9 @@ creation.director.name: Director
 creation.director.description: Make the Director's sheet, which holds the Malice every monster spends.
 
 types.monster.name: Monster
+types.monster.headline: >-
+  {name}, Level {level} {organization, select, none {} other {{organization_name}}}{role, select,
+  none {} other { {role_name}}}
 types.monster.block: >-
   {has_tags, select, true {**{tags_name}** · } other {}}Level {level}
   {organization, select, none {} other {{organization_name}}}{role, select, none {} other { {role_name}}} · EV {ev}{organization, select,
