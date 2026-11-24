@@ -72,7 +72,9 @@ contentTypes:
       't{tier}Potency': { type: enum, values: [weak, average, strong] }
       't{tier}PotencyValue': { type: integer }
       't{tier}Condition': { type: id, of: condition }
-      't{tier}Duration': { type: enum, values: [eot, save, encounter, until] }
+      # The condition's duration; `next-start` and `next-end` end at the start or the end of the
+      # user's next turn (the imposer's: `turn-boundary` ends them).
+      't{tier}Duration': { type: enum, values: [eot, save, encounter, until, next-start, next-end] }
       't{tier}Move': { type: enum, values: [push, pull, slide] }
       't{tier}MoveVertical': { type: boolean, default: false }
       't{tier}MoveDistance': { type: integer, min: 0 }
