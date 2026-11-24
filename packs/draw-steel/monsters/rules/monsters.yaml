@@ -18,9 +18,10 @@ contentTypes:
       captain: { type: boolean, default: false }
     fields:
       level: { type: integer, min: 0, required: true, perCopy: true }
+      # `none`: a stat block the book prints without one (a noncombatant, Xorannox's eyestalks).
       organization:
         type: enum
-        values: [minion, horde, platoon, elite, leader, solo, retainer]
+        values: [none, minion, horde, platoon, elite, leader, solo, retainer]
         required: true
       role:
         type: enum
