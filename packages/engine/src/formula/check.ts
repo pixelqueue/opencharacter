@@ -39,6 +39,8 @@ const isList = (t: FType): t is { list: FType } => typeof t === 'object' && 'lis
 export interface CheckContext {
   /** The formula type of a visible field, or undefined when no field has this ID. */
   field(id: string): FType | undefined;
+  /** Whether a field has this ID, read here or not (`fieldId` names a field without reading it). */
+  fieldExists?(id: string): boolean;
   roots: ReadonlySet<string>;
   /** Types of bound roots; a root without one is `dyn`. */
   rootTypes?: Readonly<Record<string, FType>>;
@@ -495,9 +497,13 @@ function checkCall(fn: string, args: Node[], ctx: CheckContext): FType {
         return fail('unknown-name', `no family named "${ids.unknown}"`, { name: ids.unknown });
       let type: FType | undefined;
       for (const id of ids) {
+        if (fn === 'fieldId') {
+          if (!(ctx.fieldExists?.(id) ?? ctx.field(id) !== undefined))
+            return fail('unknown-name', `no field ${id}`, { name: id });
+          continue;
+        }
         const t = ctx.field(id);
         if (t === undefined) return fail('unknown-name', `no field ${id}`, { name: id });
-        if (fn === 'fieldId') continue;
         if (type !== undefined && typeName(t) !== typeName(type))
           return mismatch(`fieldOf() fields have different types (${id})`);
         type = t;

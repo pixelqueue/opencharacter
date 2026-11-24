@@ -2033,6 +2033,7 @@ class FormulaChecker<L> {
         if (!field || (this.inputOnly && !field.def.input)) return undefined;
         return fieldFormulaType(field.def.type);
       },
+      fieldExists: (id) => this.set.field(id, this.scope) !== undefined,
       roots: new Set([...rootsFor(this.place), ...this.extraRoots]),
       rootTypes: this.types,
       character: this.place !== 'itemField' && this.place !== 'query',

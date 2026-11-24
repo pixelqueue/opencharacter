@@ -1,0 +1,45 @@
+description: "`fieldId` in an effect's `{ formula }` target names a derived field without reading it, so the target, checked where only input fields are read, may name one; an add-on's formula reaches its dependency's field the same way"
+specVersion: 0.4.0
+call: computeSheet
+packs:
+  - inline:
+      manifest:
+        id: core
+        version: 1.0.0
+        specVersion: 0.4.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        families:
+          damage: [fire, cold]
+        fields:
+          'immunity.{damage}': { type: integer, formula: 0 }
+        contentTypes:
+          feature:
+            fields:
+              damage: { type: string }
+      content:
+        - id: fire-ward
+          type: feature
+          fields: { damage: fire }
+          effects:
+            - target: { formula: "fieldId('immunity.{damage}', item.damage)" }
+              op: add
+              value: 5
+  - inline:
+      manifest:
+        id: addon
+        version: 1.0.0
+        specVersion: 0.4.0
+        license: CC0-1.0
+        defaultLanguage: en
+        dependencies: { core: ^1.0.0 }
+      rules: {}
+      content:
+        - id: cold-ward
+          type: core:feature
+          fields: { damage: cold }
+          effects:
+            - target: { formula: "fieldId('immunity.{damage}', item.damage)" }
+              op: add
+              value: 3
