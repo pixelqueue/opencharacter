@@ -10,7 +10,7 @@
 #   action was used this round (the Director's sheet keeps the round).
 # - A target's test ("Each target makes a Might test"): the ability has no power roll and the tag
 #   `target-test.<characteristic>`; each target makes the test, and its tier picks the tier fields
-#   (tier 1 is the ≤11 line, as printed).
+#   (tier 1 is the ≤11 line, as printed). Two such tags: the target makes either test.
 # - No power roll and no test ("The target takes 5 damage"): the tier-1 fields are what happens to
 #   each target, the condition behind its potency.
 extendEnums:
@@ -117,16 +117,18 @@ effects:
         - { type: set, field: villain.used, value: '[]' }
     when: sheet.monster
 
-  # A target's test: each target tests, and its tier lands as the ability's tier fields say. One
-  # effect per characteristic: an added run's params don't see `action` (gap list).
-  - id: target-test-might
+  # A target's test: each target tests, and its tier lands as the ability's tier fields say (its
+  # damage, its condition and its effect). Tagged with two characteristics ("either an Agility or
+  # an Intuition test"), the target picks one (`either-test`).
+  - id: target-test
     target: { steps: [ability.hit] }
     op: action
     value:
       id: target-test
       use: test
       as: participant
-      params: { characteristic: "'might'" }
+      params:
+        characteristic: "filterList(keysOf('characteristic'), ('target-test.' + x) in action.item.tags)[0]"
       changes: &target-test
         - type: adjust
           when: >-
@@ -141,60 +143,41 @@ effects:
             - formula: "action.item.damageType == 'untyped' ? [] : ['damage.' + action.item.damageType]"
         - type: applyEffect
           when: >-
-            [has(action.item.t1Condition) || has(action.item.t1Effect),
-              has(action.item.t2Condition) || has(action.item.t2Effect),
-              has(action.item.t3Condition) || has(action.item.t3Effect)][min(3, run.data.tier) - 1]
+            [has(action.item.t1Condition), has(action.item.t2Condition), has(action.item.t3Condition)][min(3, run.data.tier) - 1]
           source: >-
-            [has(action.item.t1Condition) ? action.item.t1Condition : has(action.item.t1Effect) ? action.item.t1Effect : '',
-              has(action.item.t2Condition) ? action.item.t2Condition : has(action.item.t2Effect) ? action.item.t2Effect : '',
-              has(action.item.t3Condition) ? action.item.t3Condition : has(action.item.t3Effect) ? action.item.t3Effect : ''][min(3, run.data.tier) - 1]
-          state:
+            [has(action.item.t1Condition) ? action.item.t1Condition : '',
+              has(action.item.t2Condition) ? action.item.t2Condition : '',
+              has(action.item.t3Condition) ? action.item.t3Condition : ''][min(3, run.data.tier) - 1]
+          state: &target-test-duration
             duration: >-
               [has(action.item.t1Duration) ? action.item.t1Duration : 'until',
                 has(action.item.t2Duration) ? action.item.t2Duration : 'until',
                 has(action.item.t3Duration) ? action.item.t3Duration : 'until'][min(3, run.data.tier) - 1]
           appliedBy: character.id
-    when: "sheet.monster && 'target-test.might' in action.item.tags"
-  - id: target-test-agility
+        - type: applyEffect
+          when: >-
+            [has(action.item.t1Effect), has(action.item.t2Effect), has(action.item.t3Effect)][min(3, run.data.tier) - 1]
+          source: >-
+            [has(action.item.t1Effect) ? action.item.t1Effect : '',
+              has(action.item.t2Effect) ? action.item.t2Effect : '',
+              has(action.item.t3Effect) ? action.item.t3Effect : ''][min(3, run.data.tier) - 1]
+          state: *target-test-duration
+          appliedBy: character.id
+    when: >-
+      sheet.monster && countList(keysOf('characteristic'), ('target-test.' + x) in action.item.tags) == 1
+  - id: target-test-either
     target: { steps: [ability.hit] }
     op: action
     value:
       id: target-test
-      use: test
+      use: either-test
       as: participant
-      params: { characteristic: "'agility'" }
+      params:
+        first: "filterList(keysOf('characteristic'), ('target-test.' + x) in action.item.tags)[0]"
+        second: "filterList(keysOf('characteristic'), ('target-test.' + x) in action.item.tags)[1]"
       changes: *target-test
-    when: "sheet.monster && 'target-test.agility' in action.item.tags"
-  - id: target-test-reason
-    target: { steps: [ability.hit] }
-    op: action
-    value:
-      id: target-test
-      use: test
-      as: participant
-      params: { characteristic: "'reason'" }
-      changes: *target-test
-    when: "sheet.monster && 'target-test.reason' in action.item.tags"
-  - id: target-test-intuition
-    target: { steps: [ability.hit] }
-    op: action
-    value:
-      id: target-test
-      use: test
-      as: participant
-      params: { characteristic: "'intuition'" }
-      changes: *target-test
-    when: "sheet.monster && 'target-test.intuition' in action.item.tags"
-  - id: target-test-presence
-    target: { steps: [ability.hit] }
-    op: action
-    value:
-      id: target-test
-      use: test
-      as: participant
-      params: { characteristic: "'presence'" }
-      changes: *target-test
-    when: "sheet.monster && 'target-test.presence' in action.item.tags"
+    when: >-
+      sheet.monster && countList(keysOf('characteristic'), ('target-test.' + x) in action.item.tags) == 2
 
   # No power roll and no test: the tier-1 damage and condition land on each target, the condition
   # behind its potency.
@@ -228,3 +211,33 @@ effects:
     when: >-
       sheet.monster && !has(steps.roll)
         && countList(keysOf('characteristic'), ('target-test.' + x) in action.item.tags) == 0
+
+actions:
+  # "Either an Agility or an Intuition test": the creature picks the characteristic and makes the
+  # test. Its outcome is the test's.
+  - id: either-test
+    tags: [test]
+    params:
+      first: { type: enum, values: [might, agility, reason, intuition, presence] }
+      second: { type: enum, values: [might, agility, reason, intuition, presence] }
+    results: [success-reward, success, success-consequence, failure, failure-consequence]
+    steps:
+      - id: pick
+        kind: choice
+        options:
+          - { id: might, when: "'might' in [params.first, params.second]" }
+          - { id: agility, when: "'agility' in [params.first, params.second]" }
+          - { id: reason, when: "'reason' in [params.first, params.second]" }
+          - { id: intuition, when: "'intuition' in [params.first, params.second]" }
+          - { id: presence, when: "'presence' in [params.first, params.second]" }
+        recommend: >-
+          fieldOf('characteristics.{characteristic}.score', params.first)
+            >= fieldOf('characteristics.{characteristic}.score', params.second) ? params.first : params.second
+      - id: test
+        kind: action
+        use: test
+        params: { characteristic: steps.pick.picked }
+      - id: done
+        kind: outcome
+        result: steps.test.result
+        data: { tier: steps.test.data.tier }
