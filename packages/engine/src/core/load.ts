@@ -123,6 +123,8 @@ export interface LoadRulesetOptions {
 /** loadRuleset: packages/spec/docs/engine-core.md. */
 export function loadRuleset(packs: PackRelease[], options: LoadRulesetOptions = {}): LoadResult {
   const { prechecked } = options;
+  const shapeErrors = packShapeErrors(packs);
+  if (shapeErrors.length > 0) return { ok: false, errors: shapeErrors };
   const trusted = (pack: PackRelease) => pack.formulas !== undefined && prechecked?.has(pack);
   if (!prechecked || !packs.some(trusted)) return loadPacks(packs);
   const check = packs.filter((pack) => !trusted(pack)).map((pack) => pack.manifest.id);
@@ -344,6 +346,26 @@ function checkAddedParams(
 
 const isRecord = (v: unknown) => typeof v === 'object' && v !== null && !Array.isArray(v);
 
+/** Each pack release has a `manifest` and `rules` (objects) and `content` (a list). */
+function packShapeErrors(packs: readonly PackRelease[]): EngineError[] {
+  return packs.flatMap((pack, i) => {
+    const shape = (isRecord(pack) ? pack : {}) as Partial<
+      Record<'manifest' | 'rules' | 'content', unknown>
+    >;
+    return (['manifest', 'rules', 'content'] as const).flatMap((key) =>
+      (key === 'content' ? Array.isArray(shape[key]) : isRecord(shape[key]))
+        ? []
+        : [
+            {
+              code: 'invalid-shape',
+              path: `/packs/${i}/${key}`,
+              data: { path: `/packs/${i}/${key}` },
+            },
+          ],
+    );
+  });
+}
+
 /** loadRuleset's steps, with options for layering a character's homebrew. */
 export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): LoadResult {
   const errors: EngineError[] = [];
@@ -351,12 +373,7 @@ export function loadPacks(packs: PackRelease[], options: LoadOptions = {}): Load
     errors.push(path ? { code, path, data } : { code, data });
 
   // 1. Check the packs.
-  packs.forEach((pack, i) => {
-    const shape = pack as Partial<Record<'manifest' | 'rules' | 'content', unknown>>;
-    for (const key of ['manifest', 'rules', 'content'] as const)
-      if (key === 'content' ? !Array.isArray(shape[key]) : !isRecord(shape[key]))
-        err('invalid-shape', { path: `/packs/${i}/${key}` }, `/packs/${i}/${key}`);
-  });
+  errors.push(...packShapeErrors(packs));
   if (errors.length > 0) return { ok: false, errors };
   const byId = new Map<string, PackRelease>();
   packs.forEach((pack, i) => {
