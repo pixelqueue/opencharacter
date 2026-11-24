@@ -76,7 +76,10 @@ contentTypes:
       - { id: reason, target: characteristics.reason.base, op: set, value: item.reason }
       - { id: intuition, target: characteristics.intuition.base, op: set, value: item.intuition }
       - { id: presence, target: characteristics.presence.base, op: set, value: item.presence }
-      - { id: size, target: size.base, op: set, value: item.size }
+      - id: size
+        target: size.base
+        op: set
+        value: "monster.sizeAdjustment != 'none' ? monster.sizeAdjustment : item.size"
       - { id: speed, target: speed.base, op: set, value: item.speed }
       - { id: stability, target: stability, op: add, value: item.stability }
       - { id: stamina, target: stamina.base, op: add, value: item.stamina * self.squad }
@@ -238,6 +241,11 @@ fields:
     values: [untyped, acid, cold, corruption, fire, holy, lightning, poison, psychic, sonic]
     formula: "'untyped'"
   monster.endEffect: { type: integer, formula: 0 }
+  # A size that replaces the stat block's (a rival's ancestry); `none` keeps it.
+  monster.sizeAdjustment:
+    type: enum
+    values: [none, 1t, 1s, 1m, 1l, '2', '3', '4', '5']
+    formula: "'none'"
   # One minion's Stamina, the squad's size, and how many are still standing: one drops each time
   # the pool loses a minion's Stamina.
   monster.oneStamina: { type: integer, formula: 0 }
@@ -390,6 +398,18 @@ actions:
           - type: addItem
             forEach: steps.monster.item.abilities
             entry: { item: x }
+      # A rival may take an ancestry (rules/rival.yaml): offered, not recommended; the random
+      # start draws one.
+      - id: ancestry
+        kind: choice
+        when: "'creature.rival' in steps.monster.item.tags"
+        random: params.random
+        repeat: { max: 1 }
+        options: { content: { type: rivalAncestry } }
+        recommend: "'#done'"
+        changes:
+          - type: addItem
+            entry: { item: picked.id }
       - id: finish
         kind: changes
         sheet: proposed

@@ -113,6 +113,11 @@ Invincible, the dragons, Xorannox the Tyract) to the rivals, war dogs and noncom
   applies the book's advancement (Stamina, free strike and signature damage, characteristics, and
   the advancement ability chosen at 4th, 7th and 10th level). An Encounter ability comes back when
   the encounter ends, not when the mentor earns a Victory.
+- **Rival ancestries:** a rival may take one ancestry from the Rival Ancestries table (a
+  `rivalAncestry` copy): its keyword, size, stability adjustment and ancestral trait. The monster
+  start offers one for a rival (the random start draws one), and `give-rival-ancestry` gives one
+  later. Determination, Glowing Recovery (once per round) and Vengeance Mark are actions; the
+  others' immunities, flight and forced movement apply.
 
 ## Limitations
 

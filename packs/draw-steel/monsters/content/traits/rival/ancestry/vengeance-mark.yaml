@@ -1,0 +1,43 @@
+# Vengeance Mark: a maneuver places the sigil on an enemy (the rival's earlier one ends); a main
+# action detonates it on the target: damage equal to the rival's free strike, and the sigil ends.
+# Knowing the enemy's direction and the slide of up to 2 squares are the table's.
+id: traits.rival.ancestry.vengeance-mark
+type: trait
+actions:
+  - id: place-sigil
+    tags: [usage.maneuver]
+    available: '!stamina.dead'
+    participants:
+      target: { min: 1, max: 1 }
+    results: [placed]
+    steps:
+      - id: unmark
+        kind: changes
+        to: applied
+        changes:
+          - type: removeEffect
+            applied: { where: 'item.id == @effects.rival.vengeance-mark' }
+      - id: mark
+        kind: changes
+        to: target
+        changes:
+          - type: applyEffect
+            source: "'effects.rival.vengeance-mark'"
+            state: { duration: "'until'" }
+            appliedBy: character.id
+      - { id: done, kind: outcome, result: "'placed'" }
+  - id: detonate-sigil
+    tags: [usage.main-action]
+    available: '!stamina.dead'
+    participants:
+      target: { min: 1, max: 1 }
+    results: [detonated]
+    steps:
+      - id: detonate
+        kind: changes
+        to: target
+        changes:
+          - { type: adjust, field: stamina.current, by: -monster.freeStrike, tags: [damage] }
+          - type: removeEffect
+            applied: { where: 'item.id == @effects.rival.vengeance-mark' }
+      - { id: done, kind: outcome, result: "'detonated'", data: { damage: monster.freeStrike } }

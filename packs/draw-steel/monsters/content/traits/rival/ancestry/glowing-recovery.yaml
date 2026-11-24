@@ -1,0 +1,20 @@
+# Glowing Recovery: once per round, as a maneuver, the rival regains 5 × their level Stamina
+# (`rival.glowingRecoveryRound` keeps the round; out of combat it is always offered).
+id: traits.rival.ancestry.glowing-recovery
+type: trait
+actions:
+  - id: glowing-recovery
+    tags: [usage.maneuver]
+    available: >-
+      !stamina.dead && (!combat.active || rival.glowingRecoveryRound != combat.round)
+    results: [regained]
+    steps:
+      - id: regain
+        kind: changes
+        changes:
+          - { type: adjust, field: stamina.current, by: 5 * level, tags: [healing] }
+          - type: set
+            when: combat.active
+            field: rival.glowingRecoveryRound
+            value: combat.round
+      - { id: done, kind: outcome, result: "'regained'", data: { stamina: 5 * level } }
