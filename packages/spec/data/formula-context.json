@@ -45,11 +45,11 @@
     },
     {
       "id": "participants",
-      "description": "In an action: the other characters taking part, by role the action declares: `participants.<role>` is the list of the role's views in input order, `[]` when none were given. A view is `id` plus each declared field by field ID, nested at the dots (`participants.target[0].combat.ac`); a declared field the view lacks reads its `default`, else is absent (`has()`). In roll effects, situational choices' effects and result bands it is `dyn`: the running action's roles, empty when it declares none (`has(participants.target)`). Substituted as literals in a formula a proposed change passes on."
+      "description": "In an action: the other characters taking part, by role the action declares: `participants.<role>` is the list of the role's views in input order, `[]` when none were given. A view is `id` plus each declared field by field ID, nested at the dots (`participants.target[0].combat.ac`); a declared field the view lacks reads its `default`, else is absent (`has()`). In roll, `changes` and `action` effects (situational choices' included) and result bands: the running action's roles, empty when it declares none. In result bands it is `dyn`. In an effect, a role the effect's pack sees (one of the actions it sees declares it) carries the fields some role of that name declares, another field being `unknown-name` at load; a role it doesn't see is `dyn` (`has(participants.target)`). Substituted as literals in a formula a proposed change passes on."
     },
     {
       "id": "participant",
-      "description": "In an `each: <role>` step: the current participant's view, as in `participants.<role>`. In roll effects and result bands evaluated during such a step it is `dyn`; elsewhere it is absent (`has(participant)`). Substituted as literals in a formula a proposed change passes on."
+      "description": "In an `each: <role>` step: the current participant's view, as in `participants.<role>`. In roll, `changes` and `action` effects and result bands evaluated during such a step it is that view too: `dyn` in result bands, and in an effect a view carrying the fields the roles the effect's pack sees declare (another field is `unknown-name` at load; `dyn` when the pack sees no role); elsewhere it is absent (`has(participant)`). Substituted as literals in a formula a proposed change passes on."
     },
     {
       "id": "action",

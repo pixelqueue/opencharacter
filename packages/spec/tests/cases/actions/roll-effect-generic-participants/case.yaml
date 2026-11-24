@@ -1,0 +1,46 @@
+description: "A core's generic roll effect reads `participants.target` with `has()`, though only an add-on's action declares the role: a role name its pack doesn't see is `dyn`, so it loads and adds where the role is there"
+specVersion: 0.4.0
+call: startAction
+packs:
+  - inline:
+      manifest:
+        id: core
+        version: 1.0.0
+        specVersion: 0.4.0
+        license: CC0-1.0
+        defaultLanguage: en
+      rules:
+        tags: [attack]
+        effects:
+          # +2 against a target, on any pack's attack.
+          - target: { rolls: [attack] }
+            op: add
+            when: has(participants.target) && size(participants.target) > 0
+            value: 2
+      content: []
+  - inline:
+      manifest:
+        id: addon
+        version: 1.0.0
+        specVersion: 0.4.0
+        license: CC0-1.0
+        defaultLanguage: en
+        dependencies: { core: ^1.0.0 }
+      rules:
+        actions:
+          - id: shoot
+            participants:
+              target: { max: 1 }
+            steps:
+              - id: roll
+                kind: roll
+                tags: [attack]
+                parts: [{ dice: 1d20 }]
+              - id: done
+                kind: outcome
+                data: { total: steps.roll.total }
+      content: []
+input:
+  action: { id: addon:shoot }
+  participants:
+    target: [{ id: orc, values: {} }]

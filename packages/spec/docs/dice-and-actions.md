@@ -660,9 +660,12 @@ as **views** (`{ id, values }`), taken from their own computed sheets, like a li
 - `participants.<role>` is the role's list of views in input order, `[]` when none were given.
   A view is `id` plus the declared fields, nested at the dots
   (`participants.target[0].combat.ac`); a field the view lacks reads its `default`, else is
-  absent (`has()`). Roll effects and result bands see `participants` too, as `dyn`: the running
-  action's roles, empty when it declares none. So the attacker's rules can read the target's
-  conditions:
+  absent (`has()`). Roll, `changes` and `action` effects and result bands see `participants`
+  too: the running action's roles, empty when it declares none. In a result band it is `dyn`; in
+  an effect a role the effect's pack sees (one of the actions it sees declares it) carries the
+  fields some role of that name declares, another field being `unknown-name` at load, and a role
+  it doesn't see is `dyn` (`has(participants.target)`, for an effect reaching other packs'
+  actions). So the attacker's rules can read the target's conditions:
 
 ```yaml
 effects:

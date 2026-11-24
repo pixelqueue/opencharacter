@@ -322,7 +322,9 @@ applies to many actions (so is `params` in the `min`, `max` and `formula` of a p
 `params`); so are their `action.item` and `action.self`, and a result band's `participants` and
 `participant`. A roll, `changes` or `action` effect's `participants.<role>` and `participant` are
 the views the roles of the actions its pack sees declare: a field no such role declares is
-`unknown-name` at load, since a participant's view carries only its role's fields.
+`unknown-name` at load, since a participant's view carries only its role's fields. A role name
+the pack doesn't see is `dyn`, so a generic effect can test `has(participants.target)` for
+another pack's actions, and so is `participant` when the pack sees no role.
 
 **Roll effects**. A roll effect's formulas see the content's own roots (`item`, `self`)
 with the action context (`steps`, `flags`, `params`, `situational`, `participants`,

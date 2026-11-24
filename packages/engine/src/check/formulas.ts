@@ -759,8 +759,10 @@ class FormulaChecker<L> {
   /**
    * `participants` and `participant` in an effect that acts as an action runs: the roles of any
    * action the pack sees, each view carrying the fields some role of that name (or, for
-   * `participant`, any role) declares. Closed, so a field no role carries is `unknown-name`: the
-   * run's views drop it.
+   * `participant`, any role) declares. A view is closed, so a field no such role carries is
+   * `unknown-name`: the run's views drop it. A role name the pack doesn't see is `dyn`, since a
+   * generic effect reaches other packs' actions (`has(participants.target)`), and so is
+   * `participant` when the pack sees no role at all.
    */
   private roleTypes(): { participants: FType; participant: FType } {
     const memo = this.scope.join(' ');
@@ -786,8 +788,8 @@ class FormulaChecker<L> {
         for (const a of doc.actions ?? []) add(a);
     }
     const types = {
-      participants: { object: roles },
-      participant: any ?? { object: { id: 'string' } },
+      participants: { object: roles, open: true } as FType,
+      participant: any ?? 'dyn',
     };
     this.roleViews.set(memo, types);
     return types;
