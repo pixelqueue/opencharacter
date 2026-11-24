@@ -13,6 +13,37 @@ const isField = (n: string) => ['level', 'has_x'].includes(n);
 const item = (ruleset: { content: Record<string, unknown> }, id: string) =>
   ruleset.content[id] as BlockItem;
 
+describe('an add-on over a core', () => {
+  const text = createText({
+    languages: ['en', 'fr'],
+    spec: { en: {} },
+    packs: {
+      en: {
+        core: { 'tags.kw.melee.name': 'Melee', 'tags.kw.magic.name': 'Magic' },
+        addon: {
+          'abilities.bite.name': 'Bite',
+          'tags.kw.beast.name': 'Beast',
+          'types.ability.block': '**{name}** · {tags_name}',
+        },
+      },
+      fr: { core: { 'tags.kw.magic.name': 'Magique' } },
+    },
+  });
+  const bite = {
+    id: 'addon:abilities.bite',
+    type: 'addon:ability',
+    tags: ['kw.melee', 'kw.beast', 'kw.none'],
+  };
+
+  it("names a dependency's tags as the pack that declares them does", () => {
+    expect(text.contentBlock(bite)).toBe('**Bite** · Melee, Beast, kw.none');
+    expect(text.tag('kw.melee', 'addon')).toBe('Melee');
+    expect(text.tag('addon:kw.magic')).toBe('Magic');
+    expect(text.setMember('kw.melee', 'addon')).toBe('Melee');
+    expect(text.tag('kw.melee')).toBe('kw.melee');
+  });
+});
+
 describe('a synthetic pack', () => {
   const text = createText({
     languages: ['en'],
