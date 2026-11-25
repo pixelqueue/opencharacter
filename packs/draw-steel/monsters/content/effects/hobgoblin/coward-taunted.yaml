@@ -1,0 +1,13 @@
+# Fight Me, Coward!: taunted (granted, with its rules; the entry's applier is the taunter), and
+# while taunted this way the creature takes 1d6 fire damage whenever they use an ability that
+# doesn't target the trooper.
+id: effects.hobgoblin.coward-taunted
+type: effect
+grants:
+  - { item: conditions.taunted, scope: applied }
+effects:
+  - target: { steps: [ability.after] }
+    op: action
+    scope: applied
+    value: { id: coward, use: ongoing-damage, params: { dice: 1d6, damageType: "'fire'" } }
+    when: countList(participants.target, x.id == self.appliedBy) == 0

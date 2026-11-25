@@ -1,3 +1,5 @@
+# 2 Malice: each target is marked until the end of the encounter (`effects.hobgoblin.soul-marked`,
+# on any tier). Ending at their death and the three-mark limit are the table's.
 id: abilities.hobgoblin.hobgoblin-bloodlord.soul-sword
 type: ability
 grantOnly: false
@@ -32,3 +34,13 @@ fields:
   t3Duration: save
   t3PotencyChar: presence
   t3PotencyValue: 4
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@effects.hobgoblin.soul-marked'
+          state: { duration: "'encounter'" }
+          appliedBy: character.id
+    when: flags.tier > 0 && has(params.malice) && params.malice >= 2
