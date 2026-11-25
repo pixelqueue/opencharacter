@@ -1,4 +1,6 @@
-# The free strikes of allies adjacent to a target are the table's.
+# The free strikes of allies adjacent to a target are the table's. M < 1 weakened (save ends) on
+# every tier; with 3 Malice the weakened target is also restrained: one entry granting both
+# (`effects.kobold.pinned`), so the save ends both.
 id: abilities.kobold.kobold-centurion.pilum
 type: ability
 grantOnly: false
@@ -17,31 +19,21 @@ fields:
   rollBonus: 3
   t1Damage: 7
   t1AddsChar: false
-  t1Condition: conditions.weakened
-  t1Duration: save
-  t1PotencyChar: might
-  t1PotencyValue: 1
   t2Damage: 10
   t2AddsChar: false
-  t2Condition: conditions.weakened
-  t2Duration: save
-  t2PotencyChar: might
-  t2PotencyValue: 1
   t3Damage: 13
   t3AddsChar: false
-  t3Condition: conditions.weakened
-  t3Duration: save
-  t3PotencyChar: might
-  t3PotencyValue: 1
-# 3 Malice: while weakened this way, the target is also restrained (its own save: that it ends with
-# the weakened is the table's).
 effects:
   - target: { steps: [ability.hit], from: self }
     op: changes
     value:
       changes:
         - type: applyEffect
-          source: '@conditions.restrained'
+          source: >-
+            has(params.malice) && params.malice >= 3 ? @effects.kobold.pinned : @conditions.weakened
           state: { duration: "'save'" }
           appliedBy: character.id
-    when: flags.landed && has(params.malice) && params.malice >= 3
+    when: >-
+      flags.tier > 0
+        && participant.characteristics.might.score + participant.potency.resistBonus.might
+          < 1 + (has(steps.roll) ? steps.roll.tallies.potencyBonus : 0)

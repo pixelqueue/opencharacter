@@ -14,18 +14,13 @@ fields:
   rollBonus: 2
   t1Damage: 1
   t1AddsChar: false
+  t1Effect: effects.common.cant-shift
+  t1Duration: next-start
   t2Damage: 2
   t2AddsChar: false
+  t2Effect: effects.common.cant-shift
+  t2Duration: next-start
   t3Damage: 3
   t3AddsChar: false
-# Effect: until the start of the tiro's next turn, on any tier.
-effects:
-  - target: { steps: [ability.hit], from: self }
-    op: changes
-    value:
-      changes:
-        - type: applyEffect
-          source: '@effects.common.cant-shift'
-          state: { duration: "'next-start'" }
-          appliedBy: character.id
-    when: flags.tier > 0
+  t3Effect: effects.common.cant-shift
+  t3Duration: next-start

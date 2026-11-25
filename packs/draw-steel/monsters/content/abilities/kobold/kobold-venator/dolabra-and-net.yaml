@@ -1,3 +1,6 @@
+# Tiers 2 and 3: M < 1 or 2 restrained (save ends). With 3 Malice a target restrained this way also
+# takes 2 fire damage at the start of each of their turns: one entry for both
+# (`effects.kobold.burning-net`), so the save ends both.
 id: abilities.kobold.kobold-venator.dolabra-and-net
 type: ability
 grantOnly: false
@@ -16,25 +19,19 @@ fields:
   t1AddsChar: false
   t2Damage: 6
   t2AddsChar: false
-  t2Condition: conditions.restrained
-  t2Duration: save
-  t2PotencyChar: might
-  t2PotencyValue: 1
   t3Damage: 7
   t3AddsChar: false
-  t3Condition: conditions.restrained
-  t3Duration: save
-  t3PotencyChar: might
-  t3PotencyValue: 2
-# 3 Malice: a target restrained this way takes 2 fire damage at the start of each of their turns
-# (its own save: that it ends with the restrained is the table's).
 effects:
   - target: { steps: [ability.hit], from: self }
     op: changes
     value:
       changes:
         - type: applyEffect
-          source: '@effects.kobold.burning-net'
+          source: >-
+            has(params.malice) && params.malice >= 3 ? @effects.kobold.burning-net : @conditions.restrained
           state: { duration: "'save'" }
           appliedBy: character.id
-    when: flags.landed && has(params.malice) && params.malice >= 3
+    when: >-
+      flags.tier >= 2
+        && participant.characteristics.might.score + participant.potency.resistBonus.might
+          < flags.tier - 1 + (has(steps.roll) ? steps.roll.tallies.potencyBonus : 0)

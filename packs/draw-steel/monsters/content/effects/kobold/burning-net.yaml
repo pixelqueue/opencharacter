@@ -1,6 +1,9 @@
-# Dolabra and Net's 3 Malice: 2 fire damage at the start of each of the creature's turns.
+# Dolabra and Net with 3 Malice: restrained (granted, with its rules) and 2 fire damage at the
+# start of each of the creature's turns while restrained this way, one saving throw for both.
 id: effects.kobold.burning-net
 type: effect
+grants:
+  - { item: conditions.restrained, scope: applied }
 effects:
   - target: { steps: [turn.start] }
     op: action
