@@ -14,24 +14,16 @@ fields:
   t1Damage: 8
   t1AddsChar: false
   t2Damage: 13
-  t2Condition: conditions.prone
+  t2Effect: effects.common.prone-cant-stand
+  t2Duration: save
   t2PotencyChar: reason
   t2PotencyValue: 1
   t2AddsChar: false
   t3Damage: 16
-  t3Condition: conditions.prone
+  t3Effect: effects.common.prone-cant-stand
+  t3Duration: save
   t3PotencyChar: reason
   t3PotencyValue: 2
   t3AddsChar: false
-# Can't stand with the prone (save ends). A target already prone is restrained instead: the
-# table's.
-effects:
-  - target: { steps: [ability.hit], from: self }
-    op: changes
-    value:
-      changes:
-        - type: applyEffect
-          source: '@effects.common.cant-stand'
-          state: { duration: "'save'" }
-          appliedBy: character.id
-    when: flags.tier >= 2 && flags.landed
+# Prone and can't stand (save ends) is one entry. A target already prone is restrained instead:
+# the table's.

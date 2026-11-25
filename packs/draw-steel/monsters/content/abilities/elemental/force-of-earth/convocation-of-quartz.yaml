@@ -9,17 +9,16 @@ fields:
   spendCost: 3
   distanceKind: ranged
   distance: 5
-# Until the start of the force's next turn, melee strikes against the target take a bane. 3 Malice:
-# the target's carapace (+3 stability, 15 temporary Stamina) until the end of the encounter.
+  t1Effect: effects.elemental.quartz
+  t1Duration: next-start
+# Until the start of the force's next turn, melee strikes against the target take a bane (the
+# tier-1 fields: no power roll). 3 Malice: the target's carapace (+3 stability, 15 temporary
+# Stamina) until the end of the encounter.
 effects:
   - target: { steps: [ability.hit], from: self }
     op: changes
     value:
       changes:
-        - type: applyEffect
-          source: '@effects.elemental.quartz'
-          state: { duration: "'next-start'" }
-          appliedBy: character.id
         - type: applyEffect
           when: has(params.malice) && params.malice >= 3
           source: '@effects.elemental.carapace'

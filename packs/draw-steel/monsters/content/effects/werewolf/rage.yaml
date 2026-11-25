@@ -23,4 +23,4 @@ effects:
         - type: removeEffect
           applied: { where: 'item.id == @effects.werewolf.rage' }
     when: >-
-      countList(character.applied, x.active && x.source == @effects.werewolf.lycanthropy) == 0
+      !(@effects.werewolf.lycanthropy in effects.active)
