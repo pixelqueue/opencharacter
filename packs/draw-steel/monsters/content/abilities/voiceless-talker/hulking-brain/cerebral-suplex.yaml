@@ -1,3 +1,4 @@
+# A target must be grabbed by the hulking brain (the table's), so the grab the roll ends is theirs.
 id: abilities.voiceless-talker.hulking-brain.cerebral-suplex
 type: ability
 grantOnly: false
@@ -23,3 +24,9 @@ effects:
     when: >-
       flags.tier > 0 && participant.characteristics.might.score + participant.potency.resistBonus.might
         < [1, 2, 3][flags.tier - 1] + steps.roll.tallies.potencyBonus
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: removeEffect
+          applied: { where: 'item.id == @conditions.grabbed' }

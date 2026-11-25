@@ -1,0 +1,13 @@
+# Mindwipe: a Reason, Intuition or Presence score changes by `amount` (−1 on the target, +1 on the
+# mindkiller) until the end of the encounter. Each Mindwipe on the same score adds up.
+id: effects.voiceless-talker.mindwipe
+type: effect
+state:
+  characteristic: { type: enum, values: [reason, intuition, presence], default: reason }
+  amount: { type: integer, default: 0 }
+reapply: { match: [characteristic], state: { amount: add, duration: replace } }
+effects:
+  - target: { formula: "fieldId('characteristics.{characteristic}.score', self.characteristic)" }
+    op: add
+    value: self.amount
+    scope: applied

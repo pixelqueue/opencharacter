@@ -1,3 +1,6 @@
+# The score is the `score` parameter. R < 2: the target's score drops by 1 and the
+# mindkiller's rises by 1 until the end of the encounter (`effects.voiceless-talker.mindwipe`).
+# That the target must be grabbed by the mindkiller is the table's.
 id: abilities.voiceless-talker.mindkiller.mindwipe
 type: ability
 grantOnly: false
@@ -9,3 +12,29 @@ fields:
   usage: maneuver
   distanceKind: melee
   distance: 1
+effects:
+  - target: { actions: [ability], from: self }
+    op: params
+    value:
+      score: { type: enum, values: [reason, intuition, presence], default: reason }
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@effects.voiceless-talker.mindwipe'
+          state: { characteristic: params.score, amount: -1, duration: "'encounter'" }
+          appliedBy: character.id
+    when: &wiped >-
+      participant.characteristics.reason.score + participant.potency.resistBonus.reason
+        < 2 + (has(steps.roll) ? steps.roll.tallies.potencyBonus : 0)
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      to: self
+      changes:
+        - type: applyEffect
+          source: '@effects.voiceless-talker.mindwipe'
+          state: { characteristic: params.score, amount: 1, duration: "'encounter'" }
+          appliedBy: character.id
+    when: *wiped
