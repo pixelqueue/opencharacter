@@ -1,6 +1,6 @@
 # A size 1 target (1L or smaller) with A < 3 (A < 4 if the mound has them grabbed) is engulfed.
 # "2+ Malice" (another target per 2 Malice) is the `malice` parameter; the targets are the
-# table's. The +1 for a grabbed target reads any grab: who grabbed isn't in the target's view.
+# table's.
 id: abilities.shambling-mound.shambling-mound.engulf
 type: ability
 grantOnly: false
@@ -25,4 +25,4 @@ effects:
     when: >-
       participant.size.value in ['1t', '1s', '1m', '1l']
         && participant.characteristics.agility.score + participant.potency.resistBonus.agility
-          < 3 + (participant.conditions.grabbed ? 1 : 0)
+          < 3 + (character.id in participant.conditions.grabbedBy ? 1 : 0)
