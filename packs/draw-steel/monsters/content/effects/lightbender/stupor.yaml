@@ -1,15 +1,16 @@
-# Hypnotic Mane, Illusory Feint: speed 0 while dazed this way. The dazed condition ending when the
-# creature takes damage or is shaken out of it is the table's; this ends at the end of a turn the
-# creature isn't dazed.
+# Hypnotic Mane, Illusory Feint: dazed (granted, with its rules) with speed 0, one entry, which
+# ends when the creature takes damage. Someone shaking them out of it (a main action) is the
+# table's.
 id: effects.lightbender.stupor
 type: effect
+grants:
+  - { item: conditions.dazed, scope: applied }
 effects:
-  - { target: speed, op: atMost, value: 0, scope: applied, when: conditions.dazed }
-  - target: { steps: [turn.end] }
-    op: changes
+  - { target: speed, op: atMost, value: 0, scope: applied }
+  - target: { incoming: { fields: [stamina.current], tags: [damage] } }
+    op: add
+    value: 0
     scope: applied
-    value:
-      changes:
-        - type: removeEffect
-          applied: { where: 'item.id == @effects.lightbender.stupor' }
-    when: '!conditions.dazed'
+    when: incoming.amount < 0
+    then:
+      - { type: removeEffect, entry: self }
