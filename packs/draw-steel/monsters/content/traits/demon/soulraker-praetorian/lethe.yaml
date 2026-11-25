@@ -1,9 +1,9 @@
 id: traits.demon.soulraker-praetorian.lethe
 type: trait
-# While winded: an edge on strikes. That strikes against the demon gain an edge is the table's
-# (the heroes pack has no edge against a creature).
+# While winded: an edge on strikes, and strikes against the demon gain an edge.
 effects:
   - target: { rolls: [power-roll.ability], tally: edges }
     op: add
     value: 1
     when: "stamina.isWinded && 'kw.strike' in roll.item.tags"
+  - { target: powerRoll.strikeEdgesAgainst, op: add, value: 1, when: stamina.isWinded }
