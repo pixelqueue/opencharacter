@@ -180,11 +180,31 @@ effects:
       sheet.monster && countList(keysOf('characteristic'), ('target-test.' + x) in action.item.tags) == 2
 
   # No power roll and no test: the tier-1 damage and condition land on each target, the condition
-  # behind its potency.
+  # behind its potency, and the tier-1 forced movement is the outcome's (behind the potency when
+  # `t1MovePotency`).
   - id: fixed-effect
     target: { steps: [ability.hit] }
     op: changes
     value:
+      flags:
+        move: >-
+          has(action.item.t1Move) && !(action.item.t1MovePotency && has(action.item.t1PotencyChar)
+              && (action.item.t1PotencyChar == 'might' ? participant.characteristics.might.score + participant.potency.resistBonus.might
+                : action.item.t1PotencyChar == 'agility' ? participant.characteristics.agility.score + participant.potency.resistBonus.agility
+                : action.item.t1PotencyChar == 'reason' ? participant.characteristics.reason.score + participant.potency.resistBonus.reason
+                : action.item.t1PotencyChar == 'intuition' ? participant.characteristics.intuition.score + participant.potency.resistBonus.intuition
+                : participant.characteristics.presence.score + participant.potency.resistBonus.presence)
+                >= (has(action.item.t1PotencyValue) ? action.item.t1PotencyValue : 0))
+            ? (action.item.t1MoveVertical ? 'vertical-' : '') + action.item.t1Move : ''
+        moveDistance: >-
+          has(action.item.t1Move) && has(action.item.t1MoveDistance) && !(action.item.t1MovePotency && has(action.item.t1PotencyChar)
+              && (action.item.t1PotencyChar == 'might' ? participant.characteristics.might.score + participant.potency.resistBonus.might
+                : action.item.t1PotencyChar == 'agility' ? participant.characteristics.agility.score + participant.potency.resistBonus.agility
+                : action.item.t1PotencyChar == 'reason' ? participant.characteristics.reason.score + participant.potency.resistBonus.reason
+                : action.item.t1PotencyChar == 'intuition' ? participant.characteristics.intuition.score + participant.potency.resistBonus.intuition
+                : participant.characteristics.presence.score + participant.potency.resistBonus.presence)
+                >= (has(action.item.t1PotencyValue) ? action.item.t1PotencyValue : 0))
+            ? action.item.t1MoveDistance : 0
       changes:
         - type: adjust
           when: has(action.item.t1Damage)
