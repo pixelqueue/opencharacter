@@ -78,7 +78,8 @@ computeSheet(ruleset, made.character).values['draw-steel-heroes:stamina.max']?.v
   numbers (level, size, speed, Stamina, stability, free strike, characteristics, damage
   immunities and weaknesses, movement, End Effect) are its item's fields, each per copy: change
   one monster's Stamina or speed on its copy (`setField`). Organization, role and EV are on the
-  sheet; creature keywords are the item's `creature.*` tags.
+  sheet (`none` for the few the book prints without one); creature keywords are the item's
+  `creature.*` tags.
 - **Minions:** a minion's sheet is its squad (`squad` minions, 4 by default): one Stamina pool,
   never winded, and the minions still standing (`monster.alive`). The squad's captain
   (`set-captain`) turns on the stat block's "With Captain" bonus: damage, a bonus or edges on
@@ -86,9 +87,12 @@ computeSheet(ruleset, made.character).values['draw-steel-heroes:stamina.max']?.v
   ability, `extraMinions` adds each other minion's free strike damage to the first target.
 - **Abilities:** monster abilities are the heroes pack's abilities with a fixed power roll bonus
   and potencies as values, so `use-ability` rolls, bands each target, deals typed damage and
-  lands conditions and forced movement. An ability without a power roll lands its effect on each
-  target; one whose targets make a test ("Each target makes a Might test", tagged
-  `target-test.<characteristic>`) hands the test off to each target and lands its tier.
+  lands conditions and forced movement. An ability without a power roll lands its effect and
+  forced movement on each target; one whose targets make a test ("Each target makes a Might
+  test", tagged `target-test.<characteristic>`) hands the test off to each target and lands its
+  tier's damage, condition and effect. Tagged with two characteristics, the target makes either
+  test (`either-test`, picking one). Abilities read the target's view (max Stamina, who grabs it,
+  its effects) and type a tier's damage, or the damage picked on each use, with `op: tag`.
 - **Free strikes:** `monster-free-strike` deals the stat block's free strike, typed as the
   signature ability; `minions` adds squad members striking together. The pack hides the heroes
   pack's weapon free strikes, which a monster would otherwise hold as standard copies.
@@ -96,14 +100,18 @@ computeSheet(ruleset, made.character).values['draw-steel-heroes:stamina.max']?.v
   start of combat and of each round from its heroes and Victories, lost when combat ends), the
   basic Malice features and the group features in play (`use-malice`). Monsters link it
   (`director`): an ability's Malice cost and its "N Malice" option (`malice`) are paid from it,
-  and an ability the pool can't cover isn't offered.
+  and an ability the pool can't cover isn't offered. A Malice feature that is an ability
+  (Blood In Their Eyes) names it (`ability`): each monster with the feature's keyword holds it
+  and pays for it from the pool.
 - **Villain actions:** each is offered once per encounter, and only while no villain action was
   used this round on the Director's sheet.
 - **End Effect:** `end-effect` takes the stat block's unreducible damage to end an effect a
   saving throw ends.
 - **Lasting effects** abilities leave (burning, rage, a convocation's immunity, can't stand) are
   effects with their duration, saving throw and rules, ongoing damage included
-  (`ongoing-damage`).
+  (`ongoing-damage`). The common ones are shared (`effects.common.*`); edges and banes against a
+  creature (illuminated, marked) use the heroes pack's fields, and an effect with two conditions
+  ("prone and can't stand") grants them, one entry and one saving throw.
 
 ## Monsters
 
