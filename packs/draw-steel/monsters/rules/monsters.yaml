@@ -211,11 +211,20 @@ contentTypes:
         value: item.captainAmount
         when: "self.captain && item.captainBonus == 'forced-movement'"
     # The group's Malice features that are abilities (`malice-feature`, with a keyword the stat
-    # block has); a retainer has none.
+    # block has); a retainer has none, and a minion none the book bars it from
+    # (`malice-feature.no-minion`).
     grants:
       - forEach: item.tags
-        when: item.organization != 'retainer'
+        when: "!(item.organization in ['retainer', 'minion'])"
         item: { query: { type: ability, where: "'malice-feature' in item.tags && x in item.tags" } }
+      - forEach: item.tags
+        when: item.organization == 'minion'
+        item:
+          query:
+            type: ability
+            where: >-
+              'malice-feature' in item.tags && x in item.tags &&
+              !('malice-feature.no-minion' in item.tags)
     followUps:
       # A monster without a Director's sheet is offered one, for the Malice its abilities spend.
       - id: director-sheet

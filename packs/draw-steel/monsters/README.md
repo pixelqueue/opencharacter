@@ -102,7 +102,8 @@ computeSheet(ruleset, made.character).values['draw-steel-heroes:stamina.max']?.v
   (`director`): an ability's Malice cost and its "N Malice" option (`malice`) are paid from it,
   and an ability the pool can't cover isn't offered. A Malice feature that is an ability
   (Blood In Their Eyes) names it (`ability`): each monster with the feature's keyword holds it
-  and pays for it from the pool.
+  (a minion doesn't when the book bars minions: `malice-feature.no-minion`) and pays for it from
+  the pool.
 - **Villain actions:** each is offered once per encounter, and only while no villain action was
   used this round on the Director's sheet.
 - **End Effect:** `end-effect` takes the stat block's unreducible damage to end an effect a
