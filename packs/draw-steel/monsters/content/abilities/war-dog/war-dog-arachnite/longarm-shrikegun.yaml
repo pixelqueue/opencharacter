@@ -1,3 +1,5 @@
+# The damage type the arachnite chooses is the `element` parameter. Ignoring cover and
+# concealment and the 2 Malice option are the table's.
 id: abilities.war-dog.war-dog-arachnite.longarm-shrikegun
 type: ability
 grantOnly: false
@@ -22,3 +24,14 @@ fields:
   t3Duration: save
   t3PotencyChar: agility
   t3PotencyValue: 3
+effects:
+  - target: { actions: [ability], from: self }
+    op: params
+    value:
+      element:
+        type: enum
+        values: [acid, cold, fire, lightning, poison, psychic, sonic]
+        default: acid
+  - target: { rolls: [damage], parts: [ability.damage], from: self }
+    op: tag
+    value: [{ formula: "'damage.' + params.element" }]

@@ -1,3 +1,5 @@
+# A target ally (the war doc's side) gains 5 temporary Stamina; that an ally isn't subject to
+# the power roll and their free strike are the table's.
 id: abilities.war-dog.war-dog-war-doc.syringe-crossbow
 type: ability
 grantOnly: false
@@ -22,3 +24,10 @@ fields:
   t3Duration: save
   t3PotencyChar: might
   t3PotencyValue: 3
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - { type: adjust, field: stamina.temp, by: 5 }
+    when: participant.side == side
