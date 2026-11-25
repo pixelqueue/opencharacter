@@ -5,7 +5,7 @@ effects:
   - target: immunity.all
     op: add
     value: 15
-    when: countList(character.applied, x.active && x.source == @effects.xorannox-the-tyract.barrier-down) == 0
+    when: '!(@effects.xorannox-the-tyract.barrier-down in effects.active)'
   - target: { steps: [ability.after] }
     op: changes
     value:
