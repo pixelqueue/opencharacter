@@ -1,5 +1,5 @@
-# 2 Malice: while a target can't hide this way, devils' strikes against them gain an edge (the
-# table's).
+# Can't hide (save ends) behind P < 2, 3 or 4, applied by the hit effect so the entry carries
+# whether 2 Malice was spent (`decree`: strikes against the target gain an edge).
 id: abilities.devil.devil-high-judge.infernal-decree
 type: ability
 grantOnly: false
@@ -16,19 +16,21 @@ fields:
   rollBonus: 4
   t1Damage: 10
   t1AddsChar: false
-  t1Effect: effects.devil.cant-hide
-  t1Duration: save
-  t1PotencyChar: presence
-  t1PotencyValue: 2
   t2Damage: 15
   t2AddsChar: false
-  t2Effect: effects.devil.cant-hide
-  t2Duration: save
-  t2PotencyChar: presence
-  t2PotencyValue: 3
   t3Damage: 19
   t3AddsChar: false
-  t3Effect: effects.devil.cant-hide
-  t3Duration: save
-  t3PotencyChar: presence
-  t3PotencyValue: 4
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@effects.devil.cant-hide'
+          state:
+            duration: "'save'"
+            decree: has(params.malice) && params.malice >= 2
+          appliedBy: character.id
+    when: >-
+      flags.tier > 0 && participant.characteristics.presence.score + participant.potency.resistBonus.presence
+        < flags.tier + 1 + (has(steps.roll) ? steps.roll.tallies.potencyBonus : 0)

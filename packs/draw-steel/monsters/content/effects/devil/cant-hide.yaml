@@ -1,4 +1,9 @@
-# Infernal Decree: the target can't hide. The 2 Malice edge on devils' strikes against them is the
-# table's.
+# Infernal Decree: the target can't hide (the table's). With 2 Malice spent (`decree`), strikes
+# against them gain an edge; the book gives it to devils' strikes only, the strike field is
+# anyone's.
 id: effects.devil.cant-hide
 type: effect
+state:
+  decree: { type: boolean, default: false }
+effects:
+  - { target: powerRoll.strikeEdgesAgainst, op: add, value: 1, scope: applied, when: self.decree }
