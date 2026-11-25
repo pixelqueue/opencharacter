@@ -1,5 +1,5 @@
 # Bite: while grabbed this way, a size 1 creature takes 3 acid damage at the start of each of
-# their turns. Ends at a turn start when the creature isn't grabbed.
+# their turns. Ends at a turn start when the arixx who applied it no longer grabs them.
 id: effects.arixx.digesting
 type: effect
 effects:
@@ -12,7 +12,7 @@ effects:
           field: stamina.current
           by: -3
           tags: [damage, damage.acid]
-    when: conditions.grabbed
+    when: self.appliedBy in conditions.grabbedBy
   - target: { steps: [turn.start] }
     op: changes
     scope: applied
@@ -20,4 +20,4 @@ effects:
       changes:
         - type: removeEffect
           applied: { where: 'item.id == @effects.arixx.digesting' }
-    when: '!conditions.grabbed'
+    when: '!(self.appliedBy in conditions.grabbedBy)'
