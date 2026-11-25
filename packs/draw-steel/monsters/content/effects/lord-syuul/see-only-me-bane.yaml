@@ -1,0 +1,10 @@
+# See Only Me (tier 1): as see-only-me (no line of effect to anyone but Lord Syuul: the table's),
+# and a bane on the creature's strikes targeting the Lord Syuul who applied it.
+id: effects.lord-syuul.see-only-me-bane
+type: effect
+effects:
+  - target: { rolls: [power-target], tally: banes }
+    op: add
+    value: 1
+    scope: applied
+    when: "'kw.strike' in roll.item.tags && participant.id == self.appliedBy"

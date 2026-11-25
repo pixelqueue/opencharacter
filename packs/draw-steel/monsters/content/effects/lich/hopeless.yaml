@@ -1,3 +1,10 @@
-# Hopeless Place: no edges, surges or temporary Stamina (the table's).
+# Hopeless Place: the creature can't benefit from edges or double edges (its power rolls count
+# none) and can't use surges (held at 0 while hopeless; the surges it had come back after). Not
+# gaining surges or temporary Stamina meanwhile is the table's: a cap would also hide the
+# temporary Stamina it already has.
 id: effects.lich.hopeless
 type: effect
+effects:
+  - { target: { rolls: [power-roll], tally: edges }, op: atMost, value: 0, scope: applied }
+  - { target: { rolls: [power-target], tally: edges }, op: atMost, value: 0, scope: applied }
+  - { target: surges.current, op: atMost, value: 0, scope: applied }
