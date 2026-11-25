@@ -1,0 +1,24 @@
+description: "draw-steel-monsters: Convocation of Quartz lands quartz from its tier-1 fields until
+  the start of the force's next turn, and with 3 Malice the carapace and 15 temporary Stamina"
+specVersion: 0.4.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/draw-steel/heroes
+  - path: ../../../../../../packs/draw-steel/monsters
+input:
+  action:
+    id: draw-steel-heroes:use-ability
+    entry: abilities-elemental-force-of-earth-convocation-of-quartz-1
+  params:
+    malice: 3
+  links:
+    draw-steel-monsters:director:
+      id: director
+      values:
+        draw-steel-monsters:malice: 9
+        draw-steel-heroes:combat.active: true
+        draw-steel-heroes:combat.round: 1
+        draw-steel-monsters:villain.round: 0
+  participants:
+    target:
+      - id: ally

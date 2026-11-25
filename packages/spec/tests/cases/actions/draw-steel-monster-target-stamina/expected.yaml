@@ -1,0 +1,45 @@
+# 5 + 4 + 2 = 11, tier 1; the hurt target's edge makes it 13, tier 2.
+status: finished
+outcome:
+  result: tier1
+  data:
+    natural: 9
+    critical: false
+    tier: 1
+    damage: 0
+    distance: 8
+    within: 0
+    rangedDistance: 0
+    targetTiers:
+      - 1
+      - 2
+    forcedMovement:
+      - ''
+      - ''
+    forcedDistance:
+      - 0
+      - 0
+    teleport: 0
+proposedChanges:
+  - to: target
+    character: unhurt
+    step: hit[0]
+    change:
+      type: adjust
+      field: draw-steel-heroes:stamina.current
+      from: angulotl-dart
+      by: -2
+      tags:
+        - damage
+        - damage.poison
+  - to: target
+    character: hurt
+    step: hit[1]
+    change:
+      type: adjust
+      field: draw-steel-heroes:stamina.current
+      from: angulotl-dart
+      by: -4
+      tags:
+        - damage
+        - damage.poison

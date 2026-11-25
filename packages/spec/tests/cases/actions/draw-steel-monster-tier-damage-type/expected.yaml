@@ -1,0 +1,62 @@
+# 3 + 3 + 4 = 10, tier 1: 7 untyped damage; the restrained target's edge makes it 12, tier 2: 10 corruption damage.
+# Might 5 resists both potencies. The 0 untyped adjust is the 0 part of the heroes kit rule on a weapon
+# ability, which the tier tag does not reach (gap).
+status: finished
+outcome:
+  result: tier1
+  data:
+    natural: 6
+    critical: false
+    tier: 1
+    damage: 0
+    distance: 1
+    within: 0
+    rangedDistance: 0
+    targetTiers:
+      - 1
+      - 2
+    forcedMovement:
+      - ''
+      - ''
+    forcedDistance:
+      - 0
+      - 0
+    teleport: 0
+proposedChanges:
+  - to: target
+    character: standing
+    step: hit[0]
+    change:
+      type: adjust
+      field: draw-steel-heroes:stamina.current
+      from: vampire
+      by: -7
+      tags:
+        - damage
+  - to: target
+    character: restrained
+    step: hit[1]
+    change:
+      type: adjust
+      field: draw-steel-heroes:stamina.current
+      from: vampire
+      by: -10
+      tags:
+        - damage
+        - damage.corruption
+  - to: target
+    character: restrained
+    step: hit[1]
+    change:
+      type: adjust
+      field: draw-steel-heroes:stamina.current
+      from: vampire
+      by: 0
+      tags:
+        - damage
+  - to: self
+    step: hit[1]
+    change:
+      type: adjust
+      field: draw-steel-heroes:stamina.current
+      by: 10

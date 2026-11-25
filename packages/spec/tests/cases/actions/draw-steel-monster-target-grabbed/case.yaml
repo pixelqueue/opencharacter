@@ -1,0 +1,33 @@
+description: "draw-steel-monsters: the rival fury gains an edge on strikes against a creature the
+  fury grabs (the target's conditions.grabbedBy)"
+specVersion: 0.4.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/draw-steel/heroes
+  - path: ../../../../../../packs/draw-steel/monsters
+input:
+  action:
+    id: draw-steel-heroes:use-ability
+    entry: abilities-rival-echelon-1-rival-fury-lets-tussle-1
+  links:
+    draw-steel-monsters:director:
+      id: director
+      values:
+        draw-steel-monsters:malice: 9
+        draw-steel-heroes:combat.active: true
+        draw-steel-heroes:combat.round: 1
+        draw-steel-monsters:villain.round: 0
+  participants:
+    target:
+      - id: grabbed
+        values:
+          draw-steel-heroes:conditions.grabbed: true
+          draw-steel-heroes:conditions.grabbedBy:
+            - rival-fury
+          draw-steel-heroes:characteristics.might.score: 5
+      - id: grabbed-by-other
+        values:
+          draw-steel-heroes:conditions.grabbed: true
+          draw-steel-heroes:conditions.grabbedBy:
+            - someone
+          draw-steel-heroes:characteristics.might.score: 5

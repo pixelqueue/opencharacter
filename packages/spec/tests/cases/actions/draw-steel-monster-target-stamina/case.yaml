@@ -1,0 +1,21 @@
+description: "draw-steel-monsters: the angulotl dart's Poison Dart gains an edge against a target
+  below full Stamina (the target's stamina.max)"
+specVersion: 0.4.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/draw-steel/heroes
+  - path: ../../../../../../packs/draw-steel/monsters
+input:
+  action:
+    id: draw-steel-heroes:use-ability
+    entry: abilities-angulotl-angulotl-dart-poison-dart-1
+  participants:
+    target:
+      - id: unhurt
+        values:
+          draw-steel-heroes:stamina.current: 20
+          draw-steel-heroes:stamina.max: 20
+      - id: hurt
+        values:
+          draw-steel-heroes:stamina.current: 12
+          draw-steel-heroes:stamina.max: 20

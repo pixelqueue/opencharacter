@@ -1,0 +1,52 @@
+# 5 + 4 + 2 = 11, tier 1; the fury's edge against the creature they grab makes it 13, tier 2.
+status: finished
+outcome:
+  result: tier1
+  data:
+    natural: 9
+    critical: false
+    tier: 1
+    damage: 0
+    distance: 1
+    within: 0
+    rangedDistance: 0
+    targetTiers:
+      - 2
+      - 1
+    forcedMovement:
+      - ''
+      - ''
+    forcedDistance:
+      - 0
+      - 0
+    teleport: 0
+proposedChanges:
+  - to:
+      link: draw-steel-monsters:director
+    character: director
+    step: pay
+    change:
+      type: adjust
+      field: draw-steel-monsters:malice
+      from: rival-fury
+      by: -2
+  - to: target
+    character: grabbed
+    step: hit[0]
+    change:
+      type: adjust
+      field: draw-steel-heroes:stamina.current
+      from: rival-fury
+      by: -13
+      tags:
+        - damage
+  - to: target
+    character: grabbed-by-other
+    step: hit[1]
+    change:
+      type: adjust
+      field: draw-steel-heroes:stamina.current
+      from: rival-fury
+      by: -8
+      tags:
+        - damage

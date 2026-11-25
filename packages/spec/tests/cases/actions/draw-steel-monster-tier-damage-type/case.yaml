@@ -1,0 +1,20 @@
+description: "draw-steel-monsters: the vampire's Exsanguinating Bite deals untyped damage at tier 1
+  and corruption damage at tiers 2 and 3 (op: tag by tier, no 0-damage workaround)"
+specVersion: 0.4.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/draw-steel/heroes
+  - path: ../../../../../../packs/draw-steel/monsters
+input:
+  action:
+    id: draw-steel-heroes:use-ability
+    entry: abilities-undead-vampire-exsanguinating-bite-1
+  participants:
+    target:
+      - id: standing
+        values:
+          draw-steel-heroes:characteristics.might.score: 5
+      - id: restrained
+        values:
+          draw-steel-heroes:conditions.restrained: true
+          draw-steel-heroes:characteristics.might.score: 5
