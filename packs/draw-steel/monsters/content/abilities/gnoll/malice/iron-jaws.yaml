@@ -1,0 +1,30 @@
+# The Malice feature as an ability every gnoll monster holds (`malice-feature`): 3 Malice, paid
+# from the Director's sheet. The snare is the table's: the Director uses this when an enemy first
+# moves into the area, with them as the target. The bane for an unaware target is the table's.
+# Bleeding this way is `effects.gnoll.iron-jaws`: the bleeding and the edge on strikes against them.
+id: abilities.gnoll.malice.iron-jaws
+type: ability
+grantOnly: false
+tags:
+  - malice-feature
+  - creature.gnoll
+  - kw.area
+  - kw.ranged
+  - kw.weapon
+  - target-test
+  - target-test.agility
+fields:
+  usage: maneuver
+  resource: malice
+  cost: 3
+  distanceKind: cube
+  distance: 1
+  within: 3
+  t1Damage: 6
+  t1AddsChar: false
+  t1Effect: effects.gnoll.iron-jaws
+  t1Duration: save
+  t2Damage: 4
+  t2AddsChar: false
+  t2Effect: effects.gnoll.iron-jaws
+  t2Duration: eot

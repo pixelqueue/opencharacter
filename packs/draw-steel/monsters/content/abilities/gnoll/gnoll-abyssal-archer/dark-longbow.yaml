@@ -22,5 +22,9 @@ fields:
   t3Duration: save
   t3PotencyChar: might
   t3PotencyValue: 2
-# The edge against a target not at full Stamina is the table's: a target's maximum Stamina isn't
-# in the creature view.
+# An edge against any target not at full Stamina.
+effects:
+  - target: { rolls: [power-target], tally: edges, from: self }
+    op: add
+    value: 1
+    when: participant.stamina.current < participant.stamina.max

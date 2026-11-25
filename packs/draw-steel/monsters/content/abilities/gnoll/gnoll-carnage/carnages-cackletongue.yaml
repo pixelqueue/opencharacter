@@ -10,13 +10,5 @@ fields:
   cost: 4
   distanceKind: burst
   distance: 5
-# Each target deals 3 more damage with their next strike until the start of the carnage's next turn.
-effects:
-  - target: { steps: [ability.hit], from: self }
-    op: changes
-    value:
-      changes:
-        - type: applyEffect
-          source: '@effects.gnoll.carnage-cackle'
-          state: { duration: "'next-start'" }
-          appliedBy: character.id
+  t1Effect: effects.gnoll.carnage-cackle
+  t1Duration: next-start
