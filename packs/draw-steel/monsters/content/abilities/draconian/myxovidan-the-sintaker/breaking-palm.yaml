@@ -1,4 +1,4 @@
-# Tier 3's damage is corruption, tiers 1 and 2 untyped: a roll effect over a 0 base. The 2 Malice
+# Tier 3's damage is corruption, tiers 1 and 2 untyped: tier 3's damage part is tagged. The 2 Malice
 # healing is the table's.
 id: abilities.draconian.myxovidan-the-sintaker.breaking-palm
 type: ability
@@ -26,15 +26,14 @@ fields:
   t2Duration: save
   t2PotencyChar: might
   t2PotencyValue: 2
-  t3Damage: 0
+  t3Damage: 18
   t3AddsChar: false
   t3Condition: conditions.weakened
   t3Duration: save
   t3PotencyChar: might
   t3PotencyValue: 3
 effects:
-  - target: { rolls: [damage], from: self }
-    op: add
-    value: 18
-    tags: [damage.corruption]
-    when: flags.tier == 3
+  - target: { rolls: [damage], parts: [ability.damage], from: self }
+    op: tag
+    value:
+      - formula: "flags.tier == 3 ? ['damage.corruption'] : []"

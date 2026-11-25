@@ -1,3 +1,5 @@
+# Dazed this way is `effects.draconian.acid-dazed`; the 6 extra damage such a target takes from
+# Locratix's abilities is this ability's rule on all her ability damage.
 id: abilities.draconian.locratix-the-morningstar.acidic-stun
 type: ability
 grantOnly: false
@@ -16,19 +18,25 @@ fields:
   damageType: acid
   t1Damage: 7
   t1AddsChar: false
-  t1Condition: conditions.dazed
+  t1Effect: effects.draconian.acid-dazed
   t1Duration: save
   t1PotencyChar: might
   t1PotencyValue: 1
   t2Damage: 12
   t2AddsChar: false
-  t2Condition: conditions.dazed
+  t2Effect: effects.draconian.acid-dazed
   t2Duration: save
   t2PotencyChar: might
   t2PotencyValue: 2
   t3Damage: 15
   t3AddsChar: false
-  t3Condition: conditions.dazed
+  t3Effect: effects.draconian.acid-dazed
   t3Duration: save
   t3PotencyChar: might
   t3PotencyValue: 3
+effects:
+  - target: { rolls: [damage] }
+    op: add
+    value: 6
+    when: >-
+      has(action.item.usage) && @effects.draconian.acid-dazed in participant.effects.active

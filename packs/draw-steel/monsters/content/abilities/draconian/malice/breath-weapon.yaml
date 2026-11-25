@@ -1,0 +1,28 @@
+# The Malice feature as an ability every draconian monster holds (`malice-feature`): 5 Malice, paid
+# from the Director's sheet. The damage is tagged with each type the draconian has immunity to
+# (each draconian has one; Phrrygalax's swapped immunity counts).
+id: abilities.draconian.malice.breath-weapon
+type: ability
+grantOnly: false
+tags: [malice-feature, creature.draconian, kw.area, kw.magic]
+fields:
+  usage: main-action
+  resource: malice
+  cost: 5
+  distanceKind: line
+  distance: 4
+  areaWidth: 2
+  within: 1
+  rollBonus: 3
+  t1Damage: 6
+  t1AddsChar: false
+  t2Damage: 10
+  t2AddsChar: false
+  t3Damage: 13
+  t3AddsChar: false
+effects:
+  - target: { rolls: [damage], parts: [ability.damage], from: self }
+    op: tag
+    value:
+      - formula: >-
+          mapList(filterList(keysOf('damageType'), fieldOf('immunity.{damageType}', x) > 0), 'damage.' + x)
