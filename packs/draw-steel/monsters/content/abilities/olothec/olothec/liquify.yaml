@@ -1,5 +1,5 @@
-# Each target takes 8 psychic damage (the tier-1 fields) and has psychic weakness 3 until the end
-# of the olothec's next turn.
+# Each target takes 8 psychic damage and has psychic weakness 3 until the end of the olothec's
+# next turn (the tier-1 fields).
 id: abilities.olothec.olothec.liquify
 type: ability
 grantOnly: false
@@ -12,12 +12,5 @@ fields:
   distance: 5
   damageType: psychic
   t1Damage: 8
-effects:
-  - target: { steps: [ability.hit], from: self }
-    op: changes
-    value:
-      changes:
-        - type: applyEffect
-          source: '@effects.olothec.psychic-weakness'
-          state: { duration: "'next-end'" }
-          appliedBy: character.id
+  t1Effect: effects.olothec.psychic-weakness
+  t1Duration: next-end
