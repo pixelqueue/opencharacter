@@ -21,8 +21,7 @@ fields:
   t3Duration: save
   t3PotencyChar: agility
   t3PotencyValue: 2
-# A grabbed target: the potency is 1 higher (A < 3). A target only shows that it's grabbed, not by
-# whom: that the scaletooth holds them is the table's.
+# A target the scaletooth grabs: the potency is 1 higher (A < 3).
 effects:
   - target: { steps: [ability.hit], from: self }
     op: changes
@@ -33,6 +32,6 @@ effects:
           state: { duration: "'save'" }
           appliedBy: character.id
     when: >-
-      flags.tier == 3 && !flags.landed && participant.conditions.grabbed
+      flags.tier == 3 && !flags.landed && character.id in participant.conditions.grabbedBy
         && participant.characteristics.agility.score + participant.potency.resistBonus.agility
           < 3 + (has(steps.roll) ? steps.roll.tallies.potencyBonus : 0)

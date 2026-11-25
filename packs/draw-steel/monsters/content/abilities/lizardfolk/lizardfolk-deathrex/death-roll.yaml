@@ -1,3 +1,4 @@
+# Each tier slides the target up to 5, and the deathrex's grab on them ends.
 id: abilities.lizardfolk.lizardfolk-deathrex.death-roll
 type: ability
 grantOnly: false
@@ -18,15 +19,34 @@ fields:
   t1Duration: save
   t1PotencyChar: might
   t1PotencyValue: 1
+  t1Move: slide
+  t1MoveDistance: 5
   t2Damage: 12
   t2AddsChar: false
   t2Condition: conditions.dazed
   t2Duration: save
   t2PotencyChar: might
   t2PotencyValue: 2
+  t2Move: slide
+  t2MoveDistance: 5
   t3Damage: 15
   t3AddsChar: false
   t3Condition: conditions.dazed
   t3Duration: save
   t3PotencyChar: might
   t3PotencyValue: 3
+  t3Move: slide
+  t3MoveDistance: 5
+effects:
+  # The deathrex's own ID, for the release on the target (a `where` there reads only the action's
+  # values).
+  - target: { actions: [ability], from: self }
+    op: params
+    value:
+      grabber: { type: string, formula: character.id }
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: removeEffect
+          applied: { where: 'item.id == @conditions.grabbed && self.appliedBy == params.grabber' }
