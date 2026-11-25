@@ -52,6 +52,13 @@ fields:
   retainer.encounterUsed: { type: set, of: string, input: true, default: [] }
 
 effects:
+  # A retainer fights on the heroes' side: "allies gain an edge against" effects count them with
+  # the heroes, not the Director.
+  - id: side
+    target: side
+    op: set
+    value: "'heroes'"
+    when: "monster.organization == 'retainer'"
   - id: stamina
     target: stamina.base
     op: add

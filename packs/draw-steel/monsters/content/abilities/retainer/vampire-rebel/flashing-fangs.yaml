@@ -1,4 +1,5 @@
-# Temporary Stamina equal to the corruption damage dealt is the table's (the damage after immunity).
+# Tiers 2 and 3 add their corruption damage as a second roll; the rebel gains that much temporary
+# Stamina (as rolled: the target's corruption immunity is the table's).
 id: abilities.retainer.vampire-rebel.flashing-fangs
 type: ability
 grantOnly: false
@@ -33,4 +34,11 @@ effects:
     op: add
     value: '[0, 3, 6][flags.tier - 1]'
     tags: [damage.corruption]
+    when: flags.tier >= 2
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      to: self
+      changes:
+        - { type: adjust, field: stamina.temp, by: '[0, 3, 6][flags.tier - 1]' }
     when: flags.tier >= 2

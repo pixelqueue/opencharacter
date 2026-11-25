@@ -1,3 +1,4 @@
+# The push 3 (the tier-1 fields: no power roll), and prone for a target with stability 0.
 id: abilities.retainer.minotaur-gorer.horn-toss
 type: ability
 grantOnly: false
@@ -8,3 +9,12 @@ fields:
   level: 4
   distanceKind: melee
   distance: 1
+  t1Move: push
+  t1MoveDistance: 3
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - { type: applyEffect, source: '@conditions.prone', appliedBy: character.id }
+    when: participant.stability == 0

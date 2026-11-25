@@ -1,3 +1,4 @@
+# The damage type the retainer can choose is the `element` parameter (untyped by default).
 id: abilities.retainer.role-controller.elemental-blast
 type: ability
 grantOnly: false
@@ -31,3 +32,14 @@ fields:
     - reason
     - intuition
     - presence
+effects:
+  - target: { actions: [ability], from: self }
+    op: params
+    value:
+      element:
+        type: enum
+        values: [untyped, acid, cold, fire, lightning, poison, sonic]
+        default: untyped
+  - target: { rolls: [damage], parts: [ability.damage], from: self }
+    op: tag
+    value: [{ formula: "params.element == 'untyped' ? [] : ['damage.' + params.element]" }]

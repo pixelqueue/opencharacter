@@ -34,3 +34,14 @@ fields:
     - reason
     - intuition
     - presence
+# Until the start of the mortar's next turn, strikes against the mortar take a bane; the bane for
+# adjacent allies is the table's.
+effects:
+  - target: { steps: [ability.after], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@effects.retainer.strike-bane-against'
+          state: { duration: "'next-start'" }
+          appliedBy: character.id

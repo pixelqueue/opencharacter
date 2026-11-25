@@ -7,3 +7,15 @@ fields:
   resource: encounter
   cost: 1
   distanceKind: self
+# The gorer's 3 surges, and the bane on strikes against them until the start of their next turn;
+# the mentor's bane is the table's.
+effects:
+  - target: { steps: [ability.after], from: self }
+    op: changes
+    value:
+      changes:
+        - { type: adjust, field: surges.current, by: 3 }
+        - type: applyEffect
+          source: '@effects.retainer.strike-bane-against'
+          state: { duration: "'next-start'" }
+          appliedBy: character.id

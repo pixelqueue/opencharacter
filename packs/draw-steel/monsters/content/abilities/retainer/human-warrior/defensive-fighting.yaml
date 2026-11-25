@@ -24,3 +24,14 @@ fields:
     - reason
     - intuition
     - presence
+# Until the start of the warrior's next turn, ability rolls against the warrior have a double
+# bane; the double bane for adjacent allies is the table's.
+effects:
+  - target: { steps: [ability.after], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@effects.retainer.banes-against'
+          state: { duration: "'next-start'", amount: 2 }
+          appliedBy: character.id
