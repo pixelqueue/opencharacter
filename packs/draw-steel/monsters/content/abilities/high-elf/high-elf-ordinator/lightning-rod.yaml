@@ -30,3 +30,15 @@ fields:
   t3Duration: save
   t3PotencyChar: reason
   t3PotencyValue: 3
+# For any tier: the high elves' edge against the target until the start of the ordinator's next
+# turn (beside the tier's dazed). Any ally of the ordinator gains it, not only high elves.
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@effects.high-elf.lightning-rod'
+          state: { duration: "'next-start'" }
+          appliedBy: character.id
+    when: flags.tier > 0

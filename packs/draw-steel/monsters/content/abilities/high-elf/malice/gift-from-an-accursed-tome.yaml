@@ -1,0 +1,50 @@
+# The Malice feature as an ability every high elf monster holds (`malice-feature`): 5 Malice, paid
+# from the Director's sheet. The damage type and condition are one pick (`combo`): the damage part
+# is tagged with its type and the condition lands behind the tier's R potency (save ends). That a
+# minion can't use it is the table's.
+id: abilities.high-elf.malice.gift-from-an-accursed-tome
+type: ability
+grantOnly: false
+tags: [malice-feature, creature.high-elf, kw.area, kw.magic]
+fields:
+  usage: main-action
+  resource: malice
+  cost: 5
+  distanceKind: line
+  distance: 5
+  areaWidth: 1
+  within: 1
+  rollBonus: 2
+  t1Damage: 5
+  t1AddsChar: false
+  t2Damage: 9
+  t2AddsChar: false
+  t3Damage: 12
+  t3AddsChar: false
+effects:
+  - target: { actions: [ability], from: self }
+    op: params
+    value:
+      combo:
+        type: enum
+        values: [cold-slowed, poison-weakened, corruption-frightened]
+        default: cold-slowed
+  - target: { rolls: [damage], parts: [ability.damage], from: self }
+    op: tag
+    value:
+      - formula: >-
+          params.combo == 'poison-weakened' ? ['damage.poison']
+            : params.combo == 'corruption-frightened' ? ['damage.corruption'] : ['damage.cold']
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: >-
+            params.combo == 'poison-weakened' ? @conditions.weakened
+              : params.combo == 'corruption-frightened' ? @conditions.frightened : @conditions.slowed
+          state: { duration: "'save'" }
+          appliedBy: character.id
+    when: >-
+      flags.tier > 0 && participant.characteristics.reason.score + participant.potency.resistBonus.reason
+        < [1, 2, 3][flags.tier - 1] + steps.roll.tallies.potencyBonus

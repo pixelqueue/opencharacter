@@ -1,5 +1,4 @@
-# Each tier has its own type (5 damage, 7 fire, 9 lightning): the typed damage of tiers 2 and 3
-# is a roll effect over a 0 base.
+# Tier 1 is untyped, tier 2 fire and tier 3 lightning: the tier's damage part is tagged by tier.
 id: abilities.high-elf.ceramic-horse.elemental-charge
 type: ability
 grantOnly: false
@@ -16,21 +15,15 @@ fields:
   rollBonus: 2
   t1Damage: 5
   t1AddsChar: false
-  t2Damage: 0
+  t2Damage: 7
   t2AddsChar: false
-  t3Damage: 0
+  t3Damage: 9
   t3AddsChar: false
   t3Condition: conditions.prone
   t3PotencyChar: might
   t3PotencyValue: 2
 effects:
-  - target: { rolls: [damage], from: self }
-    op: add
-    value: 7
-    tags: [damage.fire]
-    when: flags.tier == 2
-  - target: { rolls: [damage], from: self }
-    op: add
-    value: 9
-    tags: [damage.lightning]
-    when: flags.tier == 3
+  - target: { rolls: [damage], parts: [ability.damage], from: self }
+    op: tag
+    value:
+      - formula: "flags.tier == 2 ? ['damage.fire'] : flags.tier == 3 ? ['damage.lightning'] : []"
