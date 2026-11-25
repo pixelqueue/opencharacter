@@ -1,3 +1,5 @@
+# Each target (the tyrannis among them) gains 15 temporary Stamina; the doubled speed until the end
+# of their next turn is the table's (no duration ends on the target's next turn).
 id: abilities.time-raider.time-raider-tyrannis.we-will-won
 type: ability
 grantOnly: false
@@ -11,3 +13,9 @@ fields:
   cost: 1
   distanceKind: ranged
   distance: 10
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - { type: adjust, field: stamina.temp, by: 15 }

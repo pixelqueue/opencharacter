@@ -1,4 +1,5 @@
-# The edge on power rolls against the target is the table's.
+# Any power roll against the target gains an edge until the start of the vertex's next turn
+# (`effects.time-raider.psionic-slam` in each tier).
 id: abilities.time-raider.time-raider-vertex.psionic-slam
 type: ability
 grantOnly: false
@@ -14,10 +15,16 @@ fields:
   rollBonus: 2
   t1Damage: 5
   t1AddsChar: false
+  t1Effect: effects.time-raider.psionic-slam
+  t1Duration: next-start
   t2Damage: 7
   t2AddsChar: false
+  t2Effect: effects.time-raider.psionic-slam
+  t2Duration: next-start
   t3Damage: 9
   t3AddsChar: false
+  t3Effect: effects.time-raider.psionic-slam
+  t3Duration: next-start
 # The psychic damage beside the untyped damage.
 effects:
   - target: { rolls: [damage], from: self }
