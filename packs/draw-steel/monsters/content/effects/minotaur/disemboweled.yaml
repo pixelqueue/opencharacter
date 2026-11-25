@@ -1,7 +1,9 @@
-# Disemboweling Horns: while bleeding this way, 1d6 damage at the start of each of the target's
-# turns (save ends, with the bleeding).
+# Disemboweling Horns: bleeding (granted, with its rules), and while bleeding this way, 1d6 damage
+# at the start of each of the target's turns. One saving throw ends both.
 id: effects.minotaur.disemboweled
 type: effect
+grants:
+  - { item: conditions.bleeding, scope: applied }
 effects:
   - target: { steps: [turn.start] }
     op: action

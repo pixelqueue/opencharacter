@@ -15,30 +15,19 @@ fields:
   rollBonus: 2
   t1Damage: 5
   t1AddsChar: false
-  t1Condition: conditions.bleeding
+  t1Effect: effects.minotaur.disemboweled
   t1Duration: save
   t1PotencyChar: might
   t1PotencyValue: 0
   t2Damage: 8
   t2AddsChar: false
-  t2Condition: conditions.bleeding
+  t2Effect: effects.minotaur.disemboweled
   t2Duration: save
   t2PotencyChar: might
   t2PotencyValue: 1
   t3Damage: 9
   t3AddsChar: false
-  t3Condition: conditions.bleeding
+  t3Effect: effects.minotaur.disemboweled
   t3Duration: save
   t3PotencyChar: might
   t3PotencyValue: 2
-# While bleeding this way, the target takes 1d6 damage at the start of each of their turns.
-effects:
-  - target: { steps: [ability.hit], from: self }
-    op: changes
-    value:
-      changes:
-        - type: applyEffect
-          source: '@effects.minotaur.disemboweled'
-          state: { duration: "'save'" }
-          appliedBy: character.id
-    when: flags.tier > 0 && flags.landed

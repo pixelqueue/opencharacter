@@ -1,5 +1,5 @@
-# Food Frenzy: a double edge on the glutton's strikes. That strikes against the glutton gain an
-# edge is the table's (the heroes pack has no edge against a creature).
+# Food Frenzy: a double edge on the glutton's strikes, and strikes against the glutton gain an
+# edge.
 id: effects.troll.food-frenzy
 type: effect
 effects:
@@ -8,3 +8,4 @@ effects:
     value: 2
     scope: applied
     when: "'kw.strike' in roll.item.tags"
+  - { target: powerRoll.strikeEdgesAgainst, op: add, value: 1, scope: applied }
