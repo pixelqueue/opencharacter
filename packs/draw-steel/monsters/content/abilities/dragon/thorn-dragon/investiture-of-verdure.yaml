@@ -1,3 +1,5 @@
+# The pull up to 5 is the tier-1 move; the dragon gains 5 temporary Stamina per target. Only
+# dragonsealed creatures being targets is the table's.
 id: abilities.dragon.thorn-dragon.investiture-of-verdure
 type: ability
 grantOnly: false
@@ -9,3 +11,12 @@ fields:
   cost: 5
   distanceKind: burst
   distance: 10
+  t1Move: pull
+  t1MoveDistance: 5
+effects:
+  - target: { steps: [ability.after], from: self }
+    op: changes
+    value:
+      changes:
+        - { type: adjust, field: stamina.temp, by: 5 * size(participants.target) }
+    when: size(participants.target) > 0
