@@ -1,3 +1,5 @@
+# Pull up to 8 (the tier-1 move), up to 15 if M < 3. Metal-clad targets only and the free strike
+# are the table's.
 id: abilities.valok.multivok-bodyguard.magnetic-pull
 type: ability
 grantOnly: false
@@ -7,3 +9,13 @@ fields:
   usage: maneuver
   distanceKind: burst
   distance: 10
+  t1Move: pull
+  t1MoveDistance: 8
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      flags: { moveDistance: 15 }
+    when: >-
+      participant.characteristics.might.score + participant.potency.resistBonus.might
+        < 3 + (has(steps.roll) ? steps.roll.tallies.potencyBonus : 0)
