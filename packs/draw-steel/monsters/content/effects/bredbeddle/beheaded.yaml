@@ -1,12 +1,7 @@
-# Lop: the creature's head is off but they live. While beheaded they are bleeding; their line of
-# effect reaching only adjacent squares, reattaching the head and death after 24 hours are the
-# table's.
+# Lop: the creature's head is off but they live. While beheaded they are bleeding (granted, with
+# its rules); their line of effect reaching only adjacent squares, reattaching the head and death
+# after 24 hours are the table's.
 id: effects.bredbeddle.beheaded
 type: effect
-effects:
-  - {
-      target: conditions.active,
-      op: grant,
-      value: { formula: '@conditions.bleeding' },
-      scope: applied,
-    }
+grants:
+  - { item: conditions.bleeding, scope: applied }
