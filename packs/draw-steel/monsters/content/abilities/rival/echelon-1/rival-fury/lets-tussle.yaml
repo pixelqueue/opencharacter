@@ -1,5 +1,5 @@
-# The size limit and the edge (double edge) on strikes against a target grabbed this way are the
-# table's.
+# The size limit is the table's. The fury's edge on strikes against a target they grab is this
+# ability's rule on all their strikes (a grab by the fury another way counts too).
 id: abilities.rival.echelon-1.rival-fury.lets-tussle
 type: ability
 grantOnly: false
@@ -29,3 +29,8 @@ fields:
   t3Condition: conditions.grabbed
   t3PotencyChar: might
   t3PotencyValue: 2
+effects:
+  - target: { rolls: [power-target], tally: edges }
+    op: add
+    value: 1
+    when: "'kw.strike' in action.item.tags && character.id in participant.conditions.grabbedBy"

@@ -1,3 +1,5 @@
+# The damage type is the `element` parameter, picked on each use (as the heroes pack's Hurl
+# Element).
 id: abilities.bugbear.bugbear-channeler.blistering-element
 type: ability
 grantOnly: false
@@ -27,3 +29,11 @@ fields:
   t3Duration: save
   t3PotencyChar: might
   t3PotencyValue: 2
+effects:
+  - target: { actions: [ability], from: self }
+    op: params
+    value:
+      element: { type: enum, values: [acid, cold, corruption, fire, poison], default: fire }
+  - target: { rolls: [damage], parts: [ability.damage], from: self }
+    op: tag
+    value: [{ formula: "'damage.' + params.element" }]

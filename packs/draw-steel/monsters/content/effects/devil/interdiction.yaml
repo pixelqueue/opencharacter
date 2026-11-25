@@ -1,10 +1,8 @@
-# Adjudicator's Interdiction (tier 2): slowed and a bane on power rolls, one saving throw for both.
+# Adjudicator's Interdiction (tier 2): slowed (granted, with its rule) and a bane on power rolls,
+# one saving throw for both.
 id: effects.devil.interdiction
 type: effect
+grants:
+  - { item: conditions.slowed, scope: applied }
 effects:
-  - target: conditions.active
-    op: grant
-    value: { formula: '@conditions.slowed' }
-    scope: applied
-  - { target: speed, op: atMost, value: speed.slowedMax, scope: applied }
   - { target: { rolls: [power-roll], tally: banes }, op: add, value: 1, scope: applied }

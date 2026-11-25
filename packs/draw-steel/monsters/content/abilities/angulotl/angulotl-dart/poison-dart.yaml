@@ -1,4 +1,3 @@
-# The edge against a target below full Stamina is the table's: a target shows no maximum Stamina.
 id: abilities.angulotl.angulotl-dart.poison-dart
 type: ability
 grantOnly: false
@@ -19,3 +18,9 @@ fields:
   t2AddsChar: false
   t3Damage: 5
   t3AddsChar: false
+# An edge against a target below full Stamina.
+effects:
+  - target: { rolls: [power-target], tally: edges, from: self }
+    op: add
+    value: 1
+    when: participant.stamina.current < participant.stamina.max

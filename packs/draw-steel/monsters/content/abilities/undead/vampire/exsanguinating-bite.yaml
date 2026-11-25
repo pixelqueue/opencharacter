@@ -1,5 +1,4 @@
-# Tier 1's 7 damage is untyped, tiers 2 and 3 corruption: tier 1's damage is 0 and its 7 a roll
-# effect. Tiers 2 and 3: 5 or 7 more corruption damage and bleeding (save ends), behind M < 3 or 4.
+# Tier 1's 7 damage is untyped, tiers 2 and 3 corruption: an `op: tag` types the tier's damage. Tiers 2 and 3: 5 or 7 more corruption damage and bleeding (save ends), behind M < 3 or 4.
 # The vampire regains the corruption damage dealt.
 id: abilities.undead.vampire.exsanguinating-bite
 type: ability
@@ -14,8 +13,7 @@ fields:
   distanceKind: melee
   distance: 1
   rollBonus: 4
-  damageType: corruption
-  t1Damage: 0
+  t1Damage: 7
   t1AddsChar: false
   t1Condition: conditions.bleeding
   t1Duration: save
@@ -34,11 +32,9 @@ fields:
   t3PotencyChar: might
   t3PotencyValue: 4
 effects:
-  - target: { rolls: [damage], from: self }
-    op: add
-    value: 7
-    when: >-
-      flags.tier == 1
+  - target: { rolls: [damage], parts: [ability.damage], from: self }
+    op: tag
+    value: [{ formula: "flags.tier >= 2 ? ['damage.corruption'] : []" }]
   - target: { rolls: [damage], from: self }
     op: add
     value: '[0, 5, 7][flags.tier - 1]'
