@@ -1,5 +1,5 @@
 # 5 corruption damage to a target with M < 2, 3 or 4 by tier: the tier damage is 0, the 5 a roll
-# effect. The edge against a grabbed target and the flight are the table's.
+# effect. An edge against a target the koptourok grabs; the flight is the table's.
 id: abilities.undead.koptourok.inhale
 type: ability
 grantOnly: false
@@ -33,3 +33,7 @@ effects:
     tags: [damage.corruption]
     when: >-
       flags.tier > 0 && (participant.characteristics.might.score + participant.potency.resistBonus.might) < flags.tier + 1 + steps.roll.tallies.potencyBonus
+  - target: { rolls: [power-target], tally: edges, from: self }
+    op: add
+    value: 1
+    when: character.id in participant.conditions.grabbedBy

@@ -1,4 +1,4 @@
-# The edge on the next strike against the target is the table's (no edge against a creature).
+# The next strike made against the target gains an edge (the shared effect; the strike ends it).
 id: abilities.undead.ghost.heat-death
 type: ability
 grantOnly: false
@@ -31,3 +31,12 @@ fields:
   t3Duration: save
   t3PotencyChar: presence
   t3PotencyValue: 3
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@effects.common.next-strike-edge-against'
+          appliedBy: character.id
+    when: flags.tier > 0

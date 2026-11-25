@@ -1,3 +1,5 @@
+# Each ally gains an edge on strikes against the target until the end of the round
+# (`effects.undead.fetid-wrapped`).
 id: abilities.undead.mummy-rotwrap.fetid-wrappings
 type: ability
 grantOnly: false
@@ -21,3 +23,12 @@ fields:
   t3AddsChar: false
   t3Move: pull
   t3MoveDistance: 3
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@effects.undead.fetid-wrapped'
+          appliedBy: character.id
+    when: flags.tier > 0

@@ -1,6 +1,5 @@
-# Tier 1's 5 damage is untyped, tiers 2 and 3 corruption (one type per ability): tier 1's damage
-# is 0 and its 5 a roll effect. The spawn regains the corruption damage dealt. 1 Malice: 3 more
-# corruption damage.
+# Tier 1's 5 damage is untyped, tiers 2 and 3 corruption: an `op: tag` types the tier's damage.
+# The spawn regains the corruption damage dealt. 1 Malice: 3 more corruption damage.
 id: abilities.undead.vampire-spawn.exsanguinating-bite
 type: ability
 grantOnly: false
@@ -15,8 +14,7 @@ fields:
   distanceKind: melee
   distance: 1
   rollBonus: 3
-  damageType: corruption
-  t1Damage: 0
+  t1Damage: 5
   t1AddsChar: false
   t2Damage: 7
   t2AddsChar: false
@@ -31,11 +29,9 @@ fields:
   t3PotencyChar: might
   t3PotencyValue: 3
 effects:
-  - target: { rolls: [damage], from: self }
-    op: add
-    value: 5
-    when: >-
-      flags.tier == 1
+  - target: { rolls: [damage], parts: [ability.damage], from: self }
+    op: tag
+    value: [{ formula: "flags.tier >= 2 ? ['damage.corruption'] : []" }]
   - target: { rolls: [damage], from: self }
     op: add
     value: 3
