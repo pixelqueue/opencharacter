@@ -29,6 +29,10 @@ contentTypes:
       costPlus: { type: boolean, default: false }
       test:
         { type: enum, values: [none, might, agility, reason, intuition, presence], default: none }
+      # A feature a monster uses as an ability ("the werewolf gains…"): the ability, which every
+      # monster with the feature's keyword holds (tagged `malice-feature` and that keyword). The
+      # monster uses it and pays from this sheet, so it isn't used from here.
+      ability: { type: id, of: ability, optional: true }
     actions:
       - use: use-malice
 
@@ -94,7 +98,7 @@ actions:
   # from the pool. What it does is the book's text; a test is each creature's own `test`.
   - id: use-malice
     tags: [malice]
-    available: sheet.director && malice >= item.cost
+    available: sheet.director && malice >= item.cost && !has(item.ability)
     params:
       extra: { type: integer, default: 0, min: 0 }
     results: [used, unaffordable]
