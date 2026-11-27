@@ -232,16 +232,6 @@ effects:
       sheet.monster && !has(steps.roll)
         && countList(keysOf('characteristic'), ('target-test.' + x) in action.item.tags) == 0
 
-  # The second edge of a fury's double-edge grab (Steelfist, Death Grip): the Director's strikes
-  # against the grabbed creature. The entry's `strikeEdgesAgainstFor` gives the first.
-  - id: fury-grab-double-edge
-    target: { rolls: [power-target], tally: edges }
-    op: add
-    value: 1
-    when: >-
-      'kw.strike' in action.item.tags && side == 'director'
-        && @effects.rival.fury-grab-double in participant.effects.active
-
 actions:
   # "Either an Agility or an Intuition test": the creature picks the characteristic and makes the
   # test. Its outcome is the test's.
