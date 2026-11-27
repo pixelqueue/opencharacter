@@ -1,0 +1,27 @@
+description: "draw-steel-heroes: a strike gains an edge from a target that gives one to the user's side or to the user itself (powerRoll.strikeEdgesAgainstFor, powerRoll.edgesAgainstFor)"
+specVersion: 0.4.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/draw-steel/heroes
+  - path: ../../../packs/test-draw-steel-foe
+input:
+  action:
+    {
+      id: draw-steel-heroes:use-ability,
+      entry: draw-steel-heroes-abilities-common-melee-weapon-free-strike,
+    }
+  participants:
+    target:
+      - { id: plain, values: {} }
+      - {
+          id: strikes-for-heroes,
+          values: { draw-steel-heroes:powerRoll.strikeEdgesAgainstFor: [heroes] },
+        }
+      - id: strikes-for-director
+        values: { draw-steel-heroes:powerRoll.strikeEdgesAgainstFor: [director] }
+      - {
+          id: strikes-for-foe,
+          values: { draw-steel-heroes:powerRoll.strikeEdgesAgainstFor: [foe] },
+        }
+      - { id: for-foe, values: { draw-steel-heroes:powerRoll.edgesAgainstFor: [foe] } }
+      - { id: for-goblin, values: { draw-steel-heroes:powerRoll.edgesAgainstFor: [goblin] } }

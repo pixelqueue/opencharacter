@@ -1,0 +1,16 @@
+description: 'draw-steel-heroes: a melee strike takes the bane a target gives melee strikes against it (powerRoll.meleeStrikeBanesAgainst), not the one it gives ranged strikes'
+specVersion: 0.4.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/draw-steel/heroes
+  - path: ../../../packs/test-draw-steel-foe
+input:
+  action:
+    {
+      id: draw-steel-heroes:use-ability,
+      entry: draw-steel-heroes-abilities-common-melee-weapon-free-strike,
+    }
+  participants:
+    target:
+      - { id: melee, values: { draw-steel-heroes:powerRoll.meleeStrikeBanesAgainst: 1 } }
+      - { id: ranged, values: { draw-steel-heroes:powerRoll.rangedStrikeBanesAgainst: 1 } }

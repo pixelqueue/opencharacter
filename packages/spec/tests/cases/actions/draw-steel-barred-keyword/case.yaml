@@ -1,0 +1,12 @@
+description: "draw-steel-heroes: a creature whose abilities.barred holds kw.magic can't use a magic ability"
+specVersion: 0.4.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/draw-steel/heroes
+  - path: ../../../packs/test-draw-steel-foe
+input:
+  action:
+    { id: draw-steel-heroes:use-ability, entry: foe, source: test-draw-steel-foe:abilities.wail }
+  participants:
+    target:
+      - { id: goblin, values: {} }

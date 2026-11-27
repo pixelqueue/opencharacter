@@ -1,0 +1,47 @@
+# 4 + 5 + Might 2 = 11, tier 1: Hobble isn't magic, so it's used.
+status: finished
+outcome:
+  result: tier1
+  data:
+    natural: 9
+    critical: false
+    tier: 1
+    damage: 0
+    distance: 1
+    within: 0
+    rangedDistance: 0
+    targetTiers:
+      - 1
+    forcedMovement:
+      - ''
+    forcedDistance:
+      - 0
+    teleport: 0
+proposedChanges:
+  - to: target
+    character: goblin
+    step: hit[0]
+    change:
+      type: adjust
+      field: draw-steel-heroes:stamina.current
+      from: foe
+      by: -4
+      tags:
+        - damage
+  - to: target
+    character: goblin
+    step: hit[0]
+    change:
+      type: applyEffect
+      source: draw-steel-heroes:conditions.slowed
+      appliedBy: foe
+      state:
+        duration: next-start
+log:
+  - step: roll
+    band: tier1
+    bandValue: 1
+  - step: tier[0]
+    band: tier1
+    bandValue: 1
+  - step: damage[0]

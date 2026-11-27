@@ -1,0 +1,29 @@
+# A hero holding entries that last until the start or the end of its own next turn.
+specVersion: 0.4.0
+id: hero
+packs:
+  - id: draw-steel-heroes
+    version: 0.1.1
+  - id: test-draw-steel-foe
+    version: 0.1.0
+values:
+  draw-steel-heroes:combat.active: true
+applied:
+  - {
+      id: frightened,
+      source: draw-steel-heroes:conditions.frightened,
+      state: { duration: own-next-end },
+      appliedBy: foe,
+    }
+  - {
+      id: dazed,
+      source: draw-steel-heroes:conditions.dazed,
+      state: { duration: own-next-start },
+      appliedBy: foe,
+    }
+  - {
+      id: taunted,
+      source: draw-steel-heroes:conditions.taunted,
+      state: { duration: own-this-turn },
+      appliedBy: goblin,
+    }
