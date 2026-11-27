@@ -1,0 +1,18 @@
+# Covetous Bolts' 2 Malice: while dazed this way, the creature can't gain Heroic Resources. Ends at
+# a turn start when the creature isn't dazed.
+id: effects.demon.covetous-daze
+type: effect
+effects:
+  - target: { incoming: { fields: [heroic.current] } }
+    op: add
+    value: -incoming.amount
+    scope: applied
+    when: incoming.amount > 0 && conditions.dazed
+  - target: { steps: [turn.start] }
+    op: changes
+    scope: applied
+    value:
+      changes:
+        - type: removeEffect
+          applied: { where: 'item.id == @effects.demon.covetous-daze' }
+    when: '!conditions.dazed'
