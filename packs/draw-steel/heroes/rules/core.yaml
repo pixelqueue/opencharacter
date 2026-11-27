@@ -75,8 +75,9 @@ viewFields:
     tactician.markedBy: { type: set, of: string, default: [] }
     # Edges and banes on ability rolls against this creature: on any, on strikes, on melee
     # strikes, on ranged strikes; an edge for creatures of the sides or with the creature IDs
-    # listed (on any ability roll, or on strikes); and edges on the next strike against it,
-    # which that strike ends.
+    # listed (on any ability roll, or on strikes; one edge per entry, plain `director` or
+    # qualified `director@<entry id>`); and edges on the next strike against it, which that
+    # strike ends.
     powerRoll.edgesAgainst: { type: integer, default: 0 }
     powerRoll.banesAgainst: { type: integer, default: 0 }
     powerRoll.strikeEdgesAgainst: { type: integer, default: 0 }

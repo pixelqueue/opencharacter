@@ -192,8 +192,9 @@ fields:
   # Edges and banes on ability rolls made against this creature (the `creature` view carries
   # them to the attacker): on any ability roll (Look!), banes on any (Blessing of Steel's aura),
   # on strikes, on melee strikes, on ranged strikes, an edge for attackers of the sides or with
-  # the creature IDs listed (on any ability roll, or on strikes), and edges on the next strike
-  # against it, which ends the effects tagged `ends.next-strike-against`.
+  # the creature IDs listed (on any ability roll, or on strikes; one edge per entry, so an
+  # effect grants `<side or ID>@<its entry id>` to stack with others), and edges on the next
+  # strike against it, which ends the effects tagged `ends.next-strike-against`.
   powerRoll.edgesAgainst: { type: integer, formula: 0, min: 0 }
   powerRoll.banesAgainst: { type: integer, formula: 0, min: 0 }
   powerRoll.strikeEdgesAgainst: { type: integer, formula: 0, min: 0 }
@@ -296,19 +297,27 @@ effects:
     when: >-
       'kw.strike' in action.item.tags && 'kw.ranged' in action.item.tags && flags.mode == 'ranged'
         && participant.powerRoll.rangedStrikeBanesAgainst > 0
-  # An edge for the attacker's side, or for the attacker itself (its creature ID).
+  # An edge for the attacker's side, or for the attacker itself (its creature ID): one per entry
+  # that names it, plain (`director`) or qualified (`director@<anything>`, which sorts between
+  # `director@` and `directorA`), so two effects that grant qualified entries give two edges.
   - id: target-side-edge
     target: { rolls: [power-target], tally: edges }
     op: add
-    value: 1
-    when: side in participant.powerRoll.edgesAgainstFor || character.id in participant.powerRoll.edgesAgainstFor
+    value: >-
+      countList(participant.powerRoll.edgesAgainstFor, x == side || x == character.id
+        || (x > side + '@' && x < side + 'A') || (x > character.id + '@' && x < character.id + 'A'))
+    when: >-
+      countList(participant.powerRoll.edgesAgainstFor, x == side || x == character.id
+        || (x > side + '@' && x < side + 'A') || (x > character.id + '@' && x < character.id + 'A')) > 0
   - id: target-side-strike-edge
     target: { rolls: [power-target], tally: edges }
     op: add
-    value: 1
+    value: >-
+      countList(participant.powerRoll.strikeEdgesAgainstFor, x == side || x == character.id
+        || (x > side + '@' && x < side + 'A') || (x > character.id + '@' && x < character.id + 'A'))
     when: >-
-      'kw.strike' in action.item.tags && (side in participant.powerRoll.strikeEdgesAgainstFor
-        || character.id in participant.powerRoll.strikeEdgesAgainstFor)
+      'kw.strike' in action.item.tags && countList(participant.powerRoll.strikeEdgesAgainstFor, x == side || x == character.id
+        || (x > side + '@' && x < side + 'A') || (x > character.id + '@' && x < character.id + 'A')) > 0
   # The next strike against the target: its edges, and the strike ends the effects that gave them.
   - id: target-next-strike-edges
     target: { rolls: [power-target], tally: edges }

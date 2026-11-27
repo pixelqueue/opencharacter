@@ -247,7 +247,11 @@ random draws, and every ability shares the `use-ability` action.
     strikes.
   - `powerRoll.rangedStrikeBanesAgainst`: on ranged strikes.
   - `powerRoll.edgesAgainstFor`: an edge on any ability roll for attackers whose `side` or
-    creature ID is in the set (sides or creature IDs).
+    creature ID is in the set (sides or creature IDs). Each entry that names the attacker is an
+    edge: plain (`director`, `goblin-1`) or qualified with `@` (`director@<anything>`). A set
+    holds a value once, so two effects that each grant plain `director` give one edge; an
+    effect whose edge stacks with others grants `'director@' + self.id` (its applied entry's
+    ID), or `self.appliedBy + '@' + self.id`.
   - `powerRoll.strikeEdgesAgainstFor`: the same, on strikes.
   - `powerRoll.nextStrikeEdgesAgainst`: on the next strike against it. That strike proposes
     removing, on the target, the applied entries whose content is tagged

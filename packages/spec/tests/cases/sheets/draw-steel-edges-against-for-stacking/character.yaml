@@ -1,0 +1,15 @@
+# A hero marked twice (plain `director`) and hexed twice (`director@<entry id>`).
+specVersion: 0.4.0
+id: hero
+packs:
+  - id: draw-steel-heroes
+    version: 0.1.1
+  - id: test-draw-steel-foe
+    version: 0.1.0
+values:
+  draw-steel-heroes:stamina.current: 1
+applied:
+  - { id: mark-1, source: test-draw-steel-foe:effects.marked, appliedBy: foe }
+  - { id: mark-2, source: test-draw-steel-foe:effects.marked, appliedBy: goblin }
+  - { id: hex-1, source: test-draw-steel-foe:effects.hexed, appliedBy: foe }
+  - { id: hex-2, source: test-draw-steel-foe:effects.hexed, appliedBy: goblin }

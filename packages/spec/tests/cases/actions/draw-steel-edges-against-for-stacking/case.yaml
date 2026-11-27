@@ -1,0 +1,27 @@
+description: "draw-steel-heroes: each powerRoll.edgesAgainstFor and strikeEdgesAgainstFor entry that names the attacker's side or ID, plain or qualified with '@', is an edge; the power roll caps them at a double edge"
+specVersion: 0.4.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/draw-steel/heroes
+  - path: ../../../packs/test-draw-steel-foe
+input:
+  action:
+    {
+      id: draw-steel-heroes:use-ability,
+      entry: draw-steel-heroes-abilities-common-melee-weapon-free-strike,
+    }
+  participants:
+    target:
+      - { id: plain, values: { draw-steel-heroes:powerRoll.edgesAgainstFor: [director] } }
+      - id: two-effects
+        values: { draw-steel-heroes:powerRoll.edgesAgainstFor: [director@hex-1, director@hex-2] }
+      - id: three-effects
+        values:
+          {
+            draw-steel-heroes:powerRoll.edgesAgainstFor: [director, director@hex-1, director@hex-2],
+          }
+      - id: by-id
+        values: { draw-steel-heroes:powerRoll.strikeEdgesAgainstFor: [foe@a, foe@b] }
+      - id: others
+        values:
+          { draw-steel-heroes:powerRoll.edgesAgainstFor: [heroes@a, directors@a, foes, director@] }

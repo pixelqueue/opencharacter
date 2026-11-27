@@ -1,0 +1,11 @@
+# A made-up effect: an edge on ability rolls against the creature for the Director's side, one
+# entry per applied entry (`director@<entry id>`), so two hexes give two edges.
+id: effects.hexed
+type: effect
+effects:
+  - {
+      target: powerRoll.edgesAgainstFor,
+      op: grant,
+      value: { formula: "'director@' + self.id" },
+      scope: applied,
+    }

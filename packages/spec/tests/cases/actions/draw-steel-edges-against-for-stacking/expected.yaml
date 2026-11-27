@@ -1,0 +1,145 @@
+# 3 + 4 + Might 2 = 9, tier 1. The turncoat foe is on the Director's side: plain `director` is
+# one edge (11, still tier 1); two qualified entries are a double edge (tier 2), three still a
+# double edge; two `foe@` strike entries for the attacker's ID are two; entries that name
+# another side or ID, or `director@` with nothing after it, are none.
+status: finished
+outcome:
+  result: tier1
+  data:
+    natural: 7
+    critical: false
+    tier: 1
+    damage: 0
+    distance: 1
+    within: 0
+    rangedDistance: 0
+    targetTiers:
+      - 1
+      - 2
+      - 2
+      - 2
+      - 1
+    forcedMovement:
+      - ''
+      - ''
+      - ''
+      - ''
+      - ''
+    forcedDistance:
+      - 0
+      - 0
+      - 0
+      - 0
+      - 0
+    teleport: 0
+proposedChanges:
+  - to: target
+    character: plain
+    step: hit[0]
+    change:
+      type: adjust
+      field: draw-steel-heroes:stamina.current
+      from: foe
+      by: -4
+      tags:
+        - damage
+  - to: target
+    character: two-effects
+    step: hit[1]
+    change:
+      type: adjust
+      field: draw-steel-heroes:stamina.current
+      from: foe
+      by: -7
+      tags:
+        - damage
+  - to: target
+    character: three-effects
+    step: hit[2]
+    change:
+      type: adjust
+      field: draw-steel-heroes:stamina.current
+      from: foe
+      by: -7
+      tags:
+        - damage
+  - to: target
+    character: by-id
+    step: hit[3]
+    change:
+      type: adjust
+      field: draw-steel-heroes:stamina.current
+      from: foe
+      by: -7
+      tags:
+        - damage
+  - to: target
+    character: others
+    step: hit[4]
+    change:
+      type: adjust
+      field: draw-steel-heroes:stamina.current
+      from: foe
+      by: -4
+      tags:
+        - damage
+log:
+  - step: roll
+    band: tier1
+    bandValue: 1
+  - step: tier[0]
+    band: tier1
+    bandValue: 1
+    tallies:
+      - name: edges
+        value: 1
+        sources:
+          - source:
+              type: rules
+              id: draw-steel-heroes:rules
+            op: add
+            value: 1
+  - step: tier[1]
+    band: tier2
+    bandValue: 2
+    tallies:
+      - name: edges
+        value: 2
+        sources:
+          - source:
+              type: rules
+              id: draw-steel-heroes:rules
+            op: add
+            value: 2
+  - step: tier[2]
+    band: tier2
+    bandValue: 2
+    tallies:
+      - name: edges
+        value: 3
+        sources:
+          - source:
+              type: rules
+              id: draw-steel-heroes:rules
+            op: add
+            value: 3
+  - step: tier[3]
+    band: tier2
+    bandValue: 2
+    tallies:
+      - name: edges
+        value: 2
+        sources:
+          - source:
+              type: rules
+              id: draw-steel-heroes:rules
+            op: add
+            value: 2
+  - step: tier[4]
+    band: tier1
+    bandValue: 1
+  - step: damage[0]
+  - step: damage[1]
+  - step: damage[2]
+  - step: damage[3]
+  - step: damage[4]
