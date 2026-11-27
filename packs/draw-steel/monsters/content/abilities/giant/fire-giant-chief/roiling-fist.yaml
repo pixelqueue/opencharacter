@@ -1,6 +1,6 @@
-# Each target makes an Agility or an Intuition test (the two tags: the target picks). Tier 1's
-# weakened (save ends) beside the prone is text: a test tier's condition and effect share one
-# duration, and the prone has none.
+# Each target makes an Agility or an Intuition test (they pick: `either-test`). The ability makes
+# its own hand-off, so tier 1 can land prone (no duration) and weakened (save ends) as two entries;
+# the tier fields stay empty, so the pack's target-test and fixed-effect rules land nothing.
 id: abilities.giant.fire-giant-chief.roiling-fist
 type: ability
 grantOnly: false
@@ -9,8 +9,6 @@ tags:
   - kw.ranged
   - kw.weapon
   - target-test
-  - target-test.agility
-  - target-test.intuition
 fields:
   usage: main-action
   kind: signature
@@ -18,11 +16,25 @@ fields:
   distance: 3
   within: 4
   damageType: fire
-  t1Damage: 18
-  t1AddsChar: false
-  t1Condition: conditions.prone
-  t2Damage: 14
-  t2AddsChar: false
-  t2Condition: conditions.prone
-  t3Damage: 9
-  t3AddsChar: false
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: action
+    value:
+      id: roiling-fist-test
+      use: either-test
+      as: participant
+      params: { first: "'agility'", second: "'intuition'" }
+      changes:
+        - type: adjust
+          field: stamina.current
+          by: '-[18, 14, 9][min(3, max(1, run.data.tier)) - 1]'
+          tags: [damage, damage.fire]
+        - type: applyEffect
+          when: run.data.tier <= 2
+          source: '@conditions.prone'
+          appliedBy: character.id
+        - type: applyEffect
+          when: run.data.tier <= 1
+          source: '@conditions.weakened'
+          state: { duration: "'save'" }
+          appliedBy: character.id

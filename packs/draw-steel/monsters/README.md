@@ -91,8 +91,11 @@ computeSheet(ruleset, made.character).values['draw-steel-heroes:stamina.max']?.v
   forced movement on each target; one whose targets make a test ("Each target makes a Might
   test", tagged `target-test.<characteristic>`) hands the test off to each target and lands its
   tier's damage, condition and effect. Tagged with two characteristics, the target makes either
-  test (`either-test`, picking one). Abilities read the target's view (max Stamina, who grabs it,
-  its effects) and type a tier's damage, or the damage picked on each use, with `op: tag`.
+  test (`either-test`, picking one). A test whose tier lands more than its fields hold (Roiling
+  Fist's prone and weakened, Check Out Our Loot's picked damage and condition) is the ability's
+  own hand-off, with its tier fields empty; forced movement on a test tier stays text. Abilities
+  read the target's view (max Stamina, who grabs it, its effects) and type a tier's damage, or the
+  damage picked on each use, with `op: tag`.
 - **Free strikes:** `monster-free-strike` deals the stat block's free strike, typed as the
   signature ability; `minions` adds squad members striking together. The pack hides the heroes
   pack's weapon free strikes, which a monster would otherwise hold as standard copies.
