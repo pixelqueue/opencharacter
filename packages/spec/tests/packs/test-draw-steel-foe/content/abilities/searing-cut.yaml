@@ -1,0 +1,18 @@
+# A made-up melee weapon strike whose damage an `op: tag` types as fire: on a hero with no kit,
+# the kit's 0 bonus adds no untyped part of its own.
+id: abilities.searing-cut
+type: ability
+tags: [kw.melee, kw.strike, kw.weapon]
+fields:
+  usage: main-action
+  kind: complication
+  distanceKind: melee
+  distance: 1
+  rollChars: [might]
+  t1Damage: 2
+  t2Damage: 4
+  t3Damage: 6
+effects:
+  - target: { rolls: [damage], parts: [ability.damage], from: self }
+    op: tag
+    value: [damage.fire]

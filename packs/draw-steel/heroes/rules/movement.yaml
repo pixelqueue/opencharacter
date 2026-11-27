@@ -21,6 +21,9 @@ fields:
   # A slowed creature's speed is at most this (Perseverance raises it to 3).
   speed.slowedMax: { type: integer, formula: 2 }
   stability: { type: integer, formula: kit.stability, min: 0 }
+  # Whether the creature is flying right now (the player or Director sets it): what holds only
+  # while flying reads it (a hero's Wings, a creature whose stability is 0 in the air).
+  flying: { type: boolean, input: true, default: false }
   # Disengage shifts 1 square, more with a kit.
   disengage: { type: integer, formula: 1 + kit.disengage, min: 0 }
   # Movement types beyond walking.

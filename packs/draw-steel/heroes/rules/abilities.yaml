@@ -73,8 +73,13 @@ contentTypes:
       't{tier}PotencyValue': { type: integer }
       't{tier}Condition': { type: id, of: condition }
       # The condition's duration; `next-start` and `next-end` end at the start or the end of the
-      # user's next turn (the imposer's: `turn-boundary` ends them).
-      't{tier}Duration': { type: enum, values: [eot, save, encounter, until, next-start, next-end] }
+      # user's next turn (the imposer's: `turn-boundary` ends them), `own-next-start` and
+      # `own-next-end` at the start or the end of the target's.
+      't{tier}Duration':
+        {
+          type: enum,
+          values: [eot, save, encounter, until, next-start, next-end, own-next-start, own-next-end],
+        }
       't{tier}Move': { type: enum, values: [push, pull, slide] }
       't{tier}MoveVertical': { type: boolean, default: false }
       't{tier}MoveDistance': { type: integer, min: 0 }
@@ -181,16 +186,23 @@ fields:
   abilities.free: { type: set, of: ability, formula: '[]' }
   # The hero can't use triggered actions (dazed, an Entropy Ward's attacker, Smolder's strain).
   abilities.noTriggered: { type: boolean, formula: conditions.dazed }
+  # Keywords (`kw.*` tags) the creature can't use abilities with right now: an effect adds
+  # `kw.magic` for "can't use magic abilities".
+  abilities.barred: { type: set, of: string, formula: '[]' }
   # Edges and banes on ability rolls made against this creature (the `creature` view carries
   # them to the attacker): on any ability roll (Look!), banes on any (Blessing of Steel's aura),
-  # on strikes, on melee strikes, an edge for attackers of the sides listed, and edges on the
-  # next strike against it, which ends the effects tagged `ends.next-strike-against`.
+  # on strikes, on melee strikes, on ranged strikes, an edge for attackers of the sides or with
+  # the creature IDs listed (on any ability roll, or on strikes), and edges on the next strike
+  # against it, which ends the effects tagged `ends.next-strike-against`.
   powerRoll.edgesAgainst: { type: integer, formula: 0, min: 0 }
   powerRoll.banesAgainst: { type: integer, formula: 0, min: 0 }
   powerRoll.strikeEdgesAgainst: { type: integer, formula: 0, min: 0 }
   powerRoll.strikeBanesAgainst: { type: integer, formula: 0, min: 0 }
   powerRoll.meleeStrikeEdgesAgainst: { type: integer, formula: 0, min: 0 }
+  powerRoll.meleeStrikeBanesAgainst: { type: integer, formula: 0, min: 0 }
+  powerRoll.rangedStrikeBanesAgainst: { type: integer, formula: 0, min: 0 }
   powerRoll.edgesAgainstFor: { type: set, of: string, formula: '[]' }
+  powerRoll.strikeEdgesAgainstFor: { type: set, of: string, formula: '[]' }
   powerRoll.nextStrikeEdgesAgainst: { type: integer, formula: 0, min: 0 }
   # Bonuses to the distance of ranged abilities: any, magic, psionic, and void magic ones. An
   # area's bonus goes to its range ("within"), not its size.
@@ -200,17 +212,21 @@ fields:
   abilities.rangeBonus.voidMagic: { type: integer, formula: 0 }
 
 effects:
-  # A kit's damage bonus for the tier each target got, on weapon abilities that deal damage.
+  # A kit's damage bonus for the tier each target got, on weapon abilities that deal damage. A
+  # tier with no bonus (a creature without a kit) adds no part, so it can't make a damage group
+  # of its own.
   - id: kit-melee-damage
     target: { rolls: [damage.kit-melee] }
     op: add
     value: '[kit.melee1, kit.melee2, kit.melee3][max(0, min(2, flags.tier - 1))]'
+    when: '[kit.melee1, kit.melee2, kit.melee3][max(0, min(2, flags.tier - 1))] > 0'
     tags:
       [{ formula: "roll.item.damageType == 'untyped' ? [] : ['damage.' + roll.item.damageType]" }]
   - id: kit-ranged-damage
     target: { rolls: [damage.kit-ranged] }
     op: add
     value: '[kit.ranged1, kit.ranged2, kit.ranged3][max(0, min(2, flags.tier - 1))]'
+    when: '[kit.ranged1, kit.ranged2, kit.ranged3][max(0, min(2, flags.tier - 1))] > 0'
     tags:
       [{ formula: "roll.item.damageType == 'untyped' ? [] : ['damage.' + roll.item.damageType]" }]
   # What each target brings to the power roll, on its own tier (`power-target`): an edge against
@@ -266,11 +282,33 @@ effects:
     when: >-
       'kw.strike' in action.item.tags && 'kw.melee' in action.item.tags && flags.mode == 'melee'
         && participant.powerRoll.meleeStrikeEdgesAgainst > 0
+  - id: target-melee-strike-banes
+    target: { rolls: [power-target], tally: banes }
+    op: add
+    value: participant.powerRoll.meleeStrikeBanesAgainst
+    when: >-
+      'kw.strike' in action.item.tags && 'kw.melee' in action.item.tags && flags.mode == 'melee'
+        && participant.powerRoll.meleeStrikeBanesAgainst > 0
+  - id: target-ranged-strike-banes
+    target: { rolls: [power-target], tally: banes }
+    op: add
+    value: participant.powerRoll.rangedStrikeBanesAgainst
+    when: >-
+      'kw.strike' in action.item.tags && 'kw.ranged' in action.item.tags && flags.mode == 'ranged'
+        && participant.powerRoll.rangedStrikeBanesAgainst > 0
+  # An edge for the attacker's side, or for the attacker itself (its creature ID).
   - id: target-side-edge
     target: { rolls: [power-target], tally: edges }
     op: add
     value: 1
-    when: side in participant.powerRoll.edgesAgainstFor
+    when: side in participant.powerRoll.edgesAgainstFor || character.id in participant.powerRoll.edgesAgainstFor
+  - id: target-side-strike-edge
+    target: { rolls: [power-target], tally: edges }
+    op: add
+    value: 1
+    when: >-
+      'kw.strike' in action.item.tags && (side in participant.powerRoll.strikeEdgesAgainstFor
+        || character.id in participant.powerRoll.strikeEdgesAgainstFor)
   # The next strike against the target: its edges, and the strike ends the effects that gave them.
   - id: target-next-strike-edges
     target: { rolls: [power-target], tally: edges }
@@ -313,6 +351,7 @@ actions:
     tags: [ability, { formula: "'usage.' + item.usage" }, { formula: item.tags }]
     available: >-
       !stamina.dead && !(abilities.noTriggered && item.usage in ['triggered', 'free-triggered'])
+        && countList(item.tags, x in abilities.barred) == 0
         && (item.cost == 0 || item.id in abilities.free
         || (combat.active
           ? heroic.current - max(0, item.cost - (item.kind == 'heroic' && size(item.rollChars) > 0 ? abilities.edgeDiscount : 0)) >= heroic.min
@@ -456,7 +495,8 @@ actions:
               pval: >-
                 (has(item.t1PotencyValue) ? item.t1PotencyValue
                   : has(item.t1Potency) ? [potency.weak, potency.average, potency.strong][indexOf(['weak', 'average', 'strong'], item.t1Potency)]
-                  : 0) + (has(steps.roll) ? steps.roll.tallies.potencyBonus : 0)
+                  : 0) + (has(steps.tier) ? steps.tier.tallies.potencyBonus
+                    : has(steps.roll) ? steps.roll.tallies.potencyBonus : 0)
                   + (params.potencySurge && participant.id == participants.target[0].id ? 1 : 0)
               move: "has(item.t1Move) ? (item.t1MoveVertical ? 'vertical-' : '') + item.t1Move : ''"
               moveDistance: >-
@@ -472,7 +512,8 @@ actions:
               pval: >-
                 (has(item.t2PotencyValue) ? item.t2PotencyValue
                   : has(item.t2Potency) ? [potency.weak, potency.average, potency.strong][indexOf(['weak', 'average', 'strong'], item.t2Potency)]
-                  : 0) + (has(steps.roll) ? steps.roll.tallies.potencyBonus : 0)
+                  : 0) + (has(steps.tier) ? steps.tier.tallies.potencyBonus
+                    : has(steps.roll) ? steps.roll.tallies.potencyBonus : 0)
                   + (params.potencySurge && participant.id == participants.target[0].id ? 1 : 0)
               move: "has(item.t2Move) ? (item.t2MoveVertical ? 'vertical-' : '') + item.t2Move : ''"
               moveDistance: >-
@@ -488,7 +529,8 @@ actions:
               pval: >-
                 (has(item.t3PotencyValue) ? item.t3PotencyValue
                   : has(item.t3Potency) ? [potency.weak, potency.average, potency.strong][indexOf(['weak', 'average', 'strong'], item.t3Potency)]
-                  : 0) + (has(steps.roll) ? steps.roll.tallies.potencyBonus : 0)
+                  : 0) + (has(steps.tier) ? steps.tier.tallies.potencyBonus
+                    : has(steps.roll) ? steps.roll.tallies.potencyBonus : 0)
                   + (params.potencySurge && participant.id == participants.target[0].id ? 1 : 0)
               move: "has(item.t3Move) ? (item.t3MoveVertical ? 'vertical-' : '') + item.t3Move : ''"
               moveDistance: >-

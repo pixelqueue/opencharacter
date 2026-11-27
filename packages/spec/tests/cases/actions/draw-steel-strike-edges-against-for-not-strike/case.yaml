@@ -1,0 +1,13 @@
+description: "draw-steel-heroes: an ability that isn't a strike (Knockback) gains the edge a target gives the user itself on any ability roll, not the strike edge it gives the user's side"
+specVersion: 0.4.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/draw-steel/heroes
+  - path: ../../../packs/test-draw-steel-foe
+input:
+  action: { id: draw-steel-heroes:use-ability, entry: draw-steel-heroes-abilities-common-knockback }
+  participants:
+    target:
+      - { id: for-foe, values: { draw-steel-heroes:powerRoll.edgesAgainstFor: [foe] } }
+      - id: strikes-for-heroes
+        values: { draw-steel-heroes:powerRoll.strikeEdgesAgainstFor: [heroes, foe] }

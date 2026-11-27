@@ -78,7 +78,8 @@ actions:
   # Each turn change, run on every creature in the encounter (`ended` and `started` are the
   # creatures whose turns end and start). What the ending creature applied "until the end of its
   # next turn" ends; what the starting one applied "until the start of its next turn" ends, and
-  # what it applied "until the end of its next turn" now ends with this turn.
+  # what it applied "until the end of its next turn" now ends with this turn. The same for what
+  # lasts until the start or the end of this creature's own next turn (`own-*`), whoever applied it.
   - id: turn-boundary
     clock: turn-boundary
     tags: [combat]
@@ -105,6 +106,17 @@ actions:
               where: "has(self.duration) && self.duration == 'next-end' && self.appliedBy == params.started"
             key: duration
             value: "'this-turn'"
+          - type: removeEffect
+            when: has(params.ended) && params.ended == character.id
+            applied: { where: "has(self.duration) && self.duration == 'own-this-turn'" }
+          - type: removeEffect
+            when: has(params.started) && params.started == character.id
+            applied: { where: "has(self.duration) && self.duration == 'own-next-start'" }
+          - type: setState
+            when: has(params.started) && params.started == character.id
+            applied: { where: "has(self.duration) && self.duration == 'own-next-end'" }
+            key: duration
+            value: "'own-this-turn'"
       - { id: done, kind: outcome, result: "'passed'" }
 
   - id: end-combat
@@ -124,7 +136,7 @@ actions:
           - type: removeEffect
             applied:
               {
-                where: "has(self.duration) && self.duration in ['eot', 'save', 'encounter', 'next-start', 'next-end', 'this-turn']",
+                where: "has(self.duration) && self.duration in ['eot', 'save', 'encounter', 'next-start', 'next-end', 'this-turn', 'own-next-start', 'own-next-end', 'own-this-turn']",
               }
       - { id: done, kind: outcome, result: "'ended'" }
 
