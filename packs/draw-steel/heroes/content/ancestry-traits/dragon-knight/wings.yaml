@@ -5,3 +5,5 @@ fields:
   cost: 2
 effects:
   - { target: movement.types, op: grant, value: { tag: move.fly } }
+  # Damage weakness 5 while flying at 3rd level or lower.
+  - { target: weakness.all, op: add, value: 5, when: flying && level <= 3 }

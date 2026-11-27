@@ -1,0 +1,30 @@
+# foe's turn starts and goblin's ends: nothing of hero's own-turn entries ends, though foe and
+# goblin applied them.
+status: finished
+outcome:
+  result: passed
+proposedChanges:
+  - to: self
+    step: boundary
+    change:
+      type: removeEffect
+      applied:
+        where: has(self.duration) && self.duration == 'this-turn' && self.appliedBy ==
+          'goblin'
+  - to: self
+    step: boundary
+    change:
+      type: removeEffect
+      applied:
+        where: has(self.duration) && self.duration == 'next-start' && self.appliedBy ==
+          'foe'
+  - to: self
+    step: boundary
+    change:
+      type: setState
+      key: duration
+      applied:
+        where: has(self.duration) && self.duration == 'next-end' && self.appliedBy ==
+          'foe'
+      value: "'this-turn'"
+log: []

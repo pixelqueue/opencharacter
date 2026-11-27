@@ -1,0 +1,9 @@
+# The own-turn changes turn-boundary proposes (actions/draw-steel-turn-boundary-own-start).
+- type: removeEffect
+  applied:
+    where: has(self.duration) && self.duration == 'own-next-start'
+- type: setState
+  key: duration
+  applied:
+    where: has(self.duration) && self.duration == 'own-next-end'
+  value: "'own-this-turn'"

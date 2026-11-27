@@ -59,6 +59,7 @@ viewFields:
     size.value: { type: enum, values: [1t, 1s, 1m, 1l, '2', '3', '4', '5'], default: 1m }
     size.rank: { type: integer, default: 3 }
     stability: { type: integer, default: 0 }
+    flying: { type: boolean, default: false }
     stamina.current: { type: integer, default: 0 }
     stamina.max: { type: integer, default: 0 }
     stamina.isWinded: { type: boolean, default: false }
@@ -73,12 +74,16 @@ viewFields:
     # The tacticians who marked this creature: power rolls against it gain an edge.
     tactician.markedBy: { type: set, of: string, default: [] }
     # Edges and banes on ability rolls against this creature: on any, on strikes, on melee
-    # strikes; an edge for creatures of the sides listed; and edges on the next strike against
-    # it, which that strike ends.
+    # strikes, on ranged strikes; an edge for creatures of the sides or with the creature IDs
+    # listed (on any ability roll, or on strikes); and edges on the next strike against it,
+    # which that strike ends.
     powerRoll.edgesAgainst: { type: integer, default: 0 }
     powerRoll.banesAgainst: { type: integer, default: 0 }
     powerRoll.strikeEdgesAgainst: { type: integer, default: 0 }
     powerRoll.strikeBanesAgainst: { type: integer, default: 0 }
     powerRoll.meleeStrikeEdgesAgainst: { type: integer, default: 0 }
+    powerRoll.meleeStrikeBanesAgainst: { type: integer, default: 0 }
+    powerRoll.rangedStrikeBanesAgainst: { type: integer, default: 0 }
     powerRoll.edgesAgainstFor: { type: set, of: string, default: [] }
+    powerRoll.strikeEdgesAgainstFor: { type: set, of: string, default: [] }
     powerRoll.nextStrikeEdgesAgainst: { type: integer, default: 0 }

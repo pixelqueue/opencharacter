@@ -1,0 +1,64 @@
+# 6 + 5 + Might 2 = 13, tier 2: the melee strike's bane drops the first target to tier 1.
+status: finished
+outcome:
+  result: tier2
+  data:
+    natural: 11
+    critical: false
+    tier: 2
+    damage: 0
+    distance: 1
+    within: 0
+    rangedDistance: 0
+    targetTiers:
+      - 1
+      - 2
+    forcedMovement:
+      - ''
+      - ''
+    forcedDistance:
+      - 0
+      - 0
+    teleport: 0
+proposedChanges:
+  - to: target
+    character: melee
+    step: hit[0]
+    change:
+      type: adjust
+      field: draw-steel-heroes:stamina.current
+      from: foe
+      by: -4
+      tags:
+        - damage
+  - to: target
+    character: ranged
+    step: hit[1]
+    change:
+      type: adjust
+      field: draw-steel-heroes:stamina.current
+      from: foe
+      by: -7
+      tags:
+        - damage
+log:
+  - step: roll
+    band: tier2
+    bandValue: 2
+  - step: tier[0]
+    band: tier1
+    bandValue: 1
+    tallies:
+      - name: banes
+        value: 1
+        sources:
+          - source:
+              type: rules
+              id: draw-steel-heroes:rules
+            op: add
+            value: 1
+  - step: tier[1]
+    band: tier2
+    bandValue: 2
+  - step: damage[0]
+  - step: damage[1]

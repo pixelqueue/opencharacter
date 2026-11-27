@@ -1,0 +1,44 @@
+# hero's turn starts: its own-next-start dazed ends and its own-next-end frightened lasts this
+# turn, though foe applied them; the applier rules run as before.
+status: finished
+outcome:
+  result: passed
+proposedChanges:
+  - to: self
+    step: boundary
+    change:
+      type: removeEffect
+      applied:
+        where: has(self.duration) && self.duration == 'this-turn' && self.appliedBy ==
+          'foe'
+  - to: self
+    step: boundary
+    change:
+      type: removeEffect
+      applied:
+        where: has(self.duration) && self.duration == 'next-start' && self.appliedBy ==
+          'hero'
+  - to: self
+    step: boundary
+    change:
+      type: setState
+      key: duration
+      applied:
+        where: has(self.duration) && self.duration == 'next-end' && self.appliedBy ==
+          'hero'
+      value: "'this-turn'"
+  - to: self
+    step: boundary
+    change:
+      type: removeEffect
+      applied:
+        where: has(self.duration) && self.duration == 'own-next-start'
+  - to: self
+    step: boundary
+    change:
+      type: setState
+      key: duration
+      applied:
+        where: has(self.duration) && self.duration == 'own-next-end'
+      value: "'own-this-turn'"
+log: []
