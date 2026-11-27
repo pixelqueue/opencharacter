@@ -1,8 +1,14 @@
-# Strangle: while grabbed by the garotter who applied it, the creature can't communicate or use
-# magic abilities (the table's). Ends at a turn boundary when that garotter no longer grabs them.
+# Strangle: while grabbed by the garotter who applied it, the creature can't use magic abilities
+# (can't communicate: the table's). Ends at a turn boundary when that garotter no longer grabs
+# them, and bars nothing once the grab is gone.
 id: effects.orc.strangled
 type: effect
 effects:
+  - target: abilities.barred
+    op: grant
+    value: { formula: "'kw.magic'" }
+    scope: applied
+    when: self.appliedBy in conditions.grabbedBy
   - target: { steps: [turn.boundary] }
     op: changes
     scope: applied
