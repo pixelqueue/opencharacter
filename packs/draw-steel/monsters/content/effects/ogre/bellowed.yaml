@@ -1,9 +1,11 @@
 # Horrible Bellow: frightened (granted, with its rules; the bellower is its source), and while
-# frightened this way, strikes against the creature gain an edge. The book gives the edge to
-# ogres only; the strike field is anyone's.
+# frightened this way, any ogre (the Director's side) gains an edge on strikes against them.
 id: effects.ogre.bellowed
 type: effect
 grants:
   - { item: conditions.frightened, scope: applied }
 effects:
-  - { target: powerRoll.strikeEdgesAgainst, op: add, value: 1, scope: applied }
+  - target: powerRoll.strikeEdgesAgainstFor
+    op: grant
+    value: { formula: "'director'" }
+    scope: applied

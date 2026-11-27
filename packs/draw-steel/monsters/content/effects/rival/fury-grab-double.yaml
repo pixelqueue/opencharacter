@@ -1,9 +1,13 @@
 # Steelfist and Death Grip: grabbed (granted, with its rules; the entry's applier is the
-# grabber), and strikes against the creature have a double edge while the grab lasts. The edge is
-# any attacker's: strikes against a grabbed hero come from the fury's side.
+# grabber), and the fury and their allies (the Director's side) have a double edge on strikes
+# against the creature while the grab lasts: this entry's edge, and the second is the rule
+# `fury-grab-double-edge`.
 id: effects.rival.fury-grab-double
 type: effect
 grants:
   - { item: conditions.grabbed, scope: applied }
 effects:
-  - { target: powerRoll.strikeEdgesAgainst, op: add, value: 2, scope: applied }
+  - target: powerRoll.strikeEdgesAgainstFor
+    op: grant
+    value: { formula: "'director'" }
+    scope: applied
