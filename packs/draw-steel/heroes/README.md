@@ -229,7 +229,9 @@ random draws, and every ability shares the `use-ability` action.
   adds one (`kw.magic` for "can't use magic abilities") makes `use-ability` unavailable for
   every ability with it.
 - **What a target shows an attacker:** `use-ability`'s targets are `creature` views: level,
-  characteristics, size, stability, whether it's flying (`flying`), Stamina (`stamina.current`, `stamina.max`, winded), the
+  characteristics, size, stability, whether it's flying (`flying`), Stamina (`stamina.current`,
+  `stamina.max`, `stamina.temp`, winded), damage immunity and weakness (`immunity.*`,
+  `weakness.*`, as on the sheet), the
   conditions with who frightens and who grabs it (`conditions.frightenedBy`,
   `conditions.grabbedBy`), the IDs of its `effect` content in effect (`effects.active`), its
   `side`, the Tactician's marks and the edges and banes against it. An add-on's ability reads
@@ -248,7 +250,14 @@ random draws, and every ability shares the `use-ability` action.
   - `powerRoll.rangedStrikeBanesAgainst`: on ranged strikes.
   - `powerRoll.edgesAgainstFor`: an edge on any ability roll for attackers whose `side` or
     creature ID is in the set (sides or creature IDs).
-  - `powerRoll.strikeEdgesAgainstFor`: the same, on strikes.
+  - `powerRoll.strikeEdgesAgainstFor`: the same, on strikes. Both are sets: two effects that
+    list the same side or ID give one edge.
+  - `powerRoll.edgesAgainstSide.{side}` (`.heroes`, `.director`): edges on any ability roll for
+    attackers of that side, counted, so each effect that adds 1 is an edge and two are a double
+    edge (`target-side-edges-{side}`).
+  - `powerRoll.strikeEdgesAgainstSide.{side}`: the same, on strikes
+    (`target-side-strike-edges-{side}`). A pack that adds a side adds it to the `side` family
+    as well as the enum, and adds the two rules for it.
   - `powerRoll.nextStrikeEdgesAgainst`: on the next strike against it. That strike proposes
     removing, on the target, the applied entries whose content is tagged
     `ends.next-strike-against`, so the effect that gives these edges carries the tag.

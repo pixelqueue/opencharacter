@@ -1,0 +1,33 @@
+# A made-up magic ability: frightened behind M < 1; its potency is 1 higher against a target with
+# temporary Stamina and 1 higher against one immune to fire (the creature view's `stamina.temp`
+# and `immunity.fire`).
+id: abilities.gauge
+type: ability
+tags: [kw.magic, kw.ranged]
+fields:
+  usage: main-action
+  kind: complication
+  distanceKind: ranged
+  distance: 5
+  rollChars: [might]
+  t1Condition: conditions.frightened
+  t2Condition: conditions.frightened
+  t3Condition: conditions.frightened
+  t1Duration: own-next-end
+  t2Duration: own-next-end
+  t3Duration: own-next-end
+  t1PotencyChar: might
+  t2PotencyChar: might
+  t3PotencyChar: might
+  t1PotencyValue: 1
+  t2PotencyValue: 1
+  t3PotencyValue: 1
+effects:
+  - target: { rolls: [power-target], tally: potencyBonus, from: self }
+    op: add
+    value: 1
+    when: participant.stamina.temp > 0
+  - target: { rolls: [power-target], tally: potencyBonus, from: self }
+    op: add
+    value: 1
+    when: participant.immunity.fire > 0
