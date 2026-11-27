@@ -1,6 +1,5 @@
 # Thunderstruck lands on the target; the teleport is the table's. The taxiarch's edge on power
-# rolls against a creature they made thunderstruck is this ability's rule on all their rolls (it
-# reads their ID in the target's `edgesAgainstFor`).
+# rolls against a creature they made thunderstruck is the effect's (their ID in `edgesAgainstFor`).
 id: abilities.war-dog.war-dog-taxiarch.thunderstruck
 type: ability
 grantOnly: false
@@ -13,8 +12,3 @@ fields:
   distance: 1
   t1Effect: effects.war-dog.thunderstruck
   t1Duration: save
-effects:
-  - target: { rolls: [power-target], tally: edges }
-    op: add
-    value: 1
-    when: character.id in participant.powerRoll.edgesAgainstFor

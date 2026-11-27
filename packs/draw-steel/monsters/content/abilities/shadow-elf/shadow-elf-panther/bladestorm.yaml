@@ -1,6 +1,6 @@
 # Dazed this way is `effects.shadow-elf.bladestorm-dazed`; the panther's double edge on strikes
-# against such a target is this ability's rule on all their strikes (only the panther who dazed
-# them: their ID in the target's `edgesAgainstFor`).
+# against such a target is the effect's edge (only the panther who dazed them: their ID in the
+# target's `strikeEdgesAgainstFor`) and this ability's rule on all their strikes for the second.
 id: abilities.shadow-elf.shadow-elf-panther.bladestorm
 type: ability
 grantOnly: false
@@ -32,6 +32,6 @@ fields:
 effects:
   - target: { rolls: [power-target], tally: edges }
     op: add
-    value: 2
+    value: 1
     when: >-
-      'kw.strike' in action.item.tags && character.id in participant.powerRoll.edgesAgainstFor
+      'kw.strike' in action.item.tags && character.id in participant.powerRoll.strikeEdgesAgainstFor

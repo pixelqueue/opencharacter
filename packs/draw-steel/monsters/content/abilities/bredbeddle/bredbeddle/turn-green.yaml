@@ -24,9 +24,10 @@ fields:
   t3Duration: encounter
   t3PotencyChar: presence
   t3PotencyValue: 3
-# The bredbeddle's double edge on power rolls against a creature turned green (all its rolls).
+# The bredbeddle's double edge on power rolls against a creature turned green: the effect's edge
+# and this rule's second (all its rolls).
 effects:
   - target: { rolls: [power-target], tally: edges }
     op: add
-    value: 2
+    value: 1
     when: character.id in participant.powerRoll.edgesAgainstFor
