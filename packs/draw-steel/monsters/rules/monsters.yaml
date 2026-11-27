@@ -66,6 +66,14 @@ contentTypes:
       captainAmount: { type: integer, min: 0, default: 0 }
       # End Effect: the damage taken to end an effect a saving throw ends (0: none).
       endEffect: { type: integer, min: 0, default: 0, perCopy: true }
+      # Other keywords whose Malice-feature abilities the monster holds besides its own (a
+      # hobgoblin's goblin features), or a tag only one monster's feature carries (each dragon's,
+      # Ajax's: `malice-feature.<monster>`).
+      maliceFrom:
+        type: set
+        of: tag
+        members: { under: [creature, malice-feature], except: [malice-feature.no-minion] }
+        default: []
       # The stat block's traits and abilities, in its order: create-monster adds a copy of each.
       traits: { type: list, of: trait, unique: true, default: [] }
       abilities: { type: list, of: ability, unique: true, default: [] }
@@ -211,13 +219,13 @@ contentTypes:
         value: item.captainAmount
         when: "self.captain && item.captainBonus == 'forced-movement'"
     # The group's Malice features that are abilities (`malice-feature`, with a keyword the stat
-    # block has); a retainer has none, and a minion none the book bars it from
-    # (`malice-feature.no-minion`).
+    # block has or a tag in its `maliceFrom`); a retainer has none, and a minion none the book bars
+    # it from (`malice-feature.no-minion`).
     grants:
-      - forEach: item.tags
+      - forEach: item.tags + item.maliceFrom
         when: "!(item.organization in ['retainer', 'minion'])"
         item: { query: { type: ability, where: "'malice-feature' in item.tags && x in item.tags" } }
-      - forEach: item.tags
+      - forEach: item.tags + item.maliceFrom
         when: item.organization == 'minion'
         item:
           query:

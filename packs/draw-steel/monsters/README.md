@@ -103,7 +103,8 @@ computeSheet(ruleset, made.character).values['draw-steel-heroes:stamina.max']?.v
   and an ability the pool can't cover isn't offered. A Malice feature that is an ability
   (Blood In Their Eyes) names it (`ability`): each monster with the feature's keyword holds it
   (a minion doesn't when the book bars minions: `malice-feature.no-minion`) and pays for it from
-  the pool.
+  the pool. A stat block's `maliceFrom` adds keywords whose features it holds (Grilp's goblin
+  ones), or the tag of a feature only it holds (the omen dragon's Black Skies, Ajax's Draw Steel).
 - **Villain actions:** each is offered once per encounter, and only while no villain action was
   used this round on the Director's sheet.
 - **End Effect:** `end-effect` takes the stat block's unreducible damage to end an effect a
