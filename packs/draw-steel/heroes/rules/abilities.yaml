@@ -465,7 +465,8 @@ actions:
               pval: >-
                 (has(item.t1PotencyValue) ? item.t1PotencyValue
                   : has(item.t1Potency) ? [potency.weak, potency.average, potency.strong][indexOf(['weak', 'average', 'strong'], item.t1Potency)]
-                  : 0) + (has(steps.roll) ? steps.roll.tallies.potencyBonus : 0)
+                  : 0) + (has(steps.tier) ? steps.tier.tallies.potencyBonus
+                    : has(steps.roll) ? steps.roll.tallies.potencyBonus : 0)
                   + (params.potencySurge && participant.id == participants.target[0].id ? 1 : 0)
               move: "has(item.t1Move) ? (item.t1MoveVertical ? 'vertical-' : '') + item.t1Move : ''"
               moveDistance: >-
@@ -481,7 +482,8 @@ actions:
               pval: >-
                 (has(item.t2PotencyValue) ? item.t2PotencyValue
                   : has(item.t2Potency) ? [potency.weak, potency.average, potency.strong][indexOf(['weak', 'average', 'strong'], item.t2Potency)]
-                  : 0) + (has(steps.roll) ? steps.roll.tallies.potencyBonus : 0)
+                  : 0) + (has(steps.tier) ? steps.tier.tallies.potencyBonus
+                    : has(steps.roll) ? steps.roll.tallies.potencyBonus : 0)
                   + (params.potencySurge && participant.id == participants.target[0].id ? 1 : 0)
               move: "has(item.t2Move) ? (item.t2MoveVertical ? 'vertical-' : '') + item.t2Move : ''"
               moveDistance: >-
@@ -497,7 +499,8 @@ actions:
               pval: >-
                 (has(item.t3PotencyValue) ? item.t3PotencyValue
                   : has(item.t3Potency) ? [potency.weak, potency.average, potency.strong][indexOf(['weak', 'average', 'strong'], item.t3Potency)]
-                  : 0) + (has(steps.roll) ? steps.roll.tallies.potencyBonus : 0)
+                  : 0) + (has(steps.tier) ? steps.tier.tallies.potencyBonus
+                    : has(steps.roll) ? steps.roll.tallies.potencyBonus : 0)
                   + (params.potencySurge && participant.id == participants.target[0].id ? 1 : 0)
               move: "has(item.t3Move) ? (item.t3MoveVertical ? 'vertical-' : '') + item.t3Move : ''"
               moveDistance: >-
