@@ -1,5 +1,5 @@
 # Each target (the tyrannis among them) gains 15 temporary Stamina and has their speed doubled
-# until the end of their next turn (applied as the target's own, so 'next-end' ends it then).
+# until the end of their next turn (`own-next-end`).
 id: abilities.time-raider.time-raider-tyrannis.we-will-won
 type: ability
 grantOnly: false
@@ -21,5 +21,5 @@ effects:
         - { type: adjust, field: stamina.temp, by: 15 }
         - type: applyEffect
           source: '@effects.common.speed-doubled'
-          state: { duration: "'next-end'" }
-          appliedBy: participant.id
+          state: { duration: "'own-next-end'" }
+          appliedBy: character.id

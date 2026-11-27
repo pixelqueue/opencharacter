@@ -1,5 +1,5 @@
-# The free strike is the table's. Until the end of the target's next turn: the bleeding is applied
-# as the target's own, so 'next-end' ends it at the end of their next turn.
+# The free strike is the table's. Bleeding until the end of the target's next turn
+# (`own-next-end`).
 id: abilities.dragon.thorn-dragon.thorny-scales
 type: ability
 grantOnly: false
@@ -18,7 +18,7 @@ effects:
       changes:
         - type: applyEffect
           source: '@conditions.bleeding'
-          state: { duration: "'next-end'" }
-          appliedBy: participant.id
+          state: { duration: "'own-next-end'" }
+          appliedBy: character.id
     when: >-
       participant.characteristics.might.score + participant.potency.resistBonus.might < 2 + (has(steps.roll) ? steps.roll.tallies.potencyBonus : 0)

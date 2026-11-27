@@ -1,5 +1,5 @@
-# A target already slowed stays slowed and has speed 0 until the end of their next turn (applied as
-# the target's own, so 'next-end' ends it then).
+# A target already slowed stays slowed and has speed 0 until the end of their next turn
+# (`own-next-end`).
 id: abilities.giant.basalt-stone-giant.rune-signed-blade
 type: ability
 grantOnly: false
@@ -39,6 +39,6 @@ effects:
       changes:
         - type: applyEffect
           source: '@effects.common.speed-zero'
-          state: { duration: "'next-end'" }
-          appliedBy: participant.id
+          state: { duration: "'own-next-end'" }
+          appliedBy: character.id
     when: flags.tier > 0 && participant.conditions.slowed

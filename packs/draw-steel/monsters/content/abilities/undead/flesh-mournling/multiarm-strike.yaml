@@ -1,5 +1,4 @@
-# The target can't shift until the end of their next turn (applied as the target's own, so
-# 'next-end' ends it then). 1 Malice: one more target (the table's).
+# The target can't shift until the end of their next turn (`own-next-end`). 1 Malice: one more target (the table's).
 id: abilities.undead.flesh-mournling.multiarm-strike
 type: ability
 grantOnly: false
@@ -27,7 +26,7 @@ effects:
       changes:
         - type: applyEffect
           source: '@effects.common.cant-shift'
-          state: { duration: "'next-end'" }
-          appliedBy: participant.id
+          state: { duration: "'own-next-end'" }
+          appliedBy: character.id
     when: >-
       flags.tier > 0

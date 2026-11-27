@@ -1,7 +1,6 @@
 # The lightning's spread (1, 2 or 3 squares, 5 lightning damage to each enemy within it) is the
-# table's. 2 Malice: a target with M < 4 is slowed until the end of their next turn (applied as the
-# target's own, so 'next-end' ends it then); the spread's creatures and its 2 more squares are the
-# table's.
+# table's. 2 Malice: a target with M < 4 is slowed until the end of their next turn
+# (`own-next-end`); the spread's creatures and its 2 more squares are the table's.
 id: abilities.war-dog.war-dog-taxiarch.stunning-surge
 type: ability
 grantOnly: false
@@ -42,8 +41,8 @@ effects:
       changes:
         - type: applyEffect
           source: '@conditions.slowed'
-          state: { duration: "'next-end'" }
-          appliedBy: participant.id
+          state: { duration: "'own-next-end'" }
+          appliedBy: character.id
     when: >-
       flags.tier > 0 && has(params.malice) && params.malice >= 2
         && participant.characteristics.might.score + participant.potency.resistBonus.might

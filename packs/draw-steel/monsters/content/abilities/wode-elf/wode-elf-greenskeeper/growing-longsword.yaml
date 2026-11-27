@@ -18,7 +18,8 @@ fields:
   t2AddsChar: false
   t3Damage: 9
   t3AddsChar: false
-# The target is taunted until the end of their next turn (EoT). The 2 Malice reach is the table's.
+# The target is taunted until the end of their next turn (`own-next-end`, the greenskeeper its
+# source). The 2 Malice reach is the table's.
 effects:
   - target: { steps: [ability.hit], from: self }
     op: changes
@@ -26,6 +27,6 @@ effects:
       changes:
         - type: applyEffect
           source: '@conditions.taunted'
-          state: { duration: "'eot'" }
+          state: { duration: "'own-next-end'" }
           appliedBy: character.id
     when: flags.tier > 0

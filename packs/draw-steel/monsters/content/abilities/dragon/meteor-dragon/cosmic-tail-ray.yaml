@@ -1,5 +1,5 @@
-# A target already weakened is dazed until the end of their next turn instead (applied as the
-# target's own, so 'next-end' ends it then); the weakened isn't withheld.
+# A target already weakened is dazed until the end of their next turn instead (`own-next-end`);
+# the weakened isn't withheld.
 id: abilities.dragon.meteor-dragon.cosmic-tail-ray
 type: ability
 grantOnly: false
@@ -40,8 +40,8 @@ effects:
       changes:
         - type: applyEffect
           source: '@conditions.dazed'
-          state: { duration: "'next-end'" }
-          appliedBy: participant.id
+          state: { duration: "'own-next-end'" }
+          appliedBy: character.id
     when: >-
       flags.tier > 0 && participant.conditions.weakened
         && participant.characteristics.agility.score + participant.potency.resistBonus.agility

@@ -10,7 +10,7 @@ fields:
   cost: 2
   distanceKind: ranged
   distance: 15
-# Until the end of the target's next turn (the entry is the target's own, so its turn counts).
+# Until the end of the target's next turn (`own-next-end`).
 effects:
   - target: { steps: [ability.hit], from: self }
     op: changes
@@ -18,5 +18,5 @@ effects:
       changes:
         - type: applyEffect
           source: '@effects.radenwight.solo-act'
-          state: { duration: "'next-end'" }
-          appliedBy: participant.id
+          state: { duration: "'own-next-end'" }
+          appliedBy: character.id
