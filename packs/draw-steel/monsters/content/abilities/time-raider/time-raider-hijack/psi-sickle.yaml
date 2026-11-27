@@ -1,3 +1,5 @@
+# Pull up to 4 (the tier-1 move), none for a target larger than the hijack: the hijack moves
+# adjacent to them instead, which is the table's.
 id: abilities.time-raider.time-raider-hijack.psi-sickle
 type: ability
 grantOnly: false
@@ -9,3 +11,11 @@ fields:
   usage: maneuver
   distanceKind: ranged
   distance: 5
+  t1Move: pull
+  t1MoveDistance: 4
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      flags: { move: "''", moveDistance: 0 }
+    when: participant.size.rank > size.rank

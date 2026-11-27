@@ -1,4 +1,4 @@
-# The 2 Malice bar on gaining Heroic Resources while dazed this way is the table's.
+# 2 Malice: a target dazed this way can't gain Heroic Resources while dazed.
 id: abilities.demon.aurumvas.covetous-bolts
 type: ability
 grantOnly: false
@@ -33,3 +33,12 @@ fields:
   t3Duration: save
   t3PotencyChar: presence
   t3PotencyValue: 6
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@effects.demon.covetous-daze'
+          appliedBy: character.id
+    when: flags.landed && has(params.malice) && params.malice >= 2

@@ -1,4 +1,10 @@
-# Concealing Strike: the mindkiller (the entry's applier) is invisible to the creature. What
-# invisibility does is the table's.
+# Concealing Strike: the mindkiller (the entry's applier) is invisible to the creature, so the
+# creature's strikes against the mindkiller take a bane. Invisibility's other parts are the table's.
 id: effects.voiceless-talker.mindkiller-unseen
 type: effect
+effects:
+  - target: { rolls: [power-target], tally: banes }
+    op: add
+    value: 1
+    scope: applied
+    when: "participant.id == self.appliedBy && 'kw.strike' in action.item.tags"

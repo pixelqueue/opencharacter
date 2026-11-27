@@ -27,4 +27,13 @@ fields:
   t3Condition: conditions.grabbed
   t3PotencyChar: agility
   t3PotencyValue: 3
-# Tier 3's bane on Escape Grab is the table's.
+# Tier 3's grab carries a bane on the Escape Grab maneuver.
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@effects.common.escape-grab-bane'
+          appliedBy: character.id
+    when: flags.tier == 3 && flags.landed

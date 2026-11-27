@@ -1,5 +1,5 @@
-# The pull 8 is the tier-1 move; the 2 more squares for a restrained or slowed target, and moving a
-# restrained target, are the table's.
+# Pull up to 8 (the tier-1 move), up to 10 for a restrained or slowed target. Moving a restrained
+# target without ending the condition is the table's.
 id: abilities.dwarf.dwarf-reel-winch.reel-them-in
 type: ability
 grantOnly: false
@@ -14,3 +14,9 @@ fields:
   distance: 10
   t1Move: pull
   t1MoveDistance: 8
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      flags: { moveDistance: 'flags.moveDistance + 2' }
+    when: participant.conditions.restrained || participant.conditions.slowed

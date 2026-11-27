@@ -1,4 +1,4 @@
-# A target must be grabbed by the hulking brain (the table's), so the grab the roll ends is theirs.
+# A target must be grabbed by the hulking brain (the table's); the roll ends the brain's grab only.
 id: abilities.voiceless-talker.hulking-brain.cerebral-suplex
 type: ability
 grantOnly: false
@@ -29,4 +29,4 @@ effects:
     value:
       changes:
         - type: removeEffect
-          applied: { where: 'item.id == @conditions.grabbed' }
+          applied: { where: 'item.id == @conditions.grabbed', appliedBy: self }

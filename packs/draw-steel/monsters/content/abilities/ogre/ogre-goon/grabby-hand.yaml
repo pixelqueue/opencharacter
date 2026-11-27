@@ -1,3 +1,4 @@
+# A target grabbed this way takes a bane on the Escape Grab maneuver.
 id: abilities.ogre.ogre-goon.grabby-hand
 type: ability
 grantOnly: false
@@ -20,3 +21,12 @@ fields:
   t3Damage: 14
   t3AddsChar: false
   t3Condition: conditions.grabbed
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@effects.common.escape-grab-bane'
+          appliedBy: character.id
+    when: flags.landed

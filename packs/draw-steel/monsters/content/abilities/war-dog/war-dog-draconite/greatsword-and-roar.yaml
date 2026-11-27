@@ -1,5 +1,6 @@
-# Tier 3's move away and the Effect's frightened (if the damage leaves the target winded) are
-# the table's.
+# A target this damage leaves winded is frightened of the draconite until the end of the
+# draconite's next turn: the end of the target's next turn needs a frightened that ends on its
+# holder's turn. Tier 3's move away is the table's.
 id: abilities.war-dog.war-dog-draconite.greatsword-and-roar
 type: ability
 grantOnly: false
@@ -27,3 +28,14 @@ effects:
     value: '[0, 3, 4][flags.tier - 1]'
     tags: [damage.psychic]
     when: flags.tier >= 2
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@conditions.frightened'
+          state: { duration: "'next-end'" }
+          appliedBy: character.id
+    when: >-
+      flags.tier > 0
+        && participant.stamina.current - steps.damage.total <= participant.stamina.max / 2
