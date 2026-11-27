@@ -1,5 +1,5 @@
 description: "draw-steel-monsters: the war dog taxiarch gains an edge on power rolls against a
-  thunderstruck creature (the target's effects.active)"
+  creature they made thunderstruck (their ID in the target's edgesAgainstFor)"
 specVersion: 0.4.0
 call: startAction
 packs:
@@ -13,8 +13,8 @@ input:
     target:
       - id: thunderstruck
         values:
-          draw-steel-heroes:effects.active:
-            - draw-steel-monsters:effects.war-dog.thunderstruck
+          draw-steel-heroes:powerRoll.edgesAgainstFor:
+            - war-dog-taxiarch
           draw-steel-heroes:characteristics.might.score: 5
           draw-steel-heroes:characteristics.agility.score: 5
           draw-steel-heroes:characteristics.reason.score: 5

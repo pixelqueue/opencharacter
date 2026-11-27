@@ -1,6 +1,10 @@
-# Thunderstruck: lightning weakness 5. The taxiarch's edge on power rolls against the creature is
-# a rule on the taxiarch's Thunderstruck ability.
+# Thunderstruck: lightning weakness 5. The taxiarch who applied it gains an edge on power rolls
+# against the creature: their ID in `edgesAgainstFor`, read by their Thunderstruck ability's rule.
 id: effects.war-dog.thunderstruck
 type: effect
 effects:
+  - target: powerRoll.edgesAgainstFor
+    op: grant
+    value: { formula: self.appliedBy }
+    scope: applied
   - { target: weakness.lightning, op: add, value: 5, scope: applied }

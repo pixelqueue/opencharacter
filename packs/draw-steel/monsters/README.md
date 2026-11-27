@@ -111,8 +111,9 @@ computeSheet(ruleset, made.character).values['draw-steel-heroes:stamina.max']?.v
 - **Lasting effects** abilities leave (burning, rage, a convocation's immunity, can't stand) are
   effects with their duration, saving throw and rules, ongoing damage included
   (`ongoing-damage`). The common ones are shared (`effects.common.*`); edges and banes against a
-  creature (illuminated, marked) use the heroes pack's fields, and an effect with two conditions
-  ("prone and can't stand") grants them, one entry and one saving throw.
+  creature (illuminated, marked) use the heroes pack's fields, an edge only the creature that
+  applied it gains (thunderstruck) puts that creature's ID in `edgesAgainstFor`, and an effect with
+  two conditions ("prone and can't stand") grants them, one entry and one saving throw.
 
 ## Monsters
 

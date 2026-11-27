@@ -1,6 +1,11 @@
-# Bladestorm: dazed (granted, with its rules), and the panther has a double edge on strikes
-# against the creature (the panther's rule on Bladestorm reads this effect).
+# Bladestorm: dazed (granted, with its rules), and the panther who applied it has a double edge on
+# strikes against the creature: their ID in `edgesAgainstFor`, read by their rule on Bladestorm.
 id: effects.shadow-elf.bladestorm-dazed
 type: effect
 grants:
   - { item: conditions.dazed, scope: applied }
+effects:
+  - target: powerRoll.edgesAgainstFor
+    op: grant
+    value: { formula: self.appliedBy }
+    scope: applied

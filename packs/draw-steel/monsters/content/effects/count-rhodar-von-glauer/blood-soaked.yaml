@@ -1,3 +1,9 @@
-# Red Tide: Rhodar has a double edge on abilities used against the creature (Red Tide's rule).
+# Red Tide: Rhodar has a double edge on abilities used against the creature: his ID in
+# `edgesAgainstFor`, read by Red Tide's rule.
 id: effects.count-rhodar-von-glauer.blood-soaked
 type: effect
+effects:
+  - target: powerRoll.edgesAgainstFor
+    op: grant
+    value: { formula: self.appliedBy }
+    scope: applied
