@@ -1,0 +1,13 @@
+# Choking Grasp: while grabbed by the koptourok who applied it, the creature is suffocating (the
+# table's). Ends at a turn boundary when that koptourok no longer grabs them.
+id: effects.undead.choked
+type: effect
+effects:
+  - target: { steps: [turn.boundary] }
+    op: changes
+    scope: applied
+    value:
+      changes:
+        - type: removeEffect
+          applied: { where: 'item.id == @effects.undead.choked' }
+    when: '!(self.appliedBy in conditions.grabbedBy)'

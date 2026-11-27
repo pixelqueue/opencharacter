@@ -1,0 +1,13 @@
+# Strangle: while grabbed by the garotter who applied it, the creature can't communicate or use
+# magic abilities (the table's). Ends at a turn boundary when that garotter no longer grabs them.
+id: effects.orc.strangled
+type: effect
+effects:
+  - target: { steps: [turn.boundary] }
+    op: changes
+    scope: applied
+    value:
+      changes:
+        - type: removeEffect
+          applied: { where: 'item.id == @effects.orc.strangled' }
+    when: '!(self.appliedBy in conditions.grabbedBy)'

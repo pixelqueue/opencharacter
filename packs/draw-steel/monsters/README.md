@@ -117,7 +117,9 @@ computeSheet(ruleset, made.character).values['draw-steel-heroes:stamina.max']?.v
   two conditions ("prone and can't stand") grants them, one entry and one saving throw. An effect
   "until the end of the target's next turn" is applied as the target's own, so the heroes pack's
   turn boundary ends it then; frightened, taunted and grabbed keep their source instead, so theirs
-  is the table's.
+  is the table's. An effect tied to a grab (Lockjaw, Many Maws) acts only while its applier grabs
+  the creature, on the creature's turns or the applier's (`turn-boundary`), and ends once the
+  grab has.
 
 ## Monsters
 

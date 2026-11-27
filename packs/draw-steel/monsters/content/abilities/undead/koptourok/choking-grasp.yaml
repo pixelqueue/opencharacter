@@ -1,4 +1,5 @@
-# Suffocating while grabbed this way, and two grabs at once, are the table's.
+# Suffocating while grabbed this way is `effects.undead.choked` (text); two grabs at once are the
+# table's.
 id: abilities.undead.koptourok.choking-grasp
 type: ability
 grantOnly: false
@@ -27,3 +28,12 @@ fields:
   t3Condition: conditions.grabbed
   t3PotencyChar: might
   t3PotencyValue: 4
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@effects.undead.choked'
+          appliedBy: character.id
+    when: flags.tier > 0 && flags.landed

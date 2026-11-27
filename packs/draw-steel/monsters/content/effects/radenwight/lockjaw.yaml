@@ -1,0 +1,25 @@
+# Lockjaw: while grabbed by the bruxer who applied it, 2 damage at the start of each of the bruxer's
+# turns (`turn-boundary` on this creature's sheet, `started` the bruxer). Ends at a turn boundary
+# when that bruxer no longer grabs them.
+id: effects.radenwight.lockjaw
+type: effect
+effects:
+  - target: { steps: [turn.boundary] }
+    op: changes
+    scope: applied
+    value:
+      changes:
+        - type: adjust
+          field: stamina.current
+          by: -2
+          tags: [damage]
+    when: >-
+      has(params.started) && params.started == self.appliedBy && self.appliedBy in conditions.grabbedBy
+  - target: { steps: [turn.boundary] }
+    op: changes
+    scope: applied
+    value:
+      changes:
+        - type: removeEffect
+          applied: { where: 'item.id == @effects.radenwight.lockjaw' }
+    when: '!(self.appliedBy in conditions.grabbedBy)'

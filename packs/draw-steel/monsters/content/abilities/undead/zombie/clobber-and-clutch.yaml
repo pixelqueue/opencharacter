@@ -1,3 +1,5 @@
+# A target grabbed this way takes 2 corruption damage when they start their turn grabbed by the
+# zombie (`effects.undead.clutched`).
 id: abilities.undead.zombie.clobber-and-clutch
 type: ability
 grantOnly: false
@@ -18,3 +20,12 @@ fields:
   t3Damage: 7
   t3AddsChar: false
   t3Condition: conditions.grabbed
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@effects.undead.clutched'
+          appliedBy: character.id
+    when: flags.tier == 3

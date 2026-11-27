@@ -1,4 +1,5 @@
-# Not communicating or using magic abilities while grabbed this way is the table's.
+# While grabbed this way, a target can't communicate or use magic abilities: `effects.orc.strangled`
+# (text).
 id: abilities.orc.orc-garotter.strangle
 type: ability
 grantOnly: false
@@ -24,6 +25,14 @@ fields:
   t3Condition: conditions.grabbed
 # Tier 3: grabbed (the tier field), and dazed (save ends) if I < 2.
 effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@effects.orc.strangled'
+          appliedBy: character.id
+    when: flags.tier == 3
   - target: { steps: [ability.hit], from: self }
     op: changes
     value:
