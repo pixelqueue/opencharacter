@@ -115,14 +115,17 @@ computeSheet(ruleset, made.character).values['draw-steel-heroes:stamina.max']?.v
 - **Lasting effects** abilities leave (burning, rage, a convocation's immunity, can't stand) are
   effects with their duration, saving throw and rules, ongoing damage included
   (`ongoing-damage`). The common ones are shared (`effects.common.*`); edges and banes against a
-  creature (illuminated, marked) use the heroes pack's fields, an edge only the creature that
-  applied it gains (thunderstruck) puts that creature's ID in `edgesAgainstFor`, and an effect with
-  two conditions ("prone and can't stand") grants them, one entry and one saving throw. An effect
-  "until the end of the target's next turn" is applied as the target's own, so the heroes pack's
-  turn boundary ends it then; frightened, taunted and grabbed keep their source instead, so theirs
-  is the table's. An effect tied to a grab (Lockjaw, Many Maws) acts only while its applier grabs
-  the creature, on the creature's turns or the applier's (`turn-boundary`), and ends once the
-  grab has.
+  creature (illuminated, marked, melee or ranged strike banes) use the heroes pack's fields. An
+  edge for the Director's creatures only (the mummy's curse, any ogre against a bellowed
+  creature) puts `'director'` in `edgesAgainstFor` or `strikeEdgesAgainstFor`, and an edge only
+  the creature that applied it gains (thunderstruck) puts that creature's ID there. An effect
+  with two conditions ("prone and can't stand") grants them, one entry and one saving throw, and
+  "can't use magic abilities" bars `kw.magic` (`abilities.barred`). An effect "until the end of
+  the target's next turn" lasts `own-next-end`, so the heroes pack's turn boundary ends it then
+  and a frightened or taunted creature keeps its source. An effect tied to a grab (Lockjaw, Many
+  Maws) acts only while its applier grabs the creature, on the creature's turns or the applier's
+  (`turn-boundary`), and ends once the grab has. What holds only while a creature flies (a
+  rival's Wings, Sheltering Wings) reads the heroes pack's `flying` input.
 
 ## Monsters
 
