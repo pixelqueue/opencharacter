@@ -1,4 +1,4 @@
-# A target with P < 2 who is winded after the damage drops to 1 Stamina: the table's.
+# A target with P < 2 whom the damage leaves winded is reduced to 1 Stamina.
 id: abilities.undead.ghost.awful-wail
 type: ability
 grantOnly: false
@@ -20,3 +20,17 @@ fields:
   t2AddsChar: false
   t3Damage: 8
   t3AddsChar: false
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: adjust
+          field: stamina.current
+          by: -(participant.stamina.current - steps.damage.total - 1)
+    when: >-
+      flags.tier > 0
+        && participant.stamina.current - steps.damage.total <= participant.stamina.max / 2
+        && participant.stamina.current - steps.damage.total > 1
+        && participant.characteristics.presence.score + participant.potency.resistBonus.presence
+          < 2 + (has(steps.roll) ? steps.roll.tallies.potencyBonus : 0)
