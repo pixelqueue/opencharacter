@@ -1,7 +1,6 @@
-# 3 + 4 + Might 2 = 9, tier 1. The turncoat foe is on the Director's side: plain `director` is
-# one edge (11, still tier 1); two qualified entries are a double edge (tier 2), three still a
-# double edge; two `foe@` strike entries for the attacker's ID are two; entries that name
-# another side or ID, or `director@` with nothing after it, are none.
+# 3 + 4 + Might 2 = 9, tier 1. The turncoat foe is on the Director's side: a listed side and one
+# counted edge are an edge (11, still tier 1); two counted are a double edge (tier 2), three still
+# a double edge, two on strikes too; edges counted for the heroes' side are none.
 status: finished
 outcome:
   result: tier1
@@ -15,11 +14,13 @@ outcome:
     rangedDistance: 0
     targetTiers:
       - 1
+      - 1
       - 2
       - 2
       - 2
       - 1
     forcedMovement:
+      - ''
       - ''
       - ''
       - ''
@@ -31,10 +32,11 @@ outcome:
       - 0
       - 0
       - 0
+      - 0
     teleport: 0
 proposedChanges:
   - to: target
-    character: plain
+    character: listed
     step: hit[0]
     change:
       type: adjust
@@ -44,17 +46,17 @@ proposedChanges:
       tags:
         - damage
   - to: target
-    character: two-effects
+    character: one
     step: hit[1]
     change:
       type: adjust
       field: draw-steel-heroes:stamina.current
       from: foe
-      by: -7
+      by: -4
       tags:
         - damage
   - to: target
-    character: three-effects
+    character: two
     step: hit[2]
     change:
       type: adjust
@@ -64,7 +66,7 @@ proposedChanges:
       tags:
         - damage
   - to: target
-    character: by-id
+    character: three
     step: hit[3]
     change:
       type: adjust
@@ -74,8 +76,18 @@ proposedChanges:
       tags:
         - damage
   - to: target
-    character: others
+    character: strikes
     step: hit[4]
+    change:
+      type: adjust
+      field: draw-steel-heroes:stamina.current
+      from: foe
+      by: -7
+      tags:
+        - damage
+  - to: target
+    character: for-heroes
+    step: hit[5]
     change:
       type: adjust
       field: draw-steel-heroes:stamina.current
@@ -100,6 +112,18 @@ log:
             op: add
             value: 1
   - step: tier[1]
+    band: tier1
+    bandValue: 1
+    tallies:
+      - name: edges
+        value: 1
+        sources:
+          - source:
+              type: rules
+              id: draw-steel-heroes:rules
+            op: add
+            value: 1
+  - step: tier[2]
     band: tier2
     bandValue: 2
     tallies:
@@ -111,7 +135,7 @@ log:
               id: draw-steel-heroes:rules
             op: add
             value: 2
-  - step: tier[2]
+  - step: tier[3]
     band: tier2
     bandValue: 2
     tallies:
@@ -123,7 +147,7 @@ log:
               id: draw-steel-heroes:rules
             op: add
             value: 3
-  - step: tier[3]
+  - step: tier[4]
     band: tier2
     bandValue: 2
     tallies:
@@ -135,7 +159,7 @@ log:
               id: draw-steel-heroes:rules
             op: add
             value: 2
-  - step: tier[4]
+  - step: tier[5]
     band: tier1
     bandValue: 1
   - step: damage[0]
@@ -143,3 +167,4 @@ log:
   - step: damage[2]
   - step: damage[3]
   - step: damage[4]
+  - step: damage[5]

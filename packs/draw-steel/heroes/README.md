@@ -249,12 +249,15 @@ random draws, and every ability shares the `use-ability` action.
     strikes.
   - `powerRoll.rangedStrikeBanesAgainst`: on ranged strikes.
   - `powerRoll.edgesAgainstFor`: an edge on any ability roll for attackers whose `side` or
-    creature ID is in the set (sides or creature IDs). Each entry that names the attacker is an
-    edge: plain (`director`, `goblin-1`) or qualified with `@` (`director@<anything>`). A set
-    holds a value once, so two effects that each grant plain `director` give one edge; an
-    effect whose edge stacks with others grants `'director@' + self.id` (its applied entry's
-    ID), or `self.appliedBy + '@' + self.id`.
-  - `powerRoll.strikeEdgesAgainstFor`: the same, on strikes.
+    creature ID is in the set (sides or creature IDs).
+  - `powerRoll.strikeEdgesAgainstFor`: the same, on strikes. Both are sets: two effects that
+    list the same side or ID give one edge.
+  - `powerRoll.edgesAgainstSide.{side}` (`.heroes`, `.director`): edges on any ability roll for
+    attackers of that side, counted, so each effect that adds 1 is an edge and two are a double
+    edge (`target-side-edges-{side}`).
+  - `powerRoll.strikeEdgesAgainstSide.{side}`: the same, on strikes
+    (`target-side-strike-edges-{side}`). A pack that adds a side adds it to the `side` family
+    as well as the enum, and adds the two rules for it.
   - `powerRoll.nextStrikeEdgesAgainst`: on the next strike against it. That strike proposes
     removing, on the target, the applied entries whose content is tagged
     `ends.next-strike-against`, so the effect that gives these edges carries the tag.

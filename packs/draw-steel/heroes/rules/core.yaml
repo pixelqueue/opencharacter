@@ -3,6 +3,8 @@ families:
   tier: [1, 2, 3]
   damageType: [acid, cold, corruption, fire, holy, lightning, poison, psychic, sonic]
   condition: [bleeding, dazed, frightened, grabbed, prone, restrained, slowed, taunted, weakened]
+  # The `side` enum's values. A pack that adds a side adds it here too.
+  side: [heroes, director]
 
 settings:
   # "Always round down"; halving 11 damage takes 5 off it.
@@ -44,7 +46,8 @@ fields:
   # parts of the sheet.
   sheet.hero: { type: boolean, formula: 'true' }
   # The side the creature fights on: the heroes' or the Director's. An effect sets it for a
-  # creature on the other side (a summoned ally, a turncoat); a pack adds sides to the enum.
+  # creature on the other side (a summoned ally, a turncoat); a pack adds sides to the enum and
+  # to the `side` family.
   side:
     type: enum
     values: [heroes, director]
@@ -82,8 +85,8 @@ viewFields:
     tactician.markedBy: { type: set, of: string, default: [] }
     # Edges and banes on ability rolls against this creature: on any, on strikes, on melee
     # strikes, on ranged strikes; an edge for creatures of the sides or with the creature IDs
-    # listed (on any ability roll, or on strikes; one edge per entry, plain `director` or
-    # qualified `director@<entry id>`); and edges on the next strike against it, which that
+    # listed (on any ability roll, or on strikes); edges for creatures of a side, counted (on
+    # any ability roll, or on strikes); and edges on the next strike against it, which that
     # strike ends.
     powerRoll.edgesAgainst: { type: integer, default: 0 }
     powerRoll.banesAgainst: { type: integer, default: 0 }
@@ -94,4 +97,6 @@ viewFields:
     powerRoll.rangedStrikeBanesAgainst: { type: integer, default: 0 }
     powerRoll.edgesAgainstFor: { type: set, of: string, default: [] }
     powerRoll.strikeEdgesAgainstFor: { type: set, of: string, default: [] }
+    'powerRoll.edgesAgainstSide.{side}': { type: integer, default: 0 }
+    'powerRoll.strikeEdgesAgainstSide.{side}': { type: integer, default: 0 }
     powerRoll.nextStrikeEdgesAgainst: { type: integer, default: 0 }

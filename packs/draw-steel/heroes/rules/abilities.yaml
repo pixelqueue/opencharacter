@@ -192,9 +192,10 @@ fields:
   # Edges and banes on ability rolls made against this creature (the `creature` view carries
   # them to the attacker): on any ability roll (Look!), banes on any (Blessing of Steel's aura),
   # on strikes, on melee strikes, on ranged strikes, an edge for attackers of the sides or with
-  # the creature IDs listed (on any ability roll, or on strikes; one edge per entry, so an
-  # effect grants `<side or ID>@<its entry id>` to stack with others), and edges on the next
-  # strike against it, which ends the effects tagged `ends.next-strike-against`.
+  # the creature IDs listed (on any ability roll, or on strikes: one edge however many effects
+  # list it), edges for attackers of a side, counted, so each effect that adds 1 is an edge (on
+  # any ability roll, or on strikes), and edges on the next strike against it, which ends the
+  # effects tagged `ends.next-strike-against`.
   powerRoll.edgesAgainst: { type: integer, formula: 0, min: 0 }
   powerRoll.banesAgainst: { type: integer, formula: 0, min: 0 }
   powerRoll.strikeEdgesAgainst: { type: integer, formula: 0, min: 0 }
@@ -204,6 +205,8 @@ fields:
   powerRoll.rangedStrikeBanesAgainst: { type: integer, formula: 0, min: 0 }
   powerRoll.edgesAgainstFor: { type: set, of: string, formula: '[]' }
   powerRoll.strikeEdgesAgainstFor: { type: set, of: string, formula: '[]' }
+  'powerRoll.edgesAgainstSide.{side}': { type: integer, formula: 0, min: 0 }
+  'powerRoll.strikeEdgesAgainstSide.{side}': { type: integer, formula: 0, min: 0 }
   powerRoll.nextStrikeEdgesAgainst: { type: integer, formula: 0, min: 0 }
   # Bonuses to the distance of ranged abilities: any, magic, psionic, and void magic ones. An
   # area's bonus goes to its range ("within"), not its size.
@@ -297,27 +300,45 @@ effects:
     when: >-
       'kw.strike' in action.item.tags && 'kw.ranged' in action.item.tags && flags.mode == 'ranged'
         && participant.powerRoll.rangedStrikeBanesAgainst > 0
-  # An edge for the attacker's side, or for the attacker itself (its creature ID): one per entry
-  # that names it, plain (`director`) or qualified (`director@<anything>`, which sorts between
-  # `director@` and `directorA`), so two effects that grant qualified entries give two edges.
+  # An edge for the attacker's side, or for the attacker itself (its creature ID).
   - id: target-side-edge
     target: { rolls: [power-target], tally: edges }
     op: add
-    value: >-
-      countList(participant.powerRoll.edgesAgainstFor, x == side || x == character.id
-        || (x > side + '@' && x < side + 'A') || (x > character.id + '@' && x < character.id + 'A'))
-    when: >-
-      countList(participant.powerRoll.edgesAgainstFor, x == side || x == character.id
-        || (x > side + '@' && x < side + 'A') || (x > character.id + '@' && x < character.id + 'A')) > 0
+    value: 1
+    when: side in participant.powerRoll.edgesAgainstFor || character.id in participant.powerRoll.edgesAgainstFor
   - id: target-side-strike-edge
     target: { rolls: [power-target], tally: edges }
     op: add
-    value: >-
-      countList(participant.powerRoll.strikeEdgesAgainstFor, x == side || x == character.id
-        || (x > side + '@' && x < side + 'A') || (x > character.id + '@' && x < character.id + 'A'))
+    value: 1
     when: >-
-      'kw.strike' in action.item.tags && countList(participant.powerRoll.strikeEdgesAgainstFor, x == side || x == character.id
-        || (x > side + '@' && x < side + 'A') || (x > character.id + '@' && x < character.id + 'A')) > 0
+      'kw.strike' in action.item.tags && (side in participant.powerRoll.strikeEdgesAgainstFor
+        || character.id in participant.powerRoll.strikeEdgesAgainstFor)
+  # The edges the target gives the attacker's side, counted: one rule per side, since a
+  # participant's field can't be read by a computed key. A pack that adds a side adds its two.
+  - id: target-side-edges-heroes
+    target: { rolls: [power-target], tally: edges }
+    op: add
+    value: participant.powerRoll.edgesAgainstSide.heroes
+    when: side == 'heroes' && participant.powerRoll.edgesAgainstSide.heroes > 0
+  - id: target-side-strike-edges-heroes
+    target: { rolls: [power-target], tally: edges }
+    op: add
+    value: participant.powerRoll.strikeEdgesAgainstSide.heroes
+    when: >-
+      'kw.strike' in action.item.tags && side == 'heroes'
+        && participant.powerRoll.strikeEdgesAgainstSide.heroes > 0
+  - id: target-side-edges-director
+    target: { rolls: [power-target], tally: edges }
+    op: add
+    value: participant.powerRoll.edgesAgainstSide.director
+    when: side == 'director' && participant.powerRoll.edgesAgainstSide.director > 0
+  - id: target-side-strike-edges-director
+    target: { rolls: [power-target], tally: edges }
+    op: add
+    value: participant.powerRoll.strikeEdgesAgainstSide.director
+    when: >-
+      'kw.strike' in action.item.tags && side == 'director'
+        && participant.powerRoll.strikeEdgesAgainstSide.director > 0
   # The next strike against the target: its edges, and the strike ends the effects that gave them.
   - id: target-next-strike-edges
     target: { rolls: [power-target], tally: edges }
