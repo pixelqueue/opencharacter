@@ -1,0 +1,30 @@
+# Tier 1's slide is vertical if R < 1, tier 2's if R < 2: the table's (the vertical flag can't
+# sit behind a potency). A restrained creature vertically moved hangs in midair: the table's.
+id: abilities.hag.wode-hag.turned-upside-down
+type: ability
+grantOnly: false
+tags:
+  - kw.area
+  - kw.magic
+fields:
+  usage: triggered
+  resource: malice
+  cost: 2
+  distanceKind: burst
+  distance: 1
+  rollBonus: 3
+  t1Move: slide
+  t1MoveDistance: 2
+  t2Move: slide
+  t2MoveDistance: 3
+  t2Condition: conditions.restrained
+  t2Duration: eot
+  t2PotencyChar: reason
+  t2PotencyValue: 2
+  t3Move: slide
+  t3MoveDistance: 5
+  t3MoveVertical: true
+  t3Condition: conditions.restrained
+  t3Duration: eot
+  t3PotencyChar: reason
+  t3PotencyValue: 3

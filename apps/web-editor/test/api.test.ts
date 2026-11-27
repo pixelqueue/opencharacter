@@ -170,6 +170,7 @@ describe('the editor API', { timeout: 60_000 }, () => {
       'awn-core',
       'cwn-srd',
       'draw-steel-heroes',
+      'draw-steel-monsters',
       'fate-core',
       'fitd-crew',
       'fitd-scoundrel',

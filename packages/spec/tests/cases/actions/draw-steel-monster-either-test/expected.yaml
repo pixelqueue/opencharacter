@@ -1,0 +1,14 @@
+# Each target makes the test on its own sheet: the hand-off is either-test with both characteristics.
+status: paused
+needs:
+  step: hit[0]/draw-steel-monsters:rules#target-test
+  action: draw-steel-heroes:use-ability
+  kind: handoff
+  participant:
+    role: target
+    id: hero
+  run:
+    action: draw-steel-monsters:either-test
+    params:
+      first: might
+      second: agility

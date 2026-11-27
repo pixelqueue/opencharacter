@@ -1,0 +1,48 @@
+# Tier 2 knocks prone after the push; tier 3 swallows (restrained and the swallowed effect,
+# until the worm regurgitates the target). The 2 Malice charge is the table's.
+id: abilities.kingfissure-worm.kingfissure-worm.maw
+type: ability
+grantOnly: false
+tags:
+  - kw.charge
+  - kw.melee
+  - kw.strike
+  - kw.weapon
+fields:
+  usage: main-action
+  spendCost: 2
+  distanceKind: melee
+  distance: 1
+  rollBonus: 5
+  t1Damage: 15
+  t1AddsChar: false
+  t1Move: push
+  t1MoveDistance: 3
+  t2Damage: 20
+  t2AddsChar: false
+  t2Move: push
+  t2MoveDistance: 5
+  t3Damage: 25
+  t3AddsChar: false
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@conditions.prone'
+          appliedBy: character.id
+    when: flags.tier == 2
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@conditions.restrained'
+          state: { duration: "'until'" }
+          appliedBy: character.id
+        - type: applyEffect
+          source: '@effects.kingfissure-worm.swallowed'
+          state: { duration: "'until'" }
+          appliedBy: character.id
+    when: flags.tier == 3

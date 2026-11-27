@@ -1,0 +1,59 @@
+id: abilities.retainer.angulotl-hopper.three-poison-dart
+type: ability
+grantOnly: false
+tags:
+  - kw.ranged
+  - kw.strike
+  - kw.weapon
+fields:
+  usage: main-action
+  level: 7
+  resource: encounter
+  cost: 1
+  distanceKind: ranged
+  distance: 5
+  damageType: poison
+  t1Damage: 5
+  t1AddsChar: false
+  t1Condition: conditions.weakened
+  t1Duration: save
+  t1PotencyChar: might
+  t1Potency: weak
+  t2Damage: 9
+  t2AddsChar: false
+  t3Damage: 12
+  t3AddsChar: false
+  rollChars:
+    - might
+    - agility
+    - reason
+    - intuition
+    - presence
+  t2Condition: conditions.slowed
+  t2Duration: save
+  t2PotencyChar: might
+  t2Potency: average
+  t3Condition: conditions.dazed
+  t3Duration: save
+  t3PotencyChar: might
+  t3Potency: strong
+effects:
+  # Tier 2 is slowed and weakened, tier 3 dazed, slowed and weakened, behind one potency.
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@conditions.weakened'
+          state: { duration: "'save'" }
+          appliedBy: character.id
+    when: flags.tier >= 2 && flags.landed
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@conditions.slowed'
+          state: { duration: "'save'" }
+          appliedBy: character.id
+    when: flags.tier == 3 && flags.landed

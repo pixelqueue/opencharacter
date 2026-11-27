@@ -1,0 +1,33 @@
+# Each target slides up to 5, takes 12 psychic damage and, if M < 3, is weakened and slimed (one
+# entry, save ends) (the tier-1 fields); the olothec has damage immunity 4 until the start of
+# their next turn.
+id: abilities.olothec.olothec.psychic-pulse
+type: ability
+grantOnly: false
+tags:
+  - kw.area
+  - kw.psionic
+fields:
+  usage: no-action
+  kind: villain
+  resource: villain-action
+  cost: 2
+  distanceKind: burst
+  distance: 10
+  damageType: psychic
+  t1Damage: 12
+  t1Move: slide
+  t1MoveDistance: 5
+  t1Effect: effects.olothec.weakened-slimed
+  t1Duration: save
+  t1PotencyChar: might
+  t1PotencyValue: 3
+effects:
+  - target: { steps: [ability.after], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@effects.olothec.pulse-shield'
+          state: { duration: "'next-start'" }
+          appliedBy: character.id

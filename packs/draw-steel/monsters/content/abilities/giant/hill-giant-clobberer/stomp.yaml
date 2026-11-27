@@ -1,0 +1,36 @@
+id: abilities.giant.hill-giant-clobberer.stomp
+type: ability
+grantOnly: false
+tags:
+  - kw.melee
+  - kw.strike
+  - kw.weapon
+fields:
+  usage: main-action
+  resource: malice
+  cost: 3
+  distanceKind: melee
+  distance: 1
+  rollBonus: 4
+  t1Damage: 14
+  t1AddsChar: false
+  t1Condition: conditions.prone
+  t2Damage: 20
+  t2AddsChar: false
+  t2Condition: conditions.prone
+  t3Damage: 25
+  t3AddsChar: false
+  t3Condition: conditions.prone
+# Tiers 2 and 3: can't stand (save ends) behind M < 3 / M < 4.
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@effects.common.cant-stand'
+          state: { duration: "'save'" }
+          appliedBy: character.id
+    when: >-
+      flags.tier >= 2 && participant.characteristics.might.score + participant.potency.resistBonus.might
+        < [0, 3, 4][flags.tier - 1] + steps.roll.tallies.potencyBonus

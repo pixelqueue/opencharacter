@@ -1,0 +1,32 @@
+id: abilities.undead.mummy-lord.plague-of-flies
+type: ability
+grantOnly: false
+tags:
+  - kw.area
+  - kw.magic
+fields:
+  usage: no-action
+  kind: villain
+  resource: villain-action
+  cost: 1
+  distanceKind: burst
+  distance: 5
+  rollBonus: 4
+  damageType: poison
+  t1Damage: 5
+  t1AddsChar: false
+  t2Damage: 8
+  t2AddsChar: false
+  t3Damage: 10
+  t3AddsChar: false
+effects:
+  # Each target takes a bane on their next strike.
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@effects.common.next-strike-bane'
+          appliedBy: character.id
+    when: >-
+      flags.tier > 0

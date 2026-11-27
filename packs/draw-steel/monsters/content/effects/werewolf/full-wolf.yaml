@@ -1,0 +1,14 @@
+# Full Wolf (villain action 2): size 3, speed 10 and stability 2 until the encounter ends; strikes
+# deal 2 more damage and give 1 more rage, and Accursed Bite's potency rises by 1 (the
+# abilities read this entry).
+id: effects.werewolf.full-wolf
+type: effect
+effects:
+  - { target: size.form, op: set, value: "'3'", scope: applied }
+  - { target: speed, op: atLeast, value: 10, scope: applied }
+  - { target: stability, op: atLeast, value: 2, scope: applied }
+  - target: { rolls: [damage] }
+    op: add
+    value: 2
+    scope: applied
+    when: "'kw.strike' in roll.item.tags"

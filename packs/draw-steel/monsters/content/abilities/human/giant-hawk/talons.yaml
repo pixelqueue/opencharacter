@@ -1,0 +1,29 @@
+id: abilities.human.giant-hawk.talons
+type: ability
+grantOnly: false
+tags:
+  - kw.melee
+  - kw.strike
+  - kw.weapon
+fields:
+  usage: main-action
+  kind: signature
+  spendCost: 2
+  distanceKind: melee
+  distance: 1
+  rollBonus: 2
+  t1Damage: 5
+  t1AddsChar: false
+  t2Damage: 7
+  t2AddsChar: false
+  t3Damage: 9
+  t3AddsChar: false
+  t3Condition: conditions.grabbed
+# 2 Malice: an edge (or a double edge) against the target: 2 more damage.
+effects:
+  - target: { rolls: [damage], from: self }
+    op: add
+    value: 2
+    when: >-
+      has(params.malice) && params.malice >= 2
+        && min(2, steps.tier.tallies.edges) > min(2, steps.tier.tallies.banes)

@@ -1,0 +1,43 @@
+# An ally targeted ignoring the damage is the table's.
+id: abilities.gnoll.gnoll-carnage.shrapnel-whip
+type: ability
+grantOnly: false
+tags:
+  - kw.melee
+  - kw.strike
+  - kw.weapon
+fields:
+  usage: main-action
+  kind: signature
+  distanceKind: melee
+  distance: 2
+  rollBonus: 3
+  t1Damage: 8
+  t1AddsChar: false
+  t1Condition: conditions.bleeding
+  t1Duration: save
+  t1PotencyChar: agility
+  t1PotencyValue: 1
+  t2Damage: 11
+  t2AddsChar: false
+  t2Condition: conditions.bleeding
+  t2Duration: save
+  t2PotencyChar: agility
+  t2PotencyValue: 2
+  t3Damage: 14
+  t3AddsChar: false
+  t3Condition: conditions.bleeding
+  t3Duration: save
+  t3PotencyChar: agility
+  t3PotencyValue: 3
+# Tier 3: dazed (save ends) too, behind the same potency.
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@conditions.dazed'
+          state: { duration: "'save'" }
+          appliedBy: character.id
+    when: flags.tier == 3 && flags.landed

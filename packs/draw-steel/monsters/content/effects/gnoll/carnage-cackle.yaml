@@ -1,0 +1,17 @@
+# Carnage's Cackletongue: 3 more damage with the creature's next strike, which ends it.
+id: effects.gnoll.carnage-cackle
+type: effect
+effects:
+  - target: { rolls: [damage] }
+    op: add
+    value: 3
+    scope: applied
+    when: "'kw.strike' in roll.item.tags"
+  - target: { steps: [ability.after] }
+    op: changes
+    scope: applied
+    value:
+      changes:
+        - type: removeEffect
+          applied: { where: 'item.id == @effects.gnoll.carnage-cackle' }
+    when: "'kw.strike' in action.item.tags"

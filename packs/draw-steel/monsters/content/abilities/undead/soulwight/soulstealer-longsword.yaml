@@ -1,0 +1,40 @@
+# Tier 3: slowed and weakened (save ends), behind M < 2.
+id: abilities.undead.soulwight.soulstealer-longsword
+type: ability
+grantOnly: false
+tags:
+  - kw.melee
+  - kw.strike
+  - kw.weapon
+fields:
+  usage: main-action
+  kind: signature
+  distanceKind: melee
+  distance: 1
+  rollBonus: 2
+  damageType: corruption
+  t1Damage: 3
+  t1AddsChar: false
+  t2Damage: 4
+  t2AddsChar: false
+  t2Condition: conditions.slowed
+  t2Duration: save
+  t2PotencyChar: might
+  t2PotencyValue: 1
+  t3Damage: 5
+  t3AddsChar: false
+  t3Condition: conditions.slowed
+  t3Duration: save
+  t3PotencyChar: might
+  t3PotencyValue: 2
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@conditions.weakened'
+          state: { duration: "'save'" }
+          appliedBy: character.id
+    when: >-
+      flags.tier == 3 && flags.landed

@@ -1,0 +1,43 @@
+id: abilities.demon.aurumvas.greedy-hands
+type: ability
+grantOnly: false
+tags:
+  - kw.magic
+  - kw.melee
+  - kw.strike
+fields:
+  usage: main-action
+  kind: signature
+  spendCost: 2
+  distanceKind: melee
+  distance: 2
+  rollBonus: 5
+  damageType: corruption
+  t1Damage: 15
+  t1AddsChar: false
+  t1Condition: conditions.weakened
+  t1Duration: save
+  t1PotencyChar: reason
+  t1PotencyValue: 4
+  t2Damage: 20
+  t2AddsChar: false
+  t2Condition: conditions.weakened
+  t2Duration: save
+  t2PotencyChar: reason
+  t2PotencyValue: 5
+  t3Damage: 24
+  t3AddsChar: false
+  t3Condition: conditions.weakened
+  t3Duration: save
+  t3PotencyChar: reason
+  t3PotencyValue: 6
+effects:
+  # 2 Malice: Aurumvas regains Stamina equal to the damage dealt.
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - { type: adjust, field: stamina.current, by: 'steps.damage.total' }
+      to: self
+    when: >-
+      flags.tier > 0 && has(params.malice) && params.malice >= 2 && has(steps.damage)

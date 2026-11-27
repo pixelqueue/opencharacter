@@ -1,0 +1,22 @@
+# Poison the Blade: an edge on the shadow's next strike and its potencies +1; the strike ends it.
+id: effects.rival.poisoned-blade
+type: effect
+effects:
+  - target: { rolls: [power-roll.ability], tally: edges }
+    op: add
+    value: 1
+    scope: applied
+    when: "'kw.strike' in roll.item.tags"
+  - target: { rolls: [power-roll.ability], tally: potencyBonus }
+    op: add
+    value: 1
+    scope: applied
+    when: "'kw.strike' in roll.item.tags"
+  - target: { steps: [ability.after] }
+    op: changes
+    scope: applied
+    value:
+      changes:
+        - type: removeEffect
+          applied: { where: 'item.id == @effects.rival.poisoned-blade' }
+    when: "'kw.strike' in action.item.tags"

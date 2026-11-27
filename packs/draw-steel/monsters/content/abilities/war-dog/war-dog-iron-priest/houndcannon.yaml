@@ -1,0 +1,39 @@
+# The edge for allies near the iron priest is the table's.
+id: abilities.war-dog.war-dog-iron-priest.houndcannon
+type: ability
+grantOnly: false
+tags:
+  - kw.area
+  - kw.weapon
+fields:
+  usage: main-action
+  kind: signature
+  distanceKind: line
+  distance: 7
+  areaWidth: 1
+  within: 1
+  rollBonus: 4
+  t1Damage: 3
+  t1AddsChar: false
+  t2Damage: 6
+  t2AddsChar: false
+  t2Condition: conditions.bleeding
+  t2Duration: save
+  t2PotencyChar: presence
+  t2PotencyValue: 3
+  t3Damage: 8
+  t3AddsChar: false
+  t3Condition: conditions.bleeding
+  t3Duration: save
+  t3PotencyChar: presence
+  t3PotencyValue: 4
+effects:
+  # Tier 3: the target also loses 1 Recovery, behind the same potency.
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: adjust
+          field: recoveries.spent
+          by: 1
+    when: flags.tier == 3 && flags.landed

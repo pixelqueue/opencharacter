@@ -1,0 +1,38 @@
+# Any tier: wracked with pain (save ends) if the target has M < 4. "3 Malice" (one more target)
+# and "2+ Malice" (a condition of the lich's choice per 2 Malice on each wracked creature) are
+# the `malice` parameter; what they do is the table's.
+id: abilities.lich.lich.pain-unending
+type: ability
+grantOnly: false
+tags:
+  - kw.magic
+  - kw.ranged
+  - kw.strike
+fields:
+  usage: main-action
+  resource: malice
+  cost: 2
+  spendCost: 2
+  spendPlus: true
+  distanceKind: ranged
+  distance: 20
+  rollBonus: 5
+  damageType: psychic
+  t1Damage: 17
+  t1AddsChar: false
+  t2Damage: 24
+  t2AddsChar: false
+  t3Damage: 29
+  t3AddsChar: false
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@effects.lich.wracked-with-pain'
+          state: { duration: "'save'" }
+          appliedBy: character.id
+    when: >-
+      flags.tier > 0 && participant.characteristics.might.score + participant.potency.resistBonus.might
+        < 4 + steps.roll.tallies.potencyBonus

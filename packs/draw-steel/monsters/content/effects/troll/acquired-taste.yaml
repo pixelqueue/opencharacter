@@ -1,0 +1,14 @@
+# Acquired Taste: an edge on power rolls and 3 more damage with strikes (until the end of the
+# butcher's next turn).
+id: effects.troll.acquired-taste
+type: effect
+effects:
+  - target: { rolls: [power-roll.ability], tally: edges }
+    op: add
+    value: 1
+    scope: applied
+  - target: { rolls: [damage] }
+    op: add
+    value: 3
+    scope: applied
+    when: "'kw.strike' in roll.item.tags"

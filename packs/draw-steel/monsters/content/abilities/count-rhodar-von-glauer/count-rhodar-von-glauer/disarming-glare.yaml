@@ -1,0 +1,32 @@
+# Frightened this way is `disarmed` (frightened, granted); while it lasts, Rhodar ignores banes on
+# abilities used against the target (a rule on all his power rolls, for the Rhodar it fears).
+id: abilities.count-rhodar-von-glauer.count-rhodar-von-glauer.disarming-glare
+type: ability
+grantOnly: false
+tags:
+  - kw.area
+  - kw.magic
+  - target-test
+  - target-test.intuition
+fields:
+  usage: main-action
+  distanceKind: burst
+  distance: 5
+  damageType: corruption
+  t1Damage: 16
+  t1AddsChar: false
+  t1Effect: effects.count-rhodar-von-glauer.disarmed
+  t1Duration: save
+  t2Damage: 13
+  t2AddsChar: false
+  t2Effect: effects.count-rhodar-von-glauer.disarmed
+  t2Duration: eot
+  t3Damage: 8
+  t3AddsChar: false
+effects:
+  - target: { rolls: [power-target], tally: banes }
+    op: atMost
+    value: 0
+    when: >-
+      @effects.count-rhodar-von-glauer.disarmed in participant.effects.active
+        && character.id in participant.conditions.frightenedBy

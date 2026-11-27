@@ -1,0 +1,9 @@
+# A double bane on the creature's strikes.
+id: effects.common.strike-double-bane
+type: effect
+effects:
+  - target: { rolls: [power-roll.ability], tally: banes }
+    op: add
+    value: 2
+    scope: applied
+    when: "'kw.strike' in roll.item.tags"

@@ -1,0 +1,29 @@
+# Determination: as a maneuver, the rival ends frightened, slowed or weakened on themself.
+id: traits.rival.ancestry.determination
+type: trait
+actions:
+  - id: determination
+    tags: [usage.maneuver]
+    available: conditions.frightened || conditions.slowed || conditions.weakened
+    results: [ended]
+    steps:
+      - id: condition
+        kind: choice
+        options:
+          - id: frightened
+            when: conditions.frightened
+            changes:
+              - type: removeEffect
+                applied: { where: item.id == @conditions.frightened }
+          - id: slowed
+            when: conditions.slowed
+            changes:
+              - type: removeEffect
+                applied: { where: item.id == @conditions.slowed }
+          - id: weakened
+            when: conditions.weakened
+            changes:
+              - type: removeEffect
+                applied: { where: item.id == @conditions.weakened }
+        recommend: "conditions.weakened ? 'weakened' : conditions.slowed ? 'slowed' : 'frightened'"
+      - { id: done, kind: outcome, result: "'ended'" }

@@ -1,0 +1,15 @@
+id: abilities.rival.echelon-2.rival-shadow.poison-the-blade
+type: ability
+grantOnly: false
+fields:
+  usage: maneuver
+  distanceKind: self
+# The shadow's next strike: an edge, potency +1.
+effects:
+  - target: { steps: [ability.after], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@effects.rival.poisoned-blade'
+          appliedBy: character.id

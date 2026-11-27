@@ -1,0 +1,39 @@
+id: abilities.wyvern.wyvern-predator.grasping-jaws
+type: ability
+grantOnly: false
+tags:
+  - kw.magic
+  - kw.strike
+  - kw.weapon
+fields:
+  usage: maneuver
+  resource: malice
+  cost: 2
+  distanceKind: melee
+  distance: 2
+  rollBonus: 3
+  t1Damage: 9
+  t1AddsChar: false
+  t1Condition: conditions.grabbed
+  t1PotencyChar: agility
+  t1PotencyValue: 1
+  t2Damage: 14
+  t2AddsChar: false
+  t2Condition: conditions.grabbed
+  t2PotencyChar: agility
+  t2PotencyValue: 2
+  t3Damage: 17
+  t3AddsChar: false
+  t3Condition: conditions.grabbed
+  t3PotencyChar: agility
+  t3PotencyValue: 3
+# Tier 3's grab carries a bane on the Escape Grab maneuver.
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@effects.common.escape-grab-bane'
+          appliedBy: character.id
+    when: flags.tier == 3 && flags.landed

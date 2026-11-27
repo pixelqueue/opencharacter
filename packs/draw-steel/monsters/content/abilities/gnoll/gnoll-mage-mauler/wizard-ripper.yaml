@@ -1,0 +1,37 @@
+id: abilities.gnoll.gnoll-mage-mauler.wizard-ripper
+type: ability
+grantOnly: false
+tags:
+  - kw.magic
+  - kw.melee
+  - kw.strike
+fields:
+  usage: main-action
+  kind: signature
+  distanceKind: melee
+  distance: 1
+  rollBonus: 2
+  t1Damage: 0
+  t1AddsChar: false
+  t2Damage: 0
+  t2AddsChar: false
+  t3Damage: 0
+  t3AddsChar: false
+  t3Effect: effects.gnoll.no-magic
+  t3Duration: eot
+# Each tier its own type: 2 acid, 3 cold or 5 lightning damage (gap 7); the tier fields are 0.
+effects:
+  - target: { rolls: [damage], from: self }
+    op: add
+    value: '[2, 3, 5][flags.tier - 1]'
+    tags: [{ formula: "['damage.' + ['acid', 'cold', 'lightning'][flags.tier - 1]]" }]
+    when: flags.tier > 0
+  # Effect: the target takes a bane on their next power roll.
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@effects.common.next-roll-bane'
+          appliedBy: character.id
+    when: flags.tier > 0

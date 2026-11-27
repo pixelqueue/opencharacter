@@ -1,0 +1,44 @@
+specVersion: 0.4.0
+id: hero
+packs:
+  - id: draw-steel-heroes
+    version: 0.1.1
+  - id: draw-steel-monsters
+    version: 0.1.0
+values:
+  draw-steel-heroes:stamina.current: 1
+  draw-steel-heroes:combat.active: true
+applied:
+  - id: illuminated
+    source: draw-steel-monsters:effects.angulotl.illuminated
+    appliedBy: angulotl
+    state:
+      duration: save
+  - id: marked
+    source: draw-steel-monsters:effects.wode-elf.marked
+    appliedBy: wode-elf
+    state:
+      duration: save
+  - id: lit
+    source: draw-steel-monsters:effects.common.next-strike-edge-against
+    appliedBy: sniper
+  - id: quartz
+    source: draw-steel-monsters:effects.elemental.quartz
+    appliedBy: force
+    state:
+      duration: next-start
+  - id: cursed
+    source: draw-steel-monsters:effects.undead.cursed
+    appliedBy: mummy
+    state:
+      duration: save
+  - id: interdiction
+    source: draw-steel-monsters:effects.devil.interdiction
+    appliedBy: adjudicator
+    state:
+      duration: save
+  - id: roots
+    source: draw-steel-monsters:effects.common.prone-cant-stand
+    appliedBy: field
+    state:
+      duration: save

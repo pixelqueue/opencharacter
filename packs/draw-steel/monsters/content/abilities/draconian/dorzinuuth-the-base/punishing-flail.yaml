@@ -1,0 +1,42 @@
+id: abilities.draconian.dorzinuuth-the-base.punishing-flail
+type: ability
+grantOnly: false
+tags:
+  - kw.melee
+  - kw.strike
+  - kw.weapon
+fields:
+  usage: main-action
+  kind: signature
+  spendCost: 2
+  distanceKind: melee
+  distance: 1
+  rollBonus: 4
+  t1Damage: 11
+  t1AddsChar: false
+  t1Condition: conditions.prone
+  t1PotencyChar: might
+  t1PotencyValue: 2
+  t2Damage: 16
+  t2AddsChar: false
+  t2Condition: conditions.prone
+  t2PotencyChar: might
+  t2PotencyValue: 3
+  t3Damage: 19
+  t3AddsChar: false
+  t3Condition: conditions.prone
+  t3PotencyChar: might
+  t3PotencyValue: 4
+# 2 Malice: a target with M < 4 is also bleeding (save ends).
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@conditions.bleeding'
+          state: { duration: "'save'" }
+          appliedBy: character.id
+    when: >-
+      flags.tier > 0 && has(params.malice) && params.malice >= 2
+        && participant.characteristics.might.score + participant.potency.resistBonus.might < 4 + steps.roll.tallies.potencyBonus

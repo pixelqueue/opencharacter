@@ -1,0 +1,32 @@
+id: abilities.demon.wobalas.despair-bolt
+type: ability
+grantOnly: false
+tags:
+  - kw.magic
+  - kw.ranged
+  - kw.strike
+  - kw.weapon
+fields:
+  usage: main-action
+  kind: signature
+  distanceKind: ranged
+  distance: 20
+  rollBonus: 2
+  damageType: psychic
+  t1Damage: 3
+  t1AddsChar: false
+  t2Damage: 5
+  t2AddsChar: false
+  t3Damage: 7
+  t3AddsChar: false
+effects:
+  # A bane on the target's next strike, a double bane if they're winded.
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@effects.demon.despair'
+          state: { amount: 'participant.stamina.isWinded ? 2 : 1' }
+          appliedBy: character.id
+    when: flags.tier > 0

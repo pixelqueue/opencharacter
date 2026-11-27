@@ -1,0 +1,26 @@
+id: abilities.dwarf.dwarf-gunner.ensnaring-chains
+type: ability
+grantOnly: false
+tags:
+  - kw.ranged
+  - kw.weapon
+fields:
+  usage: maneuver
+  resource: malice
+  cost: 5
+  distanceKind: ranged
+  distance: 10
+# After the free strike (the table's), the target's prone, restrained and slowed end, then the
+# target is restrained (save ends).
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: removeEffect
+          applied:
+            where: item.id in [@conditions.prone, @conditions.restrained, @conditions.slowed]
+        - type: applyEffect
+          source: '@conditions.restrained'
+          state: { duration: "'save'" }
+          appliedBy: character.id

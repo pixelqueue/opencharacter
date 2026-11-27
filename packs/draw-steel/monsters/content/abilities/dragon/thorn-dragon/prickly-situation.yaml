@@ -1,0 +1,25 @@
+# The pull up to 5 is the tier-1 move. Restrained until the end of the target's next turn
+# (`own-next-end`).
+id: abilities.dragon.thorn-dragon.prickly-situation
+type: ability
+grantOnly: false
+tags:
+  - kw.magic
+  - kw.ranged
+fields:
+  usage: free-triggered
+  distanceKind: ranged
+  distance: 10
+  t1Move: pull
+  t1MoveDistance: 5
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@conditions.restrained'
+          state: { duration: "'own-next-end'" }
+          appliedBy: character.id
+    when: >-
+      participant.characteristics.agility.score + participant.potency.resistBonus.agility < 2 + (has(steps.roll) ? steps.roll.tallies.potencyBonus : 0)

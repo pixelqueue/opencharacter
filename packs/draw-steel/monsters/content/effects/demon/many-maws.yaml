@@ -1,0 +1,25 @@
+# Many Maws: while grabbed by the tormenauk who applied it, 4 psychic damage at the start of each of
+# the tormenauk's turns (`turn-boundary` on this creature's sheet, `started` the tormenauk). Ends at
+# a turn boundary when that tormenauk no longer grabs them.
+id: effects.demon.many-maws
+type: effect
+effects:
+  - target: { steps: [turn.boundary] }
+    op: changes
+    scope: applied
+    value:
+      changes:
+        - type: adjust
+          field: stamina.current
+          by: -4
+          tags: [damage, damage.psychic]
+    when: >-
+      has(params.started) && params.started == self.appliedBy && self.appliedBy in conditions.grabbedBy
+  - target: { steps: [turn.boundary] }
+    op: changes
+    scope: applied
+    value:
+      changes:
+        - type: removeEffect
+          applied: { where: 'item.id == @effects.demon.many-maws' }
+    when: '!(self.appliedBy in conditions.grabbedBy)'

@@ -1,0 +1,37 @@
+id: abilities.human.human-brawler.haymaker
+type: ability
+grantOnly: false
+tags:
+  - kw.melee
+  - kw.strike
+  - kw.weapon
+fields:
+  usage: main-action
+  kind: signature
+  distanceKind: melee
+  distance: 1
+  rollBonus: 2
+  t1Damage: 6
+  t1AddsChar: false
+  t2Damage: 9
+  t2AddsChar: false
+  t3Damage: 12
+  t3AddsChar: false
+  t3Condition: conditions.grabbed
+  t3PotencyChar: might
+  t3PotencyValue: 2
+# Tier 3's grab carries a bane on the Escape Grab maneuver.
+# A target who is already grabbed takes 2 more damage.
+effects:
+  - target: { rolls: [damage], from: self }
+    op: add
+    value: 2
+    when: has(participant) && participant.conditions.grabbed
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@effects.common.escape-grab-bane'
+          appliedBy: character.id
+    when: flags.tier == 3 && flags.landed

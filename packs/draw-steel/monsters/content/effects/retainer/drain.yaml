@@ -1,0 +1,7 @@
+# Enervating Curse: levels of drain. The next creature to strike the target gains a surge per level
+# for that strike (the table's), which ends the drain.
+id: effects.retainer.drain
+type: effect
+state:
+  amount: { type: integer, default: 1, min: 0 }
+reapply: { state: { amount: add, duration: replace } }

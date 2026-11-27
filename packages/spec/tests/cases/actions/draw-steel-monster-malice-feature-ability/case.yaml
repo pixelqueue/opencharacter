@@ -1,0 +1,20 @@
+description: "draw-steel-monsters: the werewolf uses the Malice feature Blood In Their Eyes as an
+  ability its stat block grants, paying 3 Malice from the Director's sheet"
+specVersion: 0.4.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/draw-steel/heroes
+  - path: ../../../../../../packs/draw-steel/monsters
+input:
+  action:
+    id: draw-steel-heroes:use-ability
+    entry: monster
+    source: draw-steel-monsters:abilities.werewolf.malice.blood-in-their-eyes
+  links:
+    draw-steel-monsters:director:
+      id: director
+      values:
+        draw-steel-monsters:malice: 9
+        draw-steel-heroes:combat.active: true
+        draw-steel-heroes:combat.round: 1
+        draw-steel-monsters:villain.round: 0

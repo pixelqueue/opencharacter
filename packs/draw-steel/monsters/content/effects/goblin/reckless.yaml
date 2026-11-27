@@ -1,0 +1,19 @@
+# Get Reckless!: an edge on the creature's strikes, and strikes against them gain an edge, unless
+# the underboss spent 2 Malice (`guarded`).
+id: effects.goblin.reckless
+type: effect
+state:
+  guarded: { type: boolean, default: false }
+effects:
+  - target: { rolls: [power-roll.ability], tally: edges }
+    op: add
+    value: 1
+    scope: applied
+    when: "'kw.strike' in roll.item.tags"
+  - {
+      target: powerRoll.strikeEdgesAgainst,
+      op: add,
+      value: 1,
+      scope: applied,
+      when: '!self.guarded',
+    }

@@ -1,0 +1,7 @@
+# "Ability rolls made against the creature take a bane" (a double bane: `amount` 2) for a while.
+id: effects.common.banes-against
+type: effect
+state:
+  amount: { type: integer, default: 1, min: 1 }
+effects:
+  - { target: powerRoll.banesAgainst, op: add, value: self.amount, scope: applied }

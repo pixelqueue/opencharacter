@@ -1,0 +1,19 @@
+id: abilities.minotaur.minotaur.primal-bay
+type: ability
+grantOnly: false
+fields:
+  usage: main-action
+  resource: malice
+  cost: 3
+  distanceKind: self
+# Until the end of their next turn: damage immunity 2 and 5 more damage with strikes. The
+# additional maneuver on their next turn is the table's.
+effects:
+  - target: { steps: [ability.after], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@effects.minotaur.bay'
+          state: { duration: "'next-end'" }
+          appliedBy: character.id

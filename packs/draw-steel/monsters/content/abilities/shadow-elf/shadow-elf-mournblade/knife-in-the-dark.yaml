@@ -1,0 +1,30 @@
+id: abilities.shadow-elf.shadow-elf-mournblade.knife-in-the-dark
+type: ability
+grantOnly: false
+tags:
+  - kw.melee
+  - kw.strike
+  - kw.weapon
+fields:
+  usage: main-action
+  kind: signature
+  distanceKind: melee
+  distance: 1
+  rollBonus: 3
+  t1Damage: 10
+  t1AddsChar: false
+  t2Damage: 15
+  t2AddsChar: false
+  t3Damage: 18
+  t3AddsChar: false
+# The mournblade is invisible to each target hit until the start of their next turn.
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@effects.shadow-elf.mournblade-unseen'
+          state: { duration: "'next-start'" }
+          appliedBy: character.id
+    when: flags.tier > 0

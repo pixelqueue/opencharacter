@@ -1,0 +1,41 @@
+id: abilities.wode-elf.wode-elf-druid.entangling-vines
+type: ability
+grantOnly: false
+tags:
+  - kw.area
+  - kw.magic
+  - kw.ranged
+fields:
+  usage: main-action
+  kind: signature
+  spendCost: 3
+  distanceKind: cube
+  distance: 3
+  within: 10
+  rollBonus: 2
+  t1Damage: 5
+  t1AddsChar: false
+  t1Move: pull
+  t1MoveDistance: 1
+  t2Damage: 8
+  t2AddsChar: false
+  t2Move: pull
+  t2MoveDistance: 3
+  t2Effect: effects.wode-elf.entangled
+  t2Duration: save
+  t2PotencyChar: might
+  t2PotencyValue: 1
+  t3Damage: 10
+  t3AddsChar: false
+  t3Move: pull
+  t3MoveDistance: 5
+  t3Effect: effects.wode-elf.entangled
+  t3Duration: save
+  t3PotencyChar: might
+  t3PotencyValue: 2
+# 3 Malice: the potency increases by 1 (the larger cube is the table's).
+effects:
+  - target: { rolls: [power-roll.ability], from: self, tally: potencyBonus }
+    op: add
+    value: 1
+    when: has(params.malice) && params.malice >= 3

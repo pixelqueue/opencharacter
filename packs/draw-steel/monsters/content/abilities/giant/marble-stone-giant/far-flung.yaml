@@ -1,0 +1,28 @@
+id: abilities.giant.marble-stone-giant.far-flung
+type: ability
+grantOnly: false
+tags:
+  - kw.melee
+  - kw.weapon
+fields:
+  usage: main-action
+  resource: malice
+  cost: 3
+  distanceKind: melee
+  distance: 1
+  rollBonus: 4
+  t1Move: push
+  t1MoveDistance: 7
+  t1MoveVertical: true
+  t2Move: push
+  t2MoveDistance: 10
+  t2MoveVertical: true
+  t3Move: push
+  t3MoveDistance: 12
+  t3MoveVertical: true
+# A double edge against a prone or grabbed target.
+effects:
+  - target: { rolls: [power-target], tally: edges, from: self }
+    op: add
+    value: 2
+    when: participant.conditions.prone || participant.conditions.grabbed

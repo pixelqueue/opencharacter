@@ -1,0 +1,12 @@
+# Psionic Barrier lost: the eye's damage immunity 15 is gone until the end of the round (this
+# entry ends when the next round starts).
+id: effects.xorannox-the-tyract.barrier-down
+type: effect
+effects:
+  - target: { steps: [round.start] }
+    op: changes
+    scope: applied
+    value:
+      changes:
+        - type: removeEffect
+          applied: { where: 'item.id == @effects.xorannox-the-tyract.barrier-down' }

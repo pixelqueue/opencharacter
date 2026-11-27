@@ -1,0 +1,17 @@
+# Imbue with Might: an edge on the creature's next strike, which ends it.
+id: effects.rival.imbued
+type: effect
+effects:
+  - target: { rolls: [power-roll.ability], tally: edges }
+    op: add
+    value: 1
+    scope: applied
+    when: "'kw.strike' in roll.item.tags"
+  - target: { steps: [ability.after] }
+    op: changes
+    scope: applied
+    value:
+      changes:
+        - type: removeEffect
+          applied: { where: 'item.id == @effects.rival.imbued' }
+    when: "'kw.strike' in action.item.tags"

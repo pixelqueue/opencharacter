@@ -1,0 +1,17 @@
+# Engulf: restrained (granted, with its rules) and 3 poison damage at the start of each of the
+# creature's turns (other creatures' turns are the table's), until freed (the table's: the sack
+# destroyed or the mound dead). Immunity to damage from outside the sack is the table's.
+id: effects.shambling-mound.engulfed
+type: effect
+grants:
+  - { item: conditions.restrained, scope: applied }
+effects:
+  - target: { steps: [turn.start] }
+    op: changes
+    scope: applied
+    value:
+      changes:
+        - type: adjust
+          field: stamina.current
+          by: -3
+          tags: [damage, damage.poison]

@@ -1,0 +1,57 @@
+display:
+  groups:
+    - { id: monster, priority: 0, visibility: primary, showWhen: sheet.monster }
+    - id: traits
+      kind: content
+      priority: 1
+      showWhen: sheet.monster
+      members: { type: trait }
+    - id: stat-block
+      kind: content
+      priority: 3
+      showWhen: sheet.monster
+      members: { type: monster }
+    - { id: director, priority: 0, visibility: primary, showWhen: sheet.director }
+    - id: malice-features
+      kind: content
+      priority: 1
+      showWhen: sheet.director
+      members: { type: malice }
+    - id: malice-actions
+      kind: actions
+      priority: 1
+      members: { type: action, where: "'malice' in item.tags || 'free-strike' in item.tags" }
+
+  fields:
+    sheet.monster: { hidden: true }
+    sheet.director: { hidden: true }
+    monster.organization: { groups: [monster], priority: 0, showWhen: sheet.monster }
+    monster.role:
+      { groups: [monster], priority: 0, showWhen: "sheet.monster && monster.role != 'none'" }
+    monster.ev: { groups: [monster], priority: 1, showWhen: sheet.monster }
+    monster.freeStrike: { groups: [monster], priority: 0, showWhen: sheet.monster }
+    monster.freeStrikeType:
+      {
+        groups: [monster],
+        priority: 2,
+        showWhen: "sheet.monster && monster.freeStrikeType != 'untyped'",
+      }
+    monster.endEffect: { groups: [monster], priority: 1, showWhen: monster.endEffect > 0 }
+    monster.sizeAdjustment: { hidden: true }
+    monster.oneStamina:
+      { groups: [monster], priority: 2, showWhen: "monster.organization == 'minion'" }
+    monster.squad: { groups: [monster], priority: 1, showWhen: "monster.organization == 'minion'" }
+    monster.alive:
+      {
+        groups: [summary, monster],
+        priority: 0,
+        showWhen: "monster.organization == 'minion'",
+        with: [{ field: monster.squad, as: max }],
+      }
+    villain.used: { groups: [monster], priority: 3, showWhen: size(villain.used) > 0 }
+    malice:
+      { groups: [summary, director], priority: 0, visibility: primary, showWhen: sheet.director }
+    director.heroes: { groups: [director], priority: 1, showWhen: sheet.director }
+    director.victories: { groups: [director], priority: 1, showWhen: sheet.director }
+    villain.round:
+      { groups: [director], priority: 2, showWhen: sheet.director && villain.round > 0 }

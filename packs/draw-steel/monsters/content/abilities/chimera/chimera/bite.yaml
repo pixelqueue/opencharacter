@@ -1,0 +1,25 @@
+id: abilities.chimera.chimera.bite
+type: ability
+grantOnly: false
+tags:
+  - kw.melee
+  - kw.strike
+  - kw.weapon
+fields:
+  usage: main-action
+  kind: signature
+  distanceKind: melee
+  distance: 2
+  rollBonus: 3
+  t1Damage: 9
+  t1AddsChar: false
+  t2Damage: 13
+  t2AddsChar: false
+  t3Damage: 16
+  t3AddsChar: false
+# An edge (or a double edge) on the roll: 3 more damage.
+effects:
+  - target: { rolls: [damage], from: self }
+    op: add
+    value: 3
+    when: min(2, steps.tier.tallies.edges) > min(2, steps.tier.tallies.banes)

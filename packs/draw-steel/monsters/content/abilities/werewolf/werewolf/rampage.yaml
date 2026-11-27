@@ -1,0 +1,43 @@
+id: abilities.werewolf.werewolf.rampage
+type: ability
+grantOnly: false
+tags:
+  - kw.area
+  - kw.weapon
+fields:
+  usage: no-action
+  kind: villain
+  resource: villain-action
+  cost: 3
+  distanceKind: burst
+  distance: 2
+  rollBonus: 3
+  t1Damage: 5
+  t1AddsChar: false
+  t1Condition: conditions.bleeding
+  t1Duration: save
+  t1PotencyChar: might
+  t1PotencyValue: 1
+  t2Damage: 8
+  t2AddsChar: false
+  t2Condition: conditions.bleeding
+  t2Duration: save
+  t2PotencyChar: might
+  t2PotencyValue: 2
+  t3Damage: 11
+  t3AddsChar: false
+  t3Condition: conditions.bleeding
+  t3Duration: save
+  t3PotencyChar: might
+  t3PotencyValue: 3
+effects:
+  # Rage: 2, 4 or 8 by tier (not a strike).
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@effects.werewolf.rage'
+          state: { amount: '[2, 4, 8][flags.tier - 1]' }
+          appliedBy: character.id
+    when: 'flags.tier > 0 && [2, 4, 8][flags.tier - 1] > 0'

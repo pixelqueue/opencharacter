@@ -1,0 +1,46 @@
+# A target with P < 2 whom the damage leaves winded is reduced to 1 Stamina. The damage taken is
+# the sonic damage after weakness and immunity, as the target's sheet applies them (the higher of
+# `all` and sonic for each), less what temporary Stamina absorbs.
+id: abilities.undead.ghost.awful-wail
+type: ability
+grantOnly: false
+tags:
+  - kw.area
+  - kw.magic
+fields:
+  usage: no-action
+  kind: villain
+  resource: villain-action
+  cost: 3
+  distanceKind: burst
+  distance: 5
+  rollBonus: 3
+  damageType: sonic
+  t1Damage: 3
+  t1AddsChar: false
+  t2Damage: 5
+  t2AddsChar: false
+  t3Damage: 8
+  t3AddsChar: false
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - { type: set, field: stamina.current, value: 1 }
+    when: >-
+      flags.tier > 0
+        && participant.stamina.current
+          - max(0, (participant.immunity.sonicAll ? 0
+            : max(0, steps.damage.total
+              + max(participant.weakness.all, participant.weakness.sonic)
+              - max(participant.immunity.all, participant.immunity.sonic)))
+            - participant.stamina.temp) <= floor(participant.stamina.max / 2)
+        && participant.stamina.current
+          - max(0, (participant.immunity.sonicAll ? 0
+            : max(0, steps.damage.total
+              + max(participant.weakness.all, participant.weakness.sonic)
+              - max(participant.immunity.all, participant.immunity.sonic)))
+            - participant.stamina.temp) > 1
+        && participant.characteristics.presence.score + participant.potency.resistBonus.presence
+          < 2 + (has(steps.roll) ? steps.roll.tallies.potencyBonus : 0)

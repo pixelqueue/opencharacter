@@ -1,0 +1,55 @@
+# Rival Ancestries (Draw Steel: Monsters, "Rivals"): a rival's stat block may take an ancestry,
+# one `rivalAncestry` copy on the sheet. It adds its keyword (the item's `creature.*` tag), sets
+# the rival's size, adds its stability adjustment and grants its ancestral trait. The monster
+# start offers one for a rival (the random start draws one); `give-rival-ancestry` gives one
+# later.
+contentTypes:
+  rivalAncestry:
+    carried: false
+    copies: { max: 1 }
+    fields:
+      size: { type: enum, values: [1t, 1s, 1m, 1l, '2', '3', '4', '5'], required: true }
+      # Added to the stat block's stability; the sheet's stability is at least 0.
+      stability: { type: integer, min: -5, max: 5, default: 0 }
+    effects:
+      - { id: size, target: monster.sizeAdjustment, op: set, value: item.size }
+      - { id: stability, target: stability, op: add, value: item.stability }
+
+fields:
+  # The sheet holds a rival's stat block and no ancestry yet.
+  rival.ancestryOpen:
+    type: boolean
+    formula: >-
+      countCopies(copy.type == 'monster' && 'creature.rival' in copy.tags) > 0
+        && countCopies(copy.type == 'rivalAncestry') == 0
+  # Glowing Recovery: the round it was last used (0: not this encounter).
+  rival.glowingRecoveryRound: { type: integer, input: true, default: 0, min: 0 }
+
+actions:
+  # The Director gives a rival an ancestry from the Rival Ancestries table.
+  - id: give-rival-ancestry
+    available: rival.ancestryOpen
+    params:
+      random: { type: boolean, default: false }
+    results: [given]
+    steps:
+      - id: ancestry
+        kind: choice
+        random: params.random
+        options: { content: { type: rivalAncestry } }
+        recommend: '@rival-ancestries.human'
+        changes:
+          - type: addItem
+            entry: { item: picked.id }
+      - { id: done, kind: outcome, result: "'given'" }
+
+display:
+  groups:
+    - id: rival-ancestry
+      kind: content
+      priority: 3
+      showWhen: "countCopies(copy.type == 'rivalAncestry') > 0"
+      members: { type: rivalAncestry }
+  fields:
+    rival.ancestryOpen: { hidden: true }
+    rival.glowingRecoveryRound: { hidden: true }

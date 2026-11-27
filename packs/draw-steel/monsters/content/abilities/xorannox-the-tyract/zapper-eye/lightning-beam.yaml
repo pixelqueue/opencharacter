@@ -1,0 +1,29 @@
+id: abilities.xorannox-the-tyract.zapper-eye.lightning-beam
+type: ability
+grantOnly: false
+tags:
+  - kw.area
+  - kw.psionic
+fields:
+  usage: main-action
+  kind: signature
+  distanceKind: line
+  distance: 10
+  areaWidth: 1
+  within: 1
+  rollBonus: 4
+  damageType: lightning
+  t1Damage: 6
+  t1AddsChar: false
+  t2Damage: 10
+  t2AddsChar: false
+  t3Damage: 13
+  t3AddsChar: false
+# Each target loses all their surges.
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - { type: set, field: surges.current, value: 0 }
+    when: flags.tier > 0

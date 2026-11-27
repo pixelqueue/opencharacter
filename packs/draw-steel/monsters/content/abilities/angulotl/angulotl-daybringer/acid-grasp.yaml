@@ -1,0 +1,44 @@
+id: abilities.angulotl.angulotl-daybringer.acid-grasp
+type: ability
+grantOnly: false
+tags:
+  - kw.melee
+  - kw.strike
+  - kw.weapon
+fields:
+  usage: main-action
+  kind: signature
+  spendCost: 1
+  distanceKind: melee
+  distance: 1
+  rollBonus: 3
+  damageType: acid
+  t1Damage: 7
+  t1AddsChar: false
+  t1Condition: conditions.dazed
+  t1Duration: save
+  t1PotencyChar: agility
+  t1PotencyValue: 1
+  t2Damage: 10
+  t2AddsChar: false
+  t2Condition: conditions.dazed
+  t2Duration: save
+  t2PotencyChar: agility
+  t2PotencyValue: 2
+  t3Damage: 13
+  t3AddsChar: false
+  t3Condition: conditions.dazed
+  t3Duration: save
+  t3PotencyChar: agility
+  t3PotencyValue: 3
+# The target's next strike against the daybringer costs them 4 acid damage. The 1 Malice jump is
+# the table's.
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@effects.angulotl.acid-grasp'
+          appliedBy: character.id
+    when: flags.tier > 0

@@ -1,0 +1,17 @@
+# Imbue with Power: a double edge on the creature's next strike, which ends it.
+id: effects.rival.imbued-double
+type: effect
+effects:
+  - target: { rolls: [power-roll.ability], tally: edges }
+    op: add
+    value: 2
+    scope: applied
+    when: "'kw.strike' in roll.item.tags"
+  - target: { steps: [ability.after] }
+    op: changes
+    scope: applied
+    value:
+      changes:
+        - type: removeEffect
+          applied: { where: 'item.id == @effects.rival.imbued-double' }
+    when: "'kw.strike' in action.item.tags"

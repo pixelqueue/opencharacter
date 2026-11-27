@@ -1,0 +1,36 @@
+# With an edge or a double edge (on that target's roll), the target can't communicate until the end
+# of their next turn (`own-next-end`).
+id: abilities.hobgoblin.hobgoblin-smokebinder.choking-bolt
+type: ability
+grantOnly: false
+tags:
+  - kw.magic
+  - kw.ranged
+  - kw.strike
+fields:
+  usage: main-action
+  kind: signature
+  distanceKind: ranged
+  distance: 5
+  rollBonus: 3
+  damageType: fire
+  t1Damage: 9
+  t1AddsChar: false
+  t2Damage: 14
+  t2AddsChar: false
+  t3Damage: 17
+  t3AddsChar: false
+  t3Condition: conditions.slowed
+  t3Duration: save
+  t3PotencyChar: reason
+  t3PotencyValue: 3
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@effects.hobgoblin.cant-communicate'
+          state: { duration: "'own-next-end'" }
+          appliedBy: character.id
+    when: flags.tier > 0 && steps.tier.tallies.edges > steps.tier.tallies.banes

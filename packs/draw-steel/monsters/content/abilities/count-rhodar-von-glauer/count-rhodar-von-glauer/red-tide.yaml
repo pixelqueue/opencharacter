@@ -1,0 +1,42 @@
+# Blood soaked: Rhodar has a double edge on abilities used against the creature: the effect's
+# edge and this rule's second (on all his power rolls).
+id: abilities.count-rhodar-von-glauer.count-rhodar-von-glauer.red-tide
+type: ability
+grantOnly: false
+tags:
+  - kw.area
+  - kw.magic
+  - kw.ranged
+fields:
+  usage: no-action
+  kind: villain
+  resource: villain-action
+  cost: 1
+  distanceKind: cube
+  distance: 8
+  within: 15
+  rollBonus: 5
+  damageType: corruption
+  t1Damage: 8
+  t1AddsChar: false
+  t1Effect: effects.count-rhodar-von-glauer.blood-soaked
+  t1Duration: save
+  t1PotencyChar: agility
+  t1PotencyValue: 4
+  t2Damage: 13
+  t2AddsChar: false
+  t2Effect: effects.count-rhodar-von-glauer.blood-soaked
+  t2Duration: save
+  t2PotencyChar: agility
+  t2PotencyValue: 5
+  t3Damage: 16
+  t3AddsChar: false
+  t3Effect: effects.count-rhodar-von-glauer.blood-soaked
+  t3Duration: encounter
+  t3PotencyChar: agility
+  t3PotencyValue: 6
+effects:
+  - target: { rolls: [power-target], tally: edges }
+    op: add
+    value: 1
+    when: character.id in participant.powerRoll.edgesAgainstFor

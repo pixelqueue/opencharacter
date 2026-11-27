@@ -1,0 +1,36 @@
+# The olothec's Malice feature as an ability every olothec holds (`malice-feature`), paid from the
+# Director's sheet. While a target is grabbed this way, the olothec has a double edge on strikes
+# against them (a rule on all the olothec's strikes against a creature they grab). The pull, the
+# blocked saving throws and the slimed, transformed or devolved target are the table's.
+id: abilities.olothec.malice.writhing-envelopment
+type: ability
+grantOnly: false
+tags: [malice-feature, creature.olothec, kw.melee, kw.strike, kw.weapon]
+fields:
+  usage: main-action
+  resource: malice
+  cost: 4
+  distanceKind: melee
+  distance: 3
+  rollBonus: 4
+  damageType: psychic
+  t1Damage: 11
+  t1AddsChar: false
+  t1Condition: conditions.grabbed
+  t1PotencyChar: agility
+  t1PotencyValue: 2
+  t2Damage: 17
+  t2AddsChar: false
+  t2Condition: conditions.grabbed
+  t2PotencyChar: agility
+  t2PotencyValue: 3
+  t3Damage: 20
+  t3AddsChar: false
+  t3Condition: conditions.grabbed
+  t3PotencyChar: agility
+  t3PotencyValue: 4
+effects:
+  - target: { rolls: [power-target], tally: edges }
+    op: add
+    value: 2
+    when: "'kw.strike' in roll.item.tags && character.id in participant.conditions.grabbedBy"

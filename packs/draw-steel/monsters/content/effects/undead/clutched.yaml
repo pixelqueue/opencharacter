@@ -1,0 +1,24 @@
+# Clobber and Clutch: a creature who starts their turn grabbed by the zombie who applied it takes 2
+# corruption damage. Ends at a turn start when that zombie no longer grabs them. The hunger after 5
+# or more corruption damage this way is the table's.
+id: effects.undead.clutched
+type: effect
+effects:
+  - target: { steps: [turn.start] }
+    op: changes
+    scope: applied
+    value:
+      changes:
+        - type: adjust
+          field: stamina.current
+          by: -2
+          tags: [damage, damage.corruption]
+    when: self.appliedBy in conditions.grabbedBy
+  - target: { steps: [turn.start] }
+    op: changes
+    scope: applied
+    value:
+      changes:
+        - type: removeEffect
+          applied: { where: 'item.id == @effects.undead.clutched' }
+    when: '!(self.appliedBy in conditions.grabbedBy)'

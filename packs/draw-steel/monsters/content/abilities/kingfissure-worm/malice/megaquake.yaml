@@ -1,0 +1,43 @@
+# The kingfissure worm's Malice feature as an ability every worm holds (`malice-feature`), paid
+# from the Director's sheet. Each target is quaked until the end of the next round (any tier).
+id: abilities.kingfissure-worm.malice.megaquake
+type: ability
+grantOnly: false
+tags: [malice-feature, creature.worm, kw.area, kw.weapon]
+fields:
+  usage: main-action
+  resource: malice
+  cost: 7
+  distanceKind: burst
+  distance: 5
+  rollBonus: 5
+  t1Damage: 8
+  t1AddsChar: false
+  t1Move: slide
+  t1MoveDistance: 5
+  t1MovePotency: true
+  t1PotencyChar: might
+  t1PotencyValue: 3
+  t2Damage: 13
+  t2AddsChar: false
+  t2Move: slide
+  t2MoveDistance: 5
+  t2MovePotency: true
+  t2PotencyChar: might
+  t2PotencyValue: 4
+  t3Damage: 17
+  t3AddsChar: false
+  t3Move: slide
+  t3MoveDistance: 5
+  t3MovePotency: true
+  t3PotencyChar: might
+  t3PotencyValue: 5
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@effects.kingfissure-worm.quaked'
+          state: { duration: "'until'" }
+          appliedBy: character.id

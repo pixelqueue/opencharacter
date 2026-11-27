@@ -1,0 +1,31 @@
+id: abilities.lord-syuul.lord-syuul.mindshatter
+type: ability
+grantOnly: false
+tags:
+  - kw.area
+  - kw.psionic
+fields:
+  usage: no-action
+  kind: villain
+  resource: villain-action
+  cost: 3
+  distanceKind: burst
+  distance: 5
+  rollBonus: 4
+  damageType: psychic
+  t1Damage: 7
+  t1AddsChar: false
+  t2Damage: 13
+  t2AddsChar: false
+  t3Damage: 16
+  t3AddsChar: false
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@effects.lord-syuul.shattered'
+          state: { duration: "'encounter'" }
+          appliedBy: character.id
+    when: flags.tier > 0

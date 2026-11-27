@@ -1,0 +1,48 @@
+id: abilities.werewolf.werewolf.accursed-bite
+type: ability
+grantOnly: false
+tags:
+  - kw.charge
+  - kw.melee
+  - kw.strike
+  - kw.weapon
+fields:
+  usage: main-action
+  kind: signature
+  spendCost: 2
+  distanceKind: melee
+  distance: 1
+  rollBonus: 3
+  t1Damage: 9
+  t1AddsChar: false
+  t2Damage: 13
+  t2AddsChar: false
+  t3Damage: 16
+  t3AddsChar: false
+effects:
+  # Rage: 2, 4 or 5 by tier, 1 more in wolf form.
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@effects.werewolf.rage'
+          state:
+            {
+              amount: '[2, 4, 5][flags.tier - 1] + (@effects.werewolf.full-wolf in effects.active ? 1 : 0)',
+            }
+          appliedBy: character.id
+    when: 'flags.tier > 0 && [2, 4, 5][flags.tier - 1] + (@effects.werewolf.full-wolf in effects.active ? 1 : 0) > 0'
+  # 2 Malice: lycanthropy if the target has P < 0 (1 higher in wolf form). Its growing potency
+  # against a target it failed on is the table's.
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@effects.werewolf.lycanthropy'
+          appliedBy: character.id
+    when: >-
+      flags.tier > 0 && has(params.malice) && params.malice >= 2
+        && participant.characteristics.presence.score + participant.potency.resistBonus.presence
+          < 0 + steps.roll.tallies.potencyBonus + (@effects.werewolf.full-wolf in effects.active ? 1 : 0)

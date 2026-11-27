@@ -1,0 +1,15 @@
+id: abilities.troll.troll-glutton.food-frenzy
+type: ability
+grantOnly: false
+fields:
+  usage: maneuver
+  distanceKind: self
+effects:
+  - target: { steps: [ability.after], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@effects.troll.food-frenzy'
+          state: { duration: "'next-start'" }
+          appliedBy: character.id

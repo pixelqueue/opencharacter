@@ -1,0 +1,39 @@
+# Tiers 2 and 3: poison weakness 3 or 5 until the end of the encounter.
+id: abilities.shambling-mound.shambling-mound.ravenous-overgrowth
+type: ability
+grantOnly: false
+tags:
+  - kw.area
+  - kw.weapon
+fields:
+  usage: no-action
+  kind: villain
+  resource: villain-action
+  cost: 1
+  distanceKind: line
+  distance: 10
+  areaWidth: 2
+  within: 1
+  rollBonus: 4
+  t1Damage: 7
+  t1AddsChar: false
+  t1Move: pull
+  t1MoveDistance: 3
+  t2Damage: 12
+  t2AddsChar: false
+  t2Move: pull
+  t2MoveDistance: 4
+  t3Damage: 15
+  t3AddsChar: false
+  t3Move: pull
+  t3MoveDistance: 6
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@effects.shambling-mound.overgrown'
+          state: { amount: '[0, 3, 5][flags.tier - 1]', duration: "'encounter'" }
+          appliedBy: character.id
+    when: flags.tier >= 2

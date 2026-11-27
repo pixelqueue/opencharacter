@@ -1,0 +1,19 @@
+id: abilities.draconian.dorzinuuth-the-base.wings-of-second-wind
+type: ability
+grantOnly: false
+tags:
+  - kw.area
+fields:
+  usage: no-action
+  kind: villain
+  resource: villain-action
+  cost: 2
+  distanceKind: burst
+  distance: 10
+# Each target regains 10 Stamina (the shift or flight is the table's).
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - { type: adjust, field: stamina.current, by: 10, tags: [healing] }

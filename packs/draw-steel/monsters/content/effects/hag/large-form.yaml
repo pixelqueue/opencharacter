@@ -1,0 +1,13 @@
+# Shapeshifter's 5 Malice: size 2, and melee abilities deal an extra 4 damage (of the ability's
+# type).
+id: effects.hag.large-form
+type: effect
+effects:
+  - { target: size.form, op: set, value: "'2'", scope: applied }
+  - target: { rolls: [damage] }
+    op: add
+    value: 4
+    scope: applied
+    tags:
+      [{ formula: "roll.item.damageType == 'untyped' ? [] : ['damage.' + roll.item.damageType]" }]
+    when: "'kw.melee' in roll.item.tags"

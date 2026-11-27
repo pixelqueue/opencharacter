@@ -1,0 +1,31 @@
+# A target grabbed this way takes 2 damage at the start of each of the bruxer's turns
+# (`effects.radenwight.lockjaw`).
+id: abilities.radenwight.radenwight-bruxer.lockjaw
+type: ability
+grantOnly: false
+tags:
+  - kw.melee
+  - kw.strike
+  - kw.weapon
+fields:
+  usage: main-action
+  kind: signature
+  distanceKind: melee
+  distance: 1
+  rollBonus: 2
+  t1Damage: 6
+  t1AddsChar: false
+  t2Damage: 9
+  t2AddsChar: false
+  t3Damage: 12
+  t3AddsChar: false
+  t3Condition: conditions.grabbed
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@effects.radenwight.lockjaw'
+          appliedBy: character.id
+    when: flags.tier == 3

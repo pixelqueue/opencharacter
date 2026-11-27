@@ -1,0 +1,11 @@
+# Food Frenzy: a double edge on the glutton's strikes, and strikes against the glutton gain an
+# edge.
+id: effects.troll.food-frenzy
+type: effect
+effects:
+  - target: { rolls: [power-roll.ability], tally: edges }
+    op: add
+    value: 2
+    scope: applied
+    when: "'kw.strike' in roll.item.tags"
+  - { target: powerRoll.strikeEdgesAgainst, op: add, value: 1, scope: applied }

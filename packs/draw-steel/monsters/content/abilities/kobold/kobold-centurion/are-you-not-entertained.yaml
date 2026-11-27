@@ -1,0 +1,27 @@
+# The allies' free strikes are the table's.
+id: abilities.kobold.kobold-centurion.are-you-not-entertained
+type: ability
+grantOnly: false
+tags:
+  - kw.area
+fields:
+  usage: no-action
+  kind: villain
+  resource: villain-action
+  cost: 3
+  distanceKind: burst
+  distance: 10
+  t1Condition: conditions.taunted
+  t1Duration: save
+  t1PotencyChar: presence
+  t1PotencyValue: 2
+# The centurion has damage immunity 2 until the end of the encounter.
+effects:
+  - target: { steps: [ability.after], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@effects.kobold.centurion-immunity'
+          state: { duration: "'encounter'" }
+          appliedBy: character.id

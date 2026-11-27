@@ -1,0 +1,24 @@
+# Empyrean Boon: a double edge on the creature's next strike, which deals 10 more holy damage; the
+# strike ends it (its vertical slide is the table's).
+id: effects.rival.empyrean-boon
+type: effect
+effects:
+  - target: { rolls: [power-roll.ability], tally: edges }
+    op: add
+    value: 2
+    scope: applied
+    when: "'kw.strike' in roll.item.tags"
+  - target: { rolls: [damage] }
+    op: add
+    value: 10
+    tags: [damage.holy]
+    scope: applied
+    when: "'kw.strike' in roll.item.tags"
+  - target: { steps: [ability.after] }
+    op: changes
+    scope: applied
+    value:
+      changes:
+        - type: removeEffect
+          applied: { where: 'item.id == @effects.rival.empyrean-boon' }
+    when: "'kw.strike' in action.item.tags"

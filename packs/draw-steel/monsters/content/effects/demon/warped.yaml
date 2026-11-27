@@ -1,0 +1,24 @@
+# Demonwarp Tears: a double bane on power rolls with a characteristic above 0, a double edge with
+# one below 0. An ability roll names its characteristic in `flags.char`, a test in its
+# `test.<characteristic>` tag.
+id: effects.demon.warped
+type: effect
+effects:
+  - target: { rolls: [power-roll], tally: banes }
+    op: add
+    value: 2
+    scope: applied
+    when: >-
+      has(flags.char)
+        ? flags.char != 'none' && fieldOf('characteristics.{characteristic}.score', flags.char) > 0
+        : countList(keysOf('characteristic'), ('test.' + x) in roll.tags
+          && fieldOf('characteristics.{characteristic}.score', x) > 0) > 0
+  - target: { rolls: [power-roll], tally: edges }
+    op: add
+    value: 2
+    scope: applied
+    when: >-
+      has(flags.char)
+        ? flags.char != 'none' && fieldOf('characteristics.{characteristic}.score', flags.char) < 0
+        : countList(keysOf('characteristic'), ('test.' + x) in roll.tags
+          && fieldOf('characteristics.{characteristic}.score', x) < 0) > 0

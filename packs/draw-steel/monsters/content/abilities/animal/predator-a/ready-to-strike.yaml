@@ -1,0 +1,14 @@
+id: abilities.animal.predator-a.ready-to-strike
+type: ability
+grantOnly: false
+fields:
+  usage: maneuver
+  distanceKind: self
+effects:
+  - target: { steps: [ability.after], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@effects.animal.ready-to-strike'
+          appliedBy: character.id

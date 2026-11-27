@@ -1,0 +1,29 @@
+id: abilities.wyvern.wyvern-predator.tail-sweep
+type: ability
+grantOnly: false
+tags:
+  - kw.area
+  - kw.weapon
+fields:
+  usage: main-action
+  spendCost: 5
+  distanceKind: line
+  distance: 6
+  areaWidth: 3
+  within: 1
+  rollBonus: 3
+  t1Damage: 6
+  t1AddsChar: false
+  t2Damage: 11
+  t2AddsChar: false
+  t3Damage: 14
+  t3AddsChar: false
+# A < 1/2/3: 3 acid damage more. The 5 Malice second use is the table's.
+effects:
+  - target: { rolls: [damage], from: self }
+    op: add
+    value: 3
+    tags: [damage.acid]
+    when: >-
+      flags.tier > 0 && participant.characteristics.agility.score + participant.potency.resistBonus.agility
+        < flags.tier + (has(steps.roll) ? steps.roll.tallies.potencyBonus : 0)

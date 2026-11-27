@@ -1,0 +1,18 @@
+id: abilities.retainer.role-brute.big-windup
+type: ability
+grantOnly: false
+fields:
+  usage: maneuver
+  level: 4
+  distanceKind: self
+# The edge on strikes against the retainer until the start of their next turn; the 2 surges then
+# and the extra forced movement that turn are the table's.
+effects:
+  - target: { steps: [ability.after], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@effects.common.strike-edge-against'
+          state: { duration: "'next-start'" }
+          appliedBy: character.id

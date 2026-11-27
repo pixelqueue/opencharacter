@@ -1,0 +1,34 @@
+# Tier 3's passing of an effect from an ally to a target is the table's.
+id: abilities.war-dog.war-dog-tormentite.vortex-of-pain
+type: ability
+grantOnly: false
+tags:
+  - kw.area
+  - kw.magic
+  - kw.ranged
+fields:
+  usage: main-action
+  resource: malice
+  cost: 3
+  distanceKind: cube
+  distance: 4
+  within: 10
+  rollBonus: 3
+  damageType: corruption
+  t1Damage: 2
+  t1AddsChar: false
+  t2Damage: 4
+  t2AddsChar: false
+  t3Damage: 5
+  t3AddsChar: false
+effects:
+  # The tormentite regains 2 Stamina for each creature targeted.
+  - target: { steps: [ability.after], from: self }
+    op: changes
+    value:
+      changes:
+        - type: adjust
+          field: stamina.current
+          by: 2 * size(participants.target)
+          tags: [healing]
+    when: size(participants.target) > 0

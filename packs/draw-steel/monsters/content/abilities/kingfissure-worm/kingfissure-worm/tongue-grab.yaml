@@ -1,0 +1,37 @@
+id: abilities.kingfissure-worm.kingfissure-worm.tongue-grab
+type: ability
+grantOnly: false
+tags:
+  - kw.melee
+  - kw.strike
+  - kw.weapon
+fields:
+  usage: main-action
+  kind: signature
+  distanceKind: melee
+  distance: 5
+  rollBonus: 5
+  t1Damage: 13
+  t1AddsChar: false
+  t1Condition: conditions.grabbed
+  t1PotencyChar: might
+  t1PotencyValue: 3
+  t2Damage: 18
+  t2AddsChar: false
+  t2Condition: conditions.grabbed
+  t2PotencyChar: might
+  t2PotencyValue: 4
+  t3Damage: 22
+  t3AddsChar: false
+  t3Condition: conditions.grabbed
+  t3PotencyChar: might
+  t3PotencyValue: 5
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@effects.common.escape-grab-bane'
+          appliedBy: character.id
+    when: flags.tier == 3 && flags.landed

@@ -1,0 +1,39 @@
+id: abilities.war-dog.war-dog-prismite.grasping-tonguetacles
+type: ability
+grantOnly: false
+tags:
+  - kw.area
+  - kw.psionic
+  - kw.weapon
+fields:
+  usage: main-action
+  kind: signature
+  distanceKind: burst
+  distance: 2
+  rollBonus: 4
+  damageType: psychic
+  t1Damage: 3
+  t1AddsChar: false
+  t2Damage: 6
+  t2AddsChar: false
+  t3Damage: 8
+  t3AddsChar: false
+  t2Condition: conditions.grabbed
+  t2PotencyChar: reason
+  t2PotencyValue: 3
+  t2Move: pull
+  t2MoveDistance: 2
+  t3Condition: conditions.grabbed
+  t3PotencyChar: reason
+  t3PotencyValue: 4
+  t3Move: pull
+  t3MoveDistance: 2
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@effects.common.escape-grab-bane'
+          appliedBy: character.id
+    when: flags.tier == 3 && flags.landed

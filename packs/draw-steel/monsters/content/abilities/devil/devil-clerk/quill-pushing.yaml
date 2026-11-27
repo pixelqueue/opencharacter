@@ -1,0 +1,41 @@
+# A target adjacent to two or more clerks (`flanked`, the targets' IDs: the Director picks them)
+# is taunted until the end of their next turn (`own-next-end`, the clerk its source).
+id: abilities.devil.devil-clerk.quill-pushing
+type: ability
+grantOnly: false
+tags:
+  - kw.melee
+  - kw.strike
+  - kw.weapon
+fields:
+  usage: main-action
+  kind: signature
+  distanceKind: melee
+  distance: 1
+  rollBonus: 3
+  t1Damage: 3
+  t1AddsChar: false
+  t1Move: push
+  t1MoveDistance: 1
+  t2Damage: 6
+  t2AddsChar: false
+  t2Move: push
+  t2MoveDistance: 2
+  t3Damage: 7
+  t3AddsChar: false
+  t3Move: push
+  t3MoveDistance: 3
+effects:
+  - target: { actions: [ability], from: self }
+    op: params
+    value:
+      flanked: { type: set, of: string, default: [] }
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@conditions.taunted'
+          state: { duration: "'own-next-end'" }
+          appliedBy: character.id
+    when: flags.tier > 0 && participant.id in params.flanked

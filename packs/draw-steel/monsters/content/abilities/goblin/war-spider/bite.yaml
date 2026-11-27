@@ -1,0 +1,39 @@
+id: abilities.goblin.war-spider.bite
+type: ability
+grantOnly: false
+tags:
+  - kw.melee
+  - kw.strike
+  - kw.weapon
+fields:
+  usage: main-action
+  kind: signature
+  spendCost: 2
+  distanceKind: melee
+  distance: 1
+  rollBonus: 2
+  damageType: poison
+  t1Damage: 7
+  t1AddsChar: false
+  t2Damage: 11
+  t2AddsChar: false
+  t3Damage: 14
+  t3AddsChar: false
+  t3Condition: conditions.weakened
+  t3Duration: save
+  t3PotencyChar: might
+  t3PotencyValue: 2
+# 2 Malice: weakened (save ends) on any tier, if the target has M < 3.
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@conditions.weakened'
+          state: { duration: "'save'" }
+          appliedBy: character.id
+    when: >-
+      flags.tier > 0 && has(params.malice) && params.malice >= 2
+        && participant.characteristics.might.score + participant.potency.resistBonus.might
+          < 3 + (has(steps.roll) ? steps.roll.tallies.potencyBonus : 0)

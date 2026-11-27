@@ -1,0 +1,49 @@
+# The rivals' Malice feature as an ability every rival holds (`malice-feature`): 5 Malice, paid
+# from the Director's sheet. The damage type and condition are one pick (`loot`). Each target makes
+# an Agility test in the ability's own hand-off (the tier fields stay empty), and the test's tier
+# lands its damage, typed by the pick, and the condition: save ends on tier 1, EoT on tier 2. The
+# area (a 5 x 1 line within 1 or a 3 cube within 10) is the table's.
+id: abilities.rival.malice.check-out-our-loot
+type: ability
+grantOnly: false
+tags: [malice-feature, creature.rival, kw.area, target-test]
+fields:
+  usage: no-action
+  resource: malice
+  cost: 5
+  distanceKind: cube
+  distance: 3
+  within: 10
+effects:
+  - target: { actions: [ability], from: self }
+    op: params
+    value:
+      loot:
+        {
+          type: enum,
+          values: [sonic-dazed, poison-weakened, fire-frightened],
+          default: sonic-dazed,
+        }
+  - target: { steps: [ability.hit], from: self }
+    op: action
+    value:
+      id: loot-test
+      use: test
+      as: participant
+      params: { characteristic: "'agility'" }
+      changes:
+        - type: adjust
+          field: stamina.current
+          by: '-[11, 8, 5][min(3, max(1, run.data.tier)) - 1]'
+          tags:
+            - damage
+            - formula: >-
+                params.loot == 'poison-weakened' ? 'damage.poison'
+                  : params.loot == 'fire-frightened' ? 'damage.fire' : 'damage.sonic'
+        - type: applyEffect
+          when: run.data.tier <= 2
+          source: >-
+            params.loot == 'poison-weakened' ? @conditions.weakened
+              : params.loot == 'fire-frightened' ? @conditions.frightened : @conditions.dazed
+          state: { duration: "run.data.tier <= 1 ? 'save' : 'eot'" }
+          appliedBy: character.id

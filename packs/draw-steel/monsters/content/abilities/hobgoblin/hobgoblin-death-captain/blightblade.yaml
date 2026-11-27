@@ -1,0 +1,33 @@
+# Each tier: the next strike against the target has a double edge (the shared effect; the strike
+# ends it). The 3 Malice signature ability of an adjacent ally is the table's.
+id: abilities.hobgoblin.hobgoblin-death-captain.blightblade
+type: ability
+grantOnly: false
+tags:
+  - kw.magic
+  - kw.melee
+  - kw.strike
+  - kw.weapon
+fields:
+  usage: main-action
+  kind: signature
+  spendCost: 3
+  distanceKind: melee
+  distance: 1
+  rollBonus: 3
+  t1Damage: 8
+  t1AddsChar: false
+  t1Effect: effects.common.next-strike-double-edge-against
+  t2Damage: 8
+  t2AddsChar: false
+  t2Effect: effects.common.next-strike-double-edge-against
+  t3Damage: 8
+  t3AddsChar: false
+  t3Effect: effects.common.next-strike-double-edge-against
+# Tiers 2 and 3: 4 or 7 corruption damage besides.
+effects:
+  - target: { rolls: [damage], from: self }
+    op: add
+    value: '[0, 4, 7][flags.tier - 1]'
+    tags: [damage.corruption]
+    when: flags.tier >= 2

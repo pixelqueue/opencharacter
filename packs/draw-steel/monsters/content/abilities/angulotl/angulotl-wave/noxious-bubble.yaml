@@ -1,0 +1,29 @@
+# The targets are the enemies adjacent to the bubble when it bursts. A target's test lands one
+# condition or effect per tier: tier 1's weakened lands, its wet is the table's.
+id: abilities.angulotl.angulotl-wave.noxious-bubble
+type: ability
+grantOnly: false
+tags:
+  - kw.area
+  - kw.magic
+  - kw.ranged
+  - target-test
+  - target-test.might
+fields:
+  usage: main-action
+  resource: malice
+  cost: 2
+  distanceKind: special
+  damageType: poison
+  t1Damage: 3
+  t1Condition: conditions.weakened
+  t1Duration: save
+  t1AddsChar: false
+  t2Damage: 2
+  t2Effect: effects.angulotl.wet
+  t2Duration: save
+  t2AddsChar: false
+  t3Damage: 1
+  t3Effect: effects.angulotl.wet
+  t3Duration: eot
+  t3AddsChar: false

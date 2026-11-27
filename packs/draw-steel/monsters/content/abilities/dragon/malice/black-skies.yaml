@@ -1,0 +1,21 @@
+# The omen dragon's Malice feature as an ability (`malice-feature`), paid from the Director's
+# sheet. No creature keyword (every dragon shares `creature.dragon`): its own tag, which the omen
+# dragon's `maliceFrom` names.
+id: abilities.dragon.malice.black-skies
+type: ability
+grantOnly: false
+tags: [malice-feature, malice-feature.omen-dragon]
+fields:
+  usage: no-action
+  resource: malice
+  cost: 3
+  distanceKind: self
+effects:
+  - target: { steps: [ability.after], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@effects.common.strike-bane-against'
+          state: { duration: "'next-start'" }
+          appliedBy: character.id

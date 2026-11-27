@@ -1,0 +1,9 @@
+# Turn Green: the bredbeddle has a double edge on power rolls against the creature: their ID in
+# `edgesAgainstFor` (one edge), and Turn Green's rule on the bredbeddle adds the second.
+id: effects.bredbeddle.green
+type: effect
+effects:
+  - target: powerRoll.edgesAgainstFor
+    op: grant
+    value: { formula: self.appliedBy }
+    scope: applied

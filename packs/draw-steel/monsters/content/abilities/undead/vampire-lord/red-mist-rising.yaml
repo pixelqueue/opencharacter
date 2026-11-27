@@ -1,0 +1,28 @@
+# 6 more corruption damage to a target with M < 3, 4 or 5 by tier. The mist is the table's.
+id: abilities.undead.vampire-lord.red-mist-rising
+type: ability
+grantOnly: false
+tags:
+  - kw.area
+  - kw.magic
+fields:
+  usage: no-action
+  kind: villain
+  resource: villain-action
+  cost: 2
+  distanceKind: burst
+  distance: 5
+  rollBonus: 5
+  t1Damage: 2
+  t1AddsChar: false
+  t2Damage: 7
+  t2AddsChar: false
+  t3Damage: 10
+  t3AddsChar: false
+effects:
+  - target: { rolls: [damage], from: self }
+    op: add
+    value: 6
+    tags: [damage.corruption]
+    when: >-
+      flags.tier > 0 && (participant.characteristics.might.score + participant.potency.resistBonus.might) < flags.tier + 2 + steps.roll.tallies.potencyBonus

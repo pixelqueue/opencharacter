@@ -1,0 +1,447 @@
+# A monster sheet: one stat block (`monster`), a squad for minions. The stat block's numbers are
+# its item fields, each per copy, so a Director changes one monster's (Stamina, speed, …) on its
+# copy and the type's effects set the heroes pack's fields from them. Its traits and abilities
+# are copies the `create-monster` start adds, in stat-block order, so one can be dropped or
+# swapped. Monster abilities are the heroes pack's `ability` type, used with its `use-ability`
+# action: a fixed `rollBonus` ("Power Roll + 3"), damage that adds no characteristic, potencies
+# as values. Each says `grantOnly: false`, so it can be held as a copy.
+contentTypes:
+  monster:
+    carried: false
+    copies: { max: 1 }
+    # `withCaptain`: the stat block's "With Captain" entry, as printed.
+    texts: [withCaptain]
+    state:
+      # Minions: how many are in the squad (their Stamina is one pool).
+      squad: { type: integer, default: 1, min: 1, max: 8 }
+      # Minions: the squad has a captain, and the stat block's "With Captain" bonus applies.
+      captain: { type: boolean, default: false }
+    fields:
+      level: { type: integer, min: 0, required: true, perCopy: true }
+      # `none`: a stat block the book prints without one (a noncombatant, Xorannox's eyestalks).
+      organization:
+        type: enum
+        values: [none, minion, horde, platoon, elite, leader, solo, retainer]
+        required: true
+      role:
+        type: enum
+        values:
+          [none, ambusher, artillery, brute, controller, defender, harrier, hexer, mount, support]
+        default: none
+      # Encounter value; a minion's is for four minions.
+      ev: { type: integer, min: 0, default: 0, perCopy: true }
+      size:
+        { type: enum, values: [1t, 1s, 1m, 1l, '2', '3', '4', '5'], required: true, perCopy: true }
+      speed: { type: integer, min: 0, required: true, perCopy: true }
+      movement: { type: set, of: tag, members: { under: [move] }, default: [], perCopy: true }
+      # One creature's Stamina; a minion squad's pool is this times the squad.
+      stamina: { type: integer, min: 1, required: true, perCopy: true }
+      stability: { type: integer, min: 0, default: 0, perCopy: true }
+      freeStrike: { type: integer, min: 0, required: true, perCopy: true }
+      '{characteristic}': { type: integer, min: -5, max: 5, required: true, perCopy: true }
+      # Damage immunity and weakness by type; `damageImmunity` and `damageWeakness` are to all
+      # damage ("Damage 3").
+      '{damageType}Immunity': { type: integer, min: 0, default: 0, perCopy: true }
+      damageImmunity: { type: integer, min: 0, default: 0, perCopy: true }
+      '{damageType}Weakness': { type: integer, min: 0, default: 0, perCopy: true }
+      damageWeakness: { type: integer, min: 0, default: 0, perCopy: true }
+      # A minion's "With Captain" benefit: its kind and amount. `special` is in the text only.
+      captainBonus:
+        type: enum
+        values:
+          [
+            none,
+            damage,
+            speed,
+            stamina,
+            ranged-distance,
+            melee-distance,
+            forced-movement,
+            strike-bonus,
+            edge,
+            double-edge,
+            special,
+          ]
+        default: none
+      captainAmount: { type: integer, min: 0, default: 0 }
+      # End Effect: the damage taken to end an effect a saving throw ends (0: none).
+      endEffect: { type: integer, min: 0, default: 0, perCopy: true }
+      # Other keywords whose Malice-feature abilities the monster holds besides its own (a
+      # hobgoblin's goblin features), or a tag only one monster's feature carries (each dragon's,
+      # Ajax's: `malice-feature.<monster>`).
+      maliceFrom:
+        type: set
+        of: tag
+        members: { under: [creature, malice-feature], except: [malice-feature.no-minion] }
+        default: []
+      # The stat block's traits and abilities, in its order: create-monster adds a copy of each.
+      traits: { type: list, of: trait, unique: true, default: [] }
+      abilities: { type: list, of: ability, unique: true, default: [] }
+    effects:
+      - { id: not-hero, target: sheet.hero, op: set, value: 'false' }
+      - { id: level, target: level, op: set, value: item.level }
+      - { id: might, target: characteristics.might.base, op: set, value: item.might }
+      - { id: agility, target: characteristics.agility.base, op: set, value: item.agility }
+      - { id: reason, target: characteristics.reason.base, op: set, value: item.reason }
+      - { id: intuition, target: characteristics.intuition.base, op: set, value: item.intuition }
+      - { id: presence, target: characteristics.presence.base, op: set, value: item.presence }
+      - id: size
+        target: size.base
+        op: set
+        value: "monster.sizeAdjustment != 'none' ? monster.sizeAdjustment : item.size"
+      - { id: speed, target: speed.base, op: set, value: item.speed }
+      - { id: stability, target: stability, op: add, value: item.stability }
+      - { id: stamina, target: stamina.base, op: add, value: item.stamina * self.squad }
+      - { id: organization, target: monster.organization, op: set, value: item.organization }
+      - { id: role, target: monster.role, op: set, value: item.role }
+      - { id: ev, target: monster.ev, op: set, value: item.ev }
+      - { id: free-strike, target: monster.freeStrike, op: set, value: item.freeStrike }
+      - { id: one-stamina, target: monster.oneStamina, op: set, value: item.stamina }
+      - { id: squad, target: monster.squad, op: set, value: self.squad }
+      - { id: end-effect, target: monster.endEffect, op: set, value: item.endEffect }
+      # The signature ability's damage type, which the free strike uses.
+      - id: free-strike-type
+        target: monster.freeStrikeType
+        op: set
+        value: "size(item.abilities) == 0 ? 'untyped' : itemField(item.abilities[0], 'damageType', 'untyped')"
+      - { id: acid-immunity, target: immunity.acid, op: add, value: item.acidImmunity }
+      - { id: cold-immunity, target: immunity.cold, op: add, value: item.coldImmunity }
+      - {
+          id: corruption-immunity,
+          target: immunity.corruption,
+          op: add,
+          value: item.corruptionImmunity,
+        }
+      - { id: fire-immunity, target: immunity.fire, op: add, value: item.fireImmunity }
+      - { id: holy-immunity, target: immunity.holy, op: add, value: item.holyImmunity }
+      - {
+          id: lightning-immunity,
+          target: immunity.lightning,
+          op: add,
+          value: item.lightningImmunity,
+        }
+      - { id: poison-immunity, target: immunity.poison, op: add, value: item.poisonImmunity }
+      - { id: psychic-immunity, target: immunity.psychic, op: add, value: item.psychicImmunity }
+      - { id: sonic-immunity, target: immunity.sonic, op: add, value: item.sonicImmunity }
+      - { id: damage-immunity, target: immunity.all, op: add, value: item.damageImmunity }
+      - { id: acid-weakness, target: weakness.acid, op: add, value: item.acidWeakness }
+      - { id: cold-weakness, target: weakness.cold, op: add, value: item.coldWeakness }
+      - {
+          id: corruption-weakness,
+          target: weakness.corruption,
+          op: add,
+          value: item.corruptionWeakness,
+        }
+      - { id: fire-weakness, target: weakness.fire, op: add, value: item.fireWeakness }
+      - { id: holy-weakness, target: weakness.holy, op: add, value: item.holyWeakness }
+      - {
+          id: lightning-weakness,
+          target: weakness.lightning,
+          op: add,
+          value: item.lightningWeakness,
+        }
+      - { id: poison-weakness, target: weakness.poison, op: add, value: item.poisonWeakness }
+      - { id: psychic-weakness, target: weakness.psychic, op: add, value: item.psychicWeakness }
+      - { id: sonic-weakness, target: weakness.sonic, op: add, value: item.sonicWeakness }
+      - { id: damage-weakness, target: weakness.all, op: add, value: item.damageWeakness }
+      - id: burrow
+        target: movement.types
+        op: grant
+        value: { formula: "'move.burrow'" }
+        when: "'move.burrow' in item.movement"
+      - id: climb
+        target: movement.types
+        op: grant
+        value: { formula: "'move.climb'" }
+        when: "'move.climb' in item.movement"
+      - id: fly
+        target: movement.types
+        op: grant
+        value: { formula: "'move.fly'" }
+        when: "'move.fly' in item.movement"
+      - id: hover
+        target: movement.types
+        op: grant
+        value: { formula: "'move.hover'" }
+        when: "'move.hover' in item.movement"
+      - id: swim
+        target: movement.types
+        op: grant
+        value: { formula: "'move.swim'" }
+        when: "'move.swim' in item.movement"
+      - id: teleport
+        target: movement.types
+        op: grant
+        value: { formula: "'move.teleport'" }
+        when: "'move.teleport' in item.movement"
+      # "With Captain": the squad's bonus while it has a captain. Damage and the bonus to strikes
+      # reach strikes; Stamina is each minion's, so the pool gains it per minion.
+      - id: captain-speed
+        target: speed
+        op: add
+        value: item.captainAmount
+        when: "self.captain && item.captainBonus == 'speed'"
+      - id: captain-stamina
+        target: stamina.bonus
+        op: add
+        value: item.captainAmount * self.squad
+        when: "self.captain && item.captainBonus == 'stamina'"
+      - id: captain-ranged-distance
+        target: abilities.rangeBonus
+        op: add
+        value: item.captainAmount
+        when: "self.captain && item.captainBonus == 'ranged-distance'"
+      - id: captain-damage
+        target: { rolls: [damage] }
+        op: add
+        value: item.captainAmount
+        tags:
+          [
+            {
+              formula: "roll.item.damageType == 'untyped' ? [] : ['damage.' + roll.item.damageType]",
+            },
+          ]
+        when: "self.captain && item.captainBonus == 'damage' && 'kw.strike' in roll.item.tags"
+      - id: captain-strike-bonus
+        target: { rolls: [power-roll.ability] }
+        op: add
+        value: item.captainAmount
+        when: "self.captain && item.captainBonus == 'strike-bonus' && 'kw.strike' in roll.item.tags"
+      - id: captain-edge
+        target: { rolls: [power-roll.ability], tally: edges }
+        op: add
+        value: "item.captainBonus == 'double-edge' ? 2 : 1"
+        when: >-
+          self.captain && item.captainBonus in ['edge', 'double-edge'] && 'kw.strike' in roll.item.tags
+      - id: captain-forced-movement
+        target: { rolls: [power-roll.ability], tally: moveBonus }
+        op: add
+        value: item.captainAmount
+        when: "self.captain && item.captainBonus == 'forced-movement'"
+    # The group's Malice features that are abilities (`malice-feature`, with a keyword the stat
+    # block has or a tag in its `maliceFrom`); a retainer has none, and a minion none the book bars
+    # it from (`malice-feature.no-minion`).
+    grants:
+      - forEach: item.tags + item.maliceFrom
+        when: "!(item.organization in ['retainer', 'minion'])"
+        item: { query: { type: ability, where: "'malice-feature' in item.tags && x in item.tags" } }
+      - forEach: item.tags + item.maliceFrom
+        when: item.organization == 'minion'
+        item:
+          query:
+            type: ability
+            where: >-
+              'malice-feature' in item.tags && x in item.tags &&
+              !('malice-feature.no-minion' in item.tags)
+    followUps:
+      # A monster without a Director's sheet is offered one, for the Malice its abilities spend.
+      - id: director-sheet
+        while: '!character.creating'
+        create:
+          link: director
+          start: director
+    actions:
+      - use: set-captain
+
+  # A monster trait: always in effect, no action to use it. Its text is the stat block's; rules it
+  # has are its own effects.
+  trait:
+    carried: false
+
+fields:
+  sheet.monster: { type: boolean, formula: "countCopies(copy.type == 'monster') > 0" }
+  monster.organization:
+    type: enum
+    values: [none, minion, horde, platoon, elite, leader, solo, retainer]
+    formula: "'none'"
+  monster.role:
+    type: enum
+    values: [none, ambusher, artillery, brute, controller, defender, harrier, hexer, mount, support]
+    formula: "'none'"
+  monster.ev: { type: integer, formula: 0 }
+  monster.freeStrike: { type: integer, formula: 0 }
+  monster.freeStrikeType:
+    type: enum
+    values: [untyped, acid, cold, corruption, fire, holy, lightning, poison, psychic, sonic]
+    formula: "'untyped'"
+  monster.endEffect: { type: integer, formula: 0 }
+  # A size that replaces the stat block's (a rival's ancestry); `none` keeps it.
+  monster.sizeAdjustment:
+    type: enum
+    values: [none, 1t, 1s, 1m, 1l, '2', '3', '4', '5']
+    formula: "'none'"
+  # One minion's Stamina, the squad's size, and how many are still standing: one drops each time
+  # the pool loses a minion's Stamina.
+  monster.oneStamina: { type: integer, formula: 0 }
+  monster.squad: { type: integer, formula: 1 }
+  monster.alive:
+    type: integer
+    formula: >-
+      monster.organization != 'minion' || monster.oneStamina == 0 ? 0
+        : max(0, min(monster.squad, ceil(stamina.current / monster.oneStamina)))
+  # The villain actions (by number) used this encounter.
+  villain.used: { type: set, of: string, input: true, default: [] }
+
+effects:
+  # A minion squad's pool can't be winded.
+  - id: minions-not-winded
+    target: stamina.isWinded
+    op: set
+    value: 'false'
+    when: "monster.organization == 'minion'"
+
+actions:
+  # The minion squad's captain joins or leaves.
+  - id: set-captain
+    tags: [combat]
+    available: "item.organization == 'minion'"
+    params:
+      captain: { type: boolean, default: true }
+    results: [set]
+    steps:
+      - id: set
+        kind: changes
+        changes:
+          - { type: setState, entry: self, key: captain, value: params.captain }
+      - { id: done, kind: outcome, result: "'set'" }
+
+  # A creature's free strike: no roll, the stat block's damage, typed as its signature ability's
+  # (`damageType` for one that deals several types). Minions striking one target together add
+  # their damage (`minions`).
+  - id: monster-free-strike
+    tags: [free-strike, combat]
+    available: sheet.monster && !stamina.dead
+    params:
+      damageType:
+        type: enum
+        values: [untyped, acid, cold, corruption, fire, holy, lightning, poison, psychic, sonic]
+        optional: true
+      minions: { type: integer, default: 1, min: 1, max: 8 }
+    participants:
+      target: { max: 1 }
+    results: [struck]
+    steps:
+      - id: setup
+        kind: branch
+        cases:
+          - when: 'true'
+            flags:
+              type: 'has(params.damageType) ? params.damageType : monster.freeStrikeType'
+              amount: monster.freeStrike * params.minions
+      - id: hit
+        kind: changes
+        each: target
+        to: target
+        changes:
+          - type: adjust
+            field: stamina.current
+            by: -flags.amount
+            tags: [damage, { formula: "flags.type == 'untyped' ? [] : ['damage.' + flags.type]" }]
+      - { id: done, kind: outcome, result: "'struck'", data: { damage: flags.amount } }
+
+  # End Effect: at the end of their turn, the creature takes this much damage, which can't be
+  # reduced, to end one effect a saving throw ends (`entry`, the applied entry).
+  - id: end-effect
+    tags: [combat, saving-throw]
+    available: 'sheet.monster && monster.endEffect > 0 && !stamina.dead'
+    params:
+      entry: { type: string }
+    results: [ended]
+    steps:
+      - id: end
+        kind: changes
+        changes:
+          - type: adjust
+            field: stamina.current
+            by: -monster.endEffect
+            tags: [damage, damage.unreducible]
+          - type: removeEffect
+            applied: { where: self.id == params.entry }
+      - { id: done, kind: outcome, result: "'ended'" }
+
+  # Damage a lasting effect deals on a turn ("a burning creature takes 1d6 fire damage at the start
+  # of each of their turns"): an effect runs it on the creature who has it.
+  - id: ongoing-damage
+    tags: [combat]
+    params:
+      dice: { type: dice }
+      damageType:
+        type: enum
+        values: [untyped, acid, cold, corruption, fire, holy, lightning, poison, psychic, sonic]
+        default: untyped
+    results: [taken]
+    steps:
+      - id: roll
+        kind: roll
+        tags: [ongoing-damage]
+        parts: [{ dice: params.dice }]
+      - id: take
+        kind: changes
+        changes:
+          - type: adjust
+            field: stamina.current
+            by: -steps.roll.total
+            tags:
+              - damage
+              - { formula: "params.damageType == 'untyped' ? [] : ['damage.' + params.damageType]" }
+      - { id: done, kind: outcome, result: "'taken'", data: { damage: steps.roll.total } }
+
+  # Making a monster's sheet: its stat block, then a copy of each trait and ability. A minion's
+  # sheet is its squad (`squad` minions, one Stamina pool).
+  - id: create-monster
+    tags: [creation]
+    available: character.creating
+    params:
+      random: { type: boolean, default: false }
+      monster: { type: id, of: monster, optional: true }
+      squad: { type: integer, default: 4, min: 1, max: 8 }
+    results: [created]
+    steps:
+      - id: monster
+        kind: choice
+        random: params.random
+        options:
+          content:
+            type: monster
+            where: '!has(params.monster) || item.id == params.monster'
+        recommend: options[0]
+        changes:
+          - type: addItem
+            entry: { id: monster, item: picked.id }
+      - id: entries
+        kind: changes
+        changes:
+          - type: setState
+            when: "steps.monster.item.organization == 'minion' && params.squad > 1"
+            entry: monster
+            key: squad
+            value: params.squad
+          - type: addItem
+            forEach: steps.monster.item.traits
+            entry: { item: x }
+          - type: addItem
+            forEach: steps.monster.item.abilities
+            entry: { item: x }
+      # A rival may take an ancestry (rules/rival.yaml): offered, not recommended; the random
+      # start draws one.
+      - id: ancestry
+        kind: choice
+        when: "'creature.rival' in steps.monster.item.tags"
+        random: params.random
+        repeat: { max: 1 }
+        options: { content: { type: rivalAncestry } }
+        recommend: "'#done'"
+        changes:
+          - type: addItem
+            entry: { item: picked.id }
+      - id: finish
+        kind: changes
+        sheet: proposed
+        changes:
+          - { type: set, field: stamina.current, value: stamina.max }
+          - { type: finishCreation }
+      - { id: done, kind: outcome, result: "'created'" }
+
+creation:
+  - { id: monster, action: create-monster }
+  - { id: random-monster, action: create-monster, params: { random: true }, random: true }

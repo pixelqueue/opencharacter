@@ -1,0 +1,23 @@
+# 9 corruption damage to each dragonsealed target, who then loses the dragonseal. The dragon
+# regaining half the damage dealt is the table's.
+id: abilities.dragon.omen-dragon.detonation
+type: ability
+grantOnly: false
+tags:
+  - kw.area
+fields:
+  usage: maneuver
+  resource: malice
+  cost: 5
+  distanceKind: burst
+  distance: 10
+  damageType: corruption
+  t1Damage: 9
+  t1AddsChar: false
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: removeEffect
+          applied: { where: 'item.id == @effects.dragon.omen-dragonsealed' }

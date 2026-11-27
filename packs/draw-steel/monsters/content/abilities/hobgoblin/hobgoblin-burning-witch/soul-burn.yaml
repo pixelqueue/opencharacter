@@ -1,0 +1,30 @@
+# "Corruption or fire damage": the witch picks; the type is corruption here, fire the table's.
+# The weakness spreading to enemies who start their turn near a target is the table's.
+id: abilities.hobgoblin.hobgoblin-burning-witch.soul-burn
+type: ability
+grantOnly: false
+tags:
+  - kw.magic
+  - kw.ranged
+  - kw.strike
+fields:
+  usage: main-action
+  kind: signature
+  spendCost: 2
+  distanceKind: ranged
+  distance: 10
+  rollBonus: 3
+  damageType: corruption
+# 2 Malice: each target who has P < 2 is weakened (save ends).
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@conditions.weakened'
+          state: { duration: "'save'" }
+          appliedBy: character.id
+    when: >-
+      flags.tier > 0 && has(params.malice) && params.malice >= 2
+        && participant.characteristics.presence.score + participant.potency.resistBonus.presence < 2 + (has(steps.roll) ? steps.roll.tallies.potencyBonus : 0)

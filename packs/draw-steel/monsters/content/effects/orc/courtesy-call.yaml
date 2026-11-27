@@ -1,0 +1,16 @@
+# Courtesy Call: a double edge on the creature's next power roll, which ends it.
+id: effects.orc.courtesy-call
+type: effect
+effects:
+  - target: { rolls: [power-roll], tally: edges }
+    op: add
+    value: 2
+    scope: applied
+  - target: { steps: [ability.after] }
+    op: changes
+    scope: applied
+    value:
+      changes:
+        - type: removeEffect
+          applied: { where: 'item.id == @effects.orc.courtesy-call' }
+    when: has(steps.roll)

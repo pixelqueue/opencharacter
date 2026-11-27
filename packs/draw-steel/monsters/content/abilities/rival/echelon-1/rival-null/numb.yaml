@@ -1,0 +1,44 @@
+id: abilities.rival.echelon-1.rival-null.numb
+type: ability
+grantOnly: false
+tags:
+  - kw.melee
+  - kw.psionic
+  - kw.strike
+  - kw.weapon
+fields:
+  usage: maneuver
+  resource: malice
+  cost: 2
+  distanceKind: melee
+  distance: 1
+  rollBonus: 2
+  t1Damage: 7
+  t1AddsChar: false
+  t1Condition: conditions.slowed
+  t1Duration: eot
+  t1PotencyChar: reason
+  t1PotencyValue: 0
+  t2Damage: 10
+  t2AddsChar: false
+  t2Condition: conditions.slowed
+  t2Duration: eot
+  t2PotencyChar: reason
+  t2PotencyValue: 1
+  t3Damage: 13
+  t3AddsChar: false
+  t3Condition: conditions.dazed
+  t3Duration: eot
+  t3PotencyChar: reason
+  t3PotencyValue: 2
+effects:
+  # Tier 3: slowed (EoT) too, behind the same potency.
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@conditions.slowed'
+          state: { duration: "'eot'" }
+          appliedBy: character.id
+    when: flags.tier == 3 && flags.landed

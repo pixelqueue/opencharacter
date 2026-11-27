@@ -1,0 +1,19 @@
+# The target regains 10 Stamina. Not again until a Soulstealer Longsword strike: the table's.
+id: abilities.undead.soulwight.stolen-vitality
+type: ability
+grantOnly: false
+tags:
+  - kw.magic
+  - kw.ranged
+fields:
+  usage: maneuver
+  resource: malice
+  cost: 3
+  distanceKind: ranged
+  distance: 5
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - { type: adjust, field: stamina.current, by: 10 }

@@ -1,0 +1,36 @@
+id: abilities.time-raider.time-raider-armiger.serrated-saber
+type: ability
+grantOnly: false
+tags:
+  - kw.melee
+  - kw.psionic
+  - kw.strike
+  - kw.weapon
+fields:
+  usage: main-action
+  kind: signature
+  spendCost: 2
+  distanceKind: melee
+  distance: 1
+  rollBonus: 2
+  t1Damage: 7
+  t1AddsChar: false
+  t2Damage: 10
+  t2AddsChar: false
+  t3Damage: 13
+  t3AddsChar: false
+  t3Condition: conditions.weakened
+  t3Duration: save
+  t3PotencyChar: reason
+  t3PotencyValue: 2
+# 2 Malice: a creature weakened this way is also bleeding (save ends).
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@conditions.bleeding'
+          state: { duration: "'save'" }
+          appliedBy: character.id
+    when: flags.tier == 3 && flags.landed && has(params.malice) && params.malice >= 2

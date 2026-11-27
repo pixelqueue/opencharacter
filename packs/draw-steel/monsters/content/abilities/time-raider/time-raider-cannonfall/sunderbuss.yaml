@@ -1,0 +1,36 @@
+id: abilities.time-raider.time-raider-cannonfall.sunderbuss
+type: ability
+grantOnly: false
+tags:
+  - kw.area
+  - kw.psionic
+  - kw.ranged
+  - kw.weapon
+fields:
+  usage: main-action
+  kind: signature
+  distanceKind: cube
+  distance: 3
+  within: 10
+  rollBonus: 2
+  damageType: sonic
+  t1Damage: 4
+  t1AddsChar: false
+  t2Damage: 7
+  t2AddsChar: false
+  t3Damage: 10
+  t3AddsChar: false
+  t3Condition: conditions.slowed
+  t3Duration: save
+  t3PotencyChar: might
+  t3PotencyValue: 2
+# Tier 3: prone beside the slowed.
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@conditions.prone'
+          appliedBy: character.id
+    when: flags.tier == 3

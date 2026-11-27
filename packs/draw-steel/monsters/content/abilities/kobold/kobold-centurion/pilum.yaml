@@ -1,0 +1,39 @@
+# The free strikes of allies adjacent to a target are the table's. M < 1 weakened (save ends) on
+# every tier; with 3 Malice the weakened target is also restrained: one entry granting both
+# (`effects.kobold.pinned`), so the save ends both.
+id: abilities.kobold.kobold-centurion.pilum
+type: ability
+grantOnly: false
+tags:
+  - kw.melee
+  - kw.ranged
+  - kw.strike
+  - kw.weapon
+fields:
+  usage: main-action
+  kind: signature
+  spendCost: 3
+  distanceKind: melee-or-ranged
+  distance: 1
+  rangedDistance: 10
+  rollBonus: 3
+  t1Damage: 7
+  t1AddsChar: false
+  t2Damage: 10
+  t2AddsChar: false
+  t3Damage: 13
+  t3AddsChar: false
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: >-
+            has(params.malice) && params.malice >= 3 ? @effects.kobold.pinned : @conditions.weakened
+          state: { duration: "'save'" }
+          appliedBy: character.id
+    when: >-
+      flags.tier > 0
+        && participant.characteristics.might.score + participant.potency.resistBonus.might
+          < 1 + (has(steps.roll) ? steps.roll.tallies.potencyBonus : 0)

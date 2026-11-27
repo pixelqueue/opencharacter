@@ -1,0 +1,47 @@
+id: abilities.war-dog.soulbinder-psyche.soulstorm
+type: ability
+grantOnly: false
+tags:
+  - kw.area
+  - kw.magic
+  - kw.ranged
+fields:
+  usage: main-action
+  resource: malice
+  cost: 2
+  spendCost: 1
+  distanceKind: cube
+  distance: 3
+  within: 10
+  rollBonus: 5
+  damageType: corruption
+  t1Damage: 8
+  t1AddsChar: false
+  t1Condition: conditions.weakened
+  t1Duration: eot
+  t1PotencyChar: presence
+  t1PotencyValue: 3
+  t2Damage: 12
+  t2AddsChar: false
+  t2Condition: conditions.weakened
+  t2Duration: eot
+  t2PotencyChar: presence
+  t2PotencyValue: 4
+  t3Damage: 15
+  t3AddsChar: false
+  t3Condition: conditions.weakened
+  t3Duration: eot
+  t3PotencyChar: presence
+  t3PotencyValue: 5
+# Maintaining and moving the area (a maneuver each turn) is the table's.
+effects:
+  # 1 Malice: a creature made weakened is also soulbound (save ends).
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@effects.war-dog.soulbound'
+          state: { duration: "'save'" }
+          appliedBy: character.id
+    when: flags.tier > 0 && flags.landed && has(params.malice) && params.malice >= 1

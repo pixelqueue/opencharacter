@@ -1,0 +1,23 @@
+# Poison the Blade, Envenomed Steel: a double edge on the shadow's next strike and its potencies
+# +2; the strike ends it.
+id: effects.rival.poisoned-blade-double
+type: effect
+effects:
+  - target: { rolls: [power-roll.ability], tally: edges }
+    op: add
+    value: 2
+    scope: applied
+    when: "'kw.strike' in roll.item.tags"
+  - target: { rolls: [power-roll.ability], tally: potencyBonus }
+    op: add
+    value: 2
+    scope: applied
+    when: "'kw.strike' in roll.item.tags"
+  - target: { steps: [ability.after] }
+    op: changes
+    scope: applied
+    value:
+      changes:
+        - type: removeEffect
+          applied: { where: 'item.id == @effects.rival.poisoned-blade-double' }
+    when: "'kw.strike' in action.item.tags"

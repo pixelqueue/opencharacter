@@ -1,0 +1,25 @@
+id: abilities.war-dog.war-dog-ground-commander.claim-them-for-the-body-banks
+type: ability
+grantOnly: false
+tags:
+  - kw.area
+  - kw.magic
+fields:
+  usage: no-action
+  kind: villain
+  resource: villain-action
+  cost: 3
+  distanceKind: burst
+  distance: 10
+# Each target enemy takes a bane on the Escape Grab maneuver, whoever grabs them, until the end of
+# the encounter. The allies' shift and Grab are the table's.
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@effects.common.escape-grab-bane'
+          state: { duration: "'encounter'", anyGrab: 'true' }
+          appliedBy: character.id
+    when: participant.side != side

@@ -1,0 +1,44 @@
+# Tiers 2 and 3 add their corruption damage as a second roll; the rebel gains that much temporary
+# Stamina (as rolled: the target's corruption immunity is the table's).
+id: abilities.retainer.vampire-rebel.flashing-fangs
+type: ability
+grantOnly: false
+tags:
+  - kw.melee
+  - kw.strike
+  - kw.weapon
+fields:
+  usage: main-action
+  kind: signature
+  distanceKind: melee
+  distance: 1
+  t1Damage: 5
+  t1AddsChar: false
+  t2Damage: 5
+  t2AddsChar: false
+  t3Damage: 5
+  t3AddsChar: false
+  t3Condition: conditions.bleeding
+  t3Duration: save
+  t3PotencyChar: might
+  t3Potency: strong
+  rollChars:
+    - might
+    - agility
+    - reason
+    - intuition
+    - presence
+effects:
+  # Tiers 2 and 3: 3 or 6 corruption damage besides.
+  - target: { rolls: [damage], from: self }
+    op: add
+    value: '[0, 3, 6][flags.tier - 1]'
+    tags: [damage.corruption]
+    when: flags.tier >= 2
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      to: self
+      changes:
+        - { type: adjust, field: stamina.temp, by: '[0, 3, 6][flags.tier - 1]' }
+    when: flags.tier >= 2

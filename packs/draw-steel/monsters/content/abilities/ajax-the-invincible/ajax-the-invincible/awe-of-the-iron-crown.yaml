@@ -1,0 +1,28 @@
+# I < 5: prone and can't stand until Ajax damages the target (ending it is the table's). The
+# Blade of the Gol King against the others is the table's.
+id: abilities.ajax-the-invincible.ajax-the-invincible.awe-of-the-iron-crown
+type: ability
+grantOnly: false
+tags:
+  - kw.area
+  - kw.magic
+fields:
+  usage: no-action
+  kind: villain
+  resource: villain-action
+  cost: 3
+  distanceKind: burst
+  distance: 7
+  t1Condition: conditions.prone
+  t1PotencyChar: intuition
+  t1PotencyValue: 5
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@effects.common.cant-stand'
+          state: { duration: "'until'" }
+          appliedBy: character.id
+    when: participant.characteristics.intuition.score + participant.potency.resistBonus.intuition < 5

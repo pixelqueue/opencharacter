@@ -1,0 +1,44 @@
+# The second damage (2/7/10 corruption) is a roll effect. The shift and healing are the table's.
+id: abilities.count-rhodar-von-glauer.count-rhodar-von-glauer.sanguineous-flourish
+type: ability
+grantOnly: false
+tags:
+  - kw.area
+  - kw.weapon
+fields:
+  usage: main-action
+  resource: malice
+  cost: 5
+  distanceKind: burst
+  distance: 2
+  rollBonus: 5
+  t1Damage: 6
+  t1AddsChar: false
+  t1Move: push
+  t1MoveDistance: 2
+  t1Condition: conditions.bleeding
+  t1Duration: save
+  t1PotencyChar: might
+  t1PotencyValue: 4
+  t2Damage: 6
+  t2AddsChar: false
+  t2Move: push
+  t2MoveDistance: 5
+  t2Condition: conditions.bleeding
+  t2Duration: save
+  t2PotencyChar: might
+  t2PotencyValue: 5
+  t3Damage: 6
+  t3AddsChar: false
+  t3Move: push
+  t3MoveDistance: 7
+  t3Condition: conditions.bleeding
+  t3Duration: save
+  t3PotencyChar: might
+  t3PotencyValue: 6
+effects:
+  - target: { rolls: [damage], from: self }
+    op: add
+    value: '[2, 7, 10][flags.tier - 1]'
+    tags: [damage.corruption]
+    when: flags.tier >= 1

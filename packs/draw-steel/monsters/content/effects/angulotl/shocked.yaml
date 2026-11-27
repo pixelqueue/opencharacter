@@ -1,0 +1,23 @@
+# Hookclaw: while grabbed this way, 2 lightning damage at the start of each of the creature's
+# turns. Ends at a turn start when the clawfish who applied it no longer grabs them.
+id: effects.angulotl.shocked
+type: effect
+effects:
+  - target: { steps: [turn.start] }
+    op: changes
+    scope: applied
+    value:
+      changes:
+        - type: adjust
+          field: stamina.current
+          by: -2
+          tags: [damage, damage.lightning]
+    when: self.appliedBy in conditions.grabbedBy
+  - target: { steps: [turn.start] }
+    op: changes
+    scope: applied
+    value:
+      changes:
+        - type: removeEffect
+          applied: { where: 'item.id == @effects.angulotl.shocked' }
+    when: '!(self.appliedBy in conditions.grabbedBy)'

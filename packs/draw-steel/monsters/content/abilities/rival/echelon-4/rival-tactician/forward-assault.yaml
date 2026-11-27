@@ -1,0 +1,48 @@
+# The 5 Malice allies' move and signature ability are the table's.
+id: abilities.rival.echelon-4.rival-tactician.forward-assault
+type: ability
+grantOnly: false
+tags:
+  - kw.ranged
+  - kw.strike
+  - kw.weapon
+fields:
+  usage: main-action
+  kind: signature
+  spendCost: 5
+  distanceKind: ranged
+  distance: 10
+  rollBonus: 5
+  t1Damage: 15
+  t1AddsChar: false
+  t2Damage: 21
+  t2AddsChar: false
+  t3Damage: 25
+  t3AddsChar: false
+  t3Condition: conditions.prone
+  t2Condition: conditions.prone
+  t2PotencyChar: agility
+  t2PotencyValue: 4
+effects:
+  # Tier 2: can't stand (EoT) with the prone, behind the same potency.
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@effects.common.cant-stand'
+          state: { duration: "'eot'" }
+          appliedBy: character.id
+    when: flags.tier == 2 && flags.landed
+  # Tier 3: prone (the tier field), and can't stand (EoT) if A < 5.
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@effects.common.cant-stand'
+          state: { duration: "'eot'" }
+          appliedBy: character.id
+    when: >-
+      flags.tier == 3
+        && participant.characteristics.agility.score + participant.potency.resistBonus.agility < 5 + (has(steps.roll) ? steps.roll.tallies.potencyBonus : 0)

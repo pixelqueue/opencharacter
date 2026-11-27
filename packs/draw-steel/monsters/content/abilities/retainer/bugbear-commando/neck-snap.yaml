@@ -1,0 +1,36 @@
+# The Effect on each target for any tier: 15 damage, the grab ends and they fall prone. That the
+# target must be grabbed by the commando is the table's.
+id: abilities.retainer.bugbear-commando.neck-snap
+type: ability
+grantOnly: false
+tags:
+  - kw.melee
+fields:
+  usage: main-action
+  level: 10
+  resource: encounter
+  cost: 1
+  distanceKind: melee
+  distance: 1
+  t1Damage: 12
+  t1AddsChar: false
+  t2Damage: 18
+  t2AddsChar: false
+  t3Damage: 24
+  t3AddsChar: false
+  rollChars:
+    - might
+    - agility
+    - reason
+    - intuition
+    - presence
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - { type: adjust, field: stamina.current, by: -15, tags: [damage] }
+        - type: removeEffect
+          applied: { where: 'item.id in [@conditions.grabbed, @effects.retainer.face-grabbed]' }
+        - { type: applyEffect, source: '@conditions.prone', appliedBy: character.id }
+    when: flags.tier > 0

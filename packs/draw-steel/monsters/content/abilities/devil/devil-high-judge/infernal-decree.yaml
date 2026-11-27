@@ -1,0 +1,36 @@
+# Can't hide (save ends) behind P < 2, 3 or 4, applied by the hit effect so the entry carries
+# whether 2 Malice was spent (`decree`: strikes against the target gain an edge).
+id: abilities.devil.devil-high-judge.infernal-decree
+type: ability
+grantOnly: false
+tags:
+  - kw.magic
+  - kw.ranged
+  - kw.strike
+fields:
+  usage: main-action
+  kind: signature
+  spendCost: 2
+  distanceKind: ranged
+  distance: 12
+  rollBonus: 4
+  t1Damage: 10
+  t1AddsChar: false
+  t2Damage: 15
+  t2AddsChar: false
+  t3Damage: 19
+  t3AddsChar: false
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@effects.devil.cant-hide'
+          state:
+            duration: "'save'"
+            decree: has(params.malice) && params.malice >= 2
+          appliedBy: character.id
+    when: >-
+      flags.tier > 0 && participant.characteristics.presence.score + participant.potency.resistBonus.presence
+        < flags.tier + 1 + (has(steps.roll) ? steps.roll.tallies.potencyBonus : 0)

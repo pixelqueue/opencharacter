@@ -1,0 +1,9 @@
+id: traits.demon.fangling.lethe
+type: trait
+# While winded: an edge on strikes, and strikes against the demon gain an edge.
+effects:
+  - target: { rolls: [power-roll.ability], tally: edges }
+    op: add
+    value: 1
+    when: "stamina.isWinded && 'kw.strike' in roll.item.tags"
+  - { target: powerRoll.strikeEdgesAgainst, op: add, value: 1, when: stamina.isWinded }

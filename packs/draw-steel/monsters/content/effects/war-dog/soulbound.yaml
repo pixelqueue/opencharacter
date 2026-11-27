@@ -1,0 +1,9 @@
+# Soulbind: no edges or double edges, and no surges to gain or use (they're kept, not lost).
+id: effects.war-dog.soulbound
+type: effect
+effects:
+  - target: { rolls: [power-roll], tally: edges }
+    op: atMost
+    value: 0
+    scope: applied
+  - { target: surges.current, op: atMost, value: 0, scope: applied }

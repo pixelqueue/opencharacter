@@ -1,0 +1,190 @@
+# Retainers (Draw Steel: Monsters, "Retainers"): a follower who fights beside a hero (their
+# mentor) and levels with them. A retainer's sheet is a monster sheet whose stat block has
+# `organization: retainer`. Its `level` is the stat block's per-copy field, which
+# `advance-retainer` raises; the advancement follows from the levels gained over the stat block's
+# own (a retainer gains nothing for levels up to and including their starting level):
+# - Stamina +9 a level; free strike damage +2 at 3rd, 6th and 9th level; the signature ability's
+#   damage +1 a level on tiers 2 and 3, +1 every second level on tier 1.
+# - Characteristics: one +1 at 2nd level (to at most 2) and at 8th (to at most 4), the stat
+#   block's `increase2` and `increase8` choices; each +1 at 5th (to at most 3).
+# - At 4th, 7th and 10th level, the stat block's `advancement` choice: one of the retainer's own
+#   advancement abilities for that level, or their role's.
+# Also as the book says: potency is the highest characteristic (strong), 6 Recoveries, dying at 0
+# Stamina and dead at negative half their Stamina. An Encounter ability (`resource: encounter`)
+# can't be used again until the mentor earns a Victory: here, until the encounter ends.
+extendEnums:
+  'draw-steel-heroes:types.ability.fields.resource': [encounter]
+
+fields:
+  # The stat block's own level, before any level gained.
+  retainer.start:
+    type: integer
+    formula: "maxCopies(itemField(copy.item, 'level', 0), copy.type == 'monster')"
+  retainer.gained:
+    type: integer
+    formula: "monster.organization == 'retainer' ? max(0, level - retainer.start) : 0"
+  # The 2nd and 8th level increases, set by the stat block's choices.
+  'retainer.{characteristic}.increase2': { type: boolean, formula: 'false' }
+  'retainer.{characteristic}.increase8': { type: boolean, formula: 'false' }
+  # The score as the stat block prints it, then after the 2nd, 5th and 8th level increases.
+  'retainer.{characteristic}.printed':
+    type: integer
+    formula: "maxCopies(copy.fields.{characteristic}, copy.type == 'monster')"
+  'retainer.{characteristic}.level2':
+    type: integer
+    formula: >-
+      retainer.{characteristic}.increase2 && level >= 2 && retainer.start < 2
+        ? max(retainer.{characteristic}.printed, min(2, retainer.{characteristic}.printed + 1))
+        : retainer.{characteristic}.printed
+  'retainer.{characteristic}.level5':
+    type: integer
+    formula: >-
+      level >= 5 && retainer.start < 5
+        ? max(retainer.{characteristic}.level2, min(3, retainer.{characteristic}.level2 + 1))
+        : retainer.{characteristic}.level2
+  'retainer.{characteristic}.level8':
+    type: integer
+    formula: >-
+      retainer.{characteristic}.increase8 && level >= 8 && retainer.start < 8
+        ? max(retainer.{characteristic}.level5, min(4, retainer.{characteristic}.level5 + 1))
+        : retainer.{characteristic}.level5
+  # The Encounter abilities used, by ID.
+  retainer.encounterUsed: { type: set, of: string, input: true, default: [] }
+
+effects:
+  # A retainer fights on the heroes' side: "allies gain an edge against" effects count them with
+  # the heroes, not the Director.
+  - id: side
+    target: side
+    op: set
+    value: "'heroes'"
+    when: "monster.organization == 'retainer'"
+  - id: stamina
+    target: stamina.base
+    op: add
+    value: 9 * retainer.gained
+    when: "monster.organization == 'retainer'"
+  - id: free-strike
+    target: monster.freeStrike
+    op: add
+    value: 2 * countList([3, 6, 9], x > retainer.start && x <= level)
+    when: "monster.organization == 'retainer'"
+  - id: signature-damage
+    target: { rolls: [damage] }
+    op: add
+    value: 'flags.tier == 1 ? floor(level / 2) - floor(retainer.start / 2) : retainer.gained'
+    tags:
+      [{ formula: "roll.item.damageType == 'untyped' ? [] : ['damage.' + roll.item.damageType]" }]
+    when: >-
+      monster.organization == 'retainer' && retainer.gained > 0 && roll.item.kind == 'signature'
+        && flags.tier > 0
+  - id: might
+    target: characteristics.might.base
+    op: add
+    value: retainer.might.level8 - retainer.might.printed
+    when: "monster.organization == 'retainer'"
+  - id: agility
+    target: characteristics.agility.base
+    op: add
+    value: retainer.agility.level8 - retainer.agility.printed
+    when: "monster.organization == 'retainer'"
+  - id: reason
+    target: characteristics.reason.base
+    op: add
+    value: retainer.reason.level8 - retainer.reason.printed
+    when: "monster.organization == 'retainer'"
+  - id: intuition
+    target: characteristics.intuition.base
+    op: add
+    value: retainer.intuition.level8 - retainer.intuition.printed
+    when: "monster.organization == 'retainer'"
+  - id: presence
+    target: characteristics.presence.base
+    op: add
+    value: retainer.presence.level8 - retainer.presence.printed
+    when: "monster.organization == 'retainer'"
+  # Potency: strong is the highest characteristic (the type gives no potency characteristic).
+  - id: potency
+    target: potency.bonus
+    op: add
+    value: characteristics.highest
+    when: "monster.organization == 'retainer'"
+  - id: recoveries
+    target: recoveries.max
+    op: add
+    value: 6
+    when: "monster.organization == 'retainer'"
+  - id: dying
+    target: stamina.dying
+    op: set
+    value: stamina.current <= 0 && !stamina.dead
+    when: "monster.organization == 'retainer'"
+  - id: dead
+    target: stamina.dead
+    op: set
+    value: stamina.current <= -stamina.winded
+    when: "monster.organization == 'retainer'"
+  # Encounter abilities: free until used, then unavailable until the encounter ends.
+  - id: encounter-ready
+    target: abilities.free
+    op: grant
+    value:
+      query:
+        type: ability
+        where: >-
+          has(item.resource) && item.resource == 'encounter'
+            && !(string(item.id) in retainer.encounterUsed)
+  - id: encounter-used
+    target: { steps: [ability.pay] }
+    op: changes
+    value:
+      changes:
+        - type: set
+          field: retainer.encounterUsed
+          value: retainer.encounterUsed + [string(action.item.id)]
+    when: "has(action.item.resource) && action.item.resource == 'encounter'"
+  - id: encounter-reset
+    target: { steps: [combat.end] }
+    op: changes
+    value:
+      changes:
+        - { type: set, field: retainer.encounterUsed, value: '[]' }
+    when: size(retainer.encounterUsed) > 0
+
+actions:
+  # The retainer gains a level (with their mentor), then makes the new level's choices.
+  - id: advance-retainer
+    tags: [level-up]
+    available: "!character.creating && monster.organization == 'retainer' && level < 10"
+    params:
+      random: { type: boolean, default: false }
+    results: [advanced]
+    steps:
+      - id: gain
+        kind: changes
+        tags: [level-up]
+        changes:
+          - type: setField
+            copies: { type: monster, where: 'true' }
+            limit: 1
+            key: level
+            value: level + 1
+      - id: picks
+        kind: choice
+        sheet: proposed
+        random: params.random
+        options: { pending: {} }
+      - { id: done, kind: outcome, result: "'advanced'", data: { level: level + 1 } }
+
+display:
+  fields:
+    retainer.start: { hidden: true }
+    retainer.gained: { hidden: true }
+    'retainer.{characteristic}.increase2': { hidden: true }
+    'retainer.{characteristic}.increase8': { hidden: true }
+    'retainer.{characteristic}.printed': { hidden: true }
+    'retainer.{characteristic}.level2': { hidden: true }
+    'retainer.{characteristic}.level5': { hidden: true }
+    'retainer.{characteristic}.level8': { hidden: true }
+    retainer.encounterUsed:
+      { groups: [monster], priority: 3, showWhen: size(retainer.encounterUsed) > 0 }

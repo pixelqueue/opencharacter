@@ -1,0 +1,45 @@
+id: abilities.ogre.cyclops.wild-slam
+type: ability
+grantOnly: false
+tags:
+  - kw.area
+  - kw.weapon
+fields:
+  usage: main-action
+  kind: signature
+  distanceKind: burst
+  distance: 1
+  rollBonus: 5
+  t1Damage: 3
+  t1AddsChar: false
+  t2Damage: 6
+  t2AddsChar: false
+  t2Move: push
+  t2MoveDistance: 3
+  t3Damage: 7
+  t3AddsChar: false
+  t3Condition: conditions.prone
+# The initial power roll counts as a 17 (an automatic tier 3; a critical hit is still rolled).
+effects:
+  - target: { rolls: [power-roll.ability], tally: autoTier3, from: self }
+    op: add
+    value: 1
+  # 3, 4 or 5 more damage to a target with A < 3, 4 or 5.
+  - target: { rolls: [damage], from: self }
+    op: add
+    value: flags.tier + 2
+    when: >-
+      flags.tier > 0 && (participant.characteristics.agility.score + participant.potency.resistBonus.agility)
+        < flags.tier + 2 + steps.roll.tallies.potencyBonus
+  # Tier 3: restrained (save ends) beside the prone, behind the same A < 5.
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@conditions.restrained'
+          state: { duration: "'save'" }
+          appliedBy: character.id
+    when: >-
+      flags.tier == 3 && (participant.characteristics.agility.score + participant.potency.resistBonus.agility)
+        < 5 + steps.roll.tallies.potencyBonus

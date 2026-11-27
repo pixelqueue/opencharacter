@@ -1,0 +1,52 @@
+# The hag's Malice feature as an ability every hag holds (`malice-feature`), paid from the
+# Director's sheet. The damage type and condition are one pick (`wyrd`): fire and frightened, or
+# lightning and dazed, or cold and slowed (picked on use rather than after the roll), behind the
+# tier's R < 1/2/3 potency, save ends.
+id: abilities.hag.malice.hag-wyrd
+type: ability
+grantOnly: false
+tags: [malice-feature, creature.hag, kw.area, kw.magic]
+fields:
+  usage: main-action
+  resource: malice
+  cost: 5
+  distanceKind: line
+  distance: 10
+  areaWidth: 1
+  within: 1
+  rollBonus: 3
+  t1Damage: 5
+  t1AddsChar: false
+  t2Damage: 8
+  t2AddsChar: false
+  t3Damage: 11
+  t3AddsChar: false
+effects:
+  - target: { actions: [ability], from: self }
+    op: params
+    value:
+      wyrd:
+        {
+          type: enum,
+          values: [fire-frightened, lightning-dazed, cold-slowed],
+          default: fire-frightened,
+        }
+  - target: { rolls: [damage], parts: [ability.damage], from: self }
+    op: tag
+    value:
+      - formula: >-
+          params.wyrd == 'lightning-dazed' ? 'damage.lightning'
+            : params.wyrd == 'cold-slowed' ? 'damage.cold' : 'damage.fire'
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: >-
+            params.wyrd == 'lightning-dazed' ? @conditions.dazed
+              : params.wyrd == 'cold-slowed' ? @conditions.slowed : @conditions.frightened
+          state: { duration: "'save'" }
+          appliedBy: character.id
+    when: >-
+      flags.tier > 0 && participant.characteristics.reason.score + participant.potency.resistBonus.reason
+        < flags.tier + (has(steps.roll) ? steps.roll.tallies.potencyBonus : 0)

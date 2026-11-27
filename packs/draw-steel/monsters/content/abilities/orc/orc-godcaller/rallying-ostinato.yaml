@@ -1,0 +1,20 @@
+# Ignoring difficult terrain is the table's.
+id: abilities.orc.orc-godcaller.rallying-ostinato
+type: ability
+grantOnly: false
+tags:
+  - kw.magic
+  - kw.ranged
+fields:
+  usage: maneuver
+  resource: malice
+  cost: 2
+  distanceKind: ranged
+  distance: 10
+# Each target regains 15 Stamina.
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - { type: adjust, field: stamina.current, by: 15, tags: [healing] }

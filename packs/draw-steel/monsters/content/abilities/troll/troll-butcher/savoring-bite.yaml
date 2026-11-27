@@ -1,0 +1,41 @@
+id: abilities.troll.troll-butcher.savoring-bite
+type: ability
+grantOnly: false
+tags:
+  - kw.melee
+  - kw.strike
+  - kw.weapon
+fields:
+  usage: main-action
+  kind: signature
+  spendCost: 1
+  distanceKind: melee
+  distance: 1
+  rollBonus: 3
+  t1Damage: 9
+  t1AddsChar: false
+  t1Condition: conditions.bleeding
+  t1Duration: save
+  t1PotencyChar: might
+  t1PotencyValue: 1
+  t2Damage: 14
+  t2AddsChar: false
+  t2Condition: conditions.bleeding
+  t2Duration: save
+  t2PotencyChar: might
+  t2PotencyValue: 2
+  t3Damage: 17
+  t3AddsChar: false
+  t3Condition: conditions.bleeding
+  t3Duration: save
+  t3PotencyChar: might
+  t3PotencyValue: 3
+# 1 Malice: the troll regains Stamina equal to the damage dealt.
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - { type: adjust, field: stamina.current, by: steps.damage.total }
+      to: self
+    when: flags.tier > 0 && has(params.malice) && params.malice >= 1 && has(steps.damage)

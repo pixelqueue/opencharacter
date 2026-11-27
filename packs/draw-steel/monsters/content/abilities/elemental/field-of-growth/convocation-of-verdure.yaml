@@ -1,0 +1,19 @@
+id: abilities.elemental.field-of-growth.convocation-of-verdure
+type: ability
+grantOnly: false
+tags:
+  - kw.magic
+  - kw.ranged
+fields:
+  usage: maneuver
+  spendCost: 3
+  distanceKind: ranged
+  distance: 5
+# The target gains 15 temporary Stamina (that it lasts only until the start of the field's next turn
+# is the table's). The 3 Malice undergrowth is the table's.
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - { type: adjust, field: stamina.temp, by: 15 }

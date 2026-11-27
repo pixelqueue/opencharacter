@@ -1,0 +1,46 @@
+# While grabbed this way, a target can't communicate or use magic abilities: `effects.orc.strangled`
+# (it bars `kw.magic`; communicating is the table's).
+id: abilities.orc.orc-garotter.strangle
+type: ability
+grantOnly: false
+tags:
+  - kw.melee
+  - kw.strike
+  - kw.weapon
+fields:
+  usage: main-action
+  distanceKind: melee
+  distance: 1
+  rollBonus: 2
+  t1Damage: 6
+  t1AddsChar: false
+  t2Damage: 9
+  t2AddsChar: false
+  t2Condition: conditions.dazed
+  t2Duration: save
+  t2PotencyChar: intuition
+  t2PotencyValue: 1
+  t3Damage: 12
+  t3AddsChar: false
+  t3Condition: conditions.grabbed
+# Tier 3: grabbed (the tier field), and dazed (save ends) if I < 2.
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@effects.orc.strangled'
+          appliedBy: character.id
+    when: flags.tier == 3
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@conditions.dazed'
+          state: { duration: "'save'" }
+          appliedBy: character.id
+    when: >-
+      flags.tier == 3 && participant.characteristics.intuition.score + participant.potency.resistBonus.intuition
+        < 2 + (has(steps.roll) ? steps.roll.tallies.potencyBonus : 0)

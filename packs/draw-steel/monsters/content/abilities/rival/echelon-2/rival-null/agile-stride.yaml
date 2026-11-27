@@ -1,0 +1,28 @@
+# The null's shift is the table's.
+id: abilities.rival.echelon-2.rival-null.agile-stride
+type: ability
+grantOnly: false
+tags:
+  - kw.melee
+  - kw.strike
+  - kw.weapon
+fields:
+  usage: main-action
+  kind: signature
+  distanceKind: melee
+  distance: 1
+  rollBonus: 3
+  t1Damage: 9
+  t1AddsChar: false
+  t2Damage: 14
+  t2AddsChar: false
+  t3Damage: 17
+  t3AddsChar: false
+effects:
+  # A < 1/2/3: 6, 8 or 11 damage besides.
+  - target: { rolls: [damage], from: self }
+    op: add
+    value: '[6, 8, 11][flags.tier - 1]'
+    when: >-
+      flags.tier > 0 && has(participant)
+        && participant.characteristics.agility.score + participant.potency.resistBonus.agility < [1, 2, 3][flags.tier - 1] + (has(steps.roll) ? steps.roll.tallies.potencyBonus : 0)

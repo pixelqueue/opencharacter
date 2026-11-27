@@ -1,0 +1,35 @@
+id: abilities.shadow-elf.shadow-elf-luminator.mourning-till-dusk
+type: ability
+grantOnly: false
+tags:
+  - kw.area
+  - kw.magic
+fields:
+  usage: main-action
+  resource: malice
+  cost: 3
+  distanceKind: burst
+  distance: 2
+  rollBonus: 3
+effects:
+  # Each target regains 6, 9 or 12 Stamina by tier, and gains an edge on their next strike.
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: adjust
+          field: stamina.current
+          by: '[6, 9, 12][flags.tier - 1]'
+          tags: [healing]
+        - type: applyEffect
+          source: '@effects.shadow-elf.next-strike-edge'
+          appliedBy: character.id
+    when: flags.tier > 0
+  # Tier 3: the Director gains 3 Malice.
+  - target: { steps: [ability.after], from: self }
+    op: changes
+    value:
+      to: { link: director }
+      changes:
+        - { type: adjust, field: draw-steel-monsters:malice, by: 3 }
+    when: has(steps.roll) && steps.roll.bandValue == 3 && has(links.director)

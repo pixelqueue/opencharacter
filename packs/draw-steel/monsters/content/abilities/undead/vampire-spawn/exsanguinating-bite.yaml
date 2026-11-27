@@ -1,0 +1,52 @@
+# Tier 1's 5 damage is untyped, tiers 2 and 3 corruption: an `op: tag` types the tier's damage.
+# The spawn regains the corruption damage dealt. 1 Malice: 3 more corruption damage.
+id: abilities.undead.vampire-spawn.exsanguinating-bite
+type: ability
+grantOnly: false
+tags:
+  - kw.melee
+  - kw.strike
+  - kw.weapon
+fields:
+  usage: main-action
+  kind: signature
+  spendCost: 1
+  distanceKind: melee
+  distance: 1
+  rollBonus: 3
+  t1Damage: 5
+  t1AddsChar: false
+  t2Damage: 7
+  t2AddsChar: false
+  t2Condition: conditions.bleeding
+  t2Duration: save
+  t2PotencyChar: might
+  t2PotencyValue: 2
+  t3Damage: 9
+  t3AddsChar: false
+  t3Condition: conditions.bleeding
+  t3Duration: save
+  t3PotencyChar: might
+  t3PotencyValue: 3
+effects:
+  - target: { rolls: [damage], parts: [ability.damage], from: self }
+    op: tag
+    value: [{ formula: "flags.tier >= 2 ? ['damage.corruption'] : []" }]
+  - target: { rolls: [damage], from: self }
+    op: add
+    value: 3
+    tags: [damage.corruption]
+    when: >-
+      flags.tier > 0 && has(params.malice) && params.malice >= 1
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - {
+            type: adjust,
+            field: stamina.current,
+            by: 'flags.tier >= 2 ? steps.damage.total : (has(params.malice) && params.malice >= 1 ? 3 : 0)',
+          }
+      to: self
+    when: >-
+      flags.tier > 0 && has(steps.damage)

@@ -1,0 +1,49 @@
+# The 5 Malice area version is the table's.
+id: abilities.high-elf.high-elf-deathtouch.heartpiercer
+type: ability
+grantOnly: false
+tags:
+  - kw.ranged
+  - kw.strike
+  - kw.weapon
+fields:
+  usage: main-action
+  kind: signature
+  spendCost: 5
+  distanceKind: ranged
+  distance: 15
+  rollBonus: 2
+  t1Damage: 7
+  t1AddsChar: false
+  t2Damage: 10
+  t2AddsChar: false
+  t3Damage: 13
+  t3AddsChar: false
+  t3Condition: conditions.bleeding
+  t3Duration: save
+  t3PotencyChar: reason
+  t3PotencyValue: 1
+# Tier 3: I < 1 frightened and P < 1 restrained (save ends), each behind its own potency.
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@conditions.frightened'
+          state: { duration: "'save'" }
+          appliedBy: character.id
+    when: >-
+      flags.tier == 3 && participant.characteristics.intuition.score + participant.potency.resistBonus.intuition
+        < 1 + steps.roll.tallies.potencyBonus
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@conditions.restrained'
+          state: { duration: "'save'" }
+          appliedBy: character.id
+    when: >-
+      flags.tier == 3 && participant.characteristics.presence.score + participant.potency.resistBonus.presence
+        < 1 + steps.roll.tallies.potencyBonus

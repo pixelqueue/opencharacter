@@ -1,0 +1,22 @@
+id: abilities.radenwight.radenwight-maestro.solo-act
+type: ability
+grantOnly: false
+tags:
+  - kw.ranged
+fields:
+  usage: no-action
+  kind: villain
+  resource: villain-action
+  cost: 2
+  distanceKind: ranged
+  distance: 15
+# Until the end of the target's next turn (`own-next-end`).
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@effects.radenwight.solo-act'
+          state: { duration: "'own-next-end'" }
+          appliedBy: character.id

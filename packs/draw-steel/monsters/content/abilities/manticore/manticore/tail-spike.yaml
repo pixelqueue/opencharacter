@@ -1,0 +1,46 @@
+id: abilities.manticore.manticore.tail-spike
+type: ability
+grantOnly: false
+tags:
+  - kw.ranged
+  - kw.strike
+  - kw.weapon
+fields:
+  usage: main-action
+  spendCost: 1
+  distanceKind: ranged
+  distance: 10
+  rollBonus: 4
+  t1Damage: 6
+  t1AddsChar: false
+  t2Damage: 11
+  t2AddsChar: false
+  t2Condition: conditions.weakened
+  t2Duration: save
+  t2PotencyChar: might
+  t2PotencyValue: 3
+  t3Damage: 14
+  t3AddsChar: false
+  t3Condition: conditions.weakened
+  t3Duration: save
+  t3PotencyChar: might
+  t3PotencyValue: 4
+effects:
+  # M < 2/3/4: 4, 4 or 8 poison damage more.
+  - target: { rolls: [damage], from: self }
+    op: add
+    value: '[4, 4, 8][flags.tier - 1]'
+    tags: [damage.poison]
+    when: >-
+      flags.tier > 0 && participant.characteristics.might.score + participant.potency.resistBonus.might
+        < flags.tier + 1 + (has(steps.roll) ? steps.roll.tallies.potencyBonus : 0)
+  # 1 Malice: 1d6 poison damage each turn while weakened this way.
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@effects.manticore.spike-poison'
+          state: { duration: "'encounter'" }
+          appliedBy: character.id
+    when: flags.tier >= 2 && flags.landed && has(params.malice) && params.malice >= 1

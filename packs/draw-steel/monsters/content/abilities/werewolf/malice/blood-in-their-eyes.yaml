@@ -1,0 +1,22 @@
+# The Malice feature as an ability every werebeast monster holds (`malice-feature`): 3 Malice,
+# paid from the Director's sheet. The temporary Stamina is the werewolf's own; the speed bonus
+# lasts until the end of their turn. That it can't be used after holy damage is the table's.
+id: abilities.werewolf.malice.blood-in-their-eyes
+type: ability
+grantOnly: false
+tags: [malice-feature, creature.werebeast]
+fields:
+  usage: no-action
+  resource: malice
+  cost: 3
+  distanceKind: self
+effects:
+  - target: { steps: [ability.after], from: self }
+    op: changes
+    value:
+      changes:
+        - { type: adjust, field: stamina.temp, by: 10 }
+        - type: applyEffect
+          source: '@effects.werewolf.blood-in-their-eyes'
+          state: { duration: "'eot'" }
+          appliedBy: character.id

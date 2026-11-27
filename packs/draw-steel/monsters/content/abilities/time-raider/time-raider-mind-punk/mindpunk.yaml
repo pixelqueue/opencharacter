@@ -1,0 +1,44 @@
+id: abilities.time-raider.time-raider-mind-punk.mindpunk
+type: ability
+grantOnly: false
+tags:
+  - kw.area
+  - kw.psionic
+fields:
+  usage: main-action
+  resource: malice
+  cost: 2
+  distanceKind: burst
+  distance: 3
+  rollBonus: 2
+  damageType: psychic
+  t1Damage: 4
+  t1AddsChar: false
+  t1Condition: conditions.prone
+  t1PotencyChar: reason
+  t1PotencyValue: 0
+  t2Damage: 6
+  t2AddsChar: false
+  t2Move: push
+  t2MoveDistance: 1
+  t3Damage: 9
+  t3AddsChar: false
+  t3Move: push
+  t3MoveDistance: 2
+  t2Condition: conditions.prone
+  t2PotencyChar: reason
+  t2PotencyValue: 1
+  t3Condition: conditions.prone
+  t3PotencyChar: reason
+  t3PotencyValue: 2
+# Tiers 2 and 3: with the prone, can't stand (save ends).
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@effects.common.cant-stand'
+          state: { duration: "'save'" }
+          appliedBy: character.id
+    when: flags.tier >= 2 && flags.landed

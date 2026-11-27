@@ -1,0 +1,21 @@
+# A hero made thunderstruck by a war dog taxiarch, cursed by a mummy and fetid-wrapped by a rotwrap.
+specVersion: 0.4.0
+id: hero
+packs:
+  - id: draw-steel-heroes
+    version: 0.1.1
+  - id: draw-steel-monsters
+    version: 0.1.0
+values:
+  draw-steel-heroes:stamina.current: 1
+applied:
+  - id: thunderstruck
+    source: draw-steel-monsters:effects.war-dog.thunderstruck
+    appliedBy: war-dog-taxiarch
+  - id: cursed
+    source: draw-steel-monsters:effects.undead.cursed
+    appliedBy: mummy
+    state: { duration: save }
+  - id: fetid
+    source: draw-steel-monsters:effects.undead.fetid-wrapped
+    appliedBy: rotwrap

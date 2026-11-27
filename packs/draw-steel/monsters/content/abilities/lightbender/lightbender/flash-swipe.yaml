@@ -1,0 +1,25 @@
+id: abilities.lightbender.lightbender.flash-swipe
+type: ability
+grantOnly: false
+tags:
+  - kw.melee
+  - kw.strike
+  - kw.weapon
+fields:
+  usage: main-action
+  kind: signature
+  distanceKind: melee
+  distance: 2
+  rollBonus: 2
+  t1Damage: 9
+  t1AddsChar: false
+  t2Damage: 14
+  t2AddsChar: false
+  t3Damage: 18
+  t3AddsChar: false
+# An edge (or a double edge) on the roll: 4 more damage.
+effects:
+  - target: { rolls: [damage], from: self }
+    op: add
+    value: 4
+    when: min(2, steps.tier.tallies.edges) > min(2, steps.tier.tallies.banes)

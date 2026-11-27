@@ -1,0 +1,30 @@
+# Tier 3's damage ignores immunity: the table's (a split damage change carries one damage tag, so
+# `damage.unreducible` can't ride with the fire type). Ignoring concealment is the table's; 5 more
+# damage to a winded target.
+id: abilities.demon.optacus.optical-flare
+type: ability
+grantOnly: false
+tags:
+  - kw.magic
+  - kw.ranged
+  - kw.strike
+  - kw.weapon
+fields:
+  usage: main-action
+  kind: signature
+  distanceKind: ranged
+  distance: 20
+  rollBonus: 5
+  damageType: fire
+  t1Damage: 5
+  t1AddsChar: false
+  t2Damage: 8
+  t2AddsChar: false
+  t3Damage: 10
+  t3AddsChar: false
+effects:
+  - target: { rolls: [damage], from: self }
+    op: add
+    value: 5
+    when: >-
+      flags.tier > 0 && participant.stamina.isWinded

@@ -1,0 +1,48 @@
+# A target already weakened is dazed until the end of their next turn instead (`own-next-end`);
+# the weakened isn't withheld.
+id: abilities.dragon.meteor-dragon.cosmic-tail-ray
+type: ability
+grantOnly: false
+tags:
+  - kw.magic
+  - kw.melee
+  - kw.ranged
+  - kw.strike
+fields:
+  usage: main-action
+  distanceKind: melee-or-ranged
+  distance: 2
+  rangedDistance: 15
+  rollBonus: 5
+  damageType: holy
+  t1Damage: 15
+  t1AddsChar: false
+  t1Condition: conditions.weakened
+  t1Duration: save
+  t1PotencyChar: agility
+  t1PotencyValue: 4
+  t2Damage: 21
+  t2AddsChar: false
+  t2Condition: conditions.weakened
+  t2Duration: save
+  t2PotencyChar: agility
+  t2PotencyValue: 5
+  t3Damage: 25
+  t3AddsChar: false
+  t3Condition: conditions.weakened
+  t3Duration: save
+  t3PotencyChar: agility
+  t3PotencyValue: 6
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@conditions.dazed'
+          state: { duration: "'own-next-end'" }
+          appliedBy: character.id
+    when: >-
+      flags.tier > 0 && participant.conditions.weakened
+        && participant.characteristics.agility.score + participant.potency.resistBonus.agility
+          < [4, 5, 6][flags.tier - 1] + (has(steps.roll) ? steps.roll.tallies.potencyBonus : 0)

@@ -1,0 +1,44 @@
+# Bleeding (save ends), or beheaded instead if M < 1/2/3 (a beheaded creature is bleeding).
+id: abilities.bredbeddle.bredbeddle.lop
+type: ability
+grantOnly: false
+tags:
+  - kw.magic
+  - kw.melee
+  - kw.strike
+  - kw.weapon
+fields:
+  usage: main-action
+  resource: malice
+  cost: 3
+  distanceKind: melee
+  distance: 2
+  rollBonus: 3
+  t1Damage: 9
+  t1AddsChar: false
+  t1Effect: effects.bredbeddle.beheaded
+  t1Duration: until
+  t1PotencyChar: might
+  t1PotencyValue: 1
+  t2Damage: 13
+  t2AddsChar: false
+  t2Effect: effects.bredbeddle.beheaded
+  t2Duration: until
+  t2PotencyChar: might
+  t2PotencyValue: 2
+  t3Damage: 16
+  t3AddsChar: false
+  t3Effect: effects.bredbeddle.beheaded
+  t3Duration: until
+  t3PotencyChar: might
+  t3PotencyValue: 3
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@conditions.bleeding'
+          state: { duration: "'save'" }
+          appliedBy: character.id
+    when: flags.tier > 0 && !flags.landed

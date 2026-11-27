@@ -1,0 +1,51 @@
+id: abilities.rival.echelon-3.rival-fury.bonebreaker
+type: ability
+grantOnly: false
+tags:
+  - kw.melee
+  - kw.strike
+  - kw.weapon
+fields:
+  usage: main-action
+  kind: signature
+  spendCost: 3
+  distanceKind: melee
+  distance: 1
+  rollBonus: 4
+  t1Damage: 13
+  t1AddsChar: false
+  t1Move: push
+  t1MoveDistance: 3
+  t2Damage: 18
+  t2AddsChar: false
+  t2Move: push
+  t2MoveDistance: 4
+  t3Damage: 22
+  t3AddsChar: false
+  t3Move: push
+  t3MoveDistance: 5
+effects:
+  # 3 Malice: each target who has M < 3 is bleeding and slowed (save ends).
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@conditions.bleeding'
+          state: { duration: "'save'" }
+          appliedBy: character.id
+    when: >-
+      flags.tier > 0 && has(params.malice) && params.malice >= 3
+        && participant.characteristics.might.score + participant.potency.resistBonus.might < 3 + (has(steps.roll) ? steps.roll.tallies.potencyBonus : 0)
+  # (the slowed)
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@conditions.slowed'
+          state: { duration: "'save'" }
+          appliedBy: character.id
+    when: >-
+      flags.tier > 0 && has(params.malice) && params.malice >= 3
+        && participant.characteristics.might.score + participant.potency.resistBonus.might < 3 + (has(steps.roll) ? steps.roll.tallies.potencyBonus : 0)

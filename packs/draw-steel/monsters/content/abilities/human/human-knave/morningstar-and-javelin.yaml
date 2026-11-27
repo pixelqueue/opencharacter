@@ -1,0 +1,35 @@
+id: abilities.human.human-knave.morningstar-and-javelin
+type: ability
+grantOnly: false
+tags:
+  - kw.melee
+  - kw.ranged
+  - kw.strike
+  - kw.weapon
+fields:
+  usage: main-action
+  kind: signature
+  distanceKind: melee-or-ranged
+  distance: 1
+  rangedDistance: 5
+  rollBonus: 2
+  t1Damage: 6
+  t1AddsChar: false
+  t2Damage: 9
+  t2AddsChar: false
+  t3Damage: 12
+  t3AddsChar: false
+  t3Effect: effects.common.next-roll-double-bane
+  t3PotencyChar: might
+  t3PotencyValue: 2
+# Effect: the target is taunted (EoT), on any tier.
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@conditions.taunted'
+          state: { duration: "'eot'" }
+          appliedBy: character.id
+    when: flags.tier > 0

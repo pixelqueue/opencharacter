@@ -1,0 +1,48 @@
+# Tiers 2 and 3: slide and prone behind the potency; tier 3 adds can't stand (EoT) when it lands.
+# A target already prone is restrained (EoT) instead: the table's.
+id: abilities.fossil-cryptic.fossil-cryptic.sand-slam
+type: ability
+grantOnly: false
+tags:
+  - kw.melee
+  - kw.strike
+  - kw.weapon
+fields:
+  usage: main-action
+  kind: signature
+  distanceKind: melee
+  distance: 2
+  rollBonus: 3
+  t1Damage: 8
+  t1AddsChar: false
+  t1Move: slide
+  t1MoveDistance: 2
+  t1PotencyChar: agility
+  t1PotencyValue: 1
+  t1MovePotency: true
+  t2Damage: 12
+  t2AddsChar: false
+  t2Move: slide
+  t2MoveDistance: 2
+  t2Condition: conditions.prone
+  t2PotencyChar: agility
+  t2PotencyValue: 2
+  t2MovePotency: true
+  t3Damage: 15
+  t3AddsChar: false
+  t3Move: slide
+  t3MoveDistance: 3
+  t3Condition: conditions.prone
+  t3PotencyChar: agility
+  t3PotencyValue: 3
+  t3MovePotency: true
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@effects.common.cant-stand'
+          state: { duration: "'eot'" }
+          appliedBy: character.id
+    when: flags.tier == 3 && flags.landed

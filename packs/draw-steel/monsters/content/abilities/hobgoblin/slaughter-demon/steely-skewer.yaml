@@ -1,0 +1,39 @@
+# Moving restrained creatures along and the six-creature limit are the table's.
+id: abilities.hobgoblin.slaughter-demon.steely-skewer
+type: ability
+grantOnly: false
+tags:
+  - kw.melee
+  - kw.strike
+  - kw.weapon
+fields:
+  usage: main-action
+  kind: signature
+  distanceKind: melee
+  distance: 3
+  rollBonus: 3
+  t1Damage: 9
+  t1AddsChar: false
+  t2Damage: 14
+  t2AddsChar: false
+  t2Condition: conditions.bleeding
+  t2Duration: save
+  t2PotencyChar: agility
+  t2PotencyValue: 2
+  t3Damage: 17
+  t3AddsChar: false
+  t3Condition: conditions.bleeding
+  t3Duration: save
+  t3PotencyChar: agility
+  t3PotencyValue: 3
+# Tier 3: restrained (save ends) too, behind the same potency.
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@conditions.restrained'
+          state: { duration: "'save'" }
+          appliedBy: character.id
+    when: flags.tier == 3 && flags.landed

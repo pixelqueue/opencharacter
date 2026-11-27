@@ -1,0 +1,18 @@
+# Acid Grasp: the next time the creature makes a strike against the daybringer who applied it,
+# 4 acid damage after the strike; then it ends.
+id: effects.angulotl.acid-grasp
+type: effect
+effects:
+  - target: { steps: [ability.after] }
+    op: changes
+    scope: applied
+    value:
+      changes:
+        - type: adjust
+          field: stamina.current
+          by: -4
+          tags: [damage, damage.acid]
+        - type: removeEffect
+          applied: { where: 'item.id == @effects.angulotl.acid-grasp' }
+    when: >-
+      'kw.strike' in action.item.tags && countList(participants.target, x.id == self.appliedBy) > 0

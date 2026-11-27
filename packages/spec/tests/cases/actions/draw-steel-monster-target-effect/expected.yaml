@@ -1,0 +1,45 @@
+# 3 + 3 + 5 = 11, tier 1; the thunderstruck target's edge makes it 13, tier 2.
+status: finished
+outcome:
+  result: tier1
+  data:
+    natural: 6
+    critical: false
+    tier: 1
+    damage: 0
+    distance: 10
+    within: 0
+    rangedDistance: 0
+    targetTiers:
+      - 2
+      - 1
+    forcedMovement:
+      - ''
+      - ''
+    forcedDistance:
+      - 0
+      - 0
+    teleport: 0
+proposedChanges:
+  - to: target
+    character: thunderstruck
+    step: hit[0]
+    change:
+      type: adjust
+      field: draw-steel-heroes:stamina.current
+      from: war-dog-taxiarch
+      by: -19
+      tags:
+        - damage
+        - damage.lightning
+  - to: target
+    character: plain
+    step: hit[1]
+    change:
+      type: adjust
+      field: draw-steel-heroes:stamina.current
+      from: war-dog-taxiarch
+      by: -14
+      tags:
+        - damage
+        - damage.lightning

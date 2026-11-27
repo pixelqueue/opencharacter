@@ -1,0 +1,13 @@
+# A creature the mindkiller's abilities grab takes a bane on the Escape Grab maneuver. The size
+# limit and Reason in place of Might are the table's.
+id: traits.voiceless-talker.mindkiller.brain-latch
+type: trait
+effects:
+  - target: { steps: [ability.hit] }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@effects.common.escape-grab-bane'
+          appliedBy: character.id
+    when: flags.landed && flags.cond == @conditions.grabbed

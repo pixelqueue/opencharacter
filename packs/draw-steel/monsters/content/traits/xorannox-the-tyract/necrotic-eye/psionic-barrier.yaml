@@ -1,0 +1,17 @@
+# Damage immunity 15, lost until the end of the round once the eye uses a main action.
+id: traits.xorannox-the-tyract.necrotic-eye.psionic-barrier
+type: trait
+effects:
+  - target: immunity.all
+    op: add
+    value: 15
+    when: '!(@effects.xorannox-the-tyract.barrier-down in effects.active)'
+  - target: { steps: [ability.after] }
+    op: changes
+    value:
+      to: self
+      changes:
+        - type: applyEffect
+          source: '@effects.xorannox-the-tyract.barrier-down'
+          appliedBy: character.id
+    when: action.item.usage == 'main-action'

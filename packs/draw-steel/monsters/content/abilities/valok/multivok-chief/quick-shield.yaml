@@ -1,0 +1,39 @@
+# The target gains 15 temporary Stamina, 3 less for each earlier use (to 0): the copy counts its
+# uses in its `uses` state (back to 0 when combat ends).
+id: abilities.valok.multivok-chief.quick-shield
+type: ability
+state:
+  uses: { type: integer, default: 0, min: 0 }
+grantOnly: false
+tags:
+  - kw.ranged
+fields:
+  usage: triggered
+  distanceKind: ranged
+  distance: 10
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - { type: adjust, field: stamina.temp, by: 'max(0, 15 - 3 * action.self.uses)' }
+  - target: { steps: [ability.after], from: self }
+    op: changes
+    value:
+      to: self
+      changes:
+        - type: adjustState
+          copies:
+            { type: ability, where: 'item.id == @abilities.valok.multivok-chief.quick-shield' }
+          key: uses
+          by: 1
+  # The count starts over each encounter.
+  - target: { steps: [combat.end] }
+    op: changes
+    value:
+      changes:
+        - type: setState
+          copies:
+            { type: ability, where: 'item.id == @abilities.valok.multivok-chief.quick-shield' }
+          key: uses
+          value: 0

@@ -1,0 +1,34 @@
+# Tier 3's grab carries a bane on the Escape Grab maneuver, and a target grabbed this way takes 4
+# psychic damage at the start of each of the tormenauk's turns (`effects.demon.many-maws`).
+id: abilities.demon.tormenauk.many-maws
+type: ability
+grantOnly: false
+tags:
+  - kw.melee
+  - kw.strike
+  - kw.weapon
+fields:
+  usage: main-action
+  kind: signature
+  distanceKind: melee
+  distance: 1
+  rollBonus: 3
+  t1Damage: 7
+  t1AddsChar: false
+  t2Damage: 9
+  t2AddsChar: false
+  t3Damage: 11
+  t3AddsChar: false
+  t3Condition: conditions.grabbed
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@effects.demon.many-maws'
+          appliedBy: character.id
+        - type: applyEffect
+          source: '@effects.common.escape-grab-bane'
+          appliedBy: character.id
+    when: flags.tier == 3 && flags.landed

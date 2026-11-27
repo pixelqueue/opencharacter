@@ -1,0 +1,22 @@
+id: abilities.high-elf.high-elf-palinode.recall
+type: ability
+grantOnly: false
+tags:
+  - kw.magic
+  - kw.ranged
+fields:
+  usage: maneuver
+  distanceKind: ranged
+  distance: 5
+# Each target and the palinode gain 5 temporary Stamina; the teleport is the table's.
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - { type: adjust, field: stamina.temp, by: 5 }
+  - target: { steps: [ability.after], from: self }
+    op: changes
+    value:
+      changes:
+        - { type: adjust, field: stamina.temp, by: 5 }

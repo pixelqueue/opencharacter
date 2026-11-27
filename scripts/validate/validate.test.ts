@@ -22,6 +22,7 @@ describe('pnpm validate', () => {
       'awn-core',
       'cwn-srd',
       'draw-steel-heroes',
+      'draw-steel-monsters',
       'fate-core',
       'fitd-crew',
       'fitd-scoundrel',

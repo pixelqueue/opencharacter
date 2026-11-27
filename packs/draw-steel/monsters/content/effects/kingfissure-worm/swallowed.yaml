@@ -1,0 +1,12 @@
+# Swallowed: 1d6 acid damage at the start of each of the creature's turns (the book says every
+# turn: the other creatures' turns are the table's). Restrained is applied beside it.
+id: effects.kingfissure-worm.swallowed
+type: effect
+effects:
+  - target: { steps: [turn.start] }
+    op: action
+    scope: applied
+    value:
+      id: swallowed
+      use: ongoing-damage
+      params: { dice: 1d6, damageType: "'acid'" }

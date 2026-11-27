@@ -1,0 +1,46 @@
+id: monsters.retainer.vampire-rebel
+type: monster
+tags:
+  - creature.undead
+  - creature.vampire
+fields:
+  level: 4
+  organization: retainer
+  role: harrier
+  size: 1m
+  speed: 5
+  movement:
+    - move.climb
+  stamina: 48
+  freeStrike: 4
+  might: 2
+  agility: 3
+  reason: 0
+  intuition: 0
+  presence: 3
+  traits:
+    - traits.retainer.vampire-rebel.agonizing-bloodthirst
+  abilities:
+    - abilities.retainer.vampire-rebel.flashing-fangs
+    - abilities.retainer.vampire-rebel.bat-form
+# Retainer advancement (rules/retainer.yaml): a characteristic +1 at 2nd and 8th level, and an
+# advancement ability at 4th, 7th and 10th level, the retainer's own or their role's.
+choices:
+  - id: increase8
+    when: item.level >= 8
+    from: { values: [might, agility, reason, intuition, presence] }
+    recommend: "'might'"
+    effects:
+      - target: { formula: "'retainer.' + pick.value + '.increase8'" }
+        op: set
+        value: 'true'
+  - id: advancement
+    slots: [7, 10]
+    when: item.level >= slot
+    from:
+      type: ability
+      where: >-
+        item.id in [@abilities.retainer.vampire-rebel.blood-surge, @abilities.retainer.role-harrier.meet-you-there, @abilities.retainer.vampire-rebel.exsanguination, @abilities.retainer.role-harrier.nab-and-stab]
+    eligible: item.level == slot
+    recommend: >-
+      [@abilities.retainer.vampire-rebel.blood-surge, @abilities.retainer.vampire-rebel.exsanguination][indexOf([7, 10], slot)]

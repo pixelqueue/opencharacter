@@ -1,0 +1,24 @@
+# Pushed up to 3 squares (the tier-1 move), or with A < 3 up to 6 and knocked prone.
+id: abilities.giant.basalt-stone-giant.resonate-rune
+type: ability
+grantOnly: false
+tags:
+  - kw.area
+  - kw.magic
+fields:
+  usage: triggered
+  distanceKind: burst
+  distance: 2
+  t1Condition: conditions.prone
+  t1PotencyChar: agility
+  t1PotencyValue: 3
+  t1Move: push
+  t1MoveDistance: 3
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      flags: { moveDistance: 6 }
+    when: >-
+      participant.characteristics.agility.score + participant.potency.resistBonus.agility
+        < 3 + (has(steps.roll) ? steps.roll.tallies.potencyBonus : 0)

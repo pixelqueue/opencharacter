@@ -1,0 +1,37 @@
+# Tier 3's bane on the Escape Grab maneuver, behind M < 2 (the grab has no potency).
+id: abilities.gnoll.gnoll-bonesplitter.three-tail-flail
+type: ability
+grantOnly: false
+tags:
+  - kw.melee
+  - kw.strike
+  - kw.weapon
+fields:
+  usage: main-action
+  kind: signature
+  distanceKind: melee
+  distance: 1
+  rollBonus: 2
+  t1Damage: 5
+  t1AddsChar: false
+  t1Move: push
+  t1MoveDistance: 2
+  t2Damage: 6
+  t2AddsChar: false
+  t2Move: push
+  t2MoveDistance: 2
+  t3Damage: 8
+  t3AddsChar: false
+  t3Condition: conditions.grabbed
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@effects.common.escape-grab-bane'
+          appliedBy: character.id
+    when: >-
+      flags.tier == 3 && flags.landed
+        && participant.characteristics.might.score + participant.potency.resistBonus.might
+          < 2 + (has(steps.roll) ? steps.roll.tallies.potencyBonus : 0)

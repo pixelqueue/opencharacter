@@ -1,0 +1,21 @@
+id: abilities.goblin.goblin-underboss.get-reckless
+type: ability
+grantOnly: false
+tags:
+  - kw.area
+fields:
+  usage: maneuver
+  spendCost: 2
+  distanceKind: burst
+  distance: 5
+# Each ally in the area (the targets): until the start of the underboss's next turn, an edge on
+# strikes and on strikes against them; with 2 Malice, not the edge against them.
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@effects.goblin.reckless'
+          state: { duration: "'next-start'", guarded: has(params.malice) && params.malice >= 2 }
+          appliedBy: character.id

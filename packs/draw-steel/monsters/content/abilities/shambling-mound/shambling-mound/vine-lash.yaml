@@ -1,0 +1,39 @@
+# 3 Malice: 7 poison damage to each target (a `malice` of 3 or more); the 2 Malice slide is the
+# table's.
+id: abilities.shambling-mound.shambling-mound.vine-lash
+type: ability
+grantOnly: false
+tags:
+  - kw.melee
+  - kw.strike
+  - kw.weapon
+fields:
+  usage: main-action
+  kind: signature
+  spendCost: 2
+  distanceKind: melee
+  distance: 6
+  rollBonus: 4
+  t1Damage: 11
+  t1AddsChar: false
+  t1Condition: conditions.grabbed
+  t1PotencyChar: agility
+  t1PotencyValue: 3
+  t2Damage: 16
+  t2AddsChar: false
+  t2Condition: conditions.grabbed
+  t2PotencyChar: agility
+  t2PotencyValue: 4
+  t3Damage: 19
+  t3AddsChar: false
+  t3Condition: conditions.grabbed
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: adjust
+          field: stamina.current
+          by: -7
+          tags: [damage, damage.poison]
+    when: has(params.malice) && params.malice >= 3

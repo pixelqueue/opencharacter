@@ -1,0 +1,52 @@
+# Tier 1's 7 damage is untyped, tiers 2 and 3 corruption: an `op: tag` types the tier's damage.
+# Tiers 2 and 3: 5 or 7 more corruption damage and bleeding (save ends), behind M < 3 or 4. The
+# vampire regains the corruption damage dealt.
+id: abilities.undead.vampire.exsanguinating-bite
+type: ability
+grantOnly: false
+tags:
+  - kw.melee
+  - kw.strike
+  - kw.weapon
+fields:
+  usage: main-action
+  kind: signature
+  distanceKind: melee
+  distance: 1
+  rollBonus: 4
+  t1Damage: 7
+  t1AddsChar: false
+  t1Condition: conditions.bleeding
+  t1Duration: save
+  t1PotencyChar: might
+  t1PotencyValue: 2
+  t2Damage: 10
+  t2AddsChar: false
+  t2Condition: conditions.bleeding
+  t2Duration: save
+  t2PotencyChar: might
+  t2PotencyValue: 3
+  t3Damage: 11
+  t3AddsChar: false
+  t3Condition: conditions.bleeding
+  t3Duration: save
+  t3PotencyChar: might
+  t3PotencyValue: 4
+effects:
+  - target: { rolls: [damage], parts: [ability.damage], from: self }
+    op: tag
+    value: [{ formula: "flags.tier >= 2 ? ['damage.corruption'] : []" }]
+  - target: { rolls: [damage], from: self }
+    op: add
+    value: '[0, 5, 7][flags.tier - 1]'
+    tags: [damage.corruption]
+    when: >-
+      flags.tier >= 2 && (participant.characteristics.might.score + participant.potency.resistBonus.might) < flags.tier + 1 + steps.roll.tallies.potencyBonus
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - { type: adjust, field: stamina.current, by: 'flags.tier >= 2 ? steps.damage.total : 0' }
+      to: self
+    when: >-
+      flags.tier >= 2 && has(steps.damage)

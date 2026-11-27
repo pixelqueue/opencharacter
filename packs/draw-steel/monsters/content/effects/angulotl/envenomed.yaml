@@ -1,0 +1,23 @@
+# Blowgun's 2 Malice: while weakened this way, 2 poison damage at the start of each of the
+# creature's turns. Ends at a turn start when the creature isn't weakened.
+id: effects.angulotl.envenomed
+type: effect
+effects:
+  - target: { steps: [turn.start] }
+    op: changes
+    scope: applied
+    value:
+      changes:
+        - type: adjust
+          field: stamina.current
+          by: -2
+          tags: [damage, damage.poison]
+    when: conditions.weakened
+  - target: { steps: [turn.start] }
+    op: changes
+    scope: applied
+    value:
+      changes:
+        - type: removeEffect
+          applied: { where: 'item.id == @effects.angulotl.envenomed' }
+    when: '!conditions.weakened'

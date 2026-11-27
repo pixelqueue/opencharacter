@@ -1,0 +1,17 @@
+id: abilities.war-dog.iron-champion-doru.laugh-it-off
+type: ability
+grantOnly: false
+fields:
+  usage: triggered
+  distanceKind: self
+# The bane on the triggering strike is the attacker's (the table's).
+effects:
+  # Doru gains an edge on his next power roll.
+  - target: { steps: [ability.after], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@effects.war-dog.next-roll-edge'
+          state: { amount: 1, duration: "'encounter'" }
+          appliedBy: character.id

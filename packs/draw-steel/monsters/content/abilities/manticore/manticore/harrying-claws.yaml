@@ -1,0 +1,32 @@
+# The damage is only behind A < 2/3/4: tier damage 0 plus the potency's damage as a roll effect.
+id: abilities.manticore.manticore.harrying-claws
+type: ability
+grantOnly: false
+tags:
+  - kw.melee
+  - kw.strike
+  - kw.weapon
+fields:
+  usage: maneuver
+  distanceKind: melee
+  distance: 1
+  rollBonus: 4
+  t1Damage: 0
+  t1AddsChar: false
+  t1Move: slide
+  t1MoveDistance: 1
+  t2Damage: 0
+  t2AddsChar: false
+  t2Move: slide
+  t2MoveDistance: 2
+  t3Damage: 0
+  t3AddsChar: false
+  t3Move: slide
+  t3MoveDistance: 4
+effects:
+  - target: { rolls: [damage], from: self }
+    op: add
+    value: '[3, 5, 7][flags.tier - 1]'
+    when: >-
+      flags.tier > 0 && participant.characteristics.agility.score + participant.potency.resistBonus.agility
+        < flags.tier + 1 + (has(steps.roll) ? steps.roll.tallies.potencyBonus : 0)

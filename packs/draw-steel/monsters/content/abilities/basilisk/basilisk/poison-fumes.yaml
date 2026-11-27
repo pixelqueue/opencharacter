@@ -1,0 +1,44 @@
+id: abilities.basilisk.basilisk.poison-fumes
+type: ability
+grantOnly: false
+tags:
+  - kw.area
+  - kw.magic
+fields:
+  usage: main-action
+  resource: malice
+  cost: 5
+  distanceKind: cube
+  distance: 3
+  within: 1
+  rollBonus: 2
+  damageType: poison
+  t1Damage: 4
+  t1AddsChar: false
+  t1Condition: conditions.weakened
+  t1Duration: save
+  t1PotencyChar: might
+  t1PotencyValue: 0
+  t2Damage: 6
+  t2AddsChar: false
+  t2Condition: conditions.weakened
+  t2Duration: save
+  t2PotencyChar: might
+  t2PotencyValue: 1
+  t3Damage: 9
+  t3AddsChar: false
+  t3Condition: conditions.weakened
+  t3Duration: save
+  t3PotencyChar: might
+  t3PotencyValue: 2
+# Tiers 2 and 3: weakened and slowed behind the same potency.
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@conditions.slowed'
+          state: { duration: "'save'" }
+          appliedBy: character.id
+    when: flags.tier >= 2 && flags.landed

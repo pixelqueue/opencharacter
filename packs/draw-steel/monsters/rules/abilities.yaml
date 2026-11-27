@@ -1,0 +1,263 @@
+# How a monster's abilities use the heroes pack's `use-ability`.
+#
+# - Malice: an ability with `resource: malice` costs `cost` Malice from the Director's sheet, and
+#   its "N Malice:" option (`spendCost`, `spendPlus`) is the `malice` parameter. A monster has no
+#   heroic resource of its own, so an ability the Director's pool covers is in `abilities.free`
+#   (the heroes pack pays nothing for it) and the `ability.pay` step spends the Malice through the
+#   link. Without a Director's sheet, Malice abilities aren't offered.
+# - Villain actions: `kind: villain`, `resource: villain-action` and `cost` the action's number
+#   (1 to 3), as the book prints it. Each is offered once per encounter, and only while no villain
+#   action was used this round (the Director's sheet keeps the round).
+# - A target's test ("Each target makes a Might test"): the ability has no power roll and the tag
+#   `target-test.<characteristic>`; each target makes the test, and its tier picks the tier fields
+#   (tier 1 is the ≤11 line, as printed). Two such tags: the target makes either test.
+# - No power roll and no test ("The target takes 5 damage"): the tier-1 fields are what happens to
+#   each target, the condition behind its potency.
+extendEnums:
+  'draw-steel-heroes:types.ability.fields.resource': [malice, villain-action]
+  'draw-steel-heroes:types.ability.fields.kind': [villain]
+
+effects:
+  - id: malice-covered
+    target: abilities.free
+    op: grant
+    value:
+      query:
+        type: ability
+        where: >-
+          has(item.resource) && item.resource == 'malice' && sheet.monster && has(links.director)
+            && links.director.malice >= item.cost
+  - id: villain-ready
+    target: abilities.free
+    op: grant
+    value:
+      query:
+        type: ability
+        where: >-
+          has(item.resource) && item.resource == 'villain-action' && sheet.monster
+            && !(string(item.cost) in villain.used)
+            && (!has(links.director) || !links.director.combat.active
+              || links.director.villain.round != links.director.combat.round)
+
+  # The "N Malice:" option, on a monster's ability that has one.
+  - id: malice-param
+    target: { actions: [ability] }
+    op: params
+    value:
+      malice:
+        type: integer
+        default: 0
+        min: 0
+        max: >-
+          has(links.director)
+            ? max(0, links.director.malice - (has(action.item.resource) && action.item.resource == 'malice' ? action.item.cost : 0))
+            : 0
+    when: sheet.monster && action.item.spendCost > 0
+
+  # Minions: each extra minion of the squad striking the first target with the signature ability
+  # adds its free strike damage (two at most).
+  - id: extra-minions-param
+    target: { actions: [ability] }
+    op: params
+    value:
+      extraMinions: { type: integer, default: 0, min: 0, max: 2 }
+    when: "sheet.monster && monster.organization == 'minion' && action.item.kind == 'signature'"
+  - id: extra-minions-damage
+    target: { rolls: [damage] }
+    op: add
+    value: params.extraMinions * monster.freeStrike
+    tags:
+      [{ formula: "roll.item.damageType == 'untyped' ? [] : ['damage.' + roll.item.damageType]" }]
+    when: >-
+      has(params.extraMinions) && params.extraMinions > 0 && size(participants.target) > 0
+        && participant.id == participants.target[0].id
+
+  # Paying: Malice from the Director's sheet; a villain action marks its number used here and the
+  # round on the Director's sheet.
+  - id: pay-malice
+    target: { steps: [ability.pay] }
+    op: changes
+    value:
+      to: { link: director }
+      changes:
+        - type: adjust
+          field: draw-steel-monsters:malice
+          by: >-
+            -((has(action.item.resource) && action.item.resource == 'malice' ? action.item.cost : 0)
+              + (has(params.malice) ? params.malice : 0))
+    when: >-
+      sheet.monster && has(links.director)
+        && (has(action.item.resource) && action.item.resource == 'malice' || (has(params.malice) && params.malice > 0))
+  - id: villain-used
+    target: { steps: [ability.pay] }
+    op: changes
+    value:
+      changes:
+        - type: set
+          field: villain.used
+          value: villain.used + [string(action.item.cost)]
+    when: "sheet.monster && has(action.item.resource) && action.item.resource == 'villain-action'"
+  - id: villain-round
+    target: { steps: [ability.pay] }
+    op: changes
+    value:
+      to: { link: director }
+      changes:
+        - {
+            type: set,
+            field: draw-steel-monsters:villain.round,
+            value: links.director.combat.round,
+          }
+    when: "sheet.monster && has(action.item.resource) && action.item.resource == 'villain-action' && has(links.director)"
+  - id: villain-reset
+    target: { steps: [combat.end] }
+    op: changes
+    value:
+      changes:
+        - { type: set, field: villain.used, value: '[]' }
+    when: sheet.monster
+
+  # A target's test: each target tests, and its tier lands as the ability's tier fields say (its
+  # damage, its condition and its effect). Tagged with two characteristics ("either an Agility or
+  # an Intuition test"), the target picks one (`either-test`).
+  - id: target-test
+    target: { steps: [ability.hit] }
+    op: action
+    value:
+      id: target-test
+      use: test
+      as: participant
+      params:
+        characteristic: "filterList(keysOf('characteristic'), ('target-test.' + x) in action.item.tags)[0]"
+      changes: &target-test
+        - type: adjust
+          when: >-
+            [has(action.item.t1Damage), has(action.item.t2Damage), has(action.item.t3Damage)][min(3, run.data.tier) - 1]
+          field: stamina.current
+          by: >-
+            -[has(action.item.t1Damage) ? action.item.t1Damage : 0,
+              has(action.item.t2Damage) ? action.item.t2Damage : 0,
+              has(action.item.t3Damage) ? action.item.t3Damage : 0][min(3, run.data.tier) - 1]
+          tags:
+            - damage
+            - formula: "action.item.damageType == 'untyped' ? [] : ['damage.' + action.item.damageType]"
+        - type: applyEffect
+          when: >-
+            [has(action.item.t1Condition), has(action.item.t2Condition), has(action.item.t3Condition)][min(3, run.data.tier) - 1]
+          source: >-
+            [has(action.item.t1Condition) ? action.item.t1Condition : '',
+              has(action.item.t2Condition) ? action.item.t2Condition : '',
+              has(action.item.t3Condition) ? action.item.t3Condition : ''][min(3, run.data.tier) - 1]
+          state: &target-test-duration
+            duration: >-
+              [has(action.item.t1Duration) ? action.item.t1Duration : 'until',
+                has(action.item.t2Duration) ? action.item.t2Duration : 'until',
+                has(action.item.t3Duration) ? action.item.t3Duration : 'until'][min(3, run.data.tier) - 1]
+          appliedBy: character.id
+        - type: applyEffect
+          when: >-
+            [has(action.item.t1Effect), has(action.item.t2Effect), has(action.item.t3Effect)][min(3, run.data.tier) - 1]
+          source: >-
+            [has(action.item.t1Effect) ? action.item.t1Effect : '',
+              has(action.item.t2Effect) ? action.item.t2Effect : '',
+              has(action.item.t3Effect) ? action.item.t3Effect : ''][min(3, run.data.tier) - 1]
+          state: *target-test-duration
+          appliedBy: character.id
+    when: >-
+      sheet.monster && countList(keysOf('characteristic'), ('target-test.' + x) in action.item.tags) == 1
+  - id: target-test-either
+    target: { steps: [ability.hit] }
+    op: action
+    value:
+      id: target-test
+      use: either-test
+      as: participant
+      params:
+        first: "filterList(keysOf('characteristic'), ('target-test.' + x) in action.item.tags)[0]"
+        second: "filterList(keysOf('characteristic'), ('target-test.' + x) in action.item.tags)[1]"
+      changes: *target-test
+    when: >-
+      sheet.monster && countList(keysOf('characteristic'), ('target-test.' + x) in action.item.tags) == 2
+
+  # No power roll and no test: the tier-1 damage and condition land on each target, the condition
+  # behind its potency, and the tier-1 forced movement is the outcome's (behind the potency when
+  # `t1MovePotency`).
+  - id: fixed-effect
+    target: { steps: [ability.hit] }
+    op: changes
+    value:
+      flags:
+        move: >-
+          has(action.item.t1Move) && !(action.item.t1MovePotency && has(action.item.t1PotencyChar)
+              && (action.item.t1PotencyChar == 'might' ? participant.characteristics.might.score + participant.potency.resistBonus.might
+                : action.item.t1PotencyChar == 'agility' ? participant.characteristics.agility.score + participant.potency.resistBonus.agility
+                : action.item.t1PotencyChar == 'reason' ? participant.characteristics.reason.score + participant.potency.resistBonus.reason
+                : action.item.t1PotencyChar == 'intuition' ? participant.characteristics.intuition.score + participant.potency.resistBonus.intuition
+                : participant.characteristics.presence.score + participant.potency.resistBonus.presence)
+                >= (has(action.item.t1PotencyValue) ? action.item.t1PotencyValue : 0))
+            ? (action.item.t1MoveVertical ? 'vertical-' : '') + action.item.t1Move : ''
+        moveDistance: >-
+          has(action.item.t1Move) && has(action.item.t1MoveDistance) && !(action.item.t1MovePotency && has(action.item.t1PotencyChar)
+              && (action.item.t1PotencyChar == 'might' ? participant.characteristics.might.score + participant.potency.resistBonus.might
+                : action.item.t1PotencyChar == 'agility' ? participant.characteristics.agility.score + participant.potency.resistBonus.agility
+                : action.item.t1PotencyChar == 'reason' ? participant.characteristics.reason.score + participant.potency.resistBonus.reason
+                : action.item.t1PotencyChar == 'intuition' ? participant.characteristics.intuition.score + participant.potency.resistBonus.intuition
+                : participant.characteristics.presence.score + participant.potency.resistBonus.presence)
+                >= (has(action.item.t1PotencyValue) ? action.item.t1PotencyValue : 0))
+            ? action.item.t1MoveDistance : 0
+      changes:
+        - type: adjust
+          when: has(action.item.t1Damage)
+          field: stamina.current
+          by: -action.item.t1Damage
+          tags:
+            - damage
+            - formula: "action.item.damageType == 'untyped' ? [] : ['damage.' + action.item.damageType]"
+        - type: applyEffect
+          when: >-
+            (has(action.item.t1Condition) || has(action.item.t1Effect))
+              && (!has(action.item.t1PotencyChar)
+                || (action.item.t1PotencyChar == 'might' ? participant.characteristics.might.score + participant.potency.resistBonus.might
+                  : action.item.t1PotencyChar == 'agility' ? participant.characteristics.agility.score + participant.potency.resistBonus.agility
+                  : action.item.t1PotencyChar == 'reason' ? participant.characteristics.reason.score + participant.potency.resistBonus.reason
+                  : action.item.t1PotencyChar == 'intuition' ? participant.characteristics.intuition.score + participant.potency.resistBonus.intuition
+                  : participant.characteristics.presence.score + participant.potency.resistBonus.presence)
+                  < (has(action.item.t1PotencyValue) ? action.item.t1PotencyValue : 0))
+          source: >-
+            has(action.item.t1Condition) ? action.item.t1Condition : action.item.t1Effect
+          state:
+            duration: "has(action.item.t1Duration) ? action.item.t1Duration : 'until'"
+          appliedBy: character.id
+    when: >-
+      sheet.monster && !has(steps.roll)
+        && countList(keysOf('characteristic'), ('target-test.' + x) in action.item.tags) == 0
+
+actions:
+  # "Either an Agility or an Intuition test": the creature picks the characteristic and makes the
+  # test. Its outcome is the test's.
+  - id: either-test
+    tags: [test]
+    params:
+      first: { type: enum, values: [might, agility, reason, intuition, presence] }
+      second: { type: enum, values: [might, agility, reason, intuition, presence] }
+    results: [success-reward, success, success-consequence, failure, failure-consequence]
+    steps:
+      - id: pick
+        kind: choice
+        options:
+          - { id: might, when: "'might' in [params.first, params.second]" }
+          - { id: agility, when: "'agility' in [params.first, params.second]" }
+          - { id: reason, when: "'reason' in [params.first, params.second]" }
+          - { id: intuition, when: "'intuition' in [params.first, params.second]" }
+          - { id: presence, when: "'presence' in [params.first, params.second]" }
+        recommend: >-
+          fieldOf('characteristics.{characteristic}.score', params.first)
+            >= fieldOf('characteristics.{characteristic}.score', params.second) ? params.first : params.second
+      - id: test
+        kind: action
+        use: test
+        params: { characteristic: steps.pick.picked }
+      - id: done
+        kind: outcome
+        result: steps.test.result
+        data: { tier: steps.test.data.tier }

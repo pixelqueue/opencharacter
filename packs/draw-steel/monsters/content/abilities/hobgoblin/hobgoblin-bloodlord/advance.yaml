@@ -1,0 +1,20 @@
+# The move and the free strikes are the table's.
+id: abilities.hobgoblin.hobgoblin-bloodlord.advance
+type: ability
+grantOnly: false
+tags:
+  - kw.area
+fields:
+  usage: no-action
+  kind: villain
+  resource: villain-action
+  cost: 1
+  distanceKind: burst
+  distance: 10
+# Each target gains 10 temporary Stamina.
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - { type: adjust, field: stamina.temp, by: 10 }

@@ -33,6 +33,7 @@ describe('pnpm build:packs on the repository packs', () => {
       'awn-core',
       'cwn-srd',
       'draw-steel-heroes',
+      'draw-steel-monsters',
       'fate-core',
       'fitd-crew',
       'fitd-scoundrel',

@@ -1,0 +1,17 @@
+# Shield Smash: a bane on the target's next strike, which ends it.
+id: effects.lizardfolk.shield-smash
+type: effect
+effects:
+  - target: { rolls: [power-roll.ability], tally: banes }
+    op: add
+    value: 1
+    scope: applied
+    when: "'kw.strike' in roll.item.tags"
+  - target: { steps: [ability.after] }
+    op: changes
+    scope: applied
+    value:
+      changes:
+        - type: removeEffect
+          applied: { where: 'item.id == @effects.lizardfolk.shield-smash' }
+    when: "'kw.strike' in action.item.tags"

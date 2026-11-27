@@ -1,0 +1,36 @@
+id: abilities.valok.servok-builder.construction-arm
+type: ability
+grantOnly: false
+tags:
+  - kw.melee
+  - kw.strike
+  - kw.weapon
+fields:
+  usage: main-action
+  distanceKind: melee
+  distance: 3
+  rollBonus: 4
+  t1Damage: 16
+  t1AddsChar: false
+  t2Damage: 23
+  t2AddsChar: false
+  t2Condition: conditions.grabbed
+  t3Damage: 28
+  t3AddsChar: false
+  t3Move: push
+  t3MoveDistance: 5
+  t3MoveVertical: true
+  t3PotencyChar: might
+  t3PotencyValue: 4
+  t3MovePotency: true
+# Tier 3: grabbed, and the vertical push 5 behind M < 4 (the tier fields).
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@conditions.grabbed'
+          state: { duration: "'until'" }
+          appliedBy: character.id
+    when: flags.tier == 3

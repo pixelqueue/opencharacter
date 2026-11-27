@@ -1,0 +1,42 @@
+# Tier 1 heals 10 Stamina (its 0 damage keeps the damage roll); tiers 2 and 3 deal 12 corruption
+# and 12 lightning damage, tagged by tier. Reusing the first roll's outcome, and the 2+ Malice
+# targets, are the table's.
+id: abilities.draconian.aeolyxria-the-uncanny.experimental-treasure
+type: ability
+grantOnly: false
+tags:
+  - kw.magic
+  - kw.ranged
+  - kw.strike
+fields:
+  usage: main-action
+  spendCost: 2
+  spendPlus: true
+  distanceKind: ranged
+  distance: 10
+  rollBonus: 3
+  t1Damage: 0
+  t1AddsChar: false
+  t2Damage: 12
+  t2AddsChar: false
+  t2Condition: conditions.weakened
+  t2Duration: save
+  t2PotencyChar: agility
+  t2PotencyValue: 2
+  t3Damage: 12
+  t3AddsChar: false
+  t3Condition: conditions.bleeding
+  t3Duration: save
+  t3PotencyChar: agility
+  t3PotencyValue: 2
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - { type: adjust, field: stamina.current, by: 10, tags: [healing] }
+    when: flags.tier == 1
+  - target: { rolls: [damage], parts: [ability.damage], from: self }
+    op: tag
+    value:
+      - formula: "flags.tier == 2 ? ['damage.corruption'] : flags.tier == 3 ? ['damage.lightning'] : []"

@@ -1,0 +1,47 @@
+id: abilities.retainer.minotaur-gorer.horn-rake
+type: ability
+grantOnly: false
+tags:
+  - kw.area
+  - kw.weapon
+fields:
+  usage: main-action
+  level: 10
+  resource: encounter
+  cost: 1
+  distanceKind: burst
+  distance: 1
+  t1Damage: 11
+  t1AddsChar: false
+  t1Condition: conditions.bleeding
+  t1Duration: save
+  t1PotencyChar: might
+  t1Potency: weak
+  t2Damage: 16
+  t2AddsChar: false
+  t2Condition: conditions.bleeding
+  t2Duration: save
+  t2PotencyChar: might
+  t2Potency: average
+  t3Damage: 21
+  t3AddsChar: false
+  rollChars:
+    - might
+    - agility
+    - reason
+    - intuition
+    - presence
+  t3Condition: conditions.prone
+  t3PotencyChar: might
+  t3Potency: strong
+effects:
+  # Tier 3: prone and can't stand (save ends).
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@effects.common.cant-stand'
+          state: { duration: "'save'" }
+          appliedBy: character.id
+    when: flags.tier == 3 && flags.landed

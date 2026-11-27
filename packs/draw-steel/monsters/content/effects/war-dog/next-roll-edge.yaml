@@ -1,0 +1,21 @@
+# Doru (Houndaxe, Laugh It Off): an edge, or a double edge, on his next power roll. The next
+# ability with a power roll uses it up: it ends at the paying step, after the roll and before a
+# new one is given (the ability that gives it has rolled already).
+id: effects.war-dog.next-roll-edge
+type: effect
+state:
+  amount: { type: integer, default: 1, min: 1, max: 2 }
+reapply: { state: { amount: highest, duration: replace } }
+effects:
+  - target: { rolls: [power-roll], tally: edges }
+    op: add
+    value: self.amount
+    scope: applied
+  - target: { steps: [ability.pay] }
+    op: changes
+    scope: applied
+    value:
+      changes:
+        - type: removeEffect
+          applied: { where: 'item.id == @effects.war-dog.next-roll-edge' }
+    when: has(steps.roll)

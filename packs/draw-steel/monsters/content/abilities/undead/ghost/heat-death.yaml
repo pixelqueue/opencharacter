@@ -1,0 +1,42 @@
+# The next strike made against the target gains an edge (the shared effect; the strike ends it).
+id: abilities.undead.ghost.heat-death
+type: ability
+grantOnly: false
+tags:
+  - kw.magic
+  - kw.ranged
+  - kw.strike
+fields:
+  usage: main-action
+  kind: signature
+  distanceKind: ranged
+  distance: 5
+  rollBonus: 3
+  damageType: cold
+  t1Damage: 7
+  t1AddsChar: false
+  t1Condition: conditions.slowed
+  t1Duration: save
+  t1PotencyChar: presence
+  t1PotencyValue: 1
+  t2Damage: 10
+  t2AddsChar: false
+  t2Condition: conditions.slowed
+  t2Duration: save
+  t2PotencyChar: presence
+  t2PotencyValue: 2
+  t3Damage: 13
+  t3AddsChar: false
+  t3Condition: conditions.slowed
+  t3Duration: save
+  t3PotencyChar: presence
+  t3PotencyValue: 3
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@effects.common.next-strike-edge-against'
+          appliedBy: character.id
+    when: flags.tier > 0

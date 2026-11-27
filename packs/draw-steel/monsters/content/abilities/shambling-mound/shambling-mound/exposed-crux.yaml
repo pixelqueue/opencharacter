@@ -1,0 +1,20 @@
+# A double edge on power rolls and an edge on strikes against the mound
+# (`effects.shambling-mound.exposed-crux`, to the end of the encounter). Melee 10 is the table's.
+id: abilities.shambling-mound.shambling-mound.exposed-crux
+type: ability
+grantOnly: false
+fields:
+  usage: no-action
+  kind: villain
+  resource: villain-action
+  cost: 3
+  distanceKind: self
+effects:
+  - target: { steps: [ability.after], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@effects.shambling-mound.exposed-crux'
+          state: { duration: "'encounter'" }
+          appliedBy: character.id

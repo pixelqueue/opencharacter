@@ -1,0 +1,37 @@
+id: abilities.retainer.human-warrior.defensive-fighting
+type: ability
+grantOnly: false
+tags:
+  - kw.melee
+  - kw.strike
+  - kw.weapon
+fields:
+  usage: main-action
+  level: 7
+  resource: encounter
+  cost: 1
+  distanceKind: melee
+  distance: 1
+  t1Damage: 7
+  t1AddsChar: false
+  t2Damage: 11
+  t2AddsChar: false
+  t3Damage: 16
+  t3AddsChar: false
+  rollChars:
+    - might
+    - agility
+    - reason
+    - intuition
+    - presence
+# Until the start of the warrior's next turn, ability rolls against the warrior have a double
+# bane; the double bane for adjacent allies is the table's.
+effects:
+  - target: { steps: [ability.after], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@effects.common.banes-against'
+          state: { duration: "'next-start'", amount: 2 }
+          appliedBy: character.id

@@ -1,0 +1,29 @@
+id: abilities.elemental.essence-of-storms.bluster
+type: ability
+grantOnly: false
+tags:
+  - kw.area
+  - kw.magic
+fields:
+  usage: main-action
+  kind: signature
+  distanceKind: burst
+  distance: 1
+  rollBonus: 2
+  t1Damage: 5
+  t1AddsChar: false
+  t2Damage: 5
+  t2AddsChar: false
+  t2Move: push
+  t2MoveDistance: 1
+  t3Damage: 5
+  t3AddsChar: false
+  t3Move: push
+  t3MoveDistance: 3
+# The lightning damage beside the untyped damage at tiers 2 and 3.
+effects:
+  - target: { rolls: [damage], from: self }
+    op: add
+    value: '[0, 4, 7][flags.tier - 1]'
+    tags: [damage.lightning]
+    when: flags.tier >= 2

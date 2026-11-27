@@ -1,0 +1,23 @@
+# The target's speed is doubled until the end of their next turn (`own-next-end`); spending a
+# Recovery is the target's own.
+id: abilities.retainer.time-raider-mind-healer.stim-charge
+type: ability
+grantOnly: false
+tags:
+  - kw.ranged
+fields:
+  usage: main-action
+  level: 4
+  resource: encounter
+  cost: 1
+  distanceKind: ranged
+  distance: 3
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@effects.common.speed-doubled'
+          state: { duration: "'own-next-end'" }
+          appliedBy: character.id

@@ -1,0 +1,39 @@
+id: abilities.bredbeddle.bredbeddle.headway
+type: ability
+grantOnly: false
+tags:
+  - kw.ranged
+  - kw.strike
+  - kw.weapon
+fields:
+  usage: maneuver
+  resource: malice
+  cost: 5
+  distanceKind: ranged
+  distance: 20
+  rollBonus: 3
+  t1Damage: 9
+  t1AddsChar: false
+  t1Condition: conditions.dazed
+  t1Duration: save
+  t1PotencyChar: might
+  t1PotencyValue: 1
+  t2Damage: 13
+  t2AddsChar: false
+  t2Condition: conditions.prone
+  t3Damage: 16
+  t3AddsChar: false
+  t3Condition: conditions.prone
+# Tiers 2 and 3: also M < 2 / M < 3 dazed (save ends).
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@conditions.dazed'
+          state: { duration: "'save'" }
+          appliedBy: character.id
+    when: >-
+      flags.tier >= 2 && participant.characteristics.might.score + participant.potency.resistBonus.might
+        < [0, 2, 3][flags.tier - 1] + (has(steps.roll) ? steps.roll.tallies.potencyBonus : 0)

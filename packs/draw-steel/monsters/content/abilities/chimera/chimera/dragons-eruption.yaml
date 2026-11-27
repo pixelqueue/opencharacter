@@ -1,0 +1,31 @@
+id: abilities.chimera.chimera.dragons-eruption
+type: ability
+grantOnly: false
+tags:
+  - kw.area
+  - kw.magic
+  - kw.ranged
+fields:
+  usage: main-action
+  resource: malice
+  cost: 5
+  distanceKind: cube
+  distance: 3
+  within: 10
+  rollBonus: 3
+  damageType: fire
+  t1Damage: 3
+  t1AddsChar: false
+  t2Damage: 5
+  t2AddsChar: false
+  t3Damage: 7
+  t3AddsChar: false
+# A < 1/2/3: the tier's fire damage again.
+effects:
+  - target: { rolls: [damage], from: self }
+    op: add
+    value: '[3, 5, 7][flags.tier - 1]'
+    tags: [damage.fire]
+    when: >-
+      flags.tier > 0 && participant.characteristics.agility.score + participant.potency.resistBonus.agility
+        < flags.tier + (has(steps.roll) ? steps.roll.tallies.potencyBonus : 0)

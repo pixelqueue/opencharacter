@@ -1,0 +1,14 @@
+# Lycanthropy (Accursed Bite's 2 Malice): 2 rage at the end of each of the creature's turns in
+# combat; it ends only with the Find a Cure project.
+id: effects.werewolf.lycanthropy
+type: effect
+effects:
+  - target: { steps: [turn.end] }
+    op: changes
+    scope: applied
+    value:
+      changes:
+        - type: applyEffect
+          source: '@effects.werewolf.rage'
+          state: { amount: 2 }
+    when: combat.active

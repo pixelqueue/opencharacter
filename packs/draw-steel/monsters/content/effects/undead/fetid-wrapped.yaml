@@ -1,0 +1,13 @@
+# Fetid Wrappings: the rotwrap's allies (the Director's side) gain an edge on strikes against the
+# creature until the end of the round (the entry ends when the next round starts).
+id: effects.undead.fetid-wrapped
+type: effect
+effects:
+  - { target: powerRoll.strikeEdgesAgainstSide.director, op: add, value: 1, scope: applied }
+  - target: { steps: [round.start] }
+    op: changes
+    scope: applied
+    value:
+      changes:
+        - type: removeEffect
+          applied: { where: 'item.id == @effects.undead.fetid-wrapped' }

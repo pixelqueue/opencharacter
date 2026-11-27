@@ -1,0 +1,16 @@
+# A bane on the creature's next power roll, which ends it.
+id: effects.common.next-roll-bane
+type: effect
+effects:
+  - target: { rolls: [power-roll], tally: banes }
+    op: add
+    value: 1
+    scope: applied
+  - target: { steps: [ability.after] }
+    op: changes
+    scope: applied
+    value:
+      changes:
+        - type: removeEffect
+          applied: { where: 'item.id == @effects.common.next-roll-bane' }
+    when: has(steps.roll)

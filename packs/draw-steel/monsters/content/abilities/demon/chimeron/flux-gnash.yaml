@@ -1,0 +1,42 @@
+# The damage type (cold, fire or sonic) and tier 3's condition (bleeding, dazed or slowed, save
+# ends, behind M < 4) are the `element` and `condition` parameters. The book picks them after the
+# roll; parameters are picked before it.
+id: abilities.demon.chimeron.flux-gnash
+type: ability
+grantOnly: false
+tags:
+  - kw.melee
+  - kw.strike
+  - kw.weapon
+fields:
+  usage: main-action
+  kind: signature
+  distanceKind: melee
+  distance: 2
+  rollBonus: 4
+  t1Damage: 9
+  t1AddsChar: false
+  t2Damage: 11
+  t2AddsChar: false
+  t3Damage: 13
+  t3AddsChar: false
+effects:
+  - target: { actions: [ability], from: self }
+    op: params
+    value:
+      element: { type: enum, values: [cold, fire, sonic], default: fire }
+      condition: { type: enum, values: [bleeding, dazed, slowed], default: dazed }
+  - target: { rolls: [damage], parts: [ability.damage], from: self }
+    op: tag
+    value: [{ formula: "'damage.' + params.element" }]
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: "'conditions.' + params.condition"
+          state: { duration: "'save'" }
+          appliedBy: character.id
+    when: >-
+      flags.tier == 3 && participant.characteristics.might.score + participant.potency.resistBonus.might
+        < 4 + (has(steps.roll) ? steps.roll.tallies.potencyBonus : 0)

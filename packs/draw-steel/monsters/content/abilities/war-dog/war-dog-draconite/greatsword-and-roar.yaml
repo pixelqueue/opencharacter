@@ -1,0 +1,52 @@
+# A target this damage leaves winded is frightened of the draconite until the end of the target's
+# next turn (`own-next-end`, the draconite its source). The damage taken is each group (untyped,
+# and the psychic this ability adds) after weakness and immunity, as the target's sheet applies
+# them, less what temporary Stamina absorbs. Tier 3's move away is the table's.
+id: abilities.war-dog.war-dog-draconite.greatsword-and-roar
+type: ability
+grantOnly: false
+tags:
+  - kw.charge
+  - kw.melee
+  - kw.strike
+  - kw.weapon
+fields:
+  usage: main-action
+  kind: signature
+  distanceKind: melee
+  distance: 2
+  rollBonus: 4
+  t1Damage: 4
+  t1AddsChar: false
+  t2Damage: 4
+  t2AddsChar: false
+  t3Damage: 4
+  t3AddsChar: false
+effects:
+  # Tiers 2 and 3: 3 or 4 psychic damage besides.
+  - target: { rolls: [damage], from: self }
+    op: add
+    value: '[0, 3, 4][flags.tier - 1]'
+    tags: [damage.psychic]
+    when: flags.tier >= 2
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@conditions.frightened'
+          state: { duration: "'own-next-end'" }
+          appliedBy: character.id
+    when: >-
+      flags.tier > 0
+        && participant.stamina.current
+          - max(0, (steps.damage.total - [0, 3, 4][flags.tier - 1] > 0
+              ? max(0, steps.damage.total - [0, 3, 4][flags.tier - 1]
+                + participant.weakness.all - participant.immunity.all)
+              : 0)
+            + ([0, 3, 4][flags.tier - 1] > 0 && !participant.immunity.psychicAll
+              ? max(0, [0, 3, 4][flags.tier - 1]
+                + max(participant.weakness.all, participant.weakness.psychic)
+                - max(participant.immunity.all, participant.immunity.psychic))
+              : 0)
+            - participant.stamina.temp) <= floor(participant.stamina.max / 2)

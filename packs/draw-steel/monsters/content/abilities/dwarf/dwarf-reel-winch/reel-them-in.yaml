@@ -1,0 +1,22 @@
+# Pull up to 8 (the tier-1 move), up to 10 for a restrained or slowed target. Moving a restrained
+# target without ending the condition is the table's.
+id: abilities.dwarf.dwarf-reel-winch.reel-them-in
+type: ability
+grantOnly: false
+tags:
+  - kw.ranged
+  - kw.weapon
+fields:
+  usage: maneuver
+  resource: malice
+  cost: 3
+  distanceKind: ranged
+  distance: 10
+  t1Move: pull
+  t1MoveDistance: 8
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      flags: { moveDistance: 'flags.moveDistance + 2' }
+    when: participant.conditions.restrained || participant.conditions.slowed

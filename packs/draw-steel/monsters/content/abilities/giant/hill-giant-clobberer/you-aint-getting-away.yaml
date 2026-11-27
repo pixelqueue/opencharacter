@@ -1,0 +1,30 @@
+# The target's Agility test is the ability's own hand-off (the tier fields stay empty), so tier 1
+# lands the grab and a bane on the Escape Grab maneuver. The 2 Malice option is the table's.
+id: abilities.giant.hill-giant-clobberer.you-aint-getting-away
+type: ability
+grantOnly: false
+tags:
+  - kw.melee
+  - target-test
+fields:
+  usage: triggered
+  spendCost: 2
+  distanceKind: melee
+  distance: 3
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: action
+    value:
+      id: agility-test
+      use: test
+      as: participant
+      params: { characteristic: "'agility'" }
+      changes:
+        - type: applyEffect
+          when: run.data.tier <= 2
+          source: '@conditions.grabbed'
+          appliedBy: character.id
+        - type: applyEffect
+          when: run.data.tier <= 1
+          source: '@effects.common.escape-grab-bane'
+          appliedBy: character.id

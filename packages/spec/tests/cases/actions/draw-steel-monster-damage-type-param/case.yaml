@@ -1,0 +1,18 @@
+description: "draw-steel-monsters: the bugbear channeler picks Blistering Element's damage type on
+  each use (the element param types the damage)"
+specVersion: 0.4.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/draw-steel/heroes
+  - path: ../../../../../../packs/draw-steel/monsters
+input:
+  action:
+    id: draw-steel-heroes:use-ability
+    entry: abilities-bugbear-bugbear-channeler-blistering-element-1
+  params:
+    element: cold
+  participants:
+    target:
+      - id: hero
+        values:
+          draw-steel-heroes:characteristics.might.score: 5

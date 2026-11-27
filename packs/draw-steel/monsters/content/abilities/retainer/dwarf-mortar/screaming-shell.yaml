@@ -1,0 +1,47 @@
+id: abilities.retainer.dwarf-mortar.screaming-shell
+type: ability
+grantOnly: false
+tags:
+  - kw.area
+  - kw.weapon
+fields:
+  usage: main-action
+  level: 7
+  resource: encounter
+  cost: 1
+  distanceKind: line
+  distance: 10
+  areaWidth: 1
+  within: 1
+  t1Damage: 6
+  t1AddsChar: false
+  t1Condition: conditions.frightened
+  t1PotencyChar: presence
+  t1Potency: weak
+  t2Damage: 9
+  t2AddsChar: false
+  t2Condition: conditions.frightened
+  t2PotencyChar: presence
+  t2Potency: average
+  t3Damage: 13
+  t3AddsChar: false
+  t3Condition: conditions.frightened
+  t3PotencyChar: presence
+  t3Potency: strong
+  rollChars:
+    - might
+    - agility
+    - reason
+    - intuition
+    - presence
+# Until the start of the mortar's next turn, strikes against the mortar take a bane; the bane for
+# adjacent allies is the table's.
+effects:
+  - target: { steps: [ability.after], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@effects.common.strike-bane-against'
+          state: { duration: "'next-start'" }
+          appliedBy: character.id

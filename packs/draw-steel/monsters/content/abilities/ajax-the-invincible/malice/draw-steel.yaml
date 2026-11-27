@@ -1,0 +1,46 @@
+# Ajax's Malice feature as an ability (`malice-feature`), paid from the Director's sheet. No
+# creature keyword (`creature.human` would reach every human): its own tag, which Ajax's
+# `maliceFrom` names.
+# "A test using their highest characteristic": each target tests with their highest score, and
+# the test's tier lands here (the tier fields stay empty, so the pack's fixed-effect rule doesn't
+# land tier 1 on everyone). The four cubes, the blades and the push out of the area are the
+# table's.
+id: abilities.ajax-the-invincible.malice.draw-steel
+type: ability
+grantOnly: false
+tags: [malice-feature, malice-feature.ajax-the-invincible, kw.area, kw.magic, kw.ranged, kw.weapon]
+fields:
+  usage: main-action
+  resource: malice
+  cost: 10
+  distanceKind: cube
+  distance: 3
+  within: 10
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: action
+    value:
+      id: highest-test
+      use: test
+      as: participant
+      params:
+        characteristic: >-
+          sortList(['might', 'agility', 'reason', 'intuition', 'presence'],
+            -[participant.characteristics.might.score, participant.characteristics.agility.score,
+              participant.characteristics.reason.score, participant.characteristics.intuition.score,
+              participant.characteristics.presence.score][indexOf(['might', 'agility', 'reason', 'intuition', 'presence'], x)])[0]
+      changes:
+        - type: adjust
+          field: stamina.current
+          by: '-[26, 22, 16][min(3, max(1, run.data.tier)) - 1]'
+          tags: [damage]
+        - type: applyEffect
+          when: run.data.tier <= 1
+          source: '@effects.ajax-the-invincible.bleeding-slowed'
+          state: { duration: "'save'" }
+          appliedBy: character.id
+        - type: applyEffect
+          when: run.data.tier == 2
+          source: '@conditions.bleeding'
+          state: { duration: "'save'" }
+          appliedBy: character.id

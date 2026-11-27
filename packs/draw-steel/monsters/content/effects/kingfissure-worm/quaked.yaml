@@ -1,0 +1,22 @@
+# Megaquake: until the end of the next round, a -3 penalty to stability. All terrain being
+# difficult terrain and the 10 damage when knocked prone are the table's. The entry counts the
+# rounds that start: the second ends it (the end of the round after the one it was applied in).
+id: effects.kingfissure-worm.quaked
+type: effect
+state:
+  rounds: { type: integer, default: 0, min: 0 }
+reapply: { state: { rounds: add, duration: replace } }
+effects:
+  - { target: stability, op: add, value: -3, scope: applied }
+  - target: { steps: [round.start] }
+    op: changes
+    scope: applied
+    value:
+      changes:
+        - type: removeEffect
+          when: self.rounds >= 1
+          applied: { where: 'item.id == @effects.kingfissure-worm.quaked' }
+        - type: applyEffect
+          when: self.rounds < 1
+          source: '@effects.kingfissure-worm.quaked'
+          state: { rounds: 1, duration: "'until'" }

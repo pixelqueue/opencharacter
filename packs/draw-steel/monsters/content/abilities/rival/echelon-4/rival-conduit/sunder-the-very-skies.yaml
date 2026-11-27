@@ -1,0 +1,42 @@
+# Regaining Stamina equal to half the damage dealt is the table's.
+# The 2 Malice healing of more allies is the table's.
+id: abilities.rival.echelon-4.rival-conduit.sunder-the-very-skies
+type: ability
+grantOnly: false
+tags:
+  - kw.magic
+  - kw.melee
+  - kw.ranged
+  - kw.strike
+fields:
+  usage: main-action
+  kind: signature
+  spendCost: 2
+  distanceKind: melee-or-ranged
+  distance: 1
+  rangedDistance: 10
+  rollBonus: 5
+  t1Damage: 15
+  t1AddsChar: false
+  t1Move: slide
+  t1MoveDistance: 3
+  t1MoveVertical: true
+  t2Damage: 20
+  t2AddsChar: false
+  t2Move: slide
+  t2MoveDistance: 4
+  t2MoveVertical: true
+  t3Damage: 24
+  t3AddsChar: false
+  t3Move: slide
+  t3MoveDistance: 5
+  t3MoveVertical: true
+effects:
+  # M < 3/4/5: 5, 7 or 9 lightning damage besides.
+  - target: { rolls: [damage], from: self }
+    op: add
+    value: '[5, 7, 9][flags.tier - 1]'
+    tags: [damage.lightning]
+    when: >-
+      flags.tier > 0 && has(participant)
+        && participant.characteristics.might.score + participant.potency.resistBonus.might < [3, 4, 5][flags.tier - 1] + (has(steps.roll) ? steps.roll.tallies.potencyBonus : 0)

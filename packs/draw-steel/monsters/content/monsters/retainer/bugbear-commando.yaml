@@ -1,0 +1,46 @@
+id: monsters.retainer.bugbear-commando
+type: monster
+tags:
+  - creature.bugbear
+  - creature.fey
+  - creature.goblin
+  - creature.humanoid
+fields:
+  level: 2
+  organization: retainer
+  role: ambusher
+  size: 1l
+  speed: 5
+  stamina: 30
+  freeStrike: 2
+  might: 2
+  agility: 2
+  reason: 0
+  intuition: 1
+  presence: 0
+  traits: []
+  abilities:
+    - abilities.retainer.bugbear-commando.bear-hug
+    - abilities.retainer.bugbear-commando.throw
+    - abilities.retainer.bugbear-commando.catcher
+# Retainer advancement (rules/retainer.yaml): a characteristic +1 at 2nd and 8th level, and an
+# advancement ability at 4th, 7th and 10th level, the retainer's own or their role's.
+choices:
+  - id: increase8
+    when: item.level >= 8
+    from: { values: [might, agility, reason, intuition, presence] }
+    recommend: "'might'"
+    effects:
+      - target: { formula: "'retainer.' + pick.value + '.increase8'" }
+        op: set
+        value: 'true'
+  - id: advancement
+    slots: [4, 7, 10]
+    when: item.level >= slot
+    from:
+      type: ability
+      where: >-
+        item.id in [@abilities.retainer.bugbear-commando.face-grab, @abilities.retainer.role-ambusher.go-for-the-jugular, @abilities.retainer.bugbear-commando.shadow-drag, @abilities.retainer.role-ambusher.hamstring-slice, @abilities.retainer.bugbear-commando.neck-snap, @abilities.retainer.role-ambusher.hold-em-down]
+    eligible: item.level == slot
+    recommend: >-
+      [@abilities.retainer.bugbear-commando.face-grab, @abilities.retainer.bugbear-commando.shadow-drag, @abilities.retainer.bugbear-commando.neck-snap][indexOf([4, 7, 10], slot)]

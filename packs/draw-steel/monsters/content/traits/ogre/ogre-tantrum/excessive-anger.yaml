@@ -1,0 +1,6 @@
+id: traits.ogre.ogre-tantrum.excessive-anger
+type: trait
+# Damage immunity 3 and speed 8 while the squad has two or fewer minions.
+effects:
+  - { target: immunity.all, op: atLeast, value: 3, when: monster.squad <= 2 }
+  - { target: speed, op: atLeast, value: 8, when: monster.squad <= 2 }

@@ -1,0 +1,42 @@
+id: abilities.undead.skeleton.bone-spur
+type: ability
+grantOnly: false
+tags:
+  - kw.area
+  - kw.weapon
+fields:
+  usage: maneuver
+  resource: malice
+  cost: 2
+  distanceKind: burst
+  distance: 1
+  rollBonus: 2
+  t1Damage: 1
+  t1AddsChar: false
+  t1Condition: conditions.bleeding
+  t1Duration: save
+  t1PotencyChar: might
+  t1PotencyValue: 0
+  t2Damage: 2
+  t2AddsChar: false
+  t2Condition: conditions.bleeding
+  t2Duration: save
+  t2PotencyChar: might
+  t2PotencyValue: 1
+  t3Damage: 3
+  t3AddsChar: false
+  t3Condition: conditions.bleeding
+  t3Duration: save
+  t3PotencyChar: might
+  t3PotencyValue: 2
+effects:
+  # Each target takes a bane on their next strike.
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@effects.common.next-strike-bane'
+          appliedBy: character.id
+    when: >-
+      flags.tier > 0
