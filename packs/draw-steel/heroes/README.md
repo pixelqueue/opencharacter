@@ -229,7 +229,9 @@ random draws, and every ability shares the `use-ability` action.
   adds one (`kw.magic` for "can't use magic abilities") makes `use-ability` unavailable for
   every ability with it.
 - **What a target shows an attacker:** `use-ability`'s targets are `creature` views: level,
-  characteristics, size, stability, whether it's flying (`flying`), Stamina (`stamina.current`, `stamina.max`, winded), the
+  characteristics, size, stability, whether it's flying (`flying`), Stamina (`stamina.current`,
+  `stamina.max`, `stamina.temp`, winded), damage immunity and weakness (`immunity.*`,
+  `weakness.*`, as on the sheet), the
   conditions with who frightens and who grabs it (`conditions.frightenedBy`,
   `conditions.grabbedBy`), the IDs of its `effect` content in effect (`effects.active`), its
   `side`, the Tactician's marks and the edges and banes against it. An add-on's ability reads

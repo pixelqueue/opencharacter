@@ -63,6 +63,13 @@ viewFields:
     stamina.current: { type: integer, default: 0 }
     stamina.max: { type: integer, default: 0 }
     stamina.isWinded: { type: boolean, default: false }
+    stamina.temp: { type: integer, default: 0 }
+    # Damage immunity and weakness, as on the sheet: whether damage leaves the target winded.
+    'immunity.{damageType}': { type: integer, default: 0 }
+    'immunity.{damageType}All': { type: boolean, default: false }
+    immunity.all: { type: integer, default: 0 }
+    'weakness.{damageType}': { type: integer, default: 0 }
+    weakness.all: { type: integer, default: 0 }
     'conditions.{condition}': { type: boolean, default: false }
     conditions.frightenedBy: { type: set, of: string, default: [] }
     conditions.grabbedBy: { type: set, of: string, default: [] }
