@@ -117,8 +117,11 @@ computeSheet(ruleset, made.character).values['draw-steel-heroes:stamina.max']?.v
   (`ongoing-damage`). The common ones are shared (`effects.common.*`); edges and banes against a
   creature (illuminated, marked, melee or ranged strike banes) use the heroes pack's fields. An
   edge for the Director's creatures only (the mummy's curse, any ogre against a bellowed
-  creature) puts `'director'` in `edgesAgainstFor` or `strikeEdgesAgainstFor`, and an edge only
-  the creature that applied it gains (thunderstruck) puts that creature's ID there. An effect
+  creature) adds 1 to `edgesAgainstSide.director` or `strikeEdgesAgainstSide.director`, so two
+  such effects give a double edge (a fury's Steelfist grab adds 2); an edge only the creature
+  that applied it gains (thunderstruck) puts that creature's ID in `edgesAgainstFor` or
+  `strikeEdgesAgainstFor`. Whether damage leaves a target winded (Awful Wail, Greatsword and
+  Roar) counts the target's temporary Stamina, immunity and weakness from its view. An effect
   with two conditions ("prone and can't stand") grants them, one entry and one saving throw, and
   "can't use magic abilities" bars `kw.magic` (`abilities.barred`). An effect "until the end of
   the target's next turn" lasts `own-next-end`, so the heroes pack's turn boundary ends it then
