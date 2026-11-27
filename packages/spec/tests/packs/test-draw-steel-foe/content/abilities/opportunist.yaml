@@ -13,18 +13,15 @@ fields:
   t2Damage: 4
   t3Damage: 6
 effects:
-  - target: { rolls: [power-target], tally: edges }
-    from: self
+  - target: { rolls: [power-target], tally: edges, from: self }
     op: add
     value: 1
     when: participant.stamina.current < participant.stamina.max
-  - target: { rolls: [power-target], tally: edges }
-    from: self
+  - target: { rolls: [power-target], tally: edges, from: self }
     op: add
     value: 1
     when: character.id in participant.conditions.grabbedBy
-  - target: { rolls: [power-target], tally: edges }
-    from: self
+  - target: { rolls: [power-target], tally: edges, from: self }
     op: add
     value: 1
     when: "'draw-steel-heroes:effects.shadow.setup' in participant.effects.active"
