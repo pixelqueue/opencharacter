@@ -89,8 +89,8 @@ computeSheet(ruleset, made.character).values['draw-steel-heroes:stamina.max']?.v
   Fall against a large one), then pays the cost and Spend, so the Shadow's insight discount and an
   Elementalist's maintained abilities cost what they should, and a use that can't pay ends.
   Damage adds the characteristic, surges (checked against those held, spent only on rolled
-  damage) and the kit's bonus for that tier; 2 more surges raise one target's potency by 1
-  (`potencySurge`); conditions and other effects land behind potency; forced movement, a teleport
+  damage) and the kit's bonus for that tier (none for a tier whose bonus is 0); 2 more surges
+  raise one target's potency by 1 (`potencySurge`); conditions and other effects land behind potency; forced movement, a teleport
   and distance are in the outcome. A grabbed or taunted hero's bane counts when the grabber or
   taunter isn't among the targets.
   Content adds to an ability's forced movement, potency and distance through roll tallies
@@ -118,7 +118,8 @@ computeSheet(ruleset, made.character).values['draw-steel-heroes:stamina.max']?.v
   rules beyond the tier table (Strained, with its rolled damage, persistent abilities, Judgment,
   Mark, routines, edicts, prayers, summons' numbers) add them on tagged steps or their own
   actions. The uses are grouped by main action, maneuver and triggered action; a hero who can't
-  use triggered actions (dazed, slowed by an Entropy Ward, Smolder's strain) has none offered.
+  use triggered actions (dazed, slowed by an Entropy Ward, Smolder's strain) has none offered,
+  and one barred from a keyword (`abilities.barred`) none with it.
 
 - **Ability cards:** each tier's text names this hero's damage (characteristic and kit included),
   potency and distance, from the ability's computed values, and the book's wording without a
@@ -164,8 +165,12 @@ computeSheet(ruleset, made.character).values['draw-steel-heroes:stamina.max']?.v
   or end of the imposer's next turn, on anyone: the `turn-boundary` clock action ends them, on
   the imposer's turns) and who imposed them (an effect applied again by the same creature
   replaces its duration; another creature's is its own entry); immunities keep them off the sheet; saving throws.
+  Until the start or end of the creature's own next turn (`own-next-start`, `own-next-end`)
+  ends on its own turns, whoever imposed it, so a frightened, grabbed or taunted creature's
+  `appliedBy` stays its source.
   An ability's tier durations (`t{tier}Duration`) take the same: `eot`, `save`, `encounter`,
-  `until`, and `next-start` and `next-end` for the user's next turn.
+  `until`, `next-start` and `next-end` for the user's next turn, and `own-next-start` and
+  `own-next-end` for the target's.
 - **Combat:** start of combat, rounds and turns, Victories, experience and level-up, respite
   (not for a dead hero).
 - **Marks:** the Tactician's marks are entries the tactician applied; a new Mark ends the earlier
@@ -189,7 +194,9 @@ computeSheet(ruleset, made.character).values['draw-steel-heroes:stamina.max']?.v
 - **Kits:** the 21 kits and the 4 stormwight kits (with their animal forms' sizes); with two kits
   (Field Arsenal) one bonus of each kind counts, one kit's damage bonus across all three tiers.
 - **Ancestries, culture, careers, perks, complications, titles, treasures:** every trait, aspect,
-  career, perk, complication, title and treasure (100), with its numbers and choices. Armor and
+  career, perk, complication, title and treasure (100), with its numbers and choices. Wings
+  give damage weakness 5 while the hero is flying (`flying`, set by the player) at 3rd level or
+  lower. Armor and
   weapon treasures need a kit with a matching keyword (or Prayer of Soldier's Skill), abilities
   they grant (King's Roar, Kuran'zoi Prismscale) included. Brawny and Lucky Dog are offered after
   a failed test they apply to (both on one test): each loses 1d6 + level Stamina and improves the
@@ -216,9 +223,13 @@ random draws, and every ability shares the `use-ability` action.
 - **Abilities:** `use-ability` carries the tags `ability`, `usage.<usage>` and the ability's own
   keywords (`kw.*`), so a `params` effect can add a parameter to some abilities. Its power roll
   is tagged `power-roll.ability` (each target's banding `power-target`), and its damage `damage`
-  with the part `ability.damage`.
+  with the part `ability.damage`. A `potencyBonus` on the roll raises the potency against every
+  target; one on `power-target` against that target only.
+- **Barred abilities:** `abilities.barred` is a set of keywords (`kw.*` tags); an effect that
+  adds one (`kw.magic` for "can't use magic abilities") makes `use-ability` unavailable for
+  every ability with it.
 - **What a target shows an attacker:** `use-ability`'s targets are `creature` views: level,
-  characteristics, size, stability, Stamina (`stamina.current`, `stamina.max`, winded), the
+  characteristics, size, stability, whether it's flying (`flying`), Stamina (`stamina.current`, `stamina.max`, winded), the
   conditions with who frightens and who grabs it (`conditions.frightenedBy`,
   `conditions.grabbedBy`), the IDs of its `effect` content in effect (`effects.active`), its
   `side`, the Tactician's marks and the edges and banes against it. An add-on's ability reads
@@ -232,8 +243,12 @@ random draws, and every ability shares the `use-ability` action.
   the power roll caps and cancels them.
   - `powerRoll.edgesAgainst` and `powerRoll.banesAgainst`: on any ability roll.
   - `powerRoll.strikeEdgesAgainst` and `powerRoll.strikeBanesAgainst`: on strikes.
-  - `powerRoll.meleeStrikeEdgesAgainst`: on melee strikes.
-  - `powerRoll.edgesAgainstFor`: an edge for attackers whose `side` is in the set.
+  - `powerRoll.meleeStrikeEdgesAgainst` and `powerRoll.meleeStrikeBanesAgainst`: on melee
+    strikes.
+  - `powerRoll.rangedStrikeBanesAgainst`: on ranged strikes.
+  - `powerRoll.edgesAgainstFor`: an edge on any ability roll for attackers whose `side` or
+    creature ID is in the set (sides or creature IDs).
+  - `powerRoll.strikeEdgesAgainstFor`: the same, on strikes.
   - `powerRoll.nextStrikeEdgesAgainst`: on the next strike against it. That strike proposes
     removing, on the target, the applied entries whose content is tagged
     `ends.next-strike-against`, so the effect that gives these edges carries the tag.
