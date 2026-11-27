@@ -200,17 +200,21 @@ fields:
   abilities.rangeBonus.voidMagic: { type: integer, formula: 0 }
 
 effects:
-  # A kit's damage bonus for the tier each target got, on weapon abilities that deal damage.
+  # A kit's damage bonus for the tier each target got, on weapon abilities that deal damage. A
+  # tier with no bonus (a creature without a kit) adds no part, so it can't make a damage group
+  # of its own.
   - id: kit-melee-damage
     target: { rolls: [damage.kit-melee] }
     op: add
     value: '[kit.melee1, kit.melee2, kit.melee3][max(0, min(2, flags.tier - 1))]'
+    when: '[kit.melee1, kit.melee2, kit.melee3][max(0, min(2, flags.tier - 1))] > 0'
     tags:
       [{ formula: "roll.item.damageType == 'untyped' ? [] : ['damage.' + roll.item.damageType]" }]
   - id: kit-ranged-damage
     target: { rolls: [damage.kit-ranged] }
     op: add
     value: '[kit.ranged1, kit.ranged2, kit.ranged3][max(0, min(2, flags.tier - 1))]'
+    when: '[kit.ranged1, kit.ranged2, kit.ranged3][max(0, min(2, flags.tier - 1))] > 0'
     tags:
       [{ formula: "roll.item.damageType == 'untyped' ? [] : ['damage.' + roll.item.damageType]" }]
   # What each target brings to the power roll, on its own tier (`power-target`): an edge against
