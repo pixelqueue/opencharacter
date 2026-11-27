@@ -191,14 +191,18 @@ fields:
   abilities.barred: { type: set, of: string, formula: '[]' }
   # Edges and banes on ability rolls made against this creature (the `creature` view carries
   # them to the attacker): on any ability roll (Look!), banes on any (Blessing of Steel's aura),
-  # on strikes, on melee strikes, an edge for attackers of the sides listed, and edges on the
-  # next strike against it, which ends the effects tagged `ends.next-strike-against`.
+  # on strikes, on melee strikes, on ranged strikes, an edge for attackers of the sides or with
+  # the creature IDs listed (on any ability roll, or on strikes), and edges on the next strike
+  # against it, which ends the effects tagged `ends.next-strike-against`.
   powerRoll.edgesAgainst: { type: integer, formula: 0, min: 0 }
   powerRoll.banesAgainst: { type: integer, formula: 0, min: 0 }
   powerRoll.strikeEdgesAgainst: { type: integer, formula: 0, min: 0 }
   powerRoll.strikeBanesAgainst: { type: integer, formula: 0, min: 0 }
   powerRoll.meleeStrikeEdgesAgainst: { type: integer, formula: 0, min: 0 }
+  powerRoll.meleeStrikeBanesAgainst: { type: integer, formula: 0, min: 0 }
+  powerRoll.rangedStrikeBanesAgainst: { type: integer, formula: 0, min: 0 }
   powerRoll.edgesAgainstFor: { type: set, of: string, formula: '[]' }
+  powerRoll.strikeEdgesAgainstFor: { type: set, of: string, formula: '[]' }
   powerRoll.nextStrikeEdgesAgainst: { type: integer, formula: 0, min: 0 }
   # Bonuses to the distance of ranged abilities: any, magic, psionic, and void magic ones. An
   # area's bonus goes to its range ("within"), not its size.
@@ -278,11 +282,33 @@ effects:
     when: >-
       'kw.strike' in action.item.tags && 'kw.melee' in action.item.tags && flags.mode == 'melee'
         && participant.powerRoll.meleeStrikeEdgesAgainst > 0
+  - id: target-melee-strike-banes
+    target: { rolls: [power-target], tally: banes }
+    op: add
+    value: participant.powerRoll.meleeStrikeBanesAgainst
+    when: >-
+      'kw.strike' in action.item.tags && 'kw.melee' in action.item.tags && flags.mode == 'melee'
+        && participant.powerRoll.meleeStrikeBanesAgainst > 0
+  - id: target-ranged-strike-banes
+    target: { rolls: [power-target], tally: banes }
+    op: add
+    value: participant.powerRoll.rangedStrikeBanesAgainst
+    when: >-
+      'kw.strike' in action.item.tags && 'kw.ranged' in action.item.tags && flags.mode == 'ranged'
+        && participant.powerRoll.rangedStrikeBanesAgainst > 0
+  # An edge for the attacker's side, or for the attacker itself (its creature ID).
   - id: target-side-edge
     target: { rolls: [power-target], tally: edges }
     op: add
     value: 1
-    when: side in participant.powerRoll.edgesAgainstFor
+    when: side in participant.powerRoll.edgesAgainstFor || character.id in participant.powerRoll.edgesAgainstFor
+  - id: target-side-strike-edge
+    target: { rolls: [power-target], tally: edges }
+    op: add
+    value: 1
+    when: >-
+      'kw.strike' in action.item.tags && (side in participant.powerRoll.strikeEdgesAgainstFor
+        || character.id in participant.powerRoll.strikeEdgesAgainstFor)
   # The next strike against the target: its edges, and the strike ends the effects that gave them.
   - id: target-next-strike-edges
     target: { rolls: [power-target], tally: edges }
@@ -325,6 +351,7 @@ actions:
     tags: [ability, { formula: "'usage.' + item.usage" }, { formula: item.tags }]
     available: >-
       !stamina.dead && !(abilities.noTriggered && item.usage in ['triggered', 'free-triggered'])
+        && countList(item.tags, x in abilities.barred) == 0
         && (item.cost == 0 || item.id in abilities.free
         || (combat.active
           ? heroic.current - max(0, item.cost - (item.kind == 'heroic' && size(item.rollChars) > 0 ? abilities.edgeDiscount : 0)) >= heroic.min
@@ -351,7 +378,6 @@ actions:
     results: [used, unaffordable, tier1, tier2, tier3]
     steps:
       - id: setup
-        && countList(item.tags, x in abilities.barred) == 0
         kind: branch
         cases:
           - when: 'true'

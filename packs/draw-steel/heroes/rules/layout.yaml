@@ -242,6 +242,11 @@ display:
     stability: { groups: [summary, movement], priority: 1 }
     disengage: { groups: [movement], priority: 1, unit: squares }
     movement.types: { groups: [movement], priority: 1 }
+    flying:
+      groups: [movement]
+      priority: 1
+      input: { widget: checkbox }
+      showWhen: "'move.fly' in movement.types || flying"
 
     kit.stamina: { hidden: true }
     kit.speed: { hidden: true }
@@ -267,13 +272,16 @@ display:
     abilities.edgeDiscount: { hidden: true }
     abilities.free: { hidden: true }
     abilities.noTriggered: { hidden: true }
+    abilities.barred: { hidden: true }
     powerRoll.edgesAgainst: { hidden: true }
     powerRoll.banesAgainst: { hidden: true }
     powerRoll.strikeEdgesAgainst: { hidden: true }
     powerRoll.strikeBanesAgainst: { hidden: true }
     powerRoll.meleeStrikeEdgesAgainst: { hidden: true }
-    abilities.barred: { hidden: true }
+    powerRoll.meleeStrikeBanesAgainst: { hidden: true }
+    powerRoll.rangedStrikeBanesAgainst: { hidden: true }
     powerRoll.edgesAgainstFor: { hidden: true }
+    powerRoll.strikeEdgesAgainstFor: { hidden: true }
     powerRoll.nextStrikeEdgesAgainst: { hidden: true }
     abilities.rangeBonus: { hidden: true }
     abilities.rangeBonus.magic: { hidden: true }
