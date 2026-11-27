@@ -1,0 +1,20 @@
+description: "draw-steel-heroes: powerRoll.edgesAgainstSide.{side} and strikeEdgesAgainstSide.{side} give the attacker's side that many edges; the power roll caps them at a double edge"
+specVersion: 0.4.0
+call: startAction
+packs:
+  - path: ../../../../../../packs/draw-steel/heroes
+  - path: ../../../packs/test-draw-steel-foe
+input:
+  action:
+    {
+      id: draw-steel-heroes:use-ability,
+      entry: draw-steel-heroes-abilities-common-melee-weapon-free-strike,
+    }
+  participants:
+    target:
+      - { id: listed, values: { draw-steel-heroes:powerRoll.edgesAgainstFor: [director] } }
+      - { id: one, values: { draw-steel-heroes:powerRoll.edgesAgainstSide.director: 1 } }
+      - { id: two, values: { draw-steel-heroes:powerRoll.edgesAgainstSide.director: 2 } }
+      - { id: three, values: { draw-steel-heroes:powerRoll.edgesAgainstSide.director: 3 } }
+      - { id: strikes, values: { draw-steel-heroes:powerRoll.strikeEdgesAgainstSide.director: 2 } }
+      - { id: for-heroes, values: { draw-steel-heroes:powerRoll.edgesAgainstSide.heroes: 2 } }
