@@ -1,3 +1,5 @@
+# A creature grabbed this way takes a bane on the Escape Grab maneuver. The four-target limit, the
+# damage immunity against the creature's abilities and moving grabbed creatures are the table's.
 id: abilities.undead.bonecage.ribcage-chomp
 type: ability
 grantOnly: false
@@ -25,3 +27,12 @@ fields:
   t3Damage: 14
   t3AddsChar: false
   t3Condition: conditions.grabbed
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@effects.common.escape-grab-bane'
+          appliedBy: character.id
+    when: flags.landed

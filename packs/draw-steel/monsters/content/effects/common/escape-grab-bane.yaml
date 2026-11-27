@@ -1,0 +1,26 @@
+# "Takes a bane on the Escape Grab maneuver" (a double bane: `amount` 2) while the applier has the
+# creature grabbed, or any grab with `anyGrab`. Ends at a turn start once no such grab is left.
+id: effects.common.escape-grab-bane
+type: effect
+state:
+  amount: { type: integer, default: 1, min: 1 }
+  anyGrab: { type: boolean, default: false }
+effects:
+  - target: { rolls: [power-roll], tally: banes }
+    op: add
+    value: self.amount
+    scope: applied
+    when: >-
+      roll.item.id == @abilities.common.escape-grab
+        && (self.anyGrab ? conditions.grabbed : self.appliedBy in conditions.grabbedBy)
+  - target: { steps: [turn.start] }
+    op: changes
+    scope: applied
+    value:
+      changes:
+        - type: removeEffect
+          applied:
+            where: >-
+              item.id == @effects.common.escape-grab-bane && !self.anyGrab
+                && !(self.appliedBy in conditions.grabbedBy)
+    when: '!self.anyGrab && !(self.appliedBy in conditions.grabbedBy)'

@@ -1,4 +1,3 @@
-# Tier 3's bane on the Escape Grab maneuver is the table's.
 id: abilities.war-dog.war-dog-prismite.grasping-tonguetacles
 type: ability
 grantOnly: false
@@ -29,3 +28,12 @@ fields:
   t3PotencyValue: 4
   t3Move: pull
   t3MoveDistance: 2
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@effects.common.escape-grab-bane'
+          appliedBy: character.id
+    when: flags.tier == 3 && flags.landed
