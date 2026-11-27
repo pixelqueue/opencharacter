@@ -1,3 +1,6 @@
+# A target made bleeding this way who is already bleeding is instead knocked prone and can't stand
+# until the end of their next turn (the can't stand applied as the target's own, so 'next-end'
+# ends it then); the bleeding isn't withheld.
 id: abilities.undead.blood-starved-vampire.feeding-frenzy
 type: ability
 grantOnly: false
@@ -21,3 +24,16 @@ fields:
   t3Duration: eot
   t3PotencyChar: might
   t3PotencyValue: 4
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@conditions.prone'
+          appliedBy: character.id
+        - type: applyEffect
+          source: '@effects.common.cant-stand'
+          state: { duration: "'next-end'" }
+          appliedBy: participant.id
+    when: flags.tier == 3 && flags.landed && participant.conditions.bleeding

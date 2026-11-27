@@ -1,3 +1,4 @@
+# The retainer is dazed until the end of their next turn.
 id: abilities.retainer.role-brute.dizzying-sweep
 type: ability
 grantOnly: false
@@ -29,3 +30,12 @@ fields:
     - reason
     - intuition
     - presence
+effects:
+  - target: { steps: [ability.after], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@conditions.dazed'
+          state: { duration: "'next-end'" }
+          appliedBy: character.id

@@ -1,4 +1,5 @@
-# Not communicating after an edge is the table's.
+# With an edge or a double edge (on that target's roll), the target can't communicate until the end
+# of their next turn (applied as the target's own, so 'next-end' ends it then).
 id: abilities.hobgoblin.hobgoblin-smokebinder.choking-bolt
 type: ability
 grantOnly: false
@@ -23,3 +24,13 @@ fields:
   t3Duration: save
   t3PotencyChar: reason
   t3PotencyValue: 3
+effects:
+  - target: { steps: [ability.hit], from: self }
+    op: changes
+    value:
+      changes:
+        - type: applyEffect
+          source: '@effects.hobgoblin.cant-communicate'
+          state: { duration: "'next-end'" }
+          appliedBy: participant.id
+    when: flags.tier > 0 && steps.tier.tallies.edges > steps.tier.tallies.banes

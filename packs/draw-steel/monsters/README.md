@@ -113,7 +113,10 @@ computeSheet(ruleset, made.character).values['draw-steel-heroes:stamina.max']?.v
   (`ongoing-damage`). The common ones are shared (`effects.common.*`); edges and banes against a
   creature (illuminated, marked) use the heroes pack's fields, an edge only the creature that
   applied it gains (thunderstruck) puts that creature's ID in `edgesAgainstFor`, and an effect with
-  two conditions ("prone and can't stand") grants them, one entry and one saving throw.
+  two conditions ("prone and can't stand") grants them, one entry and one saving throw. An effect
+  "until the end of the target's next turn" is applied as the target's own, so the heroes pack's
+  turn boundary ends it then; frightened, taunted and grabbed keep their source instead, so theirs
+  is the table's.
 
 ## Monsters
 
