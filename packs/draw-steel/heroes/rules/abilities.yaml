@@ -186,6 +186,9 @@ fields:
   abilities.free: { type: set, of: ability, formula: '[]' }
   # The hero can't use triggered actions (dazed, an Entropy Ward's attacker, Smolder's strain).
   abilities.noTriggered: { type: boolean, formula: conditions.dazed }
+  # Keywords (`kw.*` tags) the creature can't use abilities with right now: an effect adds
+  # `kw.magic` for "can't use magic abilities".
+  abilities.barred: { type: set, of: string, formula: '[]' }
   # Edges and banes on ability rolls made against this creature (the `creature` view carries
   # them to the attacker): on any ability roll (Look!), banes on any (Blessing of Steel's aura),
   # on strikes, on melee strikes, an edge for attackers of the sides listed, and edges on the
@@ -348,6 +351,7 @@ actions:
     results: [used, unaffordable, tier1, tier2, tier3]
     steps:
       - id: setup
+        && countList(item.tags, x in abilities.barred) == 0
         kind: branch
         cases:
           - when: 'true'
