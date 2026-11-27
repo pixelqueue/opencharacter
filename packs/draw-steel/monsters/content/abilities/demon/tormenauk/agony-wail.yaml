@@ -1,4 +1,4 @@
-# The potency 1 higher against a target the tormenauk has grabbed is the table's.
+# The potency is 1 higher against a target the tormenauk has grabbed (that target's own tier).
 id: abilities.demon.tormenauk.agony-wail
 type: ability
 grantOnly: false
@@ -31,3 +31,8 @@ fields:
   t3Duration: save
   t3PotencyChar: intuition
   t3PotencyValue: 3
+effects:
+  - target: { rolls: [power-target], tally: potencyBonus, from: self }
+    op: add
+    value: 1
+    when: character.id in participant.conditions.grabbedBy
