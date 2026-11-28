@@ -39,7 +39,9 @@ Each engine library (the TypeScript reference engine and community ports) has it
    A dependency range on a bumped pack (a homebrew's or test pack's `dependencies`, in test cases,
    characters and docs) that the new version no longer satisfies becomes its caret range
    (`^0.1.0` → `^0.2.0`); one it still satisfies stays. An official pack's own range is part of
-   its release, so the sync only warns about it: that pack needs its own changeset.
+   its release: it moves when the same step bumps that pack too (an add-on released with the
+   pack it needs), and otherwise the sync only warns about it, since that pack needs its own
+   changeset.
    The spec version is always the `@opencharacter/spec` package version, so it then moves
    `SPEC_VERSION` (and with it `SCHEMA_BASE`), every `schemas/<major.minor>/` in schema `$id`s
    and links (schemas, docs, apps and tests), and the docs' statements of the current version

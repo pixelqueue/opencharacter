@@ -372,6 +372,34 @@ export function syncDependencyRanges(root: string, files: string[], bumps: PackB
   return changed;
 }
 
+/**
+ * An official pack's own dependency ranges (`pack.yaml`) that a bump leaves. A pack this version
+ * step also bumps releases with the new range, so its range moves; any other pack's needs its own
+ * changeset, so it is only reported. Returns both lists of files.
+ */
+export function syncPackRanges(
+  root: string,
+  manifests: string[],
+  bumps: PackBump[],
+): { moved: string[]; stale: string[] } {
+  const released = new Set(bumps.map((b) => b.id));
+  const moved: string[] = [];
+  const stale: string[] = [];
+  for (const file of manifests) {
+    const path = join(root, file);
+    if (!existsSync(path)) continue;
+    const text = readFileSync(path, 'utf8');
+    const next = bumpDependencyRanges(text, bumps);
+    if (next === text) continue;
+    const id = /^id: *(\S+)/m.exec(text)?.[1];
+    if (id && released.has(id)) {
+      writeFileSync(path, next);
+      moved.push(file);
+    } else stale.push(file);
+  }
+  return { moved, stale };
+}
+
 export interface SpecBump {
   from: string;
   to: string;

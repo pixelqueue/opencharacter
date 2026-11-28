@@ -13,6 +13,7 @@ import {
   publishedFromGit,
   releaseCheck,
   syncDependencyRanges,
+  syncPackRanges,
   syncPackVersions,
   syncPinnedVersions,
   syncSpecVersion,
@@ -407,6 +408,32 @@ describe('syncDependencyRanges', () => {
     expect(changed).toEqual([]);
     for (const [name, [before]] of Object.entries(files)) expect(read(name)).toBe(before);
     done();
+  });
+});
+
+describe('syncPackRanges', () => {
+  const addon = 'id: test-addon\nversion: 0.1.1\ndependencies:\n  test-demo: ^0.1.0\n';
+  const other = 'id: test-other\nversion: 0.1.0\ndependencies:\n  test-demo: ^0.1.0\n';
+  const fine = 'id: test-fine\nversion: 0.1.0\ndependencies:\n  test-demo: ">=0.1.0"\n';
+
+  it('moves the range of a pack released in the same step and reports the others', () => {
+    const dir = mkdtempSync(join(tmpdir(), 'ocf-pack-ranges-'));
+    writeFileSync(join(dir, 'addon.yaml'), addon);
+    writeFileSync(join(dir, 'other.yaml'), other);
+    writeFileSync(join(dir, 'fine.yaml'), fine);
+    const result = syncPackRanges(
+      dir,
+      ['addon.yaml', 'other.yaml', 'fine.yaml'],
+      [
+        { id: 'test-demo', from: '0.1.0', to: '0.2.0' },
+        { id: 'test-addon', from: '0.1.0', to: '0.1.1' },
+      ],
+    );
+    expect(result).toEqual({ moved: ['addon.yaml'], stale: ['other.yaml'] });
+    expect(readFileSync(join(dir, 'addon.yaml'), 'utf8')).toBe(addon.replace('^0.1.0', '^0.2.0'));
+    expect(readFileSync(join(dir, 'other.yaml'), 'utf8')).toBe(other);
+    expect(readFileSync(join(dir, 'fine.yaml'), 'utf8')).toBe(fine);
+    rmSync(dir, { recursive: true, force: true });
   });
 });
 

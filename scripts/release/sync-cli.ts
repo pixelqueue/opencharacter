@@ -5,9 +5,9 @@ import { fileURLToPath } from 'node:url';
 import { SPEC_VERSION } from '../../packages/spec/src/index.ts';
 import { buildPacks } from '../build/index.ts';
 import {
-  bumpDependencyRanges,
   pinFiles,
   syncDependencyRanges,
+  syncPackRanges,
   syncPackVersions,
   syncPinnedVersions,
   syncSpecVersion,
@@ -34,18 +34,18 @@ if (bumps.length === 0) {
       ? `dependency ranges updated in ${ranges.length} file(s).`
       : 'no dependency ranges to update.',
   );
-  // An official pack's own range is part of its release: it needs its own changeset.
+  // An official pack's own range is part of its release: it moves when this step bumps that
+  // pack too, and otherwise needs its own changeset.
   const manifests = execFileSync('git', ['ls-files', '--', 'packs/*/*/pack.yaml'], {
     cwd: root,
     encoding: 'utf8',
   })
     .split('\n')
     .filter(Boolean);
-  for (const file of manifests) {
-    const text = readFileSync(join(root, file), 'utf8');
-    if (bumpDependencyRanges(text, bumps) !== text) {
-      console.warn(`${file}: a dependency range excludes the new version; add a changeset.`);
-    }
+  const own = syncPackRanges(root, manifests, bumps);
+  for (const file of own.moved) console.log(`${file}: dependency range moved with its release.`);
+  for (const file of own.stale) {
+    console.warn(`${file}: a dependency range excludes the new version; add a changeset.`);
   }
 }
 // Before the spec version moves: the validator checks example characters against SPEC_VERSION.
