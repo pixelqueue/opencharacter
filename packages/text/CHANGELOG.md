@@ -1,5 +1,21 @@
 # @opencharacter/text
 
+## 0.4.1
+
+### Patch Changes
+
+- bfc48e1: Depends on @formatjs/icu-messageformat-parser 3.5.23.
+- 85bb4cf: Depends on intl-messageformat 12.1.5.
+- 96965b6: Depends on intl-messageformat 12.2.1.
+- 5a560a8: A tag the item's pack doesn't name, such as a core's keyword on an add-on's ability, is named by the pack that declares it instead of showing its raw ID: through the item pack's dependencies first, given `scopes` (`ruleset.packs`), then any other pack (#281).
+- Updated dependencies [418f1ea]
+- Updated dependencies [2c91d57]
+- Updated dependencies [f399710]
+- Updated dependencies [f754196]
+- Updated dependencies [5a560a8]
+- Updated dependencies [5e4b283]
+  - @opencharacter/spec@0.4.1
+
 ## 0.4.0
 
 ### Minor Changes

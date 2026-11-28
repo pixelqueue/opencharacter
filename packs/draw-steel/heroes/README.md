@@ -31,9 +31,9 @@ const { ruleset } = loaded;
 
 // A random hero: every pick drawn.
 const blank = {
-  specVersion: '0.4.0',
+  specVersion: '0.4.1',
   id: 'hero',
-  packs: [{ id: 'draw-steel-heroes', version: '0.1.1' }],
+  packs: [{ id: 'draw-steel-heroes', version: '0.2.0' }],
   creating: true,
 };
 const run = startAction(ruleset, blank, {

@@ -1,5 +1,13 @@
 # @opencharacter/web-editor
 
+## 0.1.5
+
+### Patch Changes
+
+- Updated dependencies [5a560a8]
+- Updated dependencies [c25c342]
+  - @opencharacter/engine@0.4.1
+
 ## 0.1.4
 
 ### Patch Changes

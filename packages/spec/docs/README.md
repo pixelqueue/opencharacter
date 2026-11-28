@@ -1,6 +1,6 @@
 # Open Character Format: specification
 
-**Spec version 0.4.0.** The shapes are in place and are exercised by the official packs of a dozen games. The formula language and engine behavior (the core calls, actions and upgrades) are specified, and the shared test suite covers every call. Parts that are not final are marked **PROVISIONAL** or **PLACEHOLDER**.
+**Spec version 0.4.1.** The shapes are in place and are exercised by the official packs of a dozen games. The formula language and engine behavior (the core calls, actions and upgrades) are specified, and the shared test suite covers every call. Parts that are not final are marked **PROVISIONAL** or **PLACEHOLDER**.
 
 OCF is an open format for tabletop RPG character data. The spec covers three layers:
 

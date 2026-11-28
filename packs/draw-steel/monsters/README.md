@@ -30,11 +30,11 @@ const { ruleset } = loaded;
 
 // A squad of six goblin spinecleavers: one sheet, one Stamina pool.
 const blank = {
-  specVersion: '0.4.0',
+  specVersion: '0.4.1',
   id: 'spinecleavers',
   packs: [
-    { id: 'draw-steel-heroes', version: '0.1.1' },
-    { id: 'draw-steel-monsters', version: '0.1.0' },
+    { id: 'draw-steel-heroes', version: '0.2.0' },
+    { id: 'draw-steel-monsters', version: '0.1.1' },
   ],
   creating: true,
 };

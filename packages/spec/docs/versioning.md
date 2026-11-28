@@ -4,7 +4,7 @@ There are three separate version numbers.
 
 ## 1. The spec
 
-The spec covers formats, operations, dice modifiers and engine behavior. The current version is **0.4.0**, which is pre-1.0: anything may still change.
+The spec covers formats, operations, dice modifiers and engine behavior. The current version is **0.4.1**, which is pre-1.0: anything may still change.
 
 From 1.0:
 

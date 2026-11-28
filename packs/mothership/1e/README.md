@@ -32,7 +32,7 @@ const { ruleset } = loaded;
 
 // A random character: stats, saves, a class, health, skills and credits, all rolled.
 const blank = {
-  specVersion: '0.4.0',
+  specVersion: '0.4.1',
   id: 'okafor',
   packs: [{ id: 'mothership-1e', version: '0.3.0' }],
   creating: true,

@@ -30,7 +30,7 @@ const loaded = loadRuleset([morkBorg]);
 if (!loaded.ok) throw new Error(JSON.stringify(loaded.errors));
 
 const scvm: CharacterFile = {
-  specVersion: '0.4.0',
+  specVersion: '0.4.1',
   id: 'scvm',
   packs: [{ id: 'mork-borg-core', version: '0.3.0' }],
   values: { 'mork-borg-core:abilities.strength': 1 },
