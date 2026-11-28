@@ -31,7 +31,7 @@ const { ruleset } = loaded;
 
 // A new scoundrel: the random start draws every pick.
 const blank = {
-  specVersion: '0.4.0',
+  specVersion: '0.4.1',
   id: 'new-scoundrel',
   packs: [{ id: 'fitd-scoundrel', version: '0.3.1' }],
   creating: true,

@@ -31,7 +31,7 @@ const { ruleset } = loaded;
 
 // A random survivor: every roll and pick made by the engine.
 const blank = {
-  specVersion: '0.4.0',
+  specVersion: '0.4.1',
   id: 'survivor',
   packs: [{ id: 'awn-core', version: '0.3.0' }],
   creating: true,

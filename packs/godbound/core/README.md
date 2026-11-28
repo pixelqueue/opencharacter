@@ -32,7 +32,7 @@ const { ruleset } = loaded;
 
 // A random hero: rolled attributes, three Words, six points of gifts, armor and a weapon.
 const blank = {
-  specVersion: '0.4.0',
+  specVersion: '0.4.1',
   id: 'hero',
   packs: [{ id: 'godbound-core', version: '0.3.0' }],
   creating: true,

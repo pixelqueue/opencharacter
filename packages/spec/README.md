@@ -5,7 +5,7 @@ the written spec, JSON Schemas, fixed sets, standard text and the shared conform
 It is for anyone implementing OCF: engine ports in other languages, validators, and apps that
 check pack or character files. It is language-neutral; the TypeScript helpers are a convenience.
 
-Spec version **0.4.0**.
+Spec version **0.4.1**.
 
 ## Install
 
@@ -25,7 +25,7 @@ const ajv = new Ajv2020({ strict: false });
 for (const schema of loadSchemas().values()) ajv.addSchema(schema);
 const validate = ajv.getSchema('https://opencharacterformat.org/schemas/0.4/character.schema.json');
 const character = {
-  specVersion: '0.4.0',
+  specVersion: '0.4.1',
   id: 'x',
   packs: [{ id: '5e-srd-5.1', version: '0.4.0' }],
 };

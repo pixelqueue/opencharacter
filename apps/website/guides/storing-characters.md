@@ -7,7 +7,7 @@ you; this page covers what has to survive the trip.
 ## What's in a character file
 
 ```yaml
-specVersion: 0.4.0
+specVersion: 0.4.1
 id: 7d1c2f4e-5b0a-4c39-9a51-2f7e8a6b3c10
 packs: # exact pack versions, in load order
   - { id: 5e-srd-5.1, version: 0.4.0 }
@@ -205,7 +205,7 @@ pin: one character, a roster, or linked characters (a crew and its scoundrels, a
 file ([Characters](../../../packages/spec/docs/characters.md#exports)):
 
 ```yaml
-specVersion: 0.4.0
+specVersion: 0.4.1
 characters: [...] # whole character files
 packs:
   # A reference: the receiving app supplies it.

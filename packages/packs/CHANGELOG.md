@@ -1,5 +1,23 @@
 # @opencharacter/packs
 
+## 0.7.0
+
+### Minor Changes
+
+- f754196: Add the `draw-steel-monsters` pack (Draw Steel: Monsters, published under the DRAW STEEL Creator License, an add-on to `draw-steel-heroes`) to the bundle.
+
+  The spec's conformance suite gains `draw-steel-monster-*` cases for the pack's patterns: edges against a creature, composite effects, the target's view, next-turn durations, per-tier and per-use damage types, forced movement without a roll, Malice features as abilities and either-or tests.
+
+### Patch Changes
+
+- Updated dependencies [5a560a8]
+- Updated dependencies [418f1ea]
+- Updated dependencies [2c91d57]
+- Updated dependencies [f399710]
+- Updated dependencies [f754196]
+  - @opencharacter/draw-steel-heroes@0.2.0
+  - @opencharacter/draw-steel-monsters@0.1.1
+
 ## 0.6.0
 
 ### Minor Changes

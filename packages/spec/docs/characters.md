@@ -20,7 +20,7 @@ Derived values are **never** saved, so a character can never disagree with the r
 ## Structure
 
 ```yaml
-specVersion: 0.4.0
+specVersion: 0.4.1
 id: 7f1c... # unique within the app or campaign, or a URL to make it global
 packs: # exact versions, in load order
   - { id: 5e-srd-5.1, version: 0.4.0 }
@@ -216,7 +216,7 @@ weapon, a custom skill or feat, a table's own special ability. It is a small pac
 to the character, so the character file stays self-contained when it is shared.
 
 ```yaml
-specVersion: 0.4.0
+specVersion: 0.4.1
 id: example-mothership-reyes
 packs:
   - { id: mothership-1e, version: 0.3.0 }
@@ -293,10 +293,10 @@ and its scoundrels, a companion) in one file. It carries only data: no engine, s
 conforming engine runs any pack, and no sheet, which is derived.
 
 ```yaml
-specVersion: 0.4.0
+specVersion: 0.4.1
 characters: # one or more character files, extensions and homebrew included
-  - { specVersion: 0.4.0, id: https://example.com/characters/vex, packs: [...], ... }
-  - { specVersion: 0.4.0, id: https://example.com/characters/the-ravens, ... } # linked
+  - { specVersion: 0.4.1, id: https://example.com/characters/vex, packs: [...], ... }
+  - { specVersion: 0.4.1, id: https://example.com/characters/the-ravens, ... } # linked
 packs: # every pack version a character pins, once each
   # By reference: the receiving app supplies it. `url` and `integrity` are optional.
   - id: fitd-scoundrel

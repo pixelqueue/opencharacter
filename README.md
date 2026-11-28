@@ -23,7 +23,7 @@
 <p align="center">
   <a href="https://github.com/pixelqueue/opencharacter/actions/workflows/ci.yml"><img src="https://github.com/pixelqueue/opencharacter/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
   <a href="https://www.npmjs.com/package/@opencharacter/engine"><img src="https://img.shields.io/npm/v/@opencharacter/engine?label=engine" alt="npm"></a>
-  <a href="https://opencharacterformat.org/spec/"><img src="https://img.shields.io/badge/spec-0.4.0-61578c" alt="Spec 0.4.0"></a>
+  <a href="https://opencharacterformat.org/spec/"><img src="https://img.shields.io/badge/spec-0.4.1-61578c" alt="Spec 0.4.1"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-61578c" alt="Apache 2.0"></a>
 </p>
 

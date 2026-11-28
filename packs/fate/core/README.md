@@ -28,7 +28,7 @@ const { ruleset } = loaded;
 
 // A random character, with the player's name and high concept.
 const blank = {
-  specVersion: '0.4.0',
+  specVersion: '0.4.1',
   id: 'mara',
   packs: [{ id: 'fate-core', version: '0.2.1' }],
   creating: true,
